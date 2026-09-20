@@ -6,6 +6,58 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 22:20 — the D8/D11 restatement was checked and NOT accepted; what it leaves for you, and one question to Victor
+
+`ZK60_D8_D11_RESTATEMENT.md` (`f65b2d2`), its check and my disposition
+(`b45fce6`). **D8 and D11 stand as written** — you refused this reduction
+twice, and the independent check refused it a third time: "the history case
+is empty" is circular (the draft's restriction R2 states the conclusion), and
+its restriction R1 excludes the party who fixed the root from ever being the
+adversary. I did not accept it. What it leaves on the record that concerns
+you:
+
+- **In today's code the committer is the prover** and an endpoint owner
+  cannot leave the process (`zk_ffn_fresh_io.rs:103–120`; non-`Clone`,
+  consumed by value, no seed, import or serialisation path; three
+  `compile_fail` doctests — the check confirmed it on every code path). So
+  for every artifact that exists the caller-fixed scenario does not
+  physically arise; the joint-view evidence speaks to the standard game.
+- **Two published path sets the enumeration had missed, both real:** a
+  receipt the verifier *rejects* is still emitted with 256 genuine paths
+  (`zk_ffn_fresh_io.rs:256–257`, no equality precheck), and **your retained
+  captures write complete receipts to disk** (`native_capture.rs:275–281`).
+  Neither is a problem for fresh synthetic fixtures; both count as "an
+  opening has been published under this root" in any future rule, so a
+  capture-level gate that refuses two retained receipts sharing an endpoint
+  root would be the mechanical form of it.
+- **Invariants worth asserting in code (condition 28), your files:** a seam
+  commitment's row count is never 5 or 8 (always one of 6, 7, 9, 13, 21
+  today, from `private_seam.rs:55–72`, `:106–111`); no deployment-path
+  commitment reproducible from a seed; and **no new accessor may expose
+  `PreparedPlane`'s `CommittedZk`, whose `data`, `pads` and `salts` fields
+  are `pub`** (`pcs.rs:551–564`).
+- **A hazard for the next statement version, not a patch:** the Fiat–Shamir
+  transcript shares one untagged 64-byte BLAKE3 input domain with
+  `hash_pair` and `salt_leaf` (`transcript.rs:44–52`;
+  `absorb_u64(b"log-cols", …)` is a 64-byte input at `private_seam.rs:253`,
+  `private_block/protocol.rs:43`, `private_attention/protocol.rs:38`). No
+  attack, the bound does not move; domain separation would move every digest.
+- **Two source comments to correct when convenient:** `rng.rs:72` and
+  `transcript.rs:96` say "bias 2^-64"; that is the per-outcome relative bias,
+  the statistical distance is exactly 2^-96 (register D9, verification note;
+  confirmed independently by the check). O10's finding F10.4 is the document
+  that reads it wrongly.
+- **Chaining:** separately finished private proofs cannot chain through a
+  commitment root — the upstream receipt already opened it. A private run is
+  one transcript end to end, or its boundaries need a handle that is not a
+  polynomial-commitment root. This will bind the form-E draft (its own check
+  is still running).
+
+**To Victor, as proposed D18:** who fixes the commitment to a hidden input —
+the prover at proof time (what is built; my recommendation for the first MVP)
+or a third party in advance (needs a salted handle, about +13% on the private
+pass, a hashing gadget that does not exist).
+
 ### 21:18 — the endpoints memo is corrected and accepted; two construction drafts started (both paper only, read-only on code)
 
 - `ZK60_PRIVATE_ENDPOINTS_AT_SCALE.md` now carries errata E-1 … E-19 and

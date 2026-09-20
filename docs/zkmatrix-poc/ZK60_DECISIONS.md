@@ -27,6 +27,7 @@ back. Keep this file short enough to read in five minutes.
 | D15 | The custom line's "106 bits" is a per-opening figure; the projected whole 8B proof is about 94 bits. Every model-scale security statement quotes the whole-proof figure | **technical clarification**; the whole-proof target itself is a ruling still to be put to Victor | 2026-09-19 | Security owner (Fable), from `ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5 and the D14 memo |
 | D16 | Before the private block's norm is widened toward real-model widths, its denominator and the two isqrt witnesses keep a direct byte-limb range pin sized to the new maximum, at most four limbs each, with an exact remainder window | **construction rule (precondition for widening; soundness)** | 2026-09-19 | Security owner (Fable), from the norm range lane |
 | D17 | Hiding endpoints beyond the tiny shape: the whole hidden plane is bound at every width (the batched multi-block seam, unconditional); the tiny private-IO path stays byte-frozen and new entry points are additive; a feed-forward-only private pass is a cost vehicle, never P1 | **construction rule (soundness) and a naming rule** | 2026-09-19 | Security owner (Fable), from the endpoints-at-scale draft and its independent check |
+| D18 | Who fixes the commitment to a hidden input: the prover at proof time (recommended for the first MVP; it is what is built), or a third party in advance (needs a sealed handle that is not a polynomial-commitment root, about +13% on the private pass, not built) | **proposed — Victor to rule** | put 2026-09-19 | Security owner (Fable), from the D8/D11 restatement and its check |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -554,6 +555,51 @@ soundness moves by 0.03 bit. **What it does not do:** it establishes no
 privacy property and leaves D8 and D11 exactly where they were. Ruling and
 the 19 binding errata:
 `ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md`.
+
+## D8/D11 — note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands
+
+A delegated draft restated the obligation as a game and recommended
+discharging part of it by restricting it to endpoint roots "first published
+together with the proof that consumes them". An independent check, told that
+the last confident closure was retracted within days, found the reduction
+**circular** (its own restriction assumes the conclusion) and found that it
+**excludes the party who fixed the root from ever being the adversary** — and a
+regulator who seals an input in advance is exactly that party. The security
+owner did not accept it. **D8 and D11 stand as written.** What is now on the
+record (`ZK60_D8_D11_RESTATEMENT_DISPOSITION.md`): in today's code the
+committer **is** the prover and an endpoint owner cannot leave the process, so
+for every artifact that exists the caller-fixed scenario does not physically
+arise and the standard game applies; a commitment opened twice is dead at this
+geometry, so one opening per commitment must be kept everywhere and a verifier
+cannot check that from the bytes; **separately finished private proofs cannot
+be chained through a commitment root** (the upstream receipt already opened
+it); a caller-fixed **salted handle** (as the zkVM line uses under D7) would
+close every case for about +5.5% on the public pass and +12.6% on the private
+one [COUNTED; no gadget exists]; and the Fiat–Shamir transcript shares one
+untagged 64-byte hash domain with the Merkle and leaf hashes, which any
+argument that programs the oracle must face.
+
+## D18 — Who fixes the commitment to a hidden input (proposed 2026-09-19; Victor to rule)
+
+**In plain words.** A private proof refers to its hidden input through a
+sealed commitment. Either the **prover** seals it at the moment it proves, and
+the seal appears for the first time inside the receipt; or **someone else**
+seals it in advance — a regulator fixes an input today and asks for a proof
+about it tomorrow. Everything built so far does the first. The open
+obligations D8 and D11 are about the second: whoever sealed the input holds
+its randomness, and the project's simulation argument cannot treat that party
+as an outsider.
+
+**The recommendation put to Victor.** For the first MVP, **the prover seals**:
+it is what exists, it needs nothing new, and D13 already scopes the MVP to the
+hidden blocks. The receipt then says "the approved model ran on some hidden
+input and produced some hidden output, both sealed here", and anyone later
+given an input with its randomness can check it against the seal. **Sealing in
+advance by a third party becomes the next milestone's requirement**, built
+with a salted handle that is not a polynomial-commitment root (about +13% on
+the private pass; a hashing gadget that does not exist yet) — the same handle
+that chaining separately finished proofs would need. **This does not close D8
+or D11; it says which product they bind.**
 
 ## D13 — What the first MVP must prove (decided 2026-09-19)
 
