@@ -177,6 +177,57 @@ path was refused only deep inside the core verifier, as a Merkle mismatch
 after hashing; now the lane refuses it by name before any hashing, from the
 same single source of depth the wire format uses.
 
+## 2b. The tag is built (stage 17, reviewed by me at 15:50, 2026-09-20)
+
+`zk60-private-block-125m` at `9ded619`, pushed. Shared-file commits apart from
+lane commits: `d2e5988` (zkp-core) and `7de6ea1` (hashline); no lane file in
+either.
+
+**What I checked myself.** The per-file line counts of the shared change:
+additions only in six files (`hashtag.rs` new, `lib.rs` +5, `merkle.rs` +76,
+`zkp-core/pcs.rs` +444, `hashline/pcs.rs` +13, `zk.rs` +105), and **four
+changed lines in `transcript.rs`, which I read one by one**: the struct
+literal in `new` gains `key: None`; `absorb` and `squeeze_bytes` build their
+hasher from the optional key (with `None` it is the identical
+`blake3::Hasher::new()`); `clone_state` copies the key, so the run's position
+tags — squeezed from a discarded clone — stay in the keyed function. A unit
+test recomputes the legacy transcript by hand and pins it. The tag type is
+opaque (a private enum inside a struct; `legacy()`, `for_profile()`, four
+read-only accessors). The new commit function declines the accelerator when a
+column key is set, commented as a temporary CPU fallback; the new verifier
+refuses a path of the wrong length. The still-forbidden files are untouched.
+Logs read: filter `private_` 214 passed, none failing (was 208); `zkp-core` 50
+passed; the legacy-side filters (`pcs`, `merkle`, `transcript`, `mask`, `zk::`)
+all passing; warnings unchanged at 13; receipt sizes unmoved (2,816,472 /
+4,218,264 / 4,234,648 / 40,782,792).
+
+**What the lane reports and I did not re-derive**: the eight keys agree between
+the Rust crate and the Python module and are pinned as hex; in both cross-rule
+directions the first refusal is Fiat–Shamir (a sumcheck round check in slot
+0), as the integrator predicted, and at the isolated commitment layer it is
+the Merkle refusal by name; a tagged run offered to a legacy-rule run verifier
+is refused as another run's segment.
+
+**Rulings on its two recorded deviations and one finding.**
+- *A run is keyed under its shape's keys, not under its own run profile
+  string* — **accepted.** A block inside a run is hashed exactly as a
+  standalone block of that shape (so the privacy tools' per-block ports are
+  reused unchanged), and the run is separated from a single-block proof by its
+  own domain string, absorbed first under the transcript key. D19's purpose is
+  to separate the transcript, column, leaf and node functions; that holds.
+  Register entry D19a is worded accordingly.
+- *The shape-free half of the legacy length guard still fires on tagged
+  endpoints and boundaries* — **to be fixed in stage 18** (the guard applies
+  under the legacy rule only), as the integrator asked.
+- *Finding S17-F1: three Python tests in the repository pin the SHA-256 of
+  Rust sources that this change moved* (`zk.rs`, `zkp-core/pcs.rs`,
+  `zkp-core/transcript.rs`). The lane rightly did not re-pin. **Ruling: the
+  change preserves what those analyses concluded** — two of the three files
+  gained lines and lost none, and the third changed four lines that are the
+  identical call under the legacy rule, pinned by a test. The pins move at
+  integration, with both hashes kept and this paragraph cited, together with
+  whatever the integrator's own candidate moves in the same files.
+
 ## 3. What this is not
 
 Not a privacy or soundness acceptance of anything. It changes nothing in D22.
