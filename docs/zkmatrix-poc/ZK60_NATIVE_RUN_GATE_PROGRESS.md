@@ -126,3 +126,39 @@ closures at the rung, which closes the largest OPEN channel; (2) generalise
 CONSTRUCTED rather than OPEN; (3) the run-wide preimage as one joint object.
 Also for the orchestrator: refresh the stale committed `privacy_gate.json`
 (finding 5).
+
+---
+
+# Round 2 — the PLANE INDEX TABLE and the per-slot terminal identity
+
+**Opened 2026-09-20 14:10 PDT**, same lane, same sole writer. Stage 15 of
+the Rust lane added `run.json["plane_index"]` (the one field finding 4 asked
+for) and wrote two NEW bundles that carry it: `run-c-tame` and `run-d-zero`
+in the same read-only directory. `run-a-tame` / `run-b-zero` predate it and
+are four *different* runs, not the same run with a field added.
+
+Goal of this round: take item (1) of NEXT — read and integrity-check the
+table, then CLOSE, as far as it honestly goes, the per-slot terminal
+identity at the run's shape. A partial, per-slot, honest closure is the
+target; whatever cannot be ported faithfully stays OPEN *per slot* with a
+precise reason.
+
+## R2.0 Stages
+
+| # | item | state |
+|---|---|---|
+| T0 | this skeleton; baseline recorded | done |
+| T1 | plane-index loader + integrity (`zk60_native_rg_planes.py`); old bundle still loads, channel still OPEN, with a test | todo |
+| T2 | the per-slot terminal identity at the rung (`zk60_native_rg_terminals.py`): recompute each slot's terminal polynomial from the captured terminals and compare with the sumcheck's final claim | todo |
+| T3 | four controls: (a) perturbed terminal, (b) swapped plane list entries, (c) a slot re-pointed at a same-size plane, (d) an old bundle → OPEN not passed | todo |
+| T4 | the whole gate on `run-c-tame` + `run-d-zero`, evidence in `results/zk60_native_run_gate_planeindex/`; old bundles re-run unchanged | todo |
+| T5 | tests for T1–T3; the whole native suite re-run and counted | todo |
+| T6 | a dated section in `ZK60_NATIVE_RUN_GATE.md`: what is checked per slot, what stays OPEN and why, the recounted channel table | todo |
+
+## R2.1 Rules kept
+
+Same as round 1, plus: the toy gates' modules are pinned by
+`tests/test_zk60_native_gate_record.py` against their committed records —
+none of their bytes are touched. Everything new is a `zk60_native_rg_*.py`
+module. NEVER mark a slot checked unless the identity was actually
+evaluated and compared for it.
