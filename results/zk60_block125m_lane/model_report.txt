@@ -1,0 +1,114 @@
+==============================================================================
+Independent shape-driven layout model of the private block
+==============================================================================
+
+-- 1. TOY REPRODUCTION (the model means nothing unless this is exact) --
+  OK  a_data_rows                  model                          213   rust                          213
+  OK  a_rows                       model                          455   rust                          455
+  OK  h_data_rows                  model                          280   rust                          280
+  OK  h_rows                       model                          384   rust                          384
+  OK  m_rows                       model                           50   rust                           50
+  OK  a_sites                      model                          120   rust                          120
+  OK  h_sites                      model                           51   rust                           51
+  OK  a_groups                     model                           35   rust                           35
+  OK  h_groups                     model                            9   rust                            9
+  OK  n_slots                      model                           23   rust                           23
+  OK  functionals                  model                           34   rust                           34
+  OK  a_planes                     model                           81   rust                           81
+  OK  h_planes                     model                           51   rust                           51
+  OK  per_domain_u8                model [1024, 19456, 4608, 6656, 3072, 26624]   rust [1024, 19456, 4608, 6656, 3072, 26624]
+  OK  u8_total                     model                        61440   rust                        61440
+  OK  exp_pairs                    model                         2048   rust                         2048
+  OK  act_pairs                    model                          512   rust                          512
+  OK  largest_L                    model                           50   rust                           50
+  OK  main_round_total             model                          159   rust                          159
+  OK  extension_round_total        model                           25   rust                           25
+  OK  receipt_bytes                model                      2816472   rust                      2816472
+  OK  f_domain_a_planes            model                           11   rust                           11
+  OK  f_domain_h_planes            model                            6   rust                            6
+  -> ALL TOY NUMBERS REPRODUCED EXACTLY
+
+-- 2. development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) --
+  padded domains: T, Ht, L, D, Q, Kv, S, F, Tab
+  domain      true        padded   log  lifted  rows
+  T              24            32     5       -     1
+  Ht            144           256     8       -     1
+  L             216          1024    10     yes     1
+  D            2304          4096    12       -     4
+  Q            2304          4096    12       -     4
+  Kv            768          1024    10       -     1
+  S            3456          8192    13       -     8
+  F            4608          8192    13       -     8
+  Tab           256          1024    10     yes     1
+  A planes 83  H planes 52
+  quantity                      model            memo [COUNTED]    delta
+  a_planes                                 83               83        0
+  h_planes                                 52               52        0
+  a_data_rows                             377              377        0
+  h_data_rows                             470              470        0
+  a_sites                                 122              122        0
+  h_sites                                  52               52        0
+  a_rows                                  623              623        0
+  h_rows                                  576              576        0
+  m_rows                                   50               50        0
+  a_groups                                 36               36        0
+  h_groups                                  9                9        0
+  u8_total                             419840           419840        0
+  exp_pairs                              8192             8192        0
+  act_pairs                              8192             8192        0
+  largest_L                                72               72        0
+  receipt_bytes                       4173208          4173032      176   <-- DIFFERENCE
+  CAUSE of the receipt_bytes difference: +176 B (11 Fp2 words) in the slot line. The model gives SC_KVZC the support indicator, because Dom::Kv PADS at the rung (768 true of 1,024) and §9a's own domain paragraph says so: 'the pad rule of §3.7a is exercised on Kv and F as well (their indicators are supp_Kv and supp_F)'. An indicator raises the slot's degree by one, which lengthens each of its 11 round messages by one Fp2 word: (10 main + 1 ext) x 16 B = 176 B. The memo's 19,552-byte slot line prices SC_FZC's indicator but not SC_KVZC's, and §9a's open question 2 mentions only SC_FZC. Either the rung receipt is 4,173,208 B, or supp_Kv does not gate SC_KVZC's inhomogeneous RoPE constraint and the domain paragraph is wrong. Nothing else moves: SC_KVZC's L is 57 with the indicator, well under the rung's largest L of 72, so the mask budget is untouched.
+  slots carrying a support indicator: ['01 SS row sums norm_a', '01m SS row sums norm_m', '07 masked row sums + selector', '03 D zero-check', '04 Q zero-check', '05 KV zero-check', '06 softmax zero-check', '14 F zero-check']
+  LogUp sum-claim keys WITHOUT the P-3 lift: 3 [('full', 0, 1024), ('sub', 0, 256), ('sub', 0, 512)]
+  largest L slots: ['06 softmax zero-check', '14 F zero-check']  (L + 256 = 328 <= 512: True)
+  LogUp sum-claim column-weight keys: 1 (instantiable: True)
+  receipt parts: header_and_three_roots 136, slots 19,728, mask_opening 243,712, a_opening 2,142,208, h_opening 1,492,992, endpoint_openings 274,432, total 4,173,208
+
+-- 2. 125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) --
+  padded domains: Ht, L, D, Q, S, Tab
+  domain      true        padded   log  lifted  rows
+  T             512           512     9       -     1
+  Ht           6144          8192    13       -     1
+  L            4608         16384    14     yes     1
+  D          393216        524288    19       -    32
+  Q          393216        524288    19       -    32
+  Kv         131072        131072    17       -     8
+  S         3145728       4194304    22       -   256
+  F         1048576       1048576    20       -    64
+  Tab           256         16384    14     yes     1
+  A planes 83  H planes 50
+  quantity                      model            memo [COUNTED]    delta
+  a_planes                                 83               83        0
+  h_planes                                 50               50        0
+  a_data_rows                            5435             5435        0
+  h_data_rows                            7018             7018        0
+  a_sites                                 122              122        0
+  h_sites                                  50               50        0
+  a_rows                                 5681             5681        0
+  h_rows                                 7120             7120        0
+  m_rows                                   50               50        0
+  a_groups                                 36               36        0
+  h_groups                                  9                9        0
+  u8_total                           98598912         98598912        0
+  exp_pairs                           4194304          4194304        0
+  act_pairs                           1048576          1048576        0
+  largest_L                               117              117        0
+  receipt_bytes                      40750024         40750024        0
+  slots carrying a support indicator: ['01 SS row sums norm_a', '01m SS row sums norm_m', '07 masked row sums + selector', '03 D zero-check', '04 Q zero-check', '06 softmax zero-check']
+  LogUp sum-claim keys WITHOUT the P-3 lift: 3 [('full', 0, 16384), ('sub', 0, 256), ('sub', 0, 8192)]
+  largest L slots: ['06 softmax zero-check']  (L + 256 = 373 <= 512: True)
+  LogUp sum-claim column-weight keys: 1 (instantiable: True)
+  receipt parts: header_and_three_roots 136, slots 27,456, mask_opening 243,712, a_opening 21,626,880, h_opening 17,385,472, endpoint_openings 1,466,368, total 40,750,024
+
+-- 3. THE PAD TABLE OF §3.7a, RECOUNTED FROM ITS OWN ROWS --
+  rows transcribed: 40; planes classified: 100
+  by rule: {'ZERO': 64, 'EXEMPT': 35, 'NO PAD RULE': 1}
+  by commitment: {'A': {'ZERO': 61, 'EXEMPT': 1}, 'H': {'ZERO': 3, 'NO PAD RULE': 1, 'EXEMPT': 34}}
+    D    {'ZERO': 35, 'EXEMPT': 17}
+    Q    {'ZERO': 7, 'EXEMPT': 7}
+    S    {'ZERO': 12, 'EXEMPT': 10}
+    Ht   {'ZERO': 2}
+    L    {'ZERO': 2, 'EXEMPT': 1}
+    Tab  {'ZERO': 6, 'NO PAD RULE': 1}
+  The three summary figures each count a DIFFERENT population and therefore cannot be added. '62 planes' is the number of A planes on the six padded domains (62 by recount); '61 proved zero' is the number of those A planes ruled ZERO (61 by recount), the one exception being A_E; '35 exempt' spans BOTH commitments (A_E plus the 34 lookup reciprocals, 35 by recount). The real tally over every plane the table classifies is 100 planes = 64 ZERO + 35 EXEMPT + 1 with no pad rule (H_U, the zero-sum masking pair). No plane is missing and no plane is classified twice; the arithmetic of the summary line is what does not add up, not the table.

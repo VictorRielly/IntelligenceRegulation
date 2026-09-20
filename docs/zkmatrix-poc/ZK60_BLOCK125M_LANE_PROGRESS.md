@@ -25,10 +25,10 @@ touched.
 | A2 constants + boundary assertions | DONE | `…partA-run1.log:114` |
 | A3 receipt length equal; two proofs differ | DONE | `…partA-run1.log:115-116` |
 | A4 whole module filter green, before and after | DONE | before: `partA-baseline.log:116` 36 passed / 0 failed / 1 ignored; after: `partA-run1.log:118` 40 passed / 0 failed / 1 ignored |
-| B1 model module | PENDING | |
-| B2 toy reproduces exactly | PENDING | |
-| B3 rung + 125M beside the memo | PENDING | |
-| B4 pad-table recount | PENDING | |
+| B1 model module | DONE | `scripts/zk60_private_block_layout_model.py` |
+| B2 toy reproduces exactly | DONE | `results/zk60_block125m_lane/pytests.log` (25 tests, OK); all 23 Rust-asserted toy numbers reproduced |
+| B3 rung + 125M beside the memo | DONE | `results/zk60_block125m_lane/model_report.txt`, `model_{toy,rung,m125}.json` |
+| B4 pad-table recount | DONE | `results/zk60_block125m_lane/pad_table_recount.json` |
 
 ## Commands run (every one, with its log)
 
@@ -46,6 +46,8 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 |---|---|---|---|
 | 1 | the Rust command above, BEFORE any edit (baseline) | `results/zk60_block125m_lane/partA-baseline.log` | 36 passed, 0 failed, 1 ignored, 81 filtered out, 18.31 s |
 | 2 | the same, with `zero_witness_tests.rs` registered | `results/zk60_block125m_lane/partA-run1.log` | 40 passed, 0 failed, 1 ignored, 81 filtered out, 19.81 s — compiled and passed on the first attempt, no fix needed |
+| 3 | `python3 -m unittest discover -s /home/victor/wt-zk60-block125m/tests -p 'test_zk60_private_block_layout_model.py' -v` | `results/zk60_block125m_lane/pytests.log` | 25 tests, OK (one earlier failure was the TEST's assumption, not the model — see B-F5) |
+| 4 | `python3 /home/victor/wt-zk60-block125m/scripts/zk60_private_block_layout_model.py --all --out /home/victor/wt-zk60-block125m/results/zk60_block125m_lane` | `results/zk60_block125m_lane/model_report.txt` | the three shapes' JSON + the pad recount |
 
 ## Findings
 
@@ -81,6 +83,84 @@ witness's frame and the fixture witness's frame are both exactly 2,816,472 B,
 and two proofs of the same zero witness differ in their bytes while both
 verify (fresh OS randomness per attempt; the endpoint roots differ too, and
 neither receipt verifies under the other attempt's endpoint policy).
+
+**B-F1 (the model earns the right to be believed).** The model reproduces the
+toy EXACTLY — all 23 numbers the Rust asserts about itself, none imported from
+the crate: `A` data 213 / rows 455, `H` data 280 / rows 384, `M` 50, sites
+120 / 51, opening groups 35 / 9, 23 slots and 34 functionals, 81 `A` planes
+and 51 `H` planes, the per-domain U8 totals `[1024, 19456, 4608, 6656, 3072,
+26624]` summing to 61,440, 2,048 exp and 512 act pairs, largest `L` 50, 159
+main and 25 extension rounds, and a **2,816,472-byte** receipt. It also
+reproduces the Rust's slot table `(main, ext, degree)` slot for slot and its
+`A_SITES` / `H_SITES` arrays element for element.
+
+**B-F2 (125M: no difference at all).** Every [COUNTED] figure of §2.4, §4,
+§5 and §7.1 is reproduced: `A` 5,681 (5,435 data + 244 + 2), `H` 7,120
+(7,018 + 100 + 2), `M` 50, sites 122 / 50, groups **36 / 9**, 98,598,912 U8
+lookups (the memo's rider (a), i.e. the post-lift figure, not the 98,582,528
+in its table body), largest `L` 117, and the receipt **part by part** —
+`A` 21,626,880 + `H` 17,385,472 + endpoints 1,466,368 + `M` 243,712 + slots
+27,456 + 136 = **40,750,024 B**, the memo's final figure. The memo's
+alternative 40,747,256 B is its pre-lift, pre-support-factor variant (it
+differs by exactly 752 + 2,016 B in the slot line) and the model does not
+produce it.
+
+**B-F3 (the rung: ONE difference, +176 B, diagnosed).** Every rung total of
+§9a is reproduced — 83 / 52 planes, 377 / 470 data rows, 122 / 52 sites,
+**623 / 576 / 50** rows, groups 36 / 9, 419,840 U8 lookups, 8,192 exp and
+8,192 act pairs, largest `L` 72 at `SC_SZC` and `SC_FZC` — **except the
+receipt: the model gives 4,173,208 B against the memo's 4,173,032 B.** The
+whole difference is 176 B in the slot line, and its cause is named: the model
+gives **`SC_KVZC` the support indicator**, because `Dom::Kv` pads at the rung
+(768 true of 1,024) and §9a's own domain paragraph says it does — "the pad
+rule of §3.7a is exercised on `Kv` and `F` as well (their indicators are
+`supp_Kv` and `supp_F`)". An indicator is one more degree, i.e. one more
+`Fp2` in each of that slot's 11 round messages: 11 × 16 B = 176 B. The memo
+prices `SC_FZC`'s indicator and not `SC_KVZC`'s, and its open question 2
+mentions only `SC_FZC`. **Either the rung receipt is 4,173,208 B, or `supp_Kv`
+does not gate `SC_KVZC`'s inhomogeneous RoPE constraint and the domain
+paragraph is wrong.** Nothing else moves: `SC_KVZC`'s `L` is 57 with the
+indicator, far under the rung's largest 72, so the mask budget is untouched.
+This is the only undiscussed difference the model found at any shape.
+
+**B-F4 (the pad table of §3.7a, recounted from its own 40 rows).** The table
+classifies **100 planes: 64 ZERO, 35 EXEMPT, 1 with no pad rule** (`H_U`, the
+zero-sum masking pair, excluded by name). The editor's summary figures are
+each true of a DIFFERENT population, which is why they do not add up:
+
+| figure | what it actually counts | recount |
+|---|---|---:|
+| "62 planes" | `A` planes on the six padded domains | **62** ✓ |
+| "61 proved zero" | those `A` planes ruled ZERO (the exception is `A_E`) | **61** ✓ |
+| "35 exempt" | EXEMPT planes across BOTH commitments (`A_E` + 34 helpers) | **35** ✓ |
+
+So `61 + 35 = 96 ≠ 62`: the three are not one tally. The `H` side is 38
+planes (34 EXEMPT helpers, 3 ZERO table helpers, `H_U`). The table's own
+claim "planes not classified here: none" CHECKS OUT: its per-domain,
+per-commitment counts equal the model's 125M plane list exactly. **No plane
+is missing and none is classified twice; only the summary sentence's
+arithmetic is wrong.** Suggested replacement: "100 planes on six padded
+domains — 64 proved zero, 35 exempt by name (the exponential pair and the 34
+lookup reciprocals), and `H_U`, which carries no pad rule."
+
+**B-F5 (a small memo/code fact worth recording).** `Dom::L` already pads AT
+THE TOY: nine of its sixteen limb sub-planes carry the isqrt witness and
+seven are empty (true 288 of a padded 512). The memo says so in passing
+(§2.3, "its pad is not new"), but it means the toy is not a no-pad shape and
+the pad rule of P-1 would apply to it the day it is written. `SC_LZC` is
+homogeneous and takes no indicator, so no toy byte moves.
+
+**B-F6 (B-3 reproduced independently).** Without the P-3 lift the LogUp sum
+claim raises **three** distinct column-weight keys at both the rung —
+`([],0,256)`, `([],0,512)`, `([],0,1024)`, exactly the three §9a predicts —
+and at 125M (`([],0,256)`, `([],0,8192)`, `([],0,16384)`); with the lift,
+one. At the toy it is one either way, so the lift is a no-op there, which is
+what P-8's byte-identity gate needs. The model reports this as a separate
+boolean, `logup_sum_claim_instantiable`.
+
+**No disagreement between the memo's rules and `layout.rs` was found at the
+toy shape**: every rule the memo states reproduces the Rust's own numbers.
+The differences above are all at shapes that do not exist yet.
 
 Nothing is written outside this worktree, and no witness value, salt or
 private plane appears in any evidence file: counts, sizes, booleans and

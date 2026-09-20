@@ -1,0 +1,37 @@
+test_Kv_and_F_do_not_pad_at_125M_so_their_zero_checks_carry_no_indicator (test_zk60_private_block_layout_model.M125) ... ok
+test_no_difference_at_all_against_the_memo (test_zk60_private_block_layout_model.M125) ... ok
+test_the_counted_totals_of_sections_2_and_7 (test_zk60_private_block_layout_model.M125) ... ok
+test_the_lift_is_what_makes_the_sum_claim_instantiable (test_zk60_private_block_layout_model.M125) ... ok
+test_the_receipt_is_the_memos_final_figure_part_by_part (test_zk60_private_block_layout_model.M125) ... ok
+test_the_real_tally (test_zk60_private_block_layout_model.PadTable) ... ok
+test_the_summary_figures_each_count_a_different_population (test_zk60_private_block_layout_model.PadTable)
+62 / 61 / 35 do not add up because they are not one tally: 62 and 61 ... ok
+test_the_table_covers_exactly_the_planes_the_model_puts_on_padded_domains (test_zk60_private_block_layout_model.PadTable)
+'Planes not classified here: none.' — checked against the model's own ... ok
+test_M_is_shape_independent (test_zk60_private_block_layout_model.Rules) ... ok
+test_padding_and_logs (test_zk60_private_block_layout_model.Rules) ... ok
+test_the_Q_D_coincidence_holds_at_all_three_shapes (test_zk60_private_block_layout_model.Rules)
+`d_pad = H_pad * d_h`, which the Wo matmul depends on (§2.3). ... ok
+test_the_mask_budget_holds_at_all_three_shapes (test_zk60_private_block_layout_model.Rules) ... ok
+test_the_two_integer_windows_are_derived_not_assumed (test_zk60_private_block_layout_model.Rules)
+NORM_WRHO and WRHO_S come from the shape: the toy's 29/14, the ... ok
+test_every_one_of_the_nine_domains_pads (test_zk60_private_block_layout_model.Rung) ... ok
+test_the_176_bytes_are_SC_KVZCs_support_indicator (test_zk60_private_block_layout_model.Rung)
+The rung's Dom::Kv pads (768 of 1,024), so the model gives SC_KVZC ... ok
+test_the_counted_totals_of_section_9a (test_zk60_private_block_layout_model.Rung) ... ok
+test_the_lift_is_what_makes_the_sum_claim_instantiable (test_zk60_private_block_layout_model.Rung)
+B-3: without the P-3 lift the rung's H domains raise THREE distinct ... ok
+test_the_only_difference_against_the_memo_is_the_diagnosed_receipt_line (test_zk60_private_block_layout_model.Rung) ... ok
+test_every_number_the_rust_asserts_about_itself (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_only_Dom_L_pads_at_the_toy_and_no_slot_carries_an_indicator (test_zk60_private_block_layout_model.ToyReproduction)
+Every toy AXIS is already a power of two (T 32, d 16, f 16, 2 heads), ... ok
+test_the_claim_sites_are_the_rusts_slot_for_slot (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_nine_domain_logs_are_the_rusts (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_slot_schedule_is_the_rusts_slot_for_slot (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_toy_needs_no_P3_lift_and_its_sum_claim_has_one_key (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_toy_receipt_is_the_measured_2816472_bytes (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.009s
+
+OK

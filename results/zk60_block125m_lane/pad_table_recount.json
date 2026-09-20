@@ -1,0 +1,83 @@
+{
+ "a_planes_on_padded_domains": 62,
+ "by_commitment": {
+  "A": {
+   "EXEMPT": 1,
+   "ZERO": 61
+  },
+  "H": {
+   "EXEMPT": 34,
+   "NO PAD RULE": 1,
+   "ZERO": 3
+  }
+ },
+ "by_domain": {
+  "D": {
+   "EXEMPT": 17,
+   "ZERO": 35
+  },
+  "Ht": {
+   "ZERO": 2
+  },
+  "L": {
+   "EXEMPT": 1,
+   "ZERO": 2
+  },
+  "Q": {
+   "EXEMPT": 7,
+   "ZERO": 7
+  },
+  "S": {
+   "EXEMPT": 10,
+   "ZERO": 12
+  },
+  "Tab": {
+   "NO PAD RULE": 1,
+   "ZERO": 6
+  }
+ },
+ "by_rule": {
+  "EXEMPT": 35,
+  "NO PAD RULE": 1,
+  "ZERO": 64
+ },
+ "claimed": {
+  "per_domain_headers": {
+   "D": {
+    "ZERO": 35,
+    "planes": 35
+   },
+   "Ht": {
+    "ZERO": 2,
+    "planes": 2
+   },
+   "L": {
+    "ZERO": 2,
+    "planes": 2
+   },
+   "Q": {
+    "ZERO": 7,
+    "planes": 7
+   },
+   "S": {
+    "EXEMPT": 1,
+    "ZERO": 12,
+    "planes": 13
+   },
+   "Tab": {
+    "A planes ZERO": 3,
+    "H_U": "no pad",
+    "table helpers ZERO": 3
+   },
+   "helper block": {
+    "EXEMPT": 34,
+    "planes": 34
+   }
+  },
+  "summary_line": "62 planes on six padded domains: 61 proved zero; 35 exempt by name"
+ },
+ "h_planes_on_padded_domains": 38,
+ "planes_classified_total": 100,
+ "rows_transcribed": 40,
+ "verdict": "The three summary figures each count a DIFFERENT population and therefore cannot be added. '62 planes' is the number of A planes on the six padded domains (62 by recount); '61 proved zero' is the number of those A planes ruled ZERO (61 by recount), the one exception being A_E; '35 exempt' spans BOTH commitments (A_E plus the 34 lookup reciprocals, 35 by recount). The real tally over every plane the table classifies is 100 planes = 64 ZERO + 35 EXEMPT + 1 with no pad rule (H_U, the zero-sum masking pair). No plane is missing and no plane is classified twice; the arithmetic of the summary line is what does not add up, not the table."
+}
