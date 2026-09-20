@@ -1,0 +1,238 @@
+[
+ {
+  "capture": "40083e7ac8f3",
+  "components": 35,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-block-t32-poc",
+  "role": "A"
+ },
+ {
+  "capture": "40083e7ac8f3",
+  "components": 8,
+  "disclosed_from_multi_group_components": 2,
+  "multi_group_components": [
+   [
+    7,
+    8
+   ]
+  ],
+  "multi_group_detail": [
+   {
+    "blinding_rows": 4,
+    "claims": 2,
+    "data_rows": 278,
+    "disclosed_Fp": 2,
+    "groups": [
+     7,
+     8
+    ],
+    "observation_Fp": 1028,
+    "rank_blinding": 1022,
+    "rank_blinding_plus_data": 1024,
+    "u_rows": [
+     278,
+     279
+    ]
+   }
+  ],
+  "profile": "private-block-t32-poc",
+  "role": "H"
+ },
+ {
+  "capture": "40083e7ac8f3",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-block-t32-poc",
+  "role": "Input"
+ },
+ {
+  "capture": "40083e7ac8f3",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-block-t32-poc",
+  "role": "Output"
+ },
+ {
+  "capture": "6c5e83fd1b2d",
+  "components": 30,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-attention-t32-poc",
+  "role": "A"
+ },
+ {
+  "capture": "6c5e83fd1b2d",
+  "components": 7,
+  "disclosed_from_multi_group_components": 2,
+  "multi_group_components": [
+   [
+    6,
+    7
+   ]
+  ],
+  "multi_group_detail": [
+   {
+    "blinding_rows": 4,
+    "claims": 2,
+    "data_rows": 216,
+    "disclosed_Fp": 2,
+    "groups": [
+     6,
+     7
+    ],
+    "observation_Fp": 1028,
+    "rank_blinding": 1022,
+    "rank_blinding_plus_data": 1024,
+    "u_rows": [
+     216,
+     217
+    ]
+   }
+  ],
+  "profile": "private-attention-t32-poc",
+  "role": "H"
+ },
+ {
+  "capture": "6c5e83fd1b2d",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-attention-t32-poc",
+  "role": "Input"
+ },
+ {
+  "capture": "6c5e83fd1b2d",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-attention-t32-poc",
+  "role": "Output"
+ },
+ {
+  "capture": "7d334e069c84",
+  "components": 35,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-block-t32-poc",
+  "role": "A"
+ },
+ {
+  "capture": "7d334e069c84",
+  "components": 8,
+  "disclosed_from_multi_group_components": 2,
+  "multi_group_components": [
+   [
+    7,
+    8
+   ]
+  ],
+  "multi_group_detail": [
+   {
+    "blinding_rows": 4,
+    "claims": 2,
+    "data_rows": 278,
+    "disclosed_Fp": 2,
+    "groups": [
+     7,
+     8
+    ],
+    "observation_Fp": 1028,
+    "rank_blinding": 1022,
+    "rank_blinding_plus_data": 1024,
+    "u_rows": [
+     278,
+     279
+    ]
+   }
+  ],
+  "profile": "private-block-t32-poc",
+  "role": "H"
+ },
+ {
+  "capture": "7d334e069c84",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-block-t32-poc",
+  "role": "Input"
+ },
+ {
+  "capture": "7d334e069c84",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-block-t32-poc",
+  "role": "Output"
+ },
+ {
+  "capture": "c26d1f05754b",
+  "components": 30,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-attention-t32-poc",
+  "role": "A"
+ },
+ {
+  "capture": "c26d1f05754b",
+  "components": 7,
+  "disclosed_from_multi_group_components": 2,
+  "multi_group_components": [
+   [
+    6,
+    7
+   ]
+  ],
+  "multi_group_detail": [
+   {
+    "blinding_rows": 4,
+    "claims": 2,
+    "data_rows": 216,
+    "disclosed_Fp": 2,
+    "groups": [
+     6,
+     7
+    ],
+    "observation_Fp": 1028,
+    "rank_blinding": 1022,
+    "rank_blinding_plus_data": 1024,
+    "u_rows": [
+     216,
+     217
+    ]
+   }
+  ],
+  "profile": "private-attention-t32-poc",
+  "role": "H"
+ },
+ {
+  "capture": "c26d1f05754b",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-attention-t32-poc",
+  "role": "Input"
+ },
+ {
+  "capture": "c26d1f05754b",
+  "components": 1,
+  "disclosed_from_multi_group_components": 0,
+  "multi_group_components": [],
+  "multi_group_detail": [],
+  "profile": "private-attention-t32-poc",
+  "role": "Output"
+ }
+]

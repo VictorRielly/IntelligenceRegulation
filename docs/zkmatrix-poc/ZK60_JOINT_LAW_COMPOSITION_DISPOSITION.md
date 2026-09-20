@@ -86,6 +86,49 @@ unconditionally, 5 verified in the code, 6 proved on named rows, 6 mixed, 4
 relying on cited facts, **2 gaps — every other shape, and the hash layer** —
 and 6 illustrations. Three demotions applied.
 
+**J-2 is resolved (03:49, 2026-09-20): the step is independently reviewed,
+and corrected** (`ZK60_TERMINAL_SURJECTION_REVIEW.md`, evidence
+`results/zk60_terminal_surjection_review/`; the reviewer wrote its own exact
+rank code and imported nothing from the project's tools). As supplied, the
+step was weaker than the theorem needs in four ways (one group at a time; no
+proximity vector; no pad halves or opened columns; readable as a per-claim
+marginal); the review closed all four, and **the joint statement then holds:
+on every group of `A`, `H` and both endpoints, on all four captures, disclosed
+0 Fp, except the one `H` group that carries the 2 Fp of the public lookup
+identity** — 2,040 fresh and adversarial challenge vectors, no failure
+[RECOMPUTED by the review]. What I rule from it:
+
+- **The loose end is closed by a theorem, not a refusal.** `cw` is not a
+  challenge: it is the column-weight vector (`zkp-core/src/pcs.rs:794-807`),
+  either all ones on at most 256 positions or an equality tensor whose entries
+  sum to exactly 1. **`cw = 0` has probability zero.** No residual, no new
+  refusal, no proof byte changes.
+- **The condition that actually carries privacy is the SHAPE of the reserved
+  pair's weights, `(cm, cm·U)`** (`argument.rs:232-234`), not merely
+  `cm ≠ 0`: with base-field-dependent weights and `cm ≠ 0` a singleton group
+  discloses 256 Fp, and with the pair removed, 512. This joins the list of
+  invariants that must not be weakened.
+- **`λ ≠ 0` is not needed for privacy** (set to zero on real groups, disclosure
+  stays 0); its refusal is a soundness refusal and stays for that reason.
+- **On `H` the per-group argument is invalid as written**: two groups share
+  the zero-sum pair. Ranked jointly the answer is unchanged (2 Fp), and the
+  argument must carry the exception explicitly — it is the one deliberate
+  exception to "one reserved pair per claim site", and it is sound only
+  because the two groups' claims are tied by the public identity.
+- The review's own small model fired a control against its own reduction: one
+  opened position beyond the pad budget discloses 2 Fp that the message-half
+  reduction misses. **The pad budget on `H` is load-bearing; the pad count and
+  the number of opened columns move together**, as already ruled.
+- The eight changes R-1 … R-8 are accepted. R-1 … R-7 go into the composition
+  memo and the generic-rank lemma (the lemma's *reduction* is widened to
+  include the individual claims; its good event is unchanged). **R-8 is
+  accepted too**: the gate's small model has one group per claim, so the
+  batched case was never machine-validated — a multi-member group and a
+  shared-pair group are added to its tests.
+
+The label becomes **"independently reviewed and corrected (2026-09-20)"** once
+R-1 … R-7 are in the text.
+
 ## 3. Where the privacy path now stands
 
 1. The all-zero input proves and verifies — **done** (measured).
