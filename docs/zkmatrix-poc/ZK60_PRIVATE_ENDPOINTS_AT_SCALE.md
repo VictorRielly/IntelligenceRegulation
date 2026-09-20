@@ -1,7 +1,6 @@
 # The hiding endpoints at model scale: what the construction is, what its eleven size pins protect, and what it would cost
 
-**DRAFT for the security owner's review — NOT ACCEPTED. Delegated Opus
-draft, 2026-09-19. Paper only.**
+**Status: ACCEPTED AS THE DESIGN TO BUILD, per `ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md` (security owner, 2026-09-19) and ruling D17, with errata E-1 … E-19 of `ZK60_PRIVATE_ENDPOINTS_AT_SCALE_CHECK.md` and rulings R-1 … R-5 applied in this text. Not a privacy acceptance; D8 and D11 remain open; paper only, nothing here has been built or run. Drafted by a delegated Opus agent.**
 
 | | |
 |---|---|
@@ -39,7 +38,11 @@ whether the half can be widened at all:
    seam's masking slot is `L = 2·(log2 N + 1) + 2 = 2·log2 N + 4`
    coefficients, and `mask_commit` asserts `L + 256 <= 512`, i.e.
    `L <= 256` (`hashline/src/zk.rs:442`). That binds at
-   `log2 N <= 126`. A Mistral endpoint plane is `log2 N = 21`, giving
+   `log2 N <= 126`. Throughout, `log2 N` is the **cube's** bit width
+   `log_t + log_db` — the d-block the slot is derived from
+   (`zk.rs:2172`) — not the plane's `log2(nb_d·tdb)`; the two agree at
+   `nb_d = 1` and differ under form 2 (E-15). A Mistral endpoint cube is
+   `log2 N = 21`, giving
    `L = 46` and `46 + 256 = 302 <= 512`, with the layer's own largest
    slot (`SC_ZC17`, `L = 90`) still far inside. **[COUNTED, §3.4.]**
 2. **Nothing in the soundness argument depended on the plane being
@@ -52,11 +55,20 @@ whether the half can be widened at all:
    **one reserved mask pair per claim site**, and a naive widening
    creates `nb_d` claim sites per endpoint where the tiny shape has one
    (§5.1). §3.3 gives the fix that keeps it at one.
-4. **But a naive widening is UNSOUND at the 125M shape**, for a reason
+4. **But the quiet mechanical widening — keeping one `tdb`-wide slice —
+   is UNSOUND at every shape with more than one d-block**, for a reason
    the scoping memo did not find: the seam argument binds a single
    `log_t + log_db` slice at `lay.x[0]`, which is the **first d-block
-   only**. Mistral has `nb_d = 1` and is unaffected; 125M has
-   `nb_d = 3`, so two thirds of the input plane would be unbound. §2.3.
+   only**. `nb_d = d / 2^min(trailing_zeros(d), 12)`
+   (`zkp-core/src/ffn_v3/statement.rs:139`, `:153-156`), so a plane has
+   **one d-block only when the width is a power of two no larger than
+   4096**: 4096 → 1, but 768 → 3, 2560 → 5, 3072 → 3, 5120 → 5,
+   6144 → 3, 8192 → 2, 12288 → 3, 16384 → 4. At 125M (`d = 768`)
+   `nb_d = 3`, so two thirds of the input plane would be unbound — and
+   the same holds at four real model widths above 4096. **No width is
+   exempt:** the batched multi-block seam of §3.3 is **unconditional for
+   any general entry point**, including the widths that happen to have
+   one block (R-1). §2.3.
 5. **And the cost ordering is the reverse of the mask half's.** At
    Mistral width the endpoints add **+6.1%** of proof bytes and about
    **+1.5%** of committed rows; at 125M the same construction adds
@@ -117,8 +129,13 @@ At `len = 512`: `data_rows = 2`, `commitment_rows = 7`. Rows are
 |---|---|---|
 | 0, 1 | the 512 plane words, row-major over 256 columns | `:210` |
 | 2, 3 | **the terminal mask pair** — `committed.mask_rows = [2, 3]` | `:216` |
-| 4 | **the proximity mask row** — `prox_mask_row = Some(4)` | `:217` |
-| 5, 6 | two further uniform rows, used only by the proximity combination | `:211-213` (every row from `data_rows` on is `rng.fp()`) |
+| 4, 5 | **the proximity pair** — `prox_mask_row = Some(4)`, and H-prox is a statement about **both** rows: `check_opening_challenges` requires `prox + 1 >= rows` to be false and `det(rho[prox], rho[prox+1]) ≠ 0` (`zk_ffn_fresh_poc.rs:336-339`) | `:217` |
+| 6 | one further uniform row — slack | `:211-213` (every row from `data_rows` on is `rng.fp()`) |
+
+So the budget is 2 (terminal pair) + 2 (proximity pair) + 1 slack =
+`MASK_ROWS = 5`: row 5 is **not** a spare uniform row (E-14). The
+general minimum is therefore `2·claim_sites + 2`, and C4's
+`2·claim_sites + 3` keeps one row of slack.
 
 Rows 2–6 are all uniform; the pair (2, 3) carries one Fp2-valued mask as
 `R_re + U·R_im`, which is why it is a *pair* and not a row
@@ -360,18 +377,21 @@ relaxed.
 | **A7** | the policy hard-codes `rows: 7, log_cols: 8` | `zk_ffn_fresh_io.rs:55-69` (`:58-68`) | **(b)** then (a) | The policy is **absorbed** (`:140`), so the shape is part of the statement the verifier commits to — correctly, since a verifier that accepted any `rows` would accept an endpoint of a different geometry. `rows` becomes `ceil(T·d/n) + MASK_ROWS`. |
 | **A8** | `ENDPOINT_OPEN_BYTES` is a closed form built from 512 / 7 / 11 / 256 | `zk_ffn_fresh_io.rs:15`, used at `:505-511` | **(a)** | Exact-frame arithmetic. Every term is derivable: `n+q`, `rows`, `log2(nn)`, `num_col_checks`. |
 | **A9** | the receipt shape check pins `512 / 512 / 256 / j < 2048 / c.len()==7 / p.len()==11` | `zk_ffn_fresh_io.rs:536-548` | **(c)** | This one deserves care. It is the "no attacker-supplied length controls an allocation" defence *and* the check that the opening is the one the claims were built for. Generalising it means deriving each bound from the checked statement — which is exactly what `private_seam.rs:511-569` and `zk_ffn_fresh_wire.rs:75-142` already do for their own frames. A generalisation that replaces a constant with a value read from the frame would be a real vulnerability. |
-| **A10** | the two arguments are written against 512-word slices: `a.data[off..off+512]`, `endpoints[i].data[..512]`, `log_size: 9`, `row·256`, `MaskPoint(.., 256)`, `rho[len-8..]`, `challenge_fp2_vec(9)`, `sum_weights(10, 2)`, `claim(0, 2, ..)`, `check_masks(.., 7, 8, &[2,3], 4, ..)`, `sumcheck::verify(.., 2, 10, ..)`, `rounds.len() != 10`, `r.argument((10,2), 2)`, `r.hiding(1, 7)` | `zk_ffn_fresh_io.rs:201-235`, `:236-253`, `:292`, `:301`, `:306`, `:346`, `:360`, `:389`, `:459`, `:526`, `:573`, `:581` | **mostly (a), with one (c)** | Almost all of these are `log_t + log_db`, `log_n`, `a_n`, `data_rows` under other names, and the CFS side is already general (`zk.rs:2172` derives the slot). The **(c)** item is `a.data[off..off+512]` / `endpoints[i].data[..512]`: 512 is `tdb`, *one d-block*, and the argument binds only `lay.x[0]`. See P14 — this is the one place where a mechanical widening is unsound. |
+| **A10** | the two arguments are written against 512-word slices: `a.data[off..off+512]`, `endpoints[i].data[..512]`, `log_size: 9`, `row·256`, `MaskPoint(.., 256)`, `rho[len-8..]`, `challenge_fp2_vec(9)`, `sum_weights(10, 2)`, `claim(0, 2, ..)`, `check_masks(.., 7, 8, &[2,3], 4, ..)`, `sumcheck::verify(.., 2, 10, ..)`, `rounds.len() != 10`, `r.argument((10,2), 2)`, `r.hiding(1, 7)` | `zk_ffn_fresh_io.rs:201-235`, `:236-253`, `:292`, `:301`, `:306`, `:346`, `:360`, `:389`, `:459`, `:526`, `:573`, `:581` | **mostly (a), with one (c)** | Almost all of these are `log_t + log_db`, `log_n`, `a_n`, `data_rows` under other names, and the CFS side is already general (`zk.rs:2172` derives the slot). But `log_n` is **not** one width shared by both commitments (E-19c): A's column count is `min(log_cols, log_t + min(log_db, log_fb))` (`zk.rs:2005`) and the endpoint's, under decision 1, is `min(log_cols, log_t + log_db)`; they differ whenever `log_fb < log_db` **and** the minimum falls below `log_cols` (no real model width reaches it), yet `claim()` and `mask_value` are shared between the two sites (`:201-203`, `:345`, `:346`) and hard-code one width — C7 must parameterise them **per commitment**. The **(c)** item is `a.data[off..off+512]` / `endpoints[i].data[..512]`: 512 is `tdb`, *one d-block*, and the argument binds only `lay.x[0]`. See P14 — this is the one place where a mechanical widening is silently unsound. |
 | **A11** | `MAX_WIRE_BYTES = 32 MiB` | `zk_ffn_fresh_wire.rs:11`; refusals `zk_ffn_fresh_io.rs:507-510`, `zk_ffn_fresh_wire.rs:69-71` | **(a), but it is a ruling** | It is a decoder denial-of-service bound, not a protocol parameter: nothing absorbs it. But one Mistral layer's proof already exceeds it **before** endpoints exist — 38,688,700 B public [MEASURED, `results/hashline_hostwall_r4.log:291`] and 40,186,228 B legacy private [MEASURED, `ZK60_CLAUDE_GPU.md:262-265`]. Any fixed number is a shape pin in disguise; §7 C2 proposes the statement-derived form. |
-| **A12** | `with_io` takes `t_rows` from `w.t_rows` while the caller passes `t_rows = 32` separately | `zk.rs:2354` (prover), `:3493` (verifier) against `zk_ffn_fresh_io.rs:165-175` | **(c)** | Latent today because A2 forces the two to agree. At any other shape the layout would be built for the witness's token count while the prover proves a different one — the committed slice offsets and the proven rows would disagree, which is a soundness bug, not a size pin. Fix it **before** A1 is relaxed, not after. |
+| **A12** | `with_io` takes `t_rows` from `w.t_rows` while the caller passes `t_rows = 32` separately | `zk.rs:2354` (prover), `:3493` (verifier) against `zk_ffn_fresh_io.rs:165-175` | **(a) robustness/completeness** (reclassified per E-5) | Latent today because A2 forces the two to agree. At any other shape the prover's layout would be built for the witness's token count while it proves a different one, so the committed slice offsets and the proven rows would disagree — but this is a **prover-side divergence, not a soundness bug**: the verifier derives its layout, every offset and every claim from `st` alone (`zk.rs:3493`) and `Shape::validate` refuses a commitment whose `rows` differ (`zk_ffn_fresh_wire.rs:77-82`), so a diverging prover yields a rejected proof or a prover-side panic, never an accepted false statement. Fix it **before** A1 is relaxed, not after; C1 and its test are unchanged. |
 
-**Counts: 3 capacity, 2 protocol, 6 security-relevant, 1 split
-(A5).** Naming the security-relevant ones explicitly: **A1** (the guard
+**Counts, after E-5 moved A12 out of the security class: 4 capacity,
+2 protocol, 5 security-relevant, 1 split (A5).** Naming the
+security-relevant ones explicitly: **A1** (the guard
 every other constant assumes), **A3** (the encoding rate is the
 soundness parameter), **A5's non-numeric half** (the slot bound, the
 mask-row count, the axis rule), **A9** (the frame's
 no-attacker-controlled-length defence), **A10's plane slice** (one
-d-block), **A12** (the token-count mismatch). Protocol: **A4**, **A7**.
-Capacity: **A2**, **A6**, **A8**, **A11** (a ruling, not an edit).
+d-block). Protocol: **A4**, **A7**.
+Capacity: **A2**, **A6**, **A8**, **A12** (a prover-side
+robustness/completeness divergence, E-5), **A11** (a ruling, not an
+edit).
 
 ### 2.3 Four pins the scoping memo did not find
 
@@ -382,10 +402,18 @@ prover's endpoint commitment uses `SeamSpec::params()`
 `parameters().pcs_for(8)` (`zk_ffn_fresh_io.rs:456`), which reads the
 **FFN's** `LayerParams` clamped to 8 (`statement.rs:29-31`). The two
 agree today only because both happen to be `8 / 8 / 256`. Move the FFN
-to `log_cols 14 / inv_rate 4` and the verifier would check a
-`14/4/256` commitment the prover built at `8/8/256`. Class **(c)**;
-the fix is to give `SeamSpec` the enclosing `LayerParams` and delete
-the module constants.
+to `log_cols 14 / inv_rate 4` and the consequence is a **refusal, not a
+silent geometry mismatch** (E-6): `verify_zk` refuses
+`cm.log_cols != params.log_cols` (`zkp-core/src/pcs.rs:959-962`,
+`"pcs zk: log_cols mismatch"`), and an `inv_rate` divergence changes
+`enc_cols`, the coset powers and the Merkle depth, so the column
+identity and the paths fail too. It is a genuine two-sources-of-truth
+hazard worth fixing, but its class is **(a)/(b)**, not (c): it costs a
+debugging afternoon, not a false accept. The fix is **additive** (E-2,
+R-2): a new `SeamSpecG` that carries the enclosing `LayerParams`, with
+its own digest domain, beside the existing `SeamSpec` — the module's
+four constants, `params()`, `digest()` and `check_ntt` are not edited
+and not deleted.
 
 **P13 — the endpoint plane must have power-of-two axes.**
 `SeamSpec::new` refuses unless `rows` and `cols` are each a power of two
@@ -397,20 +425,55 @@ the plane be a hypercube for the sumcheck, and the correct general form
 is per-d-block (`tdb = T·2^log_db`, always a power of two), not
 per-plane.
 
-**P14 — a mechanical widening of A10 is UNSOUND when `nb_d > 1`.** The
+**And the padding question this raises must be answered explicitly, not
+implicitly (E-17).** A general `SeamSpecG` must pin the endpoint's
+committed **data region to exactly `nb_d · tdb`**, with `n | tdb`, and
+assert `data_rows·n == nb_d·tdb` — no padded row between the plane and
+`mask_rows`. Keeping the power-of-two axis rule by rounding the plane
+*up* instead is doubly wrong: `prepare_with_rng` zero-fills and then
+overwrites from `data_rows·n` on with `rng.fp()`
+(`private_seam.rs:209-213`), so the rounded region is **zero** against
+real data on the A side (a completeness break), **and** the rounded
+slice reaches from `data_rows·n` into `committed.mask_rows =
+[data_rows, data_rows+1]` (`:216`), putting a data coefficient on the
+reserved pair — a **hiding** break that `check_masks` would not catch,
+because the pair's coefficients would still span Fp2. The tiny profile
+satisfies the pin by accident (`512 = 2·256`); a general one must do it
+on purpose, and a `SeamSpecG` with `data_rows·n != nb_d·tdb` must be
+**refused at construction** (negative test in C4/C6).
+
+**P14 — the single-slice form binds only its slice; the `tdb` form
+under-binds at every `nb_d > 1`, and it is the quiet one.** The
 argument's offsets are `[zl.lay.x[0], zl.lay.z[0]]`
 (`zk_ffn_fresh_io.rs:284`) and its tables are
 `a.data[off .. off + 512]` and `endpoints[i].data[..512]`
 (`:301`, `:306`). In the layout, `x` is **`nb_d` blocks** of `tdb`
 words each (`statement.rs:163`: `let x = vecn(nb_d, tdb)`), so
-`x[0]` is only the first block. At the tiny shape and at Mistral width
-`nb_d = 1` and the slice is the whole plane. At 125M `nb_d = 3` and the
-seam would bind **one third of the input and one third of the output**,
-while the endpoint commitment and the policy would claim the whole
-plane. A prover could put anything in blocks 1 and 2. Class **(c)**,
-and it is the finding of this section: §3.3 gives the fix (a
-transcript-drawn `mu` batching the blocks into one claim) and §7 C6 the
-test that would have caught it.
+`x[0]` is only the first block.
+
+**How many blocks a plane has.** `nb_d = d / 2^min(trailing_zeros(d),
+12)` (`statement.rs:139`, `:153-156`), so `nb_d = 1` **iff `d` is a
+power of two and `d ≤ 4096`**: 4096 → 1, but 768 → 3, 2560 → 5,
+3072 → 3, 5120 → 5, 6144 → 3, 8192 → 2, 12288 → 3, 16384 → 4. The tiny
+shape and Mistral width have one block; **four real model widths above
+4096 do not**. There is no "this width is unaffected" exemption, in
+code or in this document (R-1): every general entry point binds the
+whole plane through the batched multi-block seam, at every width.
+
+**Which widening is which — the distinction is load-bearing (E-4).**
+
+| widening of the literal `512` | outcome |
+|---|---|
+| to **`tdb`** | **silently unsound** at every `nb_d > 1`: the seam binds block 0 only, while the endpoint commitment and the policy claim the whole plane, so a prover could put anything in blocks 1…`nb_d−1`. Nothing complains — the CFS slot at `zk.rs:2172` is already `(log_t + log_db + 1, 2)`, the d-block arity, so the mask channel runs clean. **This is P14.** |
+| to **`T·d`** | **sound wherever expressible** — it covers `[x[0], x[0] + T·d)` exactly and stops where `z[0]` begins — but a sumcheck table must be a power of two (`sumcheck.rs:54-57`; `Slice.log_size`, `pcs.rs:56-60`), so this form exists only when `nb_d` is a power of two (`d = 8192`). At `d = 768` it is inexpressible; at `nb_d = 2` the round count runs one past the CFS mask's `n_vars = log_t + log_db + 1` (the slot `zk.rs:2172` derives), so it **panics** (`sumcheck.rs:251`, `:264-273`) rather than under-binding. |
+| to **`2^ceil(log2(T·d))`** | **loud failure**, and worse than under-binding: on the A side it mixes the output plane into the input equality, and on the endpoint side the slice runs past `data_rows·n` into the reserved terminal pair (`private_seam.rs:216`) — a hiding break. |
+
+That asymmetry is why P14 is dangerous: **the unsound variant is the
+quiet one**, and it is the substitution a careful engineer would make,
+because `log_size: 9` is `log_t + log_db`. Class **(c)**, and it is the
+finding of this section: §3.3 gives the fix (a transcript-drawn `mu`
+batching the blocks into one claim) and §7 C6 the test that would have
+caught it.
 
 **P15 — `check_ntt` pins the NTT table to exactly `NttTables::new(12)`.**
 `private_seam::prepare` refuses any other table — `max_log == 12`, 13
@@ -422,8 +485,10 @@ the encoded domain is 2,048 and a 12-table suffices. At
 `log_cols 14 / inv_rate 4` it is **65,536**, so a 16-table is required
 and `check_ntt` refuses it. Class **(b)/(c)**: the check is doing real
 work (it keeps caller-supplied or malformed root tables out of the
-verifier boundary), so it must be parameterised by the encoded domain,
-not deleted.
+verifier boundary), so the general path gets a **new**
+`check_ntt_for(max_log)` beside it — `check_ntt` itself is neither
+widened in place nor deleted, because widening it would relax a
+boundary the module exists to keep narrow (E-2, R-2).
 
 ## 3. The scaled geometry
 
@@ -455,8 +520,10 @@ commitment should use the enclosing layer's parameters, not
 
 A byte sweep over `log_cols` puts the true optimum at 13 (0.895 MiB) —
 within 0.8% of 14 — so matching the layer costs nothing at Mistral
-width. At 125M the optimum is 12 (0.59 MiB) against 1.22 MiB at 14;
-matching the layer costs ~0.6 MiB per endpoint there. [COUNTED]
+width. At 125M the optimum is 12 (**0.449 MiB**) against **0.699 MiB**
+at 14; matching the layer costs **0.25 MiB per endpoint** there, 0.50
+MiB for the pair (E-7). The optimum sits at 12 either way, and the
+Mistral sweep is unaffected. [COUNTED]
 *Measurement that would test this: rung R5 of
 `ZK60_PRIVATE_FFN_COST_PROBE.md` §3.5 reports the exact frame length,
 which is binary-independent and exact — the mr1 lane's 30 runs all
@@ -519,8 +586,8 @@ measured 125M repaired per-layer proof (7,363,039 B = 88,356,464 / 12
 [MEASURED, `ZK60_FSP_MR1_PROGRESS.md` stage 4]). [COUNTED]
 
 *Form 2 — one seam argument per side, with the blocks batched by a
-transcript challenge.* After both roots are absorbed, draw
-`mu = challenge_fp2_vec(nb_d)` and run the same 3-table sumcheck over
+transcript challenge.* Draw `mu = challenge_fp2_vec(nb_d)` and run the
+same 3-table sumcheck over
 `2^(log_t+log_db)` variables on the combined tables
 `Σ_c mu_c · A_c` and `Σ_c mu_c · B_c`. The A-side claim then has
 `nb_d` data parts plus the same two mask parts; all `nb_d + 2` parts
@@ -528,6 +595,29 @@ share one column-weight key, which `group_zclaims` already supports
 (`zkp-core/src/pcs.rs:809-831`, `zpart_weights:752-792`), so it is
 **one** claim, **one** group, **one** reserved pair, **one** CFS slot
 per side — identical to the tiny shape's shape at every width.
+
+**Where `mu` is drawn, exactly (condition 1, E-16).** "After both roots
+are absorbed" is satisfied at transcript construction and is **not** the
+binding condition. `mu` is `nb_d` **fresh transcript draws taken at the
+point `tau` is drawn** (`zk_ffn_fresh_io.rs:292`), hence after the
+expected-IO absorb that carries both endpoint roots (`:139-140`), after
+`absorb_com(A)` (`zk.rs:2542`) and after M (`:2545`) — so every object
+the differences `δ_c = A_c − B_c` depend on is fixed before `mu`
+exists. The verifier draws it at the **identical point** (`:385-386`).
+It is never re-derived from `rho` or from the terminals. And it is
+**NOT refused on zero**, unlike `c` and `e`: a zero `mu_c` is already
+inside the `1/|Fp2|` term below, and a refusal-plus-retry would be the
+resampling this profile forbids (§7).
+
+**What the endpoint's data region must be (condition 2, E-17).** The
+committed data region is pinned to exactly `nb_d · tdb`, with `n | tdb`
+and `data_rows·n == nb_d·tdb` asserted, and no padded row between the
+plane and `mask_rows`; a `SeamSpecG` that violates it is refused at
+construction. Under form 2 there are then **no unused hypercube
+positions on either side** — each table is exactly
+`2^(log_t+log_db)`, and a non-power-of-two cube is inexpressible
+(`sumcheck.rs:54-57`). The alternative of rounding the plane up is a
+completeness break *and* a hiding break; P13 above works it out.
 
 Soundness cost of form 2: if any block differs, pick a point where some
 `delta_c ≠ 0`; then `Σ mu_c delta_c(x) = 0` with probability
@@ -545,7 +635,12 @@ rectangle, which the reduction already quotients out (§5.1).
 trivially true at every width, and keeps the CFS slot count at 8. At
 125M it costs **1.92 MiB per layer, +27.4%** instead of +57.0%; at
 Mistral width (`nb_d = 1`) it is bit-for-bit the same construction as
-form 1. [COUNTED]
+form 1. [COUNTED] **It is used unconditionally, at every width,
+including the widths that have one d-block** (R-1) — there is no
+width-based exemption. Form 2 is also the form under which H-pair's
+"that pair is used by no other claim" holds *by construction*; form 1
+is forbidden unless `audit_claims` is first ported to the io path
+(E-18, §5.1).
 
 **The 125M geometry under form 2**, for the record:
 
@@ -582,6 +677,13 @@ constraint = L + MASK_Q <= 2^MASK_LOG_MSG
 =>           2·log2 N + 4 <= 256   <=>   log2 N <= 126
 ```
 
+Here, and in §0, **`log2 N` is the cube's bit width `log_t + log_db`**
+— the arity `mask_specs_v3` derives the slot from (`zk.rs:2172`) — and
+**not** the plane's `log2(nb_d·tdb)` (E-15b). The two are identical at
+`nb_d = 1` and differ under form 2, which runs `log_t + log_db + 1`
+rounds whatever `nb_d` is; the table's "125M **block**" row is the
+cube, not the plane.
+
 | shape | `log2 N` | `L` | `L + 256` | headroom to 512 |
 |---|---:|---:|---:|---:|
 | tiny T32/d16 | 9 | 22 | 278 | 234 |
@@ -604,10 +706,13 @@ profile, both far inside 256. The existing gate
 adds the T = 512 Mistral row to that report rather than inventing a new
 check.
 
-One caveat that is not about size: `CfsMask::sum_weights` computes
-`1u64 << n_vars` (`sumcheck.rs:222-228`), which overflows above
-`n_vars = 63`, i.e. `log2 N = 62`. That is a much tighter real bound
-than 126, and it is a silent one. §7 C4 adds the assert.
+One caveat that is not about size: the `1u64 << n_vars` overflow is in
+**two** places, not one — `CfsMask::sum_weights` (`sumcheck.rs:223-224`,
+binding at `n_vars ≤ 63`) and `CfsMask::round` (`:266`, binding at 64)
+— so the real bound is `log2 N = 62`, much tighter than 126, and it is
+a silent one. The guard therefore belongs **in the type itself**
+(`CfsMask::random` / `CfsMask::len`), not at one call site (E-19d);
+§7 C4 places it there.
 
 ### 3.5 Extra committed rows, proof bytes and prover cost
 
@@ -629,7 +734,8 @@ commitment's rows**, **274 / 17,451 = 1.57% of all committed rows**
 the measured legacy private per-layer 40,174,324 B
 (`1,285,578,368 / 32`, the frozen 8B private digest). All [COUNTED].
 
-Over a 32-layer pass: **+78.2 MB of proof** (1.20 GiB → 1.28 GiB) and
+Over a 32-layer pass: **+78.2 MB of proof** (1.197 GiB → 1.270 GiB,
+`1,285,578,368 + 32 × 2,443,456 = 1,363,768,960 B`) and
 **+8,768 committed rows**.
 
 **Prover seconds — [MODEL], and this is the number most likely to move.**
@@ -655,7 +761,8 @@ Over a 32-layer pass: **+78.2 MB of proof** (1.20 GiB → 1.28 GiB) and
    `n + Q = 16,640`, 256 columns gathered from a 65,536-column tree.
    Small; `pcs openings` for the whole layer measured 0.361 s over 12
    layers at 125M.
-4. *Transient memory.* `3 × 2^21 × 16 B = 100.7 MiB` per argument,
+4. *Transient memory.* `3 × 2^21 × 16 B = 100,663,296 B = 96.0 MiB`
+   (= 100.7 M**B**) per argument,
    matching the cost probe's `+0.100 GB` io-table term.
 
 **[MODEL] total: about +0.15 s on a 3.453 s Mistral layer, +4.3%; about
@@ -700,7 +807,7 @@ error terms:
 | shape | `m` | `(m + 2(m+1))/|Fp2|` |
 |---|---:|---:|
 | tiny, T32/d16 | 9 | **2^-123.1** |
-| 125M block | 17 | 2^-122.4 |
+| 125M block | 17 | **2^-122.27** (53 over the field size; `2^-122.4` is the `m = 16` value) |
 | **Mistral, T512/d4096** | **21** | **2^-122.0** |
 | all 64 seams of a 32-layer pass at Mistral width | — | **2^-116.0** |
 
@@ -729,9 +836,15 @@ length is `n + Q`, not `n` (`pcs.rs:525-528`;
 | A, H at model scale, `14 / 4 / 256` | 16,384 | 65,536 | 0.25391 | **2^-105.61** |
 | **the scaled endpoint, `14 / 4 / 256`** | 16,384 | 65,536 | 0.25391 | **2^-105.61** |
 
-[COUNTED]. This reproduces D15's "about `2^-106`, from 256 opened
-columns at encoding rate 1/4" and shows the scaled endpoint inherits it
-to within 0.6 bits. **Per D15 this figure must never be quoted as the
+[COUNTED]. This **reproduces** D15's "about `2^-106`, from 256 opened
+columns at encoding rate 1/4" at the tiny geometry and **corrects** it
+at the deployment one, by 0.64 bits (E-9): `ZK60_FABLE_SECURITY_OBLIGATIONS.md:406`
+lists the deployment row's per-opening column term as `2^-106.2`,
+reusing the exact-1/4 figure and ignoring the `+Q`, whereas
+`(n+Q)/nn = 16640/65536` gives `2^-105.609`. **Which convention is in
+force matters for the whole-proof arithmetic that follows**, so it is
+said here first. The scaled endpoint inherits the corrected figure to
+within 0.6 bits. **Per D15 this figure must never be quoted as the
 proof's security.**
 
 **The whole-proof figure.** D15's projection for a 32-layer 8B pass is
@@ -741,19 +854,31 @@ combining to **`2^-94.14` — "about 94 bits"**
 adds **2 commitments and 2 openings per layer, 64 openings over the
 pass**:
 
+The two must be added in **one** convention (E-8). D15's `2^-98.7` is
+`192 × 2^-106.25`, i.e. it is built from the *tiny-geometry*
+per-opening figure; adding 64 new openings at the corrected
+`2^-105.609` while leaving the existing 192 uncorrected mixes the two.
+Recomputing the base at the corrected rate:
+
 ```
-64 endpoint openings      = 2^6 · 2^-105.61                     = 2^-99.61
-new commitment term       = 2^-98.7  +  2^-99.61                = 2^-98.08
-new whole-proof total     = 2^-98.08 +  2^-94.2                 = 2^-94.105
-loss against D15's figure = 94.138 − 94.105                     = 0.03 bits
+192 existing openings     = 192 · 2^-105.609                    = 2^-98.024
+whole proof before io     = 2^-98.024 +  2^-94.2                = 2^-94.102
+64 endpoint openings      = 2^6 · 2^-105.609                    = 2^-99.609
+new commitment term       = 2^-98.024 +  2^-99.609              = 2^-97.609
+new whole-proof total     = 2^-97.609 +  2^-94.2                = 2^-94.070
+loss against the same base = 94.102 − 94.070                    = 0.03 bits
 ```
 
-[COUNTED]. Adding the 64 seam sumchecks (`2^-116`) and 64 `mu` terms
+[COUNTED]. In D15's own published convention the pair reads
+`2^-94.138 → 2^-94.105`; the loss is 0.03 bits either way and nothing
+downstream changes, but the figures must not be crossed between the
+two. Adding the 64 seam sumchecks (`2^-116`) and 64 `mu` terms
 (`2^-128`) changes nothing at this precision.
 
 **So, quoted as D15 requires: the widened private feed-forward pass is
 about 94 bits whole-proof (projected), the same as the legacy private
-pass to within 0.03 bits; each of its ~256 openings is about
+pass to within 0.03 bits; each of its openings — 192 existing (D15's
+projected six per layer over 32 layers) plus 64 new — is about
 `2^-105.6`.** The endpoints are not where the security budget goes. The
 open question D15 leaves — whether the product's target is per-opening
 or whole-proof, and at how many bits — is unchanged by this page.
@@ -778,14 +903,26 @@ position-indexed table anywhere on the path.
 
 1. **The d-block assumption (P14) — a real soundness gap at
    `nb_d > 1`.** `a.data[off .. off + 512]` is one block of
-   `tdb` words; the plane is `nb_d` blocks. Mechanically widening the
-   512 to `T·d` would read past `x[0]` into `z[0]` and `rd[0]`; widening
-   it to `tdb` would bind one third of a 125M plane. **This is the one
+   `tdb` words; the plane is `nb_d` blocks, and `nb_d = 1` **only when
+   `d` is a power of two no larger than 4096** (4096 → 1; 768 → 3,
+   2560 → 5, 3072 → 3, 5120 → 5, 6144 → 3, 8192 → 2, 12288 → 3,
+   16384 → 4), so four real model widths above 4096 have several.
+   Widening the 512 to **`tdb`** binds block 0 only, silently, at every
+   `nb_d > 1` — the quiet and unsound variant. Widening it to **`T·d`**
+   covers `[x[0], x[0] + T·d)` *exactly* and stops where `z[0]` begins
+   (at 125M: 7,340,032 → 7,733,248 = `z[0]`), so it is sound wherever
+   it is expressible, which is only when `nb_d` is a power of two; it
+   is the **round-up-to-`2^19`** variant that reaches `z[0]`, and even
+   that stops at 7,864,320, short of `rd[0] = 8,126,464` (E-3;
+   `statement.rs:159-163`, one running `off`). **This is the one
    place where the memo's "bookkeeping, not new cryptography" is
-   wrong.** §3.3 form 2 and §7 C6.
-2. **`CfsMask::sum_weights`'s `1u64 << n_vars`** overflows above
-   `n_vars = 63`, i.e. `log2 N > 62` (`sumcheck.rs:222-228`). Silent.
-   Add the assert (§7 C4).
+   wrong**, and the fix is unconditional at every width (R-1). §3.3
+   form 2 and §7 C6.
+2. **The `1u64 << n_vars` overflow, in two places** —
+   `CfsMask::sum_weights` (`sumcheck.rs:223-224`, binding at
+   `n_vars ≤ 63`) and `CfsMask::round` (`:266`, binding at 64) — i.e.
+   `log2 N > 62`. Silent. Put the guard in the `CfsMask` type itself
+   (§7 C4, E-19d).
 3. **`MASK_ROWS = 5` gives exactly one reserved pair**, and the hiding
    argument needs one per claim site (§5.1). Under form 2 that stays
    one at every width; under form 1 it must become `2·nb_d + 3`.
@@ -820,7 +957,8 @@ k0 0, disclosed 0 Fp` — is this object at the tiny geometry
 
 The scaled endpoint (Mistral width, form 2, `14 / 4 / 256`): 133 rows,
 128 data rows, one claim, one group, one reserved pair at rows
-(128, 129), the prox row at 130, rows 131–132 uniform, `Q = 256` pads
+(128, 129), the **proximity pair** at (130, 131), row 132 uniform
+slack (E-14), `Q = 256` pads
 per row, 256 opened columns of a 65,536-column coset, Merkle depth 16.
 
 **H-pad** — *the `d` distinct sampled columns satisfy `d ≤ Q = 256`,
@@ -869,6 +1007,24 @@ is a dependency on the number of CLAIM SITES, not on the plane.**
 precisely the joint-view control "two claims sharing one mask pair",
 brute-force disclosed **8** (`§6`). Form 2 keeps one site, one pair, at
 every width. Nothing here depends on 128 data rows rather than 2.
+
+**And the "used by no other claim" half is enforced NOWHERE on the io
+path, at any width (E-18, R-3).** `check_masks`
+(`zk_ffn_fresh_poc.rs:253-321`) checks only that each claim's
+coefficients on the mask rows *span Fp2*; it checks neither
+disjointness across claims nor that a claim is zero on the proximity
+rows. The refusal that does check it — `audit_claims`, with its
+committed negative "a pair shared by two claims"
+(`hashline/src/private_block/protocol.rs:89`,
+`private_block/tests.rs:325`) — exists only in the private block. So on
+the io path H-pair is a construction property, not a checked one: fine
+for form 2 (one claim, one pair, by construction), a live hazard for
+form 1, where one refactor would break it silently into the measured
+8-dimension disclosure. **The general io path must therefore either
+port `audit_claims` or state that form 1 is forbidden** — and the
+joint-view capture of §5.2 becomes a **hard gate**, not a
+recommendation, because it is the only mechanical check of H-pair that
+exists on this path (decision 6).
 
 **H-prox** — *`det(rho_prox[prox], rho_prox[prox+1]) ≠ 0`.*
 
@@ -1044,6 +1200,16 @@ hiding endpoints would be an engineering milestone and a cost
 measurement; it would not be a privacy acceptance, and no page should
 describe it as P1 without D8/D11 beside it.**
 
+**So a feed-forward-only private pass is a COST VEHICLE, and it is
+never called P1** (the security owner's disposition, §3). It is worth
+building for two reasons only: it is the cheapest honest cost vehicle
+for the private line at model width — the only way to put a measured
+number beside the 58.40 s public pass — and its seam is the same
+masked equality between two commitments that a complete private block
+needs at model width to keep the GPU feed-forward prover. What is
+learned here is on the critical path to the real thing; the object
+itself is not the real thing.
+
 **Where this sits against D12 and D13.**
 
 * Under **D12**, a *block* is one proof, one transcript, exactly two
@@ -1085,7 +1251,15 @@ D12, nor a discharge of D8/D11.
 entry points stay pinned.** `PROFILE = b"hashline-zk-mr1/ffn-v3-mr1-fresh-io-poc/2"`
 (`zk_ffn_fresh_io.rs:12`), its absorbed parameter literal (`:141-144`),
 `IoSpec::seams`'s `(32, 16)` (`:40-41`) and `ExpectedIo`'s
-`rows: 7, log_cols: 8` (`:58-68`) are not edited. Everything general is
+`rows: 7, log_cols: 8` (`:58-68`) are not edited. **Nor is any part of
+the frozen seam spec** (R-2, E-2): `SeamSpec`, its four module
+constants `LOG_COLS / INV_RATE / CHECKS / MASK_ROWS`
+(`private_seam.rs:28-36`), `params()` (`:99-105`), `digest()`
+(`:119-133`) and `check_ntt` (`:164-181`) stay **byte-identical**,
+because those constants are hashed into every `SeamSpec::digest()`,
+which the standalone seam transcript absorbs (`:246`) and
+`into_ffn_endpoint` compares (`:157`), and `params()` fixes the root
+the `/2` policy carries. Everything general is
 a **new entry pair beside them**, the way the mask half did it with
 `prove_layer_zk_v3_mr1` / `verify_layer_zk_v3_mr1`
 (`ZK60_FSP_MR1_PROGRESS.md` stage 2: 265 tests, 12 of 12 byte gates,
@@ -1094,13 +1268,13 @@ a **new entry pair beside them**, the way the mask half did it with
 | # | change | pins | class | file(s) | moves a proof byte or a frozen digest? | test that must accompany it |
 |---|---|---|---|---|---|---|
 | **C1** | pass the prover's `t_rows` into `with_io` instead of reading it from the witness | A12 | (c) | `hashline/src/zk.rs:2354`, `:3493` | **No.** At the tiny shape A2 forces the two equal, so every byte is identical | a layout test (no proof generated) that a witness with `w.t_rows != t_rows` is refused at both the prover and the verifier entry |
-| **C2** | replace `MAX_WIRE_BYTES`'s fixed 32 MiB with the **statement-derived exact length** plus one absolute ceiling | A11 | (a), **and a ruling** | `hashline/src/zk_ffn_fresh_wire.rs:11`, `:69-71`; `zk_ffn_fresh_io.rs:507-510` | **No** — the constant is nowhere absorbed | `fixed_wire_bounds_cover_all_allowed_table_sizes` (`zk_ffn_fresh_wire.rs:418-473`) stays green unchanged; new: a statement above the ceiling is refused, and a frame one byte off the derived length is refused |
+| **C2** | replace `MAX_WIRE_BYTES`'s fixed 32 MiB with the **statement-derived exact length** plus one absolute ceiling. The ceiling is **load-bearing** (E-19a): it is evaluated **inside the derived-length function and before any allocation** — where `MAX_WIRE_BYTES` sits now (`zk_ffn_fresh_io.rs:507-510`) — with the exact-equality check (`:558-560`) staying the primary defence. Once A1 is relaxed the domain is `Layout::check`'s `2^24` per dimension, and `Shape::len` does unchecked `usize` arithmetic (`zk_ffn_fresh_wire.rs:47-70`) whose no-overflow argument (`statement.rs:41-45`) covers offsets, not frame lengths: **checked arithmetic is owed**, or the extended argument | A11 | (a), **and a ruling** | `hashline/src/zk_ffn_fresh_wire.rs:11`, `:69-71`; `zk_ffn_fresh_io.rs:507-510`, `:558-560` | **No** — the constant is nowhere absorbed | `fixed_wire_bounds_cover_all_allowed_table_sizes` (`zk_ffn_fresh_wire.rs:418-473`) stays green unchanged; new: a statement above the ceiling is refused **before any allocation**, a frame **one byte long and one byte short** of the derived length is refused before allocation (R-5), and a `MAX_DIM`-boundary test |
 | **C3** | derive the witness plane lengths (`T·d`, `T·f`, `d·f`) and the endpoint plane shape from the statement | A2, A6 | (a) | new module beside `zk_ffn_fresh_poc.rs` / `zk_ffn_fresh_io.rs` | **No** (new entry points only) | witness-length negatives at the new shape: short plane, long plane, non-canonical word — the tiny analogues are `zk_ffn_fresh_io_tests.rs:160-161` |
-| **C4** | `SeamSpecG`: plane bound becomes the two real ones — `L + 256 <= 512` (assert it, `zk.rs:442`) and `log2 N <= 62` (`sum_weights`'s `1u64 << n_vars`, `sumcheck.rs:222-228`) — and `MASK_ROWS` becomes `2·claim_sites + 3` with an assert | A5 | (a) for the 4,096; **(c)** for the slot, the mask rows and the axis rule | new type beside `hashline/src/private_seam.rs`'s `SeamSpec` | **No** (the existing `SeamSpec` is untouched) | extend `tests/test_zk60_fable_cfs_channel.py` (its `len + 256 <= 512` loop at `:153-156`) with the **T = 512 Mistral** row; a unit test that `log2 N = 63` is refused |
-| **C5** | the endpoint takes the **enclosing `LayerParams`** and the matching `NttTables`, deleting the module's private `LOG_COLS / INV_RATE / CHECKS` for the general path | P12, P15, A3 | **(c)** | `private_seam.rs:28-36`, `:99-105`, `:164-181`; `zk_ffn_fresh_io.rs:115`, `:456` | **No** for existing paths; the general path is a new profile | a test that prover and verifier derive the *same* `PcsParams` from one source; a negative where they are made to differ and the opening is refused; `check_ntt` accepts the 2^16 table and still refuses a tampered root table |
-| **C6** | the **`mu`-batched multi-block seam** (§3.3 form 2): draw `mu` after both roots are absorbed, batch the `nb_d` d-blocks into one claim with `nb_d` data parts | **P14**, A10's slice | **(c)** — this one is a soundness fix, not plumbing | the new io module | **No** (new profile) | **the test that would have caught P14**: at a shape with `nb_d = 3`, tamper one word in block 0, then block 1, then block 2, and require rejection in all three. A naive widening passes 1 and 2 |
-| **C7** | derive the policy shape, `ENDPOINT_OPEN_BYTES`, the frame lengths and every receipt shape check from the checked statement | A7, A8, A9, A10 | (b) for the policy, (a) for the lengths, **(c) for A9** | the new io module and its wire | **No** (new profile) | every A9 bound re-pinned as a *derived* value and never read from the frame: the truncation, extension, bit-flip, out-of-bounds-index and non-canonical-word batteries of `zk_ffn_fresh_io_tests.rs:187-314`, re-run at the new shape |
-| **C8** | the new entry pair and the new domain: `PROFILE .../3`, a parameter literal carrying `(T, d, f, log_cols, inv_rate, Q, nb_d)`, `prepare_endpoints_general`, `prepare_general`, `verify_general`, `verify_bytes_general` | A1, A4 | **(b)** | new module | **No for existing bytes, by construction** — a new tag means the widened profile cannot be confused with `/2` | the `compile_fail` doctest that a second `finish` does not type-check, copied to the new `PendingProof`; a test that a `/2` receipt is refused by the `/3` verifier and vice versa (the tiny analogue is `zk_ffn_fresh_io_tests.rs:301-303`) |
+| **C4** | `SeamSpecG`: plane bound becomes the two real ones — `L + 256 <= 512` (assert it, `zk.rs:442`) and `log2 N <= 62`, whose guard goes **into the `CfsMask` type itself** (`CfsMask::random` / `len`), because the `1u64 <<` overflow is in **both** `sum_weights` (`sumcheck.rs:223-224`, ≤ 63) and `round` (`:266`, 64), not at one call site (E-19d) — and `MASK_ROWS` becomes `2·claim_sites + 3`, one row of slack over the real minimum `2·claim_sites + 2` (E-14), with an assert. `SeamSpecG` also pins the data region to exactly `nb_d·tdb` with `data_rows·n == nb_d·tdb` (E-17), and the io path either ports `audit_claims` or forbids form 1 (E-18) | A5 | (a) for the 4,096; **(c)** for the slot, the mask rows and the axis rule | new type beside `hashline/src/private_seam.rs`'s `SeamSpec` | **No** (the existing `SeamSpec`, its four constants, `params()`, `digest()` and `check_ntt` are untouched) | extend `tests/test_zk60_fable_cfs_channel.py` (its `len + 256 <= 512` loop at `:153-156`) with the **T = 512 Mistral** row; a unit test that `log2 N = 63` is refused; **a `SeamSpecG` whose data region is wrong (`data_rows·n != nb_d·tdb`) is refused at construction** (R-5) |
+| **C5** | **ADDITIVE, per E-2 / R-2**: a **new** `SeamSpecG` that carries the **enclosing `LayerParams`** and the matching `NttTables`, with **its own digest domain** and its own `check_ntt_for(max_log)`, beside the existing ones — exactly the way C4 is written. `SeamSpec`, its four module constants, `params()`, `digest()` and `check_ntt` are left **byte-identical**; nothing is edited in place and nothing is deleted. The intent (one source of truth for the general path's PCS parameters) is unchanged | P12, P15, A3 | **(c)** for the general path; the frozen path is not touched | new type and new function beside `private_seam.rs:28-36`, `:99-105`, `:119-133`, `:164-181`; general-path call sites only at `zk_ffn_fresh_io.rs:115`, `:456` | **No — and only because nothing existing is edited.** Editing the four constants, `params()`, `digest()` or `check_ntt` in place **would** move every byte of the `/2` profile: they are hashed into `SeamSpec::digest()` (`:119-133`), absorbed by the standalone seam transcript (`:246`) and compared by `into_ffn_endpoint` (`:157`), and `params()` fixes the endpoint root and the `rows: 7, log_cols: 8` the `/2` verifier hard-codes (`zk_ffn_fresh_io.rs:58-68`) | a test that prover and verifier derive the *same* `PcsParams` from one source on the general path; a negative where they are made to differ and the opening is refused; `check_ntt_for` accepts the 2^16 table and still refuses a tampered root table, **while `check_ntt` is unchanged and still refuses anything but `NttTables::new(12)`**; the tiny digests and the `/2` byte gates unmoved |
+| **C6** | the **`mu`-batched multi-block seam** (§3.3 form 2), **unconditional for any general entry point at every width** (R-1): batch the `nb_d` d-blocks into one claim with `nb_d` data parts. Four conditions travel with it. (1) **`mu` is `nb_d` fresh transcript draws taken at the point `tau` is drawn** (`zk_ffn_fresh_io.rs:292`), hence after the expected-IO absorb (`:139-140`), after `absorb_com(A)` (`zk.rs:2542`) and after M (`:2545`); the verifier draws it at the identical point (`:385-386`); it is never re-derived from `rho` or the terminals; and it is **NOT refused on zero** (unlike `c` and `e`), because a zero `mu_c` already sits inside the one-over-field-size batching term of §3.3 and a refusal-plus-retry would be the forbidden resampling (E-16). (2) the endpoint's committed **data region is exactly `nb_d·tdb`**, with `n \| tdb`, `data_rows·n == nb_d·tdb` asserted and no padded row before `mask_rows`; a spec that violates it is **refused at construction** (E-17). (3) `audit_claims` is ported to the io path, or form 1 is forbidden (E-18). (4) per-commitment `log_n` (E-19c, C7) | **P14**, A10's slice | **(c)** — this one is a soundness fix, not plumbing | the new io module | **No** (new profile) | **the test that would have caught P14**: at a shape with `nb_d = 3`, tamper one word in block 0, then block 1, then the last block, and require **the VERIFIER to reject all three** (R-5) — a `tdb`-widening rejects the block-0 tamper and **accepts** the block-1 and block-2 tampers, which is the whole of P14. The existing tiny negative would not have caught it: `wrong_plane` perturbs position 271 (`zk_ffn_fresh_io_tests.rs:111-114`), which lies inside block 0 at every `nb_d`. Plus the E-17 negative: a general spec whose data region is not `nb_d·tdb` is refused at construction |
+| **C7** | derive the policy shape, `ENDPOINT_OPEN_BYTES`, the frame lengths and every receipt shape check from the checked statement — **and parameterise `log_n` per commitment** (E-19c): A's column count is `min(log_cols, log_t + min(log_db, log_fb))` (`zk.rs:2005`) and the endpoint's is `min(log_cols, log_t + log_db)`, which differ whenever `log_fb < log_db` and the minimum falls below `log_cols`, while `claim()` and `mask_value` (`zk_ffn_fresh_io.rs:201-203`, `:204-235`) are shared between the two sites and hard-code one width | A7, A8, A9, A10 | (b) for the policy, (a) for the lengths, **(c) for A9** | the new io module and its wire | **No** (new profile) | every A9 bound re-pinned as a *derived* value and never read from the frame: the truncation, extension, bit-flip, out-of-bounds-index and non-canonical-word batteries of `zk_ffn_fresh_io_tests.rs:187-314`, re-run at the new shape; a case where A's and the endpoint's `log_n` differ |
+| **C8** | the new entry pair and the new domain: `PROFILE .../3`, a parameter literal carrying `(T, d, f, log_cols, inv_rate, Q, nb_d)`, `prepare_endpoints_general`, `prepare_general`, `verify_general`, `verify_bytes_general` | A1, A4 | **(b)** | new module | **No for existing bytes, by construction** — a new tag means the widened profile cannot be confused with `/2` | the `compile_fail` doctest that a second `finish` does not type-check, copied to the new `PendingProof`, **plus the runtime second-use-of-an-owner refusal** (`:170-184`); **a proof against a different root rejected** at the new entry points (the six relabelled policies, `:284-300`) (R-5); a test that a `/2` receipt is refused by the `/3` verifier and vice versa (the tiny analogue is `zk_ffn_fresh_io_tests.rs:301-303`) |
 | **C9** | three new phase lines: `endpoint commit`, `io endpoint argument 0/1`, `endpoint openings` | — | (a) | the new io module, `hashline/src/phase_profile.rs` | **No** | the probe driver prints all three and they sum into the total, as the mr1 lane's eleven-phase attribution did (it closed to 0.000 s) |
 | **C10** | offer the endpoint commitments to the device, and lift the examples' blanket GPU refusal behind a CPU/GPU parity gate | B3 of the memo | (a) | `private_seam.rs:215` already calls `pcs::commit_zk`; `hashline/examples/zk60_fresh_ffn.rs:87-89`, `zk60_bound_ffn.rs:67-69` | **No** (the profile draws fresh randomness, so there is no byte to move) | CPU/GPU parity at the **tiny** shape first: same statement, same policy, both binaries accept each other's receipts |
 
@@ -1108,7 +1282,7 @@ a **new entry pair beside them**, the way the mask half did it with
 
 | requirement | at the tiny shape today | owed at the new shape |
 |---|---|---|
-| an endpoint committing a **different plane** must be rejected | **exists** — `bound_ffn_refuses_recommitted_wrong_input` / `_output` (`zk_ffn_fresh_io_tests.rs:108-138`), which recommits the wrong plane and uses its **real** root, so no stale hash explains the refusal | re-run at the new shape, **once per d-block** (C6) |
+| an endpoint committing a **different plane** must be rejected | **exists** — `bound_ffn_refuses_recommitted_wrong_input` / `_output` (`zk_ffn_fresh_io_tests.rs:108-138`), which recommits the wrong plane and uses its **real** root, so no stale hash explains the refusal | re-run at the new shape, **once per d-block** (C6) — in particular a tamper in **block 1** and in the **last block** must be rejected by the **verifier** (R-5); the tiny negative's position 271 sits in block 0 and proves nothing about the others |
 | a proof against a **different root** must be rejected | **exists** — the six relabelled policies at `:284-300` (input root, output root, context, both scales, swapped roles) | re-run; add a policy whose `rows`/`log_cols` differ from the statement's derived shape (new, because the shape stops being a constant) |
 | a **second use of an owner** must be refused | **exists** — `finish` consumes both owners by value (`:276`), pinned by the `compile_fail` doctest (`:125-131`), plus the runtime mismatch test `bound_ffn_consumes_mismatched_owner_and_checks_slot` (`:170-184`) | copy both to the new entry points |
 | a **duplicated or role-swapped** endpoint opening must be rejected | **exists** — `:216-228` | re-run |
@@ -1136,11 +1310,18 @@ attempted.** This is the gate, in order:
    mr1 lane's 30 runs under heavy load produced identical ones — so
    this rung does **not** need a quiesced box.
 5. Every tamper test above, green, including the three per-block
-   tampers of C6.
+   tampers of C6 — block 0, block 1 and the last block, each **rejected
+   by the verifier** (R-5) — the frame one byte long and one byte short
+   refused before any allocation, a proof against a different root
+   rejected, a second use of an owner refused, and a general spec with
+   the wrong data region refused at construction.
 6. A **joint-view capture at that shape**, run through
    `scripts/zk60_native_joint_view.py`, reporting `Input 0 / Output 0`
-   and `k0 = 0` with every negative control firing (§5.2). This is the
-   check that the widening did not quietly break H-pair.
+   and `k0 = 0` with every negative control firing (§5.2). This is a
+   **HARD GATE, not a recommendation** (R-3, E-18): it is the only
+   mechanical check on this path that the widening did not quietly
+   break H-pair, whose "used by no other claim" half is enforced
+   nowhere in io code.
 7. Only then the Mistral-width rung (R5 of the cost probe), GPU, one
    layer, card verified idle, detached, never chained.
 
@@ -1154,13 +1335,29 @@ attempted.** This is the gate, in order:
 *Recommend yes.* It removes P12's two sources of truth for one
 commitment's parameters, cuts a Mistral endpoint opening from 16.1 MiB
 to 0.90 MiB, and costs 0.6 bits per opening (`2^-106.25` → `2^-105.61`).
+**Two conditions.** It is done **additively**, through a new
+`SeamSpecG` with its own digest domain, leaving `SeamSpec` and its four
+constants byte-identical (E-2, R-2). And the geometry is **clamped
+through `pcs_for(log_t + log_db)`**, not the raw `log_cols` (E-19b): if
+`log_cols` exceeded the plane's bit width the data part would become a
+sub-row slice (`log_size < log_cols`), which `check_masks` refuses
+outright (`"unsupported repaired claim mapping"`,
+`zk_ffn_fresh_poc.rs:268`), so the profile would not run at all.
 
 **2. Form 1 (one seam argument per d-block) or form 2 (one argument per
 side, blocks batched by a transcript-drawn `mu`)?**
 *Recommend form 2.* It keeps `MASK_ROWS = 5`, one reserved pair and one
 CFS slot per side at every width — so H-pair's one-pair-per-claim-site
 invariant cannot be broken by a later widening — and halves the 125M
-byte cost (+27.4% against +57.0%) for one `2^-128` term.
+byte cost (+27.4% against +57.0%) for one `2^-128` term. **And it is
+unconditional (R-1):** `nb_d = 1` only when the width is a power of two
+no larger than 4096 (4096 → 1; 768 → 3, 2560 → 5, 3072 → 3, 5120 → 5,
+6144 → 3, 8192 → 2, 12288 → 3, 16384 → 4), so "this width is
+unaffected" is not an available exemption at 8B or anywhere else; every
+general entry point binds the whole plane through the batched
+multi-block seam, including at the widths with one block. Form 2 comes
+with the four conditions of C6 (E-16 … E-19), and form 1 is forbidden
+unless `audit_claims` is first ported to the io path (E-18).
 
 **3. `MAX_WIRE_BYTES`: raise the constant, or make the bound
 statement-derived with one absolute ceiling?**
@@ -1186,10 +1383,15 @@ repository has ever run a hiding endpoint above 512 words.
 
 **6. Should a joint-view capture at the widened geometry be a hard
 acceptance gate for C3–C8?**
-*Recommend yes.* It is cheap (the analysis is a rank over 133 rows and
+***Yes — a HARD GATE, not a recommendation*** (R-3, E-18). It is cheap
+(the analysis is a rank over 133 rows and
 a 256 × 256 Vandermonde) and it is the only mechanical check that the
 widening did not break H-pair — which is the one hypothesis with a
-structural dependency (§5.1).
+structural dependency (§5.1) and whose "that pair is used by no other
+claim" half is enforced nowhere in io code: `audit_claims` exists only
+in `private_block/protocol.rs:89`. The general io path ports that
+audit, and an io-path capture at the widened shape is a gate **before
+the path is used for anything**.
 
 **7. At the widened endpoint should `q_pad` be `num_col_checks + 1`
 rather than `num_col_checks`?** The reason given for declining this on
@@ -1232,7 +1434,8 @@ would call it 0.03 bits. Neither is wrong; only one is the product's.
    but prove nothing about the approved calibration.
 6. **D15** — the whole-proof target itself (how many bits, and whether
    the figure is per-opening or whole-proof) is still Victor's ruling.
-7. **P14 is a live soundness gap in any mechanical widening.** It is
+7. **P14 is a live soundness gap in the mechanical widening that keeps
+   a single `tdb`-wide slice** (E-4). It is
    not a gap in the code as it stands, because A1 refuses every shape
    with `nb_d > 1`. It becomes one the moment A1 is relaxed without
    C6.
@@ -1284,3 +1487,43 @@ would call it 0.03 bits. Neither is wrong; only one is the product's.
 ---
 
 *(draft complete)*
+
+## Errata applied (2026-09-19)
+
+Every item of `ZK60_PRIVATE_ENDPOINTS_AT_SCALE_CHECK.md`'s errata table
+(E-1 … E-19) and every ruling of
+`ZK60_PRIVATE_ENDPOINTS_AT_SCALE_DISPOSITION.md` (R-1 … R-5) is applied
+in the text above; the status line at the head of the page records the
+acceptance. Nothing else in the page was changed, and no caveat was
+weakened: no privacy property is established here, D8 and D11 remain
+open, and every figure keeps its `[MEASURED]` / `[COUNTED]` / `[MODEL]`
+label.
+
+| item | section(s) changed | what changed |
+|---|---|---|
+| **E-1** (BLOCKING) | §0 headline 4; §2.3 P14; §4.3 item 1; §8.1 decision 2 | "Mistral has `nb_d = 1` and is unaffected" replaced everywhere by the rule `nb_d = d / 2^min(trailing_zeros(d), 12)`, so one d-block **only** when the width is a power of two no larger than 4096 (768, 2560, 3072, 5120, 6144, 8192, 12288, 16384 have 3, 5, 3, 5, 3, 2, 3, 4), and the multi-block binding stated as **unconditional for any general entry point**. |
+| **E-2** (BLOCKING) | §2.3 P12 and P15; §7 standing condition; §7 C5 (change, class, files, "moves a proof byte?" and test cells); §8.1 decision 1 | C5 made **additive**: a new `SeamSpecG` with its own digest domain and its own `check_ntt_for`, leaving `SeamSpec`, its four constants, `params()`, `digest()` and `check_ntt` byte-identical. The "moves a proof byte?" cell now reads "No — and only because nothing existing is edited", and names what an in-place edit would move. |
+| E-3 | §4.3 item 1 | The "would read past `x[0]` into `z[0]` and `rd[0]`" sentence struck: `T·d` covers the input plane exactly and ends where `z[0]` begins (7,733,248); the round-up-to-`2^19` variant is the one that reaches `z[0]`, and it stops short of `rd[0] = 8,126,464`. |
+| E-4 | §2.3 P14 (headline and a new table); §4.3 item 1; §8.1 decision 2; §8.2 item 7 | The three candidate widenings distinguished: `tdb` silently unsound at every `nb_d > 1` (the quiet one), `T·d` sound wherever expressible, round-up a loud failure that also breaks H-pair. |
+| E-5 | §2.2 A12 row and the counts paragraph | A12 reclassified (c) → **(a) robustness/completeness**: the verifier derives its layout wholly from `st` (`zk.rs:3493`) and `Shape::validate` refuses a row mismatch, so a diverging prover is rejected, never believed. Counts now 4 capacity / 2 protocol / 5 security-relevant / 1 split; C1 and its test unchanged. |
+| E-6 | §2.3 P12 | P12's consequence corrected to a **refusal** (`pcs.rs:959-962`, `"pcs zk: log_cols mismatch"`), class (a)/(b) rather than (c). |
+| E-7 | §3.1 | 125M `log_cols` sweep: **0.449 MiB at 12** against **0.699 MiB at 14**, cost **0.25 MiB per endpoint** (0.50 MiB per pair), replacing 0.59 / 1.22 / ~0.6 MiB. The optimum stays at 12 and the Mistral sweep is unaffected. |
+| E-8 | §4.2 whole-proof block | The base recomputed in one convention: 192 existing openings at the corrected `2^-105.609` give **`2^-94.102 → 2^-94.070`**; D15's published pair (`2^-94.138 → 2^-94.105`) is kept beside it as the other convention, with a warning not to cross them. The loss is 0.03 bits either way. |
+| E-9 | §4.2 per-opening paragraph | "This reproduces D15" → it **reproduces** at the tiny geometry and **corrects** the deployment figure by 0.64 bits (`2^-106.2` ignores the `+Q`; the true value is `2^-105.609`), said before the arithmetic that depends on it. |
+| E-10 | §4.1 table | 125M block seam error `2^-122.4` → **`2^-122.27`** (53 over the field size); `2^-122.4` noted as the `m = 16` value. |
+| E-11 | §3.5 prover-seconds item 4 | `3 × 2^21 × 16 B = 100.7 MiB` → **100,663,296 B = 96.0 MiB** (= 100.7 MB). |
+| E-12 | §3.5 | 32-layer total `1.20 GiB → 1.28 GiB` → **1.197 GiB → 1.270 GiB**, with `1,285,578,368 + 32 × 2,443,456 = 1,363,768,960 B` shown. |
+| E-13 | §7 C6 test cell | "A naive widening passes 1 and 2" replaced by "a `tdb`-widening rejects the block-0 tamper and **accepts** the block-1 and block-2 tampers — which is the whole of P14", plus the note that `wrong_plane`'s position 271 lies in block 0 at every `nb_d`. |
+| E-14 | §1.1 row table and the budget sentence after it; §5.1 opening paragraph | Rows (4, 5) are the **proximity pair** (H-prox is about both), row 6 is the only slack row; budget 2 + 2 + 1 = `MASK_ROWS = 5`, general minimum `2·claim_sites + 2`, C4's `2·claim_sites + 3` keeps one row of slack. The scaled endpoint's rows relabelled the same way. |
+| E-15 | §0 short answer 1; §3.4 after the derivation; §4.2 closing sentence | (a) "each of its ~256 openings" → "192 existing (D15's projected six per layer over 32 layers) plus 64 new". (b) `log2 N` defined as the **cube's** bit width `log_t + log_db`, not the plane's `log2(nb_d·tdb)`. |
+| E-16 (condition) | §3.3 form 2 (new paragraph); §7 C6 | `mu` is `nb_d` fresh transcript draws taken **at the point `tau` is drawn** (`:292`), after expected-IO (`:140`), after A's root (`zk.rs:2542`) and after M (`:2545`); identical point on the verifier side (`:386`); never re-derived; and **not refused on zero**, with the reason. |
+| E-17 (condition) | §2.3 P13 (new paragraph); §3.3 form 2; §7 C4 and C6 | The endpoint's committed data region pinned to exactly `nb_d · tdb` with `n \| tdb` and `data_rows·n == nb_d·tdb` asserted, no padded row before `mask_rows`; rounding up is a completeness break **and** a hiding break `check_masks` would not catch; refusal at construction with a negative test. |
+| E-18 (condition) | §5.1 H-pair (new paragraph); §7 C4 and C6; §7 acceptance item 6; §8.1 decision 6 | H-pair's "that pair is used by no other claim" is enforced nowhere on the io path (`audit_claims` exists only at `private_block/protocol.rs:89`); the general path ports it or forbids form 1, and the joint-view capture becomes a **hard gate**. |
+| E-19 (condition) | §2.2 A10 row; §3.4 last paragraph; §4.3 item 2; §7 C2, C4, C7; §8.1 decision 1 | (a) the absolute ceiling evaluated inside the derived-length function **before any allocation**, exact-equality check primary, checked arithmetic owed, `MAX_DIM` boundary test; (b) clamp through `pcs_for(log_t + log_db)`; (c) per-commitment `log_n`; (d) the `1u64 <<` guard placed in the `CfsMask` type itself, covering `sum_weights` (≤ 63) and `round` (64). |
+| **R-1** | §0 headline 4; §2.3 P14; §3.3 recommendation; §7 C6; §8.1 decision 2 | The multi-block binding is unconditional at every width, including widths with one d-block; no "this width is unaffected" exemption in code or in this document. (Same text as E-1.) |
+| **R-2** | §7 standing condition; §7 C5; §2.3 P12 and P15; §8.1 decision 1 | The tiny private-IO path is frozen and everything new is additive; C5's "moves a proof byte?" cell corrected accordingly. (Same text as E-2.) |
+| **R-3** | §5.1 H-pair; §7 acceptance item 6; §8.1 decision 6 | Pair exclusivity enforced in code on the io path, and an io-path joint-view capture at the widened shape is a hard gate before the path is used for anything. (= E-18.) |
+| **R-4** | §3.3 form 2; §2.3 P13; §7 C2, C4, C6, C7; §8.1 decision 1 | The four conditions on the batched seam recorded as binding, not optional. (= E-16, E-17, E-19.) |
+| **R-5** | §7 C2, C4, C6 and C8 test cells; the verifier-side tamper table; acceptance-check item 5 | Tests added: per-block tampers in **block 1** and in the **last block** rejected by the **verifier**, a proof against a different root, a second use of an owner, a general spec with the wrong data region refused at construction, and a frame one byte long and one byte short refused **before allocation**. |
+| status line | head of page | Replaced the "DRAFT — NOT ACCEPTED" line with the acceptance line of the disposition and D17, keeping "not a privacy acceptance", "D8 and D11 remain open" and "paper only". |
+| conceptual section | §6 | Added the disposition's §3 statement: a feed-forward-only private pass is a **cost vehicle** and is **never called P1**; what is learned is on the critical path, the object is not the real thing. |
