@@ -351,12 +351,11 @@ pub(crate) fn imposed_at_shape(sh: &Shape) -> HashInputs {
 /// four different members of the BLAKE3 family, so a coincidence of their
 /// input LENGTHS separates nothing and costs real geometry.
 pub(crate) fn imposed_shape_free(tag: &HashTag) -> HashInputs {
-    // STAGE 18 FAILING-FIRST STEP: the tag is threaded through every caller
-    // but is DELIBERATELY IGNORED here, so that this commit's behaviour is
-    // byte for byte stage 17's and the two new tests fail the way stage 17's
-    // recorded deviation says they do. The fix is the next commit.
-    let _ = tag;
-    shape_free()
+    if tag.is_legacy() {
+        shape_free()
+    } else {
+        HashInputs { by_len: BTreeMap::new() }
+    }
 }
 
 // ---------------------------------------------------------------- T-4: paths
