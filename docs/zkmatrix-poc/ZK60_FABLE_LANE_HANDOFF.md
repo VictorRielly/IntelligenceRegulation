@@ -6,6 +6,57 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 04:20 (2026-09-20) — `audit_claims` is the whole defence against a shared mask pair; 125M lane stage 5 pushed; the privacy argument's paper steps all have a checked core
+
+- **One thing in your code is now known to be load-bearing in a way nobody
+  had measured: the pair-exclusivity check in `audit_claims`.** The gate's
+  small model was extended overnight with real opening groups
+  (`zk60-native-jointview` at `1857c04`, pushed; tests 112 → 139, the two
+  gates' outputs on your four captures unchanged apart from timing fields).
+  With two ordinary terminals sharing one reserved pair, **the dense rank
+  shows 2 disclosed and the tool's reduction shows 0** — both marginals keep
+  full support, the joint support halves, and two data vectors give disjoint
+  supports. The reduction is blind to it by construction (it drops the claim
+  values); the joint stage fails only through the pair-exclusivity check, as
+  `audit_claims` does in Rust. Across two groups even a per-group system
+  misses it. **So: never relax `audit_claims`, and any new claim path (the
+  125M lane's endpoints, a future form E) ports it before its first external
+  claim** — already a build precondition (D17, form-E ruling R-5), now with a
+  measured reason. Also confirmed in that model: the reduction misses an
+  opened position beyond the pad budget (dense 3, reduction 0); the
+  real-capture path already refuses on it and the small-model path now does
+  too. The one legitimate sharing — the helper commitment's two groups on the
+  zero-sum pair — is ranked jointly at 2, the public lookup identity.
+- **125M lane, stage 5 pushed at `d9c57f9`** [MEASURED by the lane]: the
+  layout and the prover's relation definitions now run over a shape, the toy
+  being one instance of the same code — `describe()` byte-identical on the
+  first try, toy receipt and digest unmoved, filter 98 → 100 passed / 0
+  failed / 4 ignored, **shared-file list unchanged, the three frozen crates
+  identical to `11c01b2`**. `protocol.rs` and `wire.rs` are not yet
+  shape-driven, so there is no rung receipt yet; stage 6 is on that, then the
+  pad-zero term, your endpoint changes C1 … C8, and the rung end to end. I
+  have ruled that no rung run is called a proof before the pad indicators are
+  in (two public tables have inhomogeneous clauses).
+- **The privacy argument for the toy block: every paper step now has a core
+  that survived an independent attack** — the generic-rank lemma, the
+  joint-law composition (its one unreviewed step since reviewed and
+  corrected: `ZK60_TERMINAL_SURJECTION_REVIEW.md`), the hash layer with the
+  Fiat–Shamir lift (`ZK60_HASH_LAYER_AND_FS_LIFT_DISPOSITION.md`). Not a
+  privacy acceptance: the gate has 10 open channels, one errata pass is
+  running, and Victor's rulings D19–D21 are not yet given. Three notes for
+  your code from it: **(a)** Merkle node inputs and salted-leaf inputs are
+  both 64 untagged bytes — for hiding it is negligible, for *binding* it is
+  the classic internal-node-as-leaf ambiguity; I believe fixed-depth,
+  position-checked paths make it need a preimage, but nobody has checked
+  soundness there, and it is one more reason for a separating tag in new
+  profiles; **(b)** some refusal strings are data-dependent for inputs the
+  statement does not admit (`private_block/witness.rs:80, 271, 287`) — a
+  service must never return a refusal reason to anyone not entitled to the
+  input; **(c)** four conditions are being pinned as byte-free assertions on
+  the 125M lane (no leaf without a salt; no commitment with 5 or 8 rows; no
+  28- or 35-byte transcript label; pad count at least the number of opened
+  columns).
+
 ### 03:37 (2026-09-20) — 125M lane stage 4 (partial) pushed at `f2c89d4`; one finding about the ACCEPTED toy profile
 
 - **Stage 4 got part of the way** [MEASURED by the lane]: the head permutation
