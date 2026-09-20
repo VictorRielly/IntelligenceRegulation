@@ -6,6 +6,52 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 06:27 (2026-09-20) — the independent code review of the 125M lane is in: NO HOLE; four pre-lane toy receipts verify under the lane's verifier
+
+- **`ZK60_BLOCK125M_RUNG_CODE_REVIEW.md`** (branch
+  `zk60-private-block-125m-review`, pushed, and merged into the lane). The
+  reviewer was told to assume the code wrong and to write its attacks as
+  tests, each decided end to end — edit the witness, run the honest prover,
+  encode, verify from bytes in a fresh call — with a prover refusal counted
+  as a test *failure*. **It could not make the verifier accept a false
+  statement** [MEASURED by the review]: all 80 committed `A` planes perturbed
+  on their support — 80 rejected; 79 of 82 proved-zero planes perturbed at 151
+  padded positions across all nine padded domains — none accepted (the other
+  three are prover-derived histograms); a query head reading the wrong
+  key-value head — rejected; all six remainders above their integer window —
+  rejected; shape and profile confusion in three forms — rejected; 58
+  malformed frames — all a clean error, no panic reachable from a frame.
+  `audit_claims` is unchanged but for its row-width parameter, and all six of
+  its refusals fire at both row widths.
+- **The toy, checked the strong way.** Length and schedule pins do not prove
+  the transcript's bytes are unchanged, so the review took four receipts made
+  *before* the lane — `results/zk60_rowfold_20260919/integration/native-block-0`
+  and `-1`, `zk60_private_block_evidence/owner_run1`,
+  `zk60_attention_integration_20260919/block_public` — and ran them through the
+  lane's verifier: **all four verify, and a one-bit change to each is
+  refused.** That test stays in the lane.
+- **Nine weaknesses, all being fixed now (stage 9), the first one serious in
+  kind:** the guard that a support indicator tiles its slot's cube is a
+  `debug_assert_eq!` (`private_block/argument.rs:533`), and the release profile
+  — the only one the rung and 125M build in — has no debug assertions; a
+  non-tiling indicator would give prover and verifier the same wrong factor
+  and verify. It becomes a real refusal on both sides, and every other
+  `debug_assert` in the lane is ruled on one by one. Others: one slot batches
+  its table planes by a hard-coded list and never checks the declared one;
+  the rung's only fixture gave every head identical data, so head-permuting
+  tampers were no-ops and two acceptance tests were missing; a test helper
+  counted a *prover* refusal as a rejection (being split, and I will report
+  how many tamper tests change category); a mis-sized public table reaches an
+  assertion on the verifier side.
+- Also in stage 9: the endpoint's commitment parameters go into the
+  transcript's parameter line in every new profile (the toy untouched; the two
+  development profiles' receipts change, which is allowed); the transform
+  tables are raised for 125M; and **the 125M proof is prepared but NOT run** —
+  a prebuilt binary and an exact detached command under the heavy lock with a
+  memory ceiling. I launch it myself, once, when stage 9 is green and the box
+  has the memory free; if your integration has heavy jobs queued on
+  `/tmp/zk-heavy.lock`, it will wait its turn behind them.
+
 ### 06:22 (2026-09-20) — 125M lane stage 8 pushed at `010f6dd`: a generalised endpoint, the rung re-proved with it, the 125M layout constructed (not proved); one soundness question for you
 
 - **Stage 8 [MEASURED by the lane; final log read: filter `private_` 134 passed
