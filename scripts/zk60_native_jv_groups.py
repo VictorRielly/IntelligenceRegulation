@@ -812,11 +812,99 @@ def run_cases():
     return out
 
 
-if __name__ == "__main__":
-    import json
-    import sys
+SUMMARY_ROWS = [
+    # case, where the two figures live, what the case is
+    ("a", "a_multi_member_group", "m >= 3 claims batched by lambda_c into one group"),
+    ("b", "b_shared_pair", "two ordinary terminals on one reserved pair"),
+    ("c", "c_h_style_legitimate_sharing", "two groups on the zero-sum pair"),
+    ("d", "d_wrong_pair_shape", "base-field-dependent pair weights, cm != 0"),
+    ("e", "e_zero_lambda", "lambda_c = 0 on one member"),
+    ("f", "f_beyond_the_pad_budget", "one opened position beyond the pad budget"),
+]
 
-    rec = run_cases()
-    json.dump(rec, sys.stdout, indent=1, sort_keys=True)
-    sys.stdout.write("\n")
-    raise SystemExit(0 if rec["ok"] else 1)
+
+def summary(rec):
+    """The six-row table: reduction against dense, expected against observed."""
+    pick = {
+        "a": lambda r: r["runs"][0],
+        "b": lambda r: r["in_one_group"],
+        "c": lambda r: r["figures"],
+        "d": lambda r: r["singleton_fp_dependent"],
+        "e": lambda r: r["runs"][0],
+        "f": lambda r: r["runs"][0],
+    }
+    rows = []
+    for tag, key, what in SUMMARY_ROWS:
+        fig = pick[tag](rec[key])
+        rows.append(
+            {
+                "case": tag,
+                "what": what,
+                "dense_disclosed_fp": fig["dense_disclosed_fp"],
+                "reduction_disclosed_fp": "refused"
+                if fig["reduction_refused"]
+                else fig["reduction_disclosed_fp"],
+                "reduction_unguarded_fp": fig["reduction_disclosed_fp_unguarded"],
+                "per_group_step_figure_fp": fig["per_group_step_figure_fp"],
+                "agree": fig["agree"],
+                "H-pair": fig["hypotheses"]["H-pair"],
+                "H-pad": fig["hypotheses"]["H-pad"],
+                "groups_disjoint_off_data": fig["hypotheses"][
+                    "groups_pairwise_disjoint_off_data"
+                ],
+                "case_ok": rec[key]["ok"],
+            }
+        )
+    return rows
+
+
+def main(argv=None):
+    import argparse
+    import hashlib
+    import json
+    import os
+    import time
+
+    ap = argparse.ArgumentParser(description="R-8: the small model with groups")
+    ap.add_argument("--evidence", required=True)
+    args = ap.parse_args(argv)
+
+    t0 = time.time()
+    cases = run_cases()
+    here = os.path.dirname(os.path.abspath(__file__))
+    tools = {}
+    for t in ("zk60_native_jv_groups.py", "zk60_native_jv_smallmodel.py",
+              "zk60_native_jv_field.py"):
+        with open(os.path.join(here, t), "rb") as fh:
+            tools[t] = hashlib.sha256(fh.read()).hexdigest()
+    rec = {
+        "gate": "zk60-native-small-model-groups",
+        "review_change": "R-8 (ZK60_TERMINAL_SURJECTION_REVIEW.md section 5), "
+        "accepted in ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md",
+        "privacy_property_established": False,
+        "privacy_review_complete": False,
+        "tool_sha256": tools,
+        "summary": summary(cases),
+        "cases": cases,
+        "ok": cases["ok"],
+    }
+    os.makedirs(args.evidence, exist_ok=True)
+    out = os.path.join(args.evidence, "small_model_groups.json")
+    with open(out, "w") as fh:
+        json.dump(rec, fh, indent=1, sort_keys=True)
+        fh.write("\n")
+    with open(os.path.join(args.evidence, "small_model_groups.done"), "w") as fh:
+        fh.write("0\n" if rec["ok"] else "1\n")
+    for row in rec["summary"]:
+        print(
+            f"{row['case']}: dense {row['dense_disclosed_fp']}, "
+            f"reduction {row['reduction_disclosed_fp']}, "
+            f"per-group {row['per_group_step_figure_fp']}, "
+            f"{'ok' if row['case_ok'] else 'FAIL'}"
+        )
+    print(f"record: {out} ({round(time.time() - t0, 1)} s)")
+    return 0 if rec["ok"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

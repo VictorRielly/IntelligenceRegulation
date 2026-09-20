@@ -1,0 +1,1586 @@
+{
+ "cases": {
+  "a_multi_member_group": {
+   "all_agree": true,
+   "all_zero": true,
+   "ok": true,
+   "per_group_rank_formula_holds": true,
+   "runs": [
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 3,
+     "message_columns": 4,
+     "note": "m=3, seed=1",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 11,
+     "seed": 1
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 3,
+     "message_columns": 4,
+     "note": "m=3, seed=2",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 11,
+     "seed": 2
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 3,
+     "message_columns": 4,
+     "note": "m=3, seed=3",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 11,
+     "seed": 3
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 3,
+     "message_columns": 4,
+     "note": "m=3, seed=4",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 11,
+     "seed": 4
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 4,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      4
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 4,
+     "message_columns": 4,
+     "note": "m=4, seed=1",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 14,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 4,
+       "observations_fp": 16,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 14,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 13,
+     "seed": 1
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 4,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      4
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 4,
+     "message_columns": 4,
+     "note": "m=4, seed=2",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 14,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 4,
+       "observations_fp": 16,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 14,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 13,
+     "seed": 2
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 4,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      4
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 4,
+     "message_columns": 4,
+     "note": "m=4, seed=3",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 14,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 4,
+       "observations_fp": 16,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 14,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 13,
+     "seed": 3
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 4,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      4
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 4,
+     "message_columns": 4,
+     "note": "m=4, seed=4",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 14,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 4,
+       "observations_fp": 16,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 14,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 13,
+     "seed": 4
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 5,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      5
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 5,
+     "message_columns": 4,
+     "note": "m=5, seed=1",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 16,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 5,
+       "observations_fp": 18,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 16,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 15,
+     "seed": 1
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 5,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      5
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 5,
+     "message_columns": 4,
+     "note": "m=5, seed=2",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 16,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 5,
+       "observations_fp": 18,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 16,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 15,
+     "seed": 2
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 5,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      5
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 5,
+     "message_columns": 4,
+     "note": "m=5, seed=3",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 16,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 5,
+       "observations_fp": 18,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 16,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 15,
+     "seed": 3
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 5,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      5
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "m": 5,
+     "message_columns": 4,
+     "note": "m=5, seed=4",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 16,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 5,
+       "observations_fp": 18,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 16,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 15,
+     "seed": 4
+    }
+   ],
+   "what": "m >= 3 claims batched into ONE group by lambda_c, one reserved pair per claim site; the case the real receipts use and the small model never had"
+  },
+  "b_shared_pair": {
+   "across_two_groups": {
+    "agree": false,
+    "as_expected": true,
+    "claims": 3,
+    "dense_disclosed_fp": 2,
+    "distinct_opened_positions": 3,
+    "expected_dense_fp": 2,
+    "expected_reduction_fp": 0,
+    "group_sizes": [
+     2,
+     1
+    ],
+    "groups": 2,
+    "hypotheses": {
+     "H-pad": true,
+     "H-pair": false,
+     "H-prox": true,
+     "claims_sharing_a_pair": [
+      [
+       0,
+       1
+      ]
+     ],
+     "claims_whose_pair_is_not_an_Fp_basis": [],
+     "claims_with_no_reserved_pair": [],
+     "distinct_opened_positions": 3,
+     "group_pairs_that_overlap_off_data": [
+      [
+       0,
+       1
+      ]
+     ],
+     "groups_pairwise_disjoint_off_data": false,
+     "pad_count": 4
+    },
+    "message_columns": 4,
+    "note": "two groups, one pair",
+    "pads": 4,
+    "per_group_figure_with_the_public_constraint_fp": 0,
+    "per_group_step_figure_fp": 0,
+    "per_group_systems": [
+     {
+      "blinding_rank": 10,
+      "disclosed_fp": 0,
+      "group": 0,
+      "members": 2,
+      "observations_fp": 12,
+      "rank_equals_2_n_plus_m_minus_2": true,
+      "rank_with_data": 10,
+      "touches_the_zero_sum_rows": false
+     },
+     {
+      "blinding_rank": 8,
+      "disclosed_fp": 0,
+      "group": 1,
+      "members": 1,
+      "observations_fp": 10,
+      "rank_equals_2_n_plus_m_minus_2": true,
+      "rank_with_data": 8,
+      "touches_the_zero_sum_rows": false
+     }
+    ],
+    "reduction_disclosed_fp": 0,
+    "reduction_disclosed_fp_unguarded": 0,
+    "reduction_refused": false,
+    "rows": 9
+   },
+   "every_marginal_discloses_nothing": true,
+   "every_marginal_has_full_support": true,
+   "in_one_group": {
+    "agree": false,
+    "as_expected": true,
+    "claims": 3,
+    "dense_disclosed_fp": 2,
+    "distinct_opened_positions": 3,
+    "expected_dense_fp": 2,
+    "expected_reduction_fp": 0,
+    "group_sizes": [
+     3
+    ],
+    "groups": 1,
+    "hypotheses": {
+     "H-pad": true,
+     "H-pair": false,
+     "H-prox": true,
+     "claims_sharing_a_pair": [
+      [
+       0,
+       1
+      ]
+     ],
+     "claims_whose_pair_is_not_an_Fp_basis": [],
+     "claims_with_no_reserved_pair": [],
+     "distinct_opened_positions": 3,
+     "group_pairs_that_overlap_off_data": [],
+     "groups_pairwise_disjoint_off_data": true,
+     "pad_count": 4
+    },
+    "message_columns": 4,
+    "note": "two members of one group on one pair",
+    "pads": 4,
+    "per_group_figure_with_the_public_constraint_fp": 2,
+    "per_group_step_figure_fp": 2,
+    "per_group_systems": [
+     {
+      "blinding_rank": 10,
+      "disclosed_fp": 2,
+      "group": 0,
+      "members": 3,
+      "observations_fp": 14,
+      "rank_equals_2_n_plus_m_minus_2": false,
+      "rank_with_data": 12,
+      "touches_the_zero_sum_rows": false
+     }
+    ],
+    "reduction_disclosed_fp": 0,
+    "reduction_disclosed_fp_unguarded": 0,
+    "reduction_refused": false,
+    "rows": 9
+   },
+   "joint_law": {
+    "annihilator_dim": 2,
+    "full_support": false,
+    "observations_fp": 4,
+    "support_dim": 2,
+    "surviving_data_functionals": 2,
+    "terminals": [
+     0,
+     1
+    ]
+   },
+   "joint_moves_with_the_data": {
+    "observations_fp": 4,
+    "separating_coordinate": 0,
+    "separating_coordinate_row": 0,
+    "support_dim": 2,
+    "supports_disjoint": true,
+    "surviving_data_functionals": 2,
+    "terminals": [
+     0,
+     1
+    ]
+   },
+   "joint_support_is_short_by_fp": 2,
+   "marginal_laws": [
+    {
+     "annihilator_dim": 0,
+     "full_support": true,
+     "observations_fp": 2,
+     "support_dim": 2,
+     "surviving_data_functionals": 0,
+     "terminals": [
+      0
+     ]
+    },
+    {
+     "annihilator_dim": 0,
+     "full_support": true,
+     "observations_fp": 2,
+     "support_dim": 2,
+     "surviving_data_functionals": 0,
+     "terminals": [
+      1
+     ]
+    }
+   ],
+   "ok": true,
+   "the_gate_refuses_it": true,
+   "the_reduction_alone_does_not_see_it": true,
+   "what": "two ordinary terminals sharing one reserved pair: every marginal stays uniform, the JOINT law does not"
+  },
+  "c_h_style_legitimate_sharing": {
+   "but_the_groups_are_not_disjoint": true,
+   "figures": {
+    "agree": true,
+    "as_expected": true,
+    "claims": 2,
+    "dense_disclosed_fp": 2,
+    "distinct_opened_positions": 3,
+    "expected_dense_fp": 2,
+    "expected_reduction_fp": 2,
+    "group_sizes": [
+     1,
+     1
+    ],
+    "groups": 2,
+    "hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true,
+     "claims_sharing_a_pair": [],
+     "claims_whose_pair_is_not_an_Fp_basis": [],
+     "claims_with_no_reserved_pair": [],
+     "distinct_opened_positions": 3,
+     "group_pairs_that_overlap_off_data": [
+      [
+       0,
+       1
+      ]
+     ],
+     "groups_pairwise_disjoint_off_data": false,
+     "pad_count": 4
+    },
+    "message_columns": 4,
+    "note": "two groups on the zero-sum pair, tied by a public identity",
+    "pads": 4,
+    "per_group_figure_with_the_public_constraint_fp": 2,
+    "per_group_step_figure_fp": 0,
+    "per_group_systems": [
+     {
+      "blinding_rank": 8,
+      "disclosed_fp": 0,
+      "group": 0,
+      "members": 1,
+      "observations_fp": 10,
+      "rank_equals_2_n_plus_m_minus_2": true,
+      "rank_with_data": 8,
+      "touches_the_zero_sum_rows": true
+     },
+     {
+      "blinding_rank": 8,
+      "disclosed_fp": 0,
+      "group": 1,
+      "members": 1,
+      "observations_fp": 10,
+      "rank_equals_2_n_plus_m_minus_2": true,
+      "rank_with_data": 8,
+      "touches_the_zero_sum_rows": true
+     }
+    ],
+    "reduction_disclosed_fp": 2,
+    "reduction_disclosed_fp_unguarded": 2,
+    "reduction_refused": false,
+    "rows": 9
+   },
+   "ok": true,
+   "per_group_step_figure_fp": 0,
+   "per_group_step_figure_is_wrong": true,
+   "ranked_jointly_fp": 2,
+   "the_disclosure_is_the_public_identity": {
+    "rank_disclosed": 2,
+    "rank_of_both_together": 2,
+    "rank_public_identity": 2,
+    "spans_are_equal": true
+   },
+   "the_gates_own_H_pair_check_passes": true,
+   "the_tools_reduction_fp": 2,
+   "what": "H's two opening groups share the zero-sum pair; the per-group decomposition is not licensed there, and the joint answer is the public LogUp-style identity"
+  },
+  "d_wrong_pair_shape": {
+   "cm_is_nonzero_throughout": true,
+   "multi_member_fp_dependent": {
+    "agree": true,
+    "as_expected": true,
+    "claims": 4,
+    "dense_disclosed_fp": 0,
+    "distinct_opened_positions": 3,
+    "expected_dense_fp": 0,
+    "expected_reduction_fp": 0,
+    "group_sizes": [
+     4
+    ],
+    "groups": 1,
+    "hypotheses": {
+     "H-pad": true,
+     "H-pair": false,
+     "H-prox": true,
+     "claims_sharing_a_pair": [],
+     "claims_whose_pair_is_not_an_Fp_basis": [
+      0
+     ],
+     "claims_with_no_reserved_pair": [],
+     "distinct_opened_positions": 3,
+     "group_pairs_that_overlap_off_data": [],
+     "groups_pairwise_disjoint_off_data": true,
+     "pad_count": 4
+    },
+    "message_columns": 4,
+    "note": "4-member group, one Fp-dependent pair",
+    "pads": 4,
+    "per_group_figure_with_the_public_constraint_fp": 0,
+    "per_group_step_figure_fp": 0,
+    "per_group_systems": [
+     {
+      "blinding_rank": 14,
+      "disclosed_fp": 0,
+      "group": 0,
+      "members": 4,
+      "observations_fp": 16,
+      "rank_equals_2_n_plus_m_minus_2": true,
+      "rank_with_data": 14,
+      "touches_the_zero_sum_rows": false
+     }
+    ],
+    "reduction_disclosed_fp": 0,
+    "reduction_disclosed_fp_unguarded": 0,
+    "reduction_refused": false,
+    "rows": 13
+   },
+   "ok": true,
+   "removing_the_pair_discloses_two": true,
+   "singleton_discloses_one_message_width": true,
+   "singleton_fp_dependent": {
+    "agree": true,
+    "as_expected": true,
+    "claims": 1,
+    "dense_disclosed_fp": 4,
+    "distinct_opened_positions": 3,
+    "expected_dense_fp": 4,
+    "expected_reduction_fp": 4,
+    "group_sizes": [
+     1
+    ],
+    "groups": 1,
+    "hypotheses": {
+     "H-pad": true,
+     "H-pair": false,
+     "H-prox": true,
+     "claims_sharing_a_pair": [],
+     "claims_whose_pair_is_not_an_Fp_basis": [
+      0
+     ],
+     "claims_with_no_reserved_pair": [],
+     "distinct_opened_positions": 3,
+     "group_pairs_that_overlap_off_data": [],
+     "groups_pairwise_disjoint_off_data": true,
+     "pad_count": 4
+    },
+    "message_columns": 4,
+    "note": "singleton group, Fp-dependent pair",
+    "pads": 4,
+    "per_group_figure_with_the_public_constraint_fp": 4,
+    "per_group_step_figure_fp": 4,
+    "per_group_systems": [
+     {
+      "blinding_rank": 4,
+      "disclosed_fp": 4,
+      "group": 0,
+      "members": 1,
+      "observations_fp": 10,
+      "rank_equals_2_n_plus_m_minus_2": false,
+      "rank_with_data": 8,
+      "touches_the_zero_sum_rows": false
+     }
+    ],
+    "reduction_disclosed_fp": 4,
+    "reduction_disclosed_fp_unguarded": 4,
+    "reduction_refused": false,
+    "rows": 7
+   },
+   "singleton_pair_removed": {
+    "agree": true,
+    "as_expected": true,
+    "claims": 1,
+    "dense_disclosed_fp": 8,
+    "distinct_opened_positions": 3,
+    "expected_dense_fp": 8,
+    "expected_reduction_fp": 8,
+    "group_sizes": [
+     1
+    ],
+    "groups": 1,
+    "hypotheses": {
+     "H-pad": true,
+     "H-pair": false,
+     "H-prox": true,
+     "claims_sharing_a_pair": [],
+     "claims_whose_pair_is_not_an_Fp_basis": [],
+     "claims_with_no_reserved_pair": [
+      0
+     ],
+     "distinct_opened_positions": 3,
+     "group_pairs_that_overlap_off_data": [],
+     "groups_pairwise_disjoint_off_data": true,
+     "pad_count": 4
+    },
+    "message_columns": 4,
+    "note": "singleton, pair removed",
+    "pads": 4,
+    "per_group_figure_with_the_public_constraint_fp": 8,
+    "per_group_step_figure_fp": 8,
+    "per_group_systems": [
+     {
+      "blinding_rank": 0,
+      "disclosed_fp": 8,
+      "group": 0,
+      "members": 1,
+      "observations_fp": 10,
+      "rank_equals_2_n_plus_m_minus_2": false,
+      "rank_with_data": 8,
+      "touches_the_zero_sum_rows": false
+     }
+    ],
+    "reduction_disclosed_fp": 8,
+    "reduction_disclosed_fp_unguarded": 8,
+    "reduction_refused": false,
+    "rows": 7
+   },
+   "the_other_members_cover_the_loss": true,
+   "what": "the condition that carries privacy is the SHAPE of the pair's weights, (cm, cm*U), not merely cm != 0"
+  },
+  "e_zero_lambda": {
+   "all_agree": true,
+   "all_zero": true,
+   "ok": true,
+   "runs": [
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "lambda_0_is_zero": true,
+     "m": 3,
+     "message_columns": 4,
+     "note": "m=3, seed=1, lambda_0 = 0",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 11,
+     "seed": 1
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "lambda_0_is_zero": true,
+     "m": 3,
+     "message_columns": 4,
+     "note": "m=3, seed=2, lambda_0 = 0",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 11,
+     "seed": 2
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "lambda_0_is_zero": true,
+     "m": 3,
+     "message_columns": 4,
+     "note": "m=3, seed=3, lambda_0 = 0",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 11,
+     "seed": 3
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 5,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      5
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "lambda_0_is_zero": true,
+     "m": 5,
+     "message_columns": 4,
+     "note": "m=5, seed=1, lambda_0 = 0",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 16,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 5,
+       "observations_fp": 18,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 16,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 15,
+     "seed": 1
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 5,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      5
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "lambda_0_is_zero": true,
+     "m": 5,
+     "message_columns": 4,
+     "note": "m=5, seed=2, lambda_0 = 0",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 16,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 5,
+       "observations_fp": 18,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 16,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 15,
+     "seed": 2
+    },
+    {
+     "agree": true,
+     "as_expected": true,
+     "claims": 5,
+     "dense_disclosed_fp": 0,
+     "distinct_opened_positions": 3,
+     "expected_dense_fp": 0,
+     "expected_reduction_fp": 0,
+     "group_sizes": [
+      5
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": true,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 3,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "lambda_0_is_zero": true,
+     "m": 5,
+     "message_columns": 4,
+     "note": "m=5, seed=3, lambda_0 = 0",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 16,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 5,
+       "observations_fp": 18,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 16,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": 0,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": false,
+     "rows": 15,
+     "seed": 3
+    }
+   ],
+   "what": "lambda_c = 0 is a SOUNDNESS refusal (it stops a claim being discarded from the batch), not a privacy condition"
+  },
+  "encoded_positions": 16,
+  "f_beyond_the_pad_budget": {
+   "at_the_budget": {
+    "agree": true,
+    "as_expected": true,
+    "claims": 3,
+    "dense_disclosed_fp": 0,
+    "distinct_opened_positions": 4,
+    "expected_dense_fp": 0,
+    "expected_reduction_fp": 0,
+    "group_sizes": [
+     3
+    ],
+    "groups": 1,
+    "hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true,
+     "claims_sharing_a_pair": [],
+     "claims_whose_pair_is_not_an_Fp_basis": [],
+     "claims_with_no_reserved_pair": [],
+     "distinct_opened_positions": 4,
+     "group_pairs_that_overlap_off_data": [],
+     "groups_pairwise_disjoint_off_data": true,
+     "pad_count": 4
+    },
+    "message_columns": 4,
+    "note": "exactly at the budget",
+    "pads": 4,
+    "per_group_figure_with_the_public_constraint_fp": 0,
+    "per_group_step_figure_fp": 0,
+    "per_group_systems": [
+     {
+      "blinding_rank": 12,
+      "disclosed_fp": 0,
+      "group": 0,
+      "members": 3,
+      "observations_fp": 14,
+      "rank_equals_2_n_plus_m_minus_2": true,
+      "rank_with_data": 12,
+      "touches_the_zero_sum_rows": false
+     }
+    ],
+    "reduction_disclosed_fp": 0,
+    "reduction_disclosed_fp_unguarded": 0,
+    "reduction_refused": false,
+    "rows": 11
+   },
+   "guard_condition": "distinct_opened_positions > pad_count, the same condition as zk60_native_jv_pcs.RoleView._check_pad_budget (fact `distinct_opened_columns_within_pad_count`)",
+   "ok": true,
+   "runs": [
+    {
+     "agree": false,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 3,
+     "distinct_opened_positions": 5,
+     "expected_dense_fp": 3,
+     "expected_reduction_fp": "refused",
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": false,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 5,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "message_columns": 4,
+     "note": "seed=1",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": null,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": true,
+     "rows": 11,
+     "seed": 1
+    },
+    {
+     "agree": false,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 3,
+     "distinct_opened_positions": 5,
+     "expected_dense_fp": 3,
+     "expected_reduction_fp": "refused",
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": false,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 5,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "message_columns": 4,
+     "note": "seed=2",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": null,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": true,
+     "rows": 11,
+     "seed": 2
+    },
+    {
+     "agree": false,
+     "as_expected": true,
+     "claims": 3,
+     "dense_disclosed_fp": 3,
+     "distinct_opened_positions": 5,
+     "expected_dense_fp": 3,
+     "expected_reduction_fp": "refused",
+     "group_sizes": [
+      3
+     ],
+     "groups": 1,
+     "hypotheses": {
+      "H-pad": false,
+      "H-pair": true,
+      "H-prox": true,
+      "claims_sharing_a_pair": [],
+      "claims_whose_pair_is_not_an_Fp_basis": [],
+      "claims_with_no_reserved_pair": [],
+      "distinct_opened_positions": 5,
+      "group_pairs_that_overlap_off_data": [],
+      "groups_pairwise_disjoint_off_data": true,
+      "pad_count": 4
+     },
+     "message_columns": 4,
+     "note": "seed=3",
+     "pads": 4,
+     "per_group_figure_with_the_public_constraint_fp": 0,
+     "per_group_step_figure_fp": 0,
+     "per_group_systems": [
+      {
+       "blinding_rank": 12,
+       "disclosed_fp": 0,
+       "group": 0,
+       "members": 3,
+       "observations_fp": 14,
+       "rank_equals_2_n_plus_m_minus_2": true,
+       "rank_with_data": 12,
+       "touches_the_zero_sum_rows": false
+      }
+     ],
+     "reduction_disclosed_fp": null,
+     "reduction_disclosed_fp_unguarded": 0,
+     "reduction_refused": true,
+     "rows": 11,
+     "seed": 3
+    }
+   ],
+   "the_guard_is_silent_inside_the_budget": true,
+   "the_guard_refuses_it": true,
+   "the_reduction_misses_it": true,
+   "what": "the message-half reduction is valid only inside the pad budget; beyond it the reduction answers 0 and the truth is not 0"
+  },
+  "message_columns": 4,
+  "model": "synthetic and public; data and blinding both known; no receipt, capture or Rust source is read",
+  "ok": true,
+  "privacy_property_established": false,
+  "what": "R-8: the gate's small model, extended with real opening groups"
+ },
+ "gate": "zk60-native-small-model-groups",
+ "ok": true,
+ "privacy_property_established": false,
+ "privacy_review_complete": false,
+ "review_change": "R-8 (ZK60_TERMINAL_SURJECTION_REVIEW.md section 5), accepted in ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md",
+ "summary": [
+  {
+   "H-pad": true,
+   "H-pair": true,
+   "agree": true,
+   "case": "a",
+   "case_ok": true,
+   "dense_disclosed_fp": 0,
+   "groups_disjoint_off_data": true,
+   "per_group_step_figure_fp": 0,
+   "reduction_disclosed_fp": 0,
+   "reduction_unguarded_fp": 0,
+   "what": "m >= 3 claims batched by lambda_c into one group"
+  },
+  {
+   "H-pad": true,
+   "H-pair": false,
+   "agree": false,
+   "case": "b",
+   "case_ok": true,
+   "dense_disclosed_fp": 2,
+   "groups_disjoint_off_data": true,
+   "per_group_step_figure_fp": 2,
+   "reduction_disclosed_fp": 0,
+   "reduction_unguarded_fp": 0,
+   "what": "two ordinary terminals on one reserved pair"
+  },
+  {
+   "H-pad": true,
+   "H-pair": true,
+   "agree": true,
+   "case": "c",
+   "case_ok": true,
+   "dense_disclosed_fp": 2,
+   "groups_disjoint_off_data": false,
+   "per_group_step_figure_fp": 0,
+   "reduction_disclosed_fp": 2,
+   "reduction_unguarded_fp": 2,
+   "what": "two groups on the zero-sum pair"
+  },
+  {
+   "H-pad": true,
+   "H-pair": false,
+   "agree": true,
+   "case": "d",
+   "case_ok": true,
+   "dense_disclosed_fp": 4,
+   "groups_disjoint_off_data": true,
+   "per_group_step_figure_fp": 4,
+   "reduction_disclosed_fp": 4,
+   "reduction_unguarded_fp": 4,
+   "what": "base-field-dependent pair weights, cm != 0"
+  },
+  {
+   "H-pad": true,
+   "H-pair": true,
+   "agree": true,
+   "case": "e",
+   "case_ok": true,
+   "dense_disclosed_fp": 0,
+   "groups_disjoint_off_data": true,
+   "per_group_step_figure_fp": 0,
+   "reduction_disclosed_fp": 0,
+   "reduction_unguarded_fp": 0,
+   "what": "lambda_c = 0 on one member"
+  },
+  {
+   "H-pad": false,
+   "H-pair": true,
+   "agree": false,
+   "case": "f",
+   "case_ok": true,
+   "dense_disclosed_fp": 3,
+   "groups_disjoint_off_data": true,
+   "per_group_step_figure_fp": 0,
+   "reduction_disclosed_fp": "refused",
+   "reduction_unguarded_fp": 0,
+   "what": "one opened position beyond the pad budget"
+  }
+ ],
+ "tool_sha256": {
+  "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
+  "zk60_native_jv_groups.py": "2ce23c6c65c38dae14b6bb3bea8b686806b447f4daeeb18afa617baeaad4df97",
+  "zk60_native_jv_smallmodel.py": "66f2faca3c830c9dcae635e70eb9131352171a9f2b5dfb4c16e2b60a1ecfe9b2"
+ }
+}
