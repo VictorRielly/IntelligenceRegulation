@@ -1,0 +1,78 @@
+A toy masked sumcheck, enumerated exactly
+field F_5; one slot = 1 main variable + 1 extension round, degree 2;
+mask with L = N*d + 2 = 6 uniform coefficients; terminal mask R;
+randomness enumerated: 5^6 * 5 = 78125 runs per witness per experiment.
+ILLUSTRATION ONLY -- see the header. Nothing here proves the real statement.
+
+A. HONEST, one slot: is the published view's law witness-independent?
+  sanity: verifier chain equations and 'derived g_val == true g(rho,e)' failures: 0
+  honest: law(w) vs law(w')                            SAME   support 15625 vs 15625   
+  honest: law(w) vs law(zero)                          SAME   support 15625 vs 15625   
+  honest: law(w') vs law(zero)                         SAME   support 15625 vs 15625   
+       verdict: the laws separate on 0 of 3 witness pairs
+  the law is uniform on its support (Lemma 2.2's shape): True; support size 15625
+  expected dim: the view has 8 coordinates; C has dim N*d+1 = 5 and the terminal adds 1, so |support| should be 15625
+
+B. CONTROL, the c = 0 refusal dropped (argument.rs:274-277 removed):
+  c = 0: law(w) vs law(w')                             DIFFERENT   support 5 vs 5   
+       -> 5 view(s) reachable for one witness only
+  c = 0: law(w) vs law(zero)                           DIFFERENT   support 5 vs 5   
+       -> 5 view(s) reachable for one witness only
+  c = 0: law(w') vs law(zero)                          DIFFERENT   support 5 vs 5   
+       -> 5 view(s) reachable for one witness only
+       verdict: the laws separate on 3 of 3 witness pairs
+
+C. CONTROL, the mask's degree lowered to 1 (L = N*(d-1)+2 = 4), so it no longer spans C_s:
+       (the slot still publishes d+1 = 3 values per round; only the mask's own degree is lowered)
+  under-degree mask: law(w) vs law(w')                 DIFFERENT   support 625 vs 625   
+       -> 625 view(s) reachable for one witness only
+  under-degree mask: law(w) vs law(zero)               DIFFERENT   support 625 vs 625   
+       -> 625 view(s) reachable for one witness only
+  under-degree mask: law(w') vs law(zero)              DIFFERENT   support 625 vs 625   
+       -> 625 view(s) reachable for one witness only
+       verdict: the laws separate on 3 of 3 witness pairs
+
+D. CONTROL, the terminal's blinding R published a second time through M
+   (the (H(mask), mask XOR w) shape: M would disclose g_val + R, not g_val):
+  R published twice: law(w) vs law(w')                 DIFFERENT   support 15625 vs 15625   
+       -> 15625 view(s) reachable for one witness only
+  R published twice: law(w) vs law(zero)               DIFFERENT   support 15625 vs 15625   
+       -> 15625 view(s) reachable for one witness only
+  R published twice: law(w') vs law(zero)              DIFFERENT   support 15625 vs 15625   
+       -> 15625 view(s) reachable for one witness only
+       verdict: the laws separate on 3 of 3 witness pairs
+   the marginals without the extra value are SAME on all pairs (experiment A),
+   so this is the counterexample shape: uniform marginals, separating joint.
+
+E. CONTROL, a PRIVATE slot's Gamma functional batched into M, so M's
+   disclosed value is no longer a public function of the view (section 3.2):
+  G disclosed: law(w) vs law(w')                       DIFFERENT   support 15625 vs 15625   
+       -> 15625 view(s) reachable for one witness only
+  G disclosed: law(w) vs law(zero)                     SAME   support 15625 vs 15625   
+  G disclosed: law(w') vs law(zero)                    DIFFERENT   support 15625 vs 15625   
+       -> 15625 view(s) reachable for one witness only
+       verdict: the laws separate on 2 of 3 witness pairs
+   the true sums are {'w': 0, "w'": 2, 'zero': 0}; the control separates exactly the pairs whose
+   sums differ, which is the leak it is supposed to exhibit: sigma = Gamma - c*G.
+
+F. TWO SLOTS.  Honest: independent masks, so the joint law is the product of
+   the two marginals and A already settles it.  Control: ONE mask reused by
+   both slots (audit_claims forbids the analogue on the commitment side).
+   enumerating 5^6 * 5 * 5 = 390625 runs per witness pair.
+  slot 1 marginal, shared mask                         SAME   support 15625 vs 15625   
+  slot 2 marginal, shared mask                         SAME   support 15625 vs 15625   
+  JOINT law, shared mask                               DIFFERENT   support 390625 vs 390625   
+       -> 390625 view(s) reachable for one witness only
+
+SUMMARY
+  A  honest one-slot law witness-independent on all 3 pairs : True
+  B  c = 0 refusal dropped, pairs separated                 : 3/3
+  C  mask degree too low to span C_s, pairs separated       : 3/3
+  D  terminal blinding R published twice, pairs separated   : 3/3
+  E  a private slot's Gamma batched into M, pairs separated : 2/3
+  F  two slots sharing one mask: marginals same (True), joint same (False)
+
+  D and F are the (H(mask), mask XOR w) shape: every marginal is untouched
+  and the JOINT law separates.  They are the two failures the memo's
+  section 5.3 has to rule out, and section 3 rules them out by Lemma 3.1
+  (M reveals one functional) and Fact 3.2 (that functional is public).

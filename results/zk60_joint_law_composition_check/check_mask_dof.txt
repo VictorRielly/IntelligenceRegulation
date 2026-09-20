@@ -1,0 +1,33 @@
+--- layout arithmetic recomputed from layout.rs SLOTS ---
+sum L_s              = 583    (draft says 583)
+sum N_s              = 184    (draft says 184)
+sum N_s (d_s + 1)    = 721    (draft says 721)
+sum dim C_s          = 560    (draft says 560)
+max L_s              = 50     (draft says 50)
+distinct (N_s, d_s)  = 11     (draft says 11)
+max L_s + 256        = 306    (must be <= 512)
+
+--- field P = 2^61 - 1, 138 (slot, rho) pairs over 23 real slot shapes ---
+rank R_s == N d + 1            : 138/138
+dim ker R_s == 1               : 138/138
+dim C_s == N d + 1             : 138/138
+sum_weights in rowspace(R_s)   : 138/138
+eval_weights in rowspace(R_s)  : 138/138
+predicted kernel vector kills R: 138/138
+CONTROL drop a'  : rank - (Nd+1) in [0]  (0 => a' redundant); full on 138/138
+CONTROL drop a_0 : rank - (Nd+1) in [-1, 0]  (negative => a_0 is NOT redundant)
+CONTROL d values/round (drop X=d): dim ker R in [2, 3, 4, 6, 7, 8, 10, 11, 13]  (>1 => mask no longer covers C)
+closed form == brute force     : 318/318 (small shapes only)
+
+--- field P = 10007 (small field control), 138 (slot, rho) pairs over 23 real slot shapes ---
+rank R_s == N d + 1            : 138/138
+dim ker R_s == 1               : 138/138
+dim C_s == N d + 1             : 138/138
+sum_weights in rowspace(R_s)   : 138/138
+eval_weights in rowspace(R_s)  : 138/138
+predicted kernel vector kills R: 138/138
+CONTROL drop a'  : rank - (Nd+1) in [0]  (0 => a' redundant); full on 138/138
+CONTROL drop a_0 : rank - (Nd+1) in [-1, 0]  (negative => a_0 is NOT redundant)
+CONTROL d values/round (drop X=d): dim ker R in [2, 3, 4, 6, 7, 8, 10, 11, 13]  (>1 => mask no longer covers C)
+closed form == brute force     : 318/318 (small shapes only)
+

@@ -1,0 +1,41 @@
+SINGLE SLOT over F_5, c=2, rho0=3, e=4; randomness 5^6 * 5 = 78125 runs per witness
+  G1 view + g_val (M discloses V): w vs w'                   SAME  supports 15625 / 15625
+  G1 view + g_val (M discloses V): w vs zero                 SAME  supports 15625 / 15625
+  G1 view + g_val (M discloses V): w' vs zero                SAME  supports 15625 / 15625
+      -> separates on 0 of 3 pairs
+  G2 only d values per round: w vs w'                        SAME  supports 3125 / 3125
+  G2 only d values per round: w vs zero                      SAME  supports 3125 / 3125
+  G2 only d values per round: w' vs zero                     SAME  supports 3125 / 3125
+      -> separates on 0 of 3 pairs
+  G3 d + 2 values per round: w vs w'                         SAME  supports 15625 / 15625
+  G3 d + 2 values per round: w vs zero                       SAME  supports 15625 / 15625
+  G3 d + 2 values per round: w' vs zero                      SAME  supports 15625 / 15625
+      -> separates on 0 of 3 pairs
+  baseline (the draft's experiment A): w vs w'               SAME  supports 15625 / 15625
+  baseline (the draft's experiment A): w vs zero             SAME  supports 15625 / 15625
+  baseline (the draft's experiment A): w' vs zero            SAME  supports 15625 / 15625
+      -> separates on 0 of 3 pairs
+  sanity failures (chain + derived-g identity): 0
+
+TWO SLOTS over F_3; per slot randomness 3^6 * 3 = 2187
+ G7 honest, independent masks and pairs, + theta-batched V
+     slot 1 marginal                                         SAME  supports 729 / 729
+     slot 2 marginal                                         SAME  supports 729 / 729
+     JOINT                                                   SAME  supports 531441 / 531441
+ G4 ONE reserved pair shared by the two terminals, + V
+     slot 1 marginal                                         SAME  supports 729 / 729
+     slot 2 marginal                                         SAME  supports 729 / 729
+     JOINT                                                   DIFFERENT  supports 177147 / 177147
+ G5 ONE reserved pair shared, no V
+     slot 1 marginal                                         SAME  supports 729 / 729
+     slot 2 marginal                                         SAME  supports 729 / 729
+     JOINT                                                   DIFFERENT  supports 177147 / 177147
+
+G6 CYCLIC HOSTING over F_3 (a hosted slot placed BEFORE its host)
+     kappa0=1 kappa1=2 (det != 0): law(A) vs law(B)          SAME  supports 531441 / 531441
+   kappa0=1 kappa1=1: det(1 - k0 k1) = 0 -- the scalar system
+     M (Gamma_0, Gamma_1) = (A_0, A_1) is SINGULAR: for a generic
+     witness there is NO honest prover at all (a completeness
+     failure), and when a solution exists it is not unique, so the
+     claimed-sum coordinates are not a change of basis.
+
