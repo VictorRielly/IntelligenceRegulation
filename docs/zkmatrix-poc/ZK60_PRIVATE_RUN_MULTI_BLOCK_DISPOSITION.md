@@ -149,6 +149,56 @@ check is built; an "opened exactly once" table is not a runtime check because
 each segment's content is fixed by the verifier's own statement. **U-6** and
 the byte reconciliation: accepted; twelve blocks count to 484,100,736 bytes.
 
+## 2b. The run's gate (ruling M-8) has run (13:01, 2026-09-20)
+
+**Twelve blocks at the 125M shape** were measured first [by me, one run,
+shared box, finished 11:22; evidence on the lane branch]: prove 370.61 s
+(about 30.9 s per block, flat), verify by streaming 13.71 s, receipt
+484,100,736 bytes equal to the counted figure to the byte, peak 10.15 GiB with
+the allocator threshold pinned. A correctness result.
+
+**The gate, on two independent honest three-block runs at the development
+rung** [MEASURED by the lane; `zk60-native-jointview` at `9997d6c`, new tool
+`scripts/zk60_native_run_gate.py`, no existing module edited; tests 161 → 187,
+all passing; captures written by a new verifier-side module on the Rust lane,
+the integrator's capture writer untouched]:
+
+- **Whole-run transcript replay in Python**: the run binding, 375 transcript
+  positions, 6,086 challenges and 6 segment position tags re-derived per
+  bundle; nothing left un-re-derived.
+- **Every commitment of every stage**: `A` 0, `H` 2 (shown to be the public
+  lookup identity by span equality), the external endpoints 0, the masking
+  commitment exactly its batched value, all as expected; every certifying
+  minor nonsingular; 243–251 distinct opened columns against 256 pads.
+- **Each boundary, restricted to its reserved rows: rank 6 of 6, disclosed 0**
+  — both boundaries, both runs. Over all rows the rank is also 6, which is why
+  the restriction matters.
+- **The same hidden plane under three commitments** (block k's activation
+  commitment, the boundary, block k+1's), joined through the capture's claim
+  sources: a 154 × 1,248 system, **joint 0 = sum of parts**. **The whole run**
+  (308 × 3,761): **joint 6 = sum 6**, in about a second. A theorem here given
+  a block-diagonal non-data block and parts of 0 — and both premises are
+  computed, not assumed.
+- **All six controls fire, each after the honest case passes**: two claims
+  sharing one pair — per-claim figures unchanged, **disclosed 2**; a single
+  proximity row — **disclosed 1** (the checker's two predictions, reproduced
+  on real receipts); a blinding row shared between the boundary and an
+  adjacent commitment — marginals 0, **joint 1,024**; swapped claim sources,
+  a foreign stage file, one pad short — each refused.
+- Channels: 2 constructed, 2 derived, 4 argued, **15 open** — among them
+  everything open by design for a single block, and what is new for a run: the
+  sequencing surface, the cross-block joint law beyond linear rank, and the
+  preimage construction for `A` and `H` at this shape (done for the boundaries
+  and the external endpoints; skipped for `A` and `H`, not faked).
+- **One public field is missing from the capture**: the plane index table,
+  without which the per-slot terminal check stays open at this shape. It is
+  public layout data; I am asking the lane to add it.
+
+**What this is and is not.** It is the gate M-8 asked for, passing, on two
+runs at one development shape, on the linear channels. **It says nothing about
+the 125M shape, the hash layer is argued and not computed, and the joint-law
+composition for a run is unwritten. No privacy claim is made about any run.**
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external

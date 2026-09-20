@@ -6,6 +6,33 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:01 (2026-09-20) — the run's privacy gate has run on two three-block captures and passes; not a privacy claim
+
+- **`scripts/zk60_native_run_gate.py`** on `zk60-native-jointview` (pushed at
+  `9997d6c`; a NEW tool, no existing module edited; tests 161 → **187, all
+  passing**; the toy gates' outputs unchanged). On two independent honest
+  three-block runs at the development rung [MEASURED by the lane]: the whole
+  run's transcript is replayed in Python (375 positions, 6,086 challenges, 6
+  segment tags per bundle, nothing left un-re-derived); every commitment of
+  every stage discloses what it should (`A` 0, `H` the public lookup identity,
+  endpoints 0, `M` its batched value); **each boundary, restricted to its
+  reserved rows, has rank 6 of 6 and discloses 0; the same hidden plane under
+  three commitments gives joint 0 = sum; the whole run (308 × 3,761) gives
+  joint 6 = sum 6.** Six controls fire, each after the honest case passes —
+  among them the two the design's checker predicted on paper, now on real
+  receipts: two claims sharing a pair disclose 2; a single proximity row
+  discloses 1; and a blinding row shared between a boundary and its neighbour
+  leaves every marginal at 0 and moves the joint to 1,024.
+- **Not a privacy claim**: linear channels, two runs, one development shape;
+  15 of 23 channels open (the sequencing surface and the cross-block joint law
+  among the new ones); the hash layer argued; nothing about 125M.
+- **One note for the record, mine to fix:** the committed `privacy_gate.json`
+  on that branch was not refreshed when the masking commitment's three
+  channels were closed at `d360466`; the numbers are right, the record is
+  stale. And the run capture lacks one PUBLIC field — the plane index table —
+  without which the per-slot terminal check stays open at the rung; I am
+  having the lane add it.
+
 ### 12:22 (2026-09-20) — a run capture exists (a NEW module; your `native_capture.rs` untouched); the run's privacy gate is being built in Python
 
 - **`hashline/src/private_block/run_capture.rs`** on `zk60-private-block-125m`
