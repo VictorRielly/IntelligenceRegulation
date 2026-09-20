@@ -258,6 +258,12 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
            "carries no plane index table"}
     if old_bundle is None:
         old.update({"skipped": "no old bundle was supplied (--old)", "fires": False})
+    elif old_bundle.run.get("plane_index") is not None:
+        old.update({
+            "skipped": f"{old_bundle.name} CARRIES a plane index table, so it cannot "
+            "stand for a pre-stage-15 bundle; pass one with --old",
+            "fires": False,
+        })
     else:
         idx, reason = plane_index_of(old_bundle)
         old.update({

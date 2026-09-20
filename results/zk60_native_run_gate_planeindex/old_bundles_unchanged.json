@@ -1,0 +1,64 @@
+{
+ "per_bundle": {
+  "run-a-tame": {
+   "channels_after": 24,
+   "channels_before": 23,
+   "channels_only_after": [
+    "the derived mask evaluation per slot (the terminal identity) -- the slots whose composition polynomial this gate recomputes",
+    "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry"
+   ],
+   "channels_only_before": [
+    "the derived mask evaluation per slot (the terminal identity)"
+   ],
+   "counts_after": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 2,
+    "open": 16
+   },
+   "counts_before": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 2,
+    "open": 15
+   },
+   "entries_whose_text_changed": [
+    "any nonlinear functional of the joint view"
+   ],
+   "identical_channel_entries": 21
+  },
+  "run-b-zero": {
+   "channels_after": 24,
+   "channels_before": 23,
+   "channels_only_after": [
+    "the derived mask evaluation per slot (the terminal identity) -- the slots whose composition polynomial this gate recomputes",
+    "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry"
+   ],
+   "channels_only_before": [
+    "the derived mask evaluation per slot (the terminal identity)"
+   ],
+   "counts_after": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 2,
+    "open": 16
+   },
+   "counts_before": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 2,
+    "open": 15
+   },
+   "entries_whose_text_changed": [
+    "any nonlinear functional of the joint view"
+   ],
+   "identical_channel_entries": 21
+  }
+ },
+ "reading": "Every MEASURED figure about the two old bundles is unchanged: 21 of the 23 channel entries are byte-identical, the terminal-identity channel is now TWO entries (both OPEN for a bundle with no plane index table, which is why the open count goes 15 of 23 to 16 of 24), and the nonlinear-functional channel gains a sentence saying that stage 8 now evaluates the identity for the covered slots while the disclosure model stays linear. No rank, count, disclosed dimension, challenge count or control figure moved.",
+ "the_records_compared": {
+  "after": "results/zk60_native_run_gate/*.json now",
+  "before": "results/zk60_native_run_gate/*.json at commit d0c8699"
+ },
+ "what": "the OLD bundles run-a-tame and run-b-zero through the gate BEFORE this round (commit d0c8699) and AFTER it, channel by channel, matched by the channel NAME so that an inserted entry does not shift the comparison"
+}

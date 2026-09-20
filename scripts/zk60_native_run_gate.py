@@ -30,7 +30,14 @@ Report: `docs/zkmatrix-poc/ZK60_NATIVE_RUN_GATE.md`.
   6 NEGATIVE CONTROLS     six, each shown to pass honest and fail perturbed
   7 CHANNELS              every channel of a run's view labelled CONSTRUCTED
                           / DERIVED / ARGUED / OPEN with its reason
-  8 RECORD                the machine-readable result under --evidence
+  8 PLANE INDEX AND       `run.json["plane_index"]` (stage 15 of the Rust
+    THE TERMINAL          lane) read and integrity-checked, and the per-slot
+    IDENTITY              terminal identity it unlocks, recomputed at the
+                          run's shape for the slots whose public tables the
+                          bundle carries, with five controls.  A bundle
+                          written before stage 15 has no table: the stage
+                          says so and the channel stays OPEN
+  9 RECORD                the machine-readable result under --evidence
 
 NO STAGE ESTABLISHES A PRIVACY PROPERTY, AND THIS IS NOT A PRIVACY
 ACCEPTANCE.  Every rank below is a rank of an explicitly stated linear model
@@ -62,8 +69,11 @@ from zk60_native_rg_joint import (  # noqa: E402
     three_role_figure,
 )
 from zk60_native_rg_pcs import RunRoleView  # noqa: E402
+from zk60_native_rg_planes import NO_TABLE, plane_index_of  # noqa: E402
 from zk60_native_rg_preimage import preimages  # noqa: E402
 from zk60_native_rg_replay import RunReplay  # noqa: E402
+from zk60_native_rg_tcontrols import terminal_controls  # noqa: E402
+from zk60_native_rg_terminals import COVERED, PORTS, check_terminals  # noqa: E402
 from zk60_native_jv_joint import JointSystem  # noqa: E402
 
 TOOLS = [
@@ -74,6 +84,9 @@ TOOLS = [
     "zk60_native_rg_joint.py",
     "zk60_native_rg_preimage.py",
     "zk60_native_rg_controls.py",
+    "zk60_native_rg_planes.py",
+    "zk60_native_rg_terminals.py",
+    "zk60_native_rg_tcontrols.py",
     "zk60_native_jv_field.py",
     "zk60_native_jv_pcs.py",
     "zk60_native_jv_joint.py",
@@ -105,7 +118,7 @@ def expected_for(view):
 
 
 # --------------------------------------------------------------- stage 3
-def stage3(bundle, replay, pad_rank=True):
+def stage3(bundle, replay, pad_rank=True, terminal_note=None):
     """Every commitment of every stage, at the run's own shape."""
     views, rows = {}, []
     for st in bundle.stages:
@@ -177,7 +190,7 @@ def stage3(bundle, replay, pad_rank=True):
             "masking_commitments": masks,
             "expected": EXPECTED_DISCLOSED,
             "pad_block_exact_rank_cross_check": pad,
-            "per_slot_terminal_check": PER_SLOT_TERMINAL_OPEN,
+            "per_slot_terminal_check": terminal_note or PER_SLOT_TERMINAL_OPEN,
             "ok": ok and (pad is None or pad["full_rank"]),
         },
         views,
@@ -205,6 +218,77 @@ PER_SLOT_TERMINAL_OPEN = {
     "consequence": "the per-slot terminal identity is NOT checked for a run; the "
     "toy gate checks it for the four single-block captures",
 }
+
+# The ONE reason the eleven remaining slots stay open, stated once so that
+# the channel table, the stage-8 block and the report cannot drift apart.
+PUBLIC_TABLES_OPEN = (
+    "`run.json[public_tables_included]` is false, so a bundle carries a public "
+    "table's length and SHA-256 but not its values, and the tables these slots "
+    "need are folds of the public WEIGHTS (05, 06, 07, 10, 11, 12, 13), the two "
+    "norm GAINS gamma_a / gamma_m (14), the RoPE (cos, sin) pair (15, 16) or the "
+    "exp and activation table values (19) -- none of which a bundle carries.  "
+    "Nothing HIDDEN is missing: all of it is public.  Re-capturing with "
+    "HL_RUN_CAPTURE_PUBLIC_TABLES=1 would close them"
+)
+
+
+# --------------------------------------------------------------- stage 8
+def stage8(bundle, replay, old=None, do_controls=True):
+    """The PLANE INDEX TABLE, and the per-slot terminal identity it unlocks.
+
+    An OLD bundle (written before stage 15 of the Rust lane) has no table:
+    the stage reports that, leaves the channel OPEN with the reason the gate
+    had before, and is NOT a failure -- a missing input is not a broken gate.
+    """
+    index, reason = plane_index_of(bundle)
+    if index is None:
+        return {
+            "plane_index": {"present": False, "reason": reason},
+            "terminal_identity": {
+                "checked": False,
+                "reason": reason,
+                "slots_checked": 0,
+            },
+            "controls": {"skipped": reason},
+            "channel_status": "open",
+            "ok": True,
+            "note": "the bundle predates the plane index table; nothing about it "
+            "changed and nothing is claimed for it",
+        }, None
+    pi = index.summary()
+    terms = check_terminals(bundle, index, replay=replay)
+    ctl = (terminal_controls(bundle, index, replay=replay, old_bundle=old)
+           if do_controls else {"skipped": "controls not requested", "ok": False})
+    covered_ok = (
+        terms["ok"]
+        and terms["slot_checks_equal"] == terms["slot_checks_expected"]
+    )
+    return {
+        "plane_index": pi,
+        "terminal_identity": {
+            "checked": True,
+            "covered_slots": list(COVERED),
+            "covered_slot_names": [n for s, n, fn, _r in PORTS if fn is not None],
+            "open_slots": terms["open_slots"],
+            "slot_checks_attempted": terms["slot_checks_attempted"],
+            "slot_checks_equal": terms["slot_checks_equal"],
+            "slot_checks_expected": terms["slot_checks_expected"],
+            "slot_checks_matching_the_stored_terminal_polynomial":
+                terms["slot_checks_matching_the_stored_terminal_polynomial"],
+            "public_tables_rebuilt_and_digest_matched":
+                terms["public_tables_rebuilt_and_digest_matched"],
+            "rebuilt_public_tables": terms["rebuilt_public_tables"],
+            "public_table_digest_failures": terms["public_table_digest_failures"],
+            "source_pins": terms["source_pins"],
+            "per_stage": terms["per_stage"],
+            "findings": terms["findings"],
+            "what": terms["what"],
+            "ok": terms["ok"],
+        },
+        "controls": ctl,
+        "channel_status": "derived" if covered_ok else "open",
+        "ok": pi["ok"] and covered_ok and (ctl.get("ok") if do_controls else True),
+    }, index
 
 
 # --------------------------------------------------------------- stage 4
@@ -268,6 +352,7 @@ def channels(bundle, record):
     """Every channel of a RUN's view, with a status and a reason."""
     s3 = record["stage3_per_commitment"]
     s5 = record["stage5_zero_data_preimage"]
+    s8 = record["stage8_plane_index_and_terminals"]
     pre = {p["commitment"]: p for p in s5["per_commitment"]}
     constructed = [c for c, p in pre.items() if p.get("preimage_exhibited")]
     ver_ok = all(
@@ -388,14 +473,49 @@ def channels(bundle, record):
             "rows and no data row, and its part is computed as 0",
         },
         {
-            "channel": "the derived mask evaluation per slot (the terminal identity)",
+            "channel": "the derived mask evaluation per slot (the terminal identity) "
+            "-- the slots whose composition polynomial this gate recomputes",
             "section": "run 2.1",
+            "status": s8["channel_status"],
+            "assumption": None,
+            "preimage_exhibited": False,
+            "slots": (s8["terminal_identity"].get("covered_slots") or []),
+            "slot_checks": s8["terminal_identity"].get("slot_checks_equal", 0),
+            "of": s8["terminal_identity"].get("slot_checks_expected", 0),
+            "reason": (
+                None
+                if s8["channel_status"] == "derived"
+                else s8["terminal_identity"].get("reason")
+                or PER_SLOT_TERMINAL_OPEN["why_open"]
+            ),
+            "derivation": (
+                "fin_s == c_s*mask_eval_s + poly_s(vals_s), recomputed from the "
+                "PUBLISHED terminals at the run's real challenges and compared with "
+                "the capture's own terminal_polynomial, in every stage.  The plane "
+                "index table (run.json[plane_index], stage 15) says which plane each "
+                "terminal is an evaluation of; the public tables that are a function "
+                "of the shape are rebuilt and checked against the capture's SHA-256"
+                if s8["channel_status"] == "derived"
+                else None
+            ),
+        },
+        {
+            "channel": "the derived mask evaluation per slot (the terminal identity) "
+            "-- the slots whose public tables the bundle does not carry",
+            "section": "run 2.1 (NEW)",
             "status": "open",
             "assumption": None,
             "preimage_exhibited": False,
-            "reason": PER_SLOT_TERMINAL_OPEN["why_open"],
-            "missing_field": PER_SLOT_TERMINAL_OPEN["missing_field"],
-            "is_it_public": PER_SLOT_TERMINAL_OPEN["is_it_public"],
+            "slots": [s for s, _n, fn, _r in PORTS if fn is None],
+            "reason": (
+                PUBLIC_TABLES_OPEN
+                if s8["plane_index"].get("present")
+                else s8["terminal_identity"].get("reason", NO_TABLE)
+            ),
+            "is_it_public": "yes -- every missing table is a function of the PUBLIC "
+            "statement (the weights, the norm gains, the RoPE constants, the exp and "
+            "activation tables), so a re-capture closes it without publishing "
+            "anything new",
         },
         {
             "channel": "the Merkle roots (A, H, M per stage, the L-1 boundary roots, "
@@ -566,7 +686,10 @@ def channels(bundle, record):
             "assumption": None,
             "preimage_exhibited": None,
             "reason": "chain item 21: the terminal identity links the commitment and "
-            "masking channels with degree up to 4 in the terminals; this gate is linear",
+            "masking channels with degree up to 4 in the terminals, and stage 8 now "
+            "EVALUATES that identity for the covered slots -- but the DISCLOSURE "
+            "model of stages 3 and 4 is still a rank over a linear model, so a "
+            "nonlinear functional of the joint view is outside it",
         },
     ]
     counts = {}
@@ -594,7 +717,8 @@ def channels(bundle, record):
 
 
 # ------------------------------------------------------------------- main
-def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True, do_controls=True):
+def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
+             do_controls=True, old_dir=None):
     t0 = time.time()
     bundle = RunBundle(bundle_dir)
     record = {
@@ -613,15 +737,21 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True, do_contro
     record["stage1_integrity"] = integrity(bundle)
     replay = RunReplay(bundle).run()
     record["stage2_transcript_replay"] = replay.summary()
-    s3, views = stage3(bundle, replay, pad_rank=pad_rank)
+    other = RunBundle(other_dir) if other_dir else None
+    old = RunBundle(old_dir) if old_dir else None
+    s8, _index = stage8(bundle, replay, old=old, do_controls=do_controls)
+    record["stage8_plane_index_and_terminals"] = s8
+    note = dict(s8["terminal_identity"])
+    note["status"] = s8["channel_status"]
+    s3, views = stage3(bundle, replay, pad_rank=pad_rank, terminal_note=note)
     record["stage3_per_commitment"] = s3
     shared = discover_shared_planes(bundle)
     record["stage4_the_boundary"] = stage4(bundle, views, shared, run_wide=run_wide)
     singles = [k for k, v in views.items() if all(len(m) == 1 for m in v.groups)]
     record["stage5_zero_data_preimage"] = preimages(bundle, views, sorted(singles))
-    if do_controls and other_dir:
+    if do_controls and other is not None:
         record["stage6_negative_controls"] = controls(
-            bundle, RunBundle(other_dir), views, replay, shared
+            bundle, other, views, replay, shared
         )
     else:
         record["stage6_negative_controls"] = {
@@ -639,7 +769,15 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True, do_contro
         "commitment is a different computation",
         "the hash layer is ARGUED, not computed",
         "the joint-law composition for a run is unwritten",
-        "the per-slot terminal identity is not checked at this shape",
+        (
+            "the per-slot terminal identity is checked for "
+            f"{len(COVERED)} of {bundle.shape.n_slots} slots and OPEN for the other "
+            f"{bundle.shape.n_slots - len(COVERED)}, whose public tables a bundle "
+            "does not carry"
+            if record["stage8_plane_index_and_terminals"]["plane_index"].get("present")
+            else "the per-slot terminal identity is not checked at this shape: this "
+            "bundle carries no plane index table"
+        ),
         "NOT a privacy acceptance and NOT a privacy property",
     ]
     return record
@@ -649,6 +787,12 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--bundle", required=True)
     ap.add_argument("--other", help="a second bundle, for the swapped-stage control")
+    ap.add_argument(
+        "--old",
+        help="a bundle written BEFORE stage 15 (no plane index table), for the "
+        "stage-8 control that a missing table leaves the channel OPEN rather "
+        "than quietly passed",
+    )
     ap.add_argument("--evidence", required=True)
     ap.add_argument("--name")
     ap.add_argument("--skip-exact-pad-rank", action="store_true")
@@ -658,6 +802,7 @@ def main(argv=None):
     record = run_gate(
         args.bundle,
         other_dir=args.other,
+        old_dir=args.old,
         pad_rank=not args.skip_exact_pad_rank,
         run_wide=not args.skip_run_wide,
     )
