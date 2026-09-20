@@ -606,6 +606,24 @@ class RolePreimage:
             self._pads()
         return self
 
+    # ---------------------------------------------------------- the witness
+    def blinding_digest(self):
+        """A sha256 of the EXHIBITED randomness r' (the blinding coordinates).
+
+        The evidence file records this digest, not the values: the solve is
+        deterministic, so the digest makes the exhibited object checkable
+        across runs without printing 178,432 field elements.  These are
+        solved values for a PUBLIC fixed input, not any prover's real
+        randomness -- the captures contain none.
+        """
+        h = hashlib.sha256()
+        data = set(self.L.data_rows)
+        for i in range(self.L.rows):
+            start = MSG if i in data else 0
+            h.update(b"|")
+            h.update(",".join(str(v) for v in self.X[i][start:]).encode())
+        return h.hexdigest()
+
     # --------------------------------------------------------- verification
     def verify(self, columns="full"):
         """Recompute the whole view from (d_fixed, r') and compare entry by entry."""

@@ -55,7 +55,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 from zk60_native_jv_capture import load_all, manifest_check  # noqa: E402
-from zk60_native_jv_cfs import CfsView  # noqa: E402
+from zk60_native_jv_cfs import CfsView, terminal_identity  # noqa: E402
 from zk60_native_jv_field import F2_ZERO, P, f2_add, f2_mul_base, f2_sub  # noqa: E402
 from zk60_native_jv_joint import singleton_pair_rows  # noqa: E402
 from zk60_native_jv_pcs import RoleView  # noqa: E402
@@ -227,6 +227,7 @@ def run_capture(cap, replay, columns="full"):
             per_role[nm] = {
                 "preimage_exhibited": not pre.fail,
                 "no_preimage_reason": pre.fail,
+                "exhibited_randomness_sha256": None if pre.fail else pre.blinding_digest(),
                 "verification": ver,
                 "fibre": pre.fibre_dimension(),
                 "matrix_digest": L.matrix_digest(),
@@ -259,6 +260,16 @@ def run_capture(cap, replay, columns="full"):
             "fibre": cp.fibre_dimension(),
             "findings": cp.findings,
         }
+    # the link the "published terminals" channel rests on, CHECKED here and
+    # not asserted: every terminal is the value of the PCS claim its private
+    # table names, and those claim values are among the entries the
+    # commitment-side preimage reproduces
+    ti = terminal_identity(cap, replay)
+    out["terminals"] = {
+        "terminals": ti["terminals"],
+        "republished_as_claim_values": ti["terminals_republished_as_claim_values"],
+        "all_republished": ti["terminals"] == ti["terminals_republished_as_claim_values"],
+    }
     out["cfs"]["stage3_disclosed_all_values_fp"] = cfsview["disclosed_all_values_fp"]
     out["cfs"]["stage3_disclosed_opening_only_fp"] = cfsview["disclosed_opening_only_fp"]
     out["cfs"]["slots"] = cfsview["slots"]
@@ -419,10 +430,14 @@ def channels_for(cap, res):
             "section": "2.1",
             "status": "constructed",
             "assumption": None,
-            "preimage_exhibited": bool(pcs_ok and pcs_ver),
+            "preimage_exhibited": bool(
+                pcs_ok and pcs_ver and res["terminals"]["all_republished"]
+            ),
             "how": "every terminal is republished as the value of the PCS claim its "
-            "private table names (argument.rs:223), and those claim values are among "
-            "the entries the commitment-side preimage reproduces exactly",
+            "private table names (argument.rs:223) -- CHECKED here, not assumed -- and "
+            "those claim values are among the entries the commitment-side preimage "
+            "reproduces exactly",
+            "terminals": res["terminals"],
         },
         {
             "channel": "mask evaluations",
@@ -782,10 +797,19 @@ def controls(cap, replay, layouts, views, columns=8):
         "preimage exactly on the plane those identities cut out",
     }
 
+    # every perturbation above is undone; prove it, on every commitment
+    out["honest_after_every_control"] = {
+        nm: not RolePreimage(layouts[nm], {}).build().fail for nm in layouts
+    }
     names = [k for k in out if isinstance(out[k], dict) and "fires" in out[k]]
     out["all_fire"] = all(out[k]["fires"] for k in names)
     out["control_names"] = names
-    out["ok"] = out["all_fire"] and out["honest_again"] and all(out["honest"].values())
+    out["ok"] = (
+        out["all_fire"]
+        and out["honest_again"]
+        and all(out["honest"].values())
+        and all(out["honest_after_every_control"].values())
+    )
     return out
 
 

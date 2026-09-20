@@ -27,11 +27,12 @@ captured view under a **fixed** hidden input, then **recomputes** the whole
 view from that randomness and compares it with the capture **entry by
 entry**. Two fixed inputs are used: the all-zero one (the same one the Rust
 zero-witness test proves and verifies) and a pseudorandom in-range one
-derived from a published seed. Across the four captures that is **805,596
-entries** — 88,064 group-vector, 8,192 proximity, 574 claim values, 706,090
-opened column values, 2,594 masked round entries and 82 masked scalars — and
-**every one of them is reproduced exactly, at both fixed inputs, with zero
-differing**.
+derived from a published seed. Across the four captures the commitment side
+is **802,920 entries per fixed input** — 88,064 group-vector, 8,192
+proximity, 574 claim values and 706,090 opened column values — and the
+masking side a further **2,676** (2,594 masked round entries and 82 masked
+scalars). **Every one of them is reproduced exactly, at both fixed inputs,
+with zero differing.**
 Seven negative controls, each shown to pass on the honest capture, each fire
 when perturbed — including the two that test this gate's own criterion.
 
@@ -119,7 +120,7 @@ the privacy case's §2.1 and §2.2 plus the two §4.2 adds:
 
 | status | count | channels |
 |---|---:|---|
-| **CONSTRUCTED** | 8 | opening-group vectors; proximity vectors; claimed evaluations; opened column values (A, H, Input, Output); masked sumcheck rounds; published masked scalars and `Gamma`; published terminals; LogUp sums |
+| **CONSTRUCTED** | 8 | opening-group vectors; proximity vectors; claimed evaluations; opened column values (A, H, Input, Output); masked sumcheck rounds; published masked scalars and `Gamma`; published terminals (all 173 of the block profile checked to be republished as the value of the PCS claim their private table names, not assumed); LogUp sums |
 | **DERIVED** | 2 | column indices (`challenge_indices` over the public prefix, re-derived); mask evaluations (`(fin_s - terminal_polynomial_s) c_s^-1`, asserted per slot) |
 | **ARGUED** | 8 | the three Merkle roots (**M-2**); the leaf salts (**M-3**); the authentication paths (**M-2**); counts and lengths, the wire envelope, the framing residue (**shape facts**); the public statement and the 112-byte policy (**O-1**); the receipt's length (**shape facts**) |
 | **OPEN** | 10 | the M opening's `q`; the M proximity vector; the M opening's own 256 columns; whether a proof attempt produced a receipt; rejected-but-emitted receipts; retained captures; timing, memory and power; prior proofs by the same prover; the integer-range facts the statement implies; any nonlinear functional of the joint view |
@@ -151,6 +152,17 @@ the capture's):
 | | H | yes | yes (after projection) | equal | 73,954 | 0 | 18,904 |
 | | Input / Output | yes | yes | equal | 2,684 / 2,698 | 0 | 313 / 307 |
 | | masking | yes | yes | equal | 594 | 0 | 36 |
+
+The exhibited randomness `r'` is recorded as a sha256 per commitment per
+fixed input (`exhibited_randomness_sha256`), not as values: the solve is
+deterministic, so the digest makes the exhibited object checkable across runs
+without printing 178,432 field elements. It is a solved value for a PUBLIC
+fixed input, not any prover's real randomness — the captures contain none.
+
+For the **masking** rows of that table the two columns are the two
+ACCOUNTINGS below (conservative / opening-only), not two fixed inputs: the
+second fixed input is a commitment-side notion, and this channel's fixed data
+is the named transcript of §1, projected as described.
 
 **The fibre dimension is the same at both fixed inputs, by construction and
 not by coincidence.** `M_nondata` is built from `rho`, `rw`, `cw` and the

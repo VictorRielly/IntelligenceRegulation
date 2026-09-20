@@ -278,19 +278,25 @@ class TestSmallModel(unittest.TestCase):
         self.assertEqual(len(coords2) - rank(rows2, len(coords2)), fibre)
 
     def test_a_pad_budget_below_the_opened_columns_loses_rank(self):
-        """The control's premise, on the small model: fewer pads than distinct
-        opened columns and the blinding map stops being onto."""
+        """The control's premise, on the small model: with at least as many
+        pad symbols as distinct opened columns the pad block has FULL ROW
+        rank, so every opened-column vector is reachable from the pads alone;
+        with fewer it does not, and some vectors have no preimage."""
         wide = SmallModel(q=6, d=4)
-        rows, coords = wide.dense_blinding_matrix()
+        self.assertEqual(rank(wide.epad, wide.q), wide.d)
         narrow = SmallModel(q=3, d=4)
-        rows2, coords2 = narrow.dense_blinding_matrix()
-        obs = len(rows)
-        self.assertEqual(rank(rows, len(coords)), min(obs, rank(rows, len(coords))))
-        # with q < d the per-row column block cannot be met for a generic view
-        self.assertLess(
-            rank(rows2, len(coords2)) - (narrow.rows * narrow.d),
-            rank(rows, len(coords)) - (wide.rows * wide.d) + 1,
-        )
+        self.assertEqual(rank(narrow.epad, narrow.q), narrow.q)
+        self.assertLess(rank(narrow.epad, narrow.q), narrow.d)
+        # exhibited: a target the narrow pad block cannot reach
+        from zk60_native_jv_field import solve
+
+        cols = [[row[k] for row in narrow.epad] for k in range(narrow.q)]
+        target = [1, 0, 0, 0]
+        x, _ = solve(cols, target)
+        self.assertIsNone(x, "a rank-deficient pad block must refuse some views")
+        cols_w = [[row[k] for row in wide.epad] for k in range(wide.q)]
+        xw, _ = solve(cols_w, target)
+        self.assertIsNotNone(xw, "a full-rank pad block must reach every view")
 
 
 # ========================================================= the real captures

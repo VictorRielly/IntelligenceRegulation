@@ -167,10 +167,15 @@
     {
      "assumption": null,
      "channel": "published terminals",
-     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223), and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
      "preimage_exhibited": true,
      "section": "2.1",
-     "status": "constructed"
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 173,
+      "terminals": 173
+     }
     },
     {
      "assumption": null,
@@ -338,6 +343,12 @@
      "Input": true,
      "Output": true
     },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
     "honest_again": true,
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
@@ -423,6 +434,7 @@
     "prg": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "c8445fdf55793aeb402a03391dc28ce21d8a5d8e04a4bd06801650ecf3a83b32",
       "fibre": {
        "blinding_unknowns": 178432,
        "distinct_opened_columns": 246,
@@ -456,6 +468,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "0506d180951f1c851d6acafa6229f81b34314ae535ae292e456d8aacffd49a95",
       "fibre": {
        "blinding_unknowns": 125438,
        "distinct_opened_columns": 242,
@@ -504,6 +517,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "a4d5645953b625f68855696c2ddbaf4d01486b6095e3cd4dec12f79c1394a177",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 246,
@@ -537,6 +551,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "730e8a1550b1752d360a28d09c428280877dfb4101aa5ed8fe4d037632c1ddfc",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 241,
@@ -572,6 +587,7 @@
     "zero": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "f3e9c75ac3223ad50a88ccbb8e33f03538640a8c1381917a0337f52be436a01a",
       "fibre": {
        "blinding_unknowns": 178432,
        "distinct_opened_columns": 246,
@@ -604,6 +620,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "f0847f50b205f070044874df1757093b320e0fdebea278e501b311fa868481db",
       "fibre": {
        "blinding_unknowns": 125438,
        "distinct_opened_columns": 242,
@@ -636,6 +653,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "6ff55e8baa675accb39c69264de665a99b25ff6d41530e4abaf96dc4dee6f5dd",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 246,
@@ -668,6 +686,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "123dc2ba6acaacced68f79b1d5c49c61041cb4faea4654cd7e53d451e53b15f6",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 241,
@@ -1321,10 +1340,15 @@
     {
      "assumption": null,
      "channel": "published terminals",
-     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223), and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
      "preimage_exhibited": true,
      "section": "2.1",
-     "status": "constructed"
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 173,
+      "terminals": 173
+     }
     },
     {
      "assumption": null,
@@ -1492,6 +1516,12 @@
      "Input": true,
      "Output": true
     },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
     "honest_again": true,
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
@@ -1577,6 +1607,7 @@
     "prg": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "7966de068161eb02d8622e74dd8cd6ad75b0f465e861e6c7e5aa3b20505f5cce",
       "fibre": {
        "blinding_unknowns": 178432,
        "distinct_opened_columns": 243,
@@ -1610,6 +1641,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "aa2378fbcc4735280eff75b78168f8966d87b6320549563f67e406cdcf08b23c",
       "fibre": {
        "blinding_unknowns": 125438,
        "distinct_opened_columns": 240,
@@ -1658,6 +1690,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "d2771ed68cb8ae8dacc24efbb2a8d7a77280aa5eae1d2eb9e5cd97a2a0b5bdfe",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 231,
@@ -1691,6 +1724,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "2212665d6f64058650a69b0b0d933148e75300b838b73f332b627b5003329b94",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 239,
@@ -1726,6 +1760,7 @@
     "zero": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "c9c0c821be14b5742ad8fac1523e3b73cf552bdd784fd631b675f78b113c6277",
       "fibre": {
        "blinding_unknowns": 178432,
        "distinct_opened_columns": 243,
@@ -1758,6 +1793,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "ce13623fa78bb51333ae8ef9eb15bbde2a2fce84bd89cca7d583fbe37e6256de",
       "fibre": {
        "blinding_unknowns": 125438,
        "distinct_opened_columns": 240,
@@ -1790,6 +1826,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "9cb003ab0d063ad2c7d05987b1030d044852dbef6213153892b556b9d394ce1b",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 231,
@@ -1822,6 +1859,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "4b94f96ec6a4ead4ab0b10284ee9f07aa905f3b770ef531262b48f72898943b7",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 239,
@@ -2475,10 +2513,15 @@
     {
      "assumption": null,
      "channel": "published terminals",
-     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223), and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
      "preimage_exhibited": true,
      "section": "2.1",
-     "status": "constructed"
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 112,
+      "terminals": 112
+     }
     },
     {
      "assumption": null,
@@ -2646,6 +2689,12 @@
      "Input": true,
      "Output": true
     },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
     "honest_again": true,
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
@@ -2731,6 +2780,7 @@
     "prg": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "0a50c32e41ad0ed273956a6f90392515c32a5f84d6fb1df632283eb1fcdec14e",
       "fibre": {
        "blinding_unknowns": 117248,
        "distinct_opened_columns": 234,
@@ -2764,6 +2814,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "f187e9a799ecb2ec5335559ec2d494c996e341ac4d2d29119c414335909f8155",
       "fibre": {
        "blinding_unknowns": 93182,
        "distinct_opened_columns": 243,
@@ -2812,6 +2863,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "6ed45e45a4c771e2aef916b915c25099a8ca8153c87272fd55f08891f8d8380b",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 243,
@@ -2845,6 +2897,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "5264b38c80a4a5247ec3415d6bdb4a3dc8f034deac24cdf636c20a60db82dd07",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 235,
@@ -2880,6 +2933,7 @@
     "zero": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "bcb215d72cdd7e76b2e8ad3e1b40901303556c001b71acc7c3b8b683d88604a5",
       "fibre": {
        "blinding_unknowns": 117248,
        "distinct_opened_columns": 234,
@@ -2912,6 +2966,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "9b97eb9aa476cdd9516fd6bca67340b7cc87c5dd304a84e09881ed38b9351568",
       "fibre": {
        "blinding_unknowns": 93182,
        "distinct_opened_columns": 243,
@@ -2944,6 +2999,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "11c26799bf90d250d3357875597f7c3e0cab56b91b6bb95bbdf1f73cfed796ae",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 243,
@@ -2976,6 +3032,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "fa162bc13b1ecb322f7f9e806ebf029a1955e668a9d91f7d3c6fa361cfb3744c",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 235,
@@ -3569,10 +3626,15 @@
     {
      "assumption": null,
      "channel": "published terminals",
-     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223), and those claim values are among the entries the commitment-side preimage reproduces exactly",
+     "how": "every terminal is republished as the value of the PCS claim its private table names (argument.rs:223) -- CHECKED here, not assumed -- and those claim values are among the entries the commitment-side preimage reproduces exactly",
      "preimage_exhibited": true,
      "section": "2.1",
-     "status": "constructed"
+     "status": "constructed",
+     "terminals": {
+      "all_republished": true,
+      "republished_as_claim_values": 112,
+      "terminals": 112
+     }
     },
     {
      "assumption": null,
@@ -3740,6 +3802,12 @@
      "Input": true,
      "Output": true
     },
+    "honest_after_every_control": {
+     "A": true,
+     "H": true,
+     "Input": true,
+     "Output": true
+    },
     "honest_again": true,
     "ok": true,
     "one_pad_fewer_than_the_distinct_opened_columns": {
@@ -3825,6 +3893,7 @@
     "prg": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "dbfc0f818ccac91e7357ccc6be83e3bff0af964a15ffe0976429b67fe31f6b31",
       "fibre": {
        "blinding_unknowns": 117248,
        "distinct_opened_columns": 241,
@@ -3858,6 +3927,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": true,
+      "exhibited_randomness_sha256": "3963e95ad820b64da44cfaf5289cf94fa29eaa32dba7291a8bb0c0a58ca21d70",
       "fibre": {
        "blinding_unknowns": 93182,
        "distinct_opened_columns": 239,
@@ -3906,6 +3976,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "6d75f28d1d329d9c7435db405b48cf6fd19d709e8560a7fa2259d3584ce8fce0",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 237,
@@ -3939,6 +4010,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "3ab6259c492efc08a0462dfc6b610e1a1e25afbbee9dceaa17b8331fabd1422e",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 239,
@@ -3974,6 +4046,7 @@
     "zero": {
      "A": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "dc0525cc9485a51eb1b227252bbf011241fcb16dd4b9fc346668680aff71a144",
       "fibre": {
        "blinding_unknowns": 117248,
        "distinct_opened_columns": 241,
@@ -4006,6 +4079,7 @@
      },
      "H": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "678d713be2d851b30e94732ff82e12ab4fdc2bdb65ba4892e7fbfcf29cca9233",
       "fibre": {
        "blinding_unknowns": 93182,
        "distinct_opened_columns": 239,
@@ -4038,6 +4112,7 @@
      },
      "Input": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "d2ce9c17250d5870aaa2fa22180d34793e4174bc62ad0dbbacc7189648861a13",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 237,
@@ -4070,6 +4145,7 @@
      },
      "Output": {
       "before_projection_has_no_preimage": null,
+      "exhibited_randomness_sha256": "3150009c01af953634813c96ea3a5d437d8bb25f4374391ed24f8618b5af37ef",
       "fibre": {
        "blinding_unknowns": 3072,
        "distinct_opened_columns": 239,
@@ -4524,7 +4600,7 @@
    2816472
   ]
  },
- "seconds": 159.6,
+ "seconds": 179.2,
  "tool_sha256": {
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
   "zk60_native_jv_cfs.py": "12ad30bc87b8ece120410c84875eb8b5dbde1c4c59a526fe663510616163ba59",
@@ -4532,8 +4608,8 @@
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
   "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
-  "zk60_native_pg_pcs.py": "98f8c00785644e129c958c9892b6b26be2362627e5f1ac7906dee079a33d6cdd",
-  "zk60_native_privacy_gate.py": "c9058a80a1da6fde3cc87382bd2ff2b55aa7fe586812f45836d9210e1a775a09"
+  "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
+  "zk60_native_privacy_gate.py": "efb85b67b63dd0f5b99b0b13ce24ca94f212d80b1ad577ebc0bd11d2450af8bd"
  },
  "version": 1,
  "what_it_does_not_show": [

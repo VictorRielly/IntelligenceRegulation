@@ -28,7 +28,11 @@ short pass for development); the evidence above was taken with `full`, so
 every opened column value of every commitment was recomputed and compared.
 
 **What the record contains.** Counts, dimensions, ranks, indices, booleans,
-digests and challenge-derived field elements. It contains no witness value,
+digests and challenge-derived field elements. The exhibited randomness
+itself is recorded as a sha256 (`exhibited_randomness_sha256`, one per
+commitment per fixed input), not as values: the solve is deterministic, so
+the digest makes the exhibited object checkable across runs without printing
+178,432 field elements. It contains no witness value,
 no salt and no private plane — the captures hold no witness, and the gate
 constructs prover randomness rather than reading any. The second fixed input
 is generated from a published seed and is not private.

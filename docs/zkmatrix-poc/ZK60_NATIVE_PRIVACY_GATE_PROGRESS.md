@@ -31,7 +31,7 @@ receipts at two toy layouts.
 | S5 | negative controls, honest-passes and perturbed-fails | DONE — 7 controls, all fire on all four captures |
 | S6 | tests, evidence, report, ledger | DONE — 27 new tests; `results/zk60_native_privacy_gate/`; `ZK60_NATIVE_PRIVACY_GATE.md` |
 
-Gate run (`--columns full --controls-on all`): **four captures, ok, 159.6 s**,
+Gate run (`--columns full --controls-on all`): **four captures, ok, 179.2 s**,
 `results/zk60_native_privacy_gate/privacy_gate.json`, marker `0`.
 
 ## 1. Commands and logs
@@ -51,10 +51,11 @@ building Rust.
 
 1. **The preimage exists and is exhibited on every linear commitment
    channel, at both fixed inputs, on all four captures.** Every entry of the
-   recomputed view equals the capture's: **805,596 entries** across the four
-   receipts — 88,064 group-vector, 8,192 proximity, 574 claim values, 706,090
-   opened column values, 2,594 masked round entries, 82 masked scalars — with
-   zero differing.
+   recomputed view equals the capture's: **802,920 commitment-side entries
+   per fixed input** across the four receipts (88,064 group-vector, 8,192
+   proximity, 574 claim values, 706,090 opened column values) and **2,676**
+   on the masking side (2,594 masked round entries, 82 masked scalars), with
+   zero differing anywhere.
 2. **The fibre dimension does not depend on the fixed input, by
    construction.** `M_nondata` is a function of `rho`, `rw`, `cw` and the
    sampled nodes only. The gate hashes every matrix it solves and requires the
