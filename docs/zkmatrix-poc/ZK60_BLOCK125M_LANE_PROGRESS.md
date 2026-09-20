@@ -8,7 +8,8 @@ Parts A and B were **purely additive**. Since 2026-09-20 the lane also works
 the change list of `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` §9 — Codex has
 confirmed the lane owns it, shared constants included. Stage 1 was S1, S2,
 S4, S5 (S3 is a ruling, already made). **Stage 2 (2026-09-20 01:00–02:00) is
-S6 and S7**; S8–S15 are later.
+S6 and S7, plus the PREPARATION of S8** (both windows reproduced as
+failures; the change itself is not made). S8's change and S9–S15 are later.
 
 **Running list of *shared-file changes*** (files outside
 `hashline/src/private_block*` and `hashline/src/private_attention*`), for the
@@ -49,7 +50,8 @@ Nothing else outside those two trees is edited.
 | **S6 the witness builder over the same shape** | DONE | `…/s6-run3.log:160` — **72 passed / 0 failed / 2 ignored**; toy receipt 2,816,472 B, digest gate held |
 | **S6 acceptance: witness parity AT THE RUNG** | DONE | `…/s7-run3.log:155` — **76 passed / 0 failed / 2 ignored**; 160 rung cases, **131 accepted by both, 29 refused identically**, 21 planes element for element on every true coordinate |
 | **S7 grouped-query attention (group 3)** | DONE | failing first: `…/s7-failing-test.log:123` (`kr8` differs from the kernel in 14 of 768 elements) and `:103` (the grouping property); after: `…/s7-run1.log:118` — **6 passed / 0 failed** in the parity module |
-| **S8 the two integer windows** | NOT STARTED | the boundary is named by the `check_plane_table` refusal (finding S6-F2) |
+| **S8 preparation: both windows reproduced as failures** | DONE | `…/s8-run4.log:158` — **79 passed / 0 failed / 3 ignored**; the norm and softmax windows each refuse an honest rung witness by name at the toy's setting and accept at the rung's; the deliverable is captured failing in `…/s8-ignored-test.log:82` |
+| **S8 the change itself** | NOT STARTED | the argument still carries the toy's coefficients as literals and the `A_*` ids are still literal indices (findings S6-F2, S8-F1) |
 
 ## The toy freeze gate this stage added
 
@@ -107,6 +109,11 @@ flock -w 540 /tmp/zk-build.lock env CARGO_TARGET_DIR=/home/victor/wt-zk60-attent
 | 23 | the same, after S7 | `…/s7-run1.log` | **6 passed, 0 failed**; 160 rung cases, 131 accepted / 29 refused by both |
 | 24 | the Rust command, filter `private_`, after S7 | `…/s7-run2.log` | 76 passed, 0 failed, 2 ignored, 28.86 s (one new unused-variable warning, fixed next) |
 | 25 | the same, warning cleared | `…/s7-run3.log` | **76 passed, 0 failed, 2 ignored**, 28.46 s, 9 warnings — the baseline's 9 |
+| 26 | filter `private_block::grow_tests`, the S8 preparation tests, first attempt | `…/s8-run1.log` | 3 compile errors — `Witness` has no `Debug` on purpose (its planes are secret), so `expect_err` is not available |
+| 27 | the same, the two outcomes matched by hand | `…/s8-run2.log` | 16 passed, **1 failed** — the norm window test did NOT refuse: at \|x\| about 2,000 the toy's 29-bit window IS enough at width 96. The test's input, not the code, was wrong |
+| 28 | the same, the input magnitude chosen and its reason written down | `…/s8-run3.log` | **17 passed, 0 failed, 1 ignored** |
+| 29 | filter `…::the_rung_at_its_own_calibration_has_an_honest_witness`, `--include-ignored` (a deliberately failing run) | `…/s8-ignored-test.log:82` | **1 failed** — *"S8: the rung's own calibration must have an honest witness, got `private block: this shape's A plane list differs from the pinned one`"* |
+| 30 | the Rust command, filter `private_`, after the S8 preparation | `…/s8-run4.log` | **79 passed, 0 failed, 3 ignored**, 29.43 s, 9 warnings |
 
 ## Findings
 
@@ -432,6 +439,42 @@ accumulation instead of 16, a full off-diagonal band leaves the int8 class
 six times sooner, and a wider band would turn the whole sweep into `score`
 refusals and prove nothing about the accepted path.
 
+**S8-F1 (both windows are now reproducible in a fifth of a second, and the
+inventory of what is left is exact).** S6 put all three calibration windows
+into the shape, so the two completeness failures of §3.8 rows 9 and 10 are
+tests rather than table entries. Each is shown twice: by counting from the
+shape, and in the builder, where the SAME honest input refuses by name at the
+toy's setting and is accepted at the rung's.
+
+| window | the honest rung value | the toy's setting | refusal, by name | the rung's |
+|---|---:|---:|---|---:|
+| norm remainder (row 9) | `den - 1 = 4096 · 321,049 − 1 ≈ 2^29.97` | `2^29` | `norm quotient/remainder` | `2^31` |
+| softmax remainder (row 10) | `Sum ≤ 24 · 2^12 = 98,304 ≈ 2^16.58` | `2^14` | `softmax quotient/remainder` | `2^17` |
+
+**What is left for S8, in the order it has to happen:**
+
+1. the `A_*` plane ids are literal, and a third `sigma_s` limb adds **two**
+   `Dom::S` planes (`Shape::rung()` and `Shape::m125()` both count 83 where
+   the toy counts 81), shifting every id above `A_SG1` — `A_G8` … `A_MACT` —
+   and every range in `layout::a_dom`, every `a_range(A_S8, A_SG1)` in
+   `argument.rs`, and the claim-site table;
+2. the third limb's own lookup, `scaled(l2, 1 << (24 − wrho_s))` = **64**
+   (the toy's two-limb coefficient is `1 << (16 − 14)` = **4**);
+3. the four norm coefficients `1 << (32 − NORM_WRHO)` at `layout.rs:377`,
+   `:379`, `:385`, `:387`: **8** at the toy, **2** at the rung, **1** at
+   125M — and at 125M `Shape::norm_top_is_full_byte()` is true, so those four
+   lookups are REDUNDANT and C-6 drops them, which moves the `H` row total;
+4. the module's integer premise text in `layout.rs`'s header (§3.3, §3.4,
+   O-4, D16 items 1–5), which still says "rho and sigma < 2^29 exactly" and
+   "rho_s and sigma_s < 2^14 exactly";
+5. the norm-range lane's alias tamper tests at the new profile (D16 item 6,
+   non-negotiable, ruling P-5).
+
+The one test that states the deliverable,
+`the_rung_at_its_own_calibration_has_an_honest_witness`, is left
+**`#[ignore]`d with its reason** and its failure captured
+(`s8-ignored-test.log:82`). It is the only ignored test this lane added.
+
 **No disagreement between the memo's rules and `layout.rs` was found at the
 toy shape**: every rule the memo states reproduces the Rust's own numbers.
 The differences above are all at shapes that do not exist yet.
@@ -443,15 +486,20 @@ privacy argument, not a privacy result.
 
 ## NEXT
 
-**S1, S2, S4, S5, S6 and S7 are done and green: 76 passed / 0 failed / 2
-ignored on `--lib private_` (`s7-run3.log:155`) and 15 passed / 0 failed on
-the kernel crate (`s6-kernel-run2.log:22`). The toy receipt is 2,816,472 B
-and the pinned schedule digest has not moved at any commit of either
-stage.**
+**S1, S2, S4, S5, S6 and S7 are done and green, and S8's two failures are
+reproduced but NOT fixed: 79 passed / 0 failed / 3 ignored on `--lib
+private_` (`s8-run4.log:158`) and 15 passed / 0 failed on the kernel crate
+(`s6-kernel-run2.log:22`). The toy receipt is 2,816,472 B and the pinned
+schedule digest has not moved at any commit of either stage.**
 
-The next agent takes **S8, the two integer windows**, and the FIRST thing it
-does is read **S6-F2**: the `A_*` plane ids are literal, the plane list moves
-with `limbs_sigma_s`, and `witness::check_plane_table` refuses any shape whose
+The next agent finishes **S8, the two integer windows**. Both failures are
+already written as tests it can run in a fifth of a second (finding
+**S8-F1** has the table and the exact inventory of what is left), and the
+deliverable is stated as one `#[ignore]`d test,
+`grow_tests::the_rung_at_its_own_calibration_has_an_honest_witness`, whose
+failure today is captured at `s8-ignored-test.log:82`. The FIRST thing to
+read is **S6-F2**: the `A_*` plane ids are literal, the plane list moves with
+`limbs_sigma_s`, and `witness::check_plane_table` refuses any shape whose
 list differs from the pinned one. S8 has to move that boundary, in this
 order:
 
