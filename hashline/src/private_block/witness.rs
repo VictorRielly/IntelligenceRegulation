@@ -48,6 +48,12 @@ pub(crate) struct Witness {
 impl Witness {
     /// The block's output plane `xres2` (secret): what `SC_IO_OUT` binds and
     /// what an honest endpoint owner commits.
+    ///
+    /// `A_X2` is the ONE plane id read here as a literal. It sits below the
+    /// `Dom::S` limb groups that step S8 made variable, so it is the same id
+    /// at the toy, the rung and 125M; it would move only if a norm remainder
+    /// needed a fifth byte limb, which `build_shaped` refuses by name (see
+    /// `norm_limbs_are_the_pinned_count`).
     pub(crate) fn output(&self) -> Result<Vec<i16>, String> {
         self.planes[A_X2].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 2".to_string())).collect()
     }
@@ -376,24 +382,33 @@ pub(crate) fn build(public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i
     build_shaped(&Shape::toy(), public, ff, input)
 }
 
-/// **The pinned plane table.** The `A_*` constants of `layout.rs` are literal
-/// indices, so a shape whose plane LIST differs from the toy's would silently
-/// write the wrong planes. The two windows that move it are the norm's limb
-/// count and the softmax remainder's; both are four and two at the toy, the
-/// rung and 125M, and step S8 is where a third `sigma_s` limb shifts every
-/// index above `A_SG1`. Until then this refusal is what stops a shape the
-/// plane table cannot express.
-fn check_plane_table(shape: &Shape) -> Result<(), String> {
-    let doms = shape.a_plane_doms();
-    if doms.len() != N_A || (0..N_A).any(|p| doms[p] != a_dom(p)) {
-        return Err("private block: this shape's A plane list differs from the pinned one".into());
+/// **The plane table, before step S8.** The `A_*` constants of `layout.rs`
+/// are the toy's literal indices, and this refused any shape whose plane LIST
+/// differed. **S8 replaced it with [`Ids`], which MAPS the ids instead of
+/// refusing**, so a third `sigma_s` limb (the rung's and 125M's) is now
+/// expressible. `Ids::new` keeps the refusal for a list this map cannot
+/// express, and `norm_limbs_are_the_pinned_count` below keeps the one
+/// remaining literal honest.
+///
+/// **The one literal left: [`Witness::output`] reads `A_X2`**, whose id sits
+/// above the norm limb groups, so it is stable only while `limbs_norm` is the
+/// toy's four — which it is at the toy, the rung and 125M (`D_max` is
+/// 908,065 at 125M and the window is 32 bits, four limbs). A shape with a
+/// fifth norm limb is refused BY NAME here rather than silently reading the
+/// wrong plane; the fix, when a shape needs it, is to carry the output
+/// plane's id in the `Witness` (finding S8-F3).
+fn norm_limbs_are_the_pinned_count(shape: &Shape) -> Result<(), String> {
+    if shape.limbs_norm() != LN_TOY {
+        return Err("private block: this shape's norm remainder needs a different number of byte limbs".into());
     }
     Ok(())
 }
 
 /// the whole block, on the planes of `Layout::new` at `shape`
 pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Witness, String> {
-    check_plane_table(shape)?;
+    let ids = Ids::new(shape)?;
+    norm_limbs_are_the_pinned_count(shape)?;
+    let ap = |toy_id: usize| ids.at(toy_id);
     let g = Geom::new(shape);
     if input.len() != g.t * g.d {
         return Err("private block: input shape".into());
@@ -403,7 +418,7 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     let sup_kv = g.support(Dom::Kv);
     let sup_s = g.support(Dom::S);
     let sup_f = g.support(Dom::F);
-    let mut pl: Vec<Vec<i64>> = (0..N_A).map(|p| if is_multiplicity(p) { Vec::new() } else { vec![0i64; g.len(a_dom(p))] }).collect();
+    let mut pl: Vec<Vec<i64>> = (0..ids.n_a()).map(|q| if ids.is_multiplicity(q) { Vec::new() } else { vec![0i64; g.len(ids.dom(q))] }).collect();
     let mut x = vec![0i64; g.len(Dom::D)];
     for t in 0..g.t {
         for i in 0..g.d {
@@ -413,25 +428,25 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
 
     // ---- norm_a (round mode) ----
     let na = rms_norm(&g, &x, &public.gamma_a, shape.norm_wrho)?;
-    pl[A_D] = na.d;
-    pl[A_DSQ] = na.dsq;
-    pl[A_LIMB] = na.limb;
-    pl[A_Y] = na.y;
+    pl[ap(A_D)] = na.d;
+    pl[ap(A_DSQ)] = na.dsq;
+    pl[ap(A_LIMB)] = na.limb;
+    pl[ap(A_Y)] = na.y;
     for (k, v) in na.rho.into_iter().enumerate() {
-        pl[A_NR0 + k] = v;
+        pl[ids.nr(k)] = v;
     }
     for (k, v) in na.sigma.into_iter().enumerate() {
-        pl[A_NS0 + k] = v;
+        pl[ids.ns(k)] = v;
     }
     for &idx in &sup_d {
-        pl[A_X][idx] = x[idx];
+        pl[ap(A_X)][idx] = x[idx];
         let l = limbs(x[idx] + 32768, 2);
-        pl[A_XL0][idx] = l[0];
-        pl[A_XL1][idx] = l[1];
+        pl[ap(A_XL0)][idx] = l[0];
+        pl[ap(A_XL1)][idx] = l[1];
     }
 
     // ---- QKV, RoPE ----
-    let y = pl[A_Y].clone();
+    let y = pl[ap(A_Y)].clone();
     let (dl, kvl, sl) = (g.len(Dom::D), g.len(Dom::Kv), g.len(Dom::S));
     let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d, g.d, g.d_pad, dl), &sup_d, SH_QKV, -127, 127, "Q")?;
     let (k8, rkl) = quantize(&matmul(&g, &y, g.d_pad, &public.wk, g.d, g.kvw, g.kvw, kvl), &sup_kv, SH_QKV, -127, 127, "K")?;
@@ -471,27 +486,27 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
             if arg > t {
                 return Err("fixed oracle relation failure: causal maximum attainment".into());
             }
-            pl[A_MX][g.htix(h, t)] = best;
-            pl[A_ZSEL][g.six(h, t, arg)] = 1;
+            pl[ap(A_MX)][g.htix(h, t)] = best;
+            pl[ap(A_ZSEL)][g.six(h, t, arg)] = 1;
             let mut total = 0i64;
             for j in 0..g.t {
                 let delta = best - masked(j);
                 if !(0..256).contains(&delta) {
                     return Err(range("exp difference"));
                 }
-                pl[A_E][g.six(h, t, j)] = public.exp[delta as usize];
+                pl[ap(A_E)][g.six(h, t, j)] = public.exp[delta as usize];
                 if j <= t {
-                    total += pl[A_E][g.six(h, t, j)];
+                    total += pl[ap(A_E)][g.six(h, t, j)];
                 }
             }
             if !((1i64 << f_e)..=((g.t as i64) << f_e)).contains(&total) {
                 return Err("fixed oracle relation failure: softmax denominator".into());
             }
-            pl[A_SUM][g.htix(h, t)] = total;
+            pl[ap(A_SUM)][g.htix(h, t)] = total;
             for j in 0..g.t {
                 let idx = g.six(h, t, j);
                 let (q, rho) = if j <= t {
-                    let num = pl[A_E][idx] << F_P;
+                    let num = pl[ap(A_E)][idx] << F_P;
                     (num / total, num % total)
                 } else {
                     (0, 0)
@@ -500,19 +515,19 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
                 if !(0..1i64 << wrho_s).contains(&sigma) || !(0..=1i64 << F_P).contains(&q) {
                     return Err(range("softmax quotient/remainder"));
                 }
-                pl[A_P][idx] = q;
+                pl[ap(A_P)][idx] = q;
                 let (lp, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
                 for k in 0..g.lp {
-                    pl[A_PL0 + k][idx] = lp[k];
+                    pl[ids.pl(k)][idx] = lp[k];
                 }
                 for k in 0..g.ls {
-                    pl[A_SR0 + k][idx] = lr[k];
-                    pl[A_SG0 + k][idx] = ls[k];
+                    pl[ids.sr(k)][idx] = lr[k];
+                    pl[ids.sg(k)][idx] = ls[k];
                 }
             }
             for i in 0..g.dh {
                 // (t, h, i') order, the Q-domain layout of o8
-                oacc[g.dix(t, h * g.dh + i)] = (0..=t).map(|j| pl[A_P][g.six(h, t, j)] * v8[g.kvix(j, kv, i)]).sum();
+                oacc[g.dix(t, h * g.dh + i)] = (0..=t).map(|j| pl[ap(A_P)][g.six(h, t, j)] * v8[g.kvix(j, kv, i)]).sum();
             }
         }
     }
@@ -525,50 +540,50 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
         if !(-32768..=32767).contains(&x1) {
             return Err(range("residual 1"));
         }
-        pl[A_X1][idx] = x1;
+        pl[ap(A_X1)][idx] = x1;
         let l = limbs(x1 + 32768, 2);
-        pl[A_X1L0][idx] = l[0];
-        pl[A_X1L1][idx] = l[1];
+        pl[ap(A_X1L0)][idx] = l[0];
+        pl[ap(A_X1L1)][idx] = l[1];
         let l = limbs(ao[idx] + 32768, 2);
-        pl[A_AL0][idx] = l[0];
-        pl[A_AL1][idx] = l[1];
+        pl[ap(A_AL0)][idx] = l[0];
+        pl[ap(A_AL1)][idx] = l[1];
         let l = limbs(ro[idx], 2);
-        pl[A_RO0][idx] = l[0];
-        pl[A_RO1][idx] = l[1];
+        pl[ap(A_RO0)][idx] = l[0];
+        pl[ap(A_RO1)][idx] = l[1];
     }
-    pl[A_AO] = ao;
-    pl[A_RAL] = ral;
-    pl[A_Q8] = q8;
-    pl[A_RQL] = rql;
-    pl[A_QR8] = qr8;
-    pl[A_RQRL] = rqrl;
-    pl[A_O8] = o8;
-    pl[A_K8] = k8;
-    pl[A_RKL] = rkl;
-    pl[A_V8] = v8;
-    pl[A_RVL] = rvl;
-    pl[A_KR8] = kr8;
-    pl[A_RKRL] = rkrl;
-    pl[A_S8] = s8;
-    pl[A_RSL] = rsl;
+    pl[ap(A_AO)] = ao;
+    pl[ap(A_RAL)] = ral;
+    pl[ap(A_Q8)] = q8;
+    pl[ap(A_RQL)] = rql;
+    pl[ap(A_QR8)] = qr8;
+    pl[ap(A_RQRL)] = rqrl;
+    pl[ap(A_O8)] = o8;
+    pl[ap(A_K8)] = k8;
+    pl[ap(A_RKL)] = rkl;
+    pl[ap(A_V8)] = v8;
+    pl[ap(A_RVL)] = rvl;
+    pl[ap(A_KR8)] = kr8;
+    pl[ap(A_RKRL)] = rkrl;
+    pl[ap(A_S8)] = s8;
+    pl[ap(A_RSL)] = rsl;
 
     // ================= the block half (kernel lib.rs:616-663) =================
     // ---- norm_m: the same relation, with gamma_m and xres1 ----
-    let x1 = pl[A_X1].clone();
+    let x1 = pl[ap(A_X1)].clone();
     let nmp = rms_norm(&g, &x1, &ff.gamma_m, shape.norm_wrho)?;
-    pl[A_DM] = nmp.d;
-    pl[A_DSQM] = nmp.dsq;
-    pl[A_LIMBM] = nmp.limb;
-    pl[A_YM] = nmp.y;
+    pl[ap(A_DM)] = nmp.d;
+    pl[ap(A_DSQM)] = nmp.dsq;
+    pl[ap(A_LIMBM)] = nmp.limb;
+    pl[ap(A_YM)] = nmp.y;
     for (k, v) in nmp.rho.into_iter().enumerate() {
-        pl[A_MR0 + k] = v;
+        pl[ids.mr(k)] = v;
     }
     for (k, v) in nmp.sigma.into_iter().enumerate() {
-        pl[A_MS0 + k] = v;
+        pl[ids.ms(k)] = v;
     }
 
     // ---- the SiLU feed-forward, in the kernel's order so the FIRST refusal matches ----
-    let nm = pl[A_YM].clone();
+    let nm = pl[ap(A_YM)].clone();
     let fl = g.len(Dom::F);
     // R1: the gate. Its class is the kernel's `I8`, which INCLUDES -128, not
     // the attention subset: the activation table has 256 rows, so `sym()`
@@ -595,20 +610,20 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
 
     for &idx in &sup_f {
         let l = limbs(u16[idx] + 32768, 2);
-        pl[A_UL0][idx] = l[0];
-        pl[A_UL1][idx] = l[1];
+        pl[ap(A_UL0)][idx] = l[0];
+        pl[ap(A_UL1)][idx] = l[1];
         let l = limbs(h16[idx] + 32768, 2);
-        pl[A_HL0][idx] = l[0];
-        pl[A_HL1][idx] = l[1];
+        pl[ap(A_HL0)][idx] = l[0];
+        pl[ap(A_HL1)][idx] = l[1];
         let l = limbs(rh[idx], 2);
-        pl[A_RH0][idx] = l[0];
-        pl[A_RH1][idx] = l[1];
+        pl[ap(A_RH0)][idx] = l[0];
+        pl[ap(A_RH1)][idx] = l[1];
     }
-    pl[A_G8] = g8;
-    pl[A_RGL] = rgl;
-    pl[A_A16] = a16;
-    pl[A_U16] = u16;
-    pl[A_H16] = h16;
+    pl[ap(A_G8)] = g8;
+    pl[ap(A_RGL)] = rgl;
+    pl[ap(A_A16)] = a16;
+    pl[ap(A_U16)] = u16;
+    pl[ap(A_H16)] = h16;
 
     // ---- residual 2 (all three shifts are 0: xres2 = xres1 + z16 exactly) ----
     for &idx in &sup_d {
@@ -616,16 +631,16 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
         if !(-32768..=32767).contains(&x2) {
             return Err(range("residual 2"));
         }
-        pl[A_X2][idx] = x2;
+        pl[ap(A_X2)][idx] = x2;
         let l = limbs(x2 + 32768, 2);
-        pl[A_X2L0][idx] = l[0];
-        pl[A_X2L1][idx] = l[1];
+        pl[ap(A_X2L0)][idx] = l[0];
+        pl[ap(A_X2L1)][idx] = l[1];
         let l = limbs(z16[idx] + 32768, 2);
-        pl[A_ZL0][idx] = l[0];
-        pl[A_ZL1][idx] = l[1];
+        pl[ap(A_ZL0)][idx] = l[0];
+        pl[ap(A_ZL1)][idx] = l[1];
     }
-    pl[A_Z16] = z16;
-    pl[A_RDL] = rdl;
+    pl[ap(A_Z16)] = z16;
+    pl[ap(A_RDL)] = rdl;
 
     Ok(Witness { planes: pl })
 }

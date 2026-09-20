@@ -581,43 +581,170 @@ fn the_softmax_window_of_the_toy_refuses_an_honest_rung_witness() {
     assert_eq!(1i64 << (8 * Shape::m125().limbs_sigma_s() as u32 - Shape::m125().wrho_s), 64, "125M's, which is the memo's `scaled(l2, 64)`");
 }
 
-/// **THE PLANE-TABLE BOUNDARY (finding S6-F2).** A third `sigma_s` limb adds
-/// two planes to `Dom::S`, which shifts every `A_*` id above `A_SG1`. The
-/// witness refuses such a shape by name rather than writing the wrong
-/// planes, and this test records exactly which shapes are on which side.
+/// **THE PLANE-TABLE BOUNDARY, MOVED (step S8, finding S6-F2).** A third
+/// `sigma_s` limb adds two planes to `Dom::S` and shifts every `A_*` id above
+/// `A_SG1`. S6 could only REFUSE such a shape; S8 MAPS it, through
+/// [`Ids`]. This test records exactly what the map does, and that the two
+/// boundaries that remain still refuse by name.
 #[test]
-fn a_shape_whose_plane_list_moves_is_refused_by_name() {
-    for s in [Shape::toy(), window_shape("rung geometry at the toy softmax window", "hashline-zk-mr1/private-block-rung-t24-parity/1", 9, None, None)] {
-        assert_eq!(s.a_plane_doms().len(), N_A, "{}: plane count", s.name);
-        assert!((0..N_A).all(|p| s.a_plane_doms()[p] == a_dom(p)), "{}: plane list", s.name);
+fn the_plane_id_map_expresses_a_third_sigma_s_limb() {
+    let two_limb = window_shape("rung geometry at the toy softmax window", "hashline-zk-mr1/private-block-rung-t24-parity/1", 9, None, None);
+    // EVERY named shape now has a map, and it agrees with the shape's own
+    // plane list plane for plane (two independent statements of the list)
+    for s in [Shape::toy(), two_limb.clone(), Shape::rung(), Shape::m125()] {
+        let ids = Ids::new(&s).unwrap_or_else(|m| panic!("{}: {m}", s.name));
+        let doms = s.a_plane_doms();
+        assert_eq!(ids.n_a(), doms.len(), "{}: plane count", s.name);
+        assert!((0..doms.len()).all(|p| ids.dom(p) == doms[p]), "{}: plane list", s.name);
+        // every toy plane maps into the right domain, and the map is injective
+        assert!((0..N_A).all(|p| ids.dom(ids.at(p)) == a_dom(p)), "{}: a toy plane maps onto another domain", s.name);
+        let mut seen: Vec<usize> = (0..N_A).map(|p| ids.at(p)).collect();
+        seen.sort_unstable();
+        seen.dedup();
+        assert_eq!(seen.len(), N_A, "{}: the plane map is not injective", s.name);
     }
+    // at the two-limb shapes the map is the IDENTITY, which is why no toy
+    // byte can move
+    for s in [Shape::toy(), two_limb] {
+        let ids = Ids::new(&s).expect("a two-limb shape has a map");
+        assert_eq!(ids.n_a(), N_A, "{}: plane count", s.name);
+        assert!((0..N_A).all(|p| ids.at(p) == p), "{}: the two-limb map is not the identity", s.name);
+        assert_eq!((ids.sr(0), ids.sr(1), ids.sg(0), ids.sg(1)), (A_SR0, A_SR1, A_SG0, A_SG1), "{}", s.name);
+    }
+    // at three limbs: two extra `Dom::S` planes, `A_SG*` up by one, and
+    // everything above `Dom::S` up by two
     for s in [Shape::rung(), Shape::m125()] {
+        let ids = Ids::new(&s).expect("a three-limb shape has a map");
         assert_eq!(s.limbs_sigma_s(), 3, "{}: three sigma_s limbs", s.name);
-        assert_eq!(s.a_plane_doms().len(), N_A + 2, "{}: two extra Dom::S planes", s.name);
-        let (public, ff, input) = tame_case(&Shape::toy());
-        let refused = match super::witness::build_shaped(&s, &public, &ff, &input) {
-            Err(m) => m,
-            Ok(_) => panic!("a shape whose plane list moved must be refused"),
-        };
-        assert_eq!(refused, "private block: this shape's A plane list differs from the pinned one", "{}: the refusal must name the plane table", s.name);
+        assert_eq!(ids.n_a(), N_A + 2, "{}: two extra Dom::S planes", s.name);
+        assert_eq!((ids.sr(0), ids.sr(1), ids.sr(2)), (A_SR0, A_SR1, A_SR1 + 1), "{}: the rho_s limbs", s.name);
+        assert_eq!((ids.sg(0), ids.sg(1), ids.sg(2)), (A_SG0 + 1, A_SG1 + 1, A_SG1 + 2), "{}: the sigma_s limbs", s.name);
+        for p in [A_G8, A_RGL, A_A16, A_U16, A_H16, A_RH1, A_MU8, A_MEXP, A_MACT] {
+            assert_eq!(ids.at(p), p + 2, "{}: plane {p} above Dom::S did not shift by two", s.name);
+        }
+        // and NOTHING below `Dom::S` moves — which is what keeps
+        // `Witness::output`'s literal `A_X2` correct
+        for p in [A_D, A_MX, A_LIMB, A_X, A_Y, A_NR0, A_MS0, A_X2, A_RDL, A_Q8, A_K8, A_S8, A_P, A_PL1, A_SR0] {
+            assert_eq!(ids.at(p), p, "{}: plane {p} below the sigma_s limbs moved", s.name);
+        }
+        assert!(ids.is_multiplicity(ids.at(A_MU8)) && !ids.is_multiplicity(ids.at(A_RH1)), "{}: the histogram boundary moved with the planes", s.name);
+    }
+    // THE TWO BOUNDARIES THAT REMAIN, each refused by name.
+    // (1) a softmax window narrower than the toy's has FEWER planes, which
+    // the map cannot express (it maps a toy id onto a plane that is not there)
+    let narrow = window_shape("a one-limb softmax window", "hashline-zk-mr1/private-block-ls1/1", 9, Some(8), None);
+    assert_eq!(narrow.limbs_sigma_s(), 1);
+    assert_eq!(
+        Ids::new(&narrow).err(),
+        Some("private block: this shape's A plane list is shorter than the pinned one".to_string()),
+        "a shorter plane list must be refused by name"
+    );
+    // (2) a fifth norm limb would move `A_X2`, which `Witness::output` reads
+    // as a literal (finding S8-F3)
+    let five = window_shape("a five-limb norm window", "hashline-zk-mr1/private-block-ln5/1", 9, None, Some(33));
+    assert_eq!(five.limbs_norm(), 5);
+    let (public, ff, input) = tame_case(&five);
+    let refused = match super::witness::build_shaped(&five, &public, &ff, &input) {
+        Err(m) => m,
+        Ok(_) => panic!("a shape with a fifth norm limb must be refused"),
+    };
+    assert_eq!(refused, "private block: this shape's norm remainder needs a different number of byte limbs");
+}
+
+/// **THE LOOKUP LIST IS THE SHAPE'S** (step S8 items 2 and 3). `lookups_at`
+/// BUILDS the list; `Shape::lookups_per_position` COUNTS it from the memo's
+/// §4 without building it. The two were written from the same memo and not
+/// from each other, so their agreement at every named shape is the gate on
+/// the third limb's `scaled` lookup and on C-6's four dropped ones.
+#[test]
+fn the_shape_driven_lookup_list_matches_the_counted_one() {
+    for s in [Shape::toy(), Shape::rung(), Shape::m125()] {
+        let ids = Ids::new(&s).expect("a named shape has a map");
+        for dom in LOOKUP_DOMS {
+            let built = lookups_at(&s, &ids, dom);
+            assert_eq!(built.len(), s.lookups_per_position(dom), "{}: {dom:?} lookup count", s.name);
+            // every term names a plane that exists and lies on this domain
+            for lk in &built {
+                for (p, _) in &lk.terms {
+                    assert!(*p < ids.n_a(), "{}: {dom:?} lookup names plane {p}", s.name);
+                    assert_eq!(ids.dom(*p), dom, "{}: {dom:?} lookup reads a plane of another domain", s.name);
+                }
+            }
+        }
+        // the top-limb `scaled` coefficients, the three numbers S8 moved
+        let coef = |v: &[Lk], p: usize| v.iter().find(|l| l.terms.len() == 1 && l.terms[0].0 == p && l.cst == 0 && l.terms[0].1 != 1).map(|l| l.terms[0].1);
+        let d = lookups_at(&s, &ids, Dom::D);
+        let sdom = lookups_at(&s, &ids, Dom::S);
+        let want_norm = if s.norm_top_is_full_byte() { None } else { Some(1i64 << (8 * s.limbs_norm() as u32 - s.norm_wrho)) };
+        assert_eq!(coef(&d, ids.nr(ids.ln - 1)), want_norm, "{}: norm rho top-limb coefficient", s.name);
+        assert_eq!(coef(&d, ids.ms(ids.ln - 1)), want_norm, "{}: norm_m sigma top-limb coefficient", s.name);
+        assert_eq!(coef(&sdom, ids.sg(ids.ls - 1)), Some(1i64 << (8 * s.limbs_sigma_s() as u32 - s.wrho_s)), "{}: sigma_s top-limb coefficient", s.name);
+        assert_eq!(coef(&sdom, ids.pl(ids.lp - 1)), Some(64), "{}: the softmax quotient's top-limb coefficient is fixed by F_P", s.name);
+    }
+    // the exact numbers the memo names
+    let (toy, rung, m125) = (Shape::toy(), Shape::rung(), Shape::m125());
+    let (it, ir, im) = (Ids::new(&toy).unwrap(), Ids::new(&rung).unwrap(), Ids::new(&m125).unwrap());
+    let coef_of = |s: &Shape, ids: &Ids, dom: Dom, p: usize| {
+        lookups_at(s, ids, dom).into_iter().find(|l| l.terms.len() == 1 && l.terms[0].0 == p && l.cst == 0 && l.terms[0].1 != 1).map(|l| l.terms[0].1)
+    };
+    assert_eq!(coef_of(&toy, &it, Dom::D, it.nr(3)), Some(8), "the toy's `scaled(l3, 8)`");
+    assert_eq!(coef_of(&rung, &ir, Dom::D, ir.nr(3)), Some(2), "the rung's `scaled(l3, 2)`");
+    assert_eq!(coef_of(&m125, &im, Dom::D, im.nr(3)), None, "C-6 drops the four norm `scaled` lookups at 125M");
+    assert_eq!(coef_of(&toy, &it, Dom::S, it.sg(1)), Some(4), "the toy's `scaled(l1, 4)`");
+    assert_eq!(coef_of(&m125, &im, Dom::S, im.sg(2)), Some(64), "the memo's `scaled(l2, 64)` at 125M");
+    assert_eq!(coef_of(&rung, &ir, Dom::S, ir.sg(2)), Some(128), "the rung's 17-bit window in three limbs");
+    // C-6 moves the `H` row total, and only at 125M
+    assert_eq!((toy.lookups_per_position(Dom::D), rung.lookups_per_position(Dom::D), m125.lookups_per_position(Dom::D)), (38, 38, 34));
+    // the third limb adds two byte lookups and one `scaled`, and moves no
+    // other domain
+    assert_eq!((toy.lookups_per_position(Dom::S), rung.lookups_per_position(Dom::S), m125.lookups_per_position(Dom::S)), (13, 15, 15));
+    for dom in [Dom::L, Dom::F, Dom::Q, Dom::Kv] {
+        assert_eq!(toy.lookups_per_position(dom), m125.lookups_per_position(dom), "{dom:?} moved with the windows and should not have");
     }
 }
 
-/// **WHAT S8 MUST DELIVER, as a test that FAILS today** (ignored, with the
-/// reason). At `Shape::rung()` — the rung with its own `F_E = 12`, its
-/// 17-bit softmax window and its three `sigma_s` limbs — an honest witness
-/// must exist. Today it does not: the plane table cannot hold the two extra
-/// `Dom::S` planes, so `build_shaped` refuses at the door. Un-ignore this
-/// after S8 has made the `A_*` ids shape-derived and added the third limb's
-/// planes, its `scaled(l2, 64)` lookup and its claim sites.
+/// **WHAT S8 DELIVERS.** At `Shape::rung()` — the rung with its own
+/// `F_E = 12`, its 17-bit softmax window, its 31-bit norm window and its
+/// three `sigma_s` limbs — an honest witness exists. Before S8 this failed
+/// at the door with *"this shape's A plane list differs from the pinned
+/// one"* (`s8-ignored-test.log:82`).
 #[test]
-#[ignore = "S8: the third sigma_s limb adds two Dom::S planes and shifts every A_* id above A_SG1 (finding S6-F2)"]
 fn the_rung_at_its_own_calibration_has_an_honest_witness() {
     let s = Shape::rung();
+    assert_eq!((s.f_e, s.wrho_s, s.limbs_sigma_s(), s.norm_wrho, s.limbs_norm()), (12, 17, 3, 31, 4), "the rung's own calibration");
     let (public, ff, input) = tame_case(&s);
     let w = match super::witness::build_shaped(&s, &public, &ff, &input) {
         Ok(w) => w,
         Err(m) => panic!("S8: the rung's own calibration must have an honest witness, got `{m}`"),
     };
     assert_eq!(w.planes.len(), s.a_plane_doms().len());
+    let ids = Ids::new(&s).expect("the rung has a map");
+    // the third limb is REAL: some position's `sigma_s` exceeds 2^16, so its
+    // top limb is nonzero — at two limbs that value could not have been
+    // written at all, which is the completeness failure S8 removes
+    let sup = super::witness::Geom::new(&s).support(Dom::S);
+    let top = sup.iter().filter(|i| w.planes[ids.sg(2)][**i] != 0).count();
+    assert!(top > 0, "no sigma_s needs its third byte limb, so the rung does not exercise the wider window");
+    // and every limb really is a byte, at all three limbs
+    for k in 0..3 {
+        for p in [ids.sr(k), ids.sg(k)] {
+            assert!(w.planes[p].iter().all(|v| (0..256).contains(v)), "plane {p} is not a byte plane");
+        }
+    }
+    // the recomposed remainder pair closes `sigma_s = Sum - 1 - rho_s` on the
+    // causal support, over the integers, at the rung's window
+    let g = super::witness::Geom::new(&s);
+    let val = |p: usize, i: usize| w.planes[p][i];
+    for h in 0..s.q_heads {
+        for t in 0..s.tokens {
+            let sum = w.planes[ids.at(A_SUM)][h * s.t_pad + t];
+            for j in 0..=t {
+                let i = (h * s.t_pad + t) * s.t_pad + j;
+                let rho: i64 = (0..3).map(|k| val(ids.sr(k), i) << (8 * k)).sum();
+                let sig: i64 = (0..3).map(|k| val(ids.sg(k), i) << (8 * k)).sum();
+                assert_eq!(sig + rho + 1, sum, "the rung's softmax remainder pair does not close at ({h}, {t}, {j})");
+                assert!(sig < 1i64 << s.wrho_s && rho < 1i64 << s.wrho_s, "a rung remainder leaves the 17-bit window");
+            }
+        }
+    }
 }

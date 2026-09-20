@@ -275,6 +275,132 @@ pub(crate) fn is_multiplicity(plane: usize) -> bool {
     matches!(plane, A_MU8 | A_MEXP | A_MACT)
 }
 
+// ---- STEP S8: the `A_*` ids as a function of a shape -----------------------
+
+/// the toy's three variable group lengths, for the segment table below
+pub(crate) const LN_TOY: usize = 4;
+pub(crate) const LS_TOY: usize = 2;
+pub(crate) const LP_TOY: usize = 2;
+
+/// **The `A_*` ids at a shape (finding S6-F2, step S8).**
+///
+/// The constants above are the TOY's, and three plane groups have a length
+/// that moves with a shape's calibration windows:
+///
+/// | group | length | toy | rung | 125M |
+/// |---|---|---:|---:|---:|
+/// | each norm's `rho` / `sigma` byte limbs | `limbs_norm` | 4 | 4 | 4 |
+/// | the softmax quotient's limbs | `limbs_p` | 2 | 2 | 2 |
+/// | `rho_s` / `sigma_s` byte limbs | `limbs_sigma_s` | **2** | **3** | **3** |
+///
+/// A longer group shifts every plane above it, so a plane id is a FUNCTION of
+/// the shape. [`Ids::at`] maps a toy id to the same plane's id at this shape;
+/// the growing groups get their own accessors, because the toy has no name
+/// for a third `sigma_s` limb.
+///
+/// The segment table below and [`super::shape::Shape::a_plane_doms`] are two
+/// independent statements of the same plane list, written from the memo's
+/// §2.4 and not from each other; [`Ids::new`] refuses unless they agree.
+pub(crate) struct Ids {
+    /// `map[toy id]` = the same plane's id at this shape
+    map: Vec<usize>,
+    /// the domain of every plane at this shape, in plane order
+    doms: Vec<Dom>,
+    pub ln: usize,
+    pub ls: usize,
+    pub lp: usize,
+}
+
+impl Ids {
+    pub(crate) fn new(sh: &super::shape::Shape) -> Result<Ids, String> {
+        let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
+        if ln < LN_TOY || ls < LS_TOY || lp < LP_TOY {
+            return Err("private block: this shape's A plane list is shorter than the pinned one".into());
+        }
+        // (first toy id, toy length, this shape's length, domain), in plane
+        // order. Only the four norm limb groups, the `p` limbs and the two
+        // `sigma_s` limb groups have a length that is not a literal.
+        let segs: [(usize, usize, usize, Dom); 18] = [
+            (A_D, 4, 4, Dom::T),
+            (A_MX, 2, 2, Dom::Ht),
+            (A_LIMB, 2, 2, Dom::L),
+            (A_X, 4, 4, Dom::D),
+            (A_NR0, LN_TOY, ln, Dom::D),
+            (A_NS0, LN_TOY, ln, Dom::D),
+            (A_AO, 8, 8, Dom::D),
+            (A_MR0, LN_TOY, ln, Dom::D),
+            (A_MS0, LN_TOY, ln, Dom::D),
+            (A_Z16, 7, 7, Dom::D),
+            (A_Q8, 7, 7, Dom::Q),
+            (A_K8, 6, 6, Dom::Kv),
+            (A_S8, 5, 5, Dom::S),
+            (A_PL0, LP_TOY, lp, Dom::S),
+            (A_SR0, LS_TOY, ls, Dom::S),
+            (A_SG0, LS_TOY, ls, Dom::S),
+            (A_G8, 11, 11, Dom::F),
+            (A_MU8, 3, 3, Dom::Tab),
+        ];
+        let mut map = vec![usize::MAX; N_A];
+        let mut doms: Vec<Dom> = Vec::new();
+        for (start, toy_len, len, dom) in segs {
+            let base = doms.len();
+            for k in 0..toy_len {
+                map[start + k] = base + k;
+            }
+            for _ in 0..len {
+                doms.push(dom);
+            }
+        }
+        if map.iter().any(|v| *v == usize::MAX) {
+            return Err("private block: the A plane segment table does not cover every plane".into());
+        }
+        if doms != sh.a_plane_doms() {
+            return Err("private block: this shape's A plane list differs from the pinned one".into());
+        }
+        Ok(Ids { map, doms, ln, ls, lp })
+    }
+
+    /// the toy's own map, which is the identity (asserted by `Layout::new`)
+    pub(crate) fn toy() -> Ids {
+        Ids::new(&super::shape::Shape::toy()).expect("the toy's plane list is the pinned one")
+    }
+
+    /// the same plane, at this shape
+    pub(crate) fn at(&self, toy_id: usize) -> usize {
+        self.map[toy_id]
+    }
+    pub(crate) fn nr(&self, k: usize) -> usize {
+        self.map[A_NR0] + k
+    }
+    pub(crate) fn ns(&self, k: usize) -> usize {
+        self.map[A_NS0] + k
+    }
+    pub(crate) fn mr(&self, k: usize) -> usize {
+        self.map[A_MR0] + k
+    }
+    pub(crate) fn ms(&self, k: usize) -> usize {
+        self.map[A_MS0] + k
+    }
+    pub(crate) fn pl(&self, k: usize) -> usize {
+        self.map[A_PL0] + k
+    }
+    pub(crate) fn sr(&self, k: usize) -> usize {
+        self.map[A_SR0] + k
+    }
+    pub(crate) fn sg(&self, k: usize) -> usize {
+        self.map[A_SR0] + self.ls + k
+    }
+    pub(crate) fn n_a(&self) -> usize {
+        self.doms.len()
+    }
+    pub(crate) fn dom(&self, plane: usize) -> Dom {
+        self.doms[plane]
+    }
+    pub(crate) fn is_multiplicity(&self, plane: usize) -> bool {
+        plane >= self.map[A_MU8]
+    }
+}
+
 // ---- the H planes (every one Fp2-valued: a `re` slice then an `im` slice) ----
 pub(crate) const H_L: usize = 0;
 /// 19 helpers for the 38 `Dom::D` lookups
@@ -336,87 +462,167 @@ fn sym(p: usize) -> [Lk; 2] {
 ///
 /// CONSTRUCTION PREMISE (integer soundness; to be re-derived by the reviewer, not
 /// checked by code). Every relation of `argument::define` is an identity between
-/// integers only if no term wraps the 64-bit field. With every limb in [0, 256):
+/// integers only if no term wraps the 64-bit field.
+///
+/// **STEP S8 rewrote this premise as a premise about a SHAPE** (memo §3.3,
+/// §3.4, condition O-4, decision D16 items 1-5). The clauses below are stated
+/// once, with each shape's numbers beside them; the three that used to be
+/// literals — the norm window, the softmax window and the byte-limb counts
+/// that hold them — now read off the shape, and `lookups_at` emits exactly
+/// the lookups the clause names. The numbers for the three shapes that exist:
+///
+/// | quantity | toy | rung | 125M |
+/// |---|---:|---:|---:|
+/// | width `d`, tokens `T` | 16 / 32 | 96 / 24 | 768 / 512 |
+/// | `D_max = isqrt(1 + d 32767^2)` | 131,068 | 321,049 | 908,065 |
+/// | norm window `wrho = tn + 1 + bits(D_max)` | **29** | **31** | **32** |
+/// | norm limbs `ln`, top-limb lookup `1 << (8 ln - wrho)` | 4, `8 l3` | 4, `2 l3` | 4, **dropped (C-6)** |
+/// | `f_E`, `Sum <= T 2^fE` | 9, 2^14 | 12, 98,304 | 9, 2^18 |
+/// | softmax window `wrho_s`, limbs `ls` | **14**, 2 | **17**, 3 | **18**, 3 |
+/// | top `sigma_s` lookup `1 << (8 ls - wrho_s)` | `4 l1` | `128 l2` | `64 l2` |
+///
+/// With every limb in [0, 256):
 /// * x, ao, xres1, xres2, u16, h16, z16 in int16 (two limbs, offset 32768);
 ///   y, nm, q8, k8, v8, qr8, kr8, s8, o8 in [-127, 127] (`v + 127` and
 ///   `127 - v` both bytes); g8 in [-128, 127] from the 256-row activation
 ///   table itself, never from `sym`;
 /// * D, a1, a2 < 2^24 (three limbs each), so D^2 + a1 < 2^49 equals sum x^2 + ceps
-///   (< 2^35) over the integers, a2 = 2D - a1 >= 0 and a1 >= 0 give
-///   D^2 <= ss <= D^2 + 2D, i.e. D = isqrt(ss), and ceps = 1 gives D >= 1;
-/// * norm: |2 cn g x| < 2^34, y D 2^(tn+1) < 2^44, rho and sigma < 2^29 exactly
-///   (top limb `8 * l3` a byte), so 0 <= rho <= den - 1 and y is the floor quotient;
+///   over the integers (< 2^35 at the toy, 2^39.58 at 125M), a2 = 2D - a1 >= 0
+///   and a1 >= 0 give D^2 <= ss <= D^2 + 2D, i.e. D = isqrt(ss), and ceps = 1
+///   gives D >= 1. **Three limbs suffice at every shape here** (D16 item 3:
+///   908,065 < 2^24), and a shape that needed a fourth would change the plane
+///   list, which `Ids::new` refuses;
+/// * norm: `|2 cn g x| < 2^34` and `y D 2^(tn+1) < 2^44` at the toy, `2^36.6`
+///   and `2^45.3` at 125M; **rho and sigma < `2^wrho` exactly**, because the
+///   `ln` limbs hold `8 ln` bits and the top limb's `1 << (8 ln - wrho)`
+///   lookup forbids the slack — when `8 ln == wrho` (125M) the limbs are
+///   exactly the window and that lookup is dropped, not forgotten. Hence
+///   `0 <= rho <= den - 1` and y is the floor quotient. **The margin at 125M
+///   is 0.21 bits** (memo §3.8 row 9): a wider input class needs decision 2's
+///   pin, not another limb;
 /// * requant remainders are biased limbs: 7-bit (`2 l`), 6-bit (`4 l`), 9-bit
 ///   (l0 + 256 l1 with `128 l1` a byte), 14-bit (l0 + 256 l1 with `4 l1` a
-///   byte), so r in [-2^(s-1), 2^(s-1)) exactly;
-/// * softmax: p < 2^10 (`64 l1`), rho_s and sigma_s < 2^14 exactly (`4 l1`),
-///   Sum <= 2^14, so p Sum + rho < 2^25 and the quotient relation is over the
-///   integers; off the causal support it forces p = rho = 0 because Sum >= 2^9 > 0
-///   (some position ON the support has delta = 0, hence E[0] = 2^fE: the selected
-///   one, or, if the selector sits on a masked position, the max is -127 and every
-///   supported score equals it);
+///   byte), so r in [-2^(s-1), 2^(s-1)) exactly. These are requantization
+///   SHIFTS, which are one fixed calibration across shapes (memo §3.8), so
+///   they are the same literals at every shape;
+/// * softmax: `p < 2^(F_P + 1)` (`lp` limbs with `1 << (8 lp - F_P - 1)` on
+///   the top one: `64 l1`), **rho_s and sigma_s < `2^wrho_s` exactly** by the
+///   same top-limb argument at `ls` limbs, and `Sum <= T 2^fE <= 2^wrho_s`,
+///   so `p Sum + rho_s < 2^25` at the toy and `2^28` at 125M and the quotient
+///   relation is over the integers; off the causal support it forces
+///   p = rho_s = 0 because Sum >= 2^fE > 0 (some position ON the support has
+///   delta = 0, hence E[0] = 2^fE: the selected one, or, if the selector sits
+///   on a masked position, the max is -127 and every supported score equals
+///   it);
 /// * delta in [0, 256) and E = exp[delta] come from the two-column exp lookup;
 ///   (g8 + 128, a16) comes from the two-column activation lookup, whose value
 ///   range is enforced by the public statement, not promised by the caller;
-/// * feed-forward (T2 section E): gacc and uacc below 2^18, the product
-///   a16 u16 at most 2^30 and `f0` below 2^31 (the worst new case), zacc at
-///   most 2^26.
+/// * feed-forward (T2 section E): gacc and uacc below 2^18 at the toy and
+///   2^23.56 at 125M, the product a16 u16 at most 2^30, `f0` below 2^31 (the
+///   worst new case) and zacc at most 2^26 at the toy, 2^32.99 at 125M.
 /// All bounds are far below p = 2^64 - 2^32 + 1. The LogUp multiplicities (at
-/// most 61,440) cannot wrap.
+/// most 61,440 at the toy, 98,582,528 at 125M) cannot wrap.
+///
+/// **What this premise does NOT cover, and must not be read as covering:**
+/// the PAD. At any shape where a domain pads, every clause above is a
+/// statement about the true support only; what a padded position contains is
+/// ruling P-1's pad-zero term (memo §3.7a), which is step S9.
 pub(crate) fn lookups(dom: Dom) -> Vec<Lk> {
+    lookups_at(&super::shape::Shape::toy(), &Ids::toy(), dom)
+}
+
+/// **STEP S8: the same list at any shape.** Three things move with the
+/// calibration windows and nothing else does:
+///
+/// 1. the plane IDS, through [`Ids`];
+/// 2. the byte-limb COUNTS — `ln` limbs per norm remainder, `ls` per softmax
+///    remainder, `lp` per softmax quotient;
+/// 3. the `scaled` coefficient that pins the TOP limb's high bits. A window
+///    of `w` bits held in `l` byte limbs leaves `8l - w` slack bits in the
+///    top limb, so `scaled(top, 1 << (8l - w))` is exactly the lookup that
+///    forbids them: `1 << (32 - 29) = 8` at the toy, `1 << (32 - 31) = 2` at
+///    the rung, and at 125M `8l == w` so the coefficient is 1 and the lookup
+///    says nothing — **that is correction C-6, and the four norm lookups are
+///    DROPPED there** (`Shape::norm_top_is_full_byte`). The softmax pair's
+///    coefficient is `1 << (8 ls - wrho_s)`: 4 at the toy (two limbs, 14
+///    bits), 64 at 125M (three limbs, 18 bits — the memo's `scaled(l2, 64)`)
+///    and 128 at the rung (three limbs, 17 bits).
+///
+/// The counts this produces are asserted against
+/// [`super::shape::Shape::lookups_per_position`], which counts the same list
+/// from the memo's §4 without building it, at every named shape.
+pub(crate) fn lookups_at(sh: &super::shape::Shape, ids: &Ids, dom: Dom) -> Vec<Lk> {
+    let (ln, ls, lp) = (ids.ln, ids.ls, ids.lp);
+    // C-6: when the window fills its top limb exactly the `scaled` lookup is
+    // the identity and is not emitted at all.
+    let norm_top = !sh.norm_top_is_full_byte();
+    let norm_scale = 1i64 << (8 * ln as u32 - sh.norm_wrho);
+    let sigma_scale = 1i64 << (8 * ls as u32 - sh.wrho_s);
+    let p_scale = 1i64 << (8 * lp as u32 - (F_P + 1));
     let mut v = Vec::new();
     match dom {
         Dom::L => {
-            v.push(byte(A_LIMB));
-            v.push(byte(A_LIMBM));
+            v.push(byte(ids.at(A_LIMB)));
+            v.push(byte(ids.at(A_LIMBM)));
         }
         Dom::D => {
-            v.extend([byte(A_XL0), byte(A_XL1)]);
-            v.extend(sym(A_Y));
-            v.extend((0..4).map(|k| byte(A_NR0 + k)));
-            v.push(scaled(A_NR0 + 3, 1 << (32 - NORM_WRHO)));
-            v.extend((0..4).map(|k| byte(A_NS0 + k)));
-            v.push(scaled(A_NS0 + 3, 1 << (32 - NORM_WRHO)));
-            v.extend([byte(A_AL0), byte(A_AL1), byte(A_RAL), scaled(A_RAL, 2), byte(A_X1L0), byte(A_X1L1)]);
+            v.extend([byte(ids.at(A_XL0)), byte(ids.at(A_XL1))]);
+            v.extend(sym(ids.at(A_Y)));
+            v.extend((0..ln).map(|k| byte(ids.nr(k))));
+            if norm_top {
+                v.push(scaled(ids.nr(ln - 1), norm_scale));
+            }
+            v.extend((0..ln).map(|k| byte(ids.ns(k))));
+            if norm_top {
+                v.push(scaled(ids.ns(ln - 1), norm_scale));
+            }
+            v.extend([byte(ids.at(A_AL0)), byte(ids.at(A_AL1)), byte(ids.at(A_RAL)), scaled(ids.at(A_RAL), 2), byte(ids.at(A_X1L0)), byte(ids.at(A_X1L1))]);
             // T1 section C.1: norm_m's class, its rho / sigma limbs, and
-            // residual 2's int16 limbs. Fourteen lookups.
-            v.extend(sym(A_YM));
-            v.extend((0..4).map(|k| byte(A_MR0 + k)));
-            v.push(scaled(A_MR0 + 3, 1 << (32 - NORM_WRHO)));
-            v.extend((0..4).map(|k| byte(A_MS0 + k)));
-            v.push(scaled(A_MS0 + 3, 1 << (32 - NORM_WRHO)));
-            v.extend([byte(A_X2L0), byte(A_X2L1)]);
+            // residual 2's int16 limbs. Fourteen lookups at four limbs.
+            v.extend(sym(ids.at(A_YM)));
+            v.extend((0..ln).map(|k| byte(ids.mr(k))));
+            if norm_top {
+                v.push(scaled(ids.mr(ln - 1), norm_scale));
+            }
+            v.extend((0..ln).map(|k| byte(ids.ms(k))));
+            if norm_top {
+                v.push(scaled(ids.ms(ln - 1), norm_scale));
+            }
+            v.extend([byte(ids.at(A_X2L0)), byte(ids.at(A_X2L1))]);
             // T2 section B.3: z16's int16 class and the down remainder.
-            v.extend([byte(A_ZL0), byte(A_ZL1), byte(A_RDL), scaled(A_RDL, 4)]);
+            v.extend([byte(ids.at(A_ZL0)), byte(ids.at(A_ZL1)), byte(ids.at(A_RDL)), scaled(ids.at(A_RDL), 4)]);
         }
         Dom::F => {
-            v.extend([byte(A_RGL), scaled(A_RGL, 2)]);
-            v.extend([byte(A_UL0), byte(A_UL1)]);
-            v.extend([byte(A_HL0), byte(A_HL1)]);
-            v.extend([byte(A_RH0), byte(A_RH1), scaled(A_RH1, 4)]);
+            v.extend([byte(ids.at(A_RGL)), scaled(ids.at(A_RGL), 2)]);
+            v.extend([byte(ids.at(A_UL0)), byte(ids.at(A_UL1))]);
+            v.extend([byte(ids.at(A_HL0)), byte(ids.at(A_HL1))]);
+            v.extend([byte(ids.at(A_RH0)), byte(ids.at(A_RH1)), scaled(ids.at(A_RH1), 4)]);
         }
         Dom::Q => {
-            v.extend(sym(A_Q8));
-            v.extend([byte(A_RQL), scaled(A_RQL, 2)]);
-            v.extend(sym(A_QR8));
-            v.extend([byte(A_RQRL), scaled(A_RQRL, 2)]);
-            v.extend(sym(A_O8));
-            v.extend([byte(A_RO0), byte(A_RO1), scaled(A_RO1, 128)]);
+            v.extend(sym(ids.at(A_Q8)));
+            v.extend([byte(ids.at(A_RQL)), scaled(ids.at(A_RQL), 2)]);
+            v.extend(sym(ids.at(A_QR8)));
+            v.extend([byte(ids.at(A_RQRL)), scaled(ids.at(A_RQRL), 2)]);
+            v.extend(sym(ids.at(A_O8)));
+            v.extend([byte(ids.at(A_RO0)), byte(ids.at(A_RO1)), scaled(ids.at(A_RO1), 128)]);
         }
         Dom::Kv => {
-            v.extend(sym(A_K8));
-            v.extend([byte(A_RKL), scaled(A_RKL, 2)]);
-            v.extend(sym(A_V8));
-            v.extend([byte(A_RVL), scaled(A_RVL, 2)]);
-            v.extend(sym(A_KR8));
-            v.extend([byte(A_RKRL), scaled(A_RKRL, 2)]);
+            v.extend(sym(ids.at(A_K8)));
+            v.extend([byte(ids.at(A_RKL)), scaled(ids.at(A_RKL), 2)]);
+            v.extend(sym(ids.at(A_V8)));
+            v.extend([byte(ids.at(A_RVL)), scaled(ids.at(A_RVL), 2)]);
+            v.extend(sym(ids.at(A_KR8)));
+            v.extend([byte(ids.at(A_RKRL)), scaled(ids.at(A_RKRL), 2)]);
         }
         Dom::S => {
-            v.extend(sym(A_S8));
-            v.extend([byte(A_RSL), scaled(A_RSL, 4)]);
-            v.extend([byte(A_PL0), byte(A_PL1), scaled(A_PL1, 64)]);
-            v.extend([byte(A_SR0), byte(A_SR1), scaled(A_SR1, 4)]);
-            v.extend([byte(A_SG0), byte(A_SG1), scaled(A_SG1, 4)]);
+            v.extend(sym(ids.at(A_S8)));
+            v.extend([byte(ids.at(A_RSL)), scaled(ids.at(A_RSL), 4)]);
+            v.extend((0..lp).map(|k| byte(ids.pl(k))));
+            v.push(scaled(ids.pl(lp - 1), p_scale));
+            v.extend((0..ls).map(|k| byte(ids.sr(k))));
+            v.push(scaled(ids.sr(ls - 1), sigma_scale));
+            v.extend((0..ls).map(|k| byte(ids.sg(k))));
+            v.push(scaled(ids.sg(ls - 1), sigma_scale));
         }
         Dom::T | Dom::Ht | Dom::Tab => {}
     }
