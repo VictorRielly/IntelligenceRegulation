@@ -3543,7 +3543,7 @@ touched outside `hashline/src/private_block*`: NONE.** `native_capture.rs`,
 | the same, both fixed | `w3-s14.log` — 5 passed, 1 failed (the forbidden-word scan tripped on `"hidden":192`, the shape's feed-forward width) |
 | the same | `w4-s14.log` — **6 passed, 0 failed, 1 ignored** |
 | **the gate**: `--lib private_` | `w5-s14-filter.log` — **191 passed, 0 failed, 6 ignored, 67 filtered out**, 291 s (baseline 185 / 5 ignored: +6 tests, +1 ignored). No existing test was changed, weakened or removed; the toy's frozen parameter line, schedule digest and counted receipt lengths still pass |
-| the gate bundles: `write_the_gate_bundles -- --ignored` | `w6-s14-bundles.log` — TO FILL |
+| the gate bundles: `write_the_gate_bundles -- --ignored` | `w6-s14-bundles.log` (first attempt, an abbreviated source pin) and `w7-s14-bundles.log` (the kept one, `HL_TEST_SOURCE_COMMIT=cb27845d5ad3a0e401c48c4eebeac7fe4a86f171`) — 1 passed; `run-a-tame` 38,486,416 B and `run-b-zero` 38,483,657 B on disk, **77.0 MB** in `results/zk60_run_captures_20260920/` |
 
 The six: `a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent`
 (the L = 3 rung-G capture, read back from disk file by file),
@@ -3583,6 +3583,23 @@ schemas share.
   stage `k+1` — but the two are the SAME commitment only by
   `claim_sources` / `internal_boundaries[].claim_sites`, never by role name.
   This is the one fact the Python agent cannot infer from the old schema.
+
+### The two gate bundles
+
+`results/zk60_run_captures_20260920/run-a-tame/` and `.../run-b-zero/`: two
+INDEPENDENT honest three-block runs at the development rung, fresh OS
+randomness each, synthetic public weights from the lane's tame fixture, on the
+fixture's hidden input and on the all-zero hidden input. Each is `run.json`
+(about 12.4 kB) + three stage files (12.56 / 12.62 / 13.29 MB) + a manifest +
+a README = **38.5 MB**, **77.0 MB together** — under 100 MB, each under 60 MB.
+Neither hidden input, nor any boundary plane, is in its bundle. Both parse as
+JSON and carry the boundary geometry the ruling names: `data_rows 4`,
+`rows 10`, `site_rows [4,5,6,7]`, `prox_row 8`, `claim_sites`
+`[{stage 0, slot 22}, {stage 1, slot 21}]`, opened once in stage `k+1`.
+
+Source pin of both: `cb27845d5ad3a0e401c48c4eebeac7fe4a86f171`, plus the
+SHA-256 of `run_capture.rs`, `run.rs`, `boundary.rs`, `protocol.rs`,
+`argument.rs` and `layout.rs` in each manifest.
 
 ### NEXT, in order
 
