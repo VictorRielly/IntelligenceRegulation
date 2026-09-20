@@ -10,6 +10,11 @@
 use super::argument::{argument, table_values_act, table_values_exp, table_values_u8, Ctx, ProverData, Side};
 use super::layout::*;
 use super::shape::Shape;
+// STAGE 11: the phase clock. `ph` is WRITE-ONLY here — every call below pushes
+// a duration, a row count and a memory reading and returns `()`, and no branch
+// of this file reads the recorder back. With `HL_PB_TIMING` unset each call
+// returns on its first line.
+use super::timing::{self, Half};
 use super::witness::Witness;
 use super::{BlockPublic, Endpoints, ExpectedIo, ProveStats, Receipt};
 use crate::field::{batch_inverse2_checked, Fp, Fp2};
@@ -451,6 +456,7 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     use std::time::Instant;
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let mut tick = Instant::now();
+    let mut ph = timing::Phases::start();
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
     let mut lap = |name: &'static str, tick: &mut Instant| {
         phases.push((name, tick.elapsed().as_secs_f64()));
@@ -467,7 +473,9 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     }
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
     let mut rng = ZkRng::from_os(sh.profile.as_bytes()).map_err(|e| format!("private block randomness: {e}"))?;
+    ph.mark(Half::Setup, "setup: layout, endpoint owners, OS randomness", (lay.a_rows + lay.h_rows) as u64, "A+H rows");
     let ntt = NttTables::new(ntt_log_at(sh));
+    ph.mark(Half::Setup, "setup: NTT tables", 1u64 << ntt_log_at(sh), "domain");
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     let mut tr = transcript(blk, expected, &lay);
@@ -479,6 +487,7 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
             a_data[lay.a_off[*p] + i] = Fp::from_i64(*v);
         }
     }
+    ph.mark(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words");
     // The three histograms are indexed by a TABLE ENTRY, so they are `U8_LEN`
     // long and their in-class guards test `[0, U8_LEN)` — never the row width
     // `N` (trap T-1). The two guards that index `public.exp` (256 words) and
@@ -486,12 +495,16 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     // graceful bucket-0 fallback into an out-of-bounds panic (missed pin M-4).
     let mut m_u8 = vec![0u64; U8_LEN];
     let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect();
+    // a public count: how many lookup words the six lookup domains carry at
+    // THIS shape. It is a function of the geometry and of nothing private.
+    let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
     for (_, cols) in &looked {
         for v in cols.iter().flatten() {
             // a value outside the table counts into entry 0: only the LogUp identity can catch it
             m_u8[if (0..U8_LEN as i64).contains(v) { *v as usize } else { 0 }] += 1;
         }
     }
+    ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
     let deltas = exp_deltas(&lay, &wit);
     let mut m_exp = vec![0u64; U8_LEN];
     for (x, d) in deltas.iter().enumerate() {
@@ -509,6 +522,7 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
         a_data[lay.a_off[ids.at(A_MACT)] + i] = Fp::new(m_act[i]);
     }
+    ph.mark(Half::Commit, "A: exp/act indices + their two histograms", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words");
     // FINDING F-4, injection point 1 of 2 (test builds only): one count moves
     // from a true row to the padded copy of the same row. `m` is decremented
     // as well, so the TABLE HELPER derived from it below stays consistent at
@@ -529,17 +543,24 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     for x in &mut a_data[lay.a_mask_base * n..] {
         *x = rng.fp();
     }
+    ph.mark(Half::Commit, "A: mask + proximity rows (fresh randomness)", ((lay.a_rows - lay.a_mask_base) * n) as u64, "words");
     let mut a = pcs::commit_zk_owned(&params, a_data, &ntt, &zko, &mut rng);
     a.mask_rows = lay.a_site_rows();
     a.prox_mask_row = Some(lay.a_prox);
     let a_root = a.commitment().root;
     absorb_root(&mut tr, b"A", &a_root, lay.a_rows, sh.log_cols);
+    // STAGE 11: row encoding and column hashing are NOT separable here. Both
+    // live inside `pcs::commit_zk_owned`, which is `hashline/src/pcs.rs` — a
+    // file this lane does not edit — so the enclosing call is one phase.
+    ph.mark(Half::Commit, "A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.a_rows as u64, "rows");
     lap("witness planes + commit A", &mut tick);
 
     // ---- M: all twenty-three CFS masks, committed before any challenge ----
     let mc = zk::mask_commit(&lay.mask_specs(), &ntt, &mut rng);
     let mask_root = mc.tree.root();
     tr.absorb(b"M", &mask_root);
+    // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
+    ph.mark(Half::Commit, "M: mask commit (zk::mask_commit, ONE call)", M_ROWS as u64, "rows");
     lap("commit M", &mut tick);
 
     // ---- LogUp challenges, helpers, table helpers, the zero-sum pair, commit H ----
@@ -561,10 +582,12 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
             write_h(&mut h_data, lay.h_off[first + k], &col);
         }
     }
+    ph.mark(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words");
     let exp_den = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
     write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
     let act_den = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+    ph.mark(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words");
     // ---- STEP S2 (C-11): the prover's four transient buffers die HERE ----
     // The two lines above are the LAST reads of the witness planes and of
     // `looked`; the memo's earlier proposal to drop them at the histogram loop
@@ -585,6 +608,8 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     drop(wit);
     drop(deltas);
     drop(act_idx);
+    // what the S2 drops cost in time (at 125M they release about 1.5 GB)
+    ph.mark(Half::Commit, "H: release the four witness buffers (S2 drops)", 0, "-");
     let [gu8, gexp, gact] = hids.table_helpers();
     for (plane, tv, m) in [
         (gu8, table_values_u8(g_u8), &m_u8),
@@ -595,6 +620,7 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
         write_h(&mut h_data, lay.h_off[plane], &col);
     }
+    ph.mark(Half::Commit, "H: the three table helpers", 3 * sh.size(Dom::Tab) as u64, "words");
     // FINDING F-4, injection point 2 of 2 (test builds only): the padded row
     // the count moved to now needs its own helper `1 / (alpha - value)`, and
     // the padded value is the true row's by the P-3 lift's own construction.
@@ -625,18 +651,20 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
         }
         h_data[r * n + n - 1] = sum.neg();
     }
+    ph.mark(Half::Commit, "H: mask rows + the zero-sum rows", ((lay.h_rows - lay.h_mask_base) * n) as u64, "words");
     let mut h = pcs::commit_zk_owned(&params, h_data, &ntt, &zko, &mut rng);
     h.mask_rows = lay.h_site_rows().into_iter().chain(lay.h_u_rows()).collect();
     h.prox_mask_row = Some(lay.h_prox);
     let h_root = h.commitment().root;
     absorb_root(&mut tr, b"H", &h_root, lay.h_rows, sh.log_cols);
+    ph.mark(Half::Commit, "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)", lay.h_rows as u64, "rows");
     lap("LogUp helpers + commit H", &mut tick);
 
     // ---- the twenty-three slots ----
     let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
     let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), ein.data.as_slice(), eout.data.as_slice()], masks: &mc.masks };
     let mut side = Side::Prove { pd, out: Vec::new() };
-    let acc = argument(&mut side, &ctx, &mut tr)?;
+    let acc = argument(&mut side, &ctx, &mut tr, &mut ph)?;
     let slots = match side {
         Side::Prove { out, .. } => out,
         Side::Verify { .. } => unreachable!(),
@@ -646,21 +674,27 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     // ---- ONE M opening, then ONE opening per commitment; each owner dropped after its opening ----
     let mask_open = zk::mask_open(&mc, &acc.fs, &ntt, &mut tr);
     drop(mc);
+    ph.mark(Half::Open, "open M (zk::mask_open, ONE call)", M_ROWS as u64, "rows");
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, &lay);
     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &tr)?;
     let a_open = pcs::open_zk(&a, &ac, &mut tr);
     drop(a);
+    ph.mark(Half::Open, "open A (schedule audit + pcs::open_zk)", ac.len() as u64, "claims");
     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &tr)?;
     let h_open = pcs::open_zk(&h, &hc, &mut tr);
     drop(h);
+    ph.mark(Half::Open, "open H (schedule audit + pcs::open_zk)", hc.len() as u64, "claims");
     check_endpoint_opening(&ic, sh, &tr)?;
     let in_open = pcs::open_zk(&ein, &ic, &mut tr);
     drop(ein);
+    ph.mark(Half::Open, "open endpoint IN (pcs::open_zk)", sh.endpoint_rows as u64, "rows");
     check_endpoint_opening(&oc, sh, &tr)?;
     let out_open = pcs::open_zk(&eout, &oc, &mut tr);
     drop(eout);
+    ph.mark(Half::Open, "open endpoint OUT (pcs::open_zk)", sh.endpoint_rows as u64, "rows");
     lap("M + A + H + endpoint openings", &mut tick);
+    ph.report("prove", sh.name);
 
     let receipt = Receipt { a_root, h_root, mask_root, slots, mask_open, a_open, h_open, io_open: [in_open, out_open] };
     let stats = ProveStats {
@@ -690,6 +724,7 @@ pub(crate) fn verify_inner(blk: &BlockPublic, expected: &ExpectedIo, receipt: &R
 pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
     #[cfg(test)]
     super::capture::begin();
+    let mut ph = timing::Phases::start();
     let (public, ff) = (blk.attention(), blk.feed_forward());
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
@@ -697,7 +732,9 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     // S11b: whichever endpoint construction this profile carries, its
     // statements must be well formed and their geometry the shape's
     expected.spec.validate()?;
+    ph.mark(Half::Setup, "setup: layout + frame shape validation", (lay.a_rows + lay.h_rows) as u64, "A+H rows");
     let ntt = NttTables::new(ntt_log_at(sh));
+    ph.mark(Half::Setup, "setup: NTT tables", 1u64 << ntt_log_at(sh), "domain");
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     let mut tr = transcript(blk, expected, &lay);
@@ -712,12 +749,14 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows, sh.log_cols);
     let ctx = Ctx { lay: &lay, public, ff, alpha, beta, g_u8, g_exp, g_act };
     let mut side = Side::Verify { slots: &receipt.slots };
-    let acc = argument(&mut side, &ctx, &mut tr)?;
+    ph.mark(Half::Setup, "transcript header + the A and H roots", 2, "roots");
+    let acc = argument(&mut side, &ctx, &mut tr, &mut ph)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(&tr);
     zk::mask_verify(&receipt.mask_root, &lay.mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).map_err(|e| format!("M: {e}"))?;
     #[cfg(test)]
     super::capture::mask(&receipt.mask_root, &acc.fs, &receipt.mask_open, capture_before, &tr);
+    ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, &lay);
     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), &tr)?;
@@ -726,12 +765,14 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     pcs::verify_zk(&params, &zko, &commitment(receipt.a_root, lay.a_rows, sh.log_cols), &ac, &receipt.a_open, &ntt, &mut tr).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("A", receipt.a_root, lay.a_rows, &ac, &receipt.a_open, capture_before, &tr);
+    ph.mark(Half::Open, "verify A (schedule audit + pcs::verify_zk)", ac.len() as u64, "claims");
     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), &tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(&tr);
     pcs::verify_zk(&params, &zko, &commitment(receipt.h_root, lay.h_rows, sh.log_cols), &hc, &receipt.h_open, &ntt, &mut tr).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("H", receipt.h_root, lay.h_rows, &hc, &receipt.h_open, capture_before, &tr);
+    ph.mark(Half::Open, "verify H (schedule audit + pcs::verify_zk)", hc.len() as u64, "claims");
     let e_params = PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols };
     let e_zko = ZkOpts::standard(&e_params);
     for (i, (claims, root)) in [(&ic, expected.input), (&oc, expected.output)].into_iter().enumerate() {
@@ -741,7 +782,9 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
         pcs::verify_zk(&e_params, &e_zko, &commitment(root, sh.endpoint_rows, sh.endpoint_log_n), claims, &receipt.io_open[i], &ntt, &mut tr).map_err(|e| format!("endpoint {i}: {e}"))?;
         #[cfg(test)]
         super::capture::pcs(["Input", "Output"][i], root, sh.endpoint_rows, claims, &receipt.io_open[i], capture_before, &tr);
+        ph.mark(Half::Open, ["verify endpoint IN (pcs::verify_zk)", "verify endpoint OUT (pcs::verify_zk)"][i], sh.endpoint_rows as u64, "rows");
     }
+    ph.report("verify", sh.name);
     #[cfg(test)]
     super::capture::publish(blk, expected, receipt);
     Ok(order)

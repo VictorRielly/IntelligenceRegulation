@@ -396,7 +396,8 @@ fn verifier_a_claims(blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt
     absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows);
     let ctx = Ctx { lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act };
     let mut side = Side::Verify { slots: &receipt.slots };
-    let acc = argument(&mut side, &ctx, &mut tr).expect("the honest receipt's slots verify");
+    let mut ph = super::timing::Phases::start();
+    let acc = argument(&mut side, &ctx, &mut tr, &mut ph).expect("the honest receipt's slots verify");
     crate::zk::mask_verify(&receipt.mask_root, &mask_specs(), &acc.fs, &receipt.mask_open, &ntt, &mut tr).expect("the M opening verifies");
     (acc.claims[Cm::A as usize].clone(), tr)
 }

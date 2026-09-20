@@ -74,6 +74,12 @@ mod layout;
 mod pad;
 mod protocol;
 mod shape;
+// STAGE 11: the phase clock. A write-only recorder, inert unless
+// `HL_PB_TIMING=1`, that answers WHERE the seconds of one block go (the P5
+// question: is the feed-forward half worth moving to a second prover?). It
+// touches no transcript, no randomness and no committed buffer, and no branch
+// of the protocol reads it back.
+mod timing;
 mod wire;
 mod witness;
 
@@ -735,11 +741,16 @@ impl Receipt {
     /// the toy, whose path is left exactly where it was.
     pub(crate) fn to_bytes_at(&self, sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
         let lay = layout::Layout::for_shape(sh)?;
-        wire::encode(self, &protocol::transcript(public, expected, &lay).state(), &lay)
+        // STAGE 11: the encode is outside `prove_inner_at`'s recorder, so it
+        // gets its own line. `timing::timed` calls the closure and nothing
+        // else when the switch is off.
+        let n = wire::encoded_len(&lay) as u64;
+        timing::timed("prove", "encode to bytes (wire::encode)", n, "B", || wire::encode(self, &protocol::transcript(public, expected, &lay).state(), &lay))
     }
     pub(crate) fn from_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, String> {
         let lay = layout::Layout::for_shape(sh)?;
-        wire::decode(bytes, &protocol::transcript(public, expected, &lay).state(), &lay)
+        let n = bytes.len() as u64;
+        timing::timed("verify", "decode from bytes (wire::decode)", n, "B", || wire::decode(bytes, &protocol::transcript(public, expected, &lay).state(), &lay))
     }
 }
 

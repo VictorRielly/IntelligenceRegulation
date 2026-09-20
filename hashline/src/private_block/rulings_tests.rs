@@ -354,6 +354,14 @@ fn peak_rss_mib() -> f64 {
 #[ignore = "the 125M run: about 11 GiB peak resident and minutes of wall clock. Launch it detached under ruling P-6's conditions with the command line in ZK60_BLOCK125M_LANE_PROGRESS.md; never from a session that is also building."]
 fn private_block_125m_one_block() {
     let sh = Shape::m125();
+    // **STAGE 11.** With `HL_PB_TIMING=1` the prover and the verifier each
+    // print their own phase table — every phase with its seconds, its share of
+    // the wall clock, the committed rows or sumcheck cube it covers and the
+    // process's resident and peak memory at that moment — then the per-half
+    // totals and the attention / feed-forward / rest split the P5 question
+    // asks for. With it unset nothing below changes and nothing is printed.
+    let clock = super::timing::enabled();
+    println!("125M: the phase clock ({}) is {}", super::timing::ENV, if clock { "ON: the PB-TIMING tables below are ONE run on a shared box, a diagnostic and not a receipt" } else { "off" });
     let t_start = std::time::Instant::now();
     let (public, ff, input) = super::grow_tests::tame_case(&sh);
     let blk = BlockPublic::new(public, ff);
@@ -379,6 +387,13 @@ fn private_block_125m_one_block() {
     let verify_s = t1.elapsed().as_secs_f64();
     let peak = peak_rss_mib();
     println!("125M ONE BLOCK: prove {prove_s:.2} s, verify from bytes {verify_s:.2} s, receipt {} B, peak RSS {peak:.0} MiB ({:.2} GiB), witness build {build_s:.2} s", bytes.len(), peak / 1024.0);
+    if clock {
+        // the anchor the phase tables are read against: `SUM OF PHASES` in
+        // each table should reach its own `WALL CLOCK OF THE CALL`, and the
+        // prover's wall clock should reach the `prove` figure on the line
+        // above (the difference is the recorder's own `/proc` reads)
+        println!("125M PHASE TABLES ABOVE: prover wall {prove_s:.2} s, verifier wall {verify_s:.2} s, witness build {build_s:.2} s (NOT inside the prover's table), peak RSS {:.2} GiB", peak / 1024.0);
+    }
     assert_eq!(bytes.len(), 40_782_792, "the 125M frame is not the counted length");
     // a truncated frame is refused before anything is parsed
     assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short 125M frame was accepted");

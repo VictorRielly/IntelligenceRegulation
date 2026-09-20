@@ -135,6 +135,38 @@ fn the_honest_proof_verifies_from_bytes_at(shape: &Shape, want: usize) {
     assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short rung frame was accepted");
 }
 
+/// **STAGE 11's PARITY GATE: the phase clock changes no proof.** One rung-G
+/// proof is made with the clock ON and one with it OFF; the clocked frame is
+/// the counted length, and a verifier with the clock OFF accepts it, in typed
+/// form and from bytes, while a one-byte truncation of it is still refused.
+///
+/// BYTE EQUALITY BETWEEN THE TWO IS NOT ASSERTED AND IS NOT EXPECTED: every
+/// attempt draws a fresh OS randomness stream, so two honest proofs of the
+/// same statement differ in their bytes whatever the switch is doing. What is
+/// asserted is that the clock moves neither the length nor acceptance.
+#[test]
+fn a_proof_made_with_the_phase_clock_on_verifies_with_it_off() {
+    let shape = Shape::rung_g();
+    // the reference frame, clock off
+    super::timing::force(Some(false));
+    let (sh, blk, w) = rung_parts_at(&shape, false);
+    let (_, _, off) = prove_rung(&sh, &blk, w).expect("the rung-G prover with the clock off");
+    // the same statement, clock on for the PROVER only
+    super::timing::force(Some(true));
+    let (sh, blk, w) = rung_parts_at(&shape, false);
+    let clocked = prove_rung(&sh, &blk, w);
+    // the clock goes off before ANY assertion, so a failure cannot leave it set
+    super::timing::force(Some(false));
+    let (expected, receipt, on) = clocked.expect("the rung-G prover with the clock on");
+    assert_eq!(on.len(), off.len(), "the phase clock moved the frame length");
+    assert_eq!(on.len(), RUNG_G_BYTES, "the clocked frame is not the counted length");
+    verify_inner_at(&sh, &blk, &expected, &receipt).expect("a clocked receipt is refused by an unclocked verifier in typed form");
+    verify_bytes_at(&sh, &blk, &expected, &on).expect("a clocked receipt is refused by an unclocked verifier from bytes");
+    assert!(verify_bytes_at(&sh, &blk, &expected, &on[..on.len() - 1]).is_err(), "a short clocked frame was accepted");
+    super::timing::force(None);
+    eprintln!("stage 11 parity: clock ON frame {} B, clock OFF frame {} B, both the counted length; the ON frame verifies under a verifier with the clock OFF", on.len(), off.len());
+}
+
 /// The ALL-ZERO hidden input at the rung: the fixed input of the privacy case
 /// is a valid witness at this shape too, and its receipt verifies from bytes.
 /// A precondition of the privacy argument, not a privacy result.

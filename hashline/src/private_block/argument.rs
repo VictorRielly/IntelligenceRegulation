@@ -1435,14 +1435,25 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
 }
 
 /// All twenty-three slots in the declared order, then the functional list in the declared order.
-pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript) -> Result<Acc, String> {
+///
+/// **STAGE 11.** `ph` is the phase clock, and it is WRITE-ONLY: `ph.slot`
+/// pushes a duration, the slot's public cube size and a memory reading, and
+/// returns `()`. Nothing in this loop reads it back, so no slot's definition,
+/// challenge, table or terminal can depend on whether timing is on. With
+/// `HL_PB_TIMING` unset it returns on its first line.
+pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut super::timing::Phases) -> Result<Acc, String> {
     let mut acc = Acc::default();
     let mut pts = Points::default();
+    let sh = ctx.lay.shape();
     for slot in 0..N_SLOTS {
         #[cfg(test)]
         super::capture::start_slot(side, tr);
         let def = define(slot, ctx, &mut pts, tr)?;
         run_slot(side, &mut acc, def, tr)?;
+        // the slot's own sumcheck cube, `2^(main + extension rounds)`: a
+        // function of the shape and the declared schedule, nothing private
+        let (main, ext, _) = sh.slots()[slot];
+        ph.slot(slot, 1u64 << (main + ext), "cube");
     }
     let hosts = std::mem::take(&mut acc.host_fs);
     acc.fs.extend(hosts);
