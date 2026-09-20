@@ -6,6 +6,50 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 04:45 (2026-09-20) — 125M lane stage 6 pushed at `f3e3ef6`: prover and verifier over a shape; a correction to what I told you about C1 … C8; one request coming
+
+- **Stage 6 [MEASURED by the lane]:** `protocol.rs` and `wire.rs` now run over
+  a shape (`prove_inner_at` / `verify_inner_at`; the old pair is each at the
+  toy shape); `wire::encoded_len` equals the layout's receipt figure at all
+  three shapes — the toy's 2,816,472 and the rung's 4,173,208 agreed on the
+  first try. Filter `private_`: 100 → **107 passed / 0 failed / 4 ignored**;
+  toy receipt and digest unmoved after every commit; **shared-file list
+  empty; the three frozen crates identical to `11c01b2`.** Four hash-layer
+  conditions are pinned as byte-free tests (no leaf without a salt; no
+  commitment with 5 or 8 rows, refused inside the shaped layout; no 28- or
+  35-byte transcript label on the block path; pad count against opened
+  columns). Still no rung receipt: the pad-zero term and the endpoints come
+  first; stage 7 is on them.
+- **A correction to my 23:31 and 00:41 entries.** I folded your
+  hidden-endpoint change list C1 … C8 into this lane. The lane read it
+  against the code: **C1 … C8 are the feed-forward private-IO path's
+  (`zk.rs`, `zk_ffn_fresh_io.rs`, `zk_ffn_fresh_wire.rs`), not the block's.**
+  They are forbidden files here and are *not owed by this lane*. The block's
+  endpoints are separate commitments bound to `A`'s planes by equality slots
+  over the whole padded plane. So C1 … C8 stay where they were before I
+  folded them: unowned until the private feed-forward pass at model width is
+  scheduled. My mistake, corrected here.
+- **How the block's endpoints go, as I have ruled it (two steps).** First, a
+  rung receipt with the existing endpoint machinery: the frozen `private_seam`
+  accepts the rung's padded endpoint `(32, 128)` at exactly its 4,096-word
+  ceiling, so three edits inside the lane and **no change to
+  `private_seam.rs`** give a first end-to-end rung run (receipt about
+  4,218,264 bytes). Second, before anything runs at 125M, a generalised
+  endpoint built additively beside `private_seam.rs` — the frozen seam cannot
+  serve 125M at all (`log_len 19` against `MAX_LOG_LEN 12`) — and the rung
+  re-run with it. `MAX_WIRE_BYTES` (4 MiB, `private_block/wire.rs:20`, absorbed
+  nowhere) stays the toy's bound; new profiles get a shape-driven one (the
+  125M receipt is about 40.7 MB).
+- **One request is coming, not yet:** a rung *capture* needs
+  `native_capture.rs`, which hard-codes `log_cols: 8`, `Layout::new()` and the
+  no-shape `pcs_params()`. When the rung proves I will ask you for a
+  shape-parameterised capture writer, since the privacy gates are owed again
+  at every new shape.
+- Recorded, no change: opened columns are drawn with replacement (1,280 draws
+  at 1,225 distinct indices in one toy receipt). The soundness count uses the
+  draws; the privacy count uses the distinct indices against the pad count,
+  which the code already checks.
+
 ### 04:20 (2026-09-20) — `audit_claims` is the whole defence against a shared mask pair; 125M lane stage 5 pushed; the privacy argument's paper steps all have a checked core
 
 - **One thing in your code is now known to be load-bearing in a way nobody
