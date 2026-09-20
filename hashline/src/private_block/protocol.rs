@@ -87,6 +87,19 @@ pub(crate) fn endpoint_pcs_params(sh: &Shape) -> PcsParams {
     PcsParams { log_cols: sh.endpoint_log_n as u32, inv_rate: sh.endpoint_inv_rate, num_col_checks: sh.opened_cols }
 }
 
+/// **STAGE 17, ruling T-1.** A transcript constructed under this profile's
+/// hash tag: `Transcript::new` for a legacy-rule profile (the byte-frozen toy
+/// and the frozen-seam rung), `Transcript::new_tagged` under its Fiat–Shamir
+/// key for every other. [`Shape::hash_tag`] is the one place that choice is
+/// made, and every transcript on this path — a block's, a run's, and the run
+/// capture's independent rebuild — is built here.
+pub(crate) fn tagged_transcript(sh: &Shape, domain: &[u8]) -> Transcript {
+    match sh.hash_tag().transcript_key() {
+        None => Transcript::new(domain),
+        Some(k) => Transcript::new_tagged(domain, *k),
+    }
+}
+
 /// Header, public statement, endpoint policy and calibration first; no
 /// challenge precedes them. The order is T1 section D steps 1-6: PROFILE,
 /// `"expected-IO"`, `"public-statement"` (ONE digest over the attention AND
@@ -99,7 +112,7 @@ pub(crate) fn endpoint_pcs_params(sh: &Shape) -> PcsParams {
 /// pins it — so no toy byte moves.
 pub(crate) fn transcript(public: &BlockPublic, expected: &ExpectedIo, lay: &Layout) -> Transcript {
     let sh = lay.shape();
-    let mut tr = Transcript::new(sh.profile.as_bytes());
+    let mut tr = tagged_transcript(sh, sh.profile.as_bytes());
     tr.absorb(b"expected-IO", &expected.to_bytes());
     tr.absorb(b"public-statement", &public.digest());
     tr.absorb(b"parameters", parameter_line(sh).as_bytes());
@@ -643,7 +656,10 @@ pub(crate) fn prove_core(
         *x = rng.fp();
     }
     ph.mark(Half::Commit, "A: mask + proximity rows (fresh randomness)", ((lay.a_rows - lay.a_mask_base) * n) as u64, "words");
-    let mut a = pcs::commit_zk_owned(&params, a_data, ntt, &zko, rng);
+    // STAGE 17 (ruling T-1): this profile's hash tag. At a legacy-rule
+    // profile `HashTag::legacy()` makes this the identical unkeyed call.
+    let tag = sh.hash_tag();
+    let mut a = pcs::commit_zk_owned_tagged(&params, a_data, ntt, &zko, rng, &tag);
     a.mask_rows = lay.a_site_rows();
     a.prox_mask_row = Some(lay.a_prox);
     let a_root = a.commitment().root;
@@ -655,7 +671,7 @@ pub(crate) fn prove_core(
     lap(phases, tick, "witness planes + commit A");
 
     // ---- M: all twenty-three CFS masks, committed before any challenge ----
-    let mc = zk::mask_commit(&lay.mask_specs(), ntt, rng);
+    let mc = zk::mask_commit_tagged(&lay.mask_specs(), ntt, rng, &tag);
     let mask_root = mc.tree.root();
     tr.absorb(b"M", &mask_root);
     // the same: `zk::mask_commit` is `hashline/src/zk.rs`, one enclosing call
@@ -751,7 +767,7 @@ pub(crate) fn prove_core(
         h_data[r * n + n - 1] = sum.neg();
     }
     ph.mark(Half::Commit, "H: mask rows + the zero-sum rows", ((lay.h_rows - lay.h_mask_base) * n) as u64, "words");
-    let mut h = pcs::commit_zk_owned(&params, h_data, ntt, &zko, rng);
+    let mut h = pcs::commit_zk_owned_tagged(&params, h_data, ntt, &zko, rng, &tag);
     h.mask_rows = lay.h_site_rows().into_iter().chain(lay.h_u_rows()).collect();
     h.prox_mask_row = Some(lay.h_prox);
     let h_root = h.commitment().root;
@@ -826,6 +842,9 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let (public, ff) = (blk.attention(), blk.feed_forward());
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
+    // STAGE 17 (ruling T-7): the tag is the VERIFIER's, from the shape its
+    // caller trusts. Nothing in `v` — a view over decoded bytes — is asked.
+    let tag = sh.hash_tag();
     // **STAGE 16, ruling T-4.** Before anything of this stage is hashed:
     // every opened column of the three commitments this body verifies
     // carries exactly its commitment's tree depth. The core verifier folds
@@ -857,7 +876,7 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     // returns `None` unless a recorder is attached.
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
-    zk::mask_verify(&v.mask_root, &lay.mask_specs(), &acc.fs, v.mask_open, ntt, tr).map_err(|e| format!("M: {e}"))?;
+    zk::mask_verify_tagged(&v.mask_root, &lay.mask_specs(), &acc.fs, v.mask_open, ntt, tr, &tag).map_err(|e| format!("M: {e}"))?;
     #[cfg(test)]
     super::capture::mask(&v.mask_root, &acc.fs, v.mask_open, capture_before, tr);
     #[cfg(test)]
@@ -870,7 +889,7 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let capture_before = super::capture::checkpoint(tr);
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
-    pcs::verify_zk(&params, &zko, &commitment(v.a_root, lay.a_rows, sh.log_cols), &ac, v.a_open, ntt, tr).map_err(|e| format!("A: {e}"))?;
+    pcs::verify_zk_tagged(&params, &zko, &commitment(v.a_root, lay.a_rows, sh.log_cols), &ac, v.a_open, ntt, tr, &tag).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("A", v.a_root, lay.a_rows, &ac, v.a_open, capture_before, tr);
     #[cfg(test)]
@@ -900,7 +919,7 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let capture_before = super::capture::checkpoint(tr);
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
-    pcs::verify_zk(&params, &zko, &commitment(v.h_root, lay.h_rows, sh.log_cols), &hc, v.h_open, ntt, tr).map_err(|e| format!("H: {e}"))?;
+    pcs::verify_zk_tagged(&params, &zko, &commitment(v.h_root, lay.h_rows, sh.log_cols), &hc, v.h_open, ntt, tr, &tag).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("H", v.h_root, lay.h_rows, &hc, v.h_open, capture_before, tr);
     #[cfg(test)]
@@ -968,11 +987,12 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     let ([ic, oc], order) = verify_core(sh, &lay, blk, view, &ntt, &mut tr, &mut ph)?;
     let e_params = endpoint_pcs_params(sh);
     let e_zko = ZkOpts::standard(&e_params);
+    let tag = sh.hash_tag();
     for (i, (claims, root)) in [(&ic, expected.input), (&oc, expected.output)].into_iter().enumerate() {
         check_endpoint_opening(claims, sh, &tr)?;
         #[cfg(test)]
         let capture_before = super::capture::checkpoint(&tr);
-        pcs::verify_zk(&e_params, &e_zko, &commitment(root, sh.endpoint_rows, sh.endpoint_log_n), claims, &receipt.io_open[i], &ntt, &mut tr).map_err(|e| format!("endpoint {i}: {e}"))?;
+        pcs::verify_zk_tagged(&e_params, &e_zko, &commitment(root, sh.endpoint_rows, sh.endpoint_log_n), claims, &receipt.io_open[i], &ntt, &mut tr, &tag).map_err(|e| format!("endpoint {i}: {e}"))?;
         #[cfg(test)]
         super::capture::pcs(["Input", "Output"][i], root, sh.endpoint_rows, claims, &receipt.io_open[i], capture_before, &tr);
         ph.mark(Half::Open, ["verify endpoint IN (pcs::verify_zk)", "verify endpoint OUT (pcs::verify_zk)"][i], sh.endpoint_rows as u64, "rows");

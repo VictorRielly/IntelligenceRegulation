@@ -295,6 +295,40 @@ pub(crate) fn at_shape(sh: &Shape) -> HashInputs {
     at_shape_with(sh, None)
 }
 
+/// **T-3 AS AMENDED (2026-09-20, 15:01): the completed guard is IMPOSED on
+/// legacy-rule profiles only.** [`at_shape_with`] above stays the honest
+/// DESCRIPTION of a profile's non-column hash lengths at every shape, and the
+/// tests go on pinning it at all four; this is the function the prover's and
+/// the verifier's construction paths call, and it hands back an EMPTY set at a
+/// tagged profile.
+///
+/// Why. Length is the whole of the domain separation only while every hash is
+/// the same unkeyed function. On a TAGGED profile a transcript absorb, a
+/// column digest, a salted leaf and a Merkle node are four different members
+/// of the BLAKE3 family, so a coincidence of input lengths between two of them
+/// means nothing at all. Stage 16's own finding S16-F1 is what forces the
+/// point: the completed set refuses geometries the constructions really reach
+/// — a generalised endpoint of 13 rows, an internal boundary of 12 — and at
+/// the 125M shape a twelve-block run's `parameters` absorb lands two bytes
+/// from a boundary column. Imposing it on a tagged profile would cost real
+/// geometry for no separation.
+///
+/// It stays ON, whole, for the two profiles that hash under the legacy rule:
+/// the byte-frozen toy, where it is the only separation there is, and the
+/// frozen-seam development rung. Both pass it at their accepted geometries.
+pub(crate) fn imposed_at_shape_with(sh: &Shape, run_parameter_line: Option<&str>) -> HashInputs {
+    if sh.hashes_under_the_legacy_rule() {
+        at_shape_with(sh, run_parameter_line)
+    } else {
+        HashInputs { by_len: BTreeMap::new() }
+    }
+}
+
+/// [`imposed_at_shape_with`] for a SINGLE BLOCK.
+pub(crate) fn imposed_at_shape(sh: &Shape) -> HashInputs {
+    imposed_at_shape_with(sh, None)
+}
+
 // ---------------------------------------------------------------- T-4: paths
 
 /// The Merkle tree depth of a commitment with these PCS parameters. It is

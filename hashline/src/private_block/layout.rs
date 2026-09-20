@@ -1054,7 +1054,14 @@ impl Layout {
         // transcript constructor length and its clear-vector lengths are in
         // the set too (6 rows is dangerous at 125M and 7 at the frozen-seam
         // rung, and neither is visible without the profile).
-        super::hash_domain::at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
+        //
+        // **STAGE 17, T-3 AS AMENDED.** Imposed on LEGACY-RULE profiles only
+        // (the toy, the frozen-seam rung). On a tagged profile the four hash
+        // domains are four different functions and a coincidence of input
+        // lengths between them means nothing — see
+        // `hash_domain::imposed_at_shape_with` for why that is not a
+        // weakening.
+        super::hash_domain::imposed_at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
         Ok(Layout {
             a_off,
             a_data_rows,

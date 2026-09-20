@@ -63,7 +63,7 @@ pub(super) const SCHEMA: &str = "hashline-native-capture/4-run";
 /// Every Rust file whose bytes decide what a bundle contains. Their SHA-256 at
 /// capture time is the bundle's source pin, so a bundle can be tied to the
 /// code that produced it without trusting a commit id.
-pub(super) const SOURCE_FILES: [&str; 7] = [
+pub(super) const SOURCE_FILES: [&str; 8] = [
     "src/private_block/run_capture.rs",
     "src/private_block/run.rs",
     "src/private_block/boundary.rs",
@@ -72,6 +72,9 @@ pub(super) const SOURCE_FILES: [&str; 7] = [
     "src/private_block/layout.rs",
     // STAGE 15: the plane index table's own independent derivation
     "src/private_block/plane_index.rs",
+    // STAGE 17: `Shape::hash_tag` decides which hash rule made every byte of
+    // the run, and the `hash_tag` member of the run file names it.
+    "src/private_block/shape.rs",
 ];
 
 // ---------------------------------------------------------------- the public words of a run
@@ -254,7 +257,12 @@ pub(super) fn begin_run(header: RunHeader, binding: Digest) {
     REC.with(|s| {
         let mut cell = s.borrow_mut();
         assert!(cell.is_none(), "a run recorder is already seeded");
-        let mut tr = Transcript::new(header.profile.as_bytes());
+        // STAGE 17 (ruling T-1): the recorder rebuilds the header under the
+        // SAME hash tag the run used, derived from the statement's own shape.
+        // A recorder on the legacy rule would fail the binding comparison
+        // below at every tagged profile, which is exactly the check that
+        // proves the rebuild is the verifier's.
+        let mut tr = super::protocol::tagged_transcript(&header.sh, header.profile.as_bytes());
         let mut shape_bytes = Vec::with_capacity(header.run_shape_words.len() * 8);
         for v in &header.run_shape_words {
             shape_bytes.extend_from_slice(&v.to_le_bytes());
@@ -572,7 +580,8 @@ pub(super) fn mask(specs: &[(usize, usize)], root: &Digest, fs: &[MaskFunctional
             t.absorb_fp2(b"mask-q", &op.q);
             t.challenge_fp2_vec(2 * specs.len() + 2)
         };
-        if let Err(e) = crate::zk::mask_verify(root, specs, fs, op, ntt, &mut r.own) {
+        let tag = r.header.sh.hash_tag();
+        if let Err(e) = crate::zk::mask_verify_tagged(root, specs, fs, op, ntt, &mut r.own, &tag) {
             fail(r, format!("replay: the M opening does not replay: {e}"));
             return;
         }
@@ -630,7 +639,8 @@ pub(super) fn pcs(g: Geom, claims: &[ZClaim], opening: &OpeningZk, ntt: &NttTabl
                 return;
             }
         };
-        if let Err(e) = pcs::verify_zk(&g.params, &ZkOpts::standard(&g.params), &cm, claims, opening, ntt, &mut r.own) {
+        let tag = r.header.sh.hash_tag();
+        if let Err(e) = pcs::verify_zk_tagged(&g.params, &ZkOpts::standard(&g.params), &cm, claims, opening, ntt, &mut r.own, &tag) {
             fail(r, format!("replay: the {} opening does not verify on the recorder's transcript: {e}", g.role));
             return;
         }
@@ -938,6 +948,34 @@ fn write_stage(r: &Rec, cur: &StageRec) -> Vec<u8> {
     out
 }
 
+/// **STAGE 17.** The run file's `hash_tag` member (ruling T-1): the NAME of
+/// the rule, and, for a tagged profile, the profile string, the four context
+/// strings and the four derived keys as hex. Every one of those is a public
+/// function of public strings; no secret and no witness quantity is in it,
+/// and a reader that does not know the key re-derives it.
+fn write_hash_tag(out: &mut Vec<u8>, sh: &Shape) {
+    let tag = sh.hash_tag();
+    let hex = |d: &[u8; 32]| -> String { d.iter().map(|b| format!("{b:02x}")).collect() };
+    write!(out, "\"hash_tag\":{{\"rule\":{:?}", tag.rule_name()).expect("write to a Vec");
+    if let (Some(t), Some(c), Some(l), Some(nd)) = (tag.transcript_key(), tag.column_key(), tag.leaf_key(), tag.node_key()) {
+        write!(
+            out,
+            ",\"profile\":{:?},\"contexts\":{{\"transcript\":{:?},\"column\":{:?},\"leaf\":{:?},\"node\":{:?}}},\"keys_hex\":{{\"transcript\":{:?},\"column\":{:?},\"leaf\":{:?},\"node\":{:?}}}",
+            sh.profile,
+            zkp_core::hashtag::CTX_TRANSCRIPT,
+            zkp_core::hashtag::CTX_COLUMN,
+            zkp_core::hashtag::CTX_LEAF,
+            zkp_core::hashtag::CTX_NODE,
+            hex(t),
+            hex(c),
+            hex(l),
+            hex(nd)
+        )
+        .expect("write to a Vec");
+    }
+    write!(out, "}}").expect("write to a Vec");
+}
+
 fn write_run(r: &Rec) -> Vec<u8> {
     let h = &r.header;
     let sh = &h.sh;
@@ -1054,7 +1092,15 @@ fn write_run(r: &Rec) -> Vec<u8> {
         }
         write!(out, "{:?}", stage_file(k)).expect("write to a Vec");
     }
-    write!(out, "],\"transcript_domain_bytes\":{:?},\"transcript_labels\":[", h.profile.as_bytes()).expect("write to a Vec");
+    write!(out, "],\"transcript_domain_bytes\":{:?},", h.profile.as_bytes()).expect("write to a Vec");
+    // **STAGE 17, ruling T-1 / T-7.** WHICH HASH RULE MADE THIS BUNDLE. The
+    // four keys are public functions of public strings, so the hex is here
+    // for cross-checking — but the Python tools re-derive them from the
+    // contexts and the profile and compare, and nothing in a capture ever
+    // SELECTS a rule or hands a key to a verifier. A legacy-rule bundle
+    // carries `{"rule":"legacy"}` and nothing else.
+    write_hash_tag(&mut out, sh);
+    write!(out, ",\"transcript_labels\":[").expect("write to a Vec");
     for (i, (label, what)) in TRANSCRIPT_LABELS.iter().enumerate() {
         if i > 0 {
             write!(out, ",").expect("write to a Vec");
@@ -1257,6 +1303,17 @@ pub(super) const ALLOWED_KEYS: &[&str] = &[
     "layout_description",
     "stage_files",
     "transcript_domain_bytes",
+    // STAGE 17: which hash rule made this bundle (ruling T-1). Public
+    // functions of public strings; no key is ever an input.
+    "hash_tag",
+    "rule",
+    "contexts",
+    "keys_hex",
+    // the four roles, inside `contexts` and `keys_hex`
+    "transcript",
+    "column",
+    "leaf",
+    "node",
     "transcript_labels",
     "transcript_program",
     "mask_domain",

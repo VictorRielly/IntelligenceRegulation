@@ -152,6 +152,12 @@ mod run_capture_tests;
 // every captured stage. A recorder's module, `cfg(test)` like `run_capture`.
 #[cfg(test)]
 mod plane_index;
+// STAGE 17: the D19 SEPARATING HASH TAG (ruling T-6 as amended) — which
+// profiles are tagged, their eight pinned keys, and the cross-rule rejection
+// in both directions at rung-G. The isolated per-layer controls are in
+// `zkp-core`; this is the profile-level half.
+#[cfg(test)]
+mod hash_tag_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
@@ -166,6 +172,7 @@ use crate::pcs::{self, OpeningZk};
 use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
 use endpoint_g::{EndpointSpecG, PreparedPlaneG};
 use crate::zk::MaskOpening;
+use zkp_core::hashtag::HashTag;
 // `D` left this list at S11a: `IoSpec` now takes the endpoint plane's extent
 // from its shape (`t_pad`, `d_pad`) instead of the toy's two literals.
 use layout::{DH, F_E, F_RO, T};
@@ -517,6 +524,14 @@ pub struct IoSpec {
     endpoint_inv_rate: usize,
     endpoint_rows: usize,
     opened_cols: usize,
+    /// **STAGE 17, ruling T-1.** The hash tag of the SHAPE this spec is for,
+    /// taken once from [`shape::Shape::hash_tag`] in [`IoSpec::new_shaped`].
+    /// The endpoint owner commits under it and the block's verifier verifies
+    /// under its own shape's, so an endpoint is never the one commitment of a
+    /// profile hashed under another rule. It is a derived, public function of
+    /// the profile string and no caller supplies it (ruling T-7: the key set
+    /// is never an input).
+    hash_tag: HashTag,
 }
 
 impl IoSpec {
@@ -546,6 +561,7 @@ impl IoSpec {
             endpoint_inv_rate: sh.endpoint_inv_rate,
             endpoint_rows: sh.endpoint_rows,
             opened_cols: sh.opened_cols,
+            hash_tag: sh.hash_tag(),
         };
         spec.validate()?;
         Ok(spec)
@@ -699,7 +715,7 @@ pub fn prepare_endpoints(spec: IoSpec, input: &[i16], output: &[i16]) -> Result<
     let (input, output) = if spec.general {
         let [si, so] = spec.endpoints_g()?;
         let ntt = NttTables::new(si.enc_log().max(so.enc_log()));
-        (EndpointOwner::General(endpoint_g::prepare(&si, &words(input), &ntt)?), EndpointOwner::General(endpoint_g::prepare(&so, &words(output), &ntt)?))
+        (EndpointOwner::General(endpoint_g::prepare(&si, &words(input), &ntt, &spec.hash_tag)?), EndpointOwner::General(endpoint_g::prepare(&so, &words(output), &ntt, &spec.hash_tag)?))
     } else {
         let [si, so] = spec.seams()?;
         let ntt = NttTables::new(12);

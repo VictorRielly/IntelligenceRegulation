@@ -1007,3 +1007,62 @@ fn private_run_125m_twelve_blocks() {
         malloc_threshold_note()
     );
 }
+
+// ------------------------------------------------- STAGE 17: the run under the D19 tag
+
+/// **A THREE-BLOCK TAGGED RUN PROVES AND VERIFIES** (ruling T-6 item 7). The
+/// run profile is rung-G's, which is tagged, so every hash of every stage —
+/// the run transcript, `A`, `H`, `M`, the two internal boundaries, both
+/// external endpoints, and BOTH POSITION TAGS of every segment, which are
+/// squeezed from a discarded transcript CLONE and would be drawn under the
+/// unkeyed function if `clone_state` had dropped the key — is keyed. The
+/// trailer comparison inside `RunVerifier::step` is what checks the clone:
+/// it recomputes the end tag on its own transcript and refuses if it is not
+/// the one the prover wrote.
+#[test]
+fn a_three_block_run_proves_and_verifies_under_the_tag() {
+    let sh = Shape::rung_g();
+    assert!(!sh.hashes_under_the_legacy_rule(), "the run's block shape must be tagged for this test to mean anything");
+    let mut c = Chain::honest(&sh, 3, false);
+    let blocks = blocks_of(&sh, 3);
+    let (st, owners) = statement_of(&c, 3, &blocks);
+    let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
+    let (segs, stats) = prove_to_vec(&st, &blocks, &mut c, owners).expect("the honest tagged three-block run proves");
+    // THE RECEIPT SIZES DO NOT MOVE: the wire format carries no tag.
+    assert_eq!(stats.segment_bytes, counted_segment_bytes(&sh, 3, rows), "a tagged segment is not the counted length — the tag moved a receipt byte");
+    run::verify_run(&st, &blocks, &segs).expect("the honest tagged three-block run verifies");
+}
+
+/// **A TAGGED RUN IS REFUSED BY A LEGACY-RULE RUN VERIFIER** (ruling T-6
+/// item 7, the cross-rule half at the run). The refusal is whatever comes
+/// first — the whole Fiat–Shamir chain diverges at the run header's very
+/// first hash — and this test records it rather than demanding a particular
+/// layer.
+#[test]
+fn a_tagged_run_is_refused_by_a_legacy_rule_run_verifier() {
+    let sh = Shape::rung_g();
+    let mut c = Chain::honest(&sh, 2, false);
+    let blocks = blocks_of(&sh, 2);
+    let (st, owners) = statement_of(&c, 2, &blocks);
+    let (segs, _) = prove_to_vec(&st, &blocks, &mut c, owners).expect("the honest tagged run proves");
+    run::verify_run(&st, &blocks, &segs).expect("the tagged run verifies under its own tag");
+    let e = {
+        let _g = super::hash_tag_tests::ForcedLegacy::on();
+        run::verify_run(&st, &blocks, &segs).expect_err("a TAGGED run verified under a LEGACY-rule run verifier")
+    };
+    eprintln!("STAGE 17 cross-rule refusal at the run: tagged run, legacy verifier: {e}");
+    assert!(!e.is_empty());
+    // and the reverse: proved under the legacy rule, verified tagged
+    let (st2, segs2, blocks2) = {
+        let _g = super::hash_tag_tests::ForcedLegacy::on();
+        let mut c2 = Chain::honest(&sh, 2, false);
+        let blocks2 = blocks_of(&sh, 2);
+        let (st2, owners2) = statement_of(&c2, 2, &blocks2);
+        let (segs2, _) = prove_to_vec(&st2, &blocks2, &mut c2, owners2).expect("the legacy-rule run proves");
+        run::verify_run(&st2, &blocks2, &segs2).expect("the legacy-rule run verifies under the legacy rule");
+        (st2, segs2, blocks2)
+    };
+    let e2 = run::verify_run(&st2, &blocks2, &segs2).expect_err("a LEGACY-rule run verified under the TAG");
+    eprintln!("STAGE 17 cross-rule refusal at the run: legacy run, tagged verifier: {e2}");
+    assert!(!e2.is_empty());
+}

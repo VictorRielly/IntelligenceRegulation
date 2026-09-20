@@ -41,6 +41,7 @@
 //! with the `open_zk` wrapper the check's CORRECTION 1 asks for.
 
 use super::protocol;
+use zkp_core::hashtag::HashTag;
 use crate::field::{Fp, P};
 use crate::merkle::Digest;
 use crate::ntt::NttTables;
@@ -288,7 +289,11 @@ fn check_ntt(spec: &BoundarySpec, ntt: &NttTables) -> Result<(), String> {
 /// draws its `L - 1` boundaries from the same OS-seeded generator the rest of
 /// the stage uses, and a failure to obtain entropy aborts the run rather than
 /// one boundary.
-pub(crate) fn prepare(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: &mut ZkRng) -> Result<PreparedBoundary, String> {
+/// **STAGE 17, ruling T-1.** `tag` is the RUN's profile hash tag, handed in
+/// by `run::prove_run` from its own statement. An internal boundary is one of
+/// the run's commitments, so it hashes under the same rule as the rest of
+/// them (ruling T-2 as amended: no mixtures within a profile).
+pub(crate) fn prepare(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: &mut ZkRng, tag: &HashTag) -> Result<PreparedBoundary, String> {
     check_ntt(spec, ntt)?;
     if values.len() != spec.len() || values.iter().any(|x| x.0 >= P) {
         return Err("boundary: wrong length or noncanonical input words".into());
@@ -301,7 +306,7 @@ pub(crate) fn prepare(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: 
         *x = rng.fp();
     }
     let params = spec.params();
-    let mut committed = pcs::commit_zk_owned(&params, data, ntt, &ZkOpts::standard(&params), rng);
+    let mut committed = pcs::commit_zk_owned_tagged(&params, data, ntt, &ZkOpts::standard(&params), rng, tag);
     committed.mask_rows = spec.site_rows();
     committed.prox_mask_row = Some(spec.prox_row());
     Ok(PreparedBoundary { spec_digest: spec.digest(), committed })
@@ -437,7 +442,7 @@ mod tests {
         let ntt = NttTables::new(spec.enc_log());
         let values = plane(spec.len(), 1);
         let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
-        let p = prepare(&spec, &values, &ntt, &mut rng).expect("the boundary commits");
+        let p = prepare(&spec, &values, &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let cm = p.commitment();
         assert_eq!((cm.rows, cm.log_cols), (10, 10), "the committed geometry is not the derived one");
         assert_eq!(p.committed.mask_rows, vec![4, 5, 6, 7], "the two reserved pairs are not where the geometry puts them");
@@ -445,7 +450,7 @@ mod tests {
         assert_eq!(p.data().len(), 10 * 1_024, "the committed matrix is not rows x n");
         assert_eq!(&p.data()[..spec.len()], &values[..], "the plane's words are not at the front");
         assert_eq!(p.committed.zk.q_pad, 256, "the pad count is not the opened-column count");
-        let q = prepare(&spec, &values, &ntt, &mut rng).expect("a second commitment to the same plane");
+        let q = prepare(&spec, &values, &ntt, &mut rng, &HashTag::legacy()).expect("a second commitment to the same plane");
         assert_ne!(q.root(), cm.root, "two commitments to one plane share a root");
     }
 
@@ -456,7 +461,7 @@ mod tests {
         let ntt = NttTables::new(spec.enc_log());
         let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
         let other = BoundarySpec::new(ctx(), 32, 128, 0, 2, 2, 10, 4, 256, 10).expect("the next boundary of the same run");
-        let p = prepare(&spec, &plane(spec.len(), 2), &ntt, &mut rng).expect("the owner commits");
+        let p = prepare(&spec, &plane(spec.len(), 2), &ntt, &mut rng, &HashTag::legacy()).expect("the owner commits");
         let mut tr = Transcript::new(b"boundary test: a foreign statement");
         let e = match p.into_opening(&other, &[], &mut tr) {
             Ok(_) => panic!("a foreign statement was accepted"),
@@ -472,12 +477,12 @@ mod tests {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
         let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
-        assert!(prepare(&spec, &plane(spec.len() - 1, 3), &ntt, &mut rng).is_err(), "a short plane was committed");
+        assert!(prepare(&spec, &plane(spec.len() - 1, 3), &ntt, &mut rng, &HashTag::legacy()).is_err(), "a short plane was committed");
         let mut bad = plane(spec.len(), 3);
         bad[0] = Fp(P);
-        assert!(prepare(&spec, &bad, &ntt, &mut rng).is_err(), "a noncanonical word was committed");
+        assert!(prepare(&spec, &bad, &ntt, &mut rng, &HashTag::legacy()).is_err(), "a noncanonical word was committed");
         let small = NttTables::new(spec.enc_log() - 1);
-        let e = match prepare(&spec, &plane(spec.len(), 3), &small, &mut rng) {
+        let e = match prepare(&spec, &plane(spec.len(), 3), &small, &mut rng, &HashTag::legacy()) {
             Ok(_) => panic!("a short NTT table was accepted"),
             Err(e) => e,
         };
@@ -524,7 +529,7 @@ mod tests {
         let ntt = NttTables::new(spec.enc_log());
         let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
         let values = plane(spec.len(), 5);
-        let owner = prepare(&spec, &values, &ntt, &mut rng).expect("the boundary commits");
+        let owner = prepare(&spec, &values, &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let cm = owner.commitment();
         let (p0, p1) = (test_point(&spec, 1), test_point(&spec, 2));
         let claims = vec![true_claim(&spec, owner.data(), 0, &p0, Fp2::ONE), true_claim(&spec, owner.data(), 1, &p1, Fp2::U)];
@@ -558,7 +563,7 @@ mod tests {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
         let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
-        let owner = prepare(&spec, &plane(spec.len(), 6), &ntt, &mut rng).expect("the boundary commits");
+        let owner = prepare(&spec, &plane(spec.len(), 6), &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let p = test_point(&spec, 3);
         let claims = vec![true_claim(&spec, owner.data(), 0, &p, Fp2::ONE), true_claim(&spec, owner.data(), 1, &p, Fp2::U)];
         let tr = Transcript::new(b"boundary test: one point, two claims");
@@ -574,7 +579,7 @@ mod tests {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
         let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
-        let owner = prepare(&spec, &plane(spec.len(), 7), &ntt, &mut rng).expect("the boundary commits");
+        let owner = prepare(&spec, &plane(spec.len(), 7), &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let (p0, p1) = (test_point(&spec, 4), test_point(&spec, 5));
         let claims = vec![true_claim(&spec, owner.data(), 0, &p0, Fp2::ONE), true_claim(&spec, owner.data(), 0, &p1, Fp2::U)];
         let mut tr = Transcript::new(b"boundary test: a shared pair");

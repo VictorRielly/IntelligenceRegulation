@@ -33,6 +33,7 @@ use crate::merkle::Digest;
 use crate::ntt::NttTables;
 use crate::pcs::{self, Commitment, CommittedZk, PcsParams, ZkOpts};
 use crate::zk::ZkRng;
+use zkp_core::hashtag::HashTag;
 
 /// Its OWN domain label, which is why `EndpointSpecG::digest()` can never
 /// collide with `SeamSpec::digest()`: the two hashers absorb a different
@@ -185,7 +186,13 @@ fn check_ntt(spec: &EndpointSpecG, ntt: &NttTables) -> Result<(), String> {
 }
 
 /// Fresh secret entropy on every call; no deterministic seed is exposed.
-pub(crate) fn prepare(spec: &EndpointSpecG, values: &[Fp], ntt: &NttTables) -> Result<PreparedPlaneG, String> {
+///
+/// **STAGE 17, ruling T-1.** `tag` is the PROFILE's hash tag, carried in from
+/// the caller's own `IoSpec` (which derives it from the shape). An endpoint
+/// is one of the profile's five commitments, so it hashes under the same rule
+/// as the rest of them — a profile is wholly legacy or wholly tagged, never a
+/// mixture (ruling T-2 as amended).
+pub(crate) fn prepare(spec: &EndpointSpecG, values: &[Fp], ntt: &NttTables, tag: &HashTag) -> Result<PreparedPlaneG, String> {
     check_ntt(spec, ntt)?;
     if values.len() != spec.len() || values.iter().any(|x| x.0 >= P) {
         return Err("general endpoint: wrong length or noncanonical input words".into());
@@ -201,7 +208,7 @@ pub(crate) fn prepare(spec: &EndpointSpecG, values: &[Fp], ntt: &NttTables) -> R
         *x = rng.fp();
     }
     let params = spec.params();
-    let mut committed = pcs::commit_zk_owned(&params, data, ntt, &ZkOpts::standard(&params), &mut rng);
+    let mut committed = pcs::commit_zk_owned_tagged(&params, data, ntt, &ZkOpts::standard(&params), &mut rng, tag);
     committed.mask_rows = vec![first_mask, first_mask + 1];
     committed.prox_mask_row = Some(first_mask + 2);
     Ok(PreparedPlaneG { spec_digest: spec.digest(), committed })
@@ -346,7 +353,7 @@ mod tests {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
         let values = plane(spec.len(), 1);
-        let p = prepare(&spec, &values, &ntt).expect("the generalised endpoint commits");
+        let p = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("the generalised endpoint commits");
         let cm = p.commitment();
         assert_eq!((cm.rows, cm.log_cols), (9, 10), "the committed geometry is not the declared one");
         let committed = p.into_endpoint(&spec).expect("the owner opens against its own statement");
@@ -356,7 +363,7 @@ mod tests {
         assert_eq!(&committed.data[..spec.len()], &values[..], "the plane's words are not at the front");
         assert_eq!(committed.zk.q_pad, 256, "the pad count is not the opened-column count");
         // fresh OS entropy per call: the same plane, two different roots
-        let q = prepare(&spec, &values, &ntt).expect("a second commitment to the same plane");
+        let q = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("a second commitment to the same plane");
         assert_ne!(q.commitment().root, cm.root, "two commitments to one plane share a root");
     }
 
@@ -369,10 +376,10 @@ mod tests {
         let values = plane(spec.len(), 1);
         // the same secret stream cannot be replayed, so the honest root is
         // compared against itself through the data, not through two calls
-        let honest = prepare(&spec, &values, &ntt).expect("honest").into_endpoint(&spec).expect("owner");
+        let honest = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("honest").into_endpoint(&spec).expect("owner");
         let mut tampered = values.clone();
         tampered[7] = tampered[7].add(Fp::ONE);
-        let other = prepare(&spec, &tampered, &ntt).expect("tampered").into_endpoint(&spec).expect("owner");
+        let other = prepare(&spec, &tampered, &ntt, &HashTag::legacy()).expect("tampered").into_endpoint(&spec).expect("owner");
         assert_ne!(honest.data[7], other.data[7], "the tampered word is not in the committed matrix");
         assert_ne!(honest.cm.commitment().root, other.cm.commitment().root, "a changed plane word left the root alone");
     }
@@ -392,7 +399,7 @@ mod tests {
             // `the_digest_is_its_own_and_moves_with_every_parameter`
             ("another row width", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 11, 4, 256)),
         ] {
-            let p = prepare(&spec, &values, &ntt).expect("the owner commits");
+            let p = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("the owner commits");
             // neither `CommittedZk` nor `PreparedPlaneG` is `Debug` (no data
             // getter of any kind), so the refusals are matched, not unwrapped
             let e = match p.into_endpoint(&other.expect("a well-formed other statement")) {
@@ -409,12 +416,12 @@ mod tests {
     fn the_prepare_refusals_fire() {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
-        assert!(prepare(&spec, &plane(spec.len() - 1, 3), &ntt).is_err(), "a short plane was committed");
+        assert!(prepare(&spec, &plane(spec.len() - 1, 3), &ntt, &HashTag::legacy()).is_err(), "a short plane was committed");
         let mut bad = plane(spec.len(), 3);
         bad[0] = Fp(P);
-        assert!(prepare(&spec, &bad, &ntt).is_err(), "a noncanonical word was committed");
+        assert!(prepare(&spec, &bad, &ntt, &HashTag::legacy()).is_err(), "a noncanonical word was committed");
         let small = NttTables::new(spec.enc_log() - 1);
-        let e = match prepare(&spec, &plane(spec.len(), 3), &small) {
+        let e = match prepare(&spec, &plane(spec.len(), 3), &small, &HashTag::legacy()) {
             Ok(_) => panic!("a short NTT table was accepted"),
             Err(e) => e,
         };
@@ -424,6 +431,6 @@ mod tests {
         let seam = SeamSpec::new(ctx(), 32, 128, 0, 41, 42).expect("the frozen spec");
         let wide = NttTables::new(16);
         assert!(private_seam::prepare(&seam, Side::Right, &plane(4_096, 4), &wide).is_err(), "the frozen seam accepted a 2^16 table");
-        assert!(prepare(&spec, &plane(spec.len(), 4), &wide).is_ok(), "the generalised endpoint refused a wider canonical table");
+        assert!(prepare(&spec, &plane(spec.len(), 4), &wide, &HashTag::legacy()).is_ok(), "the generalised endpoint refused a wider canonical table");
     }
 }

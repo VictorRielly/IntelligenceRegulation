@@ -43,6 +43,7 @@ use crate::ntt::NttTables;
 use crate::pcs::{self, PcsParams, ZClaim, ZkOpts};
 use crate::transcript::Transcript;
 use crate::zk::ZkRng;
+use zkp_core::hashtag::HashTag;
 
 /// An internal boundary is claimed by exactly two slots: block `k`'s slot 22
 /// (site 0) and block `k + 1`'s slot 21 (site 1).
@@ -142,7 +143,8 @@ impl RunStatement {
         // puts its absorb within a few bytes of the boundary's 304-byte
         // column; that is why this check is at the run and not at the shape.
         let line = st.parameter_line()?;
-        let set = super::hash_domain::at_shape_with(&st.rs.sh, Some(line.as_str()));
+        // STAGE 17, T-3 AS AMENDED: imposed on legacy-rule profiles only.
+        let set = super::hash_domain::imposed_at_shape_with(&st.rs.sh, Some(line.as_str()));
         let lay = Layout::for_shape(&st.rs.sh)?;
         let mut commitments = vec![("A", lay.a_rows), ("H", lay.h_rows), ("M", super::layout::M_ROWS), ("external endpoint", st.rs.sh.endpoint_rows)];
         if st.rs.l > 1 {
@@ -260,7 +262,11 @@ impl RunStatement {
     /// block's (`protocol::transcript`), with the run's quantities.
     fn transcript(&self) -> Result<Transcript, String> {
         let sh = &self.rs.sh;
-        let mut tr = Transcript::new(self.rs.profile.as_bytes());
+        // STAGE 17 (ruling T-1): the RUN's transcript carries the profile's
+        // Fiat-Shamir key, exactly as a block's does. Every challenge of
+        // every stage, and both position tags of every segment (squeezed
+        // from a discarded CLONE, which carries the key), are drawn from it.
+        let mut tr = protocol::tagged_transcript(sh, self.rs.profile.as_bytes());
         let mut shape_bytes = Vec::with_capacity(7 * 8);
         for v in [self.rs.l, sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim] {
             shape_bytes.extend_from_slice(&(v as u64).to_le_bytes());
@@ -426,6 +432,8 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
     // ONE OS stream per run; an entropy failure aborts the run, at any stage,
     // before anything of that stage is public.
     let mut rng = ZkRng::from_os(st.rs.profile.as_bytes()).map_err(|e| format!("private run randomness: {e}"))?;
+    // STAGE 17 (ruling T-1): this run's hash tag, from its own shape.
+    let tag = sh.hash_tag();
     let ntt = NttTables::new(st.rs.ntt_log());
     let mut tr = st.transcript()?;
     let binding = tr.state();
@@ -452,7 +460,7 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
             if plane.len() != spec.len() {
                 return Err(format!("private run: boundary {k}'s plane is {} words, the padded plane is {}", plane.len(), spec.len()));
             }
-            let p = boundary::prepare(&spec, &words(&plane), &ntt, &mut rng)?;
+            let p = boundary::prepare(&spec, &words(&plane), &ntt, &mut rng, &tag)?;
             protocol::absorb_root(&mut tr, b"B", &p.root(), spec.commitment_rows(), spec.log_n());
             Some((spec, p))
         } else {
@@ -538,6 +546,9 @@ struct RunVerifier<'a> {
     e_params: PcsParams,
     e_zko: ZkOpts,
     tr: Transcript,
+    /// STAGE 17 (ruling T-7): the tag of the profile the VERIFIER trusts,
+    /// derived from its own statement's shape and never from a segment.
+    tag: HashTag,
     binding: Digest,
     pending: Vec<ZClaim>,
     prev: Option<(BoundarySpec, Digest)>,
@@ -558,7 +569,7 @@ impl<'a> RunVerifier<'a> {
         let e_zko = ZkOpts::standard(&e_params);
         let mut tr = st.transcript()?;
         let binding = tr.state();
-        Ok(RunVerifier { st, blocks, ntt, e_params, e_zko, tr, binding, pending: Vec::new(), prev: None })
+        Ok(RunVerifier { st, blocks, ntt, e_params, e_zko, tr, tag: sh.hash_tag(), binding, pending: Vec::new(), prev: None })
     }
 
     /// One stage: it re-derives every geometry from its own statement, and it
@@ -620,7 +631,7 @@ impl<'a> RunVerifier<'a> {
                 let cm = protocol::commitment(root, spec.commitment_rows(), spec.log_n());
                 #[cfg(test)]
                 let rc_before = super::run_capture::checkpoint(&self.tr);
-                pcs::verify_zk(&params, &ZkOpts::standard(&params), &cm, &claims, &seg.in_open, &self.ntt, &mut self.tr).map_err(|e| format!("boundary {}: {e}", k - 1))?;
+                pcs::verify_zk_tagged(&params, &ZkOpts::standard(&params), &cm, &claims, &seg.in_open, &self.ntt, &mut self.tr, &self.tag).map_err(|e| format!("boundary {}: {e}", k - 1))?;
                 #[cfg(test)]
                 super::run_capture::pcs(
                     super::run_capture::Geom {
@@ -650,7 +661,7 @@ impl<'a> RunVerifier<'a> {
                 let rc_before = super::run_capture::checkpoint(&self.tr);
                 #[cfg(test)]
                 let incoming = ic.len();
-                pcs::verify_zk(&self.e_params, &self.e_zko, &cm, &ic, &seg.in_open, &self.ntt, &mut self.tr).map_err(|e| format!("run input endpoint: {e}"))?;
+                pcs::verify_zk_tagged(&self.e_params, &self.e_zko, &cm, &ic, &seg.in_open, &self.ntt, &mut self.tr, &self.tag).map_err(|e| format!("run input endpoint: {e}"))?;
                 #[cfg(test)]
                 super::run_capture::pcs(
                     super::run_capture::Geom {
@@ -682,7 +693,7 @@ impl<'a> RunVerifier<'a> {
             let rc_before = super::run_capture::checkpoint(&self.tr);
             #[cfg(test)]
             let outgoing = oc.len();
-            pcs::verify_zk(&self.e_params, &self.e_zko, &cm, &oc, o, &self.ntt, &mut self.tr).map_err(|e| format!("run output endpoint: {e}"))?;
+            pcs::verify_zk_tagged(&self.e_params, &self.e_zko, &cm, &oc, o, &self.ntt, &mut self.tr, &self.tag).map_err(|e| format!("run output endpoint: {e}"))?;
             #[cfg(test)]
             super::run_capture::pcs(
                 super::run_capture::Geom {

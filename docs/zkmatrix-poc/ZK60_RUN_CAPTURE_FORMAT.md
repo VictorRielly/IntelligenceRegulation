@@ -18,6 +18,19 @@ down three field MEANINGS the gate found and did not change (§4a `claim`,
 `run-d-zero` carry the table; `run-a-tame` and `run-b-zero` predate it and are
 otherwise identical in format.
 
+**Revised 2026-09-20 (stage 17): the `hash_tag` member was added** — WHICH
+HASH RULE made the bundle (§2a), under decision D19's separating hash tag.
+**The schema string does NOT move again**: it stays
+`"hashline-native-capture/4-run"`, for the same reason as in stage 15 — this
+is a PURE ADDITION of one member of `run.json`, with no existing field
+renamed, removed, re-typed or re-meant, so a reader written against stage 14
+or stage 15 reads a stage-17 bundle unchanged and ignores a key it does not
+know. **But the BYTES of every tagged profile's proof move once**, so the
+four existing bundles (`run-a-tame`, `run-b-zero`, `run-c-tame`,
+`run-d-zero`) were all made under the legacy rule and must be re-taken before
+any tagged run is judged; until the Python run gate learns the rule, a tagged
+bundle is not gate evidence (ruling T-6).
+
 **What a bundle is.** The VERIFIER'S VIEW of one private run of `L` blocks
 under one transcript, at the development rung (ruling M-8's geometry: 24
 tokens, width 96, hidden 192, 6 query heads over 2 key-value heads, `L = 3`).
@@ -121,7 +134,60 @@ whitespace.
 | `transcript_program` | [str] | the whole transcript in words, header to trailer (§7) |
 | `mask_domain` | {`log_dom`,`columns`} | the M commitment's evaluation domain (`2^12`) and opened columns |
 | `plane_index` | object | **NEW in stage 15**: the committed `A` and `H` planes with their names, domains and row ranges, and the per-slot terminal push order. §3a |
+| `hash_tag` | object | **NEW in stage 17**: which hash rule made this bundle. §2a |
 | `not_in_a_capture` | [str] | the writer's own statement of what it never emits |
+
+## 2a. `run.json["hash_tag"]` — which hash rule made the bundle (stage 17, D19)
+
+Added 2026-09-20 under ruling T-1 of
+`ZK60_D19_HASH_TAG_DISPOSITION.md`. Every hash on a TAGGED profile's path is
+BLAKE3 in KEYED mode under one fixed public key per domain, derived from the
+profile string; a LEGACY-rule profile hashes with no key anywhere, which is
+what every byte to date was made under.
+
+Under the legacy rule the member is exactly
+
+```json
+"hash_tag": {"rule": "legacy"}
+```
+
+and under the tag it is
+
+```json
+"hash_tag": {
+  "rule": "blake3-keyed/1",
+  "profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+  "contexts": {
+    "transcript": "hashline-zk-mr1 2026-09-20 fiat-shamir transcript",
+    "column":     "hashline-zk-mr1 2026-09-20 pcs column digest",
+    "leaf":       "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf",
+    "node":       "hashline-zk-mr1 2026-09-20 pcs merkle inner node"
+  },
+  "keys_hex": {"transcript": "...", "column": "...", "leaf": "...", "node": "..."}
+}
+```
+
+**What a tool must do with it.** RE-DERIVE the four keys itself, with
+`blake3.blake3(profile.encode(), derive_key_context=<context>).digest()`, and
+COMPARE them against `keys_hex`; a mismatch is a refusal, not a repair. The
+keys are in the file only so that the comparison is possible offline; the
+Python side must never take a key from a bundle and use it. Nothing in a
+capture SELECTS a rule for anyone: a verifier derives its tag from the
+profile it trusts (ruling T-7).
+
+**Which profiles are which.** The byte-frozen toy and the frozen-seam
+development rung (`hashline-zk-mr1/private-block-rung-t24-dev/1`) are LEGACY,
+wholly; `rung_g`, the 125M shape and every run over them are TAGGED. The two
+legacy profiles are development fixtures barred by name from any privacy
+statement.
+
+**Where the keys act.** `transcript` keys `Transcript::new`, every `absorb`
+and every squeeze — including the two squeezes of a segment's position tag,
+which are taken from a discarded transcript CLONE that carries the key.
+`column` keys each committed column's digest; `leaf` keys the salted leaf;
+`node` keys every Merkle inner node. `run_binding`, `start_tag` and `end_tag`
+are transcript outputs and so inherit the transcript's key with no rule of
+their own. The wire format carries no tag and no receipt byte count moves.
 
 ## 3. `run.json["shape"]` — every number the gate would otherwise port
 

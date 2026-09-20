@@ -22,6 +22,7 @@
 //! in `grow_tests.rs` assert they agree, shape by shape.
 
 use super::layout::{domain_log_at, Dom, ALL_DOMS, LOOKUP_DOMS, N_FUNCTIONALS, N_SLOTS, U8_LEN};
+use zkp_core::hashtag::HashTag;
 use super::layout::{SC_DMM, SC_DZC, SC_FZC, SC_GMM, SC_IO_IN, SC_IO_OUT, SC_KMM, SC_KVZC, SC_LZC, SC_PV, SC_QMM, SC_QZC, SC_RS, SC_SCORE, SC_SS, SC_SSM, SC_SZC, SC_TAB, SC_TZC, SC_UMM, SC_VMM, SC_WO, SC_ZS};
 
 /// byte limbs of the isqrt witness `D`, `a1`, `a2` (each below `2^24`)
@@ -30,6 +31,14 @@ pub(crate) const LIMBS_ISQRT: usize = 3;
 /// finding S9-F1) and of every later shape-driven addition: a new shape is a
 /// NEW profile beside the toy, never an edit of it (D17).
 pub(crate) const TOY_PROFILE: &str = "hashline-zk-mr1/private-block-t32-poc/1";
+/// **The FROZEN-SEAM development rung's profile string** (ruling T-2 as
+/// amended, 2026-09-20). This rung commits its endpoint inside
+/// `private_seam.rs`, a file this lane keeps byte-identical to `11c01b2`, so
+/// its endpoint cannot be tagged. A profile is WHOLLY legacy or WHOLLY
+/// tagged, never a mixture — so this whole profile stays on the legacy rule.
+/// It is a stepping-stone development FIXTURE, never a deliverable, barred by
+/// name from any privacy statement, and [`Shape::rung_g`] replaces it.
+pub(crate) const FROZEN_SEAM_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-t24-dev/1";
 const INT16_MAX: i128 = 32_767;
 /// the norm's fixed-point shift; the denominator is `2^(tn+1) * D`
 const NORM_TN: u32 = 11;
@@ -234,7 +243,7 @@ impl Shape {
     pub(crate) fn rung() -> Shape {
         Shape::new(
             "development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
-            "hashline-zk-mr1/private-block-rung-t24-dev/1",
+            FROZEN_SEAM_RUNG_PROFILE,
             24,
             96,
             192,
@@ -366,6 +375,47 @@ impl Shape {
     /// on this and never on a geometry.
     pub(crate) fn is_frozen_toy(&self) -> bool {
         self.profile == TOY_PROFILE
+    }
+
+    // ---- the D19 separating hash tag (stage 17, rulings T-1, T-2, T-7) ----
+    /// **Does this profile hash under the LEGACY (unkeyed) rule?** Two
+    /// profiles do, and they are named here and nowhere else:
+    ///
+    /// * the **byte-frozen toy** — D19 records its deviation, D22 rests on
+    ///   its bytes, and it is never tagged;
+    /// * the **frozen-seam development rung** — its endpoint is committed
+    ///   inside `private_seam.rs`, which stays byte-identical to `11c01b2`,
+    ///   so a tagged rung would be a MIXTURE of the two rules within one
+    ///   profile. Ruling T-2 as amended forbids that, so the whole profile
+    ///   stays legacy. It is a development fixture outside D19's obligation,
+    ///   barred by name from any privacy statement, and [`Shape::rung_g`]
+    ///   exists to replace it.
+    ///
+    /// Every other profile — `rung_g`, the 125M shape, and any run over one
+    /// of them — is tagged.
+    pub(crate) fn hashes_under_the_legacy_rule(&self) -> bool {
+        self.is_frozen_toy() || self.profile == FROZEN_SEAM_RUNG_PROFILE
+    }
+
+    /// **THE ONE PLACE a profile's hash rule is chosen (ruling T-1, wired as
+    /// the memo's option D).** The tag is keyed off the PROFILE STRING, and
+    /// D17 already forces a new profile per shape, so a new shape cannot
+    /// exist without a new key set: the obligation is discharged by a
+    /// function of the shape rather than by a reviewer's memory.
+    pub(crate) fn hash_tag(&self) -> HashTag {
+        // TEST ONLY: the cross-rule hook (see `set_force_legacy_hash_rule`).
+        // It can only ever return the LEGACY rule, which is what two profiles
+        // already return, so it cannot make anything tagged that is not — and
+        // in particular it cannot move a byte of the frozen toy.
+        #[cfg(test)]
+        if forced_legacy_hash_rule() {
+            return HashTag::legacy();
+        }
+        if self.hashes_under_the_legacy_rule() {
+            HashTag::legacy()
+        } else {
+            HashTag::for_profile(self.profile)
+        }
     }
 
     // ---- the byte-limb counts the two integer windows force ----------------
@@ -739,6 +789,36 @@ impl Shape {
     pub(crate) fn padded_domains(&self) -> Vec<Dom> {
         ALL_DOMS.iter().copied().filter(|d| self.pads(*d)).collect()
     }
+}
+
+// ---- the cross-rule test hook (stage 17, ruling T-6 as amended) -----------
+//
+// **TEST ONLY, and it can only ever return the LEGACY rule.** Ruling T-6
+// requires the cross-rule rejection to be shown in BOTH directions at a
+// tagged profile: prove tagged and verify under the legacy rule, and prove
+// under the legacy rule and verify tagged. Nothing in production may choose a
+// profile's rule, so this is the only way to run one side of that pair.
+//
+// It is `#[cfg(test)]` throughout — the cell, the setter and the read in
+// `hash_tag` all vanish from a release build, and no public API of this crate
+// names them. It is deliberately one-directional: a forced value can only
+// make a profile LEGACY, which two profiles already are, so it cannot tag the
+// frozen toy and cannot move one of its bytes even if a test forgot to clear
+// it. A test that sets it MUST clear it before it returns.
+#[cfg(test)]
+thread_local! {
+    static FORCE_LEGACY_HASH_RULE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// set or clear the hook above; a test MUST clear it before it returns
+#[cfg(test)]
+pub(crate) fn set_force_legacy_hash_rule(v: bool) {
+    FORCE_LEGACY_HASH_RULE.with(|c| c.set(v));
+}
+
+#[cfg(test)]
+fn forced_legacy_hash_rule() -> bool {
+    FORCE_LEGACY_HASH_RULE.with(|c| c.get())
 }
 
 /// every counted total of one shape's layout

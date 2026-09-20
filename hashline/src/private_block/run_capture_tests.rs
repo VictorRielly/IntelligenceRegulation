@@ -420,6 +420,45 @@ fn the_bundle_pins_every_source_file_that_decides_its_contents() {
     }
     assert!(pins.iter().any(|(n, _)| n.ends_with("run_capture.rs")), "the writer does not pin itself");
     assert!(pins.iter().any(|(n, _)| n.ends_with("plane_index.rs")), "the plane index table's own source is not pinned");
+    assert!(pins.iter().any(|(n, _)| n.ends_with("shape.rs")), "the hash tag's own source is not pinned");
+}
+
+/// **STAGE 17 (ruling T-1 / T-7): the run file NAMES the hash rule that made
+/// the bundle**, and the capture's own independently rebuilt header matched
+/// the verifier's binding under that rule.
+///
+/// The second half is the load-bearing one and it needs no assertion of its
+/// own: `begin_run` rebuilds the run header on the recorder's OWN transcript
+/// and fails the capture with "the rebuilt run header is not the verifier's
+/// binding" if the state differs, and `take` refuses a failed capture. A
+/// recorder still on the legacy rule at a tagged profile would diverge at the
+/// header's very first hash, so a bundle existing at all is that check.
+///
+/// The four keys are public functions of public strings — the Python tools
+/// re-derive them from the contexts and the profile and compare — and no key
+/// is ever an INPUT to anything.
+#[test]
+fn the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it() {
+    let (_segs, bundle) = prove_and_capture(2, false);
+    let j = &bundle.run_json;
+    assert!(contains(j, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "the run file does not name the keyed rule");
+    assert!(contains(j, "\"profile\":\"hashline-zk-mr1/private-block-rung-g-t24-dev/1\""), "the tag does not name the profile it is derived from");
+    for c in ["hashline-zk-mr1 2026-09-20 fiat-shamir transcript", "hashline-zk-mr1 2026-09-20 pcs column digest", "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf", "hashline-zk-mr1 2026-09-20 pcs merkle inner node"] {
+        assert!(contains(j, c), "the tag does not carry the context string {c:?}");
+    }
+    for k in [
+        "51b7d0b0171d54b5bb45fd42c3f9369cad87894b625e0569b89fac0036d20dbe",
+        "2295498fd6fd5e41320da717e9da89462e5c90a5b3b2d72ac496bcc157c2cd2c",
+        "fe211417895c73c4a70430cb9bfb7081289ec7532f2716d2a86f609b0de54032",
+        "8c4d2cfe7b8528d350f20dece1250c8d81596eb25d26bffda1247238f0f71fcc",
+    ] {
+        assert!(contains(j, k), "the tag does not carry the derived key {k}");
+    }
+    // a run file is valid JSON and every key is on the allow-list: the two
+    // existing gates cover the four new members, so nothing here re-asserts
+    // them. What IS asserted is that no bundle leaks a rule SELECTOR: the
+    // word "legacy" must not appear at a tagged profile.
+    assert!(!contains(j, "\"rule\":\"legacy\""), "a tagged bundle claims the legacy rule");
 }
 
 // ---------------------------------------------------------------- stage 15: the plane index table
