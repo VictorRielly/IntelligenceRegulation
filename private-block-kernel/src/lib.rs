@@ -37,8 +37,6 @@
 #[cfg(test)]
 extern crate std;
 
-pub mod shaped;
-
 use core::fmt;
 
 pub const T: usize = 32;
@@ -92,6 +90,11 @@ pub mod calib {
 }
 use calib::*;
 
+/// Attention int8 subset [-127,127] (excludes -128, as the oracle does).
+const I8N: (i64, i64) = (-127, 127);
+const I8: (i64, i64) = (-128, 127);
+const I16: (i64, i64) = (-32768, 32767);
+
 /// Refusal. Carries only a static site name (never data), so it is safe to
 /// display. `Range`/`Relation` sites use the oracle's exact strings.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -115,7 +118,7 @@ impl fmt::Display for KernelError {
     }
 }
 
-pub(crate) type Res<V> = Result<V, KernelError>;
+type Res<V> = Result<V, KernelError>;
 
 fn fixed<V: Copy, const N: usize>(s: &[V], site: &'static str) -> Res<[V; N]> {
     <[V; N]>::try_from(s).map_err(|_| KernelError::Shape(site))
@@ -139,21 +142,6 @@ pub struct PublicWeights {
 }
 
 impl PublicWeights {
-    /// The same words as borrowed slices, for the shape-driven path.
-    pub fn as_ref(&self) -> shaped::WeightsRef<'_> {
-        shaped::WeightsRef {
-            wq: &self.wq,
-            wk: &self.wk,
-            wv: &self.wv,
-            wo: &self.wo,
-            gamma_a: &self.gamma_a,
-            gamma_m: &self.gamma_m,
-            wg_t: &self.wg_t,
-            wu_t: &self.wu_t,
-            wd_t: &self.wd_t,
-        }
-    }
-
     /// Shape-checked construction (256,128,128,256,16,16,256,256,256 words).
     #[allow(clippy::too_many_arguments)]
     pub fn from_slices(
@@ -195,11 +183,6 @@ pub struct PublicTables {
 }
 
 impl PublicTables {
-    /// The same words as borrowed slices, for the shape-driven path.
-    pub fn as_ref(&self) -> shaped::TablesRef<'_> {
-        shaped::TablesRef { rope_cos: &self.rope_cos, rope_sin: &self.rope_sin, exp: &self.exp, act: &self.act }
-    }
-
     pub fn from_slices(rope_cos: &[i64], rope_sin: &[i64], exp: &[i64], act: &[i16]) -> Res<Self> {
         let tab = Self {
             rope_cos: fixed(rope_cos, "rope_cos")?,
@@ -287,55 +270,21 @@ impl Trace {
             xres2: [0; X_LEN],
         }
     }
-
-    /// Copy the shape-driven run's flat trace buffer into the fixed fields.
-    /// Parts the run never reached are still zero, so a refusal leaves a
-    /// partial trace exactly as the fixed path always did.
-    fn load(&mut self, sh: &shaped::Shape, buf: &[i64]) {
-        use shaped::Part;
-        let get = |p: Part| {
-            let (o, n) = sh.part(p);
-            &buf[o..o + n]
-        };
-        self.na_dd.copy_from_slice(get(Part::NaDd));
-        self.na_y.copy_from_slice(get(Part::NaY));
-        self.q8.copy_from_slice(get(Part::Q8));
-        self.k8.copy_from_slice(get(Part::K8));
-        self.v8.copy_from_slice(get(Part::V8));
-        self.qr8.copy_from_slice(get(Part::Qr8));
-        self.kr8.copy_from_slice(get(Part::Kr8));
-        self.s8.copy_from_slice(get(Part::S8));
-        self.m_row.copy_from_slice(get(Part::MRow));
-        self.arg.copy_from_slice(get(Part::Arg));
-        self.sum.copy_from_slice(get(Part::Sum));
-        self.p.copy_from_slice(get(Part::P));
-        self.o8.copy_from_slice(get(Part::O8));
-        self.ao8.copy_from_slice(get(Part::Ao8));
-        self.xres1.copy_from_slice(get(Part::Xres1));
-        self.nm_dd.copy_from_slice(get(Part::NmDd));
-        self.nm_y.copy_from_slice(get(Part::NmY));
-        self.g8.copy_from_slice(get(Part::G8));
-        self.a16.copy_from_slice(get(Part::A16));
-        self.u16.copy_from_slice(get(Part::U16));
-        self.h16.copy_from_slice(get(Part::H16));
-        self.z16.copy_from_slice(get(Part::Z16));
-        self.xres2.copy_from_slice(get(Part::Xres2));
-    }
 }
 
 // ---------------------------------------------------------------- scalars
 
-pub(crate) fn add(a: i64, b: i64, site: &'static str) -> Res<i64> {
+fn add(a: i64, b: i64, site: &'static str) -> Res<i64> {
     a.checked_add(b).ok_or(KernelError::Overflow(site))
 }
-pub(crate) fn sub(a: i64, b: i64, site: &'static str) -> Res<i64> {
+fn sub(a: i64, b: i64, site: &'static str) -> Res<i64> {
     a.checked_sub(b).ok_or(KernelError::Overflow(site))
 }
-pub(crate) fn mul(a: i64, b: i64, site: &'static str) -> Res<i64> {
+fn mul(a: i64, b: i64, site: &'static str) -> Res<i64> {
     a.checked_mul(b).ok_or(KernelError::Overflow(site))
 }
 /// Exact `v * 2^s` (never a wrapping shift).
-pub(crate) fn shl(v: i64, s: u32, site: &'static str) -> Res<i64> {
+fn shl(v: i64, s: u32, site: &'static str) -> Res<i64> {
     if s >= 63 {
         return Err(KernelError::Overflow(site));
     }
@@ -356,6 +305,19 @@ pub fn requant(acc: i64, sh: i32, site: &'static str) -> Res<i64> {
     }
     // Arithmetic shift of a signed value is floor division by 2^s.
     Ok(add(acc, 1i64 << (s - 1), site)? >> s)
+}
+
+/// Requantize every element in place; any result outside `[lo, hi]` refuses
+/// the whole site (no clamping).
+fn requant_all(buf: &mut [i64], sh: i32, (lo, hi): (i64, i64), site: &'static str) -> Res<()> {
+    for v in buf.iter_mut() {
+        let y = requant(*v, sh, site)?;
+        if !(lo..=hi).contains(&y) {
+            return Err(KernelError::Range(site));
+        }
+        *v = y;
+    }
+    Ok(())
 }
 
 /// Floor integer square root, integer-only (no float seed).
@@ -380,30 +342,92 @@ pub fn isqrt(v: u64) -> u64 {
 
 // ---------------------------------------------------------------- tensors
 
-/// `out[t, j] = sum_i x[t, i] * w[j, i]` with `w` stored (output, input),
-/// over the toy's `T` rows ([`shaped::matmul_out_in`] at any row count).
+/// `out[t, j] = sum_i x[t, i] * w[j, i]` with `w` stored (output, input).
 pub fn matmul_out_in(x: &[i64], w: &[i8], inner: usize, outer: usize, out: &mut [i64]) -> Res<()> {
-    shaped::matmul_out_in(T, x, w, inner, outer, out)
+    if x.len() != T * inner || w.len() != inner * outer || out.len() != T * outer {
+        return Err(KernelError::Shape("matmul_out_in"));
+    }
+    for t in 0..T {
+        for j in 0..outer {
+            let mut acc = 0i64;
+            for i in 0..inner {
+                acc = add(acc, mul(x[t * inner + i], i64::from(w[j * inner + i]), "matmul")?, "matmul")?;
+            }
+            out[t * outer + j] = acc;
+        }
+    }
+    Ok(())
 }
 
-/// `out[t, j] = sum_i x[t, i] * w[i, j]` with `w` stored (input, output),
-/// over the toy's `T` rows ([`shaped::matmul_in_out`] at any row count).
+/// `out[t, j] = sum_i x[t, i] * w[i, j]` with `w` stored (input, output).
 pub fn matmul_in_out(x: &[i64], w: &[i8], inner: usize, outer: usize, out: &mut [i64]) -> Res<()> {
-    shaped::matmul_in_out(T, x, w, inner, outer, out)
+    if x.len() != T * inner || w.len() != inner * outer || out.len() != T * outer {
+        return Err(KernelError::Shape("matmul_in_out"));
+    }
+    for t in 0..T {
+        for j in 0..outer {
+            let mut acc = 0i64;
+            for i in 0..inner {
+                acc = add(acc, mul(x[t * inner + i], i64::from(w[i * outer + j]), "matmul")?, "matmul")?;
+            }
+            out[t * outer + j] = acc;
+        }
+    }
+    Ok(())
 }
 
 /// Round-mode RMSNorm (norm::rmsnorm_chain with DivMode::Round plus the
 /// oracle's `checked_norm` refusals), per row:
 /// `D = isqrt(sum x^2 + Ceps)`, `y = floor((2 x g Cn + D 2^tn) / (D 2^(tn+1)))`.
-#[cfg(test)]
 fn rms_norm(x: &[i64; X_LEN], g: &[i8; D], y: &mut [i64; X_LEN], dd: &mut [i64; T]) -> Res<()> {
-    shaped::rms_norm(&shaped::Shape::toy(), x, g, y, dd)
+    const SITE: &str = "norm quotient/remainder";
+    let wrho = 1i64 << NORM_WRHO;
+    for t in 0..T {
+        let row = &x[t * D..(t + 1) * D];
+        let mut ss = NORM_CEPS;
+        for v in row {
+            ss = add(ss, mul(*v, *v, "norm")?, "norm")?;
+        }
+        let ss = u64::try_from(ss).map_err(|_| KernelError::Range("norm denominator"))?;
+        let d = i64::try_from(isqrt(ss)).map_err(|_| KernelError::Overflow("norm"))?;
+        let dv = shl(d, NORM_TN, "norm")?;
+        let den = mul(dv, 2, "norm")?;
+        if den <= 0 {
+            return Err(KernelError::Range("norm denominator"));
+        }
+        for i in 0..D {
+            let num = add(mul(mul(mul(2, row[i], "norm")?, i64::from(g[i]), "norm")?, NORM_CN, "norm")?, dv, "norm")?;
+            let q = num.div_euclid(den);
+            let rho = num.rem_euclid(den);
+            let sigma = den - 1 - rho;
+            if !(I8N.0..=I8N.1).contains(&q) || rho >= wrho || sigma >= wrho {
+                return Err(KernelError::Range(SITE));
+            }
+            y[t * D + i] = q;
+        }
+        dd[t] = d;
+    }
+    Ok(())
 }
 
 /// Half-split RoPE (pairs `i` and `i + DH/2`) over `heads` heads per row.
-#[cfg(test)]
 fn rotate(x: &[i64], heads: usize, tab: &PublicTables, out: &mut [i64]) -> Res<()> {
-    shaped::rotate(&shaped::Shape::toy(), x, heads, &tab.as_ref(), out)
+    let width = heads * DH;
+    if x.len() != T * width || out.len() != T * width {
+        return Err(KernelError::Shape("rope"));
+    }
+    for t in 0..T {
+        for h in 0..heads {
+            let base = t * width + h * DH;
+            for i in 0..HALF {
+                let (c, s) = (tab.rope_cos[t * HALF + i], tab.rope_sin[t * HALF + i]);
+                let (a, b) = (x[base + i], x[base + HALF + i]);
+                out[base + i] = sub(mul(c, a, "rope")?, mul(s, b, "rope")?, "rope")?;
+                out[base + HALF + i] = add(mul(s, a, "rope")?, mul(c, b, "rope")?, "rope")?;
+            }
+        }
+    }
+    Ok(())
 }
 
 /// One causal softmax row (query position `t`).
@@ -421,10 +445,52 @@ pub struct SoftmaxRow {
 /// exp lookup of `max - s_j`, denominator over `j <= t`, integer quotient.
 /// Refusal sites and order match the oracle.
 pub fn softmax_row(scores: &[i64; T], t: usize, exp: &[i64; 256]) -> Res<SoftmaxRow> {
+    if t >= T {
+        return Err(KernelError::Shape("softmax row"));
+    }
+    let masked = |j: usize| if j <= t { scores[j] } else { MASK };
+    let mut best = i64::MIN;
+    let mut arg = 0;
+    for j in 0..T {
+        let s = masked(j);
+        if s > best {
+            best = s;
+            arg = j;
+        }
+    }
+    if arg > t {
+        return Err(KernelError::Relation("causal maximum attainment"));
+    }
     let mut e = [0i64; T];
+    let mut total = 0i64;
+    for j in 0..T {
+        let delta = sub(best, masked(j), "softmax")?;
+        if !(0..256).contains(&delta) {
+            return Err(KernelError::Range("exp difference"));
+        }
+        e[j] = exp[delta as usize];
+        if j <= t {
+            total = add(total, e[j], "softmax")?;
+        }
+    }
+    if !((1i64 << F_E)..=((T as i64) << F_E)).contains(&total) {
+        return Err(KernelError::Relation("softmax denominator"));
+    }
     let mut p = [0i64; T];
-    let (max, arg, sum) = shaped::softmax_row_into(&shaped::Shape::toy(), scores, t, exp, &mut e, &mut p)?;
-    Ok(SoftmaxRow { max, arg, sum, p })
+    for j in 0..T {
+        let (q, rho) = if j <= t {
+            let num = shl(e[j], F_P, "softmax")?;
+            (num / total, num % total)
+        } else {
+            (0, 0)
+        };
+        let sigma = total - 1 - rho;
+        if !(0..1i64 << WRHO_S).contains(&sigma) || !(0..=1i64 << F_P).contains(&q) {
+            return Err(KernelError::Range("softmax quotient/remainder"));
+        }
+        p[j] = q;
+    }
+    Ok(SoftmaxRow { max: best, arg, sum: total, p })
 }
 
 // ---------------------------------------------------------------- block
@@ -440,40 +506,164 @@ pub fn run_block_slice(
     run_block(x, w, tab, trace)
 }
 
-/// `i64` words of scratch the toy needs, sized from `Shape::toy()`. A guest
-/// that must bound its stack calls [`shaped::run_shaped`] with a buffer of
-/// its own instead of [`run_block`], which puts both buffers in its frame.
-pub const TOY_SCRATCH_I64: usize = shaped::Shape::toy().scratch_len();
-/// `i64` words of trace buffer the toy needs.
-pub const TOY_TRACE_I64: usize = shaped::Shape::toy().trace_len();
-
 /// Compute the block: norm_a, QKV, RoPE, causal attention, O, residual 1,
 /// norm_m, SiLU FFN, residual 2. Returns `xres2` as i16 or the first refusal
 /// in the oracle's order. `trace` (tests only) is filled progressively and
 /// is partial on refusal.
-///
-/// This is [`shaped::run_shaped`] at [`shaped::Shape::toy()`] and nothing
-/// else: one integer semantics, one refusal order, one set of sites.
 pub fn run_block(
     input: &[i16; X_LEN],
     w: &PublicWeights,
     tab: &PublicTables,
-    trace: Option<&mut Trace>,
+    mut trace: Option<&mut Trace>,
 ) -> Res<[i16; X_LEN]> {
-    const SH: shaped::Shape = shaped::Shape::toy();
-    let mut scratch = [0i64; TOY_SCRATCH_I64];
-    let mut tbuf = [0i64; TOY_TRACE_I64];
-    let mut out = [0i16; X_LEN];
-    let want = trace.is_some();
-    let res = shaped::run_shaped(&SH, input, &w.as_ref(), &tab.as_ref(), &mut scratch, if want { Some(&mut tbuf[..]) } else { None }, &mut out);
-    if let Some(tr) = trace {
-        tr.load(&SH, &tbuf);
+    let mut x = [0i64; X_LEN];
+    for (d, s) in x.iter_mut().zip(input.iter()) {
+        *d = i64::from(*s);
     }
-    res?;
+
+    let mut na = [0i64; X_LEN];
+    let mut na_dd = [0i64; T];
+    rms_norm(&x, &w.gamma_a, &mut na, &mut na_dd)?;
+
+    let mut q = [0i64; X_LEN];
+    let mut k = [0i64; KV_LEN];
+    let mut v = [0i64; KV_LEN];
+    matmul_out_in(&na, &w.wq, D, D, &mut q)?;
+    matmul_out_in(&na, &w.wk, D, KV, &mut k)?;
+    matmul_out_in(&na, &w.wv, D, KV, &mut v)?;
+    requant_all(&mut q, SH_Q, I8N, "Q")?;
+    requant_all(&mut k, SH_K, I8N, "K")?;
+    requant_all(&mut v, SH_V, I8N, "V")?;
+
+    let mut qr = [0i64; X_LEN];
+    let mut kr = [0i64; KV_LEN];
+    rotate(&q, H, tab, &mut qr)?;
+    rotate(&k, HKV, tab, &mut kr)?;
+    requant_all(&mut qr, SH_QR, I8N, "QR")?;
+    requant_all(&mut kr, SH_KR, I8N, "KR")?;
+
+    // Scores over ALL (t, j), so an out-of-range masked score still refuses.
+    let group = H / HKV;
+    let mut s = [0i64; SCORE_LEN];
+    for h in 0..H {
+        let kvo = (h / group) * DH;
+        for t in 0..T {
+            for j in 0..T {
+                let mut acc = 0i64;
+                for i in 0..DH {
+                    acc = add(acc, mul(qr[t * D + h * DH + i], kr[j * KV + kvo + i], "score")?, "score")?;
+                }
+                s[(h * T + t) * T + j] = acc;
+            }
+        }
+    }
+    requant_all(&mut s, SH_S, I8N, "score")?;
+    if let Some(tr) = trace.as_deref_mut() {
+        tr.na_dd = na_dd;
+        tr.na_y = na;
+        tr.q8 = q;
+        tr.k8 = k;
+        tr.v8 = v;
+        tr.qr8 = qr;
+        tr.kr8 = kr;
+        tr.s8 = s;
+    }
+
+    // Head-major (h, t, i) accumulators, as the oracle's oacc.
+    let mut o = [0i64; H * T * DH];
+    for h in 0..H {
+        let kvo = (h / group) * DH;
+        for t in 0..T {
+            let row: &[i64; T] = s[(h * T + t) * T..(h * T + t + 1) * T]
+                .try_into()
+                .map_err(|_| KernelError::Shape("score row"))?;
+            let sm = softmax_row(row, t, &tab.exp)?;
+            for i in 0..DH {
+                let mut acc = 0i64;
+                for j in 0..=t {
+                    acc = add(acc, mul(sm.p[j], v[j * KV + kvo + i], "PV")?, "PV")?;
+                }
+                o[(h * T + t) * DH + i] = acc;
+            }
+            if let Some(tr) = trace.as_deref_mut() {
+                tr.m_row[h * T + t] = sm.max;
+                tr.arg[h * T + t] = sm.arg as i64;
+                tr.sum[h * T + t] = sm.sum;
+                tr.p[(h * T + t) * T..(h * T + t + 1) * T].copy_from_slice(&sm.p);
+            }
+        }
+    }
+    requant_all(&mut o, SH_O, I8N, "O")?;
+    let mut o8 = [0i64; X_LEN];
+    for h in 0..H {
+        for t in 0..T {
+            for i in 0..DH {
+                o8[t * D + h * DH + i] = o[(h * T + t) * DH + i];
+            }
+        }
+    }
+
+    let mut ao = [0i64; X_LEN];
+    matmul_out_in(&o8, &w.wo, D, D, &mut ao)?;
+    requant_all(&mut ao, SH_AO, I16, "AO")?;
+
+    let mut x1 = [0i64; X_LEN];
+    for idx in 0..X_LEN {
+        x1[idx] = add(shl(x[idx], SH_X1, "residual 1")?, shl(ao[idx], SH_A1, "residual 1")?, "residual 1")?;
+    }
+    requant_all(&mut x1, SH_R1, I16, "residual 1")?;
+
+    let mut nm = [0i64; X_LEN];
+    let mut nm_dd = [0i64; T];
+    rms_norm(&x1, &w.gamma_m, &mut nm, &mut nm_dd)?;
+    if let Some(tr) = trace.as_deref_mut() {
+        tr.o8 = o8;
+        tr.ao8 = ao;
+        tr.xres1 = x1;
+        tr.nm_dd = nm_dd;
+        tr.nm_y = nm;
+    }
+
+    let mut g = [0i64; FF_LEN];
+    matmul_in_out(&nm, &w.wg_t, D, F, &mut g)?;
+    requant_all(&mut g, SH_G, I8, "FFN gate")?;
+    let mut u = [0i64; FF_LEN];
+    matmul_in_out(&nm, &w.wu_t, D, F, &mut u)?;
+    requant_all(&mut u, SH_U, I16, "FFN up")?;
+    let mut a = [0i64; FF_LEN];
+    for idx in 0..FF_LEN {
+        let slot = usize::try_from(g[idx] + 128).map_err(|_| KernelError::Range("FFN gate"))?;
+        a[idx] = i64::from(*tab.act.get(slot).ok_or(KernelError::Range("FFN gate"))?);
+    }
+    let mut hh = [0i64; FF_LEN];
+    for idx in 0..FF_LEN {
+        hh[idx] = mul(a[idx], u[idx], "FFN product")?;
+    }
+    requant_all(&mut hh, SH_H, I16, "FFN product")?;
+    let mut z = [0i64; X_LEN];
+    matmul_in_out(&hh, &w.wd_t, F, D, &mut z)?;
+    requant_all(&mut z, SH_Z, I16, "FFN down")?;
+
+    let mut x2 = [0i64; X_LEN];
+    for idx in 0..X_LEN {
+        x2[idx] = add(shl(x1[idx], SH_X2, "residual 2")?, shl(z[idx], SH_Z2, "residual 2")?, "residual 2")?;
+    }
+    requant_all(&mut x2, SH_R2, I16, "residual 2")?;
+
+    let mut out = [0i16; X_LEN];
+    for (dst, src) in out.iter_mut().zip(x2.iter()) {
+        *dst = i16::try_from(*src).map_err(|_| KernelError::Range("residual 2"))?;
+    }
+    if let Some(tr) = trace {
+        tr.g8 = g;
+        tr.a16 = a;
+        tr.u16 = u;
+        tr.h16 = hh;
+        tr.z16 = z;
+        tr.xres2 = x2;
+    }
     Ok(out)
 }
 
-#[cfg(test)]
-mod shaped_tests;
 #[cfg(test)]
 mod tests;
