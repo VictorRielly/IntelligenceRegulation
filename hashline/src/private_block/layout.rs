@@ -438,6 +438,119 @@ pub(crate) fn h_is_table(plane: usize) -> bool {
     matches!(plane, H_GU8 | H_GEXP | H_GACT)
 }
 
+/// **The `H_*` ids at a shape (finding S9-F6, the analogue of [`Ids`]).**
+///
+/// The constants above are the TOY's, and the `H` plane LIST moves with the
+/// shape in BOTH directions:
+///
+/// | block | toy | rung | 125M | why |
+/// |---|---:|---:|---:|---|
+/// | `Dom::D` helpers | 19 | 19 | **17** | C-6 drops four `Dom::D` lookups where the norm window fills its top limb exactly |
+/// | `Dom::S` helpers | 7 | **8** | **8** | the third `sigma_s` limb adds two lookups |
+/// | total `N_H` | 51 | **52** | **50** | |
+///
+/// So a toy id is not even a total function of the shape — the `Dom::D`
+/// block SHRINKS at 125M, where `H_D_LAST` names a plane that does not
+/// exist. The accessors below are therefore by ROLE (`helper(dom, k)`, and a
+/// name for each singleton), which is how `argument.rs` already reads them
+/// (`b.h(H_D0 + j)` for `j` in `0 .. helpers(Dom::D)`).
+///
+/// This table and [`super::shape::Shape::h_plane_doms`] are two independent
+/// statements of the same plane list; [`HIds::new`] refuses unless they
+/// agree, exactly as [`Ids::new`] does on the `A` side.
+///
+/// **NOT YET WIRED IN.** `argument.rs` and `protocol.rs` still read the
+/// literals, which are correct at the toy and only at the toy; replacing
+/// them is step C of the ledger's NEXT.
+pub(crate) struct HIds {
+    doms: Vec<Dom>,
+    first_l: usize,
+    first_d: usize,
+    first_q: usize,
+    first_kv: usize,
+    first_s: usize,
+    first_f: usize,
+    sexp: usize,
+    fact: usize,
+    gu8: usize,
+    u: usize,
+}
+
+impl HIds {
+    pub(crate) fn new(sh: &super::shape::Shape) -> Result<HIds, String> {
+        let mut doms: Vec<Dom> = Vec::new();
+        let seg = |doms: &mut Vec<Dom>, dom: Dom, n: usize| -> usize {
+            let first = doms.len();
+            for _ in 0..n {
+                doms.push(dom);
+            }
+            first
+        };
+        // the plane order of `Shape::h_plane_doms`: the five lookup-domain
+        // helper blocks, the exponential pair's own helper inside `Dom::S`,
+        // the feed-forward helpers, the activation pair's own helper, the
+        // three table helpers and the zero-sum pair
+        let first_l = seg(&mut doms, Dom::L, sh.helpers(Dom::L));
+        let first_d = seg(&mut doms, Dom::D, sh.helpers(Dom::D));
+        let first_q = seg(&mut doms, Dom::Q, sh.helpers(Dom::Q));
+        let first_kv = seg(&mut doms, Dom::Kv, sh.helpers(Dom::Kv));
+        let first_s = seg(&mut doms, Dom::S, sh.helpers(Dom::S));
+        let sexp = seg(&mut doms, Dom::S, 1);
+        let first_f = seg(&mut doms, Dom::F, sh.helpers(Dom::F));
+        let fact = seg(&mut doms, Dom::F, 1);
+        let gu8 = seg(&mut doms, Dom::Tab, 3);
+        let u = seg(&mut doms, Dom::Tab, 1);
+        if doms != sh.h_plane_doms() {
+            return Err("private block: this shape's H plane list differs from the pinned one".into());
+        }
+        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, u })
+    }
+
+    /// the `k`-th LogUp helper of a lookup domain
+    pub(crate) fn helper(&self, dom: Dom, k: usize) -> usize {
+        self.first_helper(dom) + k
+    }
+    /// the first LogUp helper plane of a lookup domain (the replacement for
+    /// the literal half of [`helpers`])
+    pub(crate) fn first_helper(&self, dom: Dom) -> usize {
+        match dom {
+            Dom::L => self.first_l,
+            Dom::D => self.first_d,
+            Dom::Q => self.first_q,
+            Dom::Kv => self.first_kv,
+            Dom::S => self.first_s,
+            Dom::F => self.first_f,
+            _ => 0,
+        }
+    }
+    /// the exponential pair's own helper (`H_SEXP` at the toy)
+    pub(crate) fn sexp(&self) -> usize {
+        self.sexp
+    }
+    /// the activation pair's own helper (`H_FACT` at the toy)
+    pub(crate) fn fact(&self) -> usize {
+        self.fact
+    }
+    /// the three table helpers, in the toy's order `(U8, exp, act)`
+    pub(crate) fn table_helpers(&self) -> [usize; 3] {
+        [self.gu8, self.gu8 + 1, self.gu8 + 2]
+    }
+    /// the zero-sum masking pair `u` (`H_U` at the toy)
+    pub(crate) fn u(&self) -> usize {
+        self.u
+    }
+    pub(crate) fn n_h(&self) -> usize {
+        self.doms.len()
+    }
+    pub(crate) fn dom(&self, plane: usize) -> Dom {
+        self.doms[plane]
+    }
+    /// the table helpers enter the value-0 LogUp identity with a negative sign
+    pub(crate) fn is_table(&self, plane: usize) -> bool {
+        (self.gu8..self.gu8 + 3).contains(&plane)
+    }
+}
+
 // ---- lookups (all into the 256-entry U8 table; value = cst + sum coef * plane) ----
 #[derive(Clone, Debug)]
 pub(crate) struct Lk {

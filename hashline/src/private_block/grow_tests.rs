@@ -809,3 +809,68 @@ fn the_rung_at_its_own_calibration_has_an_honest_witness() {
         }
     }
 }
+
+// ====================================================================
+// STEP S9, finding S9-F6: the H plane ids as a function of the shape
+// ====================================================================
+
+/// **The H-side analogue of S8's `Ids`.** It must be the IDENTITY at the toy
+/// — the `H_*` literals are what `argument.rs` and `protocol.rs` still read,
+/// and the toy's transcript rests on them — and it must reproduce each other
+/// shape's own list, which moves in BOTH directions: the `Dom::S` block gains
+/// one helper at the rung and at 125M (the third `sigma_s` limb), and the
+/// `Dom::D` block LOSES two at 125M (C-6 drops four `Dom::D` lookups when the
+/// norm window fills its top byte limb exactly).
+///
+/// The shrinking block is why there is no toy-id map on this side: at 125M
+/// `H_D_LAST` names a plane that does not exist. The accessors are by ROLE.
+#[test]
+fn the_h_plane_ids_are_the_toys_at_the_toy_and_each_shapes_elsewhere() {
+    let t = Shape::toy();
+    let h = HIds::new(&t).expect("the toy has an H plane map");
+    assert_eq!(h.n_h(), N_H, "the toy's H plane count");
+    assert_eq!(h.first_helper(Dom::L), H_L);
+    assert_eq!(h.first_helper(Dom::D), H_D0);
+    assert_eq!(h.helper(Dom::D, 18), H_D_LAST);
+    assert_eq!(h.first_helper(Dom::Q), H_Q0);
+    assert_eq!(h.first_helper(Dom::Kv), H_KV0);
+    assert_eq!(h.first_helper(Dom::S), H_S0);
+    assert_eq!(h.first_helper(Dom::F), H_F0);
+    assert_eq!(h.sexp(), H_SEXP);
+    assert_eq!(h.fact(), H_FACT);
+    assert_eq!(h.table_helpers(), [H_GU8, H_GEXP, H_GACT]);
+    assert_eq!(h.u(), H_U);
+    for p in 0..N_H {
+        assert_eq!(h.dom(p), h_dom(p), "H plane {p}'s domain");
+        assert_eq!(h.is_table(p), h_is_table(p), "H plane {p}'s table flag");
+    }
+    // ... and it agrees with the literal accessor block by block
+    for dom in LOOKUP_DOMS {
+        assert_eq!((h.first_helper(dom), t.helpers(dom)), helpers(dom), "{dom:?}'s helper block at the toy");
+    }
+
+    // THE RUNG: one more `Dom::S` helper, so `H_SEXP` and everything above
+    // move up by one
+    let r = Shape::rung();
+    let hr = HIds::new(&r).expect("the rung has an H plane map");
+    assert_eq!(hr.n_h(), 52, "the rung's H plane count (section 9a)");
+    assert_eq!((hr.first_helper(Dom::S), r.helpers(Dom::S)), (H_S0, 8));
+    assert_eq!((hr.sexp(), hr.fact(), hr.u()), (H_SEXP + 1, H_FACT + 1, H_U + 1));
+    assert_eq!(hr.first_helper(Dom::D), H_D0, "nothing below Dom::S moves at the rung");
+
+    // 125M: C-6 takes the `Dom::D` block from 19 helpers to 17, so everything
+    // above it moves DOWN by two, and the third `sigma_s` limb puts one back
+    let m = Shape::m125();
+    let hm = HIds::new(&m).expect("125M has an H plane map");
+    assert_eq!(hm.n_h(), 50, "125M's H plane count (finding B-F2)");
+    assert_eq!((hm.first_helper(Dom::D), m.helpers(Dom::D)), (H_D0, 17));
+    assert_eq!(hm.first_helper(Dom::Q), H_Q0 - 2);
+    assert_eq!((hm.first_helper(Dom::S), m.helpers(Dom::S)), (H_S0 - 2, 8));
+    assert_eq!(hm.u(), H_U - 1);
+    // the table helpers are always the last four planes, in that order
+    for (s, hi) in [(&t, &h), (&r, &hr), (&m, &hm)] {
+        assert_eq!(hi.table_helpers()[0], hi.n_h() - 4, "{}: the table helpers are the last four planes", s.name);
+        assert_eq!(hi.u(), hi.n_h() - 1, "{}: the zero-sum pair is the last plane", s.name);
+        assert!(hi.is_table(hi.table_helpers()[2]) && !hi.is_table(hi.u()), "{}: only the three table helpers are table helpers", s.name);
+    }
+}
