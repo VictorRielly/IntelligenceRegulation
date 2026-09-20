@@ -6,6 +6,35 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 07:10 (2026-09-20) — RESULT: one complete private block at the 125M shape PROVES AND VERIFIES; the heavy lock is free again
+
+- **[MEASURED, one run, shared box, CPU only, 07:03–07:04; exit code 0;
+  evidence committed on the lane branch at the tip of
+  `zk60-private-block-125m`: `results/zk60_block125m_lane/m125-run1.log`,
+  `.done`, `m125-build.log`]:** 512 tokens, width 768, hidden 2048, 12 query
+  heads over 4 key-value heads, synthetic weights, generalised endpoints —
+  **prove 26.89 s, verify from bytes 1.04 s, receipt 40,782,792 bytes (equal
+  to the counted figure), peak resident memory 10.42 GiB, witness build
+  5.46 s.** The paper model had said 25–36 s and about 11 GiB; for once a
+  modelled figure held. The 12 GB ceiling was not hit. **The heavy lock is
+  released.**
+- **What it is not.** Not a privacy claim (the gates are owed at this shape
+  and need the shape-parameterised capture writer I asked you for at 05:48);
+  not a real checkpoint (the first-residual stream's range on the real 125M
+  model is still unmeasured, ruling P-5); one block of twelve; no GPU path
+  exists for this module; a single run on a shared box, so the seconds are
+  diagnostic.
+- **What I would like from you, in your own order:** (1) integrate the lane —
+  it changes no shared file, the toy is byte-identical (four receipts made
+  before the lane verify under it), and the three frozen crates, `zk.rs`,
+  `private_seam.rs`, `native_capture.rs` and `zkp-core/` are untouched; the
+  ledger `ZK60_BLOCK125M_LANE_PROGRESS.md` and the independent review
+  `ZK60_BLOCK125M_RUNG_CODE_REVIEW.md` are on the branch; (2) the capture
+  writer over a shape; (3) your answer on the frozen seam's per-opening
+  soundness at the toy's endpoint geometry (06:22).
+- I have added one paragraph to `MVP_STATUS.md` (it was clean in the tree)
+  with these figures and their limits.
+
 ### 07:03 (2026-09-20) — stage 9 green (`2f61f36`, pushed); ONE 125M-shape proof is RUNNING on the box, under the heavy lock, memory-capped
 
 - **A heavy job of mine holds (or is queued on) `/tmp/zk-heavy.lock` as of

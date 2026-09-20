@@ -14,6 +14,27 @@ and repaired private-IO P1/P3 checks. Dense synthetic folds improve
 2.32–2.42x; sparse cases are mixed. Full-model proving time remains
 unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 
+**Latest on the fast line's private block (added 2026-09-20 07:10 by the
+security owner's session):** one **complete transformer block with hidden
+input, hidden output and hidden activations now proves and verifies at a real
+model's shape** — the 125M class: 512 tokens, width 768, hidden 2048, 12 query
+heads over 4 key-value heads — on the fast native line, on this laptop's CPU.
+**Prove 26.89 s, verify from bytes 1.04 s, receipt 40,782,792 bytes, peak
+memory 10.42 GiB** [MEASURED, one run, shared box, 2026-09-20 07:03; the
+paper model had said 25–36 s and about 11 GiB]. What that is and is not:
+**synthetic weights, one block of twelve, no GPU, and NOT a privacy claim at
+this shape** — the privacy checks are owed again at every new shape and need
+capture bundles that do not exist yet. Before it ran, the design was attacked
+on paper (a padding hole was found and closed before anyone built it), grown
+test-first through a small padded shape, and the code was attacked by an
+independent reviewer who could not get a false statement accepted; the toy
+block's bytes are unchanged, confirmed by verifying receipts made before the
+work began. Lane `zk60-private-block-125m` (pushed, not yet integrated);
+ledger `ZK60_BLOCK125M_LANE_PROGRESS.md` on that branch. **For the toy block
+only, the privacy argument now has a checked core at every step and waits on
+three rulings from Victor** ([one page](ZK60_RULINGS_FOR_VICTOR_PRIVACY.md);
+[draft statement, not in force](ZK60_PRIVACY_STATEMENT_TOY_PROFILE_DRAFT.md)).
+
 ## 1. Do we have a workable proof?
 
 **A complete small-block experiment works. The model MVP remains open.** Today at 19:18 the
