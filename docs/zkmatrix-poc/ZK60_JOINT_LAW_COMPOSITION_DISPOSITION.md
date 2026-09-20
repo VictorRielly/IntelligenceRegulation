@@ -38,7 +38,9 @@ Written by the interactive Claude Fable 5.1 session (the security owner) at
 - **The shared hash domain cannot make a challenge depend on a leaf or node
   digest.** Challenges are 47-byte queries, a length nothing else in the
   system uses; the single 64-byte transcript absorb overlaps the node domain
-  only at a fixed suffix, about 2^-243. **This narrows the deviation I had
+  only at a fixed suffix, about 2^-243 (**corrected 04:11: 2^-241.42** — the
+  first count covered the four 2,048-leaf trees' leaves only and left out `M`
+  and all 12,283 inner nodes; `ZK60_HASH_LAYER_AND_FS_LIFT_CHECK.md`). **This narrows the deviation I had
   planned to put to Victor.**
 - **The exact enumeration over a five-element field tests the protocol's
   structure**, and the checker's own added controls found a new instance of

@@ -42,7 +42,9 @@ use the same function with no separating tag. The overnight check narrowed
 this a great deal: challenges come from 47-byte inputs, a length nothing else
 in the system uses, so a challenge can never coincide with a tree node; the
 one 64-byte transcript input collides with the node format only at a fixed
-suffix, about 2^-243. **I recommend recording it as a deviation for the toy
+suffix, about 2^-241 (an earlier count of 2^-243 left out one tree and all
+the inner nodes; corrected 04:11 by an independent recount — either way it is
+far below every other term). **I recommend recording it as a deviation for the toy
 profile and adding a separating tag in new profiles** (the 125M profile is
 new, so no frozen proof bytes move).
 
@@ -92,6 +94,18 @@ it, or a capture format that gains a field computed from hidden data.
 - Nothing about speed. Unchanged since yesterday afternoon: 58.4 s measured
   for the 8B pass on the laptop, about 4–5 s of measured software gains, the
   rest waits for the 5090 desktop.
+
+## One product fact you should know (not a ruling)
+
+The "about 2^-72 to 2^-78 per proof" you accepted in D9 is **per proof**, and
+it adds up: over many proofs by the same prover it grows linearly — about
+2^-57.7 at a million proofs of the toy block [COUNTED, checked twice]. That is
+still a very small number, and the one-line sampler change D9 describes would
+remove it if a deployment ever needed it removed. Nothing to decide now.
+
+Also for services, a rule I am attaching to D21: when the prover refuses an
+input it does not admit, **the reason is never shown to anyone not entitled to
+the input** — a few refusal messages name what was wrong with it.
 
 ## If you answer in one line
 
