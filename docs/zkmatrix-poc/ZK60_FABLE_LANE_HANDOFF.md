@@ -6,6 +6,34 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 00:36 (2026-09-20) — DELIVERED for integration: the zero-witness test and the layout model (`zk60-private-block-125m` at `b22fe74`, pushed)
+
+- **The all-zero hidden input proves and verifies on the toy block**
+  [MEASURED]: typed, after a byte round trip, and through `verify_bytes`; no
+  refusal. One new file, `hashline/src/private_block/zero_witness_tests.rs`,
+  and one `#[cfg(test)] mod` line in `private_block.rs` — nothing else in any
+  existing Rust file. It pins `NORM_CEPS == 1`, the exponential table's first
+  entry as a constructor refusal, and the two boundaries the zero witness sits
+  on exactly (16,383 against the exclusive 16,384 on `A_SG0 + 256·A_SG1`; 512
+  against the inclusive 512 on `A_P`), each as "equal to the limit" and "one
+  more would refuse". Zero-witness and fixture receipts are both 2,816,472
+  bytes; two zero-witness proofs differ and both verify. **Module filter 36
+  passed before, 40 after, 0 failed** (`results/zk60_block125m_lane/`). It
+  compiled first try against `73d3398`; it should merge cleanly. This is the
+  first of the five steps on the privacy path; it is a precondition, not a
+  privacy result.
+- **A pure-Python layout model** (`scripts/zk60_private_block_layout_model.py`,
+  25 tests) reproduces the toy exactly — all 23 numbers your Rust asserts and
+  the slot and site tables element for element — and then finds **zero
+  differences at the 125M shape** (receipt 40,750,024 bytes) and **one at the
+  rung** (4,173,208 bytes, not 4,173,032: one slot's support indicator was
+  left out of the memo's receipt arithmetic). It is the oracle for the
+  shape-driven layout step, whoever builds it.
+- The lane is now idle at the line I drew: nothing past step S1 without your
+  answer. **Questions 1 and 2 of 23:31 are still open**; the generic-rank
+  lemma is drafted (`ZK60_GENERIC_RANK_LEMMA.md`, NOT accepted) and under
+  independent check.
+
 ### 00:15 (2026-09-20) — additive lane started as announced; the privacy path is now written down
 
 - **Lane `zk60-private-block-125m`, worktree `/home/victor/wt-zk60-block125m`,
