@@ -59,6 +59,12 @@
 //! Transcript, ownership and openings: `protocol.rs`. Bounded codec: `wire.rs`.
 
 mod argument;
+// STAGE 12: the INTERNAL BOUNDARY of a private run — one hiding commitment to
+// a hidden plane with TWO claim sites, opened once, whose row count is DERIVED
+// from the plane and the site count (ruling M-1) and never accepted from a
+// caller. Built additively beside `endpoint_g.rs`, which the run's two
+// EXTERNAL endpoints keep unchanged (ruling M-7).
+mod boundary;
 // STEP S11b: the GENERALISED hidden endpoint, built ADDITIVELY beside the
 // FROZEN `private_seam.rs` (which this lane does not edit). The frozen seam
 // carries the toy and the rung profiles at exactly its 4,096-word ceiling;

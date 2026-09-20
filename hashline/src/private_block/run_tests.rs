@@ -165,3 +165,23 @@ fn the_claim_audit_is_not_what_enforces_the_hiding_geometry() {
     let e = r1_audit(&one, 1, R1_DATA + 5, R1_DATA + 2).expect_err("prox = data + 2 at 37 rows was accepted");
     assert!(e.contains("proximity pair placement"), "the endpoint's true geometry: {e}");
 }
+
+// ---------------------------------------------------------------- R2
+
+/// **RULING M-1, AS THE FIRST FAILING TEST OF R2.** The boundary commitment's
+/// row count is DERIVED from the padded plane and the number of claim sites —
+/// `rows = data + 2 * sites + 2`, two reserved pairs and then a proximity
+/// PAIR — and a caller who declares any other row count is refused BY NAME.
+/// The 37-row geometry is the one the independent check's rank model singled
+/// out: one proximity row instead of two, joint rank 5 of 6 on the reserved
+/// rows, one real dimension disclosed. `audit_claims` is not what stops it
+/// (finding U-1 above); this is.
+#[test]
+fn the_boundary_derives_its_row_count_and_refuses_the_37_row_geometry_by_name() {
+    let ctx = *blake3::hash(b"stage 12: the run's boundary, R2's first test").as_bytes();
+    // the 125M boundary: a padded (512, 1024) plane over rows of 2^14
+    let ok = super::boundary::BoundarySpec::new(ctx, 512, 1024, 0, 0, 2, 14, 4, 256, 38).expect("the 125M boundary statement is well formed");
+    assert_eq!((ok.data_rows(), ok.commitment_rows(), ok.site_rows(), ok.prox_row()), (32, 38, vec![32, 33, 34, 35], 36), "the derived boundary geometry");
+    let e = super::boundary::BoundarySpec::new(ctx, 512, 1024, 0, 0, 2, 14, 4, 256, 37).expect_err("the 37-row boundary geometry was accepted");
+    assert!(e.contains("declares 37 rows") && e.contains("38"), "the derived-row refusal did not name the geometry: {e}");
+}

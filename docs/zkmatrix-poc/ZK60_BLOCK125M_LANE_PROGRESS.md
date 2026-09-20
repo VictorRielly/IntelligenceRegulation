@@ -2826,7 +2826,7 @@ that level for the native line is the project owner's ruling.
 | step | what | state |
 |---|---|---|
 | R1 | the claim audit on a hand-built two-claim boundary schedule | **done** (4 tests) |
-| R2 | `boundary.rs`: derived rows, two claim sites, one opening | pending |
+| R2 | `boundary.rs`: derived rows, two claim sites, one opening | **done** (11 + 1 tests) |
 | R3 | `run.rs`: the run prover and verifier, `L = 2` at rung-G | pending |
 | R4 | the negative battery at `L = 2` | pending |
 | R5 | `L = 3`, then `L = 12` at rung-G | pending |
@@ -2883,14 +2883,53 @@ stated evidence does not, and the test records both.
 | `cargo test --release --offline -j 2 --lib private_block::run_tests -- --test-threads=1` (first write, expected to fail) | `u2-r1.log` — 3 passed, 1 FAILED (the wrong prediction above) |
 | the same, after the test was corrected to what the function does | `u3-r1.log` — **4 passed, 0 failed** |
 
+### R2 — `boundary.rs`, the commitment itself
+
+A NEW module beside `endpoint_g.rs`, modelled on it line for line, with
+`sites` as a parameter. Nothing of `endpoint_g.rs` or `private_seam.rs`
+moves: ruling M-7 keeps the run's two EXTERNAL endpoints on today's
+`data + 5` geometry, and this module is only ever asked for the `L - 1`
+INTERNAL boundaries.
+
+| property | value |
+|---|---|
+| domain label | `hashline/private-block/internal-boundary/v1`, **43 bytes** (C-H4' forbids 28 and 35; `endpoint_g`'s is 42) |
+| derived geometry | `rows = data + 2*sites + 2`; at 125M `32 + 4 + 2 = 38`, at rung-G `4 + 4 + 2 = 10` |
+| reserved rows | site 0 (the OUTGOING claim, block `k`'s slot 22) at `data`; site 1 (the INCOMING claim, block `k+1`'s slot 21) at `data + 2`; the proximity PAIR at `data + 4` |
+| digest | its own domain, then context, plane axes, boundary index, site count, row width, rate, pad count, **the derived row count and the proximity row**, and the scale — so a verifier cannot be handed a geometry it did not agree to |
+| scale | ONE field (ruling M-4): there is no second place to declare a boundary's scale, so block `k`'s output and block `k+1`'s input cannot disagree |
+| the owner | `PreparedBoundary` owns the `CommittedZk`, has no `Clone`, and `into_opening(self, spec, claims, tr)` CONSUMES it — `pcs::open_zk` only borrows, so this wrapper is what makes "one opening" a type error to break (the check's CORRECTION 1). The one other accessor is `data()`, a shared slice the two adjacent blocks' equality slots need exactly as `prove_inner_at` reads `ein.data.as_slice()` today; it hands out a borrow, never ownership |
+| every opening | goes through `audit_claims` + the declared group count + the challenge refusals, because `into_opening` calls them and there is no other way to open a boundary |
+
+Eleven tests in the module plus the cross-module R1 test. The ones that
+carry weight: **every row count but the derived one is refused BY NAME** at
+three arities, with the 37-row case stated on its own; ONE opening carrying
+TWO claims at TWO points verifies through `pcs::verify_zk` and a one-bit
+change to either claim's value is rejected; two claims at ONE point form one
+column-weight group and trip the declared-count refusal; a shared reserved
+pair is refused on the OPENING path, not only in a hand-built schedule.
+
+**FINDING U-2.** A ONE-site boundary at the rung-G plane would be
+`4 + 2 + 2 = 8` rows, and C-H4 refuses it outright (a column that hashes to
+64 bytes is a Merkle node). Nothing in a run asks for one — the externals
+keep `endpoint_g`'s geometry — but it means the module's one-site arity can
+only be exercised at the 125M plane, and a future run shape with four data
+rows could not use a uniform construction for its endpoints even if ruling
+M-7 were revisited. The C-H4 guard is checked on the DERIVED row count, so
+it can never be bypassed by a declaration.
+
+| command | log |
+|---|---|
+| `--lib private_block::run_tests` with the boundary test written and no module | `u4-r2-first-fail.log` — `error[E0433]: cannot find boundary in super` (twice) |
+| `--lib private_block::boundary` | `u5-r2.log` — 9 passed, 2 FAILED: the C-H4 guard fired on two of my own test parameters (finding U-2) |
+| the same, parameters corrected | `u6-r2.log` — **11 passed, 0 failed** |
+| **the gate**: `--lib private_` | `u7-r2-filter.log` — **173 passed, 0 failed, 3 ignored, 67 filtered out** (157 baseline + 11 + 5) |
+
 ### Shared files touched outside `hashline/src/private_block*`
 
 None so far.
 
 ### NEXT
 
-R2: `hashline/src/private_block/boundary.rs` — the hiding commitment to the
-padded boundary plane with TWO claim sites, `rows` DERIVED as
-`data + 2*sites + 2` and any other row count refused by name, its own domain
-label (length neither 28 nor 35) and its own digest, and an owner consumed by
-a wrapper around `open_zk` so that a second opening does not type-check.
+R3: `hashline/src/private_block/run.rs` — the run prover and verifier over
+the checked stage order, with the segment framing, and `L = 2` at rung-G.
