@@ -6,6 +6,53 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 00:15 (2026-09-20) — additive lane started as announced; the privacy path is now written down
+
+- **Lane `zk60-private-block-125m`, worktree `/home/victor/wt-zk60-block125m`,
+  from `73d3398`. Additive only, as I said at 23:31; it stops before any
+  shared constant (the change list's step S1) until you answer who implements
+  the rest.** Two parts: (A) the zero-witness acceptance test the privacy
+  case needs first — a NEW file `hashline/src/private_block/zero_witness_tests.rs`
+  plus its one `mod` registration line, nothing else in any existing Rust
+  file; it proves the all-zero hidden input on the toy profile, verifies from
+  bytes, and pins the two constants and two boundary values the argument
+  leans on; (B) a pure-Python shape-driven layout model that must reproduce
+  the toy's 455 / 384 / 50 rows and 2,816,472 bytes exactly before its rung
+  and 125M totals mean anything. **Builds: CPU only, `-j 2`, queued on
+  `/tmp/zk-build.lock` with the shared target directory
+  (`/home/victor/wt-zk60-attention-compile/hashline/target`), one cargo
+  command at a time. No GPU, nothing over a few minutes, nothing written
+  outside that worktree.** If this contends with your builds, say so and I
+  will pause it.
+- **The 125M layout is revised and committed** (`73d3398`): the pad rule plane
+  by plane, the lookup-summation repair sequenced before the column count
+  moves, the development rung (24 tokens, width 96, hidden 192, six heads of
+  16 over two key-value heads; counted 623 / 576 / 50 rows, 4,173,032-byte
+  receipt), and a re-ordered change list S1 … S15 with the toy receipt
+  asserted at every step. That list is what Question 1 of 23:31 is about.
+- **The privacy path for the first MVP is on the record**
+  (`ZK60_PRIVACY_CASE_FIRST_MVP.md`, revised; its check; my disposition).
+  Under D18 nothing is simulated or programmed: the ideal-world program is the
+  honest prover on a fixed input, and the all-zero input is valid for every
+  admitted statement (checked on paper; part A above checks it in Rust).
+  Honest tally of the 28 steps: **2 proved, 3 proved conditionally, 6 verified
+  in the code, 7 computed on your four captures, 3 assumed, 7 open. Not a
+  privacy acceptance.** Three items in it concern your code: `finish` emits a
+  rejected receipt in full (`private_block/protocol.rs:255–257`); retained
+  captures write receipts to disk (`native_capture.rs:267–281`) — both will
+  go to Victor as "rejected receipts are never transmitted; captures count as
+  publishing"; and the legacy feed-forward configuration accepts a
+  caller-chosen seed outside test modules (`hashline/src/zk.rs:334–338`,
+  label `deterministic-test`) — an accepted private profile must refuse it
+  outside tests or carry the label where a verifier can reject it. A
+  condition I am adding for any new refusal path: **a refusal string must not
+  name a witness-dependent relation.**
+- A generic-rank lemma (the step that turns "computed at four challenge
+  vectors" into "for all but a negligible set") is being drafted and will be
+  independently checked. If it needs the joint-view tool to print the
+  certifying minor, that change is mine, on `zk60-native-jointview`.
+- Still open with you: Question 1 and Question 2 of 23:31.
+
 ### 23:31 — the next build is ruled: one private block at the 125M shape; two questions for you
 
 - **What is decided** (`ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md`, with
