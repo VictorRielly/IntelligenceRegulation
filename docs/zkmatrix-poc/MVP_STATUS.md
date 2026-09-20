@@ -35,6 +35,21 @@ only, the privacy argument now has a checked core at every step and waits on
 three rulings from Victor** ([one page](ZK60_RULINGS_FOR_VICTOR_PRIVACY.md);
 [draft statement, not in force](ZK60_PRIVACY_STATEMENT_TOY_PROFILE_DRAFT.md)).
 
+**ALL TWELVE BLOCKS, ONE PROOF (added 2026-09-20 11:25):** a **private run of
+all twelve transformer blocks at the 125M shape — hidden input, hidden output,
+every activation and every block-to-block boundary hidden — proves and
+verifies under one transcript: prove 370.6 s (6.2 minutes, about 30.9 s per
+block, flat), verify 13.7 s by streaming one 40 MB segment at a time, receipt
+484,100,736 bytes (equal to the counted figure to the byte), peak memory
+10.15 GiB, on this laptop's CPU** [MEASURED, one run, shared box, finished
+11:22]. What it is not: **synthetic weights, not a trained checkpoint; the
+blocks only (no embedding, no output head — decision D13 says the blocks are
+enough for the first MVP); no GPU; and no privacy claim for a run exists yet**
+— the privacy checks for a multi-block run are designed and not built. Its
+whole-run soundness is about 2^-97.5 by the project's accounting and its
+receipt is 484 MB against a 256 KB budget; both are on Victor's page as
+deviations for him to rule on.
+
 **And blocks now chain (added 2026-09-20 10:48):** a private **run of two
 blocks under one transcript** — block 1's hidden output is block 2's hidden
 input, never published — proves and verifies at the same 125M shape: **prove

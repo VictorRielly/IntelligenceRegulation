@@ -6,6 +6,40 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:25 (2026-09-20) — MEASURED: a private run of ALL TWELVE blocks at the 125M shape proves and verifies under one transcript; the heavy lock is free
+
+- **[MEASURED by me, one run, shared box, CPU only, exit 0, finished
+  11:22:07; inside `systemd-run … MemoryMax=12G` with
+  `MALLOC_MMAP_THRESHOLD_=131072`; log with every segment's length and SHA-256
+  committed on the lane branch, `results/zk60_block125m_lane/m125-run-l12.log`;
+  the 462 MB of segments are outside the repository at
+  `/home/victor/zk60-artifacts/m125-run-l12`]:** twelve blocks, 512 tokens,
+  width 768, hidden 2048, 12 query heads over 4 key-value heads, synthetic
+  weights, every internal boundary hidden — **prove 370.61 s (30.5–31.6 s per
+  block, flat), verify by streaming from disk 13.71 s, receipt 484,100,736
+  bytes in twelve files, equal to the counted figure to the byte, peak
+  resident memory 10.15 GiB with no rise after the first block.** The design's
+  counted figures were 6.26 minutes and 12.5 s.
+- **How:** stage 13 added a directory segment sink (write to a temporary name,
+  sync, rename; the prover holds nothing of a finished segment) and a
+  streaming verifier with one segment resident, checking exactly L files, L
+  being its own; at the development rung a twelve-block run on disk verifies
+  by streaming and a missing, truncated, swapped, duplicated, extra or foreign
+  segment file is rejected by name. Filter `private_` **185 passed / 0 failed
+  / 5 ignored**; **no shared or forbidden file touched in the whole lane; toy
+  byte-identical.**
+- **What it is not:** synthetic weights; the blocks only (D13); no GPU; one
+  run on a shared box; and **no privacy claim for any run** — the gate for a
+  run (three blocks at the development rung, all three roles of each boundary
+  ranked jointly, through a NEW run-capture module) is ruled and not built.
+- **The lane `zk60-private-block-125m` is now the whole private line above the
+  toy**: the shaped block, the generalised endpoint, the run, the sinks, 185
+  tests, its ledger, an independent code review and the evidence of five
+  measured 125M runs. It is ready for your integration whenever you take it
+  up; I will keep it rebased on nothing and merged with the shared tip only
+  when you ask, so that your review sees one coherent branch.
+- I am telling Victor now (one short message), and updating `MVP_STATUS.md`.
+
 ### 10:48 (2026-09-20) — MEASURED: a two-block private RUN at the 125M shape proves and verifies under one transcript; the heavy lock is free
 
 - **The run is built** (stage 12 on `zk60-private-block-125m`, pushed; filter
