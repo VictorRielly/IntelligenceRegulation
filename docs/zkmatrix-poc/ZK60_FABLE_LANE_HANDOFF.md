@@ -6,6 +6,23 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 05:13 (2026-09-20) — the privacy gate is complete as far as a linear gate can go (`zk60-native-jointview` at `d360466`, pushed)
+
+- The mask-commitment layout is ported to Python with six source pins
+  (`hashline/src/zk.rs`, both `argument.rs`, `zkp-core/src/sumcheck.rs`,
+  `ntt.rs`, `pcs.rs` — **the gate will refuse when any of them changes; the
+  re-read and re-pin are mine**). `M` discloses exactly 2 Fp, the batched
+  value, by exact rank; two preimages at coefficient vectors differing in all
+  583 positions reproduce `M`'s 12,800 opened-column entries with none
+  differing; the declared order of the mask functionals is checked against
+  your captures, 34 of 34; joint 4 = sum 4 with `M` included [MEASURED by the
+  lane]. Tests 139 → 161, all passing. Channels 11 constructed / 2 derived /
+  8 argued / 7 open, and **none of the seven is open for want of a capture
+  field — nothing is requested from your capture writer for the toy.**
+- What now stands between the toy profile and a written privacy acceptance is
+  Victor's rulings D19–D21 and my assembling the five dispositions' conditions
+  into one statement. Not a privacy acceptance today.
+
 ### 04:45 (2026-09-20) — 125M lane stage 6 pushed at `f3e3ef6`: prover and verifier over a shape; a correction to what I told you about C1 … C8; one request coming
 
 - **Stage 6 [MEASURED by the lane]:** `protocol.rs` and `wire.rs` now run over

@@ -163,6 +163,43 @@ are a function of the hidden data, and a retained capture counts as
 publishing (ruling C-7). That comparison belongs in a Rust test on a synthetic
 witness, never in a bundle. **Not a privacy acceptance; steps 4 and 5 remain.**
 
+**Step 3 is complete as far as a linear gate can go (05:13, 2026-09-20)**
+[MEASURED by the lane, `zk60-native-jointview` at `d360466`, tests 139 → 161,
+all passing]. The mask-commitment layout is ported from the Rust with six
+source pins, and the masking commitment `M` is closed in the gate:
+
+- **`M` discloses exactly what the argument predicts: 2 Fp — one extension
+  element, the batched value — by exact rank**; its fibre has dimension 1,164
+  (block) and 924 (attention).
+- **Two preimages were exhibited at coefficient vectors differing in all 583
+  positions with the same batched value**, each reproducing `M`'s opening:
+  1,024 `q` entries and 1,024 proximity entries (these two by construction —
+  the lane says so) and **12,800 opened-column entries, none differing** (the
+  independent test). Off the batched value's plane the fibre is empty.
+- **The declared order of the mask functionals is now machine-checked against
+  the captures, 34 of 34, on position, value and recomputed weight**: per
+  slot, a standalone slot's term immediately before that slot's evaluation;
+  every host term last. Permuting it makes 1,024 of 12,800 column entries
+  wrong even when the batch is forced to match — the order is pinned by the
+  columns, not only by the sum.
+- Controls that fire on all four captures: a pad removed (50 of 12,800 wrong);
+  the order permuted; a second functional leaked (disclosure 2 → 6 Fp).
+- **Joint stage with `M` included: joint 4, sum 4, equal.**
+- **Channels: 11 CONSTRUCTED, 2 DERIVED, 8 ARGUED, 7 OPEN — and all 7 are
+  open by design, none for want of a capture field**: whether an attempt
+  produced a receipt at all, rejected-but-emitted receipts, retained captures
+  (the three items of proposed D21 and ruling L-4), timing, memory and power
+  (proposed D20), prior proofs by the same prover, the statement's
+  integer-range facts, and nonlinear functionals (the composition memo). The
+  pad-budget guard now lives in the base small-model class; the regenerated
+  evidence differs in tool hashes, timing and added keys only.
+
+Still a reviewed obligation: the Python ports equal the Rust by one lane's
+reading each; four captures; two toy layouts. **Not a privacy acceptance.**
+**What now stands between the toy profile and a written acceptance is Victor's
+rulings D19–D21, and my own reading of the five dispositions' conditions into
+one statement.**
+
 ## 4. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report, its verdict, its blocking table and
