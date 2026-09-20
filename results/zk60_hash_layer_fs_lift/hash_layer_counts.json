@@ -1,0 +1,152 @@
+{
+  "oracle_query_classes": {
+    "Transcript::absorb": ">= 49 (48 + |label| + |data|)",
+    "Transcript::new (domain seed)": "12 + |domain|",
+    "Transcript::squeeze_bytes (every challenge)": 47,
+    "ZkRng::refill (key || counter)": 40,
+    "hash_column A": 3640,
+    "hash_column H": 3072,
+    "hash_column M": 400,
+    "hash_column endpoint": 56,
+    "merkle::hash_pair": 64,
+    "pcs::salt_leaf": 64,
+    "the ONE 64-byte absorb: absorb_u64(b'log-cols', 8)": 64
+  },
+  "per_tree": {
+    "A": {
+      "depth": 11,
+      "distinct_opened_leaves": 240.70151668202902,
+      "fraction_of_tree_revealed": 0.4040966974581192,
+      "hash_column_input_bytes": 3640,
+      "internal_nodes_revealed": 1200.565164673177,
+      "leaf_digests_revealed": 453.21081141782133,
+      "nn": 2048,
+      "nodes_in_tree": 4095,
+      "path_digest_slots_emitted": 2816,
+      "rows": 455,
+      "salts_drawn": 2048,
+      "salts_published_distinct": 240.70151668202902,
+      "salts_published_slots": 256,
+      "top_pair_missing_prob_log2": -255,
+      "total_nodes_revealed": 1654.7759760909983,
+      "unopened_leaf_digests_revealed": 212.5092947357923,
+      "unopened_leaves_total": 1807.298483317971
+    },
+    "H": {
+      "depth": 11,
+      "distinct_opened_leaves": 240.70151668202902,
+      "fraction_of_tree_revealed": 0.4040966974581192,
+      "hash_column_input_bytes": 3072,
+      "internal_nodes_revealed": 1200.565164673177,
+      "leaf_digests_revealed": 453.21081141782133,
+      "nn": 2048,
+      "nodes_in_tree": 4095,
+      "path_digest_slots_emitted": 2816,
+      "rows": 384,
+      "salts_drawn": 2048,
+      "salts_published_distinct": 240.70151668202902,
+      "salts_published_slots": 256,
+      "top_pair_missing_prob_log2": -255,
+      "total_nodes_revealed": 1654.7759760909983,
+      "unopened_leaf_digests_revealed": 212.5092947357923,
+      "unopened_leaves_total": 1807.298483317971
+    },
+    "In": {
+      "depth": 11,
+      "distinct_opened_leaves": 240.70151668202902,
+      "fraction_of_tree_revealed": 0.4040966974581192,
+      "hash_column_input_bytes": 56,
+      "internal_nodes_revealed": 1200.565164673177,
+      "leaf_digests_revealed": 453.21081141782133,
+      "nn": 2048,
+      "nodes_in_tree": 4095,
+      "path_digest_slots_emitted": 2816,
+      "rows": 7,
+      "salts_drawn": 2048,
+      "salts_published_distinct": 240.70151668202902,
+      "salts_published_slots": 256,
+      "top_pair_missing_prob_log2": -255,
+      "total_nodes_revealed": 1654.7759760909983,
+      "unopened_leaf_digests_revealed": 212.5092947357923,
+      "unopened_leaves_total": 1807.298483317971
+    },
+    "M": {
+      "depth": 12,
+      "distinct_opened_leaves": 248.19345604117007,
+      "fraction_of_tree_revealed": 0.2607958746740393,
+      "hash_column_input_bytes": 400,
+      "internal_nodes_revealed": 1653.7759760909983,
+      "leaf_digests_revealed": 481.40303336405805,
+      "nn": 4096,
+      "nodes_in_tree": 8191,
+      "path_digest_slots_emitted": 3072,
+      "rows": 50,
+      "salts_drawn": 4096,
+      "salts_published_distinct": 248.19345604117007,
+      "salts_published_slots": 256,
+      "top_pair_missing_prob_log2": -255,
+      "total_nodes_revealed": 2136.179009455056,
+      "unopened_leaf_digests_revealed": 233.20957732288798,
+      "unopened_leaves_total": 3847.80654395883
+    },
+    "Out": {
+      "depth": 11,
+      "distinct_opened_leaves": 240.70151668202902,
+      "fraction_of_tree_revealed": 0.4040966974581192,
+      "hash_column_input_bytes": 56,
+      "internal_nodes_revealed": 1200.565164673177,
+      "leaf_digests_revealed": 453.21081141782133,
+      "nn": 2048,
+      "nodes_in_tree": 4095,
+      "path_digest_slots_emitted": 2816,
+      "rows": 7,
+      "salts_drawn": 2048,
+      "salts_published_distinct": 240.70151668202902,
+      "salts_published_slots": 256,
+      "top_pair_missing_prob_log2": -255,
+      "total_nodes_revealed": 1654.7759760909983,
+      "unopened_leaf_digests_revealed": 212.5092947357923,
+      "unopened_leaves_total": 1807.298483317971
+    }
+  },
+  "residuals": {
+    "absorb_collision_log2": -233.06879214952778,
+    "domain_overlap_64B_absorb_log2": -241.41533104619847,
+    "generator_key_guess_coefficient": 3,
+    "generator_key_guess_log2_per_query": -254.41503749927884,
+    "leaf_input_collision_log2": -229.83019241015825,
+    "logup_collision_refusal_distinct_log2": -117.4,
+    "logup_collision_refusal_log2": -112.0,
+    "refusal_rate_liveness_log2": -62.0,
+    "salt_guess_coefficient": 12288,
+    "salt_guess_log2_per_query": -242.41503749927884,
+    "sampler_fp_bias_D9_log2": -77.7,
+    "sum_excluding_PRG_and_refusal_liveness": {
+      "q=2^128": {
+        "sum": 4.073515160116248e-24,
+        "sum_log2": -77.699999999919
+      },
+      "q=2^50": {
+        "sum": 4.073515160080128e-24,
+        "sum_log2": -77.69999999993179
+      },
+      "q=2^80": {
+        "sum": 4.073515160080128e-24,
+        "sum_log2": -77.69999999993179
+      }
+    }
+  },
+  "totals": {
+    "distinct_published_salts": 1210.9995227692862,
+    "encoded_columns_all_trees": 12288,
+    "fp_draws_per_proof": 327052,
+    "internal_nodes_all_trees": 12283,
+    "nodes_revealed_all_trees": 8755.28291381905,
+    "prover_oracle_queries_bound": 41546,
+    "prover_oracle_queries_bound_log2": 15.342421962250084,
+    "rng_bytes_per_proof": 5626048,
+    "rng_refills_per_proof": 687,
+    "roots_published": 5,
+    "unopened_leaves_all_trees": 11077.000477230715
+  }
+}
