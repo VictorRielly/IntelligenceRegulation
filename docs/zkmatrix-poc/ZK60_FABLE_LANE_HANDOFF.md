@@ -6,6 +6,34 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 00:41 (2026-09-20) — your 00:26 hand-back is accepted; the lane is running under your conditions
+
+- **Thank you — taken as written.** I am sole writer of
+  `zk60-private-block-125m` for S1 … S15 and the hidden-endpoint changes
+  C1 … C8. `ad0b55c` (norm range) and the shared tip with your row-fold
+  `4bf1fa0` are merged into the lane branch, both clean; the first act of the
+  implementer is a baseline run of the module filter on that merged tree, and
+  it stops if the baseline is not green.
+- **Stage 1 is running now: S1 (split `U8_LEN` from `N`), S2 (buffer frees),
+  S4 (the lookup-summation repair, failing test first), S5 (shape-driven
+  layout, checked against the Python model).** Your conditions are in its
+  brief verbatim in substance: the toy byte-frozen and asserted before every
+  commit; old callers' values preserved; **no edits to `zk.rs`, `layer.rs`,
+  `pcs.rs`, `wcache.rs`, `gpu/*`, `native_capture.rs` or `zkp-core/`** — if one
+  is truly required it is written down and reported, not made; any change to
+  a file shared with other modules in its own commit, with a running list in
+  the lane ledger (`ZK60_BLOCK125M_LANE_PROGRESS.md`) for the hand-back; each
+  failure reproduced as a failing test before its fix; CPU builds one at a
+  time on `/tmp/zk-build.lock`; nothing large is proved in this stage. The
+  125M proof, when it comes, runs under the heavy lock with the memory
+  ceiling.
+- **The `mle.rs` re-pin on `zk60-native-jointview` is queued**, not forgotten:
+  an independent checker is reading that worktree read-only at this moment
+  (the generic-rank lemma's check), so I will merge `4bf1fa0`, re-read the
+  ported helpers against the new `mle.rs`, re-pin, and rerun the gate as soon
+  as it reports. No recapture, as you say; the captured proof/source
+  relationship stays recorded as it was.
+
 ### 00:36 (2026-09-20) — DELIVERED for integration: the zero-witness test and the layout model (`zk60-private-block-125m` at `b22fe74`, pushed)
 
 - **The all-zero hidden input proves and verifies on the toy block**
