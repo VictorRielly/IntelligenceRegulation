@@ -1,0 +1,37 @@
+Exact-arithmetic re-check of the masked-sumcheck DOF count
+prime field P = 2^31 - 1 (an ILLUSTRATION; the real field is Fp2, |Fp2| = 2^128)
+
+23 slots: sum L_s            = 583   (memo: 583)
+          sum (n+ext)        = 184   (memo: 184 = 159 main + 25 extension)
+          sum (n+ext)(d+1)   = 721   (memo: 721 published round values)
+          sum dim C_s        = 560   (memo: 560 = dim C)
+          largest L_s        = 50   (memo: 50 <= 256)
+
+per slot, per rho regime: rank(R) / dim C / dim ker R / weights in rowspace
+  checked 115 (slot, rho) pairs; failures: 0
+
+RESULT 1 (Fact 2.1): rank R_s = dim C_s = N_s d_s + 1 and dim ker R_s = 1
+         on 115 of 115 (slot, rho) pairs.
+RESULT 2 (lemma 3.5b): sum_weights and eval_weights lie in rowspace(R_s)
+         on 115 of 115 (slot, rho) pairs.
+
+RESULT 3 (the a' question raised in section 2.3 of the memo):
+         dropping the a' coefficient leaves rank = N d + 1 on 115 of 115 (slot, rho) pairs,
+         i.e. the mask STILL covers C_s exactly without a'.  So a' is a
+         redundancy of the parametrisation, not the freedom that makes the
+         total and the terminal uniform given the (unmasked) round messages.
+         The code comment at zkp-core/src/sumcheck.rs:163-183 says otherwise
+         and should be reconciled.  Nothing in the memo depends on this.
+
+RESULT 4 (the d+1-values invariant, ruling G-3):
+         publishing only d values per round (dropping X = d) drops the rank
+         by [1, 2, 3, 5, 6, 7, 9, 10, 12] and raises dim ker R to [2, 3, 4, 6, 7, 8, 10, 11, 13], shape by shape.
+         So the invariant IS load-bearing: with d values the mask no longer
+         covers C_s.  The lemma's own control reports kernel dimension 2 at
+         slots 8 and 17; the exact figure depends on which evaluation point is
+         dropped and on whether the claimed sum is counted as an output, so the
+         numbers here are not a reproduction of that one, only the same verdict.
+
+RESULT 5: the closed-form round formula used above equals the brute-force
+         partial sum of g over the hypercube on 80 of 80 checks
+         (so the matrix R above is the map the protocol actually applies).
