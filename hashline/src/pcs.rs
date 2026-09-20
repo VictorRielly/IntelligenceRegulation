@@ -61,6 +61,19 @@ pub fn commit_zk_owned(params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &
     zkp_core::pcs::commit_zk_owned_with(&backend(), params, data, ntt, zk, rng)
 }
 
+/// [ZK60 D19, rulings T-1 and T-8] `commit_zk_owned` under a
+/// [`zkp_core::hashtag::HashTag`]. `commit_zk_owned` above keeps its own
+/// body.
+///
+/// The backend is offered exactly as before — and the core's tagged
+/// commitment declines to offer a KEYED column digest to it, because the
+/// device kernel is an unkeyed BLAKE3 with the IV hard-coded. That is a
+/// **temporary CPU fallback**, recorded as such in `zkp_core::pcs`; nothing
+/// under `gpu/` is touched and no keyed device path is claimed.
+pub fn commit_zk_owned_tagged(params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng, tag: &zkp_core::hashtag::HashTag) -> CommittedZk {
+    zkp_core::pcs::commit_zk_owned_with_tag(&backend(), params, data, ntt, zk, rng, tag)
+}
+
 /// [UPERF3-ZA] Commit a DEVICE-resident data buffer in ZK mode (the H
 /// commitment on the GPU path: the helper columns were computed on the
 /// device; `host_data` holds the host-known rows — the masks, the table
