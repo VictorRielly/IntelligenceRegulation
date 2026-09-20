@@ -27,7 +27,7 @@ back. Keep this file short enough to read in five minutes.
 | D15 | The custom line's "106 bits" is a per-opening figure; the projected whole 8B proof is about 94 bits. Every model-scale security statement quotes the whole-proof figure | **technical clarification**; the whole-proof target itself is a ruling still to be put to Victor | 2026-09-19 | Security owner (Fable), from `ZK60_FABLE_SECURITY_OBLIGATIONS.md` §5 and the D14 memo |
 | D16 | Before the private block's norm is widened toward real-model widths, its denominator and the two isqrt witnesses keep a direct byte-limb range pin sized to the new maximum, at most four limbs each, with an exact remainder window | **construction rule (precondition for widening; soundness)** | 2026-09-19 | Security owner (Fable), from the norm range lane |
 | D17 | Hiding endpoints beyond the tiny shape: the whole hidden plane is bound at every width (the batched multi-block seam, unconditional); the tiny private-IO path stays byte-frozen and new entry points are additive; a feed-forward-only private pass is a cost vehicle, never P1 | **construction rule (soundness) and a naming rule** | 2026-09-19 | Security owner (Fable), from the endpoints-at-scale draft and its independent check |
-| D18 | Who fixes the commitment to a hidden input: the prover at proof time (recommended for the first MVP; it is what is built), or a third party in advance (needs a sealed handle that is not a polynomial-commitment root, about +13% on the private pass, not built) | **proposed — Victor to rule** | put 2026-09-19 | Security owner (Fable), from the D8/D11 restatement and its check |
+| D18 | Who fixes the commitment to a hidden input: **the prover, at proof time, for the first MVP** (what is built). A third party sealing an input in advance is a **recorded todo and the expected end state** — it needs a sealed handle that is not a polynomial-commitment root and a hashing gadget inside the proof (about +13% on the private pass [COUNTED, untested]; not built) | **decided: A now, B as a todo** | 2026-09-19 | Victor (Telegram 22:15) |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -579,7 +579,7 @@ one [COUNTED; no gadget exists]; and the Fiat–Shamir transcript shares one
 untagged 64-byte hash domain with the Merkle and leaf hashes, which any
 argument that programs the oracle must face.
 
-## D18 — Who fixes the commitment to a hidden input (proposed 2026-09-19; Victor to rule)
+## D18 — Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)
 
 **In plain words.** A private proof refers to its hidden input through a
 sealed commitment. Either the **prover** seals it at the moment it proves, and
@@ -600,6 +600,21 @@ with a salted handle that is not a polynomial-commitment root (about +13% on
 the private pass; a hashing gadget that does not exist yet) — the same handle
 that chaining separately finished proofs would need. **This does not close D8
 or D11; it says which product they bind.**
+
+**Ruling (Victor, Telegram, 2026-09-19 22:15):** "I agree, let's proceed with
+A now and B will be added as a todo. Ultimately B seems the more likely
+approach to implement." So: **for the first MVP the prover seals the hidden
+input and output at proof time**, the seals appear for the first time inside
+the receipt, and the privacy game for every MVP artifact is the standard one in
+which the prover produces the commitments. **Sealing in advance by a third
+party is a recorded todo, and Victor expects it to be the approach the product
+ultimately uses** — so it is planned work, not an optional extra: a salted
+handle that is not a polynomial-commitment root, with a hashing gadget inside
+the proof showing the sealed plane is the one the proof used. Its cost
+(+5.5% public, +12.6% private) is counted with a factor-two band and rests on
+a gadget that does not exist; it must be scoped and measured before it is
+quoted. The same handle is what chaining separately finished proofs needs.
+**D8 and D11 remain open**, and they bind that future configuration.
 
 ## D13 — What the first MVP must prove (decided 2026-09-19)
 
