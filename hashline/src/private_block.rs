@@ -72,6 +72,8 @@ mod refusals;
 mod tamper;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod zero_witness_tests;
 
 use crate::field::Fp;
 use crate::merkle::Digest;
