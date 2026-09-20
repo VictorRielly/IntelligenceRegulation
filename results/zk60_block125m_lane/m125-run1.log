@@ -1,0 +1,9 @@
+Running scope as unit: run-r111289ba389646a3a2a3c7c8e87931b0.scope
+
+running 1 test
+test private_block::rulings_tests::private_block_125m_one_block ... 125M: witness built in 5.46 s, peak RSS 708 MiB
+125M ONE BLOCK: prove 26.89 s, verify from bytes 1.04 s, receipt 40782792 B, peak RSS 10674 MiB (10.42 GiB), witness build 5.46 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 225 filtered out; finished in 33.53s
+
