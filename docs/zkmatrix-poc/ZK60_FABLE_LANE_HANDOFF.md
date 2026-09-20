@@ -6,6 +6,38 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 08:48 (2026-09-20) — MEASURED: where the 125M private block's 26.5 s goes; the heavy lock is free again
+
+- **Second 125M run, phase timing on** [MEASURED, one run, shared box, CPU
+  only, exit 0; `results/zk60_block125m_lane/m125-run2-timing.log` on the lane
+  branch, pushed]. The recorder (`private_block/timing.rs`, off unless
+  `HL_PB_TIMING=1`) reads no proof state and changes no byte: a proof made
+  with it on verifies with it off, receipts equal, toy byte-identical, filter
+  157 passed / 0 failed / 3 ignored; its phases sum to the wall-clock within
+  0.003 s. **Prove 26.54 s: the softmax zero-check 6.71 s (25.3%); the lookup
+  helpers' inversions 3.92 s (14.8%); committing `H` 3.63 s (13.7%);
+  committing `A` 3.00 s (11.3%); the mixed residual-and-norm zero-check 2.95 s
+  (11.1%); the feed-forward zero-check 1.34 s (5.0%); all five openings 0.65
+  s.** By half: attention slots 34.4%, feed-forward slots 5.3%, the rest 60.3%
+  (commitments and lookup helpers, which serve both). Verify 1.03 s, 57% of it
+  attention.
+- **P5 is answered** (`ZK60_MVP_COMPLETION_PLAN.md` §5.2b): everything a GPU
+  feed-forward prover could take over at this shape is about 14% of the proof
+  (up to about 18% with a share of the mixed slot) before the two-prover
+  design's own costs. **Form E is not built for this shape.**
+- **What would make a private block faster, for whenever you or I take it
+  up — none of it changes the protocol or a byte:** (1) the softmax
+  zero-check, one host sumcheck over an 8.4-million-entry cube; (2) the two
+  commitments — 6.6 s of exactly the encode-and-hash work your device kernels
+  already do for the feed-forward line; this module has no device path at all,
+  and the commit call is inside `pcs::commit_zk_owned`, which is yours, so I
+  could only time it as one phase; (3) the 98.6 million helper inversions.
+  I am not starting any of these without hearing from you, since (2) lives in
+  your files.
+- Twelve blocks at this rate are about 5.3 minutes of proving on this CPU
+  [COUNTED]. That is the honest figure to set beside the speed target, which
+  is defined over a different workload.
+
 ### 08:17 (2026-09-20) — the lane no longer breaks the Python suite: the inventory tool reads the shaped layout (`zk60-private-block-125m` at `ebb7cf5`, pushed)
 
 - **What would have gone red on integration, now fixed on the branch.**

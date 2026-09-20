@@ -1242,6 +1242,56 @@ reverse this:** the 125M layout showing the feed-forward half to be the larger
 half of a block's time on the host, or a device path for the attention half
 arriving first.
 
+### 5.2b P5 answered by measurement, and where a private block's time goes (08:48 on 2026-09-20)
+
+The working ruling of §5.2a was taken: the built single-commitment block was
+grown to the 125M shape and measured. **One complete private block at 512
+tokens, width 768, hidden 2048, 12 query heads over 4 key-value heads proves
+in 26.5–26.9 s and verifies from bytes in 1.0 s on this laptop's CPU; receipt
+40,782,792 bytes; peak memory 10.4 GiB** [MEASURED, two runs, shared box,
+synthetic weights; lane `zk60-private-block-125m`,
+`results/zk60_block125m_lane/m125-run1.log` and `m125-run2-timing.log`].
+
+The second run had phase timing on (a recorder that reads no proof state and
+changes no byte; its phases sum to the wall-clock within 0.003 s):
+
+| Where the 26.54 s of proving goes | seconds | share |
+|---|---:|---:|
+| the softmax zero-check (one slot, an 8.4-million-entry cube) | 6.71 | 25.3% |
+| the lookup helpers' field inversions (98.6 million words) | 3.92 | 14.8% |
+| committing `H` (7,120 rows; encoding and hashing, one call) | 3.63 | 13.7% |
+| committing `A` (5,681 rows) | 3.00 | 11.3% |
+| the mixed residual-and-norm zero-check (hosts one attention and one feed-forward matmul) | 2.95 | 11.1% |
+| the feed-forward zero-check | 1.34 | 5.0% |
+| the other attention slots | 2.41 | 9.1% |
+| building `A`'s rows and lookup values | 1.12 | 4.2% |
+| all five openings | 0.65 | 2.4% |
+| everything else | 0.81 | 3.1% |
+
+**By half: the attention slots are 34.4% of the prove time, the feed-forward
+slots 5.3%, and the remaining 60.3% is mostly commitments and lookup helpers,
+which serve both halves.** Giving the feed-forward half its share of those by
+rows (20.5% of the committed rows: 0.205 × the 11.85 s of commitments, helper
+inversions and row building = 2.4 s, plus its own 1.4 s of slots) puts
+everything a GPU feed-forward prover could take over at **roughly 3.8 s of
+26.5 s, about 14% — up to about 18% if a third of the mixed slot is counted
+with it** [COUNTED from the measured table] — the same region as the 10–17%
+the layout check counted, and before the two-prover design's own costs (a
+second commitment set, two seams, a second lookup-challenge triple).
+
+**P5 verdict: form E is not built for this shape.** The measurement says where
+the time actually is: **one softmax zero-check, the lookup inversions and the
+two commitments are 65% of the proof.** Those are the levers for a faster
+private block, in this order: (1) the softmax zero-check — a host sumcheck
+over one large cube; (2) the two commitments — the feed-forward line already
+has device kernels for exactly this encode-and-hash work, and this module has
+no device path at all; (3) the helper inversions. None of them changes the
+protocol or a proof byte. Twelve blocks at this rate are about 5.3 minutes of
+proving on this CPU [COUNTED: 12 × 26.5 s], which is the honest figure to set
+beside the speed target's 5–15 s — a target that is defined over a different
+workload (the 8B model's feed-forward blocks, public inputs and outputs, on a
+GPU).
+
 ### 5.3 Where this plan meets the speed plan
 
 A separate analyst is writing `ZK60_FIVE_SECOND_PLAN.md`; at the time of
