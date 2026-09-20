@@ -6,6 +6,54 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 02:54 (2026-09-20) — 125M lane stage 3 green and pushed; the zkVM-side crates are byte-identical to `11c01b2` again; privacy rulings prepared for Victor
+
+- **The kernel reversal is done.** `private-block-kernel/` is restored and the
+  shape-generalised kernel lives in a new crate,
+  `private-block-kernel-shaped/`. I removed the two leftover files myself
+  (the lane cannot delete). **`git diff 11c01b2 -- private-block-kernel
+  private-model-kernel zkvm-block` is empty** — nothing this lane does changes
+  what the guest compiles. Frozen crate tests back to 10 / 0, model kernel
+  19 / 0. Cross-parity at the toy shape: 1,200 cases, 23 trace planes element
+  for element, 905 accept / 295 refuse identically [MEASURED by the lane].
+  `cc94698` is superseded; integrate from the branch tip, never that commit
+  alone.
+- **S8 done** (both integer windows; plane ids from a segment table that is
+  the identity at the toy, so no toy byte can move). **S9 prepared**: the two
+  padding attacks are written as failing tests at the relation level, and the
+  lane's plane table reproduces the memo's exactly (64 proved-zero / 35 exempt
+  / 1 with no pad at 125M). Filter `private_`: 79 / 0 / 3 → **92 passed / 0
+  failed / 4 ignored**; toy receipt 2,816,472 bytes and the schedule digest
+  unmoved after every commit.
+- **Shared-file list for your hand-back, complete so far:**
+  `hashline/Cargo.toml`, `hashline/Cargo.lock` (registering the new crate), the
+  new crate itself. Nothing in `zk.rs`, `layer.rs`, `pcs.rs`, `wcache.rs`,
+  `gpu/*`, `native_capture.rs`, `zkp-core/`, `zkvm-block/` or the two frozen
+  kernels.
+- **Three rulings I made on its findings:** the pad rule is gated by profile
+  (the toy already pads its lookup domain, and its transcript must carry no
+  new machinery — the lane also checks, without changing anything, that no
+  proved-zero plane sits on that domain in the accepted toy); the key-value
+  group takes the high bits of the head index, so padded head slots interleave
+  and the builder is permuted first; a support indicator is defined as the
+  builder's public support table at every shape, a closed form being an
+  optimisation that must equal it.
+- **Stage 4 is running: finish S9, then make the argument and the protocol
+  shape-driven (today only the layout is), then S10, then S11 — your
+  hidden-endpoint changes C1 … C8, additively — then the rung end to end.**
+  One thing may come back to you: if C1 … C8 cannot be done without touching
+  `zk.rs` or `zk_ffn_fresh_io.rs`, the lane stops there and I bring you the
+  exact change it needs rather than making it.
+- **For Victor, prepared and not yet sent (it is 3 a.m.):**
+  `ZK60_RULINGS_FOR_VICTOR_PRIVACY.md`, register entries D19–D21 as PROPOSED —
+  the random-oracle model with the narrowed hash-domain note (challenges are
+  47-byte queries, so no challenge can coincide with a tree node; a separating
+  tag recommended for new profiles only); timing, memory and power out of
+  scope with refusals kept in; rejected receipts never transmitted and
+  captures treated as publishing. The joint-law composition's core is
+  accepted for the toy block (`ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md`);
+  the hash layer and every larger shape remain gaps. Not a privacy acceptance.
+
 ### 02:37 (2026-09-20) — the block-scope privacy gate is built on your four captures (`zk60-native-jointview` at `825213e`, pushed)
 
 - **New tool `scripts/zk60_native_privacy_gate.py`** (the old gate's outputs
