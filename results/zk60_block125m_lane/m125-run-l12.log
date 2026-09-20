@@ -1,0 +1,46 @@
+Running scope as unit: run-r5b21e36844f445f9a7863aec92fb05b6.scope
+
+running 1 test
+test private_block::run_tests::private_run_125m_twelve_blocks ... 125M RUN L=12: segments go to /home/victor/zk60-artifacts/m125-run-l12; MALLOC_MMAP_THRESHOLD_=131072 (pinned: every large buffer is mapped and returned to the system on free)
+125M RUN L=12: chain built (12 witnesses, each dropped) in 51.33 s, high-water mark so far 0.70 GiB
+125M RUN L=12: block 0: stage 31.14 s, segment 40033336 B (the counted length), high-water mark 10.14 GiB (+9.440 GiB, +1341.29%)  HWM-RISE
+125M RUN L=12: block 1: stage 30.71 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.002 GiB, +0.02%)
+125M RUN L=12: block 2: stage 30.71 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 3: stage 30.64 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 4: stage 30.90 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 5: stage 30.81 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.001 GiB, +0.01%)
+125M RUN L=12: block 6: stage 30.54 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 7: stage 31.14 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 8: stage 30.70 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 9: stage 31.55 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 10: stage 30.72 s, segment 40301624 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 11: stage 31.06 s, segment 41051160 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: segment-000.bin 40033336 B sha256 b5d236d4b69613aa6f2b61fed81ef687ab352e0419c87234b53f04e24a6c2145
+125M RUN L=12: segment-001.bin 40301624 B sha256 d784a607ec9857b90f542b77c2236f327de4ae27c6082dddd7aeefa3a3afc7d4
+125M RUN L=12: segment-002.bin 40301624 B sha256 b04b53f4841ba69870487bf4904a19b8a94b13385d2379245f3ced73f360a968
+125M RUN L=12: segment-003.bin 40301624 B sha256 40da8e88f81c8faf2511027c412a975af87771859ac7e2c2203d3722f65ebe65
+125M RUN L=12: segment-004.bin 40301624 B sha256 45a3ea9181d07d5ff69ac70d58821ea00a7cf50580e0472927e636924579865c
+125M RUN L=12: segment-005.bin 40301624 B sha256 309a6be474d5b3c80874a5a545ec68215f365fc7f83ee50c3e1435532e9913e5
+125M RUN L=12: segment-006.bin 40301624 B sha256 4616149148b611d7a17587369084a4df1900774713285fbc3ba089dff50529be
+125M RUN L=12: segment-007.bin 40301624 B sha256 d187d36c0ed7b20360b17623bd5f16c0fc89dbf55267ba7460c83bd4731f51cf
+125M RUN L=12: segment-008.bin 40301624 B sha256 4f23f5de4343469552f8146696e16d5c07ef351a6050818e7773b739da437c67
+125M RUN L=12: segment-009.bin 40301624 B sha256 199f6c43e34710372efccb3309d66ea7e2f57b92ce2c831b538511e4448ac8be
+125M RUN L=12: segment-010.bin 40301624 B sha256 1f87bf504a6e269d309ff256aba6925f7a68f10d00e483110180a8bdf95c48d8
+125M RUN L=12: segment-011.bin 41051160 B sha256 abe663b76b0c1733e264427769b6a02ef26f946b791a5cdd67eda2c7d38e61b3
+125M RUN L=12: block 0: high-water mark 10387.1 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 1: high-water mark 10389.4 MiB (+2.3 MiB, +0.02%)
+125M RUN L=12: block 2: high-water mark 10389.4 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 3: high-water mark 10389.4 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 4: high-water mark 10389.4 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 5: high-water mark 10390.2 MiB (+0.8 MiB, +0.01%)
+125M RUN L=12: block 6: high-water mark 10390.2 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 7: high-water mark 10390.2 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 8: high-water mark 10390.2 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 9: high-water mark 10390.2 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 10: high-water mark 10390.2 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 11: high-water mark 10390.2 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12 RESULT: prove 370.61 s ([31.14, 30.71, 30.71, 30.64, 30.9, 30.81, 30.54, 31.14, 30.7, 31.55, 30.72, 31.06] per block), verify by streaming 13.71 s, receipt 484100736 B in 12 files (counted 484,100,736), peak RSS 10.15 GiB, MALLOC_MMAP_THRESHOLD_=131072 (pinned: every large buffer is mapped and returned to the system on free) — a CORRECTNESS result, not a privacy one
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 256 filtered out; finished in 436.09s
+
