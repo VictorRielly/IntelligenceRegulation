@@ -1134,3 +1134,145 @@ fn a_shape_wider_than_the_ntt_tables_is_refused_by_name() {
     let err = super::protocol::fits_the_ntt_tables(&Shape::m125()).expect_err("125M must be refused");
     assert!(err.contains("exceeds the module's NTT tables"), "{err}");
 }
+
+// ---------------------------------------------- the hash-layer code conditions
+
+/// **CODE CONDITION C-H4 and C-H4'** of the hash-layer disposition, as
+/// assertions that cost no proof byte.
+///
+/// C-H4: a committed column is hashed as `8 * rows` bytes, so no commitment
+/// on the block path may have 5 or 8 rows (40 and 64 bytes, the two lengths
+/// the randomness refill and an internal Merkle node use). `Layout::for_shape`
+/// checks it at construction for EVERY shape; here the four counts are read
+/// off all three shapes, and a hand-made shape with a forbidden count is
+/// shown to be refused by name.
+///
+/// C-H4': no domain label of this module may be 28 or 35 bytes long. Rather
+/// than list the labels — a list that goes stale the day one is added — this
+/// reads THE MODULE'S OWN SOURCE and checks every byte-string literal in the
+/// six non-test files of the block path, which is a superset of the labels.
+#[test]
+fn no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input() {
+    for sh in [Shape::toy(), Shape::rung(), Shape::m125()] {
+        let lay = Layout::for_shape(&sh).expect("the shape is well formed");
+        for (what, r) in [("A", lay.a_rows), ("H", lay.h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)] {
+            assert!(r != 5 && r != 8, "{}: the {what} commitment has {r} rows (C-H4)", sh.name);
+        }
+    }
+    // the refusal itself, by name: 8 rows is the 64-byte node format
+    let err = super::layout::no_commitment_has_a_node_shaped_column(&[("A", 455), ("probe", 8)]).expect_err("8 rows must be refused");
+    assert!(err.contains("C-H4") && err.contains("64 bytes"), "{err}");
+    assert!(super::layout::no_commitment_has_a_node_shaped_column(&[("probe", 5)]).is_err(), "5 rows is the 40-byte refill format");
+
+    // C-H4': every byte-string literal of the block path's own source
+    let sources: [(&str, &str); 7] = [
+        ("argument.rs", include_str!("argument.rs")),
+        ("layout.rs", include_str!("layout.rs")),
+        ("protocol.rs", include_str!("protocol.rs")),
+        ("wire.rs", include_str!("wire.rs")),
+        ("witness.rs", include_str!("witness.rs")),
+        ("shape.rs", include_str!("shape.rs")),
+        ("private_block.rs", include_str!("../private_block.rs")),
+    ];
+    let mut seen = 0usize;
+    for (name, src) in sources {
+        let b = src.as_bytes();
+        for i in 0..b.len().saturating_sub(1) {
+            if b[i] != b'b' || b[i + 1] != b'"' || (i > 0 && (b[i - 1].is_ascii_alphanumeric() || b[i - 1] == b'_')) {
+                continue;
+            }
+            let (mut j, mut len, mut esc) = (i + 2, 0usize, false);
+            while j < b.len() && (esc || b[j] != b'"') {
+                esc = !esc && b[j] == b'\\';
+                if !esc {
+                    len += 1;
+                }
+                j += 1;
+            }
+            seen += 1;
+            assert!(len != 28 && len != 35, "{name}: a {len}-byte literal is a forbidden domain-label length (C-H4')");
+        }
+    }
+    assert!(seen >= 20, "the source scan found only {seen} byte-string literals; it has stopped working");
+}
+
+/// **CODE CONDITION C-H1** of the hash-layer disposition: no Merkle leaf the
+/// block path creates is ever built without a salt.
+///
+/// The block path creates leaves in exactly two calls — `pcs::commit_zk_owned`
+/// (the `A`, `H` and two endpoint commitments) and `zk::mask_commit` (the `M`
+/// commitment) — and both salt every leaf; that half of the condition lives
+/// in `zkp-core`, which this lane does not touch. What is checkable HERE is
+/// the published half: every opened column of an honest receipt carries a
+/// NONZERO 32-byte salt, the salt is a function of the column index (one
+/// leaf, one salt), and two different columns of one commitment never share
+/// one. A leaf built without a salt breaks all three. All 1,280 opened
+/// columns of a toy receipt are checked (256 each for `A`, `H`, `M` and the
+/// two endpoints).
+///
+/// **FINDING C2-F1, recorded by this test.** The opened-column indices are
+/// drawn WITH REPLACEMENT: an honest toy receipt publishes 1,280 columns at
+/// only about 1,225 distinct indices — the birthday count for 256 draws from
+/// 2,048 (4,096 for `M`). The repeats carry identical salts and identical
+/// paths, which is the consistency this test asserts; nothing here says
+/// whether the soundness analysis counts drawn or distinct columns.
+#[test]
+fn every_opened_column_of_an_honest_receipt_carries_its_own_salt() {
+    let (blk, input) = BlockPublic::synthetic_fixture();
+    let spec = IoSpec::new([9u8; 32], 0, 0).expect("the approved endpoint scales");
+    let out = compute_output(&blk, &input).expect("the honest block output");
+    let (expected, owners) = prepare_endpoints(spec, &input, &out).expect("endpoint owners");
+    let receipt = prove(&blk, &input, &expected, owners).expect("the honest toy proof");
+    verify(&blk, &expected, &receipt).expect("it verifies");
+    let mut per_commitment = Vec::new();
+    let mut total = 0usize;
+    let mut distinct = 0usize;
+    let mut check = |what: &str, cols: &[(usize, Vec<crate::field::Fp>, [u8; 32], Vec<crate::merkle::Digest>)]| {
+        per_commitment.push(cols.len());
+        total += cols.len();
+        let mut by_index: Vec<(usize, [u8; 32])> = cols.iter().map(|(j, _, s, _)| (*j, *s)).collect();
+        by_index.sort_unstable();
+        by_index.dedup();
+        // one leaf, one salt: after deduplicating (index, salt) pairs no index is left twice
+        let mut idx: Vec<usize> = by_index.iter().map(|(j, _)| *j).collect();
+        let before = idx.len();
+        idx.dedup();
+        assert_eq!(idx.len(), before, "{what}: one column index was published with two different salts (C-H1)");
+        let mut salts: Vec<[u8; 32]> = by_index.iter().map(|(_, s)| *s).collect();
+        assert!(salts.iter().all(|s| *s != [0u8; 32]), "{what}: an opened column was published with a zero salt (C-H1)");
+        salts.sort_unstable();
+        let n = salts.len();
+        salts.dedup();
+        assert_eq!(salts.len(), n, "{what}: two different columns share a salt (C-H1)");
+        distinct += n;
+    };
+    check("M", &receipt.mask_open.columns);
+    for (what, o) in [("A", &receipt.a_open), ("H", &receipt.h_open), ("input", &receipt.io_open[0]), ("output", &receipt.io_open[1])] {
+        check(what, &o.columns);
+    }
+    assert_eq!(per_commitment, vec![256; 5], "five commitments, each opening Q = 256 columns");
+    assert_eq!(total, 1280);
+    assert!(distinct < total, "finding C2-F1: the column draws are with replacement, so repeats are expected");
+}
+
+/// **CODE CONDITION C-H8**: the pad count is at least — and at these
+/// profiles' parameters exactly — the number of opened columns. Both are
+/// `sh.opened_cols`, through `ZkOpts::standard`, so they cannot drift apart:
+/// `the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_columns`
+/// asserts the equality at all three shapes. This test adds the INEQUALITY as
+/// the condition states it, and the consequence the wire depends on: a hiding
+/// clear vector is `n + Q` words long, so the pad count is what the codec
+/// transports.
+#[test]
+fn the_pad_count_is_at_least_the_number_of_opened_columns() {
+    for sh in [Shape::toy(), Shape::rung(), Shape::m125()] {
+        let p = super::protocol::pcs_params_at(&sh);
+        let q_pad = crate::pcs::ZkOpts::standard(&p).q_pad;
+        assert!(q_pad >= p.num_col_checks, "{}: pad count {q_pad} < opened columns {} (C-H8)", sh.name, p.num_col_checks);
+        assert_eq!(q_pad, sh.opened_cols, "{}: at this profile's parameters the two are equal", sh.name);
+        let r = sh.receipt_bytes();
+        let lay = Layout::for_shape(&sh).expect("the shape is well formed");
+        let vec_words = (1usize << sh.log_cols) + q_pad;
+        assert_eq!(r.a_opening, (sh.a_groups() + 1) * vec_words * 16 + sh.opened_cols * (8 + lay.a_rows * 8 + 32 + ((1usize << sh.log_cols) * sh.inv_rate).trailing_zeros() as usize * 32), "{}: the A opening's clear vectors are n + Q words", sh.name);
+    }
+}

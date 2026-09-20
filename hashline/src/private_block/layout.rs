@@ -919,6 +919,23 @@ pub(crate) fn rows_of(log: usize) -> usize {
     (1usize << log).div_ceil(N)
 }
 
+/// **CODE CONDITION C-H4** of the hash-layer disposition, pinned here because
+/// this is the one place every commitment of the block path declares its row
+/// count. A committed column is hashed as `8 * rows` bytes, and the two hash
+/// inputs that must never be ambiguous with a column are the 40-byte
+/// randomness-refill block and the 64-byte internal Merkle node — so no
+/// commitment may have 5 or 8 rows. The condition is checked for EVERY shape
+/// at construction, before a byte is committed, and it changes no proof byte:
+/// the toy's counts are 455, 384, 50 and 7.
+pub(crate) fn no_commitment_has_a_node_shaped_column(rows: &[(&str, usize)]) -> Result<(), String> {
+    for (what, r) in rows {
+        if *r == 5 || *r == 8 {
+            return Err(format!("private block: the {what} commitment has {r} rows, whose column hashes to {} bytes (C-H4)", 8 * r));
+        }
+    }
+    Ok(())
+}
+
 pub(crate) struct Layout {
     /// element offset of every A plane (row aligned)
     pub a_off: Vec<usize>,
@@ -1023,6 +1040,7 @@ impl Layout {
         let h_mask_base = h_data_rows;
         let h_prox = h_mask_base + 2 * h_prefix[N_SLOTS];
         let h_rows = h_prox + 2;
+        no_commitment_has_a_node_shaped_column(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
         Ok(Layout {
             a_off,
             a_data_rows,
