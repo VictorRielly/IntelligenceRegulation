@@ -1,0 +1,127 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0507]: cannot move out of `s`, a captured variable in an `FnMut` closure
+    --> src/private_block/parity.rs:567:79
+     |
+ 559 |     let s = rung_parity_shape();
+     |         -   ------------------- move occurs because `s` has type `shape::Shape`, which does not implement the `Copy` trait
+     |         |
+     |         captured outer variable
+...
+ 567 |         (0..s.q_heads).map(|h| (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| t * s.d_pad + s.head_slot(h) * s.head_dim +...
+     |                                                       ---                     ^^^^^^^^               - variable moved due to use in closure
+     |                                                       |                       |
+     |                                                       |                       `s` is moved here
+     |                                                       captured by this `FnMut` closure
+     |
+help: `Fn` and `FnMut` closures require captured values to be able to be consumed multiple times, but `FnOnce` closures may consume them only once
+    --> /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs:1537:12
+     |
+1537 |         F: FnMut(Self::Item) -> U,
+     |            ^^^^^^^^^^^^^^^^^^^^^^
+help: consider cloning the value before moving it into the closure
+     |
+ 567 ~         (0..s.q_heads).map(|h| (0..s.tokens).flat_map(|t| (0..s.head_dim).map({
+ 568 +         let value = s.clone();
+ 569 ~         move |i| t * s.d_pad + value.head_slot(h) * s.head_dim + i
+ 570 ~         })).collect()).collect();
+     |
+
+error[E0507]: cannot move out of `s`, a captured variable in an `FnMut` closure
+   --> src/private_block/parity.rs:567:55
+    |
+559 |     let s = rung_parity_shape();
+    |         -   ------------------- move occurs because `s` has type `shape::Shape`, which does not implement the `Copy` trait
+    |         |
+    |         captured outer variable
+...
+567 |         (0..s.q_heads).map(|h| (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| t * s.d_pad + s.head_slot(h) * s.head_dim + ...
+    |                            ---                        ^^^ `s` is moved here                          - variable moved due to use in closure
+    |                            |
+    |                            captured by this `FnMut` closure
+    |
+help: `Fn` and `FnMut` closures require captured values to be able to be consumed multiple times, but `FnOnce` closures may consume them only once
+   --> /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/iter/traits/iterator.rs:834:12
+    |
+834 |         F: FnMut(Self::Item) -> B,
+    |            ^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0505]: cannot move out of `s` because it is borrowed
+   --> src/private_block/parity.rs:567:28
+    |
+564 | ...ows = |h: usize| &ssup[h * s.tokens * s.tokens..(h + 1) * s.tokens * s.tokens];
+    |          ----------           -------- borrow occurs due to use in closure
+    |          |
+    |          borrow of `s.tokens` occurs here
+...
+567 | ...q_heads).map(|h| (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| t * s.d_pad + s.head_slot(h) * s.head_dim + i)).collect...
+    |                 ^^^ move out of `s` occurs here                                           - move occurs due to use in closure
+...
+587 | ...t live = (0..s.q_heads).all(|h| head_rows(h).iter().any(|i| w.planes[A_S8][*i] != 0) && head_out[h].iter().any(|i| w.planes[A_O8...
+    |                                    --------- borrow later captured here by closure
+
+error[E0382]: use of moved value: `s`
+   --> src/private_block/parity.rs:598:21
+    |
+559 |     let s = rung_parity_shape();
+    |         - move occurs because `s` has type `shape::Shape`, which does not implement the `Copy` trait
+...
+567 |         (0..s.q_heads).map(|h| (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| t * s.d_pad + s.head_slot(h) * s.head_dim + ...
+    |                            --- value moved into closure here                                         - variable moved due to use in closure
+...
+598 |         for h in 0..s.q_heads {
+    |                     ^^^^^^^^^ value used here after move
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+Some errors have detailed explanations: E0382, E0505, E0507.
+For more information about an error, try `rustc --explain E0382`.
+warning: `hashline` (lib test) generated 6 warnings
+error: could not compile `hashline` (lib test) due to 4 previous errors; 6 warnings emitted

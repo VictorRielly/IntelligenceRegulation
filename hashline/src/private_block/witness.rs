@@ -132,6 +132,7 @@ pub(super) struct Geom<'a> {
     t_pad: usize,
     d_pad: usize,
     f_pad: usize,
+    h_pad: usize,
     kvw: usize,
     group: usize,
     /// byte-limb counts of the two integer windows
@@ -154,6 +155,7 @@ impl<'a> Geom<'a> {
             t_pad: s.t_pad,
             d_pad: s.d_pad,
             f_pad: s.f_pad,
+            h_pad: s.h_pad,
             kvw: s.kv_heads * s.head_dim,
             group: s.q_heads / s.kv_heads,
             ln: s.limbs_norm(),
@@ -165,9 +167,22 @@ impl<'a> Geom<'a> {
     pub(super) fn len(&self, dom: Dom) -> usize {
         self.s.size(dom)
     }
-    /// `(t, i)` of `Dom::D`, and `(t, h, i')` of `Dom::Q` (the same flat index)
+    /// `(t, i)` of `Dom::D`, and `(t, slot, i')` of `Dom::Q` (the same flat
+    /// index, read with the head axis PERMUTED — see [`Geom::slot`])
     fn dix(&self, t: usize, i: usize) -> usize {
         t * self.d_pad + i
+    }
+    /// **The head permutation (correction C-1).** The padded head slot logical
+    /// query head `h` occupies: the key-value group owns a contiguous block of
+    /// slots and each group's padding falls at the END of its own block, so
+    /// the padded slots interleave (`{3, 7}` at the rung) instead of forming a
+    /// tail. At the toy this is the identity and no byte moves.
+    pub(super) fn slot(&self, h: usize) -> usize {
+        self.s.head_slot(h)
+    }
+    /// `(t, slot, i')` of `Dom::Q`
+    fn qix(&self, t: usize, sl: usize, i: usize) -> usize {
+        t * self.d_pad + sl * self.dh + i
     }
     /// `(t, kv, i')` of `Dom::Kv`
     fn kvix(&self, t: usize, kv: usize, i: usize) -> usize {
@@ -196,10 +211,24 @@ impl<'a> Geom<'a> {
     pub(super) fn support(&self, dom: Dom) -> Vec<usize> {
         let mut v = Vec::with_capacity(self.s.true_size(dom));
         match dom {
-            Dom::D | Dom::Q => {
+            Dom::D => {
                 for t in 0..self.t {
                     for i in 0..self.d {
                         v.push(self.dix(t, i));
+                    }
+                }
+            }
+            // `Dom::Q` shares `Dom::D`'s flat index and is NOT the same
+            // support (§3.7a note 1): `D` pads the top of each token's row,
+            // `Q` pads one head slot per key-value group. The order is
+            // `(t, h, i')` with `h` the LOGICAL head, which is the order the
+            // reference kernel lays its `q8` / `o8` buffers out in.
+            Dom::Q => {
+                for t in 0..self.t {
+                    for h in 0..self.hq {
+                        for i in 0..self.dh {
+                            v.push(self.qix(t, self.slot(h), i));
+                        }
                     }
                 }
             }
@@ -216,7 +245,7 @@ impl<'a> Geom<'a> {
                 for h in 0..self.hq {
                     for t in 0..self.t {
                         for j in 0..self.t {
-                            v.push(self.six(h, t, j));
+                            v.push(self.six(self.slot(h), t, j));
                         }
                     }
                 }
@@ -232,7 +261,7 @@ impl<'a> Geom<'a> {
             Dom::Ht => {
                 for h in 0..self.hq {
                     for t in 0..self.t {
-                        v.push(self.htix(h, t));
+                        v.push(self.htix(self.slot(h), t));
                     }
                 }
             }
@@ -415,6 +444,7 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     }
     let (f_e, wrho_s) = (shape.f_e, shape.wrho_s);
     let sup_d = g.support(Dom::D);
+    let sup_q = g.support(Dom::Q);
     let sup_kv = g.support(Dom::Kv);
     let sup_s = g.support(Dom::S);
     let sup_f = g.support(Dom::F);
@@ -448,21 +478,29 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     // ---- QKV, RoPE ----
     let y = pl[ap(A_Y)].clone();
     let (dl, kvl, sl) = (g.len(Dom::D), g.len(Dom::Kv), g.len(Dom::S));
-    let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d, g.d, g.d_pad, dl), &sup_d, SH_QKV, -127, 127, "Q")?;
-    let (k8, rkl) = quantize(&matmul(&g, &y, g.d_pad, &public.wk, g.d, g.kvw, g.kvw, kvl), &sup_kv, SH_QKV, -127, 127, "K")?;
-    let (v8, rvl) = quantize(&matmul(&g, &y, g.d_pad, &public.wv, g.d, g.kvw, g.kvw, kvl), &sup_kv, SH_QKV, -127, 127, "V")?;
-    let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.hq, g.d_pad, dl, &public.rope_cos, &public.rope_sin), &sup_d, SH_ROPE, -127, 127, "QR")?;
+    // S9: the QKV weights are the PADDED, head-permuted matrices (ruling
+    // P-2), so every matmul folds over the padded inner index and `Wq` writes
+    // the `Dom::Q` axis in SLOT order. The padded rows and columns are zero
+    // by construction check, so the accumulation is unchanged on the support.
+    let (q8, rql) = quantize(&matmul(&g, &y, g.d_pad, &public.wq, g.d_pad, g.d_pad, g.d_pad, dl), &sup_q, SH_QKV, -127, 127, "Q")?;
+    let (k8, rkl) = quantize(&matmul(&g, &y, g.d_pad, &public.wk, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, SH_QKV, -127, 127, "K")?;
+    let (v8, rvl) = quantize(&matmul(&g, &y, g.d_pad, &public.wv, g.d_pad, g.kvw, g.kvw, kvl), &sup_kv, SH_QKV, -127, 127, "V")?;
+    // the rotation runs over every padded head SLOT; a padded slot holds
+    // zeros, so it rotates to zero and the pad stays zero
+    let (qr8, rqrl) = quantize(&rotate(&g, &q8, g.h_pad, g.d_pad, dl, &public.rope_cos, &public.rope_sin), &sup_q, SH_ROPE, -127, 127, "QR")?;
     // S7: the key rotation runs over the KEY-VALUE heads, not over one head
     let (kr8, rkrl) = quantize(&rotate(&g, &k8, g.hkv, g.kvw, kvl, &public.rope_cos, &public.rope_sin), &sup_kv, SH_ROPE, -127, 127, "KR")?;
 
     // ---- scores over ALL (h, t, j): an out-of-range masked score still refuses ----
     let mut sacc = vec![0i64; sl];
     for h in 0..g.hq {
-        // S7: query head h reads key-value head h / group
+        // S9: the logical head sits at its padded SLOT, and its key-value
+        // head is the slot's HIGH bits (correction C-1)
+        let hs = g.slot(h);
         let kv = h / g.group;
         for t in 0..g.t {
             for j in 0..g.t {
-                sacc[g.six(h, t, j)] = (0..g.dh).map(|i| qr8[g.dix(t, h * g.dh + i)] * kr8[g.kvix(j, kv, i)]).sum();
+                sacc[g.six(hs, t, j)] = (0..g.dh).map(|i| qr8[g.qix(t, hs, i)] * kr8[g.kvix(j, kv, i)]).sum();
             }
         }
     }
@@ -472,9 +510,10 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     let mut oacc = vec![0i64; dl];
     for h in 0..g.hq {
         // S7: the value mixing reads the same key-value head as the scores
+        let hs = g.slot(h);
         let kv = h / g.group;
         for t in 0..g.t {
-            let masked = |j: usize| if j <= t { s8[g.six(h, t, j)] } else { MASK_SCORE };
+            let masked = |j: usize| if j <= t { s8[g.six(hs, t, j)] } else { MASK_SCORE };
             let mut best = i64::MIN;
             let mut arg = 0usize;
             for j in 0..g.t {
@@ -486,25 +525,25 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
             if arg > t {
                 return Err("fixed oracle relation failure: causal maximum attainment".into());
             }
-            pl[ap(A_MX)][g.htix(h, t)] = best;
-            pl[ap(A_ZSEL)][g.six(h, t, arg)] = 1;
+            pl[ap(A_MX)][g.htix(hs, t)] = best;
+            pl[ap(A_ZSEL)][g.six(hs, t, arg)] = 1;
             let mut total = 0i64;
             for j in 0..g.t {
                 let delta = best - masked(j);
                 if !(0..256).contains(&delta) {
                     return Err(range("exp difference"));
                 }
-                pl[ap(A_E)][g.six(h, t, j)] = public.exp[delta as usize];
+                pl[ap(A_E)][g.six(hs, t, j)] = public.exp[delta as usize];
                 if j <= t {
-                    total += pl[ap(A_E)][g.six(h, t, j)];
+                    total += pl[ap(A_E)][g.six(hs, t, j)];
                 }
             }
             if !((1i64 << f_e)..=((g.t as i64) << f_e)).contains(&total) {
                 return Err("fixed oracle relation failure: softmax denominator".into());
             }
-            pl[ap(A_SUM)][g.htix(h, t)] = total;
+            pl[ap(A_SUM)][g.htix(hs, t)] = total;
             for j in 0..g.t {
-                let idx = g.six(h, t, j);
+                let idx = g.six(hs, t, j);
                 let (q, rho) = if j <= t {
                     let num = pl[ap(A_E)][idx] << F_P;
                     (num / total, num % total)
@@ -527,12 +566,15 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
             }
             for i in 0..g.dh {
                 // (t, h, i') order, the Q-domain layout of o8
-                oacc[g.dix(t, h * g.dh + i)] = (0..=t).map(|j| pl[ap(A_P)][g.six(h, t, j)] * v8[g.kvix(j, kv, i)]).sum();
+                oacc[g.qix(t, hs, i)] = (0..=t).map(|j| pl[ap(A_P)][g.six(hs, t, j)] * v8[g.kvix(j, kv, i)]).sum();
             }
         }
     }
-    let (o8, ro) = quantize(&oacc, &sup_d, SH_O, -127, 127, "O")?;
-    let (ao, ral) = quantize(&matmul(&g, &o8, g.d_pad, &public.wo, g.d, g.d, g.d_pad, dl), &sup_d, SH_AO, -32768, 32767, "AO")?;
+    let (o8, ro) = quantize(&oacc, &sup_q, SH_O, -127, 127, "O")?;
+    // `Wo` reads the head-permuted `Dom::Q` axis and writes `Dom::D`: both
+    // are the PADDED width, with the padded head columns and the padded
+    // output rows zero (ruling P-2, checked at construction)
+    let (ao, ral) = quantize(&matmul(&g, &o8, g.d_pad, &public.wo, g.d_pad, g.d_pad, g.d_pad, dl), &sup_d, SH_AO, -32768, 32767, "AO")?;
 
     // ---- residual 1 (all three shifts are 0: xres1 = x + ao exactly) ----
     for &idx in &sup_d {
@@ -547,6 +589,10 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
         let l = limbs(ao[idx] + 32768, 2);
         pl[ap(A_AL0)][idx] = l[0];
         pl[ap(A_AL1)][idx] = l[1];
+    }
+    // `A_RO0` / `A_RO1` are `Dom::Q` planes, so they are written on the
+    // head-permuted support, not on `Dom::D`'s (at the toy the two coincide)
+    for &idx in &sup_q {
         let l = limbs(ro[idx], 2);
         pl[ap(A_RO0)][idx] = l[0];
         pl[ap(A_RO1)][idx] = l[1];
@@ -588,10 +634,10 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     // R1: the gate. Its class is the kernel's `I8`, which INCLUDES -128, not
     // the attention subset: the activation table has 256 rows, so `sym()`
     // would prove the wrong window (T2 section A.2).
-    let (g8, rgl) = quantize(&matmul_in_out(&g, &nm, g.d_pad, &ff.wg_t, g.d, g.f, g.f_pad, fl), &sup_f, SH_G, -128, 127, "FFN gate")?;
+    let (g8, rgl) = quantize(&matmul_in_out(&g, &nm, g.d_pad, &ff.wg_t, g.d_pad, g.f_pad, g.f_pad, fl), &sup_f, SH_G, -128, 127, "FFN gate")?;
     // R3: up. SH_U = 0, so `requant` is the identity: no remainder plane, no
     // limbs for it, only the int16 class (T2 section A.4).
-    let u16 = matmul_in_out(&g, &nm, g.d_pad, &ff.wu_t, g.d, g.f, g.f_pad, fl);
+    let u16 = matmul_in_out(&g, &nm, g.d_pad, &ff.wu_t, g.d_pad, g.f_pad, g.f_pad, fl);
     if sup_f.iter().any(|k| !(-32768..=32767).contains(&u16[*k])) {
         return Err(range("FFN up"));
     }
@@ -606,7 +652,7 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     let hacc: Vec<i64> = a16.iter().zip(u16.iter()).map(|(a, u)| a * u).collect();
     let (h16, rh) = quantize(&hacc, &sup_f, SH_H_PROD, -32768, 32767, "FFN product")?;
     // R5: down
-    let (z16, rdl) = quantize(&matmul_in_out(&g, &h16, g.f_pad, &ff.wd_t, g.f, g.d, g.d_pad, dl), &sup_d, SH_Z, -32768, 32767, "FFN down")?;
+    let (z16, rdl) = quantize(&matmul_in_out(&g, &h16, g.f_pad, &ff.wd_t, g.f_pad, g.d_pad, g.d_pad, dl), &sup_d, SH_Z, -32768, 32767, "FFN down")?;
 
     for &idx in &sup_f {
         let l = limbs(u16[idx] + 32768, 2);

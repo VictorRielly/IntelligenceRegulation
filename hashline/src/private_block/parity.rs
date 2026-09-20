@@ -397,8 +397,13 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
         matrix(&mut r, f, d, 64, ffn_mag),
     ];
     let input: Vec<i16> = (0..s.tokens * d).map(|_| r.pick(-xmag, xmag) as i16).collect();
-    let public = AttentionPublic::new_shaped(s, &words[0], &words[1], &words[2], &words[3], &words[4], &cos, &sin, &exp).expect("generated public statement");
-    let ff = FeedForwardPublic::new_shaped(s, &words[5], &words[6], &words[7], &words[8], &act).expect("generated feed-forward statement");
+    // the module takes the PADDED, head-permuted statement (ruling P-2); the
+    // kernel keeps the TRUE-sized `words`, so the parity comparison is still
+    // against the same arithmetic
+    let aw = super::grow_tests::pad_attention_weights(s, &words[0], &words[1], &words[2], &words[3], &words[4]);
+    let fw = super::grow_tests::pad_ff_weights(s, &words[5], &words[6], &words[7], &words[8]);
+    let public = AttentionPublic::new_shaped(s, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("generated public statement");
+    let ff = FeedForwardPublic::new_shaped(s, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("generated feed-forward statement");
     ShapedCase { public, ff, input, words, cos, sin, exp: exp.to_vec(), act: act.to_vec() }
 }
 
@@ -424,7 +429,7 @@ fn compare_shaped(s: &Shape, w: &Witness, tbuf: &[i64], idx: usize) {
         let (o, n) = ksh.part(p);
         &tbuf[o..o + n]
     };
-    let maps: Vec<(Dom, Vec<usize>)> = [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Kv, Dom::S, Dom::F].into_iter().map(|d| (d, g.support(d))).collect();
+    let maps: Vec<(Dom, Vec<usize>)> = [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F].into_iter().map(|d| (d, g.support(d))).collect();
     let map = |d: Dom| &maps.iter().find(|(k, _)| *k == d).expect("mapped domain").1;
     // S8: the plane ids are the SHAPE's, not the toy's literals — at the
     // rung's three `sigma_s` limbs every id above `Dom::S` is two higher
@@ -438,18 +443,19 @@ fn compare_shaped(s: &Shape, w: &Witness, tbuf: &[i64], idx: usize) {
     eq_at(A_DM, part(Part::NmDd), map(Dom::T), "norm_m D");
     eq_at(A_MX, part(Part::MRow), map(Dom::Ht), "row max");
     eq_at(A_SUM, part(Part::Sum), map(Dom::Ht), "row sum");
-    for (plane, p, name) in [
-        (A_Y, Part::NaY, "norm_a y"),
-        (A_YM, Part::NmY, "norm_m y (nm)"),
-        (A_Q8, Part::Q8, "q8"),
-        (A_QR8, Part::Qr8, "qr8"),
-        (A_O8, Part::O8, "o8"),
-        (A_AO, Part::Ao8, "ao"),
-        (A_X1, Part::Xres1, "xres1"),
-        (A_Z16, Part::Z16, "z16"),
-        (A_X2, Part::Xres2, "xres2"),
-    ] {
+    for (plane, p, name) in
+        [(A_Y, Part::NaY, "norm_a y"), (A_YM, Part::NmY, "norm_m y (nm)"), (A_AO, Part::Ao8, "ao"), (A_X1, Part::Xres1, "xres1"), (A_Z16, Part::Z16, "z16"), (A_X2, Part::Xres2, "xres2")]
+    {
         eq_at(plane, part(p), map(Dom::D), name);
+    }
+    // S9: `q8`, `qr8` and `o8` live on `Dom::Q`, whose support is the
+    // HEAD-PERMUTED one. The kernel lays its buffers out by LOGICAL head, and
+    // `Geom::support(Dom::Q)` walks the logical heads in order, so the two
+    // still line up element for element — at the rung they land on different
+    // plane positions than `Dom::D`'s support does, which is the whole point
+    // of correction C-1.
+    for (plane, p, name) in [(A_Q8, Part::Q8, "q8"), (A_QR8, Part::Qr8, "qr8"), (A_O8, Part::O8, "o8")] {
+        eq_at(plane, part(p), map(Dom::Q), name);
     }
     for (plane, p, name) in [(A_K8, Part::K8, "k8"), (A_V8, Part::V8, "v8"), (A_KR8, Part::Kr8, "kr8")] {
         eq_at(plane, part(p), map(Dom::Kv), name);
@@ -557,7 +563,14 @@ fn a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung() {
     let d = s.width;
     let ssup = g.support(Dom::S);
     let head_rows = |h: usize| &ssup[h * s.tokens * s.tokens..(h + 1) * s.tokens * s.tokens];
-    let head_out: Vec<Vec<usize>> = (0..s.q_heads).map(|h| (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| t * s.d_pad + h * s.head_dim + i)).collect()).collect();
+    // S9: a query head's output sits at its padded head SLOT
+    let (tk, dp, dh) = (s.tokens, s.d_pad, s.head_dim);
+    let head_out: Vec<Vec<usize>> = (0..s.q_heads)
+        .map(|h| {
+            let sl = s.head_slot(h);
+            (0..tk).flat_map(|t| (0..dh).map(move |i| t * dp + sl * dh + i)).collect()
+        })
+        .collect();
     let build = |c: &ShapedCase, kill: Option<usize>| -> Result<Witness, String> {
         let mut words = c.words.clone();
         if let Some(h) = kill {
@@ -568,7 +581,8 @@ fn a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung() {
                 }
             }
         }
-        let public = AttentionPublic::new_shaped(&s, &words[0], &words[1], &words[2], &words[3], &words[4], &c.cos, &c.sin, &c.exp).expect("statement");
+        let aw = super::grow_tests::pad_attention_weights(&s, &words[0], &words[1], &words[2], &words[3], &words[4]);
+        let public = AttentionPublic::new_shaped(&s, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &c.cos, &c.sin, &c.exp).expect("statement");
         witness::build_shaped(&s, &public, &c.ff, &c.input)
     };
     // a case that ACCEPTS and whose every query head has something to lose

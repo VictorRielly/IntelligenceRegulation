@@ -34,117 +34,198 @@ use super::witness::{self, Geom};
 
 // ---------------------------------------------------------------- indicators
 
-/// Is head slot `h` of the PADDED head axis a true query head?
+/// **THE DEFINITION OF A SUPPORT INDICATOR (ruling S9-F3).** At every shape,
+/// the indicator of a padded domain IS the builder's own public support table
+/// for that domain: `1` exactly on the positions [`Geom::support`] writes, `0`
+/// everywhere else. A closed multilinear form is an OPTIMISATION where one
+/// exists and must equal this table ([`closed_form_indicator`], asserted).
 ///
-/// **The memo's layout (§3.7a note 2, correction C-1): the padded head slots
-/// INTERLEAVE, one per key-value group.** The padded head axis holds
-/// `h_pad / kv_heads` slots per key-value group and the first `group =
-/// q_heads / kv_heads` of each are true, so at 125M (16 slots, 4 groups of 4,
-/// 3 true) the padded slots are `{3, 7, 11, 15}` and at the rung (8 slots, 2
-/// groups of 4, 3 true) they are `{3, 7}`. A PREFIX mask would call slot 3
-/// supported, which is what acceptance test PZ-1's head case is written to
-/// catch.
-pub(crate) fn head_is_true_interleaved(s: &Shape, h: usize) -> bool {
-    let per_group = s.h_pad / s.kv_heads;
-    h < s.h_pad && h % per_group < s.q_heads / s.kv_heads
+/// Nothing witness-dependent enters it: `Geom::support` is a function of the
+/// [`Shape`] alone, so the table is public data the verifier can rebuild.
+pub(crate) fn support_indicator(s: &Shape, dom: Dom) -> Vec<i64> {
+    let mut v = vec![0i64; s.size(dom)];
+    for i in Geom::new(s).support(dom) {
+        v[i] = 1;
+    }
+    v
 }
 
-/// Is head slot `h` true under the layout THE WITNESS BUILDER USES TODAY?
-///
-/// `witness::build_shaped` indexes query heads `0 .. q_heads` contiguously
-/// (`g.dix(t, h * head_dim + i)`), so today's padded slots are the TAIL of
-/// the head axis, `{6, 7}` at the rung, not `{3, 7}`. That is finding S9-F2:
-/// the head permutation ruling P-2 and correction C-1 require is not built
-/// yet, and it is a PREREQUISITE of the `Dom::Q` and `Dom::S` indicators.
-pub(crate) fn head_is_true_contiguous(s: &Shape, h: usize) -> bool {
-    h < s.q_heads
+/// The memo's own rule for the three head-indexed domains, written from
+/// §3.7a note 2 and correction C-1 and NOT from the builder: the padded head
+/// axis holds `h_pad / kv_heads` slots per key-value group and the first
+/// `group = q_heads / kv_heads` of each are true, so the padded slots are
+/// `{3, 7}` at the rung and `{3, 7, 11, 15}` at 125M. This is the oracle
+/// [`support_indicator`] is checked against.
+pub(crate) fn memo_head_indicator(s: &Shape, dom: Dom) -> Vec<i64> {
+    head_indicator(s, dom, &|h: usize| {
+        let per_group = s.h_pad / s.kv_heads;
+        h % per_group < s.q_heads / s.kv_heads
+    })
 }
 
-/// The public 0/1 support table of a padded domain, over the domain's PADDED
-/// flat index, in the index convention `witness::Geom` lays the planes out
-/// in. `interleaved` selects the head layout (see the two predicates above).
-pub(crate) fn support_indicator(s: &Shape, dom: Dom, interleaved: bool) -> Vec<i64> {
-    let head_true = |h: usize| if interleaved { head_is_true_interleaved(s, h) } else { head_is_true_contiguous(s, h) };
-    let n = s.size(dom);
-    let mut v = vec![0i64; n];
-    let (t_pad, d_pad, f_pad, dh) = (s.t_pad, s.d_pad, s.f_pad, s.head_dim);
-    let kvw = s.kv_heads * s.head_dim;
-    match dom {
-        Dom::T => {
-            for t in 0..s.tokens {
-                v[t] = 1;
-            }
+/// The CONTIGUOUS-TAIL layout — padded slots `{6, 7}` at the rung — which is
+/// what the builder wrote before the head permutation (finding S9-F2) and
+/// what a prefix-mask indicator would call supported. It is the negative
+/// control of the head tests and of PZ-1's head case; nothing builds on it.
+pub(crate) fn contiguous_head_indicator(s: &Shape, dom: Dom) -> Vec<i64> {
+    head_indicator(s, dom, &|h: usize| h < s.q_heads)
+}
+
+fn head_indicator(s: &Shape, dom: Dom, head_true: &dyn Fn(usize) -> bool) -> Vec<i64> {
+    let mut v = vec![0i64; s.size(dom)];
+    let t_pad = s.t_pad;
+    for h in 0..s.h_pad {
+        if !head_true(h) {
+            continue;
         }
-        Dom::Ht => {
-            for h in 0..s.h_pad {
-                if head_true(h) {
-                    for t in 0..s.tokens {
-                        v[h * t_pad + t] = 1;
+        for t in 0..s.tokens {
+            match dom {
+                Dom::Ht => v[h * t_pad + t] = 1,
+                Dom::Q => {
+                    for i in 0..s.head_dim {
+                        v[t * s.d_pad + h * s.head_dim + i] = 1;
                     }
                 }
-            }
-        }
-        Dom::L => {
-            for k in 0..3 * LIMBS_ISQRT {
-                for t in 0..s.tokens {
-                    v[k * t_pad + t] = 1;
-                }
-            }
-        }
-        // `Dom::D` is `(t, i)` with `i` the model width; `Dom::Q` is the SAME
-        // flat index read as `(t, h, i')`, and they are different tables
-        // (§3.7a note 1): `D` pads the top of each token's row, `Q` pads one
-        // head slot per group.
-        Dom::D => {
-            for t in 0..s.tokens {
-                for i in 0..s.width {
-                    v[t * d_pad + i] = 1;
-                }
-            }
-        }
-        Dom::Q => {
-            for t in 0..s.tokens {
-                for h in 0..s.h_pad {
-                    if head_true(h) {
-                        for i in 0..dh {
-                            v[t * d_pad + h * dh + i] = 1;
-                        }
+                Dom::S => {
+                    for j in 0..s.tokens {
+                        v[(h * t_pad + t) * t_pad + j] = 1;
                     }
                 }
-            }
-        }
-        Dom::Kv => {
-            for t in 0..s.tokens {
-                for i in 0..kvw {
-                    v[t * kvw + i] = 1;
-                }
-            }
-        }
-        Dom::S => {
-            for h in 0..s.h_pad {
-                if head_true(h) {
-                    for t in 0..s.tokens {
-                        for j in 0..s.tokens {
-                            v[(h * t_pad + t) * t_pad + j] = 1;
-                        }
-                    }
-                }
-            }
-        }
-        Dom::F => {
-            for t in 0..s.tokens {
-                for j in 0..s.hidden {
-                    v[t * f_pad + j] = 1;
-                }
-            }
-        }
-        Dom::Tab => {
-            for i in 0..U8_LEN.min(n) {
-                v[i] = 1;
+                _ => unreachable!("head_indicator is for the three head-indexed domains"),
             }
         }
     }
     v
+}
+
+/// `[x < lim]` on the field `0 .. pad` (`pad` a power of two), written the way
+/// §3.7a writes its indicators — as a product over the sumcheck's own
+/// variables, so that both sides could evaluate it without materialising a
+/// table. Exactly two forms occur, and a predicate that is neither has no
+/// cheap closed form at all (`supp_L`'s `[k < 9]` is the memo's own example).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) enum BitForm {
+    /// the axis is full: the factor is the constant 1
+    Always,
+    /// `lim` is a power of two: `prod_{b in bits} (1 - x_b)`
+    AllZero(Vec<usize>),
+    /// `pad - lim` is a power of two: `1 - prod_{b in bits} x_b`
+    NotAllOne(Vec<usize>),
+}
+
+impl BitForm {
+    fn of(lim: usize, pad: usize) -> Option<BitForm> {
+        assert!(pad.is_power_of_two() && lim <= pad && lim > 0);
+        let m = pad.trailing_zeros() as usize;
+        if lim == pad {
+            return Some(BitForm::Always);
+        }
+        if lim.is_power_of_two() {
+            return Some(BitForm::AllZero((lim.trailing_zeros() as usize..m).collect()));
+        }
+        if (pad - lim).is_power_of_two() {
+            return Some(BitForm::NotAllOne(((pad - lim).trailing_zeros() as usize..m).collect()));
+        }
+        None
+    }
+    /// the factor's value at `x`, the axis's own field of the flat index
+    fn at(&self, x: usize) -> i64 {
+        match self {
+            BitForm::Always => 1,
+            BitForm::AllZero(bits) => i64::from(bits.iter().all(|b| (x >> b) & 1 == 0)),
+            BitForm::NotAllOne(bits) => i64::from(!bits.iter().all(|b| (x >> b) & 1 == 1)),
+        }
+    }
+}
+
+/// **The closed multilinear forms of §3.7a, where one exists (finding
+/// S9-F3).** `Some((table, factors))` is the product of the per-axis
+/// [`BitForm`]s evaluated on the whole cube, together with the factors
+/// themselves; `None` means no cheap closed form is claimed at this shape and
+/// the verifier must read the table.
+///
+/// The bit positions are those of the domain's own flat index, so the factors
+/// ARE the memo's expressions: at 125M `supp_D = 1 - b9·b8`,
+/// `supp_Q = 1 - b7·b6`, `supp_S = 1 - b19·b18`, `supp_Ht = 1 - b10·b9` and
+/// `supp_Tab = prod_{k=8}^{13}(1 - b_k)`. `supp_L`'s `[k < 9]` is neither
+/// form and returns `None`, exactly as the memo says.
+pub(crate) fn closed_form_indicator(s: &Shape, dom: Dom) -> Option<(Vec<i64>, Vec<(usize, BitForm)>)> {
+    let (t_pad, d_pad, f_pad, dh) = (s.t_pad, s.d_pad, s.f_pad, s.head_dim);
+    // the padded head slots are the last `per - g` of each key-value group,
+    // so the head factor lives on the LOW bits of the slot index
+    let per = s.h_pad / s.kv_heads;
+    let head = || BitForm::of(s.q_heads / s.kv_heads, per);
+    // `(stride of the axis in the flat index, its factor)`, axis by axis
+    let axes: Vec<(usize, Option<BitForm>)> = match dom {
+        Dom::T => vec![(1, BitForm::of(s.tokens, t_pad))],
+        Dom::D => vec![(1, BitForm::of(s.width, d_pad)), (d_pad, BitForm::of(s.tokens, t_pad))],
+        Dom::F => vec![(1, BitForm::of(s.hidden, f_pad)), (f_pad, BitForm::of(s.tokens, t_pad))],
+        Dom::Kv => vec![(s.kv_heads * dh, BitForm::of(s.tokens, t_pad))],
+        // `Dom::Q` is `(t, slot, i')`: the head factor sits above `log2(dh)`
+        Dom::Q => vec![(dh, head()), (d_pad, BitForm::of(s.tokens, t_pad))],
+        Dom::Ht => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, head())],
+        Dom::S => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(s.tokens, t_pad)), (t_pad * t_pad, head())],
+        Dom::L => vec![(1, BitForm::of(s.tokens, t_pad)), (t_pad, BitForm::of(3 * LIMBS_ISQRT, s.size(dom) / t_pad))],
+        Dom::Tab => vec![(1, BitForm::of(U8_LEN, s.size(dom)))],
+    };
+    let mut factors = Vec::new();
+    for (stride, form) in axes {
+        let form = form?;
+        if form != BitForm::Always {
+            factors.push((stride.trailing_zeros() as usize, form));
+        }
+    }
+    let mut v = vec![1i64; s.size(dom)];
+    for (x, e) in v.iter_mut().enumerate() {
+        for (shift, form) in &factors {
+            *e *= form.at(x >> shift);
+        }
+    }
+    Some((v, factors))
+}
+
+/// **What the verifier must evaluate, and what it costs (finding S9-F3).**
+/// One entry per padded domain: the table's length, the number of SLOT
+/// instantiations that materialise it (`table_of` clones a public table per
+/// slot, `argument.rs:206`), and whether a closed form exists at this shape.
+/// `bytes` prices the conservative form the memo prices: one `Fp2` (16 B) per
+/// entry per materialisation.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct IndicatorCost {
+    pub dom: Dom,
+    pub len: usize,
+    pub slots: usize,
+    pub bytes: usize,
+    pub closed_form: bool,
+}
+
+/// The slots that carry `dom`'s indicator: the domain's own zero-check host
+/// plus every slot whose relation the indicator gates (§3.7a, "what the
+/// indicator gates").
+pub(crate) fn indicator_slots(dom: Dom) -> &'static [usize] {
+    match dom {
+        Dom::D => &[SC_SS, SC_SSM, SC_DZC],
+        Dom::Q => &[SC_QZC],
+        Dom::S => &[SC_RS, SC_SZC],
+        // `Dom::Ht`'s term rides in `SC_SZC` on `supp_S` (open question 2),
+        // so it materialises no table of its own
+        Dom::Ht => &[],
+        Dom::Kv => &[SC_KVZC],
+        Dom::F => &[SC_FZC],
+        Dom::L => &[SC_LZC],
+        Dom::Tab => &[SC_TAB],
+        Dom::T => &[],
+    }
+}
+
+pub(crate) fn indicator_costs(s: &Shape) -> Vec<IndicatorCost> {
+    s.padded_domains()
+        .into_iter()
+        .map(|dom| {
+            let (len, slots) = (s.size(dom), indicator_slots(dom).len());
+            IndicatorCost { dom, len, slots, bytes: len * slots * 16, closed_form: closed_form_indicator(s, dom).is_some() }
+        })
+        .collect()
 }
 
 // ---------------------------------------------------------------- the table
@@ -294,18 +375,81 @@ mod tests {
     use super::*;
 
     /// THE HEAD SLOTS INTERLEAVE (correction C-1), and a prefix mask does not.
+    /// The permutation lives in [`Shape::head_slot`]; this checks the slot map
+    /// against the memo's own set, and that the key-value group really is the
+    /// HIGH bits of the slot index (ruling S9-F2: "query head h reads
+    /// key-value head slot >> log(group slots)").
     #[test]
     fn the_padded_head_slots_are_one_per_key_value_group() {
-        let pads = |s: &Shape| -> Vec<usize> { (0..s.h_pad).filter(|h| !head_is_true_interleaved(s, *h)).collect() };
+        let pads = |s: &Shape| -> Vec<usize> { (0..s.h_pad).filter(|h| !s.slot_is_true_head(*h)).collect() };
         assert_eq!(pads(&Shape::rung()), vec![3, 7], "the rung's padded head slots (memo section 9a)");
         assert_eq!(pads(&Shape::m125()), vec![3, 7, 11, 15], "125M's padded head slots (correction C-1)");
         assert!(pads(&Shape::toy()).is_empty(), "the toy's head axis does not pad");
+        for s in [Shape::toy(), Shape::rung(), Shape::m125()] {
+            // the slot map is injective, lands on true slots only, and puts
+            // the key-value group in the HIGH bits
+            let slots: Vec<usize> = (0..s.q_heads).map(|h| s.head_slot(h)).collect();
+            let mut sorted = slots.clone();
+            sorted.sort_unstable();
+            sorted.dedup();
+            assert_eq!(sorted.len(), s.q_heads, "{}: the head slot map is not injective", s.name);
+            for (h, sl) in slots.iter().enumerate() {
+                assert!(s.slot_is_true_head(*sl), "{}: head {h} lands on a padded slot", s.name);
+                assert_eq!(s.kv_of_slot(*sl), h / (s.q_heads / s.kv_heads), "{}: head {h}'s key-value group is not the high bits of its slot", s.name);
+                assert_eq!(s.kv_of_slot(*sl), sl >> s.log_slots_per_kv_group(), "{}: the key-value head is not a shift of the slot", s.name);
+            }
+        }
         // a PREFIX mask would call slot 3 supported at both padded shapes:
         // that is the negative control PZ-1's head case rests on
         for s in [Shape::rung(), Shape::m125()] {
-            let prefix_true = |h: usize| h < s.q_heads;
-            assert!(prefix_true(3) && !head_is_true_interleaved(&s, 3), "{}: a prefix mask accepts padded slot 3", s.name);
+            assert!(3 < s.q_heads && !s.slot_is_true_head(3), "{}: a prefix mask accepts padded slot 3", s.name);
         }
+    }
+
+    /// **Finding S9-F3, as a test.** Where a closed multilinear form exists it
+    /// must equal the builder's support table entry for entry; where the
+    /// memo's formula does not describe the shape, none is claimed. At 125M
+    /// every padded domain has one (the memo's `1 − b·b'` family); at the
+    /// RUNG the token axis pads, so `D`, `Q`, `S`, `Ht`, `Kv`, `F` and `L`
+    /// carry a prefix predicate as well and the memo's two-bit products alone
+    /// are not enough — which is why the table, not the formula, is the
+    /// definition.
+    #[test]
+    fn the_closed_forms_equal_the_tables() {
+        for s in [Shape::toy(), Shape::rung(), Shape::m125()] {
+            for dom in ALL_DOMS {
+                if let Some((cf, _)) = closed_form_indicator(&s, dom) {
+                    assert_eq!(cf, support_indicator(&s, dom), "{}: {dom:?}'s closed form differs from the support table", s.name);
+                }
+            }
+        }
+        // 125M: the memo's own six padded domains, and its own verdict on
+        // which of them has a cheap closed form (`supp_L`'s `[k < 9]` does
+        // not — the memo says so in the indicator table)
+        let m = Shape::m125();
+        let costs = indicator_costs(&m);
+        assert_eq!(costs.iter().map(|c| c.dom).collect::<Vec<_>>(), vec![Dom::Ht, Dom::L, Dom::D, Dom::Q, Dom::S, Dom::Tab], "125M's six padded domains (memo section 3.7a)");
+        assert_eq!(costs.iter().filter(|c| !c.closed_form).map(|c| c.dom).collect::<Vec<_>>(), vec![Dom::L], "only supp_L has no product form");
+        // the memo's own expressions, read off the factors
+        let two_bit = |dom: Dom, hi: usize| {
+            let (_, f) = closed_form_indicator(&m, dom).expect("a closed form");
+            assert_eq!(f.len(), 1, "{dom:?} is one factor at 125M");
+            match &f[0].1 {
+                BitForm::NotAllOne(bits) => assert_eq!(bits.iter().map(|b| b + f[0].0).max(), Some(hi), "{dom:?}'s top bit"),
+                other => panic!("{dom:?} is not a `1 - b·b'` form: {other:?}"),
+            }
+        };
+        two_bit(Dom::D, 9);
+        two_bit(Dom::Q, 7);
+        two_bit(Dom::S, 19);
+        two_bit(Dom::Ht, 10);
+        // the memo's priced table sizes, §3.7a: 2^19 for D and Q, 2^22 for S
+        assert_eq!(m.size(Dom::D), 1 << 19);
+        assert_eq!(m.size(Dom::S), 1 << 22);
+        // ... and what the verifier evaluates: one `eval_mle_ext` per slot
+        // that carries the indicator, over the whole cube
+        let s_cost = costs.iter().find(|c| c.dom == Dom::S).expect("Dom::S pads at 125M");
+        assert_eq!((s_cost.slots, s_cost.bytes), (2, 2 * (1 << 22) * 16), "supp_S is materialised in SC_RS and SC_SZC: 67.1 MB each");
     }
 
     /// THE INDICATORS COUNT WHAT THE SHAPE COUNTS. A support table's weight
@@ -317,42 +461,42 @@ mod tests {
     fn every_support_indicator_has_the_true_sizes_weight() {
         for s in [Shape::toy(), Shape::rung(), Shape::m125()] {
             for dom in ALL_DOMS {
-                let v = support_indicator(&s, dom, false);
+                let v = support_indicator(&s, dom);
                 assert_eq!(v.len(), s.size(dom), "{}: {dom:?} indicator length", s.name);
                 assert_eq!(v.iter().sum::<i64>() as usize, s.true_size(dom), "{}: {dom:?} indicator weight", s.name);
                 assert!(v.iter().all(|b| *b == 0 || *b == 1), "{}: {dom:?} indicator is not 0/1", s.name);
-                // it is exactly the builder's own support set
-                let mut want = vec![0i64; s.size(dom)];
-                for i in Geom::new(&s).support(dom) {
-                    want[i] = 1;
-                }
-                assert_eq!(v, want, "{}: {dom:?} indicator differs from the witness's support", s.name);
+                // the builder's support list has no repeats, so the weight
+                // above really does count distinct positions
+                assert_eq!(Geom::new(&s).support(dom).len(), s.true_size(dom), "{}: {dom:?} support list length", s.name);
             }
             // D and Q coincide only where the head axis does not pad
-            let (d, q) = (support_indicator(&s, Dom::D, true), support_indicator(&s, Dom::Q, true));
+            let (d, q) = (support_indicator(&s, Dom::D), support_indicator(&s, Dom::Q));
             assert_eq!(d == q, s.h_pad == s.q_heads, "{}: supp_D and supp_Q must differ exactly when heads pad", s.name);
         }
     }
 
-    /// **S9-F2, as a test.** The indicator the memo specifies and the support
-    /// the witness builder actually writes DISAGREE at every shape whose head
-    /// axis pads, because the builder lays query heads out contiguously and
-    /// the memo's layout interleaves the padded slot into each key-value
-    /// group. The head permutation is a prerequisite of the `Dom::Q` and
-    /// `Dom::S` indicators and is not built.
+    /// **S9-F2, RESOLVED — the acceptance test of the head permutation.**
+    /// The support the WITNESS BUILDER writes must be the interleaved layout
+    /// correction C-1 and ruling P-2 specify, at every shape: padded head
+    /// slots one per key-value group (`{3, 7}` at the rung, `{3, 7, 11, 15}`
+    /// at 125M), never a contiguous tail. Until the permutation landed the
+    /// builder laid query heads out contiguously and these two DISAGREED;
+    /// that is what this test was written to catch.
     #[test]
-    fn the_memos_head_layout_is_not_yet_the_builders() {
-        for s in [Shape::rung(), Shape::m125()] {
+    fn the_builders_head_layout_is_the_memos() {
+        for s in [Shape::toy(), Shape::rung(), Shape::m125()] {
             for dom in [Dom::Q, Dom::S, Dom::Ht] {
-                let (memo, built) = (support_indicator(&s, dom, true), support_indicator(&s, dom, false));
+                let memo = memo_head_indicator(&s, dom);
+                let built = support_indicator(&s, dom);
                 assert_eq!(memo.iter().sum::<i64>(), built.iter().sum::<i64>(), "{}: {dom:?} weights differ", s.name);
-                assert_ne!(memo, built, "{}: {dom:?} — the two head layouts agree, so S9-F2 is stale", s.name);
+                assert_eq!(memo, built, "{}: {dom:?} — the builder's head layout is not the memo's interleaved one (finding S9-F2)", s.name);
             }
-        }
-        // ... and at the toy they are the same table, which is why the toy
-        // cannot see the difference
-        for dom in ALL_DOMS {
-            assert_eq!(support_indicator(&Shape::toy(), dom, true), support_indicator(&Shape::toy(), dom, false));
+            // a CONTIGUOUS tail is a different table wherever the head axis
+            // pads: that is the negative control the equality above rests on
+            for dom in [Dom::Q, Dom::S, Dom::Ht] {
+                let tail = contiguous_head_indicator(&s, dom);
+                assert_eq!(tail == support_indicator(&s, dom), s.h_pad == s.q_heads, "{}: {dom:?} — tail and interleaved must differ exactly when heads pad", s.name);
+            }
         }
     }
 
@@ -403,6 +547,166 @@ mod tests {
         assert_eq!(a_rule(&t, &ids, ids.at(A_LIMB)), Some(Rule::Zero));
         assert_eq!(a_rule(&t, &ids, ids.at(A_LIMBM)), Some(Rule::Zero));
         assert_eq!(rule_counts(&t, &ids), (2, 1, 0), "the toy's own pad table: the two limb planes, ZERO, and their LogUp helper, EXEMPT");
+        // THE PROFILE GATE (ruling on finding S9-F1), stated as the predicate
+        // it is: the frozen toy profile carries no pad machinery, and every
+        // other profile does — including a shape with the TOY'S OWN geometry
+        // under a new profile id, which is the case a domain-driven rule
+        // could not tell apart.
+        assert!(!t.carries_pad_rule(), "the frozen toy profile must not carry the pad rule");
+        for s in [Shape::rung(), Shape::m125()] {
+            assert!(s.carries_pad_rule(), "{} is a new profile and carries the rule", s.name);
+        }
+        let toy_geometry_new_profile =
+            Shape::new("the toy geometry under a NEW profile", "hashline-zk-mr1/private-block-t32-padgate/1", 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("well formed");
+        assert!(toy_geometry_new_profile.carries_pad_rule(), "the gate is the PROFILE, not the geometry");
+        assert!(toy_geometry_new_profile.pads(Dom::L), "and that profile's Dom::L pads exactly as the toy's does");
+        // the toy's slot degrees therefore do not move, and neither do the
+        // new profile's: `Dom::L` hosts `SC_LZC`, which is homogeneous and
+        // gains no degree from an indicator in any case
+        assert_eq!(t.slots(), toy_geometry_new_profile.slots(), "the gate must not move a degree at the toy geometry");
+        assert_eq!(t.slots()[SC_LZC].2, 4, "SC_LZC keeps degree 4: it is homogeneous and gains nothing");
+    }
+
+    /// **THE TOY-PADDING CHECK the ruling on S9-F1 asks for, reported as a
+    /// FINDING and not fixed.** Which planes does the accepted toy profile
+    /// place on its one padded domain, what rule would the memo's table give
+    /// them, and what constrains their pad TODAY?
+    ///
+    /// Answer, asserted below: `A_LIMB` and `A_LIMBM` (both ZERO-rule) and
+    /// their shared LogUp helper `H_L` (EXEMPT). What constrains the pad is
+    /// the two `byte` U8 lookups, which are active on the WHOLE padded domain
+    /// — the LogUp arm is never gated (§3.7a) — so every padded entry is
+    /// proved to lie in `[0, 256)`. **Nothing forces it to zero.** Nothing
+    /// else reads those positions: `SC_TZC` reads the nine used sub-slices at
+    /// their fixed offsets and `SC_LZC` is homogeneous. An honest prover
+    /// writes zeros (asserted), so no honest toy byte moves; a dishonest one
+    /// could write any byte there without breaking a relation.
+    #[test]
+    fn the_toy_profiles_padded_planes_and_what_constrains_them() {
+        let t = Shape::toy();
+        let ids = Ids::new(&t).expect("the toy has a plane map");
+        // the planes on the toy's one padded domain, by id
+        let on_l: Vec<usize> = (0..ids.n_a()).filter(|p| ids.dom(*p) == Dom::L).collect();
+        assert_eq!(on_l, vec![ids.at(A_LIMB), ids.at(A_LIMBM)], "the toy's Dom::L planes");
+        // what constrains their pad: exactly two lookups, both plain `byte`
+        let lks = lookups_at(&t, &ids, Dom::L);
+        assert_eq!(lks.len(), 2, "two lookups on Dom::L");
+        for (lk, p) in lks.iter().zip(on_l.iter()) {
+            assert_eq!(lk.terms, vec![(*p, 1)], "a plain byte lookup on plane {p}");
+            assert_eq!(lk.cst, 0, "with no constant offset");
+        }
+        // and the honest builder really does leave that pad at zero
+        let (public, ff, input) = super::super::grow_tests::tame_case(&t);
+        let w = witness::build_shaped(&t, &public, &ff, &input).expect("the toy's honest witness");
+        let supp = support_indicator(&t, Dom::L);
+        for p in &on_l {
+            assert!((0..w.planes[*p].len()).all(|i| supp[i] == 1 || w.planes[*p][i] == 0), "the toy's honest Dom::L pad is not zero on plane {p}");
+        }
+    }
+
+    /// **RULING P-2, the acceptance test of §9a
+    /// (`a_weight_nonzero_off_its_support_is_refused_at_construction`).**
+    /// Building a statement whose weight matrix is nonzero at a padded input
+    /// or output index is refused BY NAME, and the two cases the memo names
+    /// are told apart: a nonzero at a padded WIDTH index, and a `Wo` whose
+    /// input columns are in true-head order instead of slot order.
+    #[test]
+    fn a_weight_nonzero_off_its_support_is_refused_at_construction() {
+        let s = Shape::rung();
+        let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
+        let diag = |outer: usize, inner: usize| -> Vec<i8> { (0..outer * inner).map(|k| if k / inner == k % inner { 64i8 } else { 0 }).collect() };
+        let gamma = vec![64i8; d];
+        let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
+        let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
+        let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("the frozen SiLU member");
+        let base = super::super::grow_tests::pad_attention_weights(&s, &diag(d, d), &diag(kvw, d), &diag(kvw, d), &diag(d, d), &gamma);
+        let build = |w: &[Vec<i8>; 5]| crate::private_block::AttentionPublic::new_shaped(&s, &w[0], &w[1], &w[2], &w[3], &w[4], &cos, &sin, &exp).err();
+        assert_eq!(build(&base), None, "the honest padded, head-permuted statement is accepted");
+        let fw = super::super::grow_tests::pad_ff_weights(&s, &gamma, &diag(d, f), &diag(d, f), &diag(f, d));
+        assert!(crate::private_block::FeedForwardPublic::new_shaped(&s, &fw[0], &fw[1], &fw[2], &fw[3], &act).is_ok(), "the honest padded feed-forward statement is accepted");
+
+        // case 1: a nonzero `Wq` entry at a padded INPUT (width) column
+        let mut w = base.clone();
+        w[0][s.width] = 1;
+        assert_eq!(build(&w).as_deref(), Some("private block: a public weight is nonzero at a padded width index"));
+        // case 1b: a nonzero `Wq` row at a padded head SLOT (the output axis)
+        let mut w = base.clone();
+        let padded_slot = (0..s.h_pad).find(|sl| !s.slot_is_true_head(*sl)).expect("the rung's head axis pads");
+        w[0][padded_slot * s.head_dim * s.d_pad] = 1;
+        assert_eq!(build(&w).as_deref(), Some("private block: a public weight is nonzero at a padded head slot"));
+        // case 2 (§9a, by name): a `Wo` that is NOT head-permuted — its input
+        // columns in true-head order, so the padded slots hold real weights
+        let mut w = base.clone();
+        let id = |i: usize| i;
+        w[3] = super::super::grow_tests::pad_matrix(&diag(d, d), d, d, s.d_pad, s.d_pad, &id, &id);
+        assert_eq!(build(&w).as_deref(), Some("private block: a public weight is nonzero at a padded head slot"), "a Wo in true-head column order must be refused");
+        // a feed-forward matrix nonzero off the hidden axis
+        let mut g = fw.clone();
+        g[1][s.hidden] = 1;
+        assert_eq!(
+            crate::private_block::FeedForwardPublic::new_shaped(&s, &g[0], &g[1], &g[2], &g[3], &act).err().as_deref(),
+            Some("private block: a public weight is nonzero at a padded width index")
+        );
+    }
+
+    /// **The memo's own wording of P-2 — the FOLDED weight vector.** The
+    /// construction check is entrywise, which is strictly stronger; this ties
+    /// the two together by folding each matrix the way its slot folds it and
+    /// asserting the result vanishes off the inner axis's support.
+    #[test]
+    fn the_folded_weight_vectors_vanish_off_support() {
+        use crate::field::Fp2;
+        use crate::mle::{fold_cols_i8, fold_rows_i8};
+        let s = Shape::rung();
+        let (d, f, kvw, dp, fp) = (s.width, s.hidden, s.kv_heads * s.head_dim, s.d_pad, s.f_pad);
+        let band = |outer: usize, inner: usize| -> Vec<i8> { (0..outer * inner).map(|k| ((k * 37 + 11) % 61) as i8 - 30).collect() };
+        let aw = super::super::grow_tests::pad_attention_weights(&s, &band(d, d), &band(kvw, d), &band(kvw, d), &band(d, d), &vec![64i8; d]);
+        let fw = super::super::grow_tests::pad_ff_weights(&s, &vec![64i8; d], &band(d, f), &band(d, f), &band(f, d));
+        let pt = |n: usize| -> Vec<Fp2> { (0..n).map(|i| Fp2::from_i64((i * 1_000_003 + 7) as i64)).collect() };
+        let q_supported = |i: usize| s.slot_is_true_head(i / s.head_dim);
+        // `SC_QMM` / `SC_KMM` / `SC_VMM` / `SC_WO` fold over the OUTPUT axis
+        // the folded vector is over the INNER (input) axis: `Dom::D` for
+        // `Wq` / `Wk` / `Wv`, the head-permuted `Dom::Q` for `Wo`
+        let d_supported = |i: usize| i < d;
+        let cases: [(&Vec<i8>, usize, &str, &dyn Fn(usize) -> bool); 4] =
+            [(&aw[0], dp, "Wq", &d_supported), (&aw[1], kvw, "Wk", &d_supported), (&aw[2], kvw, "Wv", &d_supported), (&aw[3], dp, "Wo", &q_supported)];
+        for (w, outer, name, supported) in cases {
+            let folded = fold_rows_i8(w, outer, dp, &pt(outer));
+            assert!(folded.iter().any(|v| *v != Fp2::ZERO), "{name}: the fold is identically zero, so the check says nothing");
+            for (i, v) in folded.iter().enumerate() {
+                assert!(supported(i) || *v == Fp2::ZERO, "{name}: the folded weight is nonzero at unsupported input index {i}");
+            }
+        }
+        // the three feed-forward matmuls fold over the OUTPUT axis too, but
+        // their matrices are `(input, output)` row-major, so `fold_cols_i8`
+        for (w, rows, cols, name, lim) in [(&fw[1], dp, fp, "Wg", d), (&fw[2], dp, fp, "Wu", d), (&fw[3], fp, dp, "Wd", f)] {
+            let folded = fold_cols_i8(w, rows, cols, &pt(cols));
+            for (i, v) in folded.iter().enumerate() {
+                assert!(i < lim || *v == Fp2::ZERO, "{name}: the folded weight is nonzero at unsupported input index {i}");
+            }
+        }
+    }
+
+    /// **THE SLOT ARITHMETIC, re-asserted with the indicator (§3.7a, `zk.rs`'s
+    /// hard assert `L + 256 <= 512`).** Every slot of every shape must fit,
+    /// and the closest one is recorded here so a later degree rise cannot
+    /// pass unnoticed.
+    #[test]
+    fn every_slot_fits_the_mask_budget_with_the_indicator() {
+        for (s, want_max) in [(Shape::toy(), 50usize), (Shape::rung(), 72), (Shape::m125(), 117)] {
+            let lens = s.slot_lengths();
+            let (worst, l) = lens.iter().enumerate().max_by_key(|(_, l)| **l).map(|(i, l)| (i, *l)).expect("slots");
+            assert_eq!(l, want_max, "{}: the largest slot length", s.name);
+            assert!(l + 256 <= 512, "{}: slot {worst} needs {l} + 256 > 512", s.name);
+            for (i, l) in lens.iter().enumerate() {
+                assert!(l + 256 <= 512, "{}: slot {i} needs {l} + 256 > 512", s.name);
+            }
+            eprintln!("private block slot budget: {} — closest slot {worst}, L = {l}, L + 256 = {}", s.name, l + 256);
+        }
+        // the memo's own closest slots: `SC_SZC` at both padded shapes
+        assert_eq!(Shape::m125().slot_lengths()[SC_SZC], 117, "125M's closest slot is SC_SZC");
+        assert_eq!(Shape::rung().slot_lengths()[SC_SZC], 72, "the rung's closest slot is SC_SZC (SC_FZC ties it)");
+        assert_eq!(Shape::rung().slot_lengths()[SC_FZC], 72, "and SC_FZC ties it");
     }
 
     /// The honest rung witness satisfies every relation the module can
@@ -414,7 +718,7 @@ mod tests {
         assert!(every_checkable_relation_holds(&s, &ids, &w), "the honest rung witness fails a relation the module can check");
         // and its pad really is all zero today (finding S6-F4)
         for dom in ALL_DOMS {
-            let supp = support_indicator(&s, dom, false);
+            let supp = support_indicator(&s, dom);
             for p in 0..ids.n_a() {
                 if ids.is_multiplicity(p) || ids.dom(p) != dom {
                     continue;
@@ -440,7 +744,7 @@ mod tests {
     #[ignore = "S9: the pad-zero term lives in argument::define, which is instantiable only at the toy (finding S5-F2); un-ignore when S10 and S11 make a rung receipt possible"]
     fn pz1_a_lone_nonzero_pad_value_is_rejected() {
         let (s, ids, mut w) = rung_witness();
-        let supp = support_indicator(&s, Dom::D, false);
+        let supp = support_indicator(&s, Dom::D);
         let pad_pos = (0..s.size(Dom::D)).find(|i| supp[*i] == 0).expect("Dom::D pads at the rung");
         assert!(every_checkable_relation_holds(&s, &ids, &w), "the honest witness must pass first");
         w.planes[ids.at(A_RAL)][pad_pos] = 1;

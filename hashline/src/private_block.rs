@@ -113,6 +113,79 @@ pub fn calibration_identity() -> Digest {
 /// `e_r2` for `xres2`. `IoSpec::new` accepts no others.
 pub const ENDPOINT_SCALES: (i32, i32) = (0, 0);
 
+/// One axis of a public weight matrix, named by the DOMAIN whose support it
+/// carries (ruling P-2, memo §3.7a condition 3).
+#[derive(Clone, Copy, Debug)]
+enum Axis {
+    /// the `Dom::D` model-width axis: supported on `[0, width)`
+    D,
+    /// the head-permuted `Dom::Q` axis: supported on the true head SLOTS,
+    /// which interleave one padded slot per key-value group (correction C-1)
+    Q,
+    /// the feed-forward `Dom::F` axis: supported on `[0, hidden)`
+    F,
+    /// an axis that does not pad, of this length (`Dom::Kv`'s width; or 1 for
+    /// a one-dimensional gain vector)
+    Full(usize),
+}
+
+impl Axis {
+    fn len(self, sh: &shape::Shape) -> usize {
+        match self {
+            Axis::D | Axis::Q => sh.d_pad,
+            Axis::F => sh.f_pad,
+            Axis::Full(n) => n,
+        }
+    }
+    /// `Ok(())` if index `i` of this axis is supported; the refusal names
+    /// WHICH KIND of padded index it is, so the two B-2 cases of §9a — a
+    /// weight nonzero at a padded width index, and a `Wo` whose input columns
+    /// are in true-head rather than slot order — are told apart by name.
+    fn supported(self, sh: &shape::Shape, i: usize) -> Result<(), String> {
+        let ok = match self {
+            Axis::D => i < sh.width,
+            Axis::Q => sh.slot_is_true_head(i / sh.head_dim),
+            Axis::F => i < sh.hidden,
+            Axis::Full(_) => true,
+        };
+        if ok {
+            Ok(())
+        } else if matches!(self, Axis::Q) {
+            Err("private block: a public weight is nonzero at a padded head slot".into())
+        } else {
+            Err("private block: a public weight is nonzero at a padded width index".into())
+        }
+    }
+}
+
+/// **RULING P-2's construction-time check.** `w` is `(outer, inner)`
+/// row-major over the two padded axes; every entry whose outer OR inner index
+/// is off its axis's support must be zero.
+///
+/// This is entrywise, which is strictly stronger than the memo's wording
+/// ("the folded weight vector vanishes off the support"): folding is a linear
+/// combination over the other axis, so an entrywise-zero block folds to zero
+/// at every challenge, while a folded vector could vanish at one point and
+/// not at another. `pad::tests::the_folded_weight_vectors_vanish_off_support`
+/// ties the two together.
+fn weights_vanish_off_support(sh: &shape::Shape, w: &[i8], outer: Axis, inner: Axis) -> Result<(), String> {
+    let (no, ni) = (outer.len(sh), inner.len(sh));
+    debug_assert_eq!(w.len(), no * ni, "the length check runs before this one");
+    for o in 0..no {
+        let o_ok = outer.supported(sh, o).is_ok();
+        for i in 0..ni {
+            if w[o * ni + i] == 0 {
+                continue;
+            }
+            if !o_ok {
+                outer.supported(sh, o)?;
+            }
+            inner.supported(sh, i)?;
+        }
+    }
+    Ok(())
+}
+
 /// The attention half of the public statement: attention weights ((output,
 /// input) row-major, as `causal_oracle::PublicBlockWeights`), the first norm
 /// gain and the three public attention tables. Shape and structure are
@@ -141,6 +214,18 @@ impl AttentionPublic {
     /// The same statement at any [`shape::Shape`] (step S6): the weight and
     /// table LENGTHS and the exponential table's scale come from the shape,
     /// the structural rules do not move. `new` is this at `Shape::toy()`.
+    ///
+    /// **STEP S9, ruling P-2 (memo §3.7a, "the prover side", condition 3).**
+    /// The matrices are the **zero-padded, head-permuted** ones: every axis
+    /// is the PADDED extent, and every entry off the destination axis's
+    /// support must be zero. That is checked here, by name, at construction —
+    /// it is the one condition of B-2 that no later relation can recover,
+    /// because the matmul slots fold the weight over the padded inner index
+    /// and a nonzero padded weight would read a padded activation.
+    ///
+    /// At the toy every padded extent equals its true extent and the head
+    /// permutation is the identity, so the accepted set of statements does
+    /// not move by one word.
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new_shaped(
         sh: &shape::Shape,
@@ -153,10 +238,19 @@ impl AttentionPublic {
         rope_sin: &[i64],
         exp: &[i64],
     ) -> Result<Self, String> {
-        let (d, kv, half) = (sh.width, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
+        let (d, kv, half) = (sh.d_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
         if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
             return Err("private block: public weight shape".into());
         }
+        // P-2: the destination axis's support, axis by axis. `Wq` writes the
+        // head-permuted `Dom::Q` axis and reads `Dom::D`; `Wk` / `Wv` write
+        // `Dom::Kv` (which does not pad on its width axis) and read `Dom::D`;
+        // `Wo` reads `Dom::Q` and writes `Dom::D`.
+        weights_vanish_off_support(sh, wq, Axis::Q, Axis::D)?;
+        weights_vanish_off_support(sh, wk, Axis::Full(kv), Axis::D)?;
+        weights_vanish_off_support(sh, wv, Axis::Full(kv), Axis::D)?;
+        weights_vanish_off_support(sh, wo, Axis::D, Axis::Q)?;
+        weights_vanish_off_support(sh, gamma_a, Axis::Full(1), Axis::D)?;
         if [rope_cos.len(), rope_sin.len()] != [sh.tokens * half; 2] || exp.len() != 256 {
             return Err("private block: public table shape".into());
         }
@@ -235,12 +329,20 @@ impl FeedForwardPublic {
         Self::new_shaped(&shape::Shape::toy(), gamma_m, wg_t, wu_t, wd_t, act)
     }
 
-    /// The same feed-forward statement at any [`shape::Shape`] (step S6).
+    /// The same feed-forward statement at any [`shape::Shape`] (step S6),
+    /// with ruling P-2's construction-time support check (step S9): the three
+    /// matrices are the zero-padded ones and every entry off the destination
+    /// axis's support must be zero. The feed-forward axis carries no head
+    /// permutation — only `Dom::Q` does — so its support is a prefix.
     pub(crate) fn new_shaped(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
-        let (d, f) = (sh.width, sh.hidden);
+        let (d, f) = (sh.d_pad, sh.f_pad);
         if gamma_m.len() != d || [wg_t.len(), wu_t.len()] != [d * f; 2] || wd_t.len() != f * d {
             return Err("private block: feed-forward weight shape".into());
         }
+        weights_vanish_off_support(sh, gamma_m, Axis::Full(1), Axis::D)?;
+        weights_vanish_off_support(sh, wg_t, Axis::D, Axis::F)?;
+        weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;
+        weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;
         let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
         Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
     }

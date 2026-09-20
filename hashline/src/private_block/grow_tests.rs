@@ -490,6 +490,64 @@ fn window_shape(name: &'static str, profile: &'static str, f_e: u32, wrho_s: Opt
     Shape::new(name, profile, 24, 96, 192, 6, 16, 2, 10, 4, f_e, 14, Some(8), Some(4), norm_wrho, wrho_s).expect("a window fixture shape is well formed")
 }
 
+// ====================================================================
+// STEP S9 / ruling P-2: the padded, head-permuted public statement
+// ====================================================================
+//
+// `AttentionPublic::new_shaped` and `FeedForwardPublic::new_shaped` take the
+// ZERO-PADDED, HEAD-PERMUTED matrices and refuse a nonzero entry off the
+// destination axis's support. These helpers are what the model-root owner
+// would do to an approved true-sized matrix, written HERE (in test code) so
+// that the checker in the library is not checking its own output. At the toy
+// every padded extent equals its true extent and `head_slot` is the
+// identity, so both helpers are the identity there.
+
+/// the padded index of a TRUE `Dom::Q`-axis index `j = h * head_dim + i'`
+pub(super) fn q_axis_index(s: &Shape, j: usize) -> usize {
+    s.head_slot(j / s.head_dim) * s.head_dim + j % s.head_dim
+}
+
+/// Place a true `(outer, inner)` row-major matrix into the padded
+/// `(po, pi)` one through the two index maps.
+pub(super) fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &dyn Fn(usize) -> usize, imap: &dyn Fn(usize) -> usize) -> Vec<i8> {
+    assert_eq!(w.len(), to * ti, "a true-sized matrix");
+    let mut out = vec![0i8; po * pi];
+    for o in 0..to {
+        for i in 0..ti {
+            out[omap(o) * pi + imap(i)] = w[o * ti + i];
+        }
+    }
+    out
+}
+
+/// `[Wq, Wk, Wv, Wo, gamma_a]`, padded and head-permuted from their true
+/// sizes `(d, d)`, `(kvw, d)`, `(kvw, d)`, `(d, d)`, `(d)`.
+pub(super) fn pad_attention_weights(s: &Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8]) -> [Vec<i8>; 5] {
+    let (d, dp, kvw) = (s.width, s.d_pad, s.kv_heads * s.head_dim);
+    let id = |i: usize| i;
+    let q = |j: usize| q_axis_index(s, j);
+    [
+        pad_matrix(wq, d, d, dp, dp, &q, &id),
+        pad_matrix(wk, kvw, d, kvw, dp, &id, &id),
+        pad_matrix(wv, kvw, d, kvw, dp, &id, &id),
+        pad_matrix(wo, d, d, dp, dp, &id, &q),
+        pad_matrix(gamma_a, 1, d, 1, dp, &id, &id),
+    ]
+}
+
+/// `[gamma_m, Wg, Wu, Wd]`, padded from their true sizes `(d)`, `(d, f)`,
+/// `(d, f)`, `(f, d)`. The feed-forward axis carries no head permutation.
+pub(super) fn pad_ff_weights(s: &Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8]) -> [Vec<i8>; 4] {
+    let (d, f, dp, fp) = (s.width, s.hidden, s.d_pad, s.f_pad);
+    let id = |i: usize| i;
+    [
+        pad_matrix(gamma_m, 1, d, 1, dp, &id, &id),
+        pad_matrix(wg_t, d, f, dp, fp, &id, &id),
+        pad_matrix(wu_t, d, f, dp, fp, &id, &id),
+        pad_matrix(wd_t, f, d, fp, dp, &id, &id),
+    ]
+}
+
 /// a deterministic tame case at a shape: diagonal weights, a modest gain and
 /// a modest input, so that every class holds and the only thing that can
 /// refuse is a WINDOW
@@ -501,8 +559,10 @@ pub(super) fn tame_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, Vec<i
     assert_eq!(cos.len(), s.tokens * half);
     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
-    let public = AttentionPublic::new_shaped(s, &diag(d, d), &diag(kvw, d), &diag(kvw, d), &diag(d, d), &gamma, &cos, &sin, &exp).expect("statement");
-    let ff = FeedForwardPublic::new_shaped(s, &gamma, &diag(d, f), &diag(d, f), &diag(f, d), &act).expect("feed-forward statement");
+    let aw = pad_attention_weights(s, &diag(d, d), &diag(kvw, d), &diag(kvw, d), &diag(d, d), &gamma);
+    let fw = pad_ff_weights(s, &gamma, &diag(d, f), &diag(d, f), &diag(f, d));
+    let public = AttentionPublic::new_shaped(s, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp).expect("statement");
+    let ff = FeedForwardPublic::new_shaped(s, &fw[0], &fw[1], &fw[2], &fw[3], &act).expect("feed-forward statement");
     // The input magnitude is chosen, not incidental: the norm denominator is
     // `4096 * isqrt(1 + sum x^2)`, so only a LARGE input makes the remainder
     // window bite. At |x| about 24,000 over 96 columns, `D` is about 235,000
@@ -735,10 +795,12 @@ fn the_rung_at_its_own_calibration_has_an_honest_witness() {
     // causal support, over the integers, at the rung's window
     let val = |p: usize, i: usize| w.planes[p][i];
     for h in 0..s.q_heads {
+        // S9: the logical head sits at its padded head SLOT (correction C-1)
+        let hs = s.head_slot(h);
         for t in 0..s.tokens {
-            let sum = w.planes[ids.at(A_SUM)][h * s.t_pad + t];
+            let sum = w.planes[ids.at(A_SUM)][hs * s.t_pad + t];
             for j in 0..=t {
-                let i = (h * s.t_pad + t) * s.t_pad + j;
+                let i = (hs * s.t_pad + t) * s.t_pad + j;
                 let rho: i64 = (0..3).map(|k| val(ids.sr(k), i) << (8 * k)).sum();
                 let sig: i64 = (0..3).map(|k| val(ids.sg(k), i) << (8 * k)).sum();
                 assert_eq!(sig + rho + 1, sum, "the rung's softmax remainder pair does not close at ({h}, {t}, {j})");

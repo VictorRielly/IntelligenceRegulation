@@ -26,6 +26,10 @@ use super::layout::{SC_DMM, SC_DZC, SC_FZC, SC_GMM, SC_IO_IN, SC_IO_OUT, SC_KMM,
 
 /// byte limbs of the isqrt witness `D`, `a1`, `a2` (each below `2^24`)
 pub(crate) const LIMBS_ISQRT: usize = 3;
+/// The FROZEN toy profile string. It is the gate of the pad rule (ruling P-1,
+/// finding S9-F1) and of every later shape-driven addition: a new shape is a
+/// NEW profile beside the toy, never an edit of it (D17).
+pub(crate) const TOY_PROFILE: &str = "hashline-zk-mr1/private-block-t32-poc/1";
 const INT16_MAX: i128 = 32_767;
 /// the norm's fixed-point shift; the denominator is `2^(tn+1) * D`
 const NORM_TN: u32 = 11;
@@ -158,6 +162,14 @@ impl Shape {
         if q_heads % kv_heads != 0 {
             return Err("private block shape: the query heads do not divide into the key-value heads".into());
         }
+        // C-1: the padded head axis is cut into one equal block of slots per
+        // key-value group, so that the group is the HIGH bits of the slot
+        // index and "query head h reads key-value head slot >> log(slots per
+        // group)" is a fixed-coordinate relation. That needs `kv_heads` to
+        // divide the PADDED head count, not only the true one.
+        if h_pad % kv_heads != 0 {
+            return Err("private block shape: the key-value heads do not divide the padded head count".into());
+        }
         if !(2..=30).contains(&log_cols) || !inv_rate.is_power_of_two() || inv_rate < 2 {
             return Err("private block shape: the row geometry is out of range".into());
         }
@@ -192,8 +204,7 @@ impl Shape {
 
     /// THE TOY, the only shape that proves anything today.
     pub(crate) fn toy() -> Shape {
-        Shape::new("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", "hashline-zk-mr1/private-block-t32-poc/1", 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
-            .expect("the toy shape is well formed")
+        Shape::new("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", TOY_PROFILE, 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("the toy shape is well formed")
     }
 
     /// THE DEVELOPMENT RUNG of ruling P-7 (memo §9a). `F_E = 12` is a
@@ -227,6 +238,50 @@ impl Shape {
     pub(crate) fn m125() -> Shape {
         Shape::new("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 29, None, None, None, None)
             .expect("the 125M shape is well formed")
+    }
+
+    // ---- the head permutation (correction C-1, ruling P-2) -----------------
+    /// how many slots of the PADDED head axis each key-value group owns
+    pub(crate) fn slots_per_kv_group(&self) -> usize {
+        self.h_pad / self.kv_heads
+    }
+    /// `log2` of the above — the shift that recovers a slot's key-value head
+    pub(crate) fn log_slots_per_kv_group(&self) -> usize {
+        self.slots_per_kv_group().trailing_zeros() as usize
+    }
+    /// **THE HEAD PERMUTATION.** The padded head slot that logical query head
+    /// `h` occupies. The key-value group owns a contiguous block of slots, so
+    /// the group index is the HIGH bits of the slot and each group's padding
+    /// falls at the END of ITS OWN block: padded slots `{3, 7}` at the rung
+    /// and `{3, 7, 11, 15}` at 125M (§3.7a note 2), never a contiguous tail.
+    ///
+    /// At the toy `q_heads == h_pad` and this is the identity, which is why
+    /// no toy byte moves and why no toy test could ever have seen the
+    /// difference (the same lesson as finding S6-F1).
+    pub(crate) fn head_slot(&self, h: usize) -> usize {
+        let group = self.q_heads / self.kv_heads;
+        (h / group) * self.slots_per_kv_group() + (h % group)
+    }
+    /// Is padded head slot `sl` occupied by a true query head?
+    pub(crate) fn slot_is_true_head(&self, sl: usize) -> bool {
+        sl < self.h_pad && sl % self.slots_per_kv_group() < self.q_heads / self.kv_heads
+    }
+    /// the key-value head a padded head slot reads — the slot's high bits
+    pub(crate) fn kv_of_slot(&self, sl: usize) -> usize {
+        sl >> self.log_slots_per_kv_group()
+    }
+
+    // ---- the pad rule's PROFILE gate (ruling P-1, finding S9-F1) -----------
+    /// **The pad rule is carried by a PROFILE, never by "does this domain
+    /// pad" (finding S9-F1).** `Dom::L` pads at the toy — nine of sixteen
+    /// limb sub-planes carry the isqrt witness and seven are empty — so a
+    /// domain-driven rule would put a pad-zero term in the toy's `SC_LZC` and
+    /// move every byte of the frozen 2,816,472-byte receipt. The frozen toy
+    /// profile therefore carries NO pad-zero machinery and its `Dom::L` pad
+    /// stays exactly as unconstrained as it always was (D17); every other
+    /// profile carries the rule.
+    pub(crate) fn carries_pad_rule(&self) -> bool {
+        self.profile != TOY_PROFILE
     }
 
     // ---- the byte-limb counts the two integer windows force ----------------
@@ -440,7 +495,9 @@ impl Shape {
                 Some(dom) => self.log(dom),
                 None => inner(s),
             };
-            let indicator = INDICATOR_SLOT_DOMAIN.iter().any(|(slot, dom)| *slot == s && self.pads(*dom));
+            // the PROFILE gate of finding S9-F1: the frozen toy profile
+            // carries no pad machinery, so no toy degree can move
+            let indicator = self.carries_pad_rule() && INDICATOR_SLOT_DOMAIN.iter().any(|(slot, dom)| *slot == s && self.pads(*dom));
             // the two bilinear matmuls mask two private factors, in extension
             // rounds 0 and 1; every other slot has one extension round
             let ext = if s == SC_SCORE || s == SC_PV { 2 } else { 1 };
