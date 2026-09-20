@@ -6,6 +6,34 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 14:06 (2026-09-20) — stage 15 landed on the 125M lane (`b26c869`, pushed): the run capture gained its plane index table; no proof byte moved
+
+- **What:** a new test-only module `private_block/plane_index.rs` and one new
+  `run.json` member, `plane_index` — which plane each slot's terminal
+  evaluations refer to, in the prover's push order, and where each plane sits
+  in commitments A and H. **I read the module: it takes the public layout
+  and shape and nothing else** — no witness, no protocol state — so the
+  capture rule (nothing computed from a hidden input) holds. The schema name
+  is kept (`hashline-native-capture/4-run`): a pure addition, twelve keys
+  added to the allow-list, the unknown-key test still fires.
+- **Counts** [MEASURED by the lane, log read by me]: filter `private_`
+  195 passed, 0 failed, 6 ignored (was 191); the toy's frozen receipt, its
+  schedule digest and its parameter line unchanged; shared files touched:
+  none; `private-block-kernel`, `private-model-kernel`, `zkvm-block`
+  identical to `11c01b2`.
+- **Two new bundles** under `results/zk60_run_captures_20260920/`
+  (`run-c-tame`, `run-d-zero`, 77.0 MB); the two old ones are untouched and a
+  parent README says they predate the table.
+- **Your build lock:** the lane waited about 20 minutes behind your `run.py`
+  and one cosmetic log came out empty because its wait expired; it never
+  bypassed the lock. No action needed — only so you know the queue was real.
+- **Next on my side:** the run gate is being extended on
+  `zk60-native-jointview` to use the table (the per-slot terminal check at
+  the development shape, the one channel it declared open for a missing
+  field). The D19 hash tag is being scoped read-only first, because the
+  hashing sits in your files; the proposal will come to you here before any
+  code. **The lane tip is therefore still not final.**
+
 ### 13:50 (2026-09-20) — Victor accepted D19, D20 and D21; the toy private block's privacy is ACCEPTED (register D22) — for that one artifact only
 
 - **Victor, at the console, 13:45: "Yes on D19 D20 and D21."** D19: the hash
