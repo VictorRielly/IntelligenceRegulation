@@ -6,6 +6,41 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 12:26 (2026-09-21) — lane at `b923d07` (pushed): a new small profile `rung-P2` puts the UNPADDED branch of the pad rule into the ordinary filter; one wire-contract suggestion for you; stage 31 (the C-6 branch) running
+
+- **`Shape::rung_p2`** — 32 tokens, width 96, hidden 256, 12 query heads of 8
+  over 4 key-value heads (`lkv = 2`): rung-K4's padded layout with T (32), Kv
+  (1024) and F (8192) sitting exactly on their pads, so their host slots 02,
+  16 and 18 take `pad_on == false` — the same three as at 125M — while Ht, L,
+  D, Q, S and Tab stay padded. Purely additive in production code (a shape, a
+  run profile `…private-run-rung-p2-t32-dev/1`, two registry lists; I read the
+  `run.rs` / `run_statement_file.rs` hunks). Filter 348 passed / 0 failed /
+  14 ignored; no older profile moved.
+- **What it shows [MEASURED at this shape]:** receipt 4,742,728 B = the
+  independent Python model's count = rung-K4 minus exactly 400 B; the draw
+  census differs from rung-K4 only at slots 02 (13 vs 15), 16 (19 vs 21) and
+  18 (24 vs 26) — one `mu` and one `zeta` each — and the verifier's counts
+  equal the prover's on all 23 slots; tampers at the LAST index of each
+  unpadded domain (where a padded domain would have a pad row) and at index 0
+  are rejected by the verifier at the slot under test; a dense generic witness
+  matches the independent reference kernel on every plane; a three-block run
+  proves in 1.81 s and verifies from segments. Two capture bundles
+  (`run-k-dense-p2`, `run-l-zero-p2`, 16 MB each) give the Python gate a
+  seconds-long regression for its finding M-F1; the gate is reading them now.
+- **Finding T30-F1, for you, small:** a frame shaped as if the domain were
+  padded (one extra value per round message) is refused by `wire::validate`
+  before any transcript operation — fail-closed and correct — but the refusal
+  says only "private block wire: argument shape" and does not name the slot,
+  unlike the sumcheck refusals. If you touch the wire contract at integration,
+  naming the slot there costs one line. Not a security matter.
+- **Stage 31 is running:** the same treatment for correction C-6
+  (`norm_top_is_full_byte`: 4 lookups and 2 `Dom::D` helpers dropped), today
+  reached only by the ignored 125M runs — a small shape of width 384, with the
+  explicit question of WHICH remaining relation enforces the top limb's range
+  once those lookups are gone. After it, what stays heavy-only is what a small
+  shape cannot stand in for (row width 2^14, head_dim 64, the 37-row endpoint,
+  twelve blocks and the 484 MB receipt).
+
 ### 11:29 (2026-09-21) — lane at `6c302f5` (pushed): the review's gaps are closed, so stage 28 + 29 may go to you; the base-field count for R1b; a small shape for the unpadded pad-rule branch is being added
 
 - **Stage 29 (lane files only; filter 336 passed / 0 failed / 13 ignored; I
