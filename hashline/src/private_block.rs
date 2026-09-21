@@ -171,6 +171,13 @@ mod hash_tag_tests;
 // `run_capture`, and the tests are in `run_tests.rs` beside the runs.
 #[cfg(test)]
 mod run_statement_file;
+// STAGE 20, INDEPENDENT ADVERSARIAL REVIEW (delegated reviewer, 2026-09-20):
+// the S19-F1 repair driven through the REAL `argument::define`, plus the
+// completeness battery and the padded-head-slot / cross-group cheating
+// witnesses. Report:
+// `docs/zkmatrix-poc/ZK60_BLOCK125M_S20_FIX_REVIEW.md`.
+#[cfg(test)]
+mod s20_review_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
