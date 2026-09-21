@@ -386,6 +386,45 @@ const MODEL_RUNG_G: Expected = Expected {
     receipt_total: 4_234_984,
 };
 
+/// **STAGE 22.** `Shape::rung_k4` — rung-G's geometry with the heads recut
+/// as twelve query heads of eight over FOUR key-value heads, so `lkv = 2`.
+/// These are `scripts/zk60_private_block_layout_model.py`'s own figures at
+/// `SHAPES["rung_k4"]`, transcribed, and like rung-G this shape has **NO
+/// Rust-side correction term**: its endpoint is the generalised one, priced
+/// from the block's own PCS parameters, which the model already models.
+///
+/// The head axis is the only thing that moves against rung-G, and it moves
+/// two things with it: `Dom::S = h_pad * t_pad * t_pad` doubles (sixteen
+/// head slots against eight), which is where the extra `A` rows, the extra
+/// `S`-domain lookups and most of the extra 508,144 receipt bytes come
+/// from; and the two bilinear slots gain one main round each (`lkv` is 2,
+/// not 1) while `SC_SCORE`'s inner axis shrinks from `log2(16)` to
+/// `log2(8)`, which is why its schedule is rung-G's `(5, 2, 3)` exactly and
+/// `SC_PV`'s is `(7, 2, 3)` against `(6, 2, 3)`.
+const MODEL_RUNG_K4: Expected = Expected {
+    a_planes: 83,
+    h_planes: 52,
+    a_data_rows: 481,
+    h_data_rows: 614,
+    a_rows: 727,
+    h_rows: 720,
+    a_sites: 122,
+    h_sites: 52,
+    a_groups: 36,
+    h_groups: 9,
+    largest_slot_length: 77,
+    main_rounds: 220,
+    extension_rounds: 25,
+    published_round_values: 1_070,
+    challenge_draws: 245,
+    bilinear_lengths: (23, 29),
+    u8_per_domain: [2_048, 155_648, 73_728, 53_248, 12_288, 245_760],
+    u8_lookups: 542_720,
+    exp_pairs: 16_384,
+    act_pairs: 8_192,
+    receipt_total: 4_743_128,
+};
+
 const MODEL_M125: Expected = Expected {
     a_planes: 83,
     h_planes: 50,
@@ -541,22 +580,28 @@ fn the_shape_driven_layout_reproduces_the_toy_exactly() {
 fn the_shape_driven_layout_matches_the_python_model_at_the_rung_and_at_125m() {
     check_against_model(&Shape::rung(), &MODEL_RUNG);
     check_against_model(&Shape::rung_g(), &MODEL_RUNG_G);
+    // **STAGE 22.** The four-key-value-head shape, against the same
+    // independent model, with no delta and no correction term.
+    check_against_model(&Shape::rung_k4(), &MODEL_RUNG_K4);
     check_against_model(&Shape::m125(), &MODEL_M125);
 }
 
 /// **STAGE 21, review finding F-1, stated as its own test.** The three
 /// figures the S19-F1 repair moves are now pinned AS THE MODEL'S OWN OUTPUT
-/// at all four shapes, with no counted delta in between — which is the
+/// at all FIVE shapes, with no counted delta in between — which is the
 /// property F-1 says was lost. A disagreement here is a finding about the
 /// construction, not a stale literal.
 #[test]
 fn the_repaired_bilinear_schedule_agrees_with_the_independent_model_at_every_shape() {
     // (shape, model main rounds, model published round values, model draws,
     //  model (L_score, L_pv)) — `scripts/zk60_private_block_layout_model.py`
-    let cases: [(Shape, usize, usize, usize, (usize, usize)); 4] = [
+    let cases: [(Shape, usize, usize, usize, (usize, usize)); 5] = [
         (Shape::toy(), 159, 721, 184, (12, 16)),
         (Shape::rung(), 217, 1_055, 242, (23, 26)),
         (Shape::rung_g(), 217, 1_055, 242, (23, 26)),
+        // **STAGE 22**: the first shape in this table with TWO group bits
+        // that is small enough to prove and capture
+        (Shape::rung_k4(), 220, 1_070, 245, (23, 29)),
         (Shape::m125(), 336, 1_554, 361, (32, 41)),
     ];
     for (sh, main, values, draws, bilinear) in cases {

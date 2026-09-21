@@ -45,9 +45,30 @@ use crate::field::{Fp, Fp2};
 
 // ---------------------------------------------------------------- the recipe
 
-/// **THE SEED.** One fixed lane constant; the whole recipe is this stream
-/// read in a fixed order, so the same shape gives the same bytes forever.
+/// **THE SEED OF THE PUBLIC WEIGHTS.** One fixed lane constant; the nine
+/// PUBLIC words are this stream read in a fixed order, so the same shape
+/// gives the same weights forever.
+///
+/// **STAGE 22: this stream carries the PUBLIC WEIGHTS AND NOTHING ELSE.**
+/// Until stage 22 the synthetic HIDDEN INPUT was the tenth read of this same
+/// stream, and the recipe's published description said so — so the seed a
+/// run statement publishes regenerated the hidden input as well as the
+/// weights. Harmless for a synthetic test, wrong as the model for a
+/// production statement writer, in which the weights are public and the
+/// input is the secret. The input now comes from [`DENSE_INPUT_SEED`], and
+/// `the_dense_recipes_public_stream_is_consumed_entirely_by_public_words`
+/// asserts that this stream is exhausted by the nine words.
 pub(super) const DENSE_SEED: u64 = 0xD15E_ED19_0000_0001;
+
+/// **STAGE 22: THE HIDDEN INPUT'S OWN SEED, WHICH IS NEVER PUBLISHED.**
+///
+/// It appears in this test source (which is what a test's synthetic secret
+/// is) and in NO retained file: not in a run statement, not in a capture
+/// bundle, not in a log. The two streams are independent, so a reader who
+/// has the public recipe — the seed, the distributions, the read order and
+/// the bands — can regenerate every public weight and learns nothing
+/// whatever about the input.
+pub(super) const DENSE_INPUT_SEED: u64 = 0x1DDE_4E17_0000_0001;
 
 /// the attention band: every entry of `Wq`, `Wk`, `Wv`, `Wo` is drawn
 /// uniformly from `[-56, -1] u [1, 56]`
@@ -118,7 +139,24 @@ pub(super) fn dense_words(s: &Shape) -> ([Vec<i8>; 9], Vec<i16>) {
 
 /// The same recipe with every band given explicitly — the form the stage's
 /// bisection diagnostic drives, and the one place the numbers live.
+///
+/// **STAGE 22: two independent streams.** The nine PUBLIC words come from
+/// [`dense_public_words_with`] and the hidden input from
+/// [`dense_hidden_input`]; nothing about the input can be reached from the
+/// public seed any more.
 pub(super) fn dense_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains: (i64, i64), xmag: i64) -> ([Vec<i8>; 9], Vec<i16>) {
+    let (words, _) = dense_public_words_with(s, attn, gate, down, gains);
+    (words, dense_hidden_input(s, xmag))
+}
+
+/// **THE PUBLIC HALF OF THE RECIPE, and the whole of what a run statement's
+/// recipe string describes (stage 22).** The nine TRUE-sized public words,
+/// drawn in the fixed order `[Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg, Wu, Wd]`
+/// from [`DENSE_SEED`], and the stream's state AFTERWARDS so that a test can
+/// assert the stream is CONSUMED ENTIRELY by those nine words — which is the
+/// structural form of "this seed regenerates the public weights and nothing
+/// else".
+pub(super) fn dense_public_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains: (i64, i64)) -> ([Vec<i8>; 9], u64) {
     let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
     let mut r = Rng(DENSE_SEED);
     let mat = |r: &mut Rng, outer: usize, inner: usize, mag: i64| -> Vec<i8> { (0..outer * inner).map(|_| r.nonzero(mag) as i8).collect() };
@@ -134,8 +172,23 @@ pub(super) fn dense_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains
         mat(&mut r, d, f, gate),
         mat(&mut r, f, d, down),
     ];
-    let input: Vec<i16> = (0..s.tokens * d).map(|_| r.nonzero(xmag) as i16).collect();
-    (words, input)
+    (words, r.0)
+}
+
+/// **THE HIDDEN INPUT, FROM ITS OWN STREAM (stage 22).** One draw per word,
+/// uniform on `[-xmag, -1] u [1, xmag]`, from [`DENSE_INPUT_SEED`]. It is
+/// the test's synthetic SECRET: no retained file names this seed, this
+/// function or this distribution.
+pub(super) fn dense_hidden_input(s: &Shape, xmag: i64) -> Vec<i16> {
+    let mut r = Rng(DENSE_INPUT_SEED);
+    (0..s.tokens * s.width).map(|_| r.nonzero(xmag) as i16).collect()
+}
+
+/// How many draws the nine public words take from [`DENSE_SEED`] — one per
+/// entry, because `nonzero` and `pick` each call `next` exactly once.
+pub(super) fn dense_public_word_draws(s: &Shape) -> u64 {
+    let (d, f, kvw) = (s.width as u64, s.hidden as u64, (s.kv_heads * s.head_dim) as u64);
+    d * d + kvw * d + kvw * d + d * d + d + d + d * f + d * f + f * d
 }
 
 /// `tame_case`'s own nine words, in the same order — the diagonal fixture the
@@ -257,10 +310,16 @@ pub(super) fn dense_ff_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, V
 /// 125M against 192 at the rung, so `z16` accumulates over ten times as many
 /// terms; band 1 is what that costs, and it is a property of THIS
 /// calibration's `int16` residual, not of the argument.
+/// **STAGE 22: the key is `(hidden, kv_heads)` and no longer `hidden`
+/// alone.** `Shape::rung_k4` has the rungs' hidden axis and a different head
+/// axis, so it needs its own MEASURED band
+/// (`k4_tests::the_pinned_rung_k4_chain_band_is_the_first_admissible_one`);
+/// the two rungs' 47 and 125M's 1 are the stage-21 values, unchanged.
 pub(super) fn band_down_run(s: &Shape) -> i64 {
-    match s.hidden {
-        192 => 47,
-        2048 => 1,
+    match (s.hidden, s.kv_heads) {
+        (192, 2) => 47,
+        (192, 4) => 47,
+        (2048, 4) => 1,
         // any other geometry has not been measured; fall back to the
         // single-block band, which is the recipe's own and is honest about
         // saying nothing new
@@ -282,9 +341,40 @@ pub(super) fn dense_run_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, 
 }
 
 /// **THE PUBLIC NAME of the fully dense run recipe**, written into a run
-/// statement file so a fresh verifier regenerates exactly these weights.
-/// Every number a reader needs to reproduce the stream is in the string.
+/// statement file so a fresh verifier regenerates exactly these PUBLIC
+/// WEIGHTS. Every number a reader needs to reproduce that stream is in the
+/// string, and NOTHING ELSE IS.
+///
+/// **STAGE 22.** Until stage 22 this string also ended the read order with
+/// `x` and gave the hidden input's distribution, and the input really was
+/// the tenth read of the same seeded stream — so the published seed
+/// regenerated the hidden input. The stream is now exhausted by the nine
+/// public words (asserted structurally by
+/// `the_dense_recipes_public_stream_is_consumed_entirely_by_public_words`)
+/// and the input has its own unpublished seed, so this string regenerates
+/// the public weights and nothing else. **The PUBLIC WEIGHTS DID NOT MOVE
+/// BY A BYTE**: the input was always drawn LAST, so removing it from the
+/// stream leaves every weight draw where it was. The stage-21 string is kept
+/// as a READ-ONLY alias ([`LEGACY_DENSE_RUN_RECIPE_NAME`]) so the statements
+/// retained before stage 22 still regenerate their blocks.
 pub(super) const DENSE_RUN_RECIPE_NAME: &str =
+    "private_block::dense_tests::dense_run_case(<block profile's Shape>)'s NINE PUBLIC WORDS, the same fully dense public words for every block: SplitMix64 seeded 0xD15EED1900000001, read in the fixed order [Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg, Wu, Wd] and CONSUMED ENTIRELY by them; Wq/Wk/Wv/Wo uniform on [-56,-1] u [1,56]; gamma_a/gamma_m uniform on [40,127]; Wg/Wu uniform on [-96,-1] u [1,96]; Wd uniform on [-B,-1] u [1,B] with B = band_down_run(shape) (47 at the rungs, 1 at 125M). PUBLIC WEIGHTS ONLY: this recipe regenerates the nine public words and nothing else, and the test witness's secret is drawn from a separate stream whose seed is in no retained file";
+
+/// **THE STAGE-21 RECIPE STRING, KEPT FOR READING AND NEVER FOR WRITING
+/// (stage 22).**
+///
+/// The two run statements this lane retained before stage 22
+/// (`results/zk60_block125m_lane/m125-run-l12-dense-run-statement.json` and
+/// the twelve-block artifact's own copy) carry this exact string. Its public
+/// weights are the ones [`dense_run_case`] still produces — bit for bit, at
+/// every shape — so mapping the old name to the same generator keeps those
+/// statements REGENERABLE and checkable against the block digests their
+/// headers absorb, which is the whole contract of the field.
+///
+/// It is on no writer's path:
+/// `the_writer_never_emits_the_legacy_recipe_string` asserts that the two
+/// recipes this module may WRITE are the stage-22 ones.
+pub(super) const LEGACY_DENSE_RUN_RECIPE_NAME: &str =
     "private_block::dense_tests::dense_run_case(<block profile's Shape>), the same fully dense public words for every block: SplitMix64 seeded 0xD15EED1900000001, read in the fixed order [Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg, Wu, Wd, x]; Wq/Wk/Wv/Wo uniform on [-56,-1] u [1,56]; gamma_a/gamma_m uniform on [40,127]; Wg/Wu uniform on [-96,-1] u [1,96]; Wd uniform on [-B,-1] u [1,B] with B = band_down_run(shape) (47 at the rungs, 1 at 125M); hidden input uniform on [-6000,-1] u [1,6000]";
 
 // ------------------------------------------------------------ the recipe itself
@@ -960,6 +1050,89 @@ fn a_shared_kv_head_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g(
 }
 
 // ===================================================================
+// STAGE 22 — the recipe's stream carries the PUBLIC WEIGHTS and nothing else
+// ===================================================================
+
+/// **THE STRUCTURAL HALF OF STAGE 22 ITEM 1.** A string can say anything;
+/// this asserts the arithmetic behind it.
+///
+/// 1. **The published stream is EXHAUSTED by the nine public words.** After
+///    [`dense_public_words_with`] the SplitMix64 state is exactly the state
+///    of [`DENSE_SEED`] advanced by one draw per public weight ENTRY and no
+///    more. SplitMix64's state is a counter, `seed + n * GAMMA`, injective
+///    in `n` over a `u64`, so this equality pins the draw count exactly: a
+///    tenth read of any length would move it.
+/// 2. **The hidden input is NOT that stream continued.** The witness the
+///    tests use is drawn from [`DENSE_INPUT_SEED`], and what the PUBLISHED
+///    seed would give if a reader guessed that the input comes next — which
+///    is what it DID give until stage 22 — is a different vector.
+/// 3. The two seeds are different constants, and the input stream is still
+///    deterministic and dense.
+#[test]
+fn the_dense_recipes_public_stream_is_consumed_entirely_by_public_words() {
+    for s in [Shape::rung(), Shape::rung_g(), Shape::m125()] {
+        let draws = dense_public_word_draws(&s);
+        let entries: u64 = {
+            let (w, _) = dense_public_words_with(&s, BAND_ATTN, BAND_GATE, band_down_run(&s), GAIN);
+            w.iter().map(|m| m.len() as u64).sum()
+        };
+        assert_eq!(draws, entries, "{}: the counted draw total is not the number of public weight entries", s.name);
+        // (1) the stream stops exactly there
+        let (_, after) = dense_public_words_with(&s, BAND_ATTN, BAND_GATE, band_down_run(&s), GAIN);
+        let mut probe = Rng(DENSE_SEED);
+        for _ in 0..draws {
+            probe.next();
+        }
+        assert_eq!(after, probe.0, "{}: the public-weights stream is not exhausted by the nine public words", s.name);
+        // and one more draw is a DIFFERENT state, so the equality above is a
+        // tight count and not an accident of the generator
+        probe.next();
+        assert_ne!(after, probe.0, "{}: the stream state does not move with a draw", s.name);
+        // (2) the hidden input is not the published stream continued
+        let mut leaked = Rng(after);
+        let would_have_been: Vec<i16> = (0..s.tokens * s.width).map(|_| leaked.nonzero(INPUT_MAG) as i16).collect();
+        let mine = dense_hidden_input(&s, INPUT_MAG);
+        assert_eq!(mine.len(), would_have_been.len(), "{}: the input length", s.name);
+        assert_ne!(mine, would_have_been, "{}: the hidden input IS the published stream continued — the split did not happen", s.name);
+        // (3) two constants, and the input is still what the tests need
+        assert_ne!(DENSE_SEED, DENSE_INPUT_SEED, "the two streams share a seed");
+        assert_eq!(mine, dense_hidden_input(&s, INPUT_MAG), "{}: the hidden input is not deterministic", s.name);
+        assert!(mine.iter().all(|v| *v != 0), "{}: the hidden input has a zero", s.name);
+        assert!(mine.iter().any(|v| *v != mine[0]), "{}: the hidden input is constant", s.name);
+        assert!(mine.iter().any(|v| *v > 0) && mine.iter().any(|v| *v < 0), "{}: the hidden input is one-signed", s.name);
+        eprintln!("S22 STREAM SPLIT at {}: {draws} public draws, stream exhausted, the input is an independent stream", s.name);
+    }
+}
+
+/// **THE TEXTUAL HALF, and its non-vacuity.** The two recipe strings this
+/// build may WRITE into a statement say nothing about the hidden input, and
+/// the stage-21 string they replaced is caught by the very same deny-list —
+/// so the check has teeth. `run_statement_file::hidden_input_token` is the
+/// one checker and it is used by the statement-file test too.
+#[test]
+fn the_recipe_strings_this_build_writes_describe_public_weights_only() {
+    use super::run_statement_file::{hidden_input_token, DENSE_RUN_FIXTURE, LEGACY_TAME_RECIPE_NAME, TAME_FIXTURE};
+    for (what, s) in [
+        ("the dense recipe name", DENSE_RUN_FIXTURE.name),
+        ("the dense recipe description", DENSE_RUN_FIXTURE.description),
+        ("the tame recipe name", TAME_FIXTURE.name),
+        ("the tame recipe description", TAME_FIXTURE.description),
+    ] {
+        assert_eq!(hidden_input_token(s), None, "{what} describes the hidden input: {s:?}");
+    }
+    // THE CHECK HAS TEETH: the string stage 22 replaced is refused by it, by
+    // name, and the token it is caught on is printed
+    let t = hidden_input_token(LEGACY_DENSE_RUN_RECIPE_NAME).expect("the stage-21 dense recipe string passed the deny-list, so the deny-list says nothing");
+    eprintln!("S22 DENY-LIST: the stage-21 dense recipe string is caught on {t:?}");
+    // the legacy TAME name was never a leak — it was vague, not revealing —
+    // and it is recorded here that the deny-list does not pretend otherwise
+    assert_eq!(hidden_input_token(LEGACY_TAME_RECIPE_NAME), None, "the legacy tame name is not a hidden-input leak and must not be reported as one");
+    // and the two names the writer uses are not the two legacy ones
+    assert_ne!(DENSE_RUN_FIXTURE.name, LEGACY_DENSE_RUN_RECIPE_NAME, "the writer still emits the stage-21 dense string");
+    assert_ne!(TAME_FIXTURE.name, LEGACY_TAME_RECIPE_NAME, "the writer still emits the stage-18 tame string");
+}
+
+// ===================================================================
 // STAGE 20 — the repair of finding S19-F1
 // ===================================================================
 
@@ -1171,6 +1344,49 @@ fn the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_g(
             assert_ne!(o_old, o_lhs, "{what}: the OLD PV formula AGREES on a generic witness");
         } else {
             assert_eq!(s_old, s_lhs, "{what}: the OLD formula DISAGREES on the degenerate fixture — then the fixture is not what hid the defect");
+            assert_eq!(o_old, o_lhs, "{what}: the OLD PV formula DISAGREES on the degenerate fixture");
+        }
+    }
+}
+
+/// **STAGE 22: THE SAME INDEPENDENT CHECK ON THE REAL rung-K4 WITNESSES,
+/// WHERE THE GROUP IS TWO BITS.**
+///
+/// The rung-G check above is the same statement at `lkv = 1`, and the
+/// synthetic check below is at `lkv = 2` but on RANDOM planes. This one is
+/// the pair of them: two group bits AND a real witness of a shape that
+/// proves. `sum_{g in {0,1}^2} eq(r_g, g) ...` has four terms, so a
+/// construction that summed only the leading bit — or that kept the trailing
+/// one fixed on both factors, which is precisely S19-F1 restricted to half
+/// the group — would disagree here and agree at every rung-G test.
+#[test]
+fn the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_k4() {
+    let sh = Shape::rung_k4();
+    let ids = Ids::new(&sh).expect("the rung-K4 plane map");
+    let g = Bilinear { t_pad: sh.t_pad, h_pad: sh.h_pad, head_dim: sh.head_dim, kv_heads: sh.kv_heads };
+    assert_eq!(g.lkv(), 2, "the rung-K4 shape must carry TWO group bits, or this test says nothing new");
+    let mut r = Rng(0x5C0E_1D03_0000_0001);
+    let lt = sh.t_pad.trailing_zeros() as usize;
+    let (r_h, r_t, r_j) = (point_of(&mut r, g.lh()), point_of(&mut r, lt), point_of(&mut r, lt));
+    let r_i = point_of(&mut r, sh.head_dim.trailing_zeros() as usize);
+    assert_eq!((1usize << r_h.len(), 1usize << r_t.len()), (sh.h_pad, sh.t_pad), "the head or token point is not the padded axis");
+    for (what, case, generic) in [
+        ("FULLY DENSE (generic)", dense_case(&sh), true),
+        ("tame_case (the degenerate fixture)", super::grow_tests::tame_case(&sh), false),
+    ] {
+        let (public, ff, input) = case;
+        let w = witness::build_shaped(&sh, &public, &ff, &input).expect("the honest rung-K4 witness");
+        let pl = |toy: usize| -> &[i64] { &w.planes[ids.at(toy)] };
+        let (s_lhs, s_new, s_old) = score_identity(&g, pl(A_QR8), pl(A_KR8), &r_h, &r_t, &r_j);
+        let (o_lhs, o_new, o_old) = pv_identity(&g, pl(A_P), pl(A_V8), &r_h, &r_t, &r_i);
+        assert_eq!(s_new, s_lhs, "{what}: the repaired SCORE identity does not hold at rung-K4");
+        assert_eq!(o_new, o_lhs, "{what}: the repaired PV identity does not hold at rung-K4");
+        eprintln!("K4 IDENTITY {what}: SCORE new == lhs, PV new == lhs; SCORE old {} lhs, PV old {} lhs", if s_old == s_lhs { "==" } else { "!=" }, if o_old == o_lhs { "==" } else { "!=" });
+        if generic {
+            assert_ne!(s_old, s_lhs, "{what}: the OLD product-of-extensions SCORE formula AGREES at rung-K4, so the check is vacuous here");
+            assert_ne!(o_old, o_lhs, "{what}: the OLD PV formula AGREES at rung-K4");
+        } else {
+            assert_eq!(s_old, s_lhs, "{what}: the OLD SCORE formula DISAGREES on the degenerate fixture, so the fixture is not what hid the defect");
             assert_eq!(o_old, o_lhs, "{what}: the OLD PV formula DISAGREES on the degenerate fixture");
         }
     }

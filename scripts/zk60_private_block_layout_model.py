@@ -589,12 +589,21 @@ RUNG_G = Shape("development rung, generalised endpoint (T24 / d96 / f192, 6 head
                     "block's own PCS parameters (log_cols 10, inv_rate 4) instead of the frozen "
                     "seam's 8 / 8, and 9 commitment rows for the 2^5 x 2^7 padded Dom::D plane")
 
+RUNG_K4 = Shape("development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)",
+                tokens=24, width=96, hidden=192, q_heads=12, head_dim=8, kv_heads=4,
+                log_cols=10, inv_rate=4, f_e=12, endpoint_rows=9,
+                note="LANE STAGE 22: rung-G's geometry with the heads recut as 12 of 8 over 4 KV "
+                     "heads, so log2(kv_heads) = 2 and the repaired bilinear slots sum over TWO "
+                     "group bits. Padded head slots {3, 7, 11, 15} — 125M's head geometry. The "
+                     "head axis is the only thing that moves, and it doubles Dom::S (h_pad 16 "
+                     "against 8), which is where the extra receipt bytes come from")
+
 M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
              tokens=512, width=768, hidden=2048, q_heads=12, head_dim=64, kv_heads=4,
              log_cols=14, inv_rate=4, f_e=9, endpoint_rows=29,
              note="memo §2; endpoint rows 29 per §6 / step S11")
 
-SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "m125": M125}
+SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "m125": M125}
 
 # What the module's own Rust asserts at the toy (`layout.rs:523-526`, `:700-749`,
 # `:778-780`, `tests.rs:106-108`).  The model must reproduce every one of these.
@@ -828,7 +837,7 @@ def report(out=sys.stdout):
         w(f"  {'OK ' if ok else 'XX '} {k:28s} model {str(got[k]):>28s}   rust {str(want):>28s}\n")
     w(f"  -> {'ALL TOY NUMBERS REPRODUCED EXACTLY' if bad == 0 else str(bad) + ' TOY MISMATCHES'}\n\n")
 
-    for name in ("rung", "rung_g", "m125"):
+    for name in ("rung", "rung_g", "rung_k4", "m125"):
         m = models[name]
         w(f"-- 2. {m['shape']['name']} --\n")
         w(f"  padded domains: {', '.join(m['padded_domains'])}\n")

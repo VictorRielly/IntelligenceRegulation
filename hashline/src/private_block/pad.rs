@@ -912,7 +912,7 @@ mod tests {
             let lkv = sh.kv_heads.trailing_zeros() as usize;
             (lkv + inner + 2) * (2 + usize::from(lkv > 0)) + 2
         };
-        for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::m125()] {
+        for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()] {
             let dh = s.head_dim.trailing_zeros() as usize;
             let tp = s.t_pad.trailing_zeros() as usize;
             assert_eq!(s.slot_lengths()[SC_SCORE], want_l(&s, dh), "{}: SC_SCORE's masked length", s.name);
@@ -930,7 +930,7 @@ mod tests {
     #[test]
     fn the_declared_degrees_are_inside_the_declared_range() {
         let (lo, hi) = Shape::degree_range();
-        for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::m125()] {
+        for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()] {
             for (slot, (_, _, d)) in s.slots().iter().enumerate() {
                 assert!((lo..=hi).contains(d), "{}: slot {slot} declares degree {d}, outside the declared range {lo}..={hi}", s.name);
             }

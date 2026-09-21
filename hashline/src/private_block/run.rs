@@ -50,6 +50,11 @@ use zkp_core::hashtag::HashTag;
 pub(crate) const BOUNDARY_SITES: usize = 2;
 
 pub(crate) const RUN_PROFILE_RUNG_G: &str = "hashline-zk-mr1/private-run-rung-g-t24-dev/1";
+/// **STAGE 22.** The run profile of the four-key-value-head development
+/// shape. One profile per shape (D17), so a run over `Shape::rung_k4` gets
+/// its own transcript and its own hash-tag key set and no existing run
+/// profile moves.
+pub(crate) const RUN_PROFILE_RUNG_K4: &str = "hashline-zk-mr1/private-run-rung-k4-t24-dev/1";
 pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
 
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
@@ -71,6 +76,10 @@ impl RunShape {
     }
     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::rung_g(), l, RUN_PROFILE_RUNG_G)
+    }
+    /// **STAGE 22.** A run at the four-key-value-head development shape.
+    pub(crate) fn rung_k4(l: usize) -> Result<RunShape, String> {
+        RunShape::new(Shape::rung_k4(), l, RUN_PROFILE_RUNG_K4)
     }
     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::m125(), l, RUN_PROFILE_M125)

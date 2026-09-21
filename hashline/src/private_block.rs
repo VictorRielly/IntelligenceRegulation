@@ -116,6 +116,12 @@ mod grow_tests;
 // hidden unit above `d` with no input and no output weight.
 #[cfg(test)]
 mod dense_tests;
+// STAGE 22: the FOUR-key-value-head development shape `Shape::rung_k4`, the
+// only small geometry at which the repaired bilinear slots carry more than
+// ONE group bit — proved, tampered with and captured, so that the Python
+// privacy gate's ports can finally read a bundle with `lkv = 2`.
+#[cfg(test)]
+mod k4_tests;
 #[cfg(test)]
 mod norm_alias;
 #[cfg(test)]

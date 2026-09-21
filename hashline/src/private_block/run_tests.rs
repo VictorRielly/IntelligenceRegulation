@@ -449,7 +449,7 @@ fn prove_to_vec(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitn
 /// else.** A run has three segment lengths: the first closes the external
 /// input endpoint (one group), the interior ones close a two-group boundary,
 /// and the last closes a boundary AND the external output endpoint.
-fn counted_segment_bytes(sh: &Shape, l: usize, boundary_rows: usize) -> Vec<usize> {
+pub(super) fn counted_segment_bytes(sh: &Shape, l: usize, boundary_rows: usize) -> Vec<usize> {
     let rb = sh.receipt_bytes();
     let e_n = 1usize << sh.endpoint_log_n;
     let e_vec = e_n + sh.opened_cols;
@@ -1744,4 +1744,111 @@ fn the_statement_files_json_reader_is_strict() {
     assert_eq!(d.get("x").expect("x").hex32().expect("a digest")[31], 0xff);
     assert!(d.get("y").expect("y").hex32().is_err(), "a short/upper-case digest was accepted");
     assert!(d.get("z").expect("z").hex32().is_err(), "a number was read as a digest");
+}
+
+// ============================================================
+// STAGE 22, item 1: a retained statement describes PUBLIC WEIGHTS ONLY
+// ============================================================
+
+/// Prove an honest tagged `l`-block rung-G run on the **FULLY DENSE run
+/// recipe** into a fresh directory and retain its statement. The tame
+/// harness above is `a_run_with_its_statement`; this is the same thing with
+/// the recipe whose string is what stage 22 item 1 is about, and it is the
+/// first time this lane writes a DENSE statement anywhere but the 125M
+/// heavy run.
+fn a_dense_run_with_its_statement(tag: &str, l: usize) -> (TempRunDir, run_statement_file::Written) {
+    let sh = Shape::rung_g();
+    let tmp = TempRunDir::new(tag);
+    let (public, ff, x0) = super::dense_tests::dense_run_case(&sh);
+    let blocks = blocks_from(&public, &ff, l);
+    let mut c = Chain::from_parts(&sh, l, public, ff, x0);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    prove_to_dir_and_memory(&st, &blocks, &mut c, owners, tmp.path()).expect("the honest fully dense run proves to a directory");
+    let w = run_statement_file::verify_then_write(&st, &blocks, tmp.path(), &run_statement_file::DENSE_RUN_FIXTURE)
+        .expect("the fully dense run verifies and its statement is retained");
+    (tmp, w)
+}
+
+/// **STAGE 22 ITEM 1's ACCEPTANCE.** A retained run statement written on the
+/// FULLY DENSE recipe
+///
+/// * names a recipe that passes the hidden-input deny-list, in both its
+///   `recipe` and its `description`;
+/// * carries the hidden input's seed NOWHERE in its bytes, in hex or in
+///   decimal;
+/// * still rebuilds the verifier's statement from the file alone,
+///   regenerating the public weights from the recipe, and VERIFIES the run
+///   in a fresh `RunVerifier` — which is the property the recipe field
+///   exists for and the one a narrower string could have broken.
+///
+/// The tame statement is held to the same three, so the property is the
+/// writer's and not one recipe's.
+#[test]
+fn a_retained_run_statement_regenerates_the_public_weights_and_names_no_hidden_input() {
+    for (what, (tmp, w)) in [("FULLY DENSE", a_dense_run_with_its_statement("s22-dense-stmt", 3)), ("tame", a_run_with_its_statement("s22-tame-stmt", 3, false))] {
+        let bytes = std::fs::read(&w.path).expect("the statement file reads");
+        let text = String::from_utf8(bytes.clone()).expect("the statement file is ASCII");
+        let j = run_statement_file::json::parse(&bytes).expect("the statement file parses");
+        let pw = j.get("public_weights").expect("public_weights");
+        let (recipe, description) = (pw.get("recipe").expect("recipe").str().expect("a string"), pw.get("description").expect("description").str().expect("a string"));
+        for (field, s) in [("recipe", recipe), ("description", description)] {
+            if let Some(t) = run_statement_file::hidden_input_token(s) {
+                panic!("{what}: public_weights.{field} describes the hidden input (token {t:?}): {s:?}");
+            }
+        }
+        // THE SEED ITSELF, in the whole file. The negative declaration
+        // `not_in_this_file` legitimately contains the words "hidden
+        // inputs", so the deny-list is applied to the recipe field and the
+        // SEED is what is searched for over the whole text.
+        for form in ["1dde4e17", "1DDE4E17", "2152243532620890113"] {
+            assert!(!text.contains(form), "{what}: the statement file carries the hidden input's seed as {form:?}");
+        }
+        // and the file is still SUFFICIENT: the recipe regenerates the
+        // public weights and a fresh verifier accepts the run
+        run_statement_file::verify_from_disk(tmp.path()).expect("the statement file alone does not rebuild a run that verifies");
+        let (_, blocks) = run_statement_file::read(tmp.path()).expect("the statement reads back");
+        assert_eq!(blocks.len(), 3, "{what}: the recipe gave {} blocks", blocks.len());
+        eprintln!("S22 STATEMENT [{what}]: {} B, sha256 {}, recipe passes the deny-list, fresh verifier OK", w.bytes, w.sha256);
+    }
+}
+
+/// **THE PUBLIC WEIGHTS DID NOT MOVE — MEASURED AGAINST EVIDENCE WRITTEN
+/// BEFORE STAGE 22.**
+///
+/// Splitting the stream could in principle have moved a weight. It did not,
+/// and the proof is not this module's own arithmetic: the two run statements
+/// this lane retained under `results/` — one on the tame fixture
+/// (`m125-run-l12-tagged-run-statement.json`, stage 18) and one on the fully
+/// dense recipe (`m125-run-l12-dense-run-statement.json`, the twelve-block
+/// 125M run of 2026-09-20) — each carry twelve BLOCK DIGESTS absorbed by a
+/// run header that was hashed before stage 22 existed. This build regenerates
+/// the public weights from the recipe each file NAMES, at the 125M shape, and
+/// the digests still match.
+///
+/// It is therefore also the test of the two LEGACY recipe names: those files
+/// carry the stage-18 / stage-21 strings, and a build that could not read
+/// them would have orphaned 484 MB of retained receipt.
+#[test]
+fn the_retained_125m_statements_still_regenerate_their_public_weights() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("the crate has a parent").join("results").join("zk60_block125m_lane");
+    let sh = Shape::m125();
+    for (file, expect_legacy) in [("m125-run-l12-tagged-run-statement.json", super::run_statement_file::LEGACY_TAME_RECIPE_NAME), ("m125-run-l12-dense-run-statement.json", super::dense_tests::LEGACY_DENSE_RUN_RECIPE_NAME)] {
+        let p = root.join(file);
+        let bytes = std::fs::read(&p).unwrap_or_else(|e| panic!("{}: {e}", p.display()));
+        let j = run_statement_file::json::parse(&bytes).expect("the retained statement parses");
+        let recipe = j.get("public_weights").expect("public_weights").get("recipe").expect("recipe").str().expect("a string").to_string();
+        assert_eq!(recipe, expect_legacy, "{file}: the retained statement's recipe string is not the pre-stage-22 one this test is about");
+        assert_eq!(j.get("block_profile").expect("block_profile").str().expect("a string"), sh.profile, "{file}: not a 125M statement");
+        let blk = run_statement_file::recipe_block(&recipe, &sh).unwrap_or_else(|e| panic!("{file}: this build cannot read the retained recipe name: {e}"));
+        let digests = j.get("block_digests").expect("block_digests").arr().expect("an array");
+        assert_eq!(digests.len(), 12, "{file}: {} block digests", digests.len());
+        for (k, d) in digests.iter().enumerate() {
+            assert_eq!(
+                d.hex32().expect("a digest"),
+                blk.digest(),
+                "{file}: block {k}'s public digest changed — the stage-22 stream split MOVED a public weight"
+            );
+        }
+        eprintln!("S22 RETAINED STATEMENT {file}: all 12 block digests regenerate from the legacy recipe name, so the public weights are bit-identical");
+    }
 }

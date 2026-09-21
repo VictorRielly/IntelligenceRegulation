@@ -84,6 +84,16 @@ fn the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged() {
     assert_eq!(hex(t.column_key().expect("keyed")), "2295498fd6fd5e41320da717e9da89462e5c90a5b3b2d72ac496bcc157c2cd2c");
     assert_eq!(hex(t.leaf_key().expect("keyed")), "fe211417895c73c4a70430cb9bfb7081289ec7532f2716d2a86f609b0de54032");
     assert_eq!(hex(t.node_key().expect("keyed")), "8c4d2cfe7b8528d350f20dece1250c8d81596eb25d26bffda1247238f0f71fcc");
+    // **STAGE 22.** The four-key-value-head development shape is a NEW
+    // profile (D17) and is therefore TAGGED, with a key set of its own that
+    // shares nothing with rung-G's although the two shapes differ only in
+    // the head axis: the tag is keyed off the PROFILE STRING, so a new shape
+    // cannot exist without a new key set.
+    let k4 = Shape::rung_k4();
+    assert!(!k4.hashes_under_the_legacy_rule(), "rung-K4 must be tagged");
+    assert_eq!(k4.hash_tag().rule_name(), "blake3-keyed/1");
+    assert_eq!(k4.hash_tag(), HashTag::for_profile(k4.profile));
+    assert_ne!(k4.hash_tag(), g.hash_tag(), "rung-K4 and rung-G share a key set");
     let m = Shape::m125();
     assert!(!m.hashes_under_the_legacy_rule(), "125M must be tagged");
     let t = m.hash_tag();
@@ -96,6 +106,7 @@ fn the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged() {
     assert_eq!(g.hash_tag(), HashTag::for_profile(g.profile));
     assert_eq!(m.hash_tag(), HashTag::for_profile(m.profile));
     assert_ne!(g.hash_tag(), m.hash_tag(), "two profiles share a key set");
+    assert_ne!(k4.hash_tag(), m.hash_tag(), "two profiles share a key set");
 }
 
 /// The hook can only ever weaken to the LEGACY rule, so it cannot tag the
@@ -103,7 +114,7 @@ fn the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged() {
 #[test]
 fn the_test_hook_can_only_force_the_legacy_rule() {
     let guard = ForcedLegacy::on();
-    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::m125()] {
+    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()] {
         assert!(sh.hash_tag().is_legacy(), "{}: the hook produced a tag", sh.name);
     }
     drop(guard);

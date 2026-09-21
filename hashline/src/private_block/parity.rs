@@ -608,6 +608,67 @@ fn the_dense_witness_equals_the_reference_kernel_at_the_rung_g() {
     eprintln!("private block DENSE reference agreement at {}: every kernel-backed plane agrees element for element, and the block output agrees on all {} words", s.name, out.len());
 }
 
+/// **STAGE 22: THE REFERENCE AGREEMENT AT `Shape::rung_k4`, WHERE THE
+/// KEY-VALUE GROUP IS TWO BITS.**
+///
+/// The independent `private-block-kernel-shaped` crate is shape-driven, so
+/// it takes twelve query heads of eight over four key-value heads without a
+/// line of change; it is `no_std`, allocation-free and written against the
+/// shape rather than the plane table. Every kernel-backed plane is compared
+/// element for element with the lane's witness on the FULLY DENSE recipe
+/// with a generic hidden input, and the block output on all `tokens * width`
+/// words.
+///
+/// **Why it is worth having here.** `compare_shaped` walks the TRUE support
+/// of every domain, `Dom::Q`, `Dom::Kv` and `Dom::S` included, so it is the
+/// statement that the grouped-query MAP — which query head reads which
+/// key-value head — agrees between the two implementations at a shape whose
+/// groups are four and whose padded head slots are `{3, 7, 11, 15}`. A
+/// head-permutation error confined to the second group bit has to be
+/// present in BOTH to survive it.
+#[test]
+fn the_dense_witness_equals_the_reference_kernel_at_the_rung_k4() {
+    let s = Shape::rung_k4();
+    assert_eq!((s.q_heads, s.kv_heads, s.head_dim), (12, 4, 8), "this test is about the four-key-value-head geometry");
+    let (d, f) = (s.width, s.hidden);
+    let (words, input) = super::dense_tests::dense_words(&s);
+    let c = shaped_case_from_words(&s, words, input);
+    let (kernel, tbuf) = run_kernel_shaped(&s, &c);
+    let wit = witness::build_shaped(&s, &c.public, &c.ff, &c.input);
+    let (out, w) = match (kernel, wit) {
+        (Ok(out), Ok(w)) => (out, w),
+        (Err(e), Ok(_)) => panic!("the rung-K4 dense witness was accepted where the reference kernel refused ({e})"),
+        (Ok(_), Err(m)) => panic!("the rung-K4 dense witness refused (`{m}`) where the reference kernel accepted"),
+        (Err(e), Err(m)) => panic!("both refused the rung-K4 dense recipe: kernel `{e}`, witness `{m}`"),
+    };
+    // the kernel's own buffers must be non-trivial where the diagonal
+    // fixture is empty, or the comparison is a comparison of zeros
+    let ksh = kernel_shape(&s);
+    for (p, name) in [(kshaped::Part::G8, "g8"), (kshaped::Part::U16, "u16"), (kshaped::Part::A16, "a16"), (kshaped::Part::H16, "h16")] {
+        let (o, n) = ksh.part(p);
+        let nz = (0..n).filter(|k| k % f >= d && tbuf[o + k] != 0).count();
+        assert!(nz > 0, "the reference kernel's {name} is identically zero on the upper hidden half [{d}, {f})");
+    }
+    // and the FOUR key-value groups must carry different keys IN THE
+    // KERNEL'S OWN BUFFER, or the group map is not exercised
+    {
+        let (o, n) = ksh.part(kshaped::Part::Kr8);
+        let kvw = s.kv_heads * s.head_dim;
+        assert_eq!(n, s.tokens * kvw, "the kernel's kr8 buffer is not (tokens, kv_heads * head_dim)");
+        for a in 0..s.kv_heads {
+            for b in a + 1..s.kv_heads {
+                let differs = (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| (t, i))).any(|(t, i)| tbuf[o + t * kvw + a * s.head_dim + i] != tbuf[o + t * kvw + b * s.head_dim + i]);
+                assert!(differs, "the reference kernel's key-value groups {a} and {b} carry identical rotated keys");
+            }
+        }
+    }
+    compare_shaped(&s, &w, &tbuf, 0);
+    let dmap = Geom::new(&s).support(Dom::D);
+    let mine: Vec<i16> = dmap.iter().map(|i| w.planes[A_X2][*i] as i16).collect();
+    assert_eq!(&mine[..], &out[..], "the rung-K4 dense block output differs from the reference kernel's");
+    eprintln!("private block DENSE reference agreement at {}: every kernel-backed plane agrees element for element, and the block output agrees on all {} words", s.name, out.len());
+}
+
 /// THE GROUP STRUCTURE IN THE WITNESS, as a property and not a literal
 /// (step S7's permanent regression test).
 ///

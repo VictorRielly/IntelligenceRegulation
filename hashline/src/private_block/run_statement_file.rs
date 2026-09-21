@@ -83,10 +83,21 @@ pub(super) struct WeightsRecipe {
 /// The lane's public synthetic tame fixture at the run's own block shape,
 /// repeated for every block — which is what every run in this lane uses
 /// (`run_tests::blocks_of`).
+///
+/// **STAGE 22: the name says PUBLIC WORDS.** `grow_tests::tame_case` also
+/// returns a hidden input, and the stage-18 string named the function
+/// without saying which of its three results the recipe is. A recipe field
+/// describes the PUBLIC WEIGHTS and only those.
 pub(super) const TAME_FIXTURE: WeightsRecipe = WeightsRecipe {
-    name: "private_block::grow_tests::tame_case(<block profile's Shape>), the same public fixture for every block",
-    description: "deliberately public synthetic test weights, regenerated from the shape; no weight value is written into this file, and every regenerated block is checked against the block_digests the run header absorbs",
+    name: "private_block::grow_tests::tame_case(<block profile's Shape>)'s NINE PUBLIC WORDS, the same public fixture for every block",
+    description: "deliberately public synthetic test weights, regenerated from the shape; no weight value is written into this file, every regenerated block is checked against the block_digests the run header absorbs, and this recipe regenerates the PUBLIC WEIGHTS ONLY — the witness the run was proved on is not a function of anything in this file",
 };
+
+/// **THE STAGE-18 TAME NAME, KEPT FOR READING AND NEVER FOR WRITING (stage
+/// 22).** `results/zk60_block125m_lane/m125-run-l12-tagged-run-statement.json`
+/// carries it. The public words it regenerates are unchanged, so the old
+/// statement stays checkable.
+pub(super) const LEGACY_TAME_RECIPE_NAME: &str = "private_block::grow_tests::tame_case(<block profile's Shape>), the same public fixture for every block";
 
 /// **STAGE 21: the FULLY DENSE run recipe.** Every entry of all nine public
 /// words nonzero, at the down-projection band a CHAIN can carry, the same
@@ -95,25 +106,69 @@ pub(super) const TAME_FIXTURE: WeightsRecipe = WeightsRecipe {
 /// weights — which is the whole contract of this field.
 pub(super) const DENSE_RUN_FIXTURE: WeightsRecipe = WeightsRecipe {
     name: super::dense_tests::DENSE_RUN_RECIPE_NAME,
-    description: "deliberately public synthetic test weights, FULLY DENSE (no zero entry in any of the nine words) and regenerated from the shape by the named deterministic stream; no weight value is written into this file, and every regenerated block is checked against the block_digests the run header absorbs",
+    description: "deliberately public synthetic test weights, FULLY DENSE (no zero entry in any of the nine words) and regenerated from the shape by the named deterministic stream; no weight value is written into this file, every regenerated block is checked against the block_digests the run header absorbs, and the named stream is exhausted by the nine public words — the witness this run was proved on is drawn from a separate stream that is not described here",
 };
 
 /// The ONE block a recipe produces at this shape. Kept separate from
 /// [`blocks_of_recipe`] because the WRITER only needs a digest to compare
 /// against, and `L` copies of a 125M public statement are 110 MB.
-fn recipe_block(recipe: &str, sh: &Shape) -> Result<BlockPublic, String> {
-    let (public, ff) = if recipe == TAME_FIXTURE.name {
+pub(super) fn recipe_block(recipe: &str, sh: &Shape) -> Result<BlockPublic, String> {
+    // **STAGE 22.** Two recipes are WRITTEN and two more names are READ: the
+    // stage-18 / stage-21 strings the statements retained before stage 22
+    // carry. Each legacy name maps to the same generator as its successor,
+    // because stage 22 changed the STRING and not one public weight — the
+    // hidden input was always drawn last, so taking it out of the stream
+    // left every weight draw exactly where it was.
+    let (public, ff) = if recipe == TAME_FIXTURE.name || recipe == LEGACY_TAME_RECIPE_NAME {
         let (p, f, _) = super::grow_tests::tame_case(sh);
         (p, f)
-    } else if recipe == DENSE_RUN_FIXTURE.name {
+    } else if recipe == DENSE_RUN_FIXTURE.name || recipe == super::dense_tests::LEGACY_DENSE_RUN_RECIPE_NAME {
         // STAGE 21: the fully dense run recipe, regenerated from the shape
         // by exactly the stream the name describes
         let (p, f, _) = super::dense_tests::dense_run_case(sh);
         (p, f)
     } else {
-        return Err(format!("run statement: this build knows two weights recipes and the file names {recipe:?}"));
+        return Err(format!("run statement: this build knows two weights recipes (and two legacy names for them) and the file names {recipe:?}"));
     };
     Ok(BlockPublic::new(public, ff))
+}
+
+/// **STAGE 22: THE DENY-LIST A RECIPE STRING MUST PASS.**
+///
+/// A `public_weights.recipe` (and its `description`) is the ONE free-text
+/// field of this file, and it is read as an instruction: "draw this stream
+/// in this order with these bands and you have the weights". It must
+/// therefore describe the PUBLIC WEIGHTS AND NOTHING ELSE. Until stage 22
+/// the dense recipe's string ended its read order with `x` and gave the
+/// hidden input's distribution, and the input really was the tenth read of
+/// the published stream — so the file handed a reader the witness.
+///
+/// Returns the first forbidden token found, or `None`. The tokens are the
+/// ways a hidden input can be described: by name, by its distribution, by
+/// its magnitude, by its place in the read order, or by its seed.
+/// Case-insensitive, because a description is prose.
+pub(super) fn hidden_input_token(s: &str) -> Option<&'static str> {
+    let lower = s.to_ascii_lowercase();
+    [
+        "hidden input",
+        "hidden inputs",
+        "hidden state",
+        "input uniform",
+        "input magnitude",
+        "input seed",
+        "input stream",
+        ", x]",
+        ",x]",
+        "6000",
+        "6_000",
+        // the input stream's seed, as a literal and as `{:#x}` would render
+        // it — `DENSE_INPUT_SEED`, which no retained file may carry
+        "1dde4e17",
+        "0x1dde_4e17",
+        "2152243532620890113",
+    ]
+    .into_iter()
+    .find(|t| lower.contains(t))
 }
 
 /// The blocks a recipe produces at this shape, for a run of `l` blocks: this
@@ -128,7 +183,7 @@ fn blocks_of_recipe(recipe: &str, sh: &Shape, l: usize) -> Result<Vec<BlockPubli
 /// field, so a file that disagrees is refused rather than quietly re-shaping
 /// the verifier.
 fn shape_of_profile(profile: &str) -> Result<Shape, String> {
-    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::m125()] {
+    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()] {
         if sh.profile == profile {
             return Ok(sh);
         }
@@ -138,7 +193,7 @@ fn shape_of_profile(profile: &str) -> Result<Shape, String> {
 
 /// The two run profiles, likewise.
 fn run_profile_of(profile: &str) -> Result<&'static str, String> {
-    for p in [run::RUN_PROFILE_RUNG_G, run::RUN_PROFILE_M125] {
+    for p in [run::RUN_PROFILE_RUNG_G, run::RUN_PROFILE_RUNG_K4, run::RUN_PROFILE_M125] {
         if p == profile {
             return Ok(p);
         }

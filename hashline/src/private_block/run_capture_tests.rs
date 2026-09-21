@@ -89,7 +89,13 @@ fn blocks_of(sh: &Shape, l: usize) -> Vec<BlockPublic> {
 }
 
 fn statement_of(c: &Chain, l: usize, blocks: &[BlockPublic]) -> (RunStatement, Endpoints) {
-    let rs = RunShape::rung_g(l).expect("the rung-G run shape");
+    statement_of_at(c, l, blocks, RunShape::rung_g(l).expect("the rung-G run shape"))
+}
+
+/// **STAGE 22.** The same statement at ANY run shape, so that the
+/// four-key-value-head profile drives this module's capture harness rather
+/// than a second one. `statement_of` is this at `RunShape::rung_g`.
+fn statement_of_at(c: &Chain, l: usize, blocks: &[BlockPublic], rs: RunShape) -> (RunStatement, Endpoints) {
     let spec = IoSpec::new_shaped(&c.sh, run_context(), 0, 0).expect("the run's endpoint spec");
     let (expected, owners) = prepare_endpoints(spec, &c.planes[0], &c.planes[l]).expect("the run's external endpoint owners");
     let st = RunStatement::new(rs, run_context(), expected, blocks, &vec![(0, 0); l]).expect("the run statement");
@@ -137,6 +143,32 @@ fn prove_and_capture_dense(l: usize) -> (Vec<Vec<u8>>, Bundle) {
     let guard = run_capture::Recorder::attach();
     run_capture::begin_run(st.capture_header().expect("the run's capture header"), st.binding().expect("the run binding"));
     run::verify_run(&st, &blocks, &segs).expect("the honest fully dense run verifies");
+    let bundle = run_capture::take().expect("a bundle for an accepted run");
+    drop(guard);
+    (segs, bundle)
+}
+
+/// **STAGE 22.** Prove and capture an honest `l`-block run at
+/// `Shape::rung_k4` — twelve query heads of eight over FOUR key-value heads,
+/// so the repaired bilinear slots sum over TWO group bits and their public
+/// `eq(r_g, .)` factor carries a two-element point. `dense` takes the fully
+/// dense run recipe with a generic hidden input; otherwise it is the
+/// all-zero input on the tame fixture, the degenerate case.
+fn prove_and_capture_k4(l: usize, dense: bool) -> (Vec<Vec<u8>>, Bundle) {
+    let sh = Shape::rung_k4();
+    let (public, ff, x0) = if dense {
+        super::dense_tests::dense_run_case(&sh)
+    } else {
+        let (p, f, _) = super::grow_tests::tame_case(&sh);
+        (p, f, vec![0i16; sh.tokens * sh.width])
+    };
+    let blocks = blocks_from(&public, &ff, l);
+    let mut c = Chain::from_parts(&sh, l, public, ff, x0);
+    let (st, owners) = statement_of_at(&c, l, &blocks, RunShape::rung_k4(l).expect("the rung-K4 run shape"));
+    let segs = prove_to_vec(&st, &blocks, &mut c, owners);
+    let guard = run_capture::Recorder::attach();
+    run_capture::begin_run(st.capture_header().expect("the run's capture header"), st.binding().expect("the run binding"));
+    run::verify_run(&st, &blocks, &segs).expect("the honest rung-K4 run verifies");
     let bundle = run_capture::take().expect("a bundle for an accepted run");
     drop(guard);
     (segs, bundle)
@@ -823,4 +855,104 @@ fn write_the_s20_gate_bundles() {
         );
     }
     eprintln!("S20 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
+}
+
+// ============================================================
+// STAGE 22: the bundles at the FOUR-key-value-head shape
+// ============================================================
+
+/// **STAGE 22: `run-i-dense-k4` and `run-j-zero-k4`.**
+///
+/// **Why they exist.** Every bundle this project has ever written is at
+/// `lkv <= 1`: the four legacy-rule ones and the stage-18 pair at rung-G
+/// (two key-value heads), the stage-21 pair likewise. The repaired bilinear
+/// slots sum over `lkv = log2(kv_heads)` group bits under a public
+/// `eq(r_g, .)`, so at every bundle so far that `eq` has a ONE-element point
+/// and the sum has two terms. **The Python run gate's ports have therefore
+/// never seen more than one group bit**, and the only shape with two is
+/// 125M, whose runs are 484 MB and which the gate cannot ingest.
+///
+/// `Shape::rung_k4` is that case at a size a gate can read: the same 24
+/// tokens, width 96 and hidden 192 as rung-G, with the heads recut as twelve
+/// query heads of eight over FOUR key-value heads and the padded head slots
+/// at `{3, 7, 11, 15}` — 125M's own head geometry. In these bundles slots 08
+/// and 09 carry `{"kind":"eq","start":0,"point":[<TWO Fp2>]}`, the sum has
+/// four terms, and `point` is the leading TWO entries of that slot's head
+/// challenge, which a reader re-derives from `definition_challenges` and
+/// COMPARES (ruling T-7).
+///
+/// `run-i-dense-k4` is the one that matters: the fully dense recipe at the
+/// chain band, a generic hidden input, all four key-value groups carrying
+/// different data. `run-j-zero-k4` is the all-zero input, the degenerate
+/// case, kept because it is the fixed input the privacy case is stated at.
+///
+/// Nothing here deletes or rewrites a bundle: `write_bundle` creates every
+/// file with `create_new`, so a re-run into an existing directory refuses.
+#[test]
+#[ignore = "writes the stage-22 rung-K4 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1"]
+fn write_the_k4_gate_bundles() {
+    let root = PathBuf::from(std::env::var("HL_RUN_CAPTURE_DIR").expect("HL_RUN_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    assert!(
+        std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").map(|v| v == "1").unwrap_or(false),
+        "HL_RUN_CAPTURE_PUBLIC_TABLES=1 is not set: these bundles exist so the run gate can close every slot's terminal identity at TWO group bits, which needs the public tables' VALUES"
+    );
+    let sh = Shape::rung_k4();
+    assert!(!sh.hashes_under_the_legacy_rule(), "these bundles are meant to be TAGGED and this shape is not");
+    let lkv = (sh.kv_heads as u32).trailing_zeros() as usize;
+    assert_eq!(lkv, 2, "this shape does not carry two group bits, which is the only reason these bundles exist");
+    let mut total = 0usize;
+    for (tag, dense) in [("run-i-dense-k4", true), ("run-j-zero-k4", false)] {
+        let (segs, bundle) = prove_and_capture_k4(3, dense);
+        assert!(contains(&bundle.run_json, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "{tag}: the run file does not name the keyed hash rule");
+        assert!(contains(&bundle.run_json, "\"public_tables_included\":true"), "{tag}: the run file does not declare that the public tables are included");
+        assert!(contains(&bundle.run_json, "hashline-zk-mr1/private-run-rung-k4-t24-dev/1"), "{tag}: the run file does not carry the rung-K4 run profile");
+        // THE TWO GROUP BITS, CHECKED IN THE BYTES before anything is
+        // written: the repaired schedule of slots 08 and 09 at this shape,
+        // and a group `eq` at `start: 0` whose point has TWO entries — which
+        // is the whole difference from every bundle taken before.
+        let (score, pv) = (sh.slots()[SC_SCORE], sh.slots()[SC_PV]);
+        assert_eq!((score, pv), ((5, 2, 3), (7, 2, 3)), "the rung-K4 bilinear schedule moved");
+        for (k, stage) in bundle.stages.iter().enumerate() {
+            for (s, (main, ext, degree)) in [(SC_SCORE, score), (SC_PV, pv)] {
+                let head = format!("{{\"slot\":{s},\"name\":{:?},\"kind\":\"Private\",\"main\":{main},\"extension\":{ext},\"degree\":{degree},", SLOT_NAMES[s]);
+                assert!(contains(stage, &head), "{tag} stage {k}: slot {s} does not report the repaired schedule ({main}, {ext}, {degree})");
+            }
+            // a two-element `Fp2` point renders as `[[a,b],[c,d]]`, so the
+            // group eq's table opens with a `[[` and the slot's table list
+            // is the eq followed by its two private factors
+            assert!(
+                count(stage, "\"tables\":[{\"kind\":\"eq\",\"start\":0,\"point\":[") >= 2,
+                "{tag} stage {k}: the two bilinear slots do not both open their table list with the group eq at start 0"
+            );
+        }
+        let dir = root.join(tag);
+        let note = format!(
+            "Bundle `{tag}`: one honest three-block run at the FOUR-KEY-VALUE-HEAD\ndevelopment shape (`Shape::rung_k4`: 24 tokens, width 96, hidden 192, 12 query\nheads of 8 over 4 key-value heads, padded head slots {{3, 7, 11, 15}} — 125M's\nown head geometry), under the D19 separating hash tag, with the public tables'\nvalues.\n\nWHY THIS PAIR EXISTS, AND WHAT IS NEW IN IT. Every bundle written before this\none is at log2(kv_heads) <= 1. The repaired bilinear attention argument (lane\nstage 20, finding S19-F1) SUMS over the {lkv} key-value group bit(s) under a\npublic eq(r_g, .), so at one group bit that eq carries a ONE-element point and\nthe sum has two terms — and no tool has ever read a bundle where it carries\nmore. Here:\n\n* `arguments[8]` (`10 score matmul`) is (main {}, extension {}, degree {}) and\n  `arguments[9]` (`11 PV matmul`) is (main {}, extension {}, degree {});\n* each of those two slots' `tables` begins with\n  `{{\"kind\":\"eq\",\"start\":0,\"point\":[<TWO Fp2 values>]}}`. The point is the\n  leading {lkv} entries of that slot's head challenge, which a reader\n  RE-DERIVES from the slot's own `definition_challenges` and COMPARES; it must\n  never take a value from it (ruling T-7). `start: 0` says the factor reads\n  the leading {lkv} sumcheck variables of `rho`.\n* the PRIVATE tables are unchanged in number, order and role, so\n  `plane_index.slot_planes[8]` and `[9]` are the same two-plane lists as at\n  rung-G and `len(slot_planes[s]) == len(terminals)` still holds.\n\nHidden input and public weights: {}\n\nThis is a NEW PROFILE (D17): `hashline-zk-mr1/private-block-rung-k4-t24-dev/1`\nfor the block and `hashline-zk-mr1/private-run-rung-k4-t24-dev/1` for the run,\nwith their own hash-tag key set. No byte of any earlier profile moves.\n\nDevelopment grade (ruling P-7). Still not a privacy result: no gate has read\nthis.",
+            score.0, score.1, score.2, pv.0, pv.1, pv.2,
+            if dense {
+                "the FULLY DENSE recipe at the chain band (`private_block::dense_tests::dense_run_case`): every entry of all nine public words nonzero, a non-constant hidden input from its own unpublished stream, the upper hidden half of the feed-forward planes live, twelve of twelve head slots live and ALL FOUR key-value groups carrying PAIRWISE DIFFERENT rotated keys in every block. THIS IS THE FIRST CAPTURE EVER TAKEN WITH MORE THAN ONE GROUP BIT"
+            } else {
+                "the ALL-ZERO hidden plane on the lane's synthetic tame fixture — the fixed input the privacy case is stated at, and a DEGENERATE witness: every key-value group is identically zero, so it says nothing about the group bits and is kept as the pair's control"
+            }
+        );
+        run_capture::write_bundle(
+            &dir,
+            &bundle,
+            &segs,
+            &note,
+            "HL_RUN_CAPTURE_DIR=<dir> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib private_block::run_capture_tests::write_the_k4_gate_bundles -- --ignored --nocapture",
+        )
+        .expect("the stage-22 rung-K4 gate bundle is written");
+        let n: usize = std::fs::read_dir(&dir).expect("the bundle directory").filter_map(|e| e.ok()).map(|e| e.metadata().map(|m| m.len() as usize).unwrap_or(0)).sum();
+        total += n;
+        assert!(n < 120_000_000, "{tag} is {n} B, past the 120 MB ceiling this stage was given");
+        eprintln!(
+            "K4 GATE BUNDLE {tag}: {} B run file, {} B of stage files, {} B of segments (pinned by digest; written only with HL_RUN_CAPTURE_SEGMENTS=1), {n} B on disk ({:.1} MB)",
+            bundle.run_json.len(),
+            bundle.stages.iter().map(|s| s.len()).sum::<usize>(),
+            segs.iter().map(|s| s.len()).sum::<usize>(),
+            n as f64 / 1e6
+        );
+    }
+    eprintln!("K4 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
 }

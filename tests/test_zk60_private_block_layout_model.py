@@ -285,6 +285,65 @@ class RungG(unittest.TestCase):
         self.assertEqual((self.m["opening_groups"]["a_groups"], self.m["opening_groups"]["h_groups"]), (36, 9))
 
 
+class RungK4(unittest.TestCase):
+    """**Lane stage 22.** rung-G's geometry with the heads recut as 12 query
+    heads of 8 over FOUR key-value heads, so ``log2(kv_heads) = 2``: the
+    smallest shape at which the repaired bilinear slots sum over more than
+    ONE group bit and still produce a receipt a tool can read.  The model is
+    the independent oracle for the Rust's ``MODEL_RUNG_K4``."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.m = M.model(M.RUNG_K4)
+        cls.g = M.model(M.RUNG_G)
+
+    def test_the_geometry(self):
+        sh = M.RUNG_K4
+        self.assertEqual((sh.tokens, sh.width, sh.hidden), (24, 96, 192))
+        self.assertEqual((sh.q_heads, sh.head_dim, sh.kv_heads), (12, 8, 4))
+        self.assertEqual((sh.t_pad, sh.d_pad, sh.h_pad, sh.f_pad), (32, 128, 16, 256))
+        self.assertEqual(sh.d_pad, sh.h_pad * sh.head_dim)
+        self.assertEqual(M.group_sumcheck_bits(M.RUNG_K4), 2)
+        # the three domains the bilinear coordinate lists are written at must
+        # NOT be lifted by P-3 (the Rust refuses such a shape by name), and
+        # Dom::Kv sits exactly AT the row width, which is not a lift
+        for dom in ("Q", "Kv", "S"):
+            with self.subTest(domain=dom):
+                self.assertFalse(sh.lifted(dom))
+        self.assertEqual((sh.log("Q"), sh.log("Kv"), sh.log("S")), (12, 10, 14))
+
+    def test_two_group_bits_move_exactly_the_two_bilinear_slots(self):
+        s = self.m["slots"]
+        self.assertEqual((s[M.SC_SCORE]["main_rounds"], s[M.SC_SCORE]["extension_rounds"], s[M.SC_SCORE]["degree"]), (5, 2, 3))
+        self.assertEqual((s[M.SC_PV]["main_rounds"], s[M.SC_PV]["extension_rounds"], s[M.SC_PV]["degree"]), (7, 2, 3))
+        self.assertEqual((s[M.SC_SCORE]["L"], s[M.SC_PV]["L"]), (23, 29))
+        self.assertEqual([x["slot"] for x in s if x["carries_group_eq"]], [M.SC_SCORE, M.SC_PV])
+
+    def test_the_summary_figures(self):
+        ss = self.m["slot_summary"]
+        self.assertEqual(ss["main_round_total"], 220)
+        self.assertEqual(ss["extension_round_total"], 25)
+        self.assertEqual(ss["published_round_values"], 1_070)
+        self.assertEqual(ss["sumcheck_challenge_draws"], 245)
+        self.assertEqual(ss["largest_L"], 77)
+        self.assertTrue(ss["L_plus_256_within_512"])
+
+    def test_the_rows_groups_and_receipt(self):
+        r, g = self.m["rows"], self.g["rows"]
+        self.assertEqual((r["a_data_rows"], r["h_data_rows"], r["a_rows"], r["h_rows"]), (481, 614, 727, 720))
+        self.assertEqual((r["a_sites"], r["h_sites"], r["m_rows"]), (122, 52, 50))
+        self.assertEqual((self.m["opening_groups"]["a_groups"], self.m["opening_groups"]["h_groups"]), (36, 9))
+        self.assertEqual(self.m["lookups"]["u8_total"], 542_720)
+        self.assertEqual((self.m["lookups"]["exp_pairs"], self.m["lookups"]["act_pairs"]), (16_384, 8_192))
+        self.assertEqual(self.m["receipt_bytes"]["total"], 4_743_128)
+        # the ONE axis that grows is the head axis, and it shows up as Dom::S
+        self.assertEqual(self.m["domains"]["S"]["padded"], 2 * self.g["domains"]["S"]["padded"])
+        self.assertGreater(r["a_data_rows"], g["a_data_rows"])
+        # the endpoint is priced exactly as rung-G's: same padded Dom::D
+        # cube, same row width, same rate, so the SAME openings
+        self.assertEqual(self.m["receipt_bytes"]["endpoint_openings"], self.g["receipt_bytes"]["endpoint_openings"])
+
+
 class TheToyPaysNothing(unittest.TestCase):
     """**Stage 21, review finding F-1.** The repaired model must leave the
     BYTE-FROZEN toy profile alone, which is the whole reason the repair is
@@ -301,7 +360,7 @@ class TheToyPaysNothing(unittest.TestCase):
     def test_the_repair_is_a_pure_function_of_kv_heads(self):
         """One key-value head: nothing moves. More: exactly the two bilinear
         slots move, and nothing else in the schedule does."""
-        for sh in (M.TOY, M.RUNG, M.RUNG_G, M.M125):
+        for sh in (M.TOY, M.RUNG, M.RUNG_G, M.RUNG_K4, M.M125):
             with self.subTest(shape=sh.name):
                 moved = [s["slot"] for s in M.slots(sh) if s["carries_group_eq"]]
                 self.assertEqual(moved, [] if sh.kv_heads == 1 else [M.SC_SCORE, M.SC_PV])
