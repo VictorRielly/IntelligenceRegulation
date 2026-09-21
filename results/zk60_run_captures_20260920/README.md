@@ -512,3 +512,52 @@ over 38 files.
 They are **not gate evidence** (ruling T-6): the Python run gate has to learn
 this profile's key set and this shape's plane index before a bundle is
 judged. They are the INPUT to that work.
+
+## Stage 32 (2026-09-21) — `run-o-dense-w14` and `run-p-zero-w14`, at the 125M ROW WIDTH, and NOT in this directory
+
+**They are not here.** The two stage-32 bundles are **50.6 MB and 49.5 MB**,
+past the ~40 MB a file in this repository should be, so they live beside the
+125M captures at
+
+```
+/home/victor/zk60-artifacts/run-o-dense-w14
+/home/victor/zk60-artifacts/run-p-zero-w14
+```
+
+and what is committed is their manifests, their own notes and the self-check
+that reads them off disk:
+`results/zk60_block125m_lane/v32-bundle-manifests/` and
+`results/zk60_block125m_lane/v32-bundle-check.log`.
+
+**What is new in them.** Every bundle above is at a row width of 2^8 or
+2^10. This pair is at **2^14 — 125M's own** — so a reader sees, for the
+first time at a size it can ingest:
+
+* `"log_cols":14` in every stage file: a message of 2^14 field elements
+  encoded to 2^16 at inverse rate 4, and Merkle paths of **sixteen** entries;
+* `"a_rows":527` and `"h_rows":436` — FEWER rows than any development bundle
+  but the toy's, because a row sixteen times as wide holds the same planes;
+* the lookup-table domain lifted from 2^8 to 2^14, a factor of **64**, which
+  is 125M's own lift distance (every earlier bundle lifts by 4);
+* the endpoint and boundary commitments at an endpoint log of 14 (a ten-row
+  internal boundary over a 2^16-word padded cube).
+
+**What is deliberately the same**, so that the pair is a regression for both
+earlier findings: `Dom::T` (2^6), `Dom::Kv` (2^14) and `Dom::F` (2^16) do not
+pad while Ht, L, D, Q, S and Tab do — 125M's padded-domain set, finding
+**M-F1** — and the norm window fills its top byte at width 768, so
+correction **C-6** applies and slot 14 carries **54 terminals**, as in the
+rung-C6 pair.
+
+| bundle | blocks | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|---:|
+| `run-o-dense-w14` (FULLY DENSE, generic) | 2 | 34,845 B | 3,695,023 / 4,415,868 B | 42,424,904 B | **50,575,731 B** |
+| `run-p-zero-w14` (all-zero, degenerate) | 2 | 34,828 B | 3,694,816 / 4,418,843 B | 41,380,544 B | **49,533,887 B** |
+
+Both are schema `/5-run`, both carry the public tables' VALUES, both are
+tagged, both name `hashline-zk-mr1/private-run-rung-w14-t64-dev/1`, and each
+manifest's five files match their recorded length and SHA-256 with the
+source pin `11703c9` over 38 files.
+
+They are **not gate evidence** (ruling T-6) and not a privacy result: they
+are the INPUT to the independent Python run gate.
