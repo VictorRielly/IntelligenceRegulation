@@ -279,6 +279,7 @@ changes when the group structure is substituted.
 
 ### F-4 — `native_capture.rs` replays a slot's sumcheck from the frozen TOY literal, not the shape. (Informational.)
 
+
 `hashline/src/native_capture.rs:111-112`: `let (n, ext, degree) = SLOTS[s];`
 then `sumcheck::verify(claimed, degree, n + ext, ...)`. `SLOTS` is
 `layout.rs:815`'s toy constant. The file is `#[cfg(test)]` and is only driven
@@ -287,7 +288,25 @@ silently mis-replay at a grouped shape. `run_capture.rs:431` reads
 `def.sh.slots()[s]` and is right. **Smallest repair:** take the triple from
 the shape there too.
 
-### F-5 — the M-row budget is a bare `assert!` in the prover. (Informational, unreachable today.)
+### F-5 — one stale pre-repair byte literal survived stage 20, in an `#[ignore]`d test. (Low; ALREADY FIXED on the lane after the tip I reviewed.)
+
+At the tip under review (`c18981a`),
+`hashline/src/private_block/rulings_tests.rs:452` still asserted
+`bytes.len() == 40_782_792` — the PRE-repair 125M frame length — while every
+other pin in the tree is the counted `pre-repair + s20_bilinear_delta` form.
+I swept every pre-repair literal in `hashline/src`, `scripts` and `tests`
+(`4_218_264`, `4_234_648`, `40_782_792`, `12_413_432`, `49_217_600`,
+`484_100_736`) and this is the ONLY bare one. It could not be caught by the
+stage's own gate because the test is `#[ignore]`d, and it was outside my own
+sweep for the same reason. **The lane found and repaired it in `a00f831`**,
+which also records the measurement that corroborates this review's
+completeness verdict at the deliverable shape: one 125M block on fully dense
+public weights proves and verifies from bytes at `40,783,352 B` — the counted
+POST-repair length — on a generic hidden input and on the all-zero input.
+**Lesson, not a defect:** a delta-counted pin should be used in ignored tests
+too, or an ignored test's literals should be swept whenever a schedule moves.
+
+### F-6 — the M-row budget is a bare `assert!` in the prover. (Informational, unreachable today.)
 
 `zk.rs:442` and `:493`: `assert!(part.len() + MASK_Q <= m, ...)`. A panic where
 this module's style elsewhere is a named `Result` refusal. Unreachable at every
@@ -298,7 +317,13 @@ not move the worst slot. Pre-existing.
 
 * **No 125M proving and no GPU** (excluded by the brief). The 125M figures
   here are counted from the shape, not measured; the lane measured them
-  separately.
+  separately, and its `a00f831` — one commit past the tip I reviewed — reports
+  one 125M block proving and verifying from bytes at the counted post-repair
+  `40,783,352 B` on a fully dense statement with a generic hidden input and
+  with the all-zero input. I did not reproduce that.
+* **My branch is one commit behind the lane.** The brief allowed exactly one
+  merge; the lane advanced to `a00f831` afterwards. Nothing in that commit
+  changes a verdict here (it repairs F-5 and adds evidence).
 * **No privacy MEASUREMENT at any grouped shape.** The rank / CFS /
   disclosure tools of `ZK60_TERMINAL_SURJECTION_REVIEW.md` were run on four
   captured receipts at toy-class shapes. My privacy verdict is about the
