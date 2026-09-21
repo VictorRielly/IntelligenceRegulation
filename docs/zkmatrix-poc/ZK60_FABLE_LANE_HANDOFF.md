@@ -6,6 +6,49 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 19:31 (2026-09-20) — S19-F1 is REPAIRED on the lane (`a00f831`, pushed); first 125M proofs on a non-degenerate input; an independent review of the repair is running — still hold off on slots 08 / 09 until I name the tip
+
+- **The repair (stage 20, `5155d5b`; lane-only, no shared or frozen file
+  touched).** I read both arms (`argument.rs:1126-1187`): `r_h` splits into
+  the group bits `r_g` (top `lkv`) and the head within its group `r_hj`; the
+  group becomes sumcheck variables `rho(0..lkv)` **shared by both private
+  factors**; a public factor `eq(r_g, ·)`; degree 3; `lkv` more main rounds in
+  each of `SC_SCORE` and `SC_PV`. With `kv_heads = 1` the new helper returns
+  nothing — no variable, no table, no degree — and the toy's frozen tests are
+  green (2,816,472 B, schedule digest, parameter line, the four pre-lane
+  receipts).
+- **Acceptance** [MEASURED by the lane; I re-ran the first two myself]: the
+  former reproducer is accepted; a FULLY dense generic block proves and
+  verifies at the generalised rung; a fully dense three-block run verifies
+  from segments; an independent Boolean-cube evaluation of both identities
+  (no `define`, no layout, no transcript) shows **new = left side on generic
+  and degenerate witnesses, old ≠ left side on generic and = on the degenerate
+  fixture** — the invisibility mechanism as a test; at `kv_heads = 1` old =
+  left side, the toy's exemption algebraically. Perturbations in the second
+  key-value group and a key swap between groups: all rejected by the
+  verifier. Filter `private_` 245 passed, none failing.
+- **What moved** (all counted in tests, none pasted): receipts +336 B per
+  block at the rungs, +560 B at 125M — **125M one block 40,782,792 →
+  40,783,352 B; twelve blocks 484,100,736 → 484,107,456 B**; main rounds
+  215 → 217 (rungs), 332 → 336 (125M); the two slots' mask lengths 14/16 →
+  23/26 and 18/24 → 32/41; the worst mask length, the masking commitment's
+  50 rows, terminals, claim sites and opening groups unchanged.
+- **125M, one block, after the repair** [MEASURED by me, one run each, 19:25,
+  shared box, CPU only, 12 GB ceiling]: **fully dense weights, generic hidden
+  input — prove 27.67 s, verify 1.12 s, 40,783,352 B, peak 9.99 GiB;
+  all-zero input — prove 26.98 s, verify 1.23 s.** Both verified from bytes
+  and then the test stopped on one stale size literal in the ignored heavy
+  test (fixed in `a00f831`). Dense weights cost no measurable time, so your
+  speed baselines stand; the two attention slots gained 4 rounds of 336.
+- **Not yet done:** the twelve-block 125M run on dense weights (a fully dense
+  admissible *run* recipe needs a smaller down band; the lane has a probe for
+  it), re-taken captures and the Python gate's ports of slots 08 / 09, the
+  layout model script's two-line schedule change, R-5 (interior scales). **An
+  independent adversarial review of the repair — soundness, the masking
+  budget with two private factors at shared coordinates, completeness on many
+  seeds, the toy path — is running in its own worktree.** I name the tip when
+  it reports.
+
 ### 18:39 (2026-09-20) — STOP before you optimise the attention slots: a COMPLETENESS DEFECT in the shaped block (mine). An honest proof is rejected by the verifier as soon as the hidden state differs between heads. `caa9b9a` is NOT a base to build on for slots 08 and 09
 
 - **Finding S19-F1, reproduced by me at 18:35** (lane `zk60-private-block-125m`
