@@ -871,6 +871,70 @@ fn the_dense_witness_equals_the_reference_kernel_at_the_rung_w14() {
     eprintln!("private block DENSE reference agreement at {}: every kernel-backed plane agrees element for element, and the block output agrees on all {} words", s.name, out.len());
 }
 
+/// **STAGE 33: THE REFERENCE AGREEMENT AT `Shape::rung_e32`, THE 32-DATA-ROW
+/// ENDPOINT.**
+///
+/// The same independent `private-block-kernel-shaped` crate, unchanged, takes
+/// 32 tokens of width 768 and hidden 1,024 over twelve query heads of 64 in
+/// four key-value groups. It is the GENERIC honest witness the security
+/// owner's acceptance rule asks for before this stage says "proves and
+/// verifies" anywhere: fully dense public weights, a non-constant hidden
+/// input, four key-value groups carrying pairwise different rotated keys,
+/// checked plane by plane against an implementation that shares no line with
+/// the lane's witness builder.
+///
+/// **What is new here.** The padded `Dom::D` cube is 2^15 words over a
+/// 2^10-wide row, so the endpoint's 32 data rows are 32 whole tokens: the
+/// upper half of the cube — rows 16..32, which no other development shape's
+/// endpoint has — carries real arithmetic, and the test asserts the reference
+/// kernel's own output is live there before comparing.
+#[test]
+fn the_dense_witness_equals_the_reference_kernel_at_the_rung_e32() {
+    let s = Shape::rung_e32();
+    assert_eq!((s.tokens, s.width, s.hidden), (32, 768, 1024), "this test is about the 32-data-row endpoint geometry");
+    assert_eq!((s.q_heads, s.kv_heads, s.head_dim), (12, 4, 64), "this test is about 125M's head axis");
+    assert_eq!(s.endpoint_rows, 37, "this test is about the 37-row endpoint");
+    assert!(s.norm_top_is_full_byte(), "at width 768 the norm window fills its top limb, as at 125M");
+    let (d, f) = (s.width, s.hidden);
+    let (words, input) = super::dense_tests::dense_words(&s);
+    let c = shaped_case_from_words(&s, words, input);
+    let (kernel, tbuf) = run_kernel_shaped(&s, &c);
+    let wit = witness::build_shaped(&s, &c.public, &c.ff, &c.input);
+    let (out, w) = match (kernel, wit) {
+        (Ok(out), Ok(w)) => (out, w),
+        (Err(e), Ok(_)) => panic!("the rung-E32 dense witness was accepted where the reference kernel refused ({e})"),
+        (Ok(_), Err(m)) => panic!("the rung-E32 dense witness refused (`{m}`) where the reference kernel accepted"),
+        (Err(e), Err(m)) => panic!("both refused the rung-E32 dense recipe: kernel `{e}`, witness `{m}`"),
+    };
+    let ksh = kernel_shape(&s);
+    for (p, name) in [(kshaped::Part::G8, "g8"), (kshaped::Part::U16, "u16"), (kshaped::Part::A16, "a16"), (kshaped::Part::H16, "h16")] {
+        let (o, n) = ksh.part(p);
+        let nz = (0..n).filter(|k| k % f >= d && tbuf[o + k] != 0).count();
+        assert!(nz > 0, "the reference kernel's {name} is identically zero on the upper hidden half [{d}, {f})");
+    }
+    {
+        let (o, n) = ksh.part(kshaped::Part::Kr8);
+        let kvw = s.kv_heads * s.head_dim;
+        assert_eq!(n, s.tokens * kvw, "the kernel's kr8 buffer is not (tokens, kv_heads * head_dim)");
+        for a in 0..s.kv_heads {
+            for b in a + 1..s.kv_heads {
+                let differs = (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| (t, i))).any(|(t, i)| tbuf[o + t * kvw + a * s.head_dim + i] != tbuf[o + t * kvw + b * s.head_dim + i]);
+                assert!(differs, "the reference kernel's key-value groups {a} and {b} carry identical rotated keys");
+            }
+        }
+    }
+    // the endpoint's UPPER data rows — tokens 16..32 — must be live in the
+    // reference kernel's own output, or the row count this stage is about is
+    // exercised on zeros
+    let live_high = (16..s.tokens).filter(|t| (0..d).any(|j| out[t * d + j] != 0)).count();
+    assert_eq!(live_high, s.tokens - 16, "only {live_high} of the endpoint's upper 16 data rows are live in the reference kernel's output");
+    compare_shaped(&s, &w, &tbuf, 0);
+    let dmap = Geom::new(&s).support(Dom::D);
+    let mine: Vec<i16> = dmap.iter().map(|i| w.planes[A_X2][*i] as i16).collect();
+    assert_eq!(&mine[..], &out[..], "the rung-E32 dense block output differs from the reference kernel's");
+    eprintln!("private block DENSE reference agreement at {}: every kernel-backed plane agrees element for element, the block output agrees on all {} words, and all 16 upper endpoint data rows are live", s.name, out.len());
+}
+
 /// THE GROUP STRUCTURE IN THE WITNESS, as a property and not a literal
 /// (step S7's permanent regression test).
 ///

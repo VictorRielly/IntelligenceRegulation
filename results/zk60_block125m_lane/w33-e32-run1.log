@@ -1,0 +1,179 @@
+Running scope as unit: run-rb75700741f6d4bd691889584b58fe05b.scope
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:687:13
+    |
+687 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 14 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 9 tests
+test private_block::e32_tests::a_moved_word_in_a_high_boundary_row_is_refused_in_a_two_block_run_at_the_rung_e32 ... S33 BOUNDARY TAMPER [boundary data row 16] (index 16384 = row 16): the VERIFIER rejected: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+S33 BOUNDARY TAMPER [the last boundary data row 31, last column] (index 32767 = row 31): the VERIFIER rejected: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::e32_tests::a_tamper_in_a_high_endpoint_row_is_rejected_at_its_own_slot_at_the_rung_e32 ... S33 TAMPER residual 2 at the first word of endpoint data row 16 (index 16384 = commitment row 16 column 0): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+S33 TAMPER residual 2 at the last TRUE word of the last endpoint data row (index 32511 = commitment row 31 column 767): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::e32_tests::a_verifier_statement_with_a_moved_word_in_a_high_endpoint_row_is_refused_at_the_rung_e32 ... S33 ENDPOINT TAMPER [data row 0, the row every shape has (the control)] (index 0 = row 0 column 0): private block wire: expected statement mismatch
+S33 ENDPOINT TAMPER [data row 16, a row only a 32-row endpoint has] (index 16384 = row 16 column 0): private block wire: expected statement mismatch
+S33 ENDPOINT TAMPER [the LAST data row 31, last column] (index 32767 = row 31 column 1023): private block wire: expected statement mismatch
+ok
+test private_block::e32_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_e32 ... S33 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all 16 upper endpoint data rows live
+rung-E32 DENSE one block: prove 1.76 s, verify from bytes 0.18 s, frame 11368824 B
+ok
+test private_block::e32_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_e32 ... S33 CENSUS [run block 0]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all 16 upper endpoint data rows live
+S33 CENSUS [run block 1]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all 16 upper endpoint data rows live
+S33 FULLY DENSE RUN L=2 (down band 20): prove 3.68 s, verify from segments 0.39 s, segments [11143656, 11391432] B (total 22535088 B), boundary 38 rows
+ok
+test private_block::e32_tests::only_the_125m_shape_and_the_new_one_reach_the_thirty_two_row_endpoint ... S33 ENDPOINT CENSUS (cube words / endpoint log / DATA rows / COMMITMENT rows / column digest B):
+    toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) 2^9  /  8 /  2 /  7 /   56
+    development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) 2^12 /  8 / 16 / 21 /  168
+    development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) 2^12 / 10 /  4 /  9 /   72
+    development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) 2^12 / 10 /  4 /  9 /   72
+    development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) 2^12 / 10 /  4 /  9 /   72
+    development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) 2^14 / 10 / 16 / 21 /  168
+    development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) 2^16 / 14 /  4 /  9 /   72
+    development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) 2^15 / 10 / 32 / 37 /  296
+    125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) 2^19 / 14 / 32 / 37 /  296
+S33 GAP: 32 endpoint data rows and 37 commitment rows are reached by 125M and rung-E32 and by nothing else; the endpoint LOG 14 is still 125M's and rung-W14's
+ok
+test private_block::e32_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_e32 ... rung-E32 ALL-ZERO (degenerate) one block: frame 11368824 B, verified
+ok
+test private_block::e32_tests::the_endpoint_geometry_is_125ms_row_count_over_a_narrower_row ... S33 ENDPOINT: cube 2^15 at log 10 — 32 data rows and 37 commitment rows, column digest 296 B (125M's own row count and digest length), Merkle depth 12 against 125M's 16; A / H columns 17672 / 19328 B
+ok
+test private_block::e32_tests::the_new_shape_is_125ms_endpoint_row_count_at_a_ten_log_endpoint ... S33 SHAPE: rung-E32 is 32 tokens of width 768 over 12 heads of 64 in 4 groups at a row width of 2^10 — endpoint cube 2^15, 32 data rows, 37 commitment rows (125M's own), column digest 296 B, endpoint log 10 against 125M's 14
+ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 467 filtered out; finished in 25.28s
+
+	Command being timed: "/home/victor/.cargo/bin/cargo test --release --offline -j 2 --manifest-path /home/victor/wt-zk60-block125m/hashline/Cargo.toml --lib private_block::e32_tests -- --test-threads=1 --nocapture"
+	User time (seconds): 79.42
+	System time (seconds): 59.63
+	Percent of CPU this job got: 549%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:25.31
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 360948
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 541573
+	Voluntary context switches: 2922232
+	Involuntary context switches: 124021
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

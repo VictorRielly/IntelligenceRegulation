@@ -729,6 +729,22 @@ RUNG_W14 = Shape("development rung, the 125M row width (T64 / d768 / f1024, 12 h
                       "and with the width capped at 1,024 by the four-norm-limb refusal that means "
                       "512 tokens, which is 125M itself")
 
+RUNG_E32 = Shape("development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
+                 tokens=32, width=768, hidden=1024, q_heads=12, head_dim=64, kv_heads=4,
+                 log_cols=10, inv_rate=4, f_e=12,
+                 note="LANE STAGE 33 (item 4b of stage 32's heavy-only list): the 125M ENDPOINT "
+                      "ROW COUNT at a ten-log endpoint. The external endpoint commits the padded "
+                      "Dom::D cube, t_pad * d_pad, in rows of 2^endpoint_log_n; at 125M that is "
+                      "2^19 / 2^14 = 32 data rows and 37 commitment rows, and every other shape "
+                      "has 2, 4 or 16. Here the cube is 32 * 1024 = 2^15 and the endpoint log is "
+                      "the default 10, so the counts are 32 and 37 EXACTLY as at 125M, at a "
+                      "twentieth of the receipt. The head axis, the width 768 and the hidden 1024 "
+                      "are rung-W14's and 125M's, so D_max is 908,065, norm_wrho is 32 and "
+                      "correction C-6 applies; f_e = 12 at 32 tokens gives wrho_s = 17 and three "
+                      "sigma_s limbs, as at rung-C6. What it does NOT reach is the endpoint LOG "
+                      "(10 against 125M's 14) and therefore the endpoint's row WIDTH and Merkle "
+                      "depth — that is rung-W14's half of the same item")
+
 M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
              tokens=512, width=768, hidden=2048, q_heads=12, head_dim=64, kv_heads=4,
              log_cols=14, inv_rate=4, f_e=9,
@@ -740,7 +756,7 @@ M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 o
                   "SC_IO_IN / SC_IO_OUT claim (finding S11b-F1)")
 
 SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "rung_p2": RUNG_P2,
-          "rung_c6": RUNG_C6, "rung_w14": RUNG_W14, "m125": M125}
+          "rung_c6": RUNG_C6, "rung_w14": RUNG_W14, "rung_e32": RUNG_E32, "m125": M125}
 
 # What the module's own Rust asserts at the toy (`layout.rs:523-526`, `:700-749`,
 # `:778-780`, `tests.rs:106-108`).  The model must reproduce every one of these.

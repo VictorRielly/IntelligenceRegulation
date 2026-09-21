@@ -781,6 +781,68 @@ impl Shape {
         .expect("the rung-W14 shape is well formed")
     }
 
+    /// **THE 32-DATA-ROW ENDPOINT DEVELOPMENT SHAPE (stage 33, "rung-E32"),
+    /// item 4b of stage 32's heavy-only list.**
+    ///
+    /// **Why it exists.** The external endpoint commits the PADDED `Dom::D`
+    /// cube, `t_pad · d_pad` words, cut into rows of `2^endpoint_log_n`. At
+    /// 125M that is `2^19 / 2^14 = 32` data rows and `32 + MASK_ROWS = 37`
+    /// commitment rows. Every shape the ordinary filter proves at has 2, 4 or
+    /// 16 data rows, so the endpoint row INDEX 16 and up, a 296-byte endpoint
+    /// column digest and a 38-row internal boundary were reached only by an
+    /// `#[ignore]`d 125M test. **A 32-row endpoint does not need 125M's
+    /// endpoint LOG** — it needs the cube to be 32 times the endpoint row —
+    /// and that is what this shape buys cheaply.
+    ///
+    /// **The geometry, and why each number is what it is.** It is
+    /// [`Shape::rung_w14`]'s head axis, width and hidden size — 125M's — with
+    /// the tokens halved to 32 and the row width at 2^10:
+    ///
+    /// * `t_pad · d_pad = 32 · 1,024 = 2^15`, so at `endpoint_log_n = 10`
+    ///   (the default, `log_cols`) the endpoint has **32 data rows and 37
+    ///   commitment rows**, 125M's own;
+    /// * `width = 768` and `head_dim = 64` over four key-value groups are
+    ///   125M's, so `D_max` is 908,065, `norm_wrho` is 32 and correction C-6
+    ///   applies, exactly as at rung-C6, rung-W14 and 125M;
+    /// * `hidden = 1,024` is the smallest power of two above the width, which
+    ///   keeps `Dom::F` unpadded and keeps an upper hidden half for the dense
+    ///   fixture;
+    /// * `log_cols = 10` is the rungs' row width. It cannot be 14: the cube
+    ///   would then be one row, not 32. It cannot be much smaller either —
+    ///   ruling S-1 needs `log_cols >= 8` and ruling F-2 needs `Dom::Kv =
+    ///   32 · 4 · 64 = 2^13` at or above the row width;
+    /// * `f_e = 12` is the rungs' calibration; at 32 tokens it gives
+    ///   `wrho_s = 17`, so `limbs_sigma_s` is 3 as at 125M.
+    ///
+    /// **What it does NOT reach**: the endpoint LOG (10 here, 14 at 125M) and
+    /// therefore the endpoint's row WIDTH and Merkle depth. That is
+    /// rung-W14's half of the same item, and the two together are the
+    /// endpoint's two independent axes.
+    ///
+    /// Development grade, never a deliverable (ruling P-7), its OWN profile
+    /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+    pub(crate) fn rung_e32() -> Shape {
+        Shape::new(
+            "development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
+            "hashline-zk-mr1/private-block-rung-e32-t32-dev/1",
+            32,
+            768,
+            1024,
+            12,
+            64,
+            4,
+            10,
+            4,
+            12,
+            37,
+            None,
+            None,
+            None,
+            None,
+        )
+        .expect("the rung-E32 shape is well formed")
+    }
+
     /// THE 125M-CLASS BLOCK (memo §2). A counted layout only, at this step.
     ///
     /// **S11b: 37 endpoint rows, not the 29 of memo §6.** The memo costed the

@@ -252,6 +252,13 @@ mod c6_tests;
 // shape could reach, at the smallest token count refusal F-2 admits.
 #[cfg(test)]
 mod w14_tests;
+// STAGE 33, item 4b of stage 32's heavy-only list: the 125M ENDPOINT's ROW
+// COUNT. `Shape::rung_e32` is rung-W14's head axis at 32 tokens and a row
+// width of 2^10, so the endpoint cube is 2^15 and the endpoint has 32 data
+// rows and 37 commitment rows — 125M's own counts — at a twentieth of 125M's
+// receipt. It does not reach the endpoint LOG, which is rung-W14's half.
+#[cfg(test)]
+mod e32_tests;
 // STAGE 33: the two closures the security owner ruled after reading stage 32.
 // Ruling J-7a — the premise under stage 32's DECLARED 60-byte transcript
 // coincidence ("a profile string is ASCII and has no NUL") becomes a check

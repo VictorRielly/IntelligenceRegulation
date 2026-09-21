@@ -22,7 +22,7 @@
 
 use super::argument::{define, Coord, Ctx, Points, Priv, SlotDef, Tab};
 use super::layout::*;
-use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_M125, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_W14};
+use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_M125, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_E32, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_W14};
 use super::run_sink::{DirSink, SegmentSink};
 use super::shape::Shape;
 use super::witness::{self, Witness};
@@ -34,7 +34,7 @@ use zkp_core::hashtag::HashTag;
 /// the five shapes this module builds, and the only ones anything is ever
 /// proved, captured or counted at
 fn every_shape() -> Vec<Shape> {
-    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::m125()]
+    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::rung_e32(), Shape::m125()]
 }
 
 /// `clog2`, as `Shape::natural_log` uses it
@@ -162,7 +162,7 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     in_source.dedup();
     // (2) THE REGISTRY, as the constructors give it.
     let shapes = every_shape();
-    let runs = [RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_W14, RUN_PROFILE_M125];
+    let runs = [RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_W14, RUN_PROFILE_RUNG_E32, RUN_PROFILE_M125];
     let mut covered: Vec<String> = shapes.iter().map(|s| s.profile.to_string()).collect();
     covered.extend(runs.iter().map(|r| r.to_string()));
     covered.sort();
@@ -210,6 +210,7 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
         (RUN_PROFILE_RUNG_P2, Shape::rung_p2()),
         (RUN_PROFILE_RUNG_C6, Shape::rung_c6()),
         (RUN_PROFILE_RUNG_W14, Shape::rung_w14()),
+        (RUN_PROFILE_RUNG_E32, Shape::rung_e32()),
         (RUN_PROFILE_M125, Shape::m125()),
     ] {
         let live = super::protocol::tagged_transcript(&sh, rp.as_bytes()).state();

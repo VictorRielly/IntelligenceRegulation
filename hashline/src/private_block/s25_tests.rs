@@ -39,7 +39,7 @@
 
 use super::hash_domain::{self, RunFacts};
 use super::layout::{Layout, M_ROWS, N_SLOTS, SC_IO_IN, SC_TAB};
-use super::run::{RunShape, RunStatement, RUN_PROFILE_M125, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_W14};
+use super::run::{RunShape, RunStatement, RUN_PROFILE_M125, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_E32, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_W14};
 use super::shape::Shape;
 use super::{BlockPublic, ExpectedIo, IoSpec};
 use crate::field::{Fp, Fp2};
@@ -74,7 +74,7 @@ fn profile_literals(text: &str) -> Vec<String> {
 
 /// the five shapes this module builds
 fn every_shape() -> Vec<Shape> {
-    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::m125()]
+    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::rung_e32(), Shape::m125()]
 }
 
 /// The three RUN profiles and the `L` each is registered at: the two
@@ -87,6 +87,7 @@ fn every_run() -> Vec<(&'static str, Shape, usize)> {
         (RUN_PROFILE_RUNG_P2, Shape::rung_p2(), 3),
         (RUN_PROFILE_RUNG_C6, Shape::rung_c6(), 3),
         (RUN_PROFILE_RUNG_W14, Shape::rung_w14(), 3),
+        (RUN_PROFILE_RUNG_E32, Shape::rung_e32(), 3),
         (RUN_PROFILE_M125, Shape::m125(), 12),
     ]
 }
@@ -113,6 +114,8 @@ fn run_statement(sh: &Shape, profile: &str, l: usize) -> RunStatement {
         RunShape::rung_c6(l).expect("the rung-C6 run shape")
     } else if profile == RUN_PROFILE_RUNG_W14 {
         RunShape::rung_w14(l).expect("the rung-W14 run shape")
+    } else if profile == RUN_PROFILE_RUNG_E32 {
+        RunShape::rung_e32(l).expect("the rung-E32 run shape")
     } else {
         RunShape::rung_g(l).expect("the rung-G run shape")
     };
@@ -582,7 +585,15 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
     // of any shape but the toy, at the largest row width. The endpoint
     // column is 72: nine commitment rows, four of them data, because the
     // padded `Dom::D` cube is 2^16 words at an endpoint log of 14.
-    let want: [(&str, usize, usize, usize, usize, usize, usize); 8] = [
+    // **STAGE 33 adds the rung-E32 row.** Its profile string is 48 bytes, as
+    // rung-W14's is, so the constructor input is 60 and the block seed 118
+    // again; its `pcs-vec` block is back to a rung's 20,535, because that
+    // absorb knows only the row width and this shape's is 10. What is new in
+    // the row is the ENDPOINT column: `8 · 37 = 296`, **125M's own**, at
+    // thirty-two data rows of a 2^10-wide endpoint. Its A and H column
+    // digests are the largest of any development shape (2,209 and 2,416
+    // rows), which is what 125M's head axis costs at a narrow row.
+    let want: [(&str, usize, usize, usize, usize, usize, usize); 9] = [
         // (name, constructor, A column, H column, endpoint column, block seed, pcs-vec block)
         ("toy", 51, 3640, 3072, 56, 61, 8247),
         ("rung", 56, 4984, 4608, 168, 66, 20535),
@@ -591,6 +602,7 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
         ("rung-p2", 59, 5816, 5760, 72, 117, 20535),
         ("rung-c6", 59, 10696, 11264, 168, 117, 20535),
         ("rung-w14", 60, 4216, 3488, 72, 118, 266295),
+        ("rung-e32", 60, 17672, 19328, 296, 118, 20535),
         ("m125", 48, 45448, 56960, 296, 106, 266295),
     ];
     for (sh, (name, ctor, a, h, e, seed, vec_len)) in every_shape().into_iter().zip(want) {
@@ -621,7 +633,10 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
     // than the three 45-byte run profiles', and its public statement digest
     // input is again 125 — that input is `29 + 32 L` and knows nothing about
     // the shape.
-    for ((p, _, l), (ctor, public)) in every_run().into_iter().zip([(56usize, 125usize), (57, 125), (57, 125), (57, 125), (58, 125), (46, 413)]) {
+    // **STAGE 33**: the rung-E32 run profile is 46 bytes as rung-W14's is, so
+    // its constructor input is 58 too, and its public statement digest input
+    // is again 125 at `L = 3`.
+    for ((p, _, l), (ctor, public)) in every_run().into_iter().zip([(56usize, 125usize), (57, 125), (57, 125), (57, 125), (58, 125), (58, 125), (46, 413)]) {
         assert_eq!(12 + p.len(), ctor, "{p}: the run transcript constructor's input");
         assert_eq!(29 + 32 * l, public, "{p}: the run public statement digest's input");
     }
