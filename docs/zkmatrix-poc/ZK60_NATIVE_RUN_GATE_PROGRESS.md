@@ -362,3 +362,68 @@ checks pass), but worth a look.
 3. The run-wide preimage as ONE joint object.
 4. Nothing in this round moves D8/D11, ruling M-8's decision, or the run's
    joint-law composition.
+
+---
+
+# Round 4 — the REPAIRED bilinear slots, and the first NON-DEGENERATE witness
+
+**Opened 2026-09-20 20:59 PDT** on the same lane, same sole writer.
+Python only. Nothing here is a privacy acceptance and no statement here
+establishes a privacy property.
+
+## R4.0 Why there is a round 4
+
+Two things, and only the second is about this gate's own arithmetic.
+
+1. **Finding S19-F1** (`ZK60_BLOCK125M_S19F1_DISPOSITION.md`, the security
+   owner, 2026-09-20 19:57): under grouped-query attention the two bilinear
+   attention slots — **08 `SC_SCORE`** and **09 `SC_PV`** — fixed the
+   key-value GROUP bits of the head challenge as coordinates of BOTH private
+   factors. A product of two multilinear extensions that share a variable is
+   quadratic in it, so the honest prover and the honest verifier disagreed
+   the moment two key-value groups carried different data: a COMPLETENESS
+   failure. Soundness was not weakened (argued by the owner, confirmed
+   independently). Repair (lane stage 20): the group bits become SUMCHECK
+   VARIABLES `rho(0..lkv)` shared by both factors, with a PUBLIC factor
+   `eq(r_g, ·)` where `r_g` is the leading `lkv = log2(kv_heads)` entries of
+   the slot's own head challenge; degree 3 and `lkv` more main rounds.
+2. **Every bundle this gate has ever read used a DEGENERATE witness.**
+   `run-a` … `run-f` used the lane fixture, whose normalised hidden state is
+   identical in every head, or the all-zero input. The repair is exactly the
+   thing those inputs could not see, and no disclosure or rank figure this
+   gate has ever reported was taken on a witness that varies across heads.
+
+So round 4 has two jobs: port the repaired definition, and re-establish
+EVERY figure of rounds 1–3 on a bundle whose witness is generic.
+
+## R4.1 Input (READ-ONLY, not copied here)
+
+`/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/`
+
+| bundle | witness | argument |
+|---|---|---|
+| `run-g-dense-s20` | **fully dense public weights, a non-constant hidden input, the two key-value groups carrying different data in every block** — the first non-degenerate witness this gate has seen | repaired (stage 20) |
+| `run-h-zero-s20` | the all-zero hidden input | repaired (stage 20) |
+| `run-a` … `run-f` | the lane fixture / all-zero | PRE-REPAIR, superseded |
+
+## R4.2 Status
+
+| # | item | state |
+|---|---|---|
+| V0 | ledger skeleton, round 4 opened | done |
+| V1 | the group factor: derived from the transcript, compared, never consumed | |
+| V2 | slots 08 / 09 ported under the repaired definition, selected by the bundle's own source pin | |
+| V3 | the replay and the 23-slot terminal identity on both new bundles | |
+| V4 | rounds 1–3's figures re-established on the dense bundle; dense vs degenerate | |
+| V5 | the controls, including the OLD definition on each bundle | |
+| V6 | the R-3 correction notes on rounds 1–3 | |
+| V7 | evidence, report §8, the channel table recounted | |
+| V8 | the whole native suite; the toy record guard | |
+
+## R4.3 Commands and logs (round 4)
+
+(filled as the round runs)
+
+## R4.4 Results
+
+(filled as the round runs)
