@@ -238,6 +238,13 @@ mod s29_tests;
 // the arm that only an `#[ignore]`d 125M test used to reach is tested here.
 #[cfg(test)]
 mod p2_tests;
+// STAGE 31: correction C-6. `Shape::rung_c6` is the first development shape
+// whose norm window fills its top byte limb exactly, so the four `scaled`
+// norm lookups are dropped, `Dom::D` carries 17 helpers instead of 19 and
+// the `H` plane list is two planes shorter — the last branch of stage 30's
+// heavy-only list that a small shape could reach.
+#[cfg(test)]
+mod c6_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

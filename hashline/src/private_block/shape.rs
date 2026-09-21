@@ -584,6 +584,81 @@ impl Shape {
         .expect("the rung-P2 shape is well formed")
     }
 
+    /// **THE FULL-TOP-BYTE DEVELOPMENT SHAPE (stage 31, "rung-C6").**
+    ///
+    /// **Why it exists.** [`Shape::norm_top_is_full_byte`] is correction
+    /// **C-6**: when the norm window fills its top byte limb exactly, the
+    /// `scaled(top, 1 << (8 ln - wrho))` lookup has coefficient `1 << 0 = 1`
+    /// and is therefore the same `Lk` as the `byte(top)` lookup already in
+    /// the list, so `layout::lookups_at` emits it for neither `rho` nor
+    /// `sigma` of either norm — FOUR lookups dropped, `Dom::D` at 34 per
+    /// position instead of 38, **17** helper planes instead of 19 and an `H`
+    /// plane list two planes shorter. The flag is true exactly when
+    /// `norm_wrho = NORM_TN + 1 + bit_length(D_max)` is a multiple of eight,
+    /// and `D_max = isqrt(1 + width * 32767^2)`, so it needs `width > 256`:
+    /// the toy (16) is at 29 bits, every development shape (96) at 31, and
+    /// **the only shape in this module with the flag true is 125M**, whose
+    /// proofs are `#[ignore]`d 10 GiB tests. This shape closes that gap at a
+    /// size the ordinary filter proves in about a second.
+    ///
+    /// **The geometry, and why each number is forced.** It is
+    /// [`Shape::rung_p2`]'s with ONE axis moved — the head dimension, from 8
+    /// to 32 — and everything that must follow from it:
+    ///
+    /// * `head_dim = 32` is the smallest admissible value that crosses the
+    ///   window. `width = q_heads * head_dim` is forced by the reference
+    ///   kernel, and `d_pad = h_pad * head_dim` is a construction refusal, so
+    ///   with the head axis of rung-P2 (12 query heads over 4 key-value
+    ///   heads, `h_pad = 16`) the width is `12 * head_dim`: 8 gives 96 (31
+    ///   bits), 16 gives 192 (31 bits, `D_max = 454,053`), and 32 gives
+    ///   **384**, `D_max = 642,099`, 20 bits, `norm_wrho = 32`. `q_heads` is
+    ///   the smallest non-power-of-two multiple of four, which is what keeps
+    ///   `lkv = 2` with a padded slot inside every group's block;
+    /// * `hidden = 512` is the smallest power of two above the width. A power
+    ///   of two is what keeps `Dom::F = tokens * hidden` unpadded, and it
+    ///   must exceed the width or the feed-forward fixture has no "upper
+    ///   hidden half" to be dense on (the S19-F1 census);
+    /// * `tokens = 32`, `log_cols = 10`, `inv_rate = 4` and `f_e = 12` are
+    ///   rung-P2's. `f_e = 12` at 32 tokens keeps `wrho_s = 17` and so
+    ///   `limbs_sigma_s = 3`, which is 125M's; **the only lookup family that
+    ///   differs from rung-P2 anywhere in the layout is therefore `Dom::D`,
+    ///   by exactly C-6's four.**
+    ///
+    /// **It keeps stage 30's three unpadded domains.** `Dom::T = 2^5`,
+    /// `Dom::Kv = 32 * 4 * 32 = 2^12` and `Dom::F = 32 * 512 = 2^14` are
+    /// exact powers of two and do not pad, while `Ht`, `L`, `D`, `Q`, `S`
+    /// and `Tab` do — 125M's own padded-domain set, so this shape carries
+    /// BOTH arms of ruling P-1 as well as the C-6 arm.
+    ///
+    /// Its endpoint is the generalised one at the defaults: the padded
+    /// `Dom::D` cube is `32 * 512 = 2^14` words, which at
+    /// `endpoint_log_n = log_cols = 10` is 16 data rows and
+    /// `16 + MASK_ROWS = 21` commitment rows.
+    ///
+    /// Development grade, never a deliverable (ruling P-7), its OWN profile
+    /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+    pub(crate) fn rung_c6() -> Shape {
+        Shape::new(
+            "development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
+            "hashline-zk-mr1/private-block-rung-c6-t32-dev/1",
+            32,
+            384,
+            512,
+            12,
+            32,
+            4,
+            10,
+            4,
+            12,
+            21,
+            None,
+            None,
+            None,
+            None,
+        )
+        .expect("the rung-C6 shape is well formed")
+    }
+
     /// THE 125M-CLASS BLOCK (memo §2). A counted layout only, at this step.
     ///
     /// **S11b: 37 endpoint rows, not the 29 of memo §6.** The memo costed the

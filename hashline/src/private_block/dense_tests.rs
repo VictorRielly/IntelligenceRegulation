@@ -323,11 +323,20 @@ pub(super) fn dense_ff_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, V
 /// blocks of the chain is **39** — bands 41 and 40 are refused by the second
 /// block at the same site as everywhere else, `fixed oracle range refusal:
 /// residual 2`.
+/// **STAGE 31: `(512, 4)` is `Shape::rung_c6`'s**, measured the same way by
+/// `c6_tests::the_pinned_rung_c6_chain_band_is_the_first_admissible_one`:
+/// the recipe's own single-block band there is 29, and the first band at
+/// which the witness builder accepts all three blocks of the chain is
+/// **27** — bands 29 and 28 are refused by the THIRD block (index 2), again
+/// at `fixed oracle range refusal: residual 2`. This shape's hidden axis is
+/// 512 and its width 384, both four times rung-P2's, so both the band
+/// formula's `1/sqrt(hidden)` and the wider residual pull the same way.
 pub(super) fn band_down_run(s: &Shape) -> i64 {
     match (s.hidden, s.kv_heads) {
         (192, 2) => 47,
         (192, 4) => 47,
         (256, 4) => 39,
+        (512, 4) => 27,
         (2048, 4) => 1,
         // any other geometry has not been measured; fall back to the
         // single-block band, which is the recipe's own and is honest about

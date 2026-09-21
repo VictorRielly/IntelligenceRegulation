@@ -183,7 +183,7 @@ fn blocks_of_recipe(recipe: &str, sh: &Shape, l: usize) -> Result<Vec<BlockPubli
 /// field, so a file that disagrees is refused rather than quietly re-shaping
 /// the verifier.
 fn shape_of_profile(profile: &str) -> Result<Shape, String> {
-    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::m125()] {
+    for sh in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::m125()] {
         if sh.profile == profile {
             return Ok(sh);
         }
@@ -193,7 +193,7 @@ fn shape_of_profile(profile: &str) -> Result<Shape, String> {
 
 /// The two run profiles, likewise.
 fn run_profile_of(profile: &str) -> Result<&'static str, String> {
-    for p in [run::RUN_PROFILE_RUNG_G, run::RUN_PROFILE_RUNG_K4, run::RUN_PROFILE_RUNG_P2, run::RUN_PROFILE_M125] {
+    for p in [run::RUN_PROFILE_RUNG_G, run::RUN_PROFILE_RUNG_K4, run::RUN_PROFILE_RUNG_P2, run::RUN_PROFILE_RUNG_C6, run::RUN_PROFILE_M125] {
         if p == profile {
             return Ok(p);
         }
