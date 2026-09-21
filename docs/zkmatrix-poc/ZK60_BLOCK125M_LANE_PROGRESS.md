@@ -9449,19 +9449,25 @@ the extension by construction.
 slots the request names:
 
 ```
-setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 HL_PB_WEIGHTS=dense HL_PB_BASEFIELD=17,14,18,15,4 <the stage-29 test binary> --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> results/zk60_block125m_lane/r29-m125-bfcensus.log 2>&1; echo $? > results/zk60_block125m_lane/r29-m125-bfcensus.done' >/dev/null 2>&1 &
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 HL_PB_WEIGHTS=dense HL_PB_BASEFIELD=17,14,18,15,4 /home/victor/zk60-artifacts/hashline-r29-census --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/r29-m125-bfcensus.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/r29-m125-bfcensus.done' >/dev/null 2>&1 &
 ```
 
-Two notes a reader needs. (1) The run was enqueued at **10:55 PDT** behind
+Three notes a reader needs. (1) The run was enqueued at **10:55 PDT** behind
 another lane's Python queue (25 waiters on `/tmp/zk-heavy.lock`), and it
 self-starts when the lock frees, session or no session: the answer to "did it
-finish" is the `.done` marker. (2) It runs a COPY of the test binary taken at
-the moment of enqueueing, so that this stage's later commits could not change
-what the queued run executes; that binary is the stage-28 production code
-plus the census, which is why its prove figure is a second sample of the
-SAME prover that gave 17.40 s and not a measurement of task 1's refactor.
-The census's own scan is timed and printed per slot (`scan x.xxx s`), so the
-prove figure can be read with it subtracted.
+finish" is the `.done` marker, and its numbers belong in a table right here.
+(2) It runs a COPY of the test binary taken at the moment of enqueueing, so
+that this stage's later commits could not change what the queued run
+executes; that binary is the stage-28 production code plus the census, which
+is why its prove figure is a second sample of the SAME prover that gave
+17.40 s and not a measurement of task 1's refactor. (3) At **11:24 PDT** the
+job was cancelled and re-enqueued, unchanged except for where the binary
+sits: the first copy was in a session-scoped scratchpad under `/tmp`, which a
+run that may wait hours cannot rely on (this project's own `/tmp`
+evidence-loss rule), so it now lives at
+`/home/victor/zk60-artifacts/hashline-r29-census` and the command above is
+the one that will run. The census's own scan is timed and printed per slot
+(`scan x.xxx s`), so the prove figure can be read with it subtracted.
 
 ### Task 5 — the gates, the commits, and the status of every review finding
 
