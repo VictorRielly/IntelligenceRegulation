@@ -12,6 +12,16 @@
 > slots**, on two NEW bundles. Where §3 item 4, §4 and §5 say that check is
 > open, read them against §6, which says exactly how far it closed and why
 > the other eleven slots did not.
+>
+> **Section 7, the same day again, is the third round**, on the two TAGGED
+> bundles the Rust lane's stage 18 wrote: every hash is now BLAKE3 in KEYED
+> mode under decision D19's four derived keys, and the bundles carry the
+> public tables' VALUES. Read §6's "eleven slots stay OPEN" against §7.4,
+> which closes them — **23 of 23** — and read §5's "the hash layer is
+> ARGUED" against §7.3, which computes the part of it that is about
+> soundness and says why the HIDING part is argued still. The disclosure
+> figures of §2.3 and §2.4 did not move under the tag, which is itself one
+> of round 3's results.
 
 > **THIS IS NOT A PRIVACY ACCEPTANCE AND ESTABLISHES NO PRIVACY PROPERTY.**
 > Every number below is a rank, a count or a digest of an explicitly stated
@@ -628,3 +638,272 @@ absent. The whole live arm runs in 5.5 s, so nothing here needs a
 * **Not a privacy claim.** The verifier's own check passing is a statement
   about the receipt's self-consistency. Ruling M-8, D8/D11 and the run's
   joint-law composition are untouched by this round.
+
+---
+
+# 7. 2026-09-20, third round: the KEYED HASH RULE (D19) and the last eleven slots
+
+**Written 2026-09-20 17:20 PDT on the same lane.** Two things landed on the
+Rust lane and they are independent of each other:
+
+* **Stage 17** put decision D19's **separating hash tag** into the code. On
+  a TAGGED profile — and the development rung is one — every BLAKE3 call is
+  in KEYED mode under one of four public 32-byte keys, each
+  `blake3.derive_key(<context>, <block profile>)`. Every proof byte of
+  those profiles moved once.
+* **Stage 18** re-took the bundles under the tag **with the public tables'
+  values**: `run-e-tame-tagged`, `run-f-zero-tagged`. The four earlier
+  bundles are LEGACY-rule bundles and are superseded for gate purposes.
+
+New tools, all new files: `scripts/zk60_native_rg_hashrule.py` (the rule,
+the four derived keys, a KEYED transcript, keyed column / leaf / node, and
+the comparison with what a bundle declares), `scripts/zk60_native_rg_
+hashlayer.py` (stage 9 — every opened column re-hashed and re-authenticated),
+`scripts/zk60_native_rg_hcontrols.py` (the rule's six controls),
+`scripts/zk60_native_rg_recclass.py` (the old-bundle diffs, classified).
+Evidence: `results/zk60_native_run_gate_tagged/`.
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** Which
+> BLAKE3 made a receipt is not a statement about what it discloses, and
+> neither is the receipt's self-consistency. Every disclosure figure of
+> §2.3 and §2.4 is **unchanged** — that is itself one of this round's
+> results: the tag moved every proof byte and not one rank.
+
+## 7.1 The rule, and the one rule about the rule
+
+The gate **derives** the key set itself. The four context strings and the
+list of LEGACY profiles (a denylist of two: the byte-frozen toy and the
+frozen-seam rung, so a profile the tool has never heard of is TAGGED — the
+fail-safe direction) are pinned in `zk60_native_rg_hashrule.py`'s own
+source; the keys come from the profile the bundle's own SHAPE names. Only
+then is the bundle's `hash_tag` member read, and only to be COMPARED:
+rule name, profile, four contexts, four keys. **Re-derive, never consume**
+(ruling T-7). A key is never taken from a bundle and used.
+
+| check, both tagged bundles | figure |
+|---|---|
+| rule derived from the shape's profile | `blake3-keyed/1` |
+| keys re-derived here and compared with `keys_hex` | **4 of 4** |
+| contexts compared with the ones pinned in the tool | **4 of 4** |
+| the declared profile against the shape's | equal |
+| the run profile (the transcript DOMAIN) against the block profile (the KEYS) | different strings, as the design says |
+| refusals | none |
+
+The keyed transcript is a **subclass** of the toy module's `Transcript`:
+`zk60_native_jv_field.py` is pinned byte for byte by
+`tests/test_zk60_native_gate_record.py`, so the keyed rule could not be
+written into it, and subclassing is also the statement that only the hash
+FUNCTION differs — the absorb framing, the counter and the challenge
+decoding are inherited unchanged. The clone carries the key, which is what
+the segment position tags are squeezed from (`clone_state`,
+transcript.rs:156).
+
+**One path does not compare, and it is named.** A bundle written before
+stage 17 has no `hash_tag` member at all. Its bytes are the legacy rule's
+whatever its profile is now, so it is replayed under the legacy rule and
+marked **SUPERSEDED**: a pre-tag bundle of a tagged profile is the
+verifier's view of a run made under a rule this profile's code no longer
+uses, and nothing measured on it is a statement about what the profile
+produces today. Control CH-5 shows that path cannot be abused — delete the
+member from a TAGGED bundle and the replay fails on the bytes.
+
+## 7.2 The replay under the tag
+
+Round 1's counts, exactly, under another hash function:
+
+| | round 1 (legacy) | round 3 (tagged) |
+|---|---|---|
+| run binding | reproduced | **reproduced** |
+| transcript positions compared as (state, next challenge) | 375 | **375** |
+| challenges re-derived and compared | 6,086 | **6,086** |
+| final transcript counter | 6,918 | **6,918** |
+| segment position tags, from a DISCARDED clone | 6 of 6 | **6 of 6** |
+| challenges NOT re-derived | none | **none** |
+
+Nothing is left un-re-derived, and the three segment byte lengths are the
+same 4,066,824 / 4,089,352 / 4,257,256 as in rounds 1 and 2 — the tag moves
+the bytes' VALUES and not the receipt's size, which is what `hashtag.rs`
+says and is now a measurement.
+
+## 7.3 The hash layer, computed rather than argued (stage 9, new)
+
+Three of D19's four keys never touch the transcript, so a gate that only
+replayed Fiat–Shamir would exercise ONE key and take the other three on the
+bundle's word. Stage 9 computes them on real bytes:
+
+    leaf_j   = H_column(column j's little-endian Fp bytes)      pcs.rs:148
+    salted_j = H_leaf(leaf_j || salt_j)                          pcs.rs:691
+    fold     = H_node(left || right) up the path                 merkle.rs:28
+             == the commitment's root
+
+| | both tagged bundles |
+|---|---|
+| openings re-hashed (M, A, H, Input, + Output in the last stage) | **13** |
+| opened columns re-hashed and re-authenticated | **3,328 of 3,328** |
+| path lengths checked against the tree depth 12 (`verify_zk_tagged`'s own first check) | **3,328** |
+| bytes hashed | 7,751,680 |
+| cross-rule probe on one column: wrong rules tried | **4**, none reached the root |
+
+**What this does and does not move.** The Merkle roots, the leaf salts and
+the authentication paths stay **ARGUED** in the channel table, because what
+that channel is about is HIDING — what an unopened leaf reveals is M-2's
+assumption either way. What stage 9 adds is the soundness-side fact that
+the opened columns really are this run's own, under the rule the profile
+implies, and the evidence that the BYTES were made under the tag rather
+than merely declared to be.
+
+## 7.4 All twenty-three slots
+
+`public_tables_included` is true, so the eleven slots §6.2 left OPEN are
+ported and evaluated. `argument.rs` — the file that decides what a slot's
+polynomial IS — is **byte-identical** at the stage-15 and stage-18 commits,
+so no earlier port is in question; `layout.rs`, `protocol.rs` and (newly
+pinned) `shape.rs` moved, each diff was read line by line, and each is the
+hash-tag plumbing and the T-3 / T-4 path-length checks with nothing this
+port reads changed. The two moved digests are accepted BY NAME with that
+reason; any other move still makes every slot NOT CHECKED.
+
+| slot | name | what closed it |
+|---|---|---|
+| 05, 06, 07 | `SC_QMM`, `SC_KMM`, `SC_VMM` | `fold_rows_i8` of the query / key / value weights |
+| 10 | `SC_WO` | `fold_rows_i8` of the output projection |
+| 11, 12 | `SC_GMM`, `SC_UMM` | `fold_cols_i8` of the gate / up weights |
+| 13 | `SC_DMM` | `fold_cols_i8` of the down weights |
+| 14 | `SC_DZC` | the two padded norm GAIN vectors (the eleven `Dom::D` clauses, hosting `SC_WO` and `SC_DMM`) |
+| 15, 16 | `SC_QZC`, `SC_KVZC` | the RoPE `(cos, sin)` pair (the partner slice at the flipped bit, trap T-8) |
+| 19 | `SC_TAB` | the exp and activation lookup tables' VALUES (the byte table is rebuilt here) |
+
+| | round 2 | round 3 |
+|---|---|---|
+| slots evaluated | 12 of 23 | **23 of 23** |
+| slot checks equal, every stage | 36 of 36 | **69 of 69** |
+| matching the capture's own `terminal_polynomial` | 36 | **69** |
+| slots OPEN | 11 | **0** |
+
+### A captured table is not taken on trust
+
+Three checks stand between a carried table and the polynomial that reads it.
+
+1. **Its own length and SHA-256.** Every public table of every slot of
+   every stage: **93 of 93** per bundle, over the concatenated 16-byte
+   little-endian `Fp2` encodings (`run_capture.rs:788`).
+2. **Rebuilt where the shape allows it.** Sixteen tables per stage are
+   still rebuilt in Python and digest-compared — the seven `supp`
+   indicators, the causal mask, `SC_ZS`'s all-ones vector, and now
+   `table_values_u8_at` and the `supp` tables of the four new zero-check
+   slots. These are never taken.
+3. **The structure its builder gives it**, 45 checks per bundle: a weight
+   fold vanishing off its own input support (ruling P-2), a norm gain
+   periodic in the padded width and zero off it, the RoPE pair's zero set
+   and its partner symmetry (`cos` repeats, `sin` negates), and a lookup
+   table periodic in the byte class after the P-3 lift with a small
+   BASE-FIELD integer recovered from every one of its 256 entries.
+
+**What it does NOT establish, and this is the honest limit of the round:**
+that a folded weight table is the fold of the weight matrix the statement
+names. No bundle carries a weight. The port checks the capture's own
+length, digest and structure, and the identity at the run's real
+challenges — and no more. It is stated in the record itself
+(`what_a_captured_table_does_not_establish`).
+
+Check 3 did real work on the first run: it refused `SC_WO`, because a
+weight fold's live index range is not always the width. The output
+projection is indexed by the **padded head slots**, and the fold is nonzero
+exactly on slots {0,1,2,4,5,6} × 16 = `[0,48) ∪ [64,112)`, which is above
+the width at its top end and zero below it. The check now knows the three
+supports (width, heads, hidden) and says which one it used.
+
+## 7.5 The controls
+
+Fourteen, **all firing** on both bundles: CT-1 … CT-5 as in round 2, plus
+
+| control | what | fires |
+|---|---|---|
+| **CT-6** | one value of a captured public table changed by +1 | the capture's own SHA-256 refuses it; the slot is not reported checked |
+| **CT-7** | the same, with the digest check dropped (in the control only) | the identity fails at **exactly** stage 0 slot 5 and nowhere else |
+| **CT-8** | one terminal of a NEWLY checked slot (14, `SC_DZC`) perturbed | fails at exactly that slot and stage — the new ports are load-bearing |
+| **CH-1** | one declared key replaced by zeros | refused by name; the other three still compare |
+| **CH-2** | one character added to a declared context string | refused by name against the tool's own pins |
+| **CH-3** | the tag's profile replaced by the 125M profile's | refused by name against the shape's profile |
+| **CH-4** | the bundle renamed `legacy` while its profile is tagged | refused by name — and with the legacy rule actually computed, the run binding does not reproduce (**6,854** replay failures) and **0 of 3,328** columns authenticate |
+| **CH-5** | the whole `hash_tag` member removed | read as pre-tag and marked SUPERSEDED, and the replay then fails on the bytes |
+| **CH-6** | a legacy bundle's columns checked under the rung-G tag | 3,328 of 3,328 under the legacy rule, **0** under the tag |
+
+CH-4 is the sharpest of the round: it separates "the bundle says it is
+tagged" from "the bytes were made under the tag", and only the second is
+evidence.
+
+## 7.6 The channel table, recounted
+
+Counted from the tool's own `stage7_channels.channels` array.
+
+| bundle | total | constructed | derived | argued | **open** |
+|---|---:|---:|---:|---:|---:|
+| `run-e-tame-tagged`, `run-f-zero-tagged` | **25** | 2 | **5** | 4 | **14** |
+| `run-c-tame`, `run-d-zero` (re-run) | 25 | 2 | 4 | 4 | 15 |
+| `run-a-tame`, `run-b-zero` (re-run) | 25 | 2 | 3 | 4 | 16 |
+| round 2's table on the stage-15 bundles | 24 | 2 | 3 | 4 | 15 |
+
+Two things moved and they are separate. One entry was **added** — the hash
+RULE of the run, which is a new part of a tagged run's public view and is
+DERIVED (the keys are public functions of public strings, re-derived here,
+and the bytes are shown to be under them). One entry **closed**: the half
+of the terminal channel that round 2 split off for the eleven
+table-bearing slots is DERIVED now, so the open count falls from 15 to 14.
+
+The fourteen that remain open are unchanged in kind: `A` and `H`'s vectors
+(multi-member groups), the pad half, the opened column values, the masked
+sumcheck rounds, the cross-block joint law beyond the linear rank, a
+preimage for a RUN, the boundary scale tags, refusal events,
+rejected-but-emitted receipts, retained captures, timing/memory/power,
+prior proofs, the integer-range facts, and any nonlinear functional.
+
+## 7.7 The four superseded bundles
+
+Re-run under round 3 and diffed leaf by leaf against their round-2 records
+(`results/zk60_native_run_gate_tagged/old/`): **0 unclassified differing
+leaves** on all four, with 2,222 / 2,223 / 2,831 / 2,831 identical leaves.
+Every difference is a wall clock, a tool SHA-256, one of the two new record
+blocks (`hash_rule`, stage 9), the replay naming its rule, the new and
+empty fields about captured tables, the reworded OPEN reason of the eleven
+slots, or the insertion of one channel entry (which shifts every later
+index). **No rank, disclosed dimension, challenge count, slot check or
+control figure moved.** The classifier is a tool
+(`zk60_native_rg_recclass.py`), not a reading.
+
+## 7.8 The suite
+
+`python3 -m unittest discover -s tests -p 'test_zk60_native*.py'`:
+**261 tests, OK**, one skip and one recorded expected failure, 234.1 s —
+against **232** before this round. The 29 new ones are
+`tests/test_zk60_native_run_gate_tagged.py`, in three arms: a PURE arm that
+needs no bundle (the eight pinned keys re-derived, keyed against unkeyed
+transcripts, the three roles separating under the tag and the leaf/node
+ambiguity that exists under the legacy rule), a RECORDED arm asserting
+every figure above from the tracked evidence, and a LIVE arm skipped when
+the ~41 MB bundles are absent. Two round-2 assertions had to move and only
+two: the channel total (24 → 25) and the shape of the covered-slot
+statement (every slot now HAS a port; eleven need a carried table). The toy
+gates' record guard still passes and no toy file's bytes were touched.
+
+## 7.9 What this round is NOT
+
+* **Not a privacy claim, again.** Ruling M-8's decision, D8/D11 and the
+  run's joint-law composition are untouched, and `privacy_review_complete`
+  is `false` in the bundles and in every record.
+* **The disclosure model is still LINEAR and still one shape.** §2.3 and
+  §2.4's figures are the same ranks of the same model on two captured runs
+  at 24 tokens, width 96, hidden 192. Two runs are not a distribution.
+* **The hash layer's HIDING is still argued.** Authenticating an opened
+  column says nothing about what an unopened leaf hides.
+* **The keyed rule is an idealisation.** D19 reads BLAKE3's modes as a
+  family of independent random functions indexed by mode and key; distinct
+  profiles share a key only with NEGLIGIBLE probability, not never (ruling
+  T-1 as amended). Nothing here tests that assumption; the gate computes
+  under it.
+* **Nothing about the 125M shape.** The port is shape-driven, but it has
+  been RUN at one shape. The m125 profile's four keys are re-derived and
+  pinned in the tests, and that is the only 125M fact here.
+* **A weight fold is the capture's.** See §7.4: no bundle carries a weight,
+  so "this is the fold of the statement's matrix" is not established by
+  anything in this round.

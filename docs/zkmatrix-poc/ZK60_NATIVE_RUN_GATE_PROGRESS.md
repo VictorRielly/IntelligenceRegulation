@@ -257,15 +257,15 @@ Two things move in this round, and they are independent:
 
 | # | item | state |
 |---|---|---|
-| U0 | this skeleton; the tagged bundles read; the keys pinned in the tool's own source | open |
-| U1 | `scripts/zk60_native_rg_hashrule.py`: the rule, the four keys, a keyed transcript, keyed column / leaf / node, the bundle comparison | open |
-| U2 | the loader and the replay under the rule, selected per bundle | open |
-| U3 | the HASH LAYER computed, not argued: every opened column's leaf and Merkle path under the rule | open |
-| U4 | the eleven slots closed from the captured public tables' values | open |
-| U5 | controls: a perturbed key set / context / profile / rule; a perturbed table value; a perturbed terminal in a newly checked slot | open |
-| U6 | the whole gate on both tagged bundles; the old four re-run and shown unchanged | open |
-| U7 | tests; the whole native suite re-counted | open |
-| U8 | evidence `results/zk60_native_run_gate_tagged/` and a dated section 7 of the report | open |
+| U0 | this skeleton; the tagged bundles read; the keys pinned in the tool's own source | done |
+| U1 | `scripts/zk60_native_rg_hashrule.py`: the rule, the four keys, a keyed transcript, keyed column / leaf / node, the bundle comparison | done |
+| U2 | the loader and the replay under the rule, selected per bundle | done |
+| U3 | the HASH LAYER computed, not argued: every opened column's leaf and Merkle path under the rule | done (stage 9, `zk60_native_rg_hashlayer.py`) |
+| U4 | the eleven slots closed from the captured public tables' values | done (23 of 23) |
+| U5 | controls: a perturbed key set / context / profile / rule; a perturbed table value; a perturbed terminal in a newly checked slot | done (CT-6..CT-8, CH-1..CH-6) |
+| U6 | the whole gate on both tagged bundles; the old four re-run and shown unchanged | done |
+| U7 | tests; the whole native suite re-counted | done |
+| U8 | evidence `results/zk60_native_run_gate_tagged/` and a dated section 7 of the report | done |
 
 ## R3.1 Rules kept
 
@@ -276,3 +276,89 @@ Round 2's, unchanged: the toy gates' modules are pinned by
 subclass in a new `zk60_native_rg_*.py` module, never an edit. NEVER mark a
 slot checked unless the identity was evaluated and compared. A key is never
 taken from a bundle.
+
+## R3.2 What the round covers (measured 2026-09-20 17:16 PDT, both tagged bundles)
+
+**The rule.** The four context strings and the two LEGACY profile strings
+are pinned in `zk60_native_rg_hashrule.py`'s own source; the key set is
+DERIVED from the profile the bundle's SHAPE names (the Python port of
+`Shape::hash_tag`, a denylist of two, so an unknown profile is TAGGED) and
+then compared with the bundle's declared `hash_tag`: rule name, profile,
+4 contexts, 4 keys. Re-derive, never consume. The keyed transcript is a
+SUBCLASS of the toy module's `Transcript` — `zk60_native_jv_field.py` is
+pinned byte for byte and was not touched.
+
+**One path does not compare, and it is named**: a bundle with no `hash_tag`
+member predates stage 17, is read under the legacy rule and marked
+SUPERSEDED. Control CH-5 shows the path cannot be abused — delete the
+member from a tagged bundle and the replay fails on the bytes.
+
+**The hash layer is computed** (stage 9, new): every opened column
+re-hashed (`H_column`), salted (`H_leaf`) and folded up its path
+(`H_node`) to the committed root, with the path LENGTH checked against the
+tree depth. This is where the column, leaf and node keys are exercised
+against real bytes; a transcript-only replay would have used one key of
+four and taken three on the bundle's word.
+
+**All 23 slots** of the terminal identity are evaluated. `argument.rs` is
+byte-identical at the stage-15 and stage-18 commits; `layout.rs`,
+`protocol.rs` and (new) `shape.rs` moved and each diff was read — the
+hash-tag plumbing and the T-3 / T-4 path-length checks, nothing this port
+reads. A captured public table passes three checks before a polynomial
+reads it: the capture's own `len` and SHA-256 (93 of 93 per bundle), the
+rebuild where the shape allows it (16 per stage), and the STRUCTURE its
+builder gives it (45 per bundle). What is NOT established: that a weight
+fold is the fold of the statement's matrix — no bundle carries a weight.
+
+## R3.1b The one thing the structure check caught
+
+`SC_WO`'s fold is NOT zero above the width: the output projection is
+indexed by the PADDED HEAD SLOTS, so it is nonzero exactly on
+`[0,48) ∪ [64,112)` — head slots {0,1,2,4,5,6} of 8. The first form of the
+check (zero above `width`) refused it, which is the check working; it now
+knows the three supports (width, heads, hidden) and records which it used.
+
+**An observation for the Rust lane, not a gate failure:** `SC_DMM`'s fold
+of the DOWN matrix is nonzero only on `[0,96)`, though the hidden dimension
+is 192 and the table is 256 long. A zero fold at a random point means a
+zero row, so the lane's fixture appears to give the down projection 96 live
+input rows rather than 192. Public data, no effect on any identity (all 69
+checks pass), but worth a look.
+
+## R3.3 Commands and logs (round 3)
+
+| what | command | log |
+|---|---|---|
+| the gate, the two TAGGED bundles | `python3 scripts/zk60_native_run_gate.py --bundle <B>/run-e-tame-tagged --other <B>/run-f-zero-tagged --old <B>/run-a-tame --evidence results/zk60_native_run_gate_tagged` (and swapped) | `results/zk60_native_run_gate_tagged/run-{e,f}-*.log`, records beside them — **14.1 s / 14.0 s** |
+| the four SUPERSEDED bundles, re-run for the diff | the same into `results/zk60_native_run_gate_tagged/old` | `…/old/run-{a,b,c,d}-*.log` |
+| each diffed against its round-2 record | `python3 scripts/zk60_native_rg_recdiff.py <round-2 record> <new> --out …` then `zk60_native_rg_recclass.py` | `…/old/*.diff.json`, `…/old/old_bundles_unchanged.json` — **0 unclassified leaves** |
+| rounds 1 and 2's evidence refreshed in place | the round-1 / round-2 command lines, unchanged | `results/zk60_native_run_gate/`, `results/zk60_native_run_gate_planeindex/` |
+| the three RUN-gate test files | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native_run_gate*.py' -v` | `results/zk60_native_run_gate_tagged/tests_run_gate_all.log` — **94 tests, OK, 19.8 s** |
+| the WHOLE native suite | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native*.py' -v` | `results/zk60_native_run_gate_tagged/tests_native_all.log` — **261 tests, OK, 234.1 s**, one skip and one recorded expected failure, against **232** before this round: the 29 new ones are `tests/test_zk60_native_run_gate_tagged.py` |
+
+## R3.4 Results (MEASURED 2026-09-20, both tagged bundles, shared laptop, CPU only)
+
+| what | figure |
+|---|---|
+| the rule | `blake3-keyed/1`, derived here; **4 of 4** keys and **4 of 4** contexts compared with the bundle's; no refusals |
+| the replay under the tag | run binding reproduced, **375** positions, **6,086** challenges, counter **6,918**, **6 of 6** segment position tags — round 1's counts exactly |
+| the segment byte lengths | 4,066,824 / 4,089,352 / 4,257,256 — the same as rounds 1 and 2: the tag moves values, not sizes |
+| the hash layer | **13** openings, **3,328 of 3,328** columns re-hashed and authenticated, 3,328 path-depth checks, 7.75 MB hashed; the cross-rule probe tries 4 wrong rules and none reaches the root |
+| the terminal identity | **23 of 23** slots, **69 of 69** checks equal and matching the stored `terminal_polynomial`, **0** open |
+| public tables | **93 of 93** checked against the capture's own len and SHA-256; **16 per stage** rebuilt and digest-matched; **15 per stage** taken and structure-checked (**45** checks) |
+| disclosure, unchanged from rounds 1-2 | `A` 0, `H` 2, boundaries 0, endpoints 0; each boundary rank **6 of 6** disclosed **0**; three-role joint **0** = sum; whole run 308 × 3,761, joint **6** = sum 6 |
+| controls | **fourteen, all fire** (CT-1 … CT-8, CH-1 … CH-6) |
+| channels | **25**: 2 constructed, **5** derived, 4 argued, **14** open (one entry added, one closed; old bundles: 16 open for a/b, 15 for c/d) |
+| the four superseded bundles | **0** unclassified differing leaves; 2,222 / 2,223 / 2,831 / 2,831 identical |
+
+## R3.5 NEXT after round 3
+
+1. **The masked sumcheck / CFS channel** is now the largest open one that a
+   port could close: `zk60_native_jv_cfs` and `zk60_native_mask_commit` are
+   written at the toy's row layout and would have to be re-derived from the
+   shape, as the terminal port was.
+2. `zk60_native_pg_pcs` at `MSG != PAD`, which would move `A`, `H` and the
+   pad halves from OPEN to CONSTRUCTED.
+3. The run-wide preimage as ONE joint object.
+4. Nothing in this round moves D8/D11, ruling M-8's decision, or the run's
+   joint-law composition.

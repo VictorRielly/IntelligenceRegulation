@@ -58,8 +58,11 @@ from zk60_native_rg_replay import RunReplay  # noqa: E402
 from zk60_native_rg_tcontrols import terminal_controls  # noqa: E402
 from zk60_native_rg_terminals import (  # noqa: E402
     COVERED,
+    COVERED_WITH_TABLES,
+    COVERED_WITHOUT_TABLES,
     PORTS,
     PUBLIC_SPEC,
+    covered_at,
     PadGeometry,
     check_source_pins,
     check_terminals,
@@ -191,14 +194,19 @@ class TestRecordedEvidence(unittest.TestCase):
             self.assertTrue(got["CT-4"]["reason_is_the_one_the_gate_had_before"], name)
             self.assertTrue(got["CT-5"]["the_flipped_table_does_not"], name)
 
-    def test_the_channel_table_is_twenty_four_with_fifteen_open(self):
+    def test_the_channel_table_is_twenty_five_with_fifteen_open(self):
+        """Round 2 recorded 24 channels with 15 open for these two bundles.
+        Round 3 adds ONE entry -- the hash RULE of the run (decision D19) --
+        which is DERIVED here as everywhere, so the table is 25 with the
+        SAME 15 open: nothing these two bundles leave open closed, and
+        nothing that was closed opened."""
         for name, rec in self.records().items():
             ch = rec["stage7_channels"]
-            self.assertEqual(ch["total"], 24, name)
-            self.assertEqual(len(ch["channels"]), 24, name)
+            self.assertEqual(ch["total"], 25, name)
+            self.assertEqual(len(ch["channels"]), 25, name)
             self.assertEqual(
                 ch["counts"],
-                {"constructed": 2, "derived": 3, "argued": 4, "open": 15},
+                {"constructed": 2, "derived": 4, "argued": 4, "open": 15},
                 name,
             )
             self.assertEqual(ch["grading_failures"], [], name)
@@ -240,18 +248,28 @@ class TestRecordedEvidence(unittest.TestCase):
 class TestThePortItself(unittest.TestCase):
     """What can be asserted about the port without reading 38 MB."""
 
-    def test_twelve_slots_are_covered_and_eleven_are_open_with_a_reason(self):
+    def test_twelve_slots_are_covered_and_eleven_need_a_carried_table(self):
+        """Round 2's statement, in round 3's shape.  Every one of the 23
+        slots now HAS a port; eleven of them can only be evaluated on a
+        bundle that carries its public tables' values, and on a bundle
+        without them those eleven are exactly the OPEN set round 2 had,
+        each with its reason."""
         self.assertEqual(len(PORTS), 23)
-        self.assertEqual(len(COVERED), 12)
-        self.assertEqual([s for s, _n, fn, _r in PORTS if fn is None],
+        self.assertEqual(len(COVERED), 23)
+        self.assertEqual(len(COVERED_WITHOUT_TABLES), 12)
+        self.assertEqual(list(COVERED_WITH_TABLES),
                          [5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19])
         for s, name, fn, reason in PORTS:
-            if fn is None:
-                self.assertTrue(reason, f"slot {s} [{name}] is open with no reason")
+            self.assertIsNotNone(fn, f"slot {s} [{name}] has no port")
+            self.assertIn(s, PUBLIC_SPEC, f"slot {s} declares no public-table spec")
+            if s in COVERED_WITH_TABLES:
+                self.assertTrue(reason, f"slot {s} [{name}] can be open with no reason")
             else:
-                self.assertIsNone(reason, f"slot {s} [{name}] is covered AND open")
-                self.assertIn(s, PUBLIC_SPEC,
-                              f"slot {s} declares no public-table spec")
+                self.assertIsNone(reason, f"slot {s} [{name}] needs no carried table")
+        # and on THIS bundle -- no carried values -- the covered set is the twelve
+        b, _index, _reason, _rp = loaded()
+        self.assertFalse(b.public_tables_included)
+        self.assertEqual(covered_at(b), COVERED_WITHOUT_TABLES)
 
     def test_the_lookup_lists_have_the_lengths_the_rung_shape_forces(self):
         """`layout.rs::lookups_at`: the counts move with `ln` / `ls` / `lp`

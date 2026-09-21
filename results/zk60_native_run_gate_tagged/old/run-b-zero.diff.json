@@ -1,7 +1,7 @@
 {
  "changed": [
   {
-   "new": 9.3,
+   "new": 9.4,
    "old": 10.2,
    "path": "seconds"
   },
@@ -9,6 +9,11 @@
    "new": 3.5,
    "old": 3.9,
    "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.1,
+   "old": 1.2,
+   "path": "stage4_the_boundary/whole_run/seconds"
   },
   {
    "new": null,
@@ -261,7 +266,7 @@
    "path": "tool_sha256/zk60_native_rg_terminals.py"
   },
   {
-   "new": "ede1d940a7bb4c7f09501f80a311f72d0c5a353ef528d9c4eb77186bf48df78d",
+   "new": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165",
    "old": "cb34a7e5d993fb1e0534b189751a6bb53d5cc921b678aea03a7a5dc2f4dfea7c",
    "path": "tool_sha256/zk60_native_run_gate.py"
   },
@@ -276,7 +281,7 @@
    "path": "what_it_does_not_show/[5]"
   }
  ],
- "identical_leaves": 2223,
+ "identical_leaves": 2222,
  "leaves_new": 2521,
  "leaves_old": 2310,
  "only_in_the_new_record": [

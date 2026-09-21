@@ -6,7 +6,7 @@
    "path": "seconds"
   },
   {
-   "new": 3.6,
+   "new": 3.7,
    "old": 4.0,
    "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
   },
@@ -306,7 +306,7 @@
    "path": "tool_sha256/zk60_native_rg_terminals.py"
   },
   {
-   "new": "ede1d940a7bb4c7f09501f80a311f72d0c5a353ef528d9c4eb77186bf48df78d",
+   "new": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165",
    "old": "cb34a7e5d993fb1e0534b189751a6bb53d5cc921b678aea03a7a5dc2f4dfea7c",
    "path": "tool_sha256/zk60_native_run_gate.py"
   },

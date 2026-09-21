@@ -853,7 +853,13 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
     # stage 9 (round 3): the hash layer under the rule the loader derived,
     # and the controls of the rule itself
     hl = check_hash_layer(bundle)
-    hl["controls"] = (hash_rule_controls(bundle, legacy_bundle=old)
+    # CH-6 needs a LEGACY-rule bundle; when none is supplied and the bundle
+    # under test is itself a legacy-rule one, it stands for itself.
+    legacy_for_ch6 = old
+    if legacy_for_ch6 is None and bundle.hash_rule is not None \
+            and bundle.hash_rule.is_legacy:
+        legacy_for_ch6 = bundle
+    hl["controls"] = (hash_rule_controls(bundle, legacy_bundle=legacy_for_ch6)
                       if do_controls else {"skipped": "controls not requested",
                                            "ok": False})
     hl["ok"] = hl["ok"] and (hl["controls"].get("ok") if do_controls else True)

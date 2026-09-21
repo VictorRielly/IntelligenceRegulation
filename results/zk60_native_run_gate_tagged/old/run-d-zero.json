@@ -353,7 +353,7 @@
    "exact_rank_of_the_pad_block": 250,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.6,
+   "seconds": 3.7,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -4251,7 +4251,7 @@
   "zk60_native_rg_replay.py": "feb4ac04d1cf8113dcc6fae2ced68ed7fd953985e16a27d0fd79bebe5f0d21ea",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
   "zk60_native_rg_terminals.py": "9d1de1758591e30ff9dcf9e42d9c6a6389c8c43db78aef227b96e898cd79dcb2",
-  "zk60_native_run_gate.py": "ede1d940a7bb4c7f09501f80a311f72d0c5a353ef528d9c4eb77186bf48df78d"
+  "zk60_native_run_gate.py": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165"
  },
  "version": 1,
  "what_it_does_not_show": [

@@ -1,0 +1,81 @@
+test_a_boundary_with_one_proximity_row_is_refused_by_the_row_rule (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_a_manifest_hash_that_does_not_match_the_bytes_is_refused (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_a_toy_schema_3_capture_is_refused_by_name (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_both_bundles_pass_the_integrity_pass (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_the_shape_is_data_and_not_a_ported_constant (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_the_certifying_minor_rebuilds_from_the_emitted_indices_alone (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_the_disclosed_dimensions_at_the_run_shape (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_the_msg_and_pad_halves_have_different_lengths_here (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_a_commitment_with_multi_member_groups_is_skipped_not_faked (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_every_control_fires_on_a_bundle_that_passes_honest (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_the_controls_restore_everything_they_touched (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_the_zero_data_message_preimage_is_exhibited_and_verified (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_both_bundles_have_a_green_record_that_claims_no_privacy_property (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_every_recorded_channel_carries_a_usable_status (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_record_says_what_it_does_not_show (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_boundary_figures (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_controls_all_fire_and_give_the_checkers_numbers (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_disclosed_dimensions (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_one_altered_field_breaks_the_replay (test_zk60_native_run_gate.TestReplay) ... ok
+test_the_whole_run_transcript_is_re_derived (test_zk60_native_run_gate.TestReplay) ... ok
+test_a_shared_blinding_row_raises_the_joint_above_the_sum (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_a_shared_pair_gives_disclosed_two_and_a_single_prox_row_gives_one (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_reserved_row_figure_is_six_of_six_and_discloses_nothing (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_three_roles_are_identified_from_claim_sources (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_whole_run_is_one_system_and_the_joint_equals_the_sum (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_an_old_bundle_loads_and_leaves_the_channel_open (test_zk60_native_run_gate_planeindex.TestAnOldBundleStillLoads) ... ok
+test_the_loader_raises_only_when_asked_for_a_table_that_is_absent (test_zk60_native_run_gate_planeindex.TestAnOldBundleStillLoads) ... ok
+test_the_old_bundle_still_passes_every_other_stage (test_zk60_native_run_gate_planeindex.TestAnOldBundleStillLoads)
+A missing table is a missing INPUT, not a broken gate: nothing ... ok
+test_perturbing_an_uncovered_slot_changes_nothing_the_gate_reports (test_zk60_native_run_gate_planeindex.TestOneMoreIndependentPerturbation) ... ok
+test_both_new_bundles_have_a_green_record_claiming_no_privacy_property (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_every_open_slot_names_a_reason_and_none_is_the_plane_index (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_the_channel_table_is_twenty_five_with_fifteen_open (test_zk60_native_run_gate_planeindex.TestRecordedEvidence)
+Round 2 recorded 24 channels with 15 open for these two bundles. ... ok
+test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_the_old_bundles_record_keeps_every_figure_it_had (test_zk60_native_run_gate_planeindex.TestRecordedEvidence)
+The two OLD bundles were re-run with the extended gate.  Their ... ok
+test_the_rebuilt_public_tables_are_named_and_their_digests_matched (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_the_record_still_says_what_it_does_not_show (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_the_recorded_controls_all_fire (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_the_recorded_plane_index_figures (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_the_recorded_terminal_identity_is_twelve_slots_of_twenty_three (test_zk60_native_run_gate_planeindex.TestRecordedEvidence) ... ok
+test_a_flipped_public_table_entry_is_caught_by_the_digest (test_zk60_native_run_gate_planeindex.TestTheControls) ... ok
+test_a_perturbed_terminal_fails_at_exactly_that_slot (test_zk60_native_run_gate_planeindex.TestTheControls) ... ok
+test_a_replane_of_the_same_size_is_caught_by_the_slice_offset (test_zk60_native_run_gate_planeindex.TestTheControls) ... ok
+test_a_swapped_plane_pair_is_caught_three_ways (test_zk60_native_run_gate_planeindex.TestTheControls) ... ok
+test_all_five_fire_on_a_bundle_that_passes_honest (test_zk60_native_run_gate_planeindex.TestTheControls) ... ok
+test_an_old_bundle_is_open_and_not_passed (test_zk60_native_run_gate_planeindex.TestTheControls) ... ok
+test_the_controls_restore_the_bundle_they_touched (test_zk60_native_run_gate_planeindex.TestTheControls) ... ok
+test_a_gap_in_the_A_tiling_is_refused (test_zk60_native_run_gate_planeindex.TestThePlaneIndexLoader) ... ok
+test_a_slot_naming_a_plane_that_does_not_exist_is_refused (test_zk60_native_run_gate_planeindex.TestThePlaneIndexLoader) ... ok
+test_an_H_half_that_does_not_tile_is_refused (test_zk60_native_run_gate_planeindex.TestThePlaneIndexLoader) ... ok
+test_an_offset_that_is_not_first_row_times_cols_is_refused (test_zk60_native_run_gate_planeindex.TestThePlaneIndexLoader) ... ok
+test_the_domain_logs_are_read_from_the_table_not_ported (test_zk60_native_run_gate_planeindex.TestThePlaneIndexLoader) ... ok
+test_the_table_is_the_same_in_the_two_independent_bundles (test_zk60_native_run_gate_planeindex.TestThePlaneIndexLoader)
+It is a function of the public shape, so two DIFFERENT runs carry ... ok
+test_the_table_loads_and_tiles_on_both_new_bundles (test_zk60_native_run_gate_planeindex.TestThePlaneIndexLoader) ... ok
+test_a_public_table_digest_is_the_captures_own_encoding (test_zk60_native_run_gate_planeindex.TestThePortItself)
+`Fp2::to_bytes` is c0 then c1, little-endian u64 ... ok
+test_the_lookup_lists_have_the_lengths_the_rung_shape_forces (test_zk60_native_run_gate_planeindex.TestThePortItself)
+`layout.rs::lookups_at`: the counts move with `ln` / `ls` / `lp` ... ok
+test_the_sigma_scale_is_the_slack_the_window_leaves (test_zk60_native_run_gate_planeindex.TestThePortItself)
+Three limbs holding 17 bits leave 7 slack bits, so the pinning ... ok
+test_twelve_slots_are_covered_and_eleven_need_a_carried_table (test_zk60_native_run_gate_planeindex.TestThePortItself)
+Round 2's statement, in round 3's shape.  Every one of the 23 ... ok
+test_a_moved_source_pin_makes_every_slot_not_checked (test_zk60_native_run_gate_planeindex.TestTheTerminalIdentity) ... ok
+test_every_domain_pads_at_the_rung_so_every_gate_is_a_real_table (test_zk60_native_run_gate_planeindex.TestTheTerminalIdentity) ... ok
+test_every_rebuilt_public_table_matches_the_captures_own_digest (test_zk60_native_run_gate_planeindex.TestTheTerminalIdentity)
+The decisive check of the pad-rule port: the capture carries the ... ok
+test_the_bundles_source_pins_are_the_ones_the_port_was_read_at (test_zk60_native_run_gate_planeindex.TestTheTerminalIdentity) ... ok
+test_the_identity_holds_for_every_covered_slot_of_every_stage (test_zk60_native_run_gate_planeindex.TestTheTerminalIdentity) ... ok
+test_the_pad_indicators_agree_with_the_support_oracle (test_zk60_native_run_gate_planeindex.TestTheTerminalIdentity)
+`closed_form_indicator` is an OPTIMISATION of `support_indicator` ... ok
+test_the_two_boundary_claim_sites_are_among_the_covered_slots (test_zk60_native_run_gate_planeindex.TestTheTerminalIdentity)
+Slots 21 and 22 are the run's two boundary claim sites: in every ... ok
+
+----------------------------------------------------------------------
+Ran 65 tests in 15.529s
+
+OK

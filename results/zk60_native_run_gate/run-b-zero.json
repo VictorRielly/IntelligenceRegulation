@@ -2,11 +2,42 @@
  "bundle": "run-b-zero",
  "bundle_dir": "/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-b-zero",
  "gate": "zk60-native-run-gate",
+ "hash_rule": {
+  "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+  "contexts_compared": 0,
+  "contexts_pinned_in_this_tool": {
+   "column": "hashline-zk-mr1 2026-09-20 pcs column digest",
+   "leaf": "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf",
+   "node": "hashline-zk-mr1 2026-09-20 pcs merkle inner node",
+   "transcript": "hashline-zk-mr1 2026-09-20 fiat-shamir transcript"
+  },
+  "declared": null,
+  "derived_keys_hex": {
+   "column": "2295498fd6fd5e41320da717e9da89462e5c90a5b3b2d72ac496bcc157c2cd2c",
+   "leaf": "fe211417895c73c4a70430cb9bfb7081289ec7532f2716d2a86f609b0de54032",
+   "node": "8c4d2cfe7b8528d350f20dece1250c8d81596eb25d26bffda1247238f0f71fcc",
+   "transcript": "51b7d0b0171d54b5bb45fd42c3f9369cad87894b625e0569b89fac0036d20dbe"
+  },
+  "derived_rule": "blake3-keyed/1",
+  "era": "pre-tag",
+  "findings": [
+   "run.json carries no `hash_tag` member, so this bundle predates stage 17 and every byte of it was made under the LEGACY rule, while the profile 'hashline-zk-mr1/private-block-rung-g-t24-dev/1' is TAGGED in this tool's own port of Shape::hash_tag. It is replayed under the legacy rule and marked SUPERSEDED: nothing measured on it is a statement about what this profile produces now"
+  ],
+  "keys_compared": 0,
+  "legacy_profiles_pinned_in_this_tool": [
+   "hashline-zk-mr1/private-block-t32-poc/1",
+   "hashline-zk-mr1/private-block-rung-t24-dev/1"
+  ],
+  "refusals": [],
+  "run_profile": "hashline-zk-mr1/private-run-rung-g-t24-dev/1",
+  "superseded": true,
+  "what": "the hash rule, DERIVED here from the profile the bundle's shape names and then compared with the bundle's declared hash_tag (ruling T-7: re-derive, never consume)"
+ },
  "ok": true,
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 10.2,
+ "seconds": 8.7,
  "stage1_integrity": {
   "any_root_opened_twice": false,
   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
@@ -18,6 +49,37 @@
   "distinct_roots_opened": 10,
   "findings": [],
   "fully_verified": true,
+  "hash_rule": {
+   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+   "contexts_compared": 0,
+   "contexts_pinned_in_this_tool": {
+    "column": "hashline-zk-mr1 2026-09-20 pcs column digest",
+    "leaf": "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf",
+    "node": "hashline-zk-mr1 2026-09-20 pcs merkle inner node",
+    "transcript": "hashline-zk-mr1 2026-09-20 fiat-shamir transcript"
+   },
+   "declared": null,
+   "derived_keys_hex": {
+    "column": "2295498fd6fd5e41320da717e9da89462e5c90a5b3b2d72ac496bcc157c2cd2c",
+    "leaf": "fe211417895c73c4a70430cb9bfb7081289ec7532f2716d2a86f609b0de54032",
+    "node": "8c4d2cfe7b8528d350f20dece1250c8d81596eb25d26bffda1247238f0f71fcc",
+    "transcript": "51b7d0b0171d54b5bb45fd42c3f9369cad87894b625e0569b89fac0036d20dbe"
+   },
+   "derived_rule": "blake3-keyed/1",
+   "era": "pre-tag",
+   "findings": [
+    "run.json carries no `hash_tag` member, so this bundle predates stage 17 and every byte of it was made under the LEGACY rule, while the profile 'hashline-zk-mr1/private-block-rung-g-t24-dev/1' is TAGGED in this tool's own port of Shape::hash_tag. It is replayed under the legacy rule and marked SUPERSEDED: nothing measured on it is a statement about what this profile produces now"
+   ],
+   "keys_compared": 0,
+   "legacy_profiles_pinned_in_this_tool": [
+    "hashline-zk-mr1/private-block-t32-poc/1",
+    "hashline-zk-mr1/private-block-rung-t24-dev/1"
+   ],
+   "refusals": [],
+   "run_profile": "hashline-zk-mr1/private-run-rung-g-t24-dev/1",
+   "superseded": true,
+   "what": "the hash rule, DERIVED here from the profile the bundle's shape names and then compared with the bundle's declared hash_tag (ruling T-7: re-derive, never consume)"
+  },
   "kind": "zk60-run-verifier-observations",
   "manifest_files_checked": 5,
   "manifest_total_bytes": 38482131,
@@ -209,6 +271,7 @@
   "challenges_checked": 6086,
   "failures": [],
   "final_counter": 6918,
+  "hash_rule": "legacy",
   "not_rederived": [],
   "ok": true,
   "positions_checked": 375,
@@ -286,7 +349,7 @@
    "exact_rank_of_the_pad_block": 245,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.9,
+   "seconds": 3.4,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -2316,7 +2379,7 @@
     "M@2": 0
    },
    "rows_total": 3785,
-   "seconds": 1.2,
+   "seconds": 1.0,
    "sum_of_parts_fp": 6
   }
  },
@@ -2739,7 +2802,8 @@
    {
     "assumption": null,
     "channel": "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry",
-    "is_it_public": "yes -- every missing table is a function of the PUBLIC statement (the weights, the norm gains, the RoPE constants, the exp and activation tables), so a re-capture closes it without publishing anything new",
+    "derivation": null,
+    "is_it_public": "yes -- every such table is a function of the PUBLIC statement (the weights, the norm gains, the RoPE constants, the exp and activation tables), so carrying it publishes nothing new",
     "preimage_exhibited": false,
     "reason": "run.json carries no `plane_index` member: this bundle predates stage 15 of the Rust lane (2026-09-20), which added the plane index table.  The schema string did not move because the addition is pure, so the bundle is read exactly as before and only the per-slot terminal identity is affected",
     "section": "run 2.1 (NEW)",
@@ -2759,13 +2823,28 @@
     "status": "open"
    },
    {
+    "assumption": null,
+    "caveat": "this bundle predates the tag (no `hash_tag` member), so the rule was DERIVED as the legacy one from the schema era and not compared against a declared one; the profile itself is tagged, so the bundle is SUPERSEDED and nothing measured on it is a statement about what the profile produces now",
+    "channel": "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
+    "columns_authenticated": 3328,
+    "derivation": "the four context strings and the list of legacy profiles are pinned in the gate's own source, the key set is DERIVED from the profile the bundle's shape names (the port of Shape::hash_tag) and compared with the bundle's declared hash_tag member by member -- re-derive, never consume (ruling T-7).  The bytes are then shown to be under that rule: the whole transcript replays, and every opened column re-hashes and re-authenticates, only under it",
+    "keys_are_public": "yes -- each key is blake3.derive_key(<public context>, <public profile>), so publishing them discloses nothing; they are never an INPUT",
+    "of": 3328,
+    "preimage_exhibited": false,
+    "reason": null,
+    "rule": "legacy",
+    "section": "run 2.3 (NEW)",
+    "status": "derived"
+   },
+   {
     "assumption": "M-2",
     "channel": "the Merkle roots (A, H, M per stage, the L-1 boundary roots, the two endpoint roots)",
     "model_assumption": "the roots are generated by the prover itself (ruling D18) and indistinguishability rests on M-2, the hiding of unopened salted leaves in the random-oracle model.  A boundary root is an observed commitment and NOT part of the run statement",
     "preimage_exhibited": null,
     "roots_this_run": 13,
     "section": "run 2.1",
-    "status": "argued"
+    "status": "argued",
+    "what_stage_9_adds_and_what_it_does_not": "stage 9 re-hashes every OPENED column and folds its path to the root under the rule, so the root is COMPUTED from the opened data rather than read -- a soundness-side check.  The channel stays ARGUED because what it is about is HIDING: what an unopened leaf reveals is M-2's assumption either way"
    },
    {
     "assumption": "M-3",
@@ -2786,7 +2865,7 @@
      "mask": 12,
      "pcs": 12
     },
-    "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the unopened leaf digests rests on M-2",
+    "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the unopened leaf digests rests on M-2.  That they ARE genuine hashes of this run's own columns is now computed, not assumed (stage 9), including each path's LENGTH against the tree depth -- the check that stops an inner node being presented as a salted leaf",
     "preimage_exhibited": null,
     "section": "run 2.1",
     "status": "argued"
@@ -2928,19 +3007,20 @@
   "counts": {
    "argued": 4,
    "constructed": 2,
-   "derived": 2,
+   "derived": 3,
    "open": 16
   },
   "grading_failures": [],
   "new_for_a_run": [
    "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry",
+   "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
    "the sequencing surface: the number of segments, their byte lengths and their position tags",
    "the cross-block joint law beyond the linear rank",
    "the preimage construction for a RUN (one randomness reproducing the whole run's view under a fixed input)",
    "the boundary scale tags and the one calibration identity"
   ],
   "ok": true,
-  "total": 24
+  "total": 25
  },
  "stage8_plane_index_and_terminals": {
   "channel_status": "open",
@@ -2959,28 +3039,248 @@
    "slots_checked": 0
   }
  },
+ "stage9_hash_layer": {
+  "bundle": "run-b-zero",
+  "bytes_hashed": 7751680,
+  "columns_authenticated": 3328,
+  "columns_checked": 3328,
+  "controls": {
+   "bundle": "run-b-zero",
+   "controls": [
+    {
+     "control": "CH-1..CH-5",
+     "fires": false,
+     "skipped": "run-b-zero is not a tagged-schema bundle (rule blake3-keyed/1, era pre-tag), so there is no declared key set to perturb"
+    },
+    {
+     "authenticated_under_the_legacy_rule": 3328,
+     "authenticated_under_the_tag": 0,
+     "bundle": "run-b-zero",
+     "control": "CH-6",
+     "fires": true,
+     "mechanism": "the column, leaf and node keys, on real captured bytes",
+     "of_columns": 3328,
+     "what": "a LEGACY-rule bundle's columns checked under the rung-G tag"
+    }
+   ],
+   "controls_skipped": [
+    {
+     "control": "CH-1..CH-5",
+     "why": "run-b-zero is not a tagged-schema bundle (rule blake3-keyed/1, era pre-tag), so there is no declared key set to perturb"
+    }
+   ],
+   "controls_that_did_not_fire": [],
+   "honest": {
+    "contexts_compared": 0,
+    "era": "pre-tag",
+    "keys_compared": 0,
+    "refusals": [],
+    "rule": "blake3-keyed/1"
+   },
+   "ok": true,
+   "what": "the hash rule the gate DERIVES, against every way a bundle could declare another one (D19, ruling T-7)"
+  },
+  "cross_rule_probe": {
+   "column": {
+    "index": 1135,
+    "opening": "A",
+    "stage": 0
+   },
+   "derived_rule": "legacy",
+   "findings": [],
+   "honest": true,
+   "ok": true,
+   "what": "one opened column folded under the derived rule and under every wrong rule: only the derived one may reach the root",
+   "wrong_rules_that_reached_the_root": [],
+   "wrong_rules_tried": 1
+  },
+  "distinct_salted_leaves": 3219,
+  "findings": [],
+  "hash_rule": "legacy",
+  "ok": true,
+  "openings": 13,
+  "path_depth_checked": 3328,
+  "per_stage": [
+   {
+    "authenticated": 1024,
+    "columns": 1024,
+    "openings": [
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "masking",
+      "opened": 256,
+      "opening": "M",
+      "root": "f063e632838e7af3",
+      "rows": 50
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "block",
+      "opened": 256,
+      "opening": "A",
+      "root": "85c3ba5fb87fd426",
+      "rows": 623
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "block",
+      "opened": 256,
+      "opening": "H",
+      "root": "c74adee65b99725e",
+      "rows": 576
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "external-endpoint",
+      "opened": 256,
+      "opening": "Input",
+      "root": "175399c7900f9450",
+      "rows": 9
+     }
+    ],
+    "stage": 0
+   },
+   {
+    "authenticated": 1024,
+    "columns": 1024,
+    "openings": [
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "masking",
+      "opened": 256,
+      "opening": "M",
+      "root": "ca8060ac26bad32b",
+      "rows": 50
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "block",
+      "opened": 256,
+      "opening": "A",
+      "root": "5cbb97a566f1693a",
+      "rows": 623
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "block",
+      "opened": 256,
+      "opening": "H",
+      "root": "d444a2d701ba919d",
+      "rows": 576
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "internal-boundary",
+      "opened": 256,
+      "opening": "Input",
+      "root": "17e5595490a80e04",
+      "rows": 10
+     }
+    ],
+    "stage": 1
+   },
+   {
+    "authenticated": 1280,
+    "columns": 1280,
+    "openings": [
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "masking",
+      "opened": 256,
+      "opening": "M",
+      "root": "a7a1646efdd30be6",
+      "rows": 50
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "block",
+      "opened": 256,
+      "opening": "A",
+      "root": "7b32fd06248eb4db",
+      "rows": 623
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "block",
+      "opened": 256,
+      "opening": "H",
+      "root": "9469bd5b069fbc2a",
+      "rows": 576
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "internal-boundary",
+      "opened": 256,
+      "opening": "Input",
+      "root": "43f512cb50d0c8a5",
+      "rows": 10
+     },
+     {
+      "authenticated": 256,
+      "depth": 12,
+      "encoded_columns": 4096,
+      "kind": "external-endpoint",
+      "opened": 256,
+      "opening": "Output",
+      "root": "c057e99b4cccfc1a",
+      "rows": 9
+     }
+    ],
+    "stage": 2
+   }
+  ],
+  "what": "every opened column re-hashed and its Merkle path re-folded: leaf = H_column(column bytes), salted = H_leaf(leaf||salt), root = fold H_node(left||right) -- pcs.rs:148/:691, merkle.rs:28"
+ },
  "tool_sha256": {
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
   "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
-  "zk60_native_rg_bundle.py": "256acb00a6fcef5d084c1516932d55ed5c32b381486dd30df421ffa0d7f5437b",
+  "zk60_native_rg_bundle.py": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
   "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
+  "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
+  "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
+  "zk60_native_rg_hcontrols.py": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
   "zk60_native_rg_joint.py": "6158bfd2a8195b9a0543baa86274e0f9f52466a3078debd64f6b45babfea4e9e",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
-  "zk60_native_rg_replay.py": "d84b989f1bc4a10afe5de864b61d3f7ad9bb09da82e43422b689865ea489b8dc",
-  "zk60_native_rg_tcontrols.py": "26f279e0113bd7c89351dba0679e0e112869ca5ee7be6cb5af6b544d0f5ab7b4",
-  "zk60_native_rg_terminals.py": "59c5252d7c08e870a0ed152a9edec03e5431457c17b5e05dd9c844159c371157",
-  "zk60_native_run_gate.py": "cb34a7e5d993fb1e0534b189751a6bb53d5cc921b678aea03a7a5dc2f4dfea7c"
+  "zk60_native_rg_replay.py": "feb4ac04d1cf8113dcc6fae2ced68ed7fd953985e16a27d0fd79bebe5f0d21ea",
+  "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
+  "zk60_native_rg_terminals.py": "9d1de1758591e30ff9dcf9e42d9c6a6389c8c43db78aef227b96e898cd79dcb2",
+  "zk60_native_run_gate.py": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165"
  },
  "version": 1,
  "what_it_does_not_show": [
   "linear channels of ONE captured three-block run at ONE development shape",
   "nothing about the 125M shape, where exact rank over thousands of rows per commitment is a different computation",
-  "the hash layer is ARGUED, not computed",
+  "the hash layer's HIDING is still ARGUED, not computed: stage 9 authenticates every OPENED column under the rule, which says nothing about what an unopened leaf hides (M-2, M-3)",
   "the joint-law composition for a run is unwritten",
   "the per-slot terminal identity is not checked at this shape: this bundle carries no plane index table",
+  "a captured public table is checked against the capture's own length, SHA-256 and the structure its builder gives it -- NOT against the weight matrix the statement names, which no bundle carries",
   "NOT a privacy acceptance and NOT a privacy property"
  ],
  "what_this_is": "the linear channels of ONE captured private run of 3 blocks at the development rung shape, at that run's real challenges"

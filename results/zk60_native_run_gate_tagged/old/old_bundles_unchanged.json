@@ -29,10 +29,10 @@
     "the replay now names the rule it computed under": 1,
     "the what-it-does-not-show wording": 3,
     "tool hashes": 8,
-    "wall clock": 2
+    "wall clock": 3
    },
-   "changed": 55,
-   "identical_leaves": 2223,
+   "changed": 56,
+   "identical_leaves": 2222,
    "only_in_the_new_record": 243,
    "only_in_the_old_record": 32
   },
@@ -48,10 +48,10 @@
     "the replay now names the rule it computed under": 1,
     "the what-it-does-not-show wording": 4,
     "tool hashes": 8,
-    "wall clock": 3
+    "wall clock": 2
    },
-   "changed": 65,
-   "identical_leaves": 2831,
+   "changed": 64,
+   "identical_leaves": 2832,
    "only_in_the_new_record": 272,
    "only_in_the_old_record": 32
   },

@@ -50,7 +50,7 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 14.4,
+ "seconds": 14.1,
  "stage1_integrity": {
   "any_root_opened_twice": false,
   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
@@ -3479,12 +3479,14 @@
    },
    {
     "assumption": null,
+    "caveat": null,
     "channel": "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
     "columns_authenticated": 3328,
     "derivation": "the four context strings and the list of legacy profiles are pinned in the gate's own source, the key set is DERIVED from the profile the bundle's shape names (the port of Shape::hash_tag) and compared with the bundle's declared hash_tag member by member -- re-derive, never consume (ruling T-7).  The bytes are then shown to be under that rule: the whole transcript replays, and every opened column re-hashes and re-authenticates, only under it",
     "keys_are_public": "yes -- each key is blake3.derive_key(<public context>, <public profile>), so publishing them discloses nothing; they are never an INPUT",
     "of": 3328,
     "preimage_exhibited": false,
+    "reason": null,
     "rule": "blake3-keyed/1",
     "section": "run 2.3 (NEW)",
     "status": "derived"
@@ -4598,6 +4600,7 @@
      "what": "a LEGACY-rule bundle's columns checked under the rung-G tag"
     }
    ],
+   "controls_skipped": [],
    "controls_that_did_not_fire": [],
    "honest": {
     "contexts_compared": 4,
@@ -4792,7 +4795,7 @@
   "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
-  "zk60_native_rg_hcontrols.py": "211b4116f755983e6d924ced26855e4bc9a7a1404207793f0e917165ad5cf22a",
+  "zk60_native_rg_hcontrols.py": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
   "zk60_native_rg_joint.py": "6158bfd2a8195b9a0543baa86274e0f9f52466a3078debd64f6b45babfea4e9e",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
@@ -4800,7 +4803,7 @@
   "zk60_native_rg_replay.py": "feb4ac04d1cf8113dcc6fae2ced68ed7fd953985e16a27d0fd79bebe5f0d21ea",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
   "zk60_native_rg_terminals.py": "9d1de1758591e30ff9dcf9e42d9c6a6389c8c43db78aef227b96e898cd79dcb2",
-  "zk60_native_run_gate.py": "920b50ba79ebe33ff0b01015641bb74fb966a1043c69ca2be2f11e44e4ba1b66"
+  "zk60_native_run_gate.py": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165"
  },
  "version": 1,
  "what_it_does_not_show": [
