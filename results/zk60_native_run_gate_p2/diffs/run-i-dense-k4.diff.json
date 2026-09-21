@@ -1,0 +1,81 @@
+{
+ "changed": [
+  {
+   "new": 28.1,
+   "old": 27.7,
+   "path": "seconds"
+  },
+  {
+   "new": 4.0,
+   "old": 3.9,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.5,
+   "old": 1.3,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "eee6192b617a8f056133ba5e5fcb7e155f8376167a53b29a6db70d41579ef818",
+   "old": "3406eeb396492a3a67ece6547ced1edeeb9eb9a31ab759952db2f944f621a655",
+   "path": "tool_sha256/zk60_native_rg_gcontrols.py"
+  },
+  {
+   "new": "9f7c3379df6d9c4de7772de2819c7aa146e5f1227779178c7a3f9cfe8b67eacc",
+   "old": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
+   "path": "tool_sha256/zk60_native_rg_gqa.py"
+  },
+  {
+   "new": "92e18ad4ca4cbcc510ff94f339b74c688e3968d824ff4dec1bd2dc011e439ef9",
+   "old": "a273c7c03fc10b19a5beaccb19058c704d8bea4809cabcc9f56a018aa29f392e",
+   "path": "tool_sha256/zk60_native_rg_mask.py"
+  },
+  {
+   "new": "7db3a63a1cc2dc63b5eb2a827da960d047ddbb7df60033fad00a4e7eacd83433",
+   "old": "1e94fd1b830261057c32c8fc70c4d566cf3302c9dd645e8bd40aa6069a2f34ea",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  },
+  {
+   "new": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
+   "old": "12985bfc5ccc1725b69e65b1a8c160462926c1042c5699d2499ccce73c514de9",
+   "path": "tool_sha256/zk60_native_rg_tcontrols.py"
+  },
+  {
+   "new": "d4e1d61573eb8ac1e3e16608fe7b193b99a907307acfdd960c0134c786b40be2",
+   "old": "acb5166d3678bf4cdad469c40b9705d3bc4c6c216865dc9fb2742bb83e9a4352",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  }
+ ],
+ "identical_leaves": 4155,
+ "leaves_new": 4190,
+ "leaves_old": 4164,
+ "only_in_the_new_record": [
+  "stage3_per_commitment/per_slot_terminal_check/source_pins/argument_definitions_this_port_implements/ec3f97443245",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/control",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/fires",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/mirror_domain",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/D",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/F",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Ht",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Kv",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/L",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Q",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/S",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/T",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Tab",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/direction",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/domain",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/fires",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/honest_pad_state",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/name",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/only_this_slot_stopped_being_checked",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/refusal",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/slot",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/the_refusal_names_the_two_numbers",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/the_M9_3_direction_exists_here",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/what",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/why_it_matters_that_it_does_or_does_not",
+  "stage8_plane_index_and_terminals/terminal_identity/source_pins/argument_definitions_this_port_implements/ec3f97443245"
+ ],
+ "only_in_the_old_record": []
+}

@@ -1,0 +1,429 @@
+{
+ "changed": [
+  {
+   "new": 190.6,
+   "old": 166.8,
+   "path": "seconds"
+  },
+  {
+   "new": 2.89,
+   "old": 2.57,
+   "path": "stage11_full_preimage/per_commitment/[0]/layout_seconds"
+  },
+  {
+   "new": 0.65,
+   "old": 0.56,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_groups_seconds"
+  },
+  {
+   "new": 3.98,
+   "old": 3.42,
+   "path": "stage11_full_preimage/per_commitment/[0]/pads_seconds"
+  },
+  {
+   "new": 13.11,
+   "old": 11.4,
+   "path": "stage11_full_preimage/per_commitment/[0]/seconds"
+  },
+  {
+   "new": 4.66,
+   "old": 4.01,
+   "path": "stage11_full_preimage/per_commitment/[0]/solve_seconds"
+  },
+  {
+   "new": 4.26,
+   "old": 3.76,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.25,
+   "old": 1.02,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.74,
+   "old": 2.45,
+   "path": "stage11_full_preimage/per_commitment/[1]/layout_seconds"
+  },
+  {
+   "new": 0.14,
+   "old": 0.15,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_groups_seconds"
+  },
+  {
+   "new": 0.03,
+   "old": 0.02,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_proximity_seconds"
+  },
+  {
+   "new": 2.46,
+   "old": 2.36,
+   "path": "stage11_full_preimage/per_commitment/[1]/pads_seconds"
+  },
+  {
+   "new": 8.91,
+   "old": 8.03,
+   "path": "stage11_full_preimage/per_commitment/[1]/seconds"
+  },
+  {
+   "new": 2.63,
+   "old": 2.53,
+   "path": "stage11_full_preimage/per_commitment/[1]/solve_seconds"
+  },
+  {
+   "new": 3.22,
+   "old": 2.72,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.28,
+   "old": 0.3,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.75,
+   "old": 2.58,
+   "path": "stage11_full_preimage/per_commitment/[2]/layout_seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.07,
+   "path": "stage11_full_preimage/per_commitment/[2]/pads_seconds"
+  },
+  {
+   "new": 2.96,
+   "old": 2.75,
+   "path": "stage11_full_preimage/per_commitment/[2]/seconds"
+  },
+  {
+   "new": 0.12,
+   "old": 0.09,
+   "path": "stage11_full_preimage/per_commitment/[2]/solve_seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.07,
+   "path": "stage11_full_preimage/per_commitment/[2]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.0,
+   "old": 0.01,
+   "path": "stage11_full_preimage/per_commitment/[2]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.92,
+   "old": 2.58,
+   "path": "stage11_full_preimage/per_commitment/[3]/layout_seconds"
+  },
+  {
+   "new": 0.75,
+   "old": 0.56,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_groups_seconds"
+  },
+  {
+   "new": 0.05,
+   "old": 0.04,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_proximity_seconds"
+  },
+  {
+   "new": 4.0,
+   "old": 3.42,
+   "path": "stage11_full_preimage/per_commitment/[3]/pads_seconds"
+  },
+  {
+   "new": 13.3,
+   "old": 11.2,
+   "path": "stage11_full_preimage/per_commitment/[3]/seconds"
+  },
+  {
+   "new": 4.8,
+   "old": 4.02,
+   "path": "stage11_full_preimage/per_commitment/[3]/solve_seconds"
+  },
+  {
+   "new": 4.32,
+   "old": 3.6,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.21,
+   "old": 0.96,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.88,
+   "old": 2.56,
+   "path": "stage11_full_preimage/per_commitment/[4]/layout_seconds"
+  },
+  {
+   "new": 2.81,
+   "old": 2.35,
+   "path": "stage11_full_preimage/per_commitment/[4]/pads_seconds"
+  },
+  {
+   "new": 9.17,
+   "old": 8.08,
+   "path": "stage11_full_preimage/per_commitment/[4]/seconds"
+  },
+  {
+   "new": 2.96,
+   "old": 2.5,
+   "path": "stage11_full_preimage/per_commitment/[4]/solve_seconds"
+  },
+  {
+   "new": 3.0,
+   "old": 2.73,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.29,
+   "old": 0.27,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.63,
+   "old": 2.51,
+   "path": "stage11_full_preimage/per_commitment/[5]/layout_seconds"
+  },
+  {
+   "new": 0.12,
+   "old": 0.1,
+   "path": "stage11_full_preimage/per_commitment/[5]/pads_seconds"
+  },
+  {
+   "new": 2.89,
+   "old": 2.75,
+   "path": "stage11_full_preimage/per_commitment/[5]/seconds"
+  },
+  {
+   "new": 0.15,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[5]/solve_seconds"
+  },
+  {
+   "new": 0.01,
+   "old": 0.0,
+   "path": "stage11_full_preimage/per_commitment/[5]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.88,
+   "old": 2.58,
+   "path": "stage11_full_preimage/per_commitment/[6]/layout_seconds"
+  },
+  {
+   "new": 0.69,
+   "old": 0.61,
+   "path": "stage11_full_preimage/per_commitment/[6]/msg_groups_seconds"
+  },
+  {
+   "new": 3.95,
+   "old": 3.53,
+   "path": "stage11_full_preimage/per_commitment/[6]/pads_seconds"
+  },
+  {
+   "new": 12.7,
+   "old": 11.66,
+   "path": "stage11_full_preimage/per_commitment/[6]/seconds"
+  },
+  {
+   "new": 4.68,
+   "old": 4.18,
+   "path": "stage11_full_preimage/per_commitment/[6]/solve_seconds"
+  },
+  {
+   "new": 4.01,
+   "old": 3.73,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.09,
+   "old": 1.14,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.58,
+   "old": 2.5,
+   "path": "stage11_full_preimage/per_commitment/[7]/layout_seconds"
+  },
+  {
+   "new": 0.15,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[7]/msg_groups_seconds"
+  },
+  {
+   "new": 2.7,
+   "old": 2.39,
+   "path": "stage11_full_preimage/per_commitment/[7]/pads_seconds"
+  },
+  {
+   "new": 8.86,
+   "old": 8.08,
+   "path": "stage11_full_preimage/per_commitment/[7]/seconds"
+  },
+  {
+   "new": 2.87,
+   "old": 2.53,
+   "path": "stage11_full_preimage/per_commitment/[7]/solve_seconds"
+  },
+  {
+   "new": 3.09,
+   "old": 2.75,
+   "path": "stage11_full_preimage/per_commitment/[7]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.29,
+   "old": 0.27,
+   "path": "stage11_full_preimage/per_commitment/[7]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.71,
+   "old": 2.48,
+   "path": "stage11_full_preimage/per_commitment/[8]/layout_seconds"
+  },
+  {
+   "new": 2.97,
+   "old": 2.77,
+   "path": "stage11_full_preimage/per_commitment/[8]/seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.11,
+   "path": "stage11_full_preimage/per_commitment/[8]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.0,
+   "old": 0.01,
+   "path": "stage11_full_preimage/per_commitment/[8]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.75,
+   "old": 2.4,
+   "path": "stage11_full_preimage/per_commitment/[9]/layout_seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.08,
+   "path": "stage11_full_preimage/per_commitment/[9]/pads_seconds"
+  },
+  {
+   "new": 2.97,
+   "old": 2.58,
+   "path": "stage11_full_preimage/per_commitment/[9]/seconds"
+  },
+  {
+   "new": 0.12,
+   "old": 0.1,
+   "path": "stage11_full_preimage/per_commitment/[9]/solve_seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.08,
+   "path": "stage11_full_preimage/per_commitment/[9]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 77.9,
+   "old": 69.4,
+   "path": "stage11_full_preimage/seconds"
+  },
+  {
+   "new": 3.9,
+   "old": 3.4,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.1,
+   "old": 1.0,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
+   "old": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
+   "path": "tool_sha256/zk60_native_rg_bundle.py"
+  },
+  {
+   "new": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
+   "old": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
+   "path": "tool_sha256/zk60_native_rg_controls.py"
+  },
+  {
+   "new": "eee6192b617a8f056133ba5e5fcb7e155f8376167a53b29a6db70d41579ef818",
+   "old": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
+   "path": "tool_sha256/zk60_native_rg_gcontrols.py"
+  },
+  {
+   "new": "9f7c3379df6d9c4de7772de2819c7aa146e5f1227779178c7a3f9cfe8b67eacc",
+   "old": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
+   "path": "tool_sha256/zk60_native_rg_gqa.py"
+  },
+  {
+   "new": "92e18ad4ca4cbcc510ff94f339b74c688e3968d824ff4dec1bd2dc011e439ef9",
+   "old": "aeaf3499b8431eff8090e672b7ed2c52991b66a0ce4746066f385dfa6a348ae8",
+   "path": "tool_sha256/zk60_native_rg_mask.py"
+  },
+  {
+   "new": "7db3a63a1cc2dc63b5eb2a827da960d047ddbb7df60033fad00a4e7eacd83433",
+   "old": "24e3c391275b792b0f91d53450e459820d3a9214dcd16268149add299aee2dda",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  },
+  {
+   "new": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
+   "old": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
+   "path": "tool_sha256/zk60_native_rg_tcontrols.py"
+  },
+  {
+   "new": "d4e1d61573eb8ac1e3e16608fe7b193b99a907307acfdd960c0134c786b40be2",
+   "old": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  },
+  {
+   "new": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad",
+   "old": "344ae2b359a96531d22af772cab4da257f15f2a8acc4211c75299fade88cf542",
+   "path": "tool_sha256/zk60_native_run_gate.py"
+  }
+ ],
+ "identical_leaves": 6483,
+ "leaves_new": 6598,
+ "leaves_old": 6559,
+ "only_in_the_new_record": [
+  "run_layer_source_pins/shared_files/files_pinned",
+  "run_layer_source_pins/shared_files/of",
+  "run_layer_source_pins/shared_files/ok",
+  "run_layer_source_pins/shared_files/pinned",
+  "run_layer_source_pins/shared_files/what",
+  "stage1_integrity/array_store/file",
+  "stage1_integrity/array_store/ok",
+  "stage1_integrity/array_store/references_resolved_in_run_json",
+  "stage1_integrity/array_store/references_resolved_per_stage/stage-00.json",
+  "stage1_integrity/array_store/references_resolved_per_stage/stage-01.json",
+  "stage1_integrity/array_store/references_resolved_per_stage/stage-02.json",
+  "stage1_integrity/array_store/what",
+  "stage3_per_commitment/per_slot_terminal_check/source_pins/argument_definitions_this_port_implements/ec3f97443245",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/control",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/fires",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/mirror_domain",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/D",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/F",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Ht",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Kv",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/L",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Q",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/S",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/T",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/pads_by_domain/Tab",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/direction",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/domain",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/fires",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/honest_pad_state",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/name",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/only_this_slot_stopped_being_checked",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/refusal",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/slot",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/per_domain/[0]/the_refusal_names_the_two_numbers",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/the_M9_3_direction_exists_here",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/what",
+  "stage8_plane_index_and_terminals/controls/controls/[8]/why_it_matters_that_it_does_or_does_not",
+  "stage8_plane_index_and_terminals/terminal_identity/source_pins/argument_definitions_this_port_implements/ec3f97443245",
+  "tool_sha256/zk60_native_rg_arrays.py"
+ ],
+ "only_in_the_old_record": []
+}
