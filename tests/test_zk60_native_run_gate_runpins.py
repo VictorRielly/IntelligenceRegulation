@@ -59,6 +59,8 @@ IN_SCOPE = (
     "run-e-tame-tagged", "run-f-zero-tagged",
     "run-g-dense-s20", "run-h-zero-s20",
     "run-i-dense-k4", "run-j-zero-k4",
+    # [ROUND 9b] the two rung-P2 bundles, lane stage 30 at `4ccbad1`
+    "run-k-dense-p2", "run-l-zero-p2",
 )
 # [ROUND 9] the two 125M bundles are the first in scope that live OUTSIDE
 # the Rust lane's results directory: they are 281 MB and 273 MB and are kept
@@ -156,7 +158,13 @@ class ThePinTableCoversExactlyTheEstablishedList(unittest.TestCase):
         # `run_capture.rs`, `run.rs` and `boundary.rs` each gained the
         # digest the 125M bundles pin at `f4697f9`, and each gained a
         # written reading with it -- which is what this test is for.
-        self.assertEqual(len(pairs), 12)
+        # [ROUND 9b, DELIBERATE] twelve became THIRTEEN: at `4ccbad1`
+        # only `run.rs` moved (stage 30 added `RUN_PROFILE_RUNG_P2` and
+        # `RunShape::rung_p2`, seven added lines and nothing removed), so
+        # the rung-P2 bundles add ONE pair and one reading.
+        # `run_capture.rs` and `boundary.rs` are byte-identical there and
+        # their existing entries gained the commit and the two bundles.
+        self.assertEqual(len(pairs), 13)
         for (path, digest), text in READINGS.items():
             self.assertGreater(len(text), 200, (path, digest))
             self.assertEqual(len(digest), 64)
@@ -443,9 +451,15 @@ class TheDigestsAreTheCommittedBlobs(unittest.TestCase):
         # [ROUND 9, DELIBERATE] five capture commits became SIX: the 125M
         # bundles are written at `f4697f9`, and all three run-layer files
         # moved there.  Three files at six commits each is 18.
-        self.assertEqual(checked, 18,
-                         "three files at SIX capture commits each "
-                         "(round 9 added f4697f9)")
+        # [ROUND 9b, DELIBERATE] and SEVEN: `4ccbad1` is the rung-P2
+        # capture commit, where `run.rs` moved and the other two are
+        # byte-identical -- so all three are checked at it, 21 in all, and
+        # the two that did not move are checked at the new commit against
+        # the digest they already had, which is the statement that they
+        # did not move.
+        self.assertEqual(checked, 21,
+                         "three files at SEVEN capture commits each "
+                         "(round 9 added f4697f9, round 9b 4ccbad1)")
 
     def test_one_flipped_byte_in_each_file_is_not_a_read_digest(self):
         """The refusal above is asserted on a made-up digest; this is the

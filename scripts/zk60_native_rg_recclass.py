@@ -139,6 +139,41 @@ CLASSES_ROUND_9 = (
      "f4697f9 the writer does pin those four)"),
 )
 CLASSES = CLASSES + CLASSES_ROUND_9  # tool hashes fall under the round-1 class
+
+# **ROUND 9b (2026-09-21).**  Two deliberate additions and one correction.
+# (1) Control **CT-9** is appended to the terminal control family, so every
+# record that fires controls gains one entry at the end of
+# `stage8_plane_index_and_terminals/controls/controls`; at a shape where
+# every domain pads it carries the MIRROR direction alone (`Dom::L`), and
+# at rung-P2 and 125M it also carries finding M-F1's own direction.  (2)
+# `pad.rs` joined `PINNED_IF_PRESENT`, so the terminal port's source-pin
+# record names one more accepted digest.  Nothing measured was meant to
+# move, so everything else stays UNCLASSIFIED on purpose.
+CLASSES_ROUND_9B = (
+    (lambda p: "/controls/controls/" in p and "CT-9" in p,
+     "control CT-9, appended (round 9b: the pad rule's draw arithmetic, "
+     "M9-3's twin in the ordinary gate)"),
+    (lambda p: p.startswith("stage8_plane_index_and_terminals/controls/"
+                            "controls/[8]"),
+     "control CT-9, appended as the ninth entry of the terminal control "
+     "family (round 9b)"),
+    (lambda p: "/pins_at_an_accepted_second_digest/" in p
+     or p.endswith("/pins_at_an_accepted_second_digest")
+     or "/also_read_not_pinned_by_a_bundle/" in p,
+     "pad.rs joined the checked pin table (round 9b, finding P-F1), so the "
+     "terminal port names one more accepted digest"),
+)
+CLASSES = CLASSES + CLASSES_ROUND_9B
+NOTE_ROUND_9B = (
+    "  Round 9b adds two classes: control CT-9, appended to the terminal "
+    "control family so that the pad rule's draw arithmetic is a regression "
+    "at every shape and not only at 125M (finding M-F1's control M9-3 had "
+    "never fired -- finding P-F2); and `pad.rs` joining the checked pin "
+    "table (finding P-F1), which adds one accepted digest to the terminal "
+    "port's source-pin record.  No slot check, rank, disclosed dimension, "
+    "challenge count or channel count was meant to move at any shape, and "
+    "an UNCLASSIFIED leaf is the round's result."
+)
 NOTE_ROUND_9 = (
     "  Round 9 adds three classes: the `array_store` block of the /5-run "
     "loader, the `shared_files` block of the extended pin table, and the "
@@ -197,7 +232,7 @@ def summarise(diffs: dict) -> dict:
         "what": "the superseded bundles re-run under the current tools and "
         "diffed leaf by leaf against their previous round's records",
         "note": (NOTE + NOTE_ROUND_4 + NOTE_ROUND_6 + NOTE_ROUND_7
-                 + NOTE_ROUND_8 + NOTE_ROUND_9),
+                 + NOTE_ROUND_8 + NOTE_ROUND_9 + NOTE_ROUND_9B),
         "per_bundle": [],
         "unclassified": [],
     }

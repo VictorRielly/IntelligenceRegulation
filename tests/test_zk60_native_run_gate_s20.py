@@ -173,9 +173,20 @@ class TestTheGeometry(unittest.TestCase):
             self.assertIn(("rho", 0), new_b)
 
     def test_both_argument_digests_are_definitions_this_port_has_read(self):
-        self.assertEqual(len(ARGUMENT_DEFINITIONS), 2)
-        names = sorted(v[0] for v in ARGUMENT_DEFINITIONS.values())
+        # [ROUND 9b, DELIBERATE] two digests became THREE.  The third is
+        # `argument.rs` at `4ccbad1` (lane stages 28 and 29, the 125M
+        # prover made faster), and it carries the SAME definition as the
+        # stage-20 digest: the five hunks are the table BUILD -- bit
+        # permutation maps, `eq_cube`, a moved public table, two parallel
+        # thresholds -- and not one slot closure, push order or draw.  So
+        # there are still exactly two DEFINITIONS and now three digests
+        # that select one of them.
+        self.assertEqual(len(ARGUMENT_DEFINITIONS), 3)
+        names = sorted(set(v[0] for v in ARGUMENT_DEFINITIONS.values()))
         self.assertEqual(names, [PRE_REPAIR, REPAIRED])
+        self.assertEqual(
+            sorted(v[0] for v in ARGUMENT_DEFINITIONS.values()).count(REPAIRED),
+            2)
         self.assertEqual(definition_of_pin("0" * 64), (None, None))
 
     def test_the_factor_names_are_the_push_order(self):

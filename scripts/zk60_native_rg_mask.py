@@ -315,6 +315,22 @@ MASK_LAYER_PINS = {
             "do not read as a pin failure; no figure of round 8 is taken at "
             "them",
         },
+        # [ROUND 9b] the rung-P2 capture commit.
+        "ec3f97443245f119dd8adc0739a5df17588dc15bb3730382310a95fb7d2a9f9d": {
+            "commits": ("4ccbad1b1da0a23449ac06461740750a6818c6e8",),
+            "bundles": ("run-k-dense-p2", "run-l-zero-p2"),
+            "reading": "READ 2026-09-21 (round 9b).  `git diff f4697f9 "
+            "4ccbad1 -- .../argument.rs` is 230 added, 48 removed, five "
+            "hunks, all of them stage 28's and stage 29's table-build speed "
+            "work -- `priv_table`'s bit-permutation maps, `eq_cube`, "
+            "`table_of_taking`, `build_tables_at`, the chunked claimed sum, "
+            "`timing::slot_step` and the env-gated base-field census.  "
+            "**The block this port reads is untouched**: `run_slot`'s "
+            "M-functional block, `acc.fs.extend(hosts)`, "
+            "`fn sum_weights(sh, slot)` and the guard "
+            "`acc.fs.len() != N_FUNCTIONALS` are byte-identical, so the "
+            "DECLARED functional order is the one round 8 read",
+        },
     },
     "src/private_block/layout.rs": {
         "b765bdcbe5762cce3402dac9fb44b5359d53cb492f67c62dbee18f3b559b0d05": {
@@ -390,6 +406,21 @@ MASK_LAYER_PINS = {
             "`derive_mask_domain` here checks the domain the bundle "
             "declares rather than assuming it -- R8.9 item 5's question, "
             "answered by the file rather than by this port",
+        },
+        # [ROUND 9b] the rung-P2 capture commit.
+        "502ba5caac76bdfd026c77761a7735ccc94cf56a157d8bd0dbfbde6c773dd04b": {
+            "commits": ("4ccbad1b1da0a23449ac06461740750a6818c6e8",),
+            "bundles": ("run-k-dense-p2", "run-l-zero-p2"),
+            "reading": "READ 2026-09-21 (round 9b).  `git diff f4697f9 "
+            "4ccbad1 -- .../shape.rs` is 63 added lines and 0 removed -- "
+            "ADDITIONS ONLY, one hunk, `Shape::rung_p2()` and its doc "
+            "comment.  `Shape::slots` -- the source of every `(n_s, d_s)` "
+            "this port turns into `L_s` -- is byte-identical, and so is "
+            "ruling C-4 in `Shape::new`.  What the NEW SHAPE does to this "
+            "port is arithmetic and not code: slots 16 and 18 lose the "
+            "pad-zero factor, so their degrees are 4 where rung-K4's are 5 "
+            "and their `L_s` are shorter; `derive_mask_domain` reads the "
+            "domain the bundle declares, as always",
         },
     },
 }

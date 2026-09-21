@@ -62,6 +62,7 @@ from zk60_native_rg_planes import NO_TABLE, PlaneIndex, plane_index_of  # noqa: 
 from zk60_native_rg_replay import RunReplay  # noqa: E402
 from zk60_native_rg_terminals import (  # noqa: E402
     PadGeometry,
+    SlotCtx,
     check_terminals,
     table_digest,
 )
@@ -308,11 +309,133 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
     if getattr(bundle, "public_tables_included", False):
         out["controls"] += _captured_table_controls(bundle, index, replay)
 
+    # ====== [ROUND 9b] CT-9: the pad rule, in whichever directions exist
+    out["controls"] += _pad_rule_controls(bundle, index, replay, honest)
+
     out["ok"] = all(c.get("fires") for c in out["controls"])
     out["controls_that_did_not_fire"] = [
         c["control"] for c in out["controls"] if not c.get("fires")
     ]
     return out
+
+
+# --------------------------------------------------------------------------
+# [ROUND 9b] CT-9: the pad rule, and M9-3's development-shape twin
+# --------------------------------------------------------------------------
+# Finding M-F1 was a hardcoded `n_pad = 1` in every zero-check port, and its
+# control M9-3 (`zk60_native_rg_m125controls`) is fired only by the 125M
+# driver -- so the regression for a repair that took a 281 MB bundle and
+# three minutes to find lived at the 125M shape alone.  This is the same
+# control in the ORDINARY gate, at whatever shape it is handed, and in BOTH
+# directions:
+#
+#   * a domain that does NOT pad, made to LOOK PADDED -- M9-3 exactly.  It
+#     exists only at a shape with an unpadded domain: 125M, and now `rung-P2`,
+#     where T, Kv and F sit exactly on their pads;
+#   * a domain that DOES pad, made to look UNPADDED -- the mirror, which
+#     exists at every shape this gate has ever read, including the toy and
+#     both development rungs.
+#
+# Either way the host slot must REFUSE BY NAME, with the draws it consumes
+# and the draws the capture declares in the message, and no other slot may
+# stop being checked.  A refusal that raises instead of reporting is finding
+# K4-F1 and is what this control is against.
+PAD_HOSTS = {"T": (2, "SC_TZC"), "L": (3, "SC_LZC"), "D": (14, "SC_DZC"),
+             "Q": (15, "SC_QZC"), "Kv": (16, "SC_KVZC"), "S": (17, "SC_SZC"),
+             "Ht": (17, "SC_SZC"), "F": (18, "SC_FZC"),
+             "Tab": (19, "SC_TAB")}
+
+
+def _pad_rule_controls(bundle, index, replay, honest) -> list:
+    """CT-9: one entry per domain whose pad state is flipped, one at a
+    time, on the port's own `PadGeometry.pads` -- the method
+    `zk60_native_rg_terminals.Geometry` really calls, patched on the class
+    for the length of one `check_terminals` and restored in a `finally`.
+
+    **The object matters, and finding P-F2 is why.**  Round 9's M9-3 read
+    `index.geom`, which a `PlaneIndex` does not have, so every domain's pad
+    state came back `None`, the control found no unpadded domain and
+    excused itself as inapplicable -- at the one shape where it applied."""
+    geom = PadGeometry(bundle.run["shape"], index.domain_log)
+    pads = {}
+    for dom in PAD_HOSTS:
+        if dom not in index.domain_log:
+            pads[dom] = None
+            continue
+        try:
+            pads[dom] = bool(geom.pads(dom))
+        except Exception:  # noqa: BLE001 -- a domain this shape has no size for
+            pads[dom] = None
+    # `Dom::Ht` is hosted by slot 17 beside `Dom::S`, so it is reported and
+    # not perturbed separately: the rule is about the HOSTED SET.
+    unpadded = sorted(d for d, v in pads.items() if v is False and d != "Ht")
+    # The mirror runs once, not nine times: at the 125M shape one
+    # `check_terminals` is a hundred seconds, and a control that doubles the
+    # cost of the stage it lives in gets turned off.  `Dom::L` is the
+    # cheapest host slot and pads at every shape this gate has read; if some
+    # shape ever unpads it, the first padded domain is taken instead.
+    mirror = ("L" if pads.get("L") else
+              next((d for d in sorted(PAD_HOSTS) if pads.get(d) and d != "Ht"),
+                   None))
+    targets = [(d, False) for d in unpadded]
+    if mirror is not None:
+        targets.append((mirror, True))
+    per = []
+    for dom, padded in targets:
+        slot, name = PAD_HOSTS[dom]
+        real = SlotCtx.pad_on
+
+        def flipped(self, *doms, _dom=dom, _r=real):
+            return (not _r(self, *doms)) if _dom in doms else _r(self, *doms)
+
+        SlotCtx.pad_on = flipped
+        try:
+            bad = check_terminals(bundle, index, replay=replay)
+            said = [f["why"] for s in bad["per_stage"]
+                    for f in s["not_checked"] if f["slot"] == slot]
+            equal = bad["slot_checks_equal"]
+        finally:
+            SlotCtx.pad_on = real
+        names_both = bool(said) and ("definition draws" in said[0]
+                                     and "the capture declares" in said[0])
+        per.append({
+            "domain": dom,
+            "slot": slot,
+            "name": name,
+            "direction": ("a PADDED domain's slot made to consume the "
+                          "UNPADDED arithmetic (the mirror, which exists at "
+                          "every shape)" if padded else
+                          "an UNPADDED domain's slot made to consume the "
+                          "PADDED arithmetic (M9-3's own direction, which "
+                          "needs a domain sitting exactly on its pad)"),
+            "honest_pad_state": pads[dom],
+            "refusal": (said[0] if said else None),
+            "the_refusal_names_the_two_numbers": names_both,
+            "only_this_slot_stopped_being_checked":
+                equal == honest["slot_checks_equal"] - bundle.blocks,
+            "fires": bool(said) and names_both,
+        })
+    return [{
+        "control": "CT-9",
+        "what": "the pad rule's DRAW ARITHMETIC flipped for one hosted "
+        "domain at a time -- `SlotCtx.pad_on`, the method finding M-F1 was "
+        "a hardcoded `True` in -- with the public-table geometry left "
+        "alone, so what is tested is exactly the draw count: the slot must "
+        "refuse BY NAME with the draws it consumes and the draws the "
+        "capture declares, and no other slot may stop being checked",
+        "pads_by_domain": pads,
+        "domains_that_do_not_pad_at_this_shape": unpadded,
+        "the_M9_3_direction_exists_here": bool(unpadded),
+        "mirror_domain": mirror,
+        "why_it_matters_that_it_does_or_does_not":
+            "a shape where every domain pads can only run the mirror "
+            "direction; the direction finding M-F1 is about needs a domain "
+            "sitting exactly on its pad, which before `rung-P2` only the "
+            "125M shape had -- which is why M-F1 waited for a 281 MB "
+            "bundle and why this shape exists",
+        "per_domain": per,
+        "fires": bool(per) and all(p["fires"] for p in per),
+    }]
 
 
 def _docs_with_public_value_perturbed(bundle, stage: int, slot: int, tab: int,

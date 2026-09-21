@@ -221,31 +221,44 @@ def m9_3_the_unpadded_domains(bundle, index, replay) -> dict:
     draws it would consume and how many the capture declares.  Before round
     9 this case raised an `IndexError` that the per-slot arm reported as
     'not checked: list index out of range'."""
-    from zk60_native_rg_terminals import check_terminals
+    from zk60_native_rg_terminals import PadGeometry, check_terminals
 
     honest = check_terminals(bundle, index, replay=replay)
     hosts = {"T": (2, "SC_TZC"), "Kv": (16, "SC_KVZC"), "F": (18, "SC_FZC"),
              "L": (3, "SC_LZC"), "D": (14, "SC_DZC"), "Q": (15, "SC_QZC"),
              "S": (17, "SC_SZC"), "Tab": (19, "SC_TAB")}
+    # **[ROUND 9b] FINDING P-F2, repaired here.**  Until now this read
+    # `index.geom`, and a `PlaneIndex` has no `geom`: the `except` below
+    # turned every domain's pad state into `None`, `unpadded` came out
+    # EMPTY, and the control reported "every domain pads at this shape, so
+    # the control does not exist here" -- at the one shape where it did.
+    # M-F1's own control had therefore never fired.  The pad state now comes
+    # from the port's own `PadGeometry`, built the way
+    # `zk60_native_rg_terminals.Geometry` builds it, and the perturbation
+    # patches that class's `pads` for the length of one `check_terminals`.
+    geom = PadGeometry(bundle.run["shape"], index.domain_log)
     geom_doms = {}
     for dom in hosts:
         try:
-            geom_doms[dom] = index.geom.pads(dom)
+            geom_doms[dom] = bool(geom.pads(dom))
         except Exception:  # noqa: BLE001
             geom_doms[dom] = None
     unpadded = sorted(d for d, v in geom_doms.items() if v is False)
     per = []
     for dom in unpadded:
         slot, name = hosts[dom]
-        real = index.geom.pads
-        index.geom.pads = (lambda d, _dom=dom, _r=real:
-                           True if d == _dom else _r(d))
+        real = PadGeometry.pads
+
+        def looks_padded(self, d, _dom=dom, _r=real):
+            return True if d == _dom else _r(self, d)
+
+        PadGeometry.pads = looks_padded
         try:
             bad = check_terminals(bundle, index, replay=replay)
             said = [f["why"] for s in bad["per_stage"]
                     for f in s["not_checked"] if f["slot"] == slot]
         finally:
-            index.geom.pads = real
+            PadGeometry.pads = real
         per.append({
             "domain": dom, "slot": slot, "name": name,
             "refusal": said[0] if said else None,

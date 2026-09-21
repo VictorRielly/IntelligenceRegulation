@@ -1,0 +1,113 @@
+..............F....................................F................................F....................................................../usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................................F..........................................F........................................EF....F.....................F........F.......................F............
+======================================================================
+ERROR: test_the_tables_bundle_cross_reference_is_the_manifests (test_zk60_native_run_gate_runpins.EveryInScopeBundlePasses)
+The table says which bundles were written at each digest.  That
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_runpins.py", line 264, in test_the_tables_bundle_cross_reference_is_the_manifests
+    for p in self.bundles[name].manifest["source_pins"]}
+KeyError: 'run-k-dense-p2'
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate.py", line 127, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2642 chars]9ad'} != {'zk60_native_run_gate.py': '2ed3bfae2bb787695b3c9d1724[2642 chars]4f1'}
+Diff is 3283 characters long. Set self.maxDiff to None to see it. : run-a-tame: the record was produced by different tool bytes; re-run the gate and refresh the evidence
+
+======================================================================
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_ahpreimage.TestTheRecord)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_ahpreimage.py", line 389, in test_the_evidence_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(got, want, f"{name}: {tool} moved since the run")
+AssertionError: 'cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc' != '37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708'
+- cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc
++ 37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708
+ : run-g-dense-s20: zk60_native_rg_bundle.py moved since the run
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_k4.TheRecordedFigures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_k4.py", line 356, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(rec["tool_sha256"], want, name)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2642 chars]9ad'} != {'zk60_native_run_gate.py': '2ed3bfae2bb787695b3c9d1724[2642 chars]4f1'}
+Diff is 3085 characters long. Set self.maxDiff to None to see it. : run-i
+
+======================================================================
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_mask.TestTheRecord)
+The record's `tool_sha256` must name files that still exist as
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_mask.py", line 337, in test_the_evidence_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(got, want, f"{name}: {tool} moved since the run")
+AssertionError: 'cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc' != '37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708'
+- cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc
++ 37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708
+ : run-g-dense-s20: zk60_native_rg_bundle.py moved since the run
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_planeindex.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_planeindex.py", line 111, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2642 chars]9ad'} != {'zk60_native_run_gate.py': '2ed3bfae2bb787695b3c9d1724[2642 chars]4f1'}
+Diff is 3283 characters long. Set self.maxDiff to None to see it. : run-c-tame: the record was produced by different tool bytes; re-run the gate and refresh the evidence
+
+======================================================================
+FAIL: test_every_pinned_digest_is_the_blob_at_every_commit_it_names (test_zk60_native_run_gate_runpins.TheDigestsAreTheCommittedBlobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_runpins.py", line 446, in test_every_pinned_digest_is_the_blob_at_every_commit_it_names
+    self.assertEqual(checked, 18,
+AssertionError: 21 != 18 : three files at SIX capture commits each (round 9 added f4697f9)
+
+======================================================================
+FAIL: test_every_pinned_digest_has_a_written_reading (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList)
+A pin added without a reading is what this discipline forbids.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_runpins.py", line 159, in test_every_pinned_digest_has_a_written_reading
+    self.assertEqual(len(pairs), 12)
+AssertionError: 13 != 12
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_s20.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_s20.py", line 202, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2642 chars]9ad'} != {'zk60_native_run_gate.py': '2ed3bfae2bb787695b3c9d1724[2642 chars]4f1'}
+Diff is 3181 characters long. Set self.maxDiff to None to see it. : run-g-dense-s20: the record was produced by different tool bytes; re-run the gate and refresh the evidence
+
+======================================================================
+FAIL: test_both_argument_digests_are_definitions_this_port_has_read (test_zk60_native_run_gate_s20.TestTheGeometry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_s20.py", line 176, in test_both_argument_digests_are_definitions_this_port_has_read
+    self.assertEqual(len(ARGUMENT_DEFINITIONS), 2)
+AssertionError: 3 != 2
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_tagged.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_tagged.py", line 215, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(rec["tool_sha256"], want, name)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2642 chars]9ad'} != {'zk60_native_run_gate.py': '2ed3bfae2bb787695b3c9d1724[2642 chars]4f1'}
+Diff is 3283 characters long. Set self.maxDiff to None to see it. : run-e-tame-tagged
+
+----------------------------------------------------------------------
+Ran 331 tests in 304.403s
+
+FAILED (failures=10, errors=1)
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-dense-l2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
