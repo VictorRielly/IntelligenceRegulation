@@ -115,6 +115,13 @@ statement, the distinct-value refinement is taken** (98.6 of 103.9 million
 denominators are byte lookups over at most 256 values; worth 5.4 bits at the
 toy and far more here), because at 2^-97.8 this term sits a third of a bit
 from the run's soundness level.
+*(Taken the same night, 23:27 — ruling S-4 of
+`ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md`: the inverted denominators
+fall in three families of at most 256 arguments, so at most 768 distinct
+arguments per block at every shape; **2^-118.4 per block and 2^-114.8 for a
+twelve-block 125M run**, counted by the drafter and recounted independently by
+its checker. The raw figures above stay correct as upper bounds; the worry
+about the run's soundness level is withdrawn.)*
 
 **R-7 (B-6, B-7, B-9, B-10, B-11): errata.** Corollary R.3 upgraded to proved,
 with all three travelling conditions named; "8 ζ challenges" corrected to at
