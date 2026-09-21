@@ -1399,26 +1399,80 @@ Plus one tracked TOY capture for the equivalence run:
 | # | item | state |
 |---|---|---|
 | M0 | ledger skeleton, round 8 opened | done |
-| M1 | the `M` system restated at the shaped layouts from the Rust at the bundles' pinned commits; what in the toy port is layout-specific | pending |
-| M2 | the shape-driven port, proved equal to the toy module at the toy's widths | pending |
-| M3 | run on all four bundles, every stage: rank, preimage, hash layer, pad budget | pending |
-| M4 | controls | pending |
-| M5 | stretch: a JOINT run-wide preimage | pending |
-| M6 | channel table, evidence, report section, tests, whole native suite | pending |
+| M1 | the `M` system restated at the shaped layouts from the Rust at the bundles' pinned commits; what in the toy port is layout-specific | done — §R8.4, report §12.2–12.3 |
+| M2 | the shape-driven port, proved equal to the toy module at the toy's widths | done — commit `a4c0b83`, §R8.5, **19 of 19 figures** |
+| M3 | run on all four bundles, every stage: rank, preimage, hash layer, pad budget | done — §R8.6 |
+| M4 | controls | done — §R8.7, six, all fire |
+| M5 | stretch: a JOINT run-wide preimage | done — report §12.7, `stage13_joint_run_preimage` |
+| M6 | channel table, evidence, report section, tests, whole native suite | done — §R8.8, **28: 10 / 5 / 4 / 9** |
 
 ## R8.3 Commands and logs (round 8)
 
 | what | command | log |
 |---|---|---|
-| (filled as the round runs) | | |
+| the first pass, while the tools were still being edited (stage 13 did not exist yet) | `bash results/zk60_native_run_gate_mask/run.sh`, detached under `flock /tmp/zk-heavy.lock` with a `.done` marker | `…/mask/run.log`, `run.done` — **superseded by the run of record** |
+| the ten committed records, taken BEFORE any refresh run | `bash results/zk60_native_run_gate_mask/before.sh` | `…/mask/before/` — ten files |
+| **the run of record**: the four current bundles under BOTH arms, each wrapped in `/usr/bin/time -v` | `bash results/zk60_native_run_gate_mask/run2.sh`, ENQUEUED on the same lock while the first pass still held it | `…/mask/run2.log`, `run2.done`; `…/mask/time-<bundle>.log` |
+| the equivalence run at the toy's widths | `python3 scripts/zk60_native_rg_mask.py --toy results/zk60_native_captures_20260919/captures --evidence results/zk60_native_run_gate_mask` | `…/mask/toy_equivalence.json` (inside `run2.log`) |
+| the ten records of record re-run with both arms OFF | `bash results/zk60_native_run_gate_preimage/refresh.sh` (round 6's command lines, unchanged) | inside `run2.log` |
+| each record diffed leaf by leaf, then classified | `bash results/zk60_native_run_gate_mask/diff.sh` | `…/mask/diffs/*.diff.json`, `…/mask/all_ten_bundles_unchanged.json` |
+| this round's test file | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native_run_gate_mask.py' -v` | `…/mask/tests_mask.log` |
+| the run-gate suite | `… -p 'test_zk60_native_run_gate*.py' -v` | `…/mask/tests_run_gate_all.log` |
+| the WHOLE native suite | `… -p 'test_zk60_native*.py' -v`, detached under the lock | `…/mask/tests_native_all.log`, `.done` |
 
 ## R8.4 Results — the `M` system at the shaped layouts
 
-(pending)
+Report §12.3 has the table. The three facts worth repeating here, because
+each was READ out of the Rust at the bundles' own pinned commits and not
+carried over from the toy:
+
+1. **`M` is fifty rows and thirty-four functionals at every shape of this
+   schedule.** `layout.rs:895-896` sets `N_FUNCTIONALS = 34` and
+   `M_ROWS = 2 * N_SLOTS + 4`, and asserts `M_ROWS == 50` (:1284) and
+   `N_SLOTS + #Standalone + HOSTS.len() == N_FUNCTIONALS` (:1290). Neither
+   is a function of the shape. What the rung moves is every `L_s`, through
+   `Shape::slots`.
+2. **The two slots whose `L` the repair moved are 08 and 09**, the two
+   BILINEAR ones: `shape.rs:634-684` gives them `ext = 2` where every other
+   slot has 1, and adds one to their degree exactly when `lkv > 0`. At
+   rung-G they are `L = 23` and `26`; at rung-K4 `23` and `29`. The largest
+   `L` is 72 at rung-G (slots 17, 18) and 77 at rung-K4 (slot 17).
+3. **The declared order is the code's, and the code moved only in how it
+   reads the slot triple.** `argument.rs` at the capture commits differs
+   from the toy port's pinned bytes in the M-functional block by exactly
+   `sum_weights(s)` → `sum_weights(&sh, s)`, and that function is
+   `CfsMask::sum_weights(n + e, d)` over `sh.slots()[slot]`. The port
+   therefore CHECKS `mask["specs"] == (main + ext, degree)` against the
+   bundle's own shape, which is the check the toy could not make.
+
+**The pad margin is thin and is worth a number.** `Q = 256` pads per a-row
+against `D` distinct opened columns: `D` runs 246–254 over the twelve
+stages of the four bundles, so the margin runs **2 to 10**. Control M-6
+takes it away and the construction refuses; at the real budget the Cauchy
+block is square and nonsingular. Nothing in the layout keeps `D` below
+`Q` — it is the sampler drawing 256 indices with replacement out of 4,096 —
+so the margin is a fact about these runs' challenges, not a guarantee.
 
 ## R8.5 Results — the port is the toy module's construction
 
-(pending)
+`zk60_native_mask_commit.py` and `zk60_native_pg_cfs.py` are hash-pinned
+records this lane does not edit. Round 8 does not edit them: a test asserts
+`fae15b49…` and `4ee92422…` unchanged.
+
+* **Fifteen objects imported, none re-implemented.** `IMPORTED_OBJECTS`
+  lists them; one test asserts each name in the new module IS the toy
+  module's object, another that the new module's source defines no
+  `def`/`class` of those names.
+* **Four maps, and tests that keep them complete.** `LAYOUT_SPECIFIC` must
+  have exactly the five keys of report §12.2 and each must say what
+  replaces it; `NEW_HERE` together with `DERIVED_FROM` must cover every
+  definition in the file.
+* **The equivalence run**: **19 of 19 figures equal** to the toy gate's
+  committed record for capture `40083e7a…`, including both
+  exhibited-randomness digests (`e0513e22…`, `f943d3a0…`).
+* A fourth thing the toy gate never asked: at the toy's widths the
+  CFS-solved coefficients also reproduce the toy capture's `M` opening
+  entry by entry, which is the JOIN, tested where the figures are known.
 
 ## R8.6 Results — what was constructed and verified
 

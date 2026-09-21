@@ -46,6 +46,19 @@
 > CONSTRUCTED and no others. **A preimage for a RUN is still OPEN**, and
 > §11.6's control P-5 is the reason that is not a formality.
 
+> **Section 12, 2026-09-21, is the eighth round**, and it closes the thing
+> §11.7 called "the largest open one a port could close": the masking
+> commitment `M` and the masked-sumcheck (CFS) channel at the SHAPED
+> layouts. Wherever this report says that channel is OPEN because the toy
+> port is "written at the toy's row layout and slot specs", read it against
+> §12.2, which says what really was layout-specific (five things, and the
+> solver was not one of them). **§11.7's "a preimage for a RUN — still
+> OPEN" is superseded by §12.7**, which joins the two arms into ONE
+> assignment for the whole run and enumerates the four couplings it has to
+> respect; C1, the boundary planes, is the one that does the work.
+> The table goes from 25 channels at 5 / 5 / 4 / 11 to **28 at
+> 10 / 5 / 4 / 9**.
+
 > **THIS IS NOT A PRIVACY ACCEPTANCE AND ESTABLISHES NO PRIVACY PROPERTY.**
 > Every number below is a rank, a count or a digest of an explicitly stated
 > LINEAR model, at two captured runs' real challenges, at ONE development
