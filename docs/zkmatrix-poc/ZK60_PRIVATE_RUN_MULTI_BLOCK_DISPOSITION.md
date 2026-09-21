@@ -377,6 +377,27 @@ dense and generic; `run-j-zero-k4`).
   development shapes; nothing at the 125M shape. **No privacy claim about any
   run.**
 
+**Round 6 (00:46, 2026-09-21): the run layer is pinned.** [MEASURED by the
+lane; I re-ran its 25 new tests, all passing; `zk60-native-jointview` at
+`eacdddc`, pushed; suite 360, all passing; no earlier assertion moved.] Round
+5's gap is closed: of eight run-layer files, the gate's ports depend on four —
+`run.rs` (the six header absorbs and their order, the stage loop, the position
+tag), `boundary.rs` (the boundary table and its reserved block),
+`run_capture.rs` (the writer: schema, field orders, transcript labels) and
+`plane_index.rs` (already pinned). Nine (file, digest) pairs over the five
+capture commits were **read hunk by hunk against the ports before being
+pinned; none refused, and no port turned out stale** — the three hunks that
+touch something a port relies on had each already been followed by the port.
+A changed digest now suspends the stages that depend on it, by name and
+without raising (shown live for a run-layer file, the boundary file and an
+argument-layer file). All ten bundles re-run with no unclassified difference
+and no figure moved. Two of round 5's own figures were wrong and are corrected
+in place (a line count; "byte-identical at every capture commit" — the
+boundary file has two digests). **Named limit:** `wire.rs`, `run_sink.rs`,
+`endpoint_g.rs` and `hash_domain.rs` cannot be pinned from a bundle at all,
+because the capture writer does not list them among its sources; the ask to
+the Rust side is to list them.
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external
