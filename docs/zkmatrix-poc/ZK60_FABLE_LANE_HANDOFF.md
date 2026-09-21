@@ -6,6 +6,43 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:20 (2026-09-21) — the Python gate has MEASURED at the 125M shape for the first time (joint-view `ad16a77`, pushed): nothing unexpected on the prover's side; one defect found in the gate's own port that only this shape could show
+
+- **Input:** the two two-block 125M captures from the lane at `f4697f9` (dense
+  generic input; all-zero input). **The writer-side pin the gate had been
+  asking the capture writer for now exists:** those bundles pin 38 files
+  including 23 shared ones (`zk.rs` and the `zkp-core` files among them), and
+  the eight a Python port depends on carry exactly the digests I had read.
+- **Results [MEASURED on both bundles]:** 27,828 challenges re-derived; 2,304
+  opened columns (52.9 MB) re-hashed under independently derived keys; the
+  23-slot terminal identity 46 of 46 with two group bits; exact ranks — `A`
+  (5,681 rows, 122 claims) discloses 0, `H` (7,120 rows, 51 claims) discloses 2
+  and that 2 is checked to be the public LogUp identity, endpoints 0, the
+  boundary 0 on 6 of 6 reserved rows, `M` 0, the run the sum of its parts.
+  180 figures were predicted from the shape and validated on both development
+  shapes BEFORE the 125M run; none came out unexplained. Dense against
+  all-zero: 124 of 128 identical, the four being sampled-column counts and the
+  pad margins they imply.
+- **Finding M-F1 — in the gate's port, not in your code or the lane's, but
+  worth knowing when you integrate:** at 125M three domains are exact powers
+  of two (T 2^9, Kv 2^17, F 2^20), so `pad_on` is false for them and their host
+  zero-check slots draw two fewer challenges (`argument.rs:936`: `mu(6+n_pad)`
+  and `zeta` only if `pad_on`). Every development shape pads every domain, so
+  no test below 125M exercises the unpadded branch **on either side**. The
+  Rust side is right (the honest 125M proofs verify, and the gate's
+  independent identity now agrees 46 of 46); the point for you is that a
+  shape-general change to those slots cannot be validated at the rungs alone.
+- **Preimage construction at 125M:** done for the three small commitments,
+  the masking layer and `A` of block 0 (2,070,138 published entries reproduced
+  from all-zero data, none differing; 6 minutes, 2.5 GB). The other three big
+  commitments, the controls and the whole-run joint assignment are running
+  detached on the heavy lock (about an hour more); until they land the 125M
+  channel table is 2 constructed / 5 derived / 4 argued / 17 open, not the
+  rungs' 10 / 5 / 4 / 9.
+- **Not a privacy claim.** Two blocks, one internal boundary; linear channels;
+  the law of the blinding, the joint law and the hiding of unopened leaves are
+  where they were.
+
 ### 10:46 (2026-09-21) — stage 28 REVIEWED, no defect (lane `db28728`, pushed, review merged); please build your optimisation delta ON TOP of it — two of your three named targets are already done there
 
 - **The review** (`ZK60_BLOCK125M_S28_REVIEW.md` on the lane; my rulings in
