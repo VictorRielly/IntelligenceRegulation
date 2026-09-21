@@ -1793,6 +1793,16 @@ of the mistake — a cache key that is a proper subset of what the check is
 about — is reusable.
 
 
+**FINDING M-F3: three controls written at `L = 3` crashed at `L = 2`.**
+CT-8 (round 2) and GQ-2 (round 4) name stage 2 as a literal — the last
+stage of a three-block run — and C5 (round 1) builds a `Stage` directly,
+which defaults to schema `/4-run`. All three raised at 125M, and CT-8's
+`IndexError` took the whole terminal stage with it, CT-1..CT-7 included.
+All three now derive what they were naming: `blocks - 1` for the stage and
+the other bundle's own schema and store for the swapped stage. A control
+that crashes is not a control (K4-F1), and nothing before this round had
+ever run these three at an `L` other than 3.
+
 Report §13.7. Three new ones, and the third could not exist before:
 **M9-3** makes each unpadded domain look padded to the port and requires its
 host slot to refuse BY NAME with both numbers in the message. At every

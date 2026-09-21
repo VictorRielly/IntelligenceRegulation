@@ -205,8 +205,17 @@ def controls(bundle, other_bundle, views, replay, shared):
     # ----------------------------------------------------------------- C5
     victim = 1
     saved_stage = bundle.stages[victim]
+    # **[ROUND 9, finding M-F3.]**  `Stage` defaults to schema `/4-run`,
+    # so this raised on a `/5-run` bundle -- and a control that raises is
+    # not a control.  The swapped stage is built at the OTHER bundle's own
+    # schema and with the OTHER bundle's array store, which is what
+    # "stage 1 of the other run" has to mean; the refusals of a `/4-run`
+    # stage handed to a `/5-run` bundle are a different control and not
+    # this one.
     bundle.stages[victim] = Stage(
-        other_bundle.stages[victim].path, victim, bundle.blocks
+        other_bundle.stages[victim].path, victim, bundle.blocks,
+        schema=other_bundle.schema, store=other_bundle.store,
+        refusals=[],
     )
     try:
         swapped_replay = RunReplay(bundle).run().summary()

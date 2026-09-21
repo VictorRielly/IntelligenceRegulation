@@ -291,7 +291,16 @@ def group_controls(bundle, index, replay=None, other_definition=None) -> dict:
     # slot passing is no evidence for the other.
     if group.geom.lkv > 0 and group.definition == REPAIRED:
         lkv = group.geom.lkv
-        aims = [(1, 8, j) for j in range(lkv)] + [(2, 9, j) for j in range(lkv)]
+        # **[ROUND 9, finding M-F3.]**  `(2, 9, j)` named stage 2 as a
+        # literal -- the last stage of a three-block run.  A two-block run
+        # has none.  The two aims are now "a middle-ish stage" and "the
+        # last stage", derived from `L`, which is what the pair was for:
+        # the two bilinear slots put the group variables at different
+        # positions, so one passing is no evidence for the other.
+        last = bundle.blocks - 1
+        first = min(1, last)
+        aims = ([(first, 8, j) for j in range(lkv)]
+                + [(last, 9, j) for j in range(lkv)])
         for stage, slot, entry in aims:
             sfx = f".{slot:02d}.{entry}"
             where = (f"stage {stage}, slot {slot} [{SLOT_NAMES[slot]}], group "

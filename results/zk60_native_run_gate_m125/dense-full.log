@@ -1,0 +1,7 @@
+Running scope as unit: run-r81cf90af31164af5ac69fa909448908d.scope
+[load          ]      0.8 s   peak RSS     603 MB   ok
+[replay        ]      1.0 s   peak RSS     603 MB   ok
+[hash          ]      0.6 s   peak RSS     603 MB   ok
+[commitments   ]     56.9 s   peak RSS     603 MB   ok
+[boundary      ]      4.7 s   peak RSS     616 MB   ok
+[preimage      ]      0.9 s   peak RSS     616 MB   ok

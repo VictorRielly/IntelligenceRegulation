@@ -388,8 +388,17 @@ def _captured_table_controls(bundle, index, replay) -> list:
         "fires": failed == [(stage, slot)],
     })
 
-    # CT-8: a terminal of one of the ELEVEN newly covered slots
-    stage2, slot2, term2 = 2, 14, 5
+    # CT-8: a terminal of one of the ELEVEN newly covered slots.
+    #
+    # **[ROUND 9, finding M-F3.]**  This read `stage2 = 2` -- the LAST stage
+    # of a three-block run, written when every run in scope had three.  A
+    # two-block run has no stage 2 and the control raised `IndexError`
+    # through the whole terminal stage, taking CT-1..CT-7 with it: a control
+    # that crashes is not a control, which is finding K4-F1 again, this time
+    # about `L` rather than about a pin.  The stage is now DERIVED as the
+    # run's last, which is what "a slot that was open until this round" was
+    # ever about.
+    stage2, slot2, term2 = bundle.blocks - 1, 14, 5
     docs2, _o, _n = _docs_with_terminal_perturbed(bundle, stage2, slot2, term2)
     got = check_terminals(bundle, index, replay=replay, stage_docs=docs2)
     failed2 = sorted({(r["stage"], s) for r in got["per_stage"]

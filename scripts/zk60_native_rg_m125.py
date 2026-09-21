@@ -269,11 +269,38 @@ class Driver:
         return out
 
     def channels(self):
+        """`G.channels` is a SUMMARY of the other stages, so a pass that did
+        not run one of them cannot be handed a partial record -- that is
+        finding K4-F1's lesson and the gate keeps it by suspending the
+        channel table whenever anything is suspended.  Here the same rule
+        applies to a pass that simply did not ASK for a stage: the stage-8
+        stand-in says the terminal identity was not run in THIS pass and
+        names the record of record that has it, so no channel is graded off
+        a check that did not happen."""
         for k, default in (("stage11_full_preimage", G.FULL_PREIMAGE_OFF),
                            ("stage12_mask_and_cfs", G.MASK_CFS_OFF)):
             self.rec.setdefault(k, dict(default))
         from zk60_native_rg_mjoint import JOINT_OFF
         self.rec.setdefault("stage13_joint_run_preimage", dict(JOINT_OFF))
+        s8 = self.rec.get("stage8_plane_index_and_terminals")
+        if s8 is None or "terminal_identity" not in s8:
+            note = dict(G.PER_SLOT_TERMINAL_OPEN)
+            note["checked"] = False
+            note["slots_checked"] = 0
+            note["reason"] = (
+                "stage 8 was NOT RUN in this pass; it is not a refusal and "
+                f"not a failure -- see the record of record for "
+                f"{self.rec.get('bundle')}, where the terminal identity is "
+                "checked for every slot of every stage")
+            self.rec["stage8_plane_index_and_terminals"] = {
+                "plane_index": {"present": False,
+                                "reason": "not read in this pass"},
+                "terminal_identity": note,
+                "controls": {"skipped": "stage 8 was not run in this pass"},
+                "channel_status": "open",
+                "not_run_in_this_pass": True,
+                "ok": True,
+            }
         return G.channels(self.bundle, self.rec)
 
     STAGES = {

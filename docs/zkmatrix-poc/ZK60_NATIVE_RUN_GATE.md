@@ -3007,6 +3007,28 @@ record carries the bundle's file digests before and after.
 | **M9-2** *(new)* | one entry of one opened column, moved by one, in memory | that column's leaf no longer authenticates under the bundle's own derived keyed rule — one column of 2,304, and no other |
 | **M9-3** *(new)* | each domain that does NOT pad at 125M, made to look padded to the port, one at a time | its host slot refuses **by name**, with the draws it consumes and the draws the capture declares in the message. Finding M-F1's own control, and it **does not exist at any development shape** — which is why rounds 1–8 could not run it |
 
+**FINDING M-F3: three controls of rounds 1, 5 and 8 were written at
+`L = 3`, and at `L = 2` they CRASHED.** The first pass with the whole
+control set on told the round something it had not asked:
+
+* **CT-8** perturbs "stage 2, slot 14" — the last stage of a THREE-block
+  run, as a literal. A two-block run has no stage 2, so the control raised
+  `IndexError` and took the whole terminal stage with it, CT-1 … CT-7
+  included. The stage is now DERIVED as `blocks - 1`.
+* **GQ-2**'s aim list is `[(1, 8, j)] + [(2, 9, j)]` for the same reason.
+  Both stages are derived now, `min(1, last)` and `last`.
+* **C5** swaps a stage file between the two bundles by constructing a
+  `Stage` directly, and `Stage` defaults to schema `/4-run`; on a `/5-run`
+  bundle it raised before it could perturb anything. It now builds the
+  swapped stage at the OTHER bundle's own schema and with the OTHER
+  bundle's array store, which is what "stage 1 of the other run" has to
+  mean.
+
+Each is finding K4-F1 again — **a control that crashes is not a control** —
+and each was invisible until a run had a number of blocks no earlier round
+had used. Two runs of three blocks and two runs of two blocks are between
+them the first test any of these three ever had of `L`.
+
 ## 13.8 The full preimage at 125M: measured, then reduced in scope and said so
 
 Round 7's arm is the one place where 125M costs more than this round could
