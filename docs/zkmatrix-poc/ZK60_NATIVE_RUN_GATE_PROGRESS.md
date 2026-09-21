@@ -1864,12 +1864,35 @@ Seven sentences of the report that said nothing can be or has been measured
 at 125M now carry a dated correction in place (§5, §9.11, §11.8, §11.10,
 §12.8, §12.10 and §2.3's `n = 1,024`). Nothing is rewritten.
 
-## R9.10 NEXT after round 9
+## R9.10 IN FLIGHT at the close — read the markers, then integrate
 
-1. **`A` and `H`'s full preimage at 125M** — estimated at 22–23 minutes
-   apiece and about three hours for both bundles. Affordable on a quiesced
-   box; it closes the PCS preimage channel at the production shape and with
-   it §12.7's JOINT run-wide preimage there.
+Round 9 closed with eight runs enqueued on `/tmp/zk-heavy.lock`, each
+detached with its own log and `.done` marker under
+`results/zk60_native_run_gate_m125/`. **None of them can change a claim
+this round makes**: every figure in report §13 comes from a record already
+committed. What they add is coverage, and the first thing a later session
+should do is `ls *.done`, read the exit codes, and integrate.
+
+| marker | what it adds | what to do with it |
+|---|---|---|
+| `zero-full` | the ZERO bundle's full arm and stage 13 | compare with the dense bundle's 8,296,654 / 0 differing; the witness comparison should gain nothing but sampled-column counts |
+| `dense-everything` | ONE 125M record carrying every stage | the only record that can read **28 at 10 / 5 / 4 / 9**; report §13.8 says explicitly that no record does until it lands |
+| `dense-controls2` | the CT / GQ / C1–C6 / CH families after the M-F3 repair | the count of controls that fire at 125M, which §13.7 currently gives only for M9-1..3 and round 8's M1–M6 |
+| `dense-final`, `zero-final` | the two (a)–(d) records re-taken on FROZEN bytes | these supersede the committed `m125-dense.json` / `m125-zero.json` for their tool pins; every figure must be identical |
+| `refresh`, `refresh2` + `diff.sh` | the ten development records re-run and leaf-diffed | `all_ten_bundles_unchanged.json` must read **0 unclassified leaves**; three round-9 classes are already in `rg_recclass` |
+| `tests_final`, `tests_native_all`, `tests_run_gate_all` | the two suites on frozen bytes | the round's suite counts, which §13 does not yet state |
+
+The ledger names them rather than predicting their outcomes, which is the
+marker protocol's whole point: the box kept working, and a figure nobody
+has read is not a figure.
+
+## R9.11 NEXT after round 9
+
+1. **The zero bundle's full arm, and a single all-stage record** — both
+   enqueued above. The dense bundle's is done: all seven PCS commitments
+   constructed and verified (8,263,736 entries, none differing) and
+   §12.7's JOINT run-wide preimage holding at 125M (8,296,654 entries, 0
+   differing, C1's 128 pairs all data rows).
 2. **More than two blocks at 125M.** `L = 2` has one internal boundary; the
    model has twelve blocks and eleven. Nothing in the gate depends on `L`,
    but nothing has exercised it at this shape either.
