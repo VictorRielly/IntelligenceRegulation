@@ -253,3 +253,28 @@ written except where noted.
    1,027 of those points per proof with no absorb in between, which returns the
    value already sampled and enters no bound. The earlier phrase "challenge
    queries are unique unconditionally" is to be read that way.
+10. **§4, the 2^-112.0 row again (added 2026-09-21 10:44; source: ruling V-3 of
+    `ZK60_BLOCK125M_S28_DISPOSITION.md`, after an independent review of the
+    lane's stage 28 re-derived it on the real path and exhibited the
+    counterexample that fixes its wording).** The row is an over-estimate, and
+    for a sharper reason than clarification 1 gives. On every attempt the
+    prover inverts the WHOLE of each of the three public tables before
+    multiplicities enter (`hashline/src/private_block/protocol.rs:353-357` on
+    main, read by the security owner), and for every witness the constructors
+    admit each witness-side denominator is one of those table denominators.
+    So **whether an attempt is refused for a zero LogUp denominator is a
+    deterministic function of the three public challenges and the three public
+    tables** — the event that `alpha` equals one of at most 768 public field
+    elements — and not of the hidden input. What does depend on the hidden
+    input is only WHICH of two lines returns first (`:339-351` or `:357`); the
+    two return the identical string, and no transcript absorb and no generator
+    draw lies between the challenge draw (`:332`) and the second line (the
+    next draw is `:362`), so a refused attempt leaves the same state and
+    publishes nothing either way. **The figure stays 2^-112.0** — it binds
+    nowhere and an over-estimate is safe; its label stays "a bound on the
+    distance". The unqualified sentence — "a function of public values alone"
+    for ANY witness — is false: a witness carrying a value no table carries
+    makes the refusal depend on that value; such a witness is not admitted,
+    cannot yield a verifying proof, and is outside §2's quantifier. The elapsed
+    time of a refused attempt is a timing channel and is, like every timing
+    channel, outside this statement (§6, by decisions D20 and D21).

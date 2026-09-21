@@ -89,10 +89,19 @@ sub-arguments roughly halved. The small accepted test block's bytes did not
 move; the test filter is 319 passed, 0 failed. Because receipts are not
 reproducible (fresh randomness every attempt, by an accepted privacy
 condition), "same bytes" rests on ten old-against-new equality tests, the
-size pins and honest proofs verifying — **an independent reviewer is now
-trying to break that, including by checking receipts written by the OLD
-prover with the NEW verifier; until it reports, read 17.40 s as a measurement
-of code under review.** **What this does and does not mean for the target:**
+size pins and honest proofs verifying — so an independent reviewer who did
+not write the code attacked it. **Reviewed 10:40: no defect found, no
+production line changed.** A complete twelve-block 125M run written by the
+OLD prover is accepted by the NEW verifier (15.20 s, 476 MiB); 1,800
+randomised old-against-new comparisons agree; the whole test filter passes
+again on one thread (327 passed, 0 failed); no changed computation is
+reachable from the verifier. The review also found four places where the
+tests are thinner than the claim (one changed sum has no direct
+old-against-new test, and the small shapes never take the parallel branches);
+the security owner ruled that these are closed on the lane before the
+integrator takes the stage (`ZK60_BLOCK125M_S28_DISPOSITION.md`). The all-zero
+control run: 17.71 s, same receipt length. **What this does and does not mean
+for the target:**
 about 79% of the remaining 17.40 s (13.8 s: the shared masked-sumcheck loop
 6.6 s, the two commitments 6.5 s, the openings 0.7 s) sits in code the
 integrator owns, and the commitments are exactly what a GPU takes — but the
