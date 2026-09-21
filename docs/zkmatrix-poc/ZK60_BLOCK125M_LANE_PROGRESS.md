@@ -9392,3 +9392,54 @@ visible:
 | **S28-R4** | under the task-3 sub-step table | the column headed "baseline" is the 24.59 s tree after task 1, which is NO commit; the headline 27.71 -> 17.40 s is between two commits and stands; commit the instrument first next time |
 | **V-3** | under finding S28-F1 | S28-F1a, the qualified form the security owner accepts, with the reviewer's counterexample test named and the consequence for the accepted figures (none) recorded |
 
+### Task 4 — the base-field census: how much of a big slot's round-1 table data is base-field-valued (integrator request R1b)
+
+**The question, and why it is a COUNT and not a design.** Stage 28's request
+R1 to the integrator offers three things to try in the shared masked
+sumcheck, and item (b) — a ROUND-1 specialisation over the base field — is
+the only one that is a JOINT change: `argument::priv_table` (this lane) would
+have to hand out `Fp` tables and the slot closures in `zk.rs` /
+`zkp-core/src/sumcheck.rs` would have to accept them. The stage said it
+"should not be attempted without one measurement of how many of a big slot's
+tables are base-field-valued". This is that measurement. **No base-field
+round was implemented and none is proposed here**; this is the count that
+says whether designing one is worth anybody's time.
+
+**The instrument.** `timing::base_field_census`, called from
+`argument::run_slot` between the table build and the claimed sum — exactly
+where round 1 starts, on the tables as round 1 will read them. It counts
+words whose imaginary part is zero, per table, and prints one summary line
+per slot plus one line per DESCRIPTOR CLASS (identical structural labels
+collapse). It prints counts, the slot's public name and schedule facts (which
+commitment a private plane lives in, how many slices, how many fixed
+coordinates) and **never a value**. It is off unless the operator names the
+slot in `HL_PB_BASEFIELD` (`all`, or a comma-separated list), and with the
+variable unset it is one `std::env::var` per slot and no scan.
+
+**Why a wholly base-field TABLE is the right unit.** Round 1 of
+`zkp-core::sumcheck::prove` gathers `cur[t] = v0`, `dif[t] = v1 - v0` from the
+table words themselves and then walks `cur[t] += dif[t]` for the `degree + 1`
+evaluation points. A difference of two base-field words is base-field and the
+walk preserves it, so **a table that is wholly base-field at round 1 fills a
+base-field operand slot at every one of the round's evaluation points**. And
+because every table of a slot has the same length `2^n`, the share of WORDS
+and the share of TABLES are the same number.
+
+**Rung-K4** [MEASURED, one run, shared box; `results/zk60_block125m_lane/r29-k4-bfcensus.log`,
+`HL_PB_BASEFIELD=all HL_PB_TIMING=1`, the dense K4 gate, scan 0.001 s per slot]:
+
+| slot | tables | wholly base-field | words | base-field words | share | the exceptions, and why |
+|---|---:|---:|---:|---:|---:|---|
+| 17 `SC_SZC` | 30 | 18 | 491,520 | 294,912 | **60.0%** | 3 `Eq` (challenge-weighted) + 9 `Priv cm=H` (LogUp helper columns: an `H` plane is the pair `(re, 1), (im, u)`, so its cube carries `re + u im`) |
+| 14 `SC_DZC` | 62 | 40 | 253,952 | 163,840 | **64.5%** | 3 `Eq` + 19 `Priv cm=H` |
+| 18 `SC_FZC` | 21 | 12 | 172,032 | 98,304 | **57.1%** | 3 `Eq` + 6 `Priv cm=H` |
+| 15 `SC_QZC` | 21 | 11 | 86,016 | 45,056 | **52.4%** | 3 `Eq` + 7 `Priv cm=H` |
+| 04 `SC_RS` | 5 | 4 | 81,920 | 65,536 | **80.0%** | 1 `Eq` |
+| **the five** | **139** | **85** | **1,085,440** | **667,648** | **61.5%** | — |
+
+The base-field side is always the same two classes: the `Priv cm=A` planes
+(witness integer data, lifted by `Fp2::from_base`) and the `Pub` public
+tables. The extension side is always the same two: the challenge-weighted
+`eq` tables and the `H` planes, which are helper columns and are inverses in
+the extension by construction.
+
