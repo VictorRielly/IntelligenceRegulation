@@ -1530,8 +1530,15 @@ fn no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input() 
     assert!(super::layout::no_commitment_has_a_node_shaped_column(&[("probe", 5)]).is_err(), "5 rows is the 40-byte refill format");
 
     // C-H4': every byte-string literal of the block path's own source
-    let sources: [(&str, &str); 8] = [
+    //
+    // **STAGE 26** added `hash_domain.rs`, which is where the four
+    // GENERATOR DOMAIN literals now live (44 / 46 / 47 / 58 bytes). They are
+    // not transcript domain labels, but the scan cannot tell one byte-string
+    // from another and that is the point of it: a new literal of a forbidden
+    // length must fail here whoever wrote it.
+    let sources: [(&str, &str); 9] = [
         ("argument.rs", include_str!("argument.rs")),
+        ("hash_domain.rs", include_str!("hash_domain.rs")),
         // S11b: the generalised endpoint's own domain label is on the block
         // path too, so it is scanned with the rest
         ("endpoint_g.rs", include_str!("endpoint_g.rs")),

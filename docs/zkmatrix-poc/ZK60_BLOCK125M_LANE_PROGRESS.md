@@ -7876,9 +7876,9 @@ plus the logs under `results/zk60_block125m_lane/`.
 
 ## Stage 26 — the generators' seed derivations, structurally separated at every UNFROZEN profile (2026-09-21, 05:1x–)
 
-**Status: `OPEN` (skeleton).** Opened 2026-09-21 05:15 PDT on the lane tip
-`fd45a67`. One ruling, from `ZK60_TOY_ROUTE_A_REEXAMINATION.md` finding
-**B-1** and `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` §9 item 6:
+**Status: `LANDED`.** Opened 2026-09-21 05:15 PDT on the lane tip `fd45a67`.
+One ruling, from `ZK60_TOY_ROUTE_A_REEXAMINATION.md` finding **B-1** and
+`ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` §9 item 6:
 
 > At every UNFROZEN profile a randomness generator's domain carries WHAT IT
 > IS FOR — a versioned use literal, a fixed-width role or index, and a
@@ -7892,8 +7892,353 @@ call sites and domains stay byte for byte what they are, and so does
 CALLS. **No verifier-visible byte moves**: a generator is prover-side and the
 verifier never sees one.
 
-Planned sections, in order: the inventory of every `ZkRng::from_os` on the
-path; the four new domain layouts and their lengths; the failing-first
-evidence; the pairwise-distinctness test; the updated stage-25 length table;
-the gate; the forbidden-files proof; what this stage does NOT establish.
+Commits: the skeleton `db23512`, the FAILING-FIRST step `1e6715c` (every
+generator routed through a domain builder whose body is still today's
+bytes), the ruling itself, and this ledger.
+
+**No heavy run, no GPU, nothing at 125M proved. No privacy or soundness
+acceptance is claimed.**
+
+---
+
+### Item 1 — the inventory: every `ZkRng::from_os` on the path, re-derived
+
+Stage 25's W-8 listed five sites; the scan is re-run here and the same five
+come back, with what each is FOR and what it passes. `zk.rs:337`
+(`ZkConfig::rng`'s seeded branch) and `zk_ffn_fresh_*.rs` are OFF this path
+and are excluded by stage 25's own reachability test, which still passes.
+
+| # | site | which rule it serves | domain BEFORE | `22 + |domain|` | domain AFTER | frozen? |
+|---|---|---|---|---:|---|---|
+| 1 | `protocol.rs`, `prove_inner_at` | the SINGLE-BLOCK prover, one stream per attempt | the bare block profile string | toy **61**, rung **66**, rung-G **68**, rung-K4 **69**, 125M **58** | use literal (47 B) ‖ `0x02` ‖ the profile string — **at tagged profiles only** | the toy and the frozen-seam rung: **YES, unchanged** |
+| 2 | `run.rs`, `prove_run` | the MULTI-BLOCK run prover, ONE stream for the whole run | the bare run profile string | rung-G **66**, rung-K4 **67**, 125M **56** | use literal (58 B) ‖ `0x03` ‖ the run profile string | no — all three run profiles are tagged |
+| 3 | `endpoint_g.rs`, `prepare` | each EXTERNAL ENDPOINT of a tagged profile, **twice per proof** | `b"hashline/private-block/general-endpoint/v1"`, **the same 42 bytes for both endpoints** | **64** | use literal (44 B) ‖ role byte (`0x00` in / `0x01` out) ‖ `EndpointSpecG::digest()` | no |
+| 4 | `private_seam.rs:196`, `prepare` | each external endpoint of the TWO LEGACY profiles, twice per proof | `b"experimental-private-seam/v1"`, the same 28 bytes for both | **50** | unchanged | **YES** — frozen, and a file outside this lane's write set |
+| 5 | `private_seam.rs:349`, `prove` | the experimental standalone seam proof | — | — | unchanged | OFF this path (stage 25's finding S25-F4) |
+
+**There is no sixth site, and in particular a BOUNDARY has none.**
+`boundary::prepare` takes `&mut ZkRng` from the caller so that a run draws
+its `L - 1` boundaries from the ONE stream `prove_run` makes. The domain a
+boundary WOULD use is written and tested anyway
+(`hash_domain::boundary_seed_domain`: use literal (46 B) ‖ index as `u64`
+LE ‖ `BoundarySpec::digest()`, **108** bytes of derivation input) and is now
+what `boundary.rs`'s own six test sites use — they were seeding a generator
+with `DOMAIN`, the module's SPEC-DIGEST label, which is a second use of a
+string that means something else. **Finding S26-F1**, recorded rather than
+repaired in production, because production has nothing to repair.
+
+**The frozen split is exactly the hash-rule split.** The ruling applies
+where `Shape::hashes_under_the_legacy_rule()` is false. The two profiles
+where it is true are the byte-frozen toy and the frozen-seam development
+rung — which are also the only two whose endpoints are `private_seam.rs`'s.
+So the legacy C-H4 length guard, which is imposed at legacy profiles ONLY
+(ruling T-3 as amended), can only ever see domains this stage did not touch.
+That is the whole of item (d), and it is measured below rather than argued.
+
+---
+
+### Item 2 — the four domain layouts, and why each length is the length it is
+
+```text
+domain = <versioned use literal> ‖ <role byte or index, fixed width>
+                                 ‖ <a PUBLIC spec digest, or the profile string>
+seed derivation input = b"hashline-zk-os-rng/v1/"(22) ‖ domain
+```
+
+| use | literal | tail | `|domain|` | derivation input |
+|---|---|---|---:|---:|
+| the generalised endpoint | `hashline-zk-rng/private-block/endpoint-g/v1/` (44) | role (1) ‖ spec digest (32) | 77 | **99** |
+| an internal boundary | `hashline-zk-rng/private-block/run-boundary/v1/` (46) | index `u64` LE (8) ‖ spec digest (32) | 86 | **108** |
+| the single-block prover | `hashline-zk-rng/private-block/single-prover/v1/` (47) | `0x02` (1) ‖ profile string | 94 / 95 / 84 | **116 / 117 / 106** |
+| the run prover | `hashline-zk-rng/private-block/one-stream-per-whole-run/v1/` (58) | `0x03` (1) ‖ run profile string | 103 / 104 / 93 | **125 / 126 / 115** |
+
+**The four conditions the lengths had to meet, and they were CHOSEN to meet
+them** (the literals are the free parameter; each was sized until all four
+held):
+
+1. **not 64** — a salted leaf and a Merkle inner node. The generalised
+   endpoint's input was EXACTLY 64 before this stage, twice per proof, which
+   is the sharpest row of `ZK60_HASH_FUNCTION_SEPARATION_TABLE.md`;
+2. **not 40** (the generator's own refill block) and **not 47** (a
+   transcript squeeze);
+3. **never a multiple of eight**, so no derivation input can be a committed
+   column's `8 · rows` and the legacy guard's refused row counts cannot grow;
+4. **pairwise distinct within one profile**, so `R1`'s own row of the
+   separation table has no equal-length pair between two KINDS.
+
+The two endpoints of one statement deliberately share a LENGTH (99 each) and
+are separated by the role byte — clause (b) of the ruling. They are ONE kind
+at one length, not two kinds that collide, which is why W-2's declared-pair
+list did not have to grow.
+
+---
+
+### Item 3 — the failing-first evidence
+
+The first code commit (`1e6715c`) routes every call site through the new
+builders while each builder's BODY still returns today's bytes. The tests
+then measure the code before the ruling, not a description of it.
+
+`p2-s26-failing-first.log`: **2 passed / 6 failed**, exit 101. All six are
+the pre-ruling state:
+
+| failing test | what it reported |
+|---|---|
+| `the_two_endpoint_generators_of_one_statement_derive_their_keys_from_different_inputs` | **finding B-1, reproduced**: at rung-G, rung-K4 and 125M the two endpoint derivation inputs are BYTE-IDENTICAL, both the 64 bytes `"hashline-zk-os-rng/v1/" ‖ "hashline/private-block/general-endpoint/v1"` (the failure printed both vectors) |
+| `no_two_generators_of_one_proof_share_a_derivation_input` | the three-generator set of one block collides at the two endpoints |
+| `every_seed_derivation_input_length_is_printed_and_clear_of_the_node_refill_and_squeeze` | the endpoint's derivation input is **64 bytes, the length of a salted Merkle leaf / a Merkle inner node** |
+| `the_domains_are_built_from_public_fields_and_nothing_else` | the endpoint domain is 42 bytes where the layout says 77 |
+| `the_two_frozen_profiles_keep_the_domains_they_have` | every UNFROZEN profile still passes the bare profile string |
+| `the_legacy_length_guards_refused_row_counts_are_unmoved` | the endpoint's 64 is a multiple of eight |
+
+**The boundary half of the failing-first is a NEGATIVE result and is
+recorded as one**: there is no production boundary generator, so "two
+boundaries of one run share a domain today" could only be shown of the six
+TEST sites, which did share one (`DOMAIN`, 43 bytes, at every boundary of
+every run). That is finding S26-F1; the pairwise test now covers the
+boundary domains as the domains the module uses.
+
+**Two earlier passes are kept for the record and were defects of the tests,
+not of the code** (`p0`, `p1`): a doc comment naming the generator
+constructor was read by the source scan as a call — the same trap stage 25
+hit — and one "old length" in the item-(d) argument, the 125M RUN profile's
+56, really IS a multiple of eight. Both are repaired in place: the scan
+skips comment lines, and 56 is now handled by name with the reason it moved
+no refusal (a run's set is imposed NOWHERE, because the guard is legacy-only
+and no run profile is legacy).
+
+---
+
+### Item 4 — the pairwise-distinctness result
+
+`p5-s26-green.log`, `no_two_generators_of_one_proof_share_a_derivation_input`
+— every domain a proof uses, built and compared pairwise, with the set's
+SIZE asserted so the comparison cannot go vacuous:
+
+| proof | generators | derivation input lengths | verdict |
+|---|---:|---|---|
+| one block at rung-G | 3 | `[116, 99, 99]` | pairwise distinct |
+| one block at rung-K4 | 3 | `[117, 99, 99]` | pairwise distinct |
+| one block at 125M | 3 | `[106, 99, 99]` | pairwise distinct |
+| an `L = 3` run at rung-G | 5 | `[125, 99, 99, 108, 108]` | pairwise distinct |
+| an `L = 3` run at rung-K4 | 5 | `[126, 99, 99, 108, 108]` | pairwise distinct |
+| an `L = 12` run at 125M | 14 | `[115, 99, 99, 108 ×11]` | pairwise distinct |
+
+The equal LENGTHS in those rows are the point: two endpoints separated by
+their role byte, eleven boundaries separated by their index and their spec
+digest. `the_two_endpoint_generators_…` adds the sharper statement — with
+the spec digest held EQUAL, the two role domains differ in **exactly one
+position, domain offset 44** — and the run prover's domain is asserted
+different from the single-block prover's at the same geometry.
+
+---
+
+### Item 5 — the updated length table, and the verdict on it
+
+`s25_tests`' W-2 table now takes every seed-derivation length from the
+domain builder rather than from `22 + |profile|`, so it cannot drift from
+the bytes the call sites pass. Re-run green:
+
+* **410 hash input kinds over 8 profiles** — unchanged;
+* **7 declared equal-length pairs** — unchanged. **NO new equal-length pair
+  inside any hash function appeared**, so nothing had to be declared away;
+* **pairs within ONE BYTE: 113 → 107.** The two printouts were DIFFED row by
+  row rather than counted: **seven retired, one new.**
+  * retired: the `pb-slot` absorb's 63 B against the generalised endpoint's
+    old 64 B seed derivation, **at all six tagged profiles** — the margin
+    that sat one byte from the leaf/node class; and, at the rung-K4 run, the
+    run prover's old 67 B against the `pb-run-stage` absorb's 68 B;
+  * **new, exactly one**: at the rung-K4 run, the run's public statement
+    digest **D4 at `L = 3` (125 B, F_U)** against the run prover's new seed
+    derivation (**126 B, R1**);
+  * the toy's own `50 / 51` and `60 / 61` margins are untouched, as a frozen
+    profile's must be;
+* the memo's six named margins are all still asserted present.
+
+**FINDING S26-F3 — one EQUAL length across two functions, at one run,
+recorded and not repaired.** At the rung-G run with `L = 3` the run's public
+statement digest D4 is `29 + 32·3 = 125` bytes and the run prover's seed
+derivation is also **125**. They are **different BLAKE3 functions** — D4 is
+F_U, the seed derivation is R1, keyed under 32 secret `/dev/urandom` bytes
+at every hash rule — so the W-2 assertion, which groups by function, does
+not fire, and the separation is the one `ZK60_HASH_FUNCTION_SEPARATION_TABLE.md`
+already carries for R1 against F_U: BLAKE3's keyed mode under a key the
+adversary does not have (convention V-2), which is not a length argument at
+all. The coincidence is also not a property of the profile: D4's length
+moves with `L` (125 at three blocks, 413 at twelve). **It is left as it
+is**, and the watch is W-2's own per-function assertion, which fails the day
+the two ever land in one function. The measurement that would justify
+re-sizing the run literal is a registered LEGACY-rule run profile, where F_U
+would carry the transcript as well — there is none, and
+`s26_tests::the_two_frozen_profiles_keep_the_domains_they_have` fails if one
+appears.
+
+**The legacy guard (item (d)): UNCHANGED, and here is the proof rather than
+the claim.** The shape-free refused row counts are `[5, 8, 11, 12, 13, 15,
+16, 17, 19]` before and after. The toy's imposed set is `[5, 8, 11, 12, 13,
+15, 16, 17, 19, 1031]` and the frozen-seam rung's `[5, 7, 8, 11, 12, 13, 15,
+16, 17, 19, 1031, 2567]`, both unmoved. The argument, measured test by test:
+
+* every length the stage RETIRES or leaves — 61, 66 (both frozen), 50 (the
+  seam), 68, 69, 58, 66, 67 — is not a multiple of eight, except two;
+* **64**, the generalised endpoint's old input, IS a multiple of eight, and
+  row count 8 stays refused because 64 is the Merkle node's and the salted
+  leaf's and always was. What 64 loses is the endpoint's DESCRIPTION, which
+  is the side benefit the ruling names;
+* **56**, the 125M run prover's old input, is also a multiple of eight (row
+  count 7) — and was never a refused row count anywhere, because the guard
+  is imposed at legacy profiles only and no registered run profile is
+  legacy. The emptiness of every tagged profile's imposed set is the check;
+* every length the stage INTRODUCES — 99, 108, 116, 117, 106, 125, 126, 115
+  — is not a multiple of eight, so none adds a refused row count.
+
+**The C-H4' source scan was widened** to cover `hash_domain.rs`, which is
+where the four new domain literals live: 44, 46, 47 and 58 bytes, none of
+them the forbidden 28 or 35. The scan cannot tell a generator domain from a
+transcript label, and that is deliberate.
+
+**FINDING S26-F2, recorded and not repaired.** `boundary.rs` contains a
+28-byte byte-string literal — `b"boundary test: a shared pair"`, a test
+transcript domain — and the file is not in the C-H4' scan's list. It is
+test-only and on no proving path, so it is not a C-H4' violation; it is why
+the file was not added to the scan along with `hash_domain.rs`.
+
+---
+
+### Item 6 — what did NOT change, asserted
+
+* **The frozen toy and the frozen-seam rung**: `single_block_seed_domain`
+  returns the bare profile string for exactly those two (61 and 66 bytes of
+  derivation input), and the test also asserts that every UNFROZEN profile's
+  domain DID change, so the first half cannot pass vacuously. The frozen
+  seam's 28-byte constant and its two call sites are read and asserted
+  present; `private_seam.rs` is byte-identical.
+* **`zkp-core` is untouched.** `ZkRng::from_os`'s signature and body are
+  read by the test and asserted to still derive the key as this stage's
+  arithmetic assumes (`new_keyed(&entropy)`, then the 22-byte prefix).
+* **The draw ORDER and COUNTS are untouched.** Nothing about what is drawn
+  or in which order is edited; the change is the domain bytes of one keyed
+  BLAKE3 call per generator. Stage 25's position facts and the per-block
+  draw counts are pinned where they were pinned and are in the gate's pass
+  list.
+* **No verifier-visible byte can move, and none did.** A generator is
+  prover-side; no domain is absorbed, hashed into a statement or written to
+  a wire. The gate carries the evidence: the toy's **2,816,472 B** and the
+  four shaped receipt sizes **4,218,600 / 4,234,984 / 4,743,128 /
+  40,783,352**, the counted run segment bytes, the stage-21 rung-G `L = 3`
+  **run binding** and its **two boundary digests** as 32-byte literals
+  (`the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5`),
+  and the frozen toy's schedule digest and parameter line.
+* **The honest GENERIC proofs verify under the UNCHANGED verifier**: the
+  four tests that prove on fully dense public weights with a non-constant
+  hidden input and verify — one block and a three-block run at each of
+  rung-G and rung-K4 — are in the gate's pass list, and
+  `s26_tests::the_four_honest_generic_proofs_this_stage_must_not_break_are_where_the_ledger_says`
+  pins that they still exist and still assert their counted lengths, so this
+  citation cannot rot.
+
+---
+
+### Tests and commands of stage 26
+
+All through the shared build lock,
+`CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`.
+
+| command | log | result |
+|---|---|---|
+| the new module's first build and run, `--lib s26` | `p0-s26-compile.log` | compiles, **13 warnings**; 1 passed / 7 failed (five real, two test defects) |
+| after the first defect repair | `p1-s26-failing-first.log` | 1 passed / 7 failed (one more test defect surfaced) |
+| **THE FAILING-FIRST**, `--lib s26 --nocapture` | `p2-s26-failing-first.log` | **2 passed / 6 failed**, exit 101 — all six the pre-ruling state, tabulated above |
+| the ruling applied, `--lib s2 --nocapture` | `p3-s26-green.log` | 43 passed / 1 failed — one slice offset in the layout test |
+| the same, after a wrong repair | `p4-s26-green.log` | 43 passed / 1 failed — the offset the other way |
+| **the stage green**, `--lib s2 --nocapture` | `p5-s26-green.log` | **44 passed / 0 failed / 1 ignored**, 13.83 s, exit 0 — this is the stage's evidence log |
+| the gate before the C-H4' widening, `--lib private_` | `p6-s26-private.log:430` | **306 passed / 0 failed / 11 ignored**, 425.05 s, exit 0, **13 warnings** |
+| **THE GATE**, `--lib private_` | `p7-s26-private.log:431` | **306 passed / 0 failed / 11 ignored**, 67 filtered out, **410.16 s**, exit 0, **13 warnings** |
+
+The gate was run TWICE because the C-H4' scan's file list was widened after
+the first one started; `p7` is the one taken against the final source and
+both agree, test for test.
+
+**Against the stage-25 baseline of 298 passed / 0 failed / 11 ignored and 13
+warnings**: **306 / 0 / 11**, 13 warnings. **Eight tests are new** — the
+eight of `s26_tests.rs` — and **not one existing test was weakened, removed
+or changed.** The whole diff to existing Rust is: one `mod` line with its
+comment; the domain block in `hash_domain.rs` (four literals, four role
+bytes, four builders, four length helpers) and the three lines of
+`statement_class` / `full_shape_free` that now take a length from a builder
+instead of retyping `22 + |profile|`; the `role` parameter and
+`EndpointRole` in `endpoint_g.rs`; `BoundarySpec::index`; the six
+test-generator sites of `boundary.rs` routed through one helper; one line
+each in `protocol.rs` and `run.rs`; one file added to the C-H4' scan's list;
+and the stage-25 assertions that follow the moved lengths.
+
+**The frozen gates and the byte-identity witnesses are in the pass list**
+(`p6`): `the_toy_schedule_digest_is_frozen` (`:198`),
+`the_toy_parameter_line_is_the_frozen_literal` (`:197`),
+`a_toy_receipt_made_before_the_lane_still_verifies` (`:266`),
+`the_125m_receipt_is_reproduced_part_by_part` (`:174`),
+`the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5`
+(`:332` — the rung-G `L = 3` **run binding** and its **two boundary
+digests** as literals), and the four honest GENERIC proofs:
+`dense_tests::an_honest_dense_block_…_at_the_rung_g` (`:141`),
+`k4_tests::an_honest_dense_block_…_at_the_rung_k4` (`:219`),
+`run_tests::an_honest_three_block_fully_dense_run_…` (`:313`) and
+`k4_tests::an_honest_three_block_fully_dense_run_…_at_the_rung_k4`
+(`:220`). The toy's **2,816,472 B** and the four shaped receipt sizes
+**4,218,600 / 4,234,984 / 4,743,128 / 40,783,352** are unmoved, asserted
+where they always are, all in the pass list.
+
+**No witness value, no position and no count of hidden words is printed by
+any test in this stage** (the capture rule). What the stage's own tests
+print is domain lengths, role offsets, profile strings and refused row
+counts — public every one. No Python is touched, no GPU, no heavy run, and
+nothing at 125M is proved: the 125M rows are lengths computed from the
+shape, and the one 125M object built is a `RunStatement`, which commits
+nothing.
+
+### FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat fd45a67 -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs hashline/src/gpu private-block-kernel \
+  private-model-kernel private-block-kernel-shaped zkvm-block scripts tests
+```
+
+prints **NOTHING**. `zkp-core/src/rng.rs` in particular is byte-identical:
+this stage only chooses the `domain` bytes it passes to `ZkRng::from_os`,
+and a test reads that function's body to check the arithmetic it assumes.
+
+### WHAT STAGE 26 DOES NOT ESTABLISH
+
+* **No privacy property and no privacy acceptance.** Register entry D22 is
+  untouched. The independence of separate `/dev/urandom` reads is still
+  assumption **J-2** and no code can discharge it; what this stage removes
+  is that at the unfrozen profiles the assumption stood ALONE for two of the
+  three generators.
+* **Finding B-1 still stands AT THE FROZEN TOY**, which is the profile the
+  accepted statement is about. The toy's two endpoint generators still
+  derive their keys from the same 50 bytes, because its bytes are pinned
+  (D17 / D22) and `private_seam.rs` is outside this lane's write set. §9
+  item 6 of the toy statement is therefore unchanged and must stay in it;
+  what changes is that the sentence is now true of the toy ALONE and the
+  lane's document says which profiles are repaired.
+* **A domain is not an independence proof.** Two generators with different
+  domains still have the same key if the two entropy reads are equal; what
+  the domain buys is that they no longer have the same key DERIVATION, so a
+  single shared read is no longer sufficient for a shared stream, and the
+  hypothesis has something structural under it.
+* **The boundary domain has no production caller.** It is written, tested
+  and separated, and exercised only by `boundary.rs`'s own tests. If a
+  boundary ever needs its own stream that is a design change with its own
+  review; this stage only makes sure the domain is not improvised then.
+* **The source scans pin TEXT, not behaviour** — stage 16's weak link, and
+  stage 25's. `every_production_generator_is_seeded_from_a_domain_builder`
+  reads the three call-site lines; a generator obtained through a helper in
+  an unscanned file would be invisible to it.
+* **Nothing here touches the sampler, the composition step or the joint
+  law.** The two hops of the joint sentence are unchanged.
+
 

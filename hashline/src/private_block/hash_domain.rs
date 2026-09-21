@@ -205,11 +205,11 @@ const SEED_USE_RUN: &[u8] = b"hashline-zk-rng/private-block/one-stream-per-whole
 /// and the scale. The role byte is what separates the two endpoints of a
 /// geometry whose digests agree — which is finding B-1's whole point.
 pub(crate) fn endpoint_seed_domain(role: u8, spec_digest: &[u8; 32]) -> Vec<u8> {
-    // STAGE 26, STEP 1 — the bytes the call site passes TODAY, so that the
-    // stage's tests measure the code before the ruling is applied rather than
-    // a description of it. Step 2 replaces this body.
-    let _ = (role, spec_digest, SEED_USE_ENDPOINT_G);
-    b"hashline/private-block/general-endpoint/v1".to_vec()
+    let mut d = Vec::with_capacity(SEED_USE_ENDPOINT_G.len() + 1 + DIGEST);
+    d.extend_from_slice(SEED_USE_ENDPOINT_G);
+    d.push(role);
+    d.extend_from_slice(spec_digest);
+    d
 }
 
 /// **An internal boundary's generator domain.** `index` is the boundary's own
@@ -224,11 +224,11 @@ pub(crate) fn endpoint_seed_domain(role: u8, spec_digest: &[u8; 32]) -> Vec<u8> 
 /// boundary that ever seeds its own generator must use, and it is what the
 /// module's own tests use in place of reusing the spec-digest domain label.
 pub(crate) fn boundary_seed_domain(index: u64, spec_digest: &[u8; 32]) -> Vec<u8> {
-    // STAGE 26, STEP 1 — today's bytes (the module's spec-digest domain
-    // label, which its own tests reuse as a generator domain). Step 2
-    // replaces this body.
-    let _ = (index, spec_digest, SEED_USE_BOUNDARY);
-    b"hashline/private-block/internal-boundary/v1".to_vec()
+    let mut d = Vec::with_capacity(SEED_USE_BOUNDARY.len() + 8 + DIGEST);
+    d.extend_from_slice(SEED_USE_BOUNDARY);
+    d.extend_from_slice(&index.to_le_bytes());
+    d.extend_from_slice(spec_digest);
+    d
 }
 
 /// **The single-block prover's generator domain** (`protocol::prove_inner_at`).
@@ -238,10 +238,14 @@ pub(crate) fn boundary_seed_domain(index: u64, spec_digest: &[u8; 32]) -> Vec<u8
 /// been given, so not one byte of their derivation input moves. Every tagged
 /// profile gets the use literal, the role byte and the same profile string.
 pub(crate) fn single_block_seed_domain(sh: &Shape) -> Vec<u8> {
-    // STAGE 26, STEP 1 — today's bytes at EVERY profile. Step 2 replaces this
-    // body and keeps the two frozen profiles on this line.
-    let _ = (SEED_USE_SINGLE_BLOCK, ROLE_SINGLE_BLOCK_PROVER);
-    sh.profile.as_bytes().to_vec()
+    if sh.hashes_under_the_legacy_rule() {
+        return sh.profile.as_bytes().to_vec();
+    }
+    let mut d = Vec::with_capacity(SEED_USE_SINGLE_BLOCK.len() + 1 + sh.profile.len());
+    d.extend_from_slice(SEED_USE_SINGLE_BLOCK);
+    d.push(ROLE_SINGLE_BLOCK_PROVER);
+    d.extend_from_slice(sh.profile.as_bytes());
+    d
 }
 
 /// **The run prover's generator domain** (`run::prove_run`): the ONE stream a
@@ -250,9 +254,11 @@ pub(crate) fn single_block_seed_domain(sh: &Shape) -> Vec<u8> {
 /// `s26_tests::the_two_frozen_profiles_keep_the_domains_they_have` asserts it,
 /// so this needs no frozen branch.
 pub(crate) fn run_seed_domain(run_profile: &str) -> Vec<u8> {
-    // STAGE 26, STEP 1 — today's bytes. Step 2 replaces this body.
-    let _ = (SEED_USE_RUN, ROLE_RUN_PROVER);
-    run_profile.as_bytes().to_vec()
+    let mut d = Vec::with_capacity(SEED_USE_RUN.len() + 1 + run_profile.len());
+    d.extend_from_slice(SEED_USE_RUN);
+    d.push(ROLE_RUN_PROVER);
+    d.extend_from_slice(run_profile.as_bytes());
+    d
 }
 
 /// The generalised endpoint's seed-derivation INPUT length, taken from the

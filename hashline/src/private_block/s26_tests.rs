@@ -463,8 +463,9 @@ fn the_domains_are_built_from_public_fields_and_nothing_else() {
     // of it printable ASCII, which is the plainest possible statement that no
     // digest of hidden data is in there
     let dbk = hash_domain::single_block_seed_domain(&sh);
-    assert_eq!(&dbk[..47], b"hashline-zk-rng/private-block/single-prover/v1/\x02", "the block prover's use literal and role byte");
-    assert_eq!(&dbk[47..], sh.profile.as_bytes(), "the block prover's domain tail is not the profile string");
+    assert_eq!(&dbk[..47], b"hashline-zk-rng/private-block/single-prover/v1/", "the block prover's use literal");
+    assert_eq!(dbk[47], hash_domain::ROLE_SINGLE_BLOCK_PROVER, "the block prover's role byte");
+    assert_eq!(&dbk[48..], sh.profile.as_bytes(), "the block prover's domain tail is not the profile string");
     let dr = hash_domain::run_seed_domain(RUN_PROFILE_RUNG_G);
     assert_eq!(&dr[..58], b"hashline-zk-rng/private-block/one-stream-per-whole-run/v1/", "the run prover's use literal");
     assert_eq!(dr[58], hash_domain::ROLE_RUN_PROVER, "the run prover's role byte");

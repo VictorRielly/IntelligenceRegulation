@@ -253,12 +253,20 @@ fn kinds_of(sh: &Shape, run: Option<(&str, usize, &RunStatement)>) -> Vec<Kind> 
     // (2) THE GENERATOR. The refill is unkeyed at every rule; the seed
     // derivation is keyed under 32 raw `/dev/urandom` bytes.
     push("the generator's refill block".to_string(), "F_U", 40);
+    // **STAGE 26.** Every seed derivation's length is taken from the DOMAIN
+    // BUILDER `hash_domain` now owns, so this table cannot drift from the
+    // bytes the call sites pass. At the two FROZEN profiles the builder
+    // returns the bare profile string and the numbers are unchanged.
     match run {
-        None => push(format!("the generator's seed derivation at `{}` (protocol.rs:486)", sh.profile), "R1", 22 + sh.profile.len()),
-        Some((p, _, _)) => push(format!("the generator's seed derivation at `{p}` (run.rs:510)"), "R1", 22 + p.len()),
+        None => push(format!("the generator's seed derivation at `{}` (protocol.rs)", sh.profile), "R1", hash_domain::single_block_seed_input_len(sh)),
+        Some((p, _, _)) => push(format!("the generator's seed derivation at `{p}` (run.rs)"), "R1", hash_domain::run_seed_input_len(p)),
     }
     if sh.endpoint_general {
-        push("the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224)".to_string(), "R1", 22 + 42);
+        push(
+            "the generator's seed derivation at the generalised endpoint, either role (endpoint_g.rs)".to_string(),
+            "R1",
+            hash_domain::endpoint_seed_input_len(),
+        );
     } else {
         push("the generator's seed derivation at the frozen seam (private_seam.rs:196)".to_string(), "R1", 22 + 28);
     }
@@ -494,13 +502,18 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
     assert_eq!("B3 public fixed calibration v1".len(), 30, "the calibration identity's preimage");
 
     // ---- §5.1's per-shape table
+    // **STAGE 26 moved the `block seed` column at the three UNFROZEN
+    // profiles** — 68 / 69 / 58 were `22 + |profile|`; they are now
+    // `22 + |use literal| + 1 + |profile|` under the ruling on finding B-1.
+    // The two FROZEN profiles' 61 and 66 are the reexamination's own numbers
+    // and may not move.
     let want: [(&str, usize, usize, usize, usize, usize, usize); 5] = [
         // (name, constructor, A column, H column, endpoint column, block seed, pcs-vec block)
         ("toy", 51, 3640, 3072, 56, 61, 8247),
         ("rung", 56, 4984, 4608, 168, 66, 20535),
-        ("rung-g", 58, 4984, 4608, 72, 68, 20535),
-        ("rung-k4", 59, 5816, 5760, 72, 69, 20535),
-        ("m125", 48, 45448, 56960, 296, 58, 266295),
+        ("rung-g", 58, 4984, 4608, 72, 116, 20535),
+        ("rung-k4", 59, 5816, 5760, 72, 117, 20535),
+        ("m125", 48, 45448, 56960, 296, 106, 266295),
     ];
     for (sh, (name, ctor, a, h, e, seed, vec_len)) in every_shape().into_iter().zip(want) {
         let lay = Layout::for_shape(&sh).expect("a registered shape has a layout");
@@ -509,9 +522,17 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
         assert_eq!(8 * lay.h_rows, h, "{name}: the H column digest");
         assert_eq!(8 * M_ROWS, 400, "{name}: the M column digest");
         assert_eq!(8 * sh.endpoint_rows, e, "{name}: the endpoint column digest");
-        assert_eq!(22 + sh.profile.len(), seed, "{name}: the block prover's seed derivation");
+        assert_eq!(hash_domain::single_block_seed_input_len(&sh), seed, "{name}: the block prover's seed derivation");
         assert_eq!(48 + "pcs-vec".len() + 16 * ((1usize << sh.log_cols) + sh.opened_cols), vec_len, "{name}: the `pcs-vec` absorb at the block geometry");
-        assert_eq!(22 + if sh.endpoint_general { 42 } else { 28 }, if sh.endpoint_general { 64 } else { 50 }, "{name}: the endpoint's seed derivation");
+        // STAGE 26: the generalised endpoint's is 99 (the use literal, the
+        // role byte and the spec digest) where it was 64 — the leaf and node
+        // length. The frozen seam's 50 is unchanged, in a file this lane may
+        // not edit.
+        assert_eq!(
+            if sh.endpoint_general { hash_domain::endpoint_seed_input_len() } else { 22 + 28 },
+            if sh.endpoint_general { 99 } else { 50 },
+            "{name}: the endpoint's seed derivation"
+        );
     }
     // the run constructors and public statements of §5.1's last two lines
     for ((p, _, l), (ctor, public)) in every_run().into_iter().zip([(56usize, 125usize), (57, 125), (46, 413)]) {
@@ -884,16 +905,24 @@ fn the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_deriva
     let after: Vec<usize> = hash_domain::full_shape_free().dangerous_rows().keys().copied().collect();
     assert_eq!(before, vec![5, 8, 11, 12, 13, 15, 17, 19], "stage 16's shape-free set moved");
     assert_eq!(after, vec![5, 8, 11, 12, 13, 15, 16, 17, 19], "the completed shape-free set is not stage 16's plus 16");
-    // 64 was already the node's, so the generalised endpoint's seed
-    // derivation adds no row count — it is in the set as a DESCRIPTION
+    // **STAGE 26 took the generalised endpoint's seed derivation OUT of the
+    // 64-byte class** — that was the whole point of re-domaining it — so 64
+    // is the Merkle node's and the salted leaf's alone again, and row count
+    // 8 is still refused by them.
     let d = hash_domain::full_shape_free().describe(64).expect("64 bytes describes something");
-    assert!(d.contains("Merkle") && d.contains("generalised endpoint"), "the 64-byte class does not carry both the node and the endpoint's seed derivation: {d}");
+    assert!(d.contains("Merkle"), "the 64-byte class lost the Merkle node: {d}");
+    assert!(!d.contains("generalised endpoint"), "the generalised endpoint's seed derivation is back in the 64-byte class: {d}");
+    assert!(
+        hash_domain::full_shape_free().describe(hash_domain::endpoint_seed_input_len()).is_some_and(|s| s.contains("generalised endpoint")),
+        "the endpoint's seed derivation is not in the set at its own length"
+    );
     // and the per-shape sets gain the block prover's own seed derivation,
     // which is not a multiple of eight at any registered profile
     for sh in every_shape() {
         let s = hash_domain::full_at_shape(&sh);
-        assert!(s.describe(22 + sh.profile.len()).is_some(), "{}: the block prover's seed derivation is not in the set", sh.name);
-        assert_ne!((22 + sh.profile.len()) % 8, 0, "{}: the seed derivation is a multiple of eight and would be a row count", sh.name);
+        let seed = hash_domain::single_block_seed_input_len(&sh);
+        assert!(s.describe(seed).is_some(), "{}: the block prover's seed derivation is not in the set", sh.name);
+        assert_ne!(seed % 8, 0, "{}: the seed derivation is a multiple of eight and would be a row count", sh.name);
     }
     eprintln!("S25 W-4: the legacy shape-free dangerous row counts are {before:?} -> {after:?}; 16 refused by name at both legacy profiles and at the two bare constructors, clear under a tag");
 }
@@ -912,12 +941,13 @@ fn a_runs_imposed_set_carries_the_runs_own_statement_class() {
     let set = hash_domain::full_at_shape_with(&sh, Some(&facts));
     assert!(set.describe(29 + 32 * 3).is_some(), "the run's public statement digest is not in the run's set");
     assert!(set.describe(151).is_some(), "the internal boundary's spec digest is not in the run's set");
-    assert!(set.describe(22 + facts.profile.len()).is_some(), "the run's own seed derivation is not in the run's set");
+    assert!(set.describe(hash_domain::run_seed_input_len(facts.profile)).is_some(), "the run's own seed derivation is not in the run's set");
     // and a RUN's block prover makes no generator of its own (the check's
     // B-9.2): the block profile's seed derivation is in a BLOCK's set and not
     // in a RUN's
-    assert!(hash_domain::full_at_shape(&sh).describe(22 + sh.profile.len()).is_some(), "a block's set has no seed derivation");
-    assert!(set.describe(22 + sh.profile.len()).is_none(), "a run's set carries the BLOCK prover's seed derivation, which a run never makes");
+    let block_seed = hash_domain::single_block_seed_input_len(&sh);
+    assert!(hash_domain::full_at_shape(&sh).describe(block_seed).is_some(), "a block's set has no seed derivation");
+    assert!(set.describe(block_seed).is_none(), "a run's set carries the BLOCK prover's seed derivation, which a run never makes");
     // the three registered runs all pass their own imposed set, which is
     // empty because all three are tagged
     for (p, sh, l) in every_run() {
