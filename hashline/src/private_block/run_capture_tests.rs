@@ -47,10 +47,16 @@ struct Chain {
 impl Chain {
     fn honest(sh: &Shape, l: usize, zero: bool) -> Chain {
         let (public, ff, tame) = super::grow_tests::tame_case(sh);
+        Chain::from_parts(sh, l, public, ff, if zero { vec![0i16; sh.tokens * sh.width] } else { tame })
+    }
+    /// **STAGE 21.** The same honest chain from ANY public weights and any
+    /// first hidden input, so the fully dense recipe drives a capture through
+    /// this module's harness rather than a second one.
+    fn from_parts(sh: &Shape, l: usize, public: AttentionPublic, ff: FeedForwardPublic, x0: Vec<i16>) -> Chain {
         let ids = Ids::new(sh).expect("the shape has a plane map");
         let mut inputs = Vec::with_capacity(l);
         let mut planes = Vec::with_capacity(l + 1);
-        let mut x = if zero { vec![0i16; sh.tokens * sh.width] } else { tame };
+        let mut x = x0;
         for k in 0..l {
             let w = witness::build_shaped(sh, &public, &ff, &x).expect("an honest witness of the chain");
             if k == 0 {
@@ -114,6 +120,31 @@ fn prove_and_capture(l: usize, zero: bool) -> (Vec<Vec<u8>>, Bundle) {
     let bundle = run_capture::take().expect("a bundle for an accepted run");
     drop(guard);
     (segs, bundle)
+}
+
+/// **STAGE 21.** Prove and capture an honest `l`-block rung-G run on the
+/// FULLY DENSE recipe at its measured chain band — every entry of all nine
+/// public words nonzero, a non-constant hidden input, and the key-value
+/// groups carrying DIFFERENT data, which is the regime finding S19-F1
+/// rejected outright and which no capture has ever been taken in.
+fn prove_and_capture_dense(l: usize) -> (Vec<Vec<u8>>, Bundle) {
+    let sh = Shape::rung_g();
+    let (public, ff, x0) = super::dense_tests::dense_run_case(&sh);
+    let blocks = blocks_from(&public, &ff, l);
+    let mut c = Chain::from_parts(&sh, l, public, ff, x0);
+    let (st, owners) = statement_of(&c, l, &blocks);
+    let segs = prove_to_vec(&st, &blocks, &mut c, owners);
+    let guard = run_capture::Recorder::attach();
+    run_capture::begin_run(st.capture_header().expect("the run's capture header"), st.binding().expect("the run binding"));
+    run::verify_run(&st, &blocks, &segs).expect("the honest fully dense run verifies");
+    let bundle = run_capture::take().expect("a bundle for an accepted run");
+    drop(guard);
+    (segs, bundle)
+}
+
+/// the run's `l` public blocks from ONE pair of statements
+fn blocks_from(public: &AttentionPublic, ff: &FeedForwardPublic, l: usize) -> Vec<BlockPublic> {
+    (0..l).map(|_| BlockPublic::new(public.clone(), ff.clone())).collect()
 }
 
 fn count(haystack: &[u8], needle: &str) -> usize {
@@ -682,4 +713,114 @@ fn write_the_tagged_gate_bundles() {
         );
     }
     eprintln!("TAGGED GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
+}
+
+// ============================================================
+// STAGE 21: the bundles re-taken for the REPAIRED argument
+// ============================================================
+
+/// **STAGE 21: `run-g-dense-s20` and `run-h-zero-s20`.**
+///
+/// **Why they had to be re-taken, and why `g` is the one that matters.** The
+/// stage-18 pair `run-e-tame-tagged` / `run-f-zero-tagged` predates the
+/// repair of finding S19-F1: slots 08 and 09 gained `log2(kv_heads)` main
+/// rounds, one degree and a public `eq(r_g, .)` factor, so at rung-G — which
+/// has two key-value heads — every segment of those bundles is 336 bytes per
+/// block short of what the code now produces, and their `arguments[8]` /
+/// `arguments[9]` carry the pre-repair schedule. A gate judging them would
+/// be judging bytes nothing produces.
+///
+/// And the stage-18 pair, like every bundle before it, was taken on the
+/// DIAGONAL fixture (`run-e`) or on the all-zero input (`run-f`). Both are
+/// DEGENERATE in exactly the way that hid S19-F1 for nineteen stages: the
+/// hidden state is identical in every head, the two key-value groups carry
+/// the same data, the upper hidden half `[d, f)` is identically zero, and
+/// `A_RQL` is identically zero. **The privacy gate has therefore never seen
+/// a non-degenerate witness.** `run-g-dense-s20` is a FULLY DENSE run at the
+/// chain band: every entry of all nine public words nonzero, a non-constant
+/// hidden input, the upper hidden half live and the two key-value groups
+/// carrying different data in every block. It is the important one.
+/// `run-h-zero-s20` keeps the all-zero input, which is the fixed input the
+/// privacy case is stated at, under the repaired argument.
+///
+/// **The new public factor needs nothing new in the format**, and that is
+/// checked here rather than assumed: `Tab::Eq` already serialises as
+/// `{"kind":"eq","start":int,"point":[Fp2]}` (`run_capture.rs`'s table arm),
+/// so the group `eq` appears at position 0 of slots 08 and 09's `tables`
+/// with `start: 0` and the `lkv` group entries of that slot's head challenge
+/// as its point — everything a Python tool needs to RE-DERIVE it from the
+/// slot's own `rho` and compare. The private tables are unchanged in number
+/// and order, so `plane_index.slot_planes[8]` / `[9]` still list exactly
+/// `[A_QR8, A_KR8]` and `[A_P, A_V8]` in the as-built push order, which the
+/// recorder's replay independently enforces at every stage.
+///
+/// Nothing here deletes or rewrites a bundle: `write_bundle` creates every
+/// file with `create_new`, so a re-run into an existing directory refuses.
+#[test]
+#[ignore = "writes the stage-21 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1"]
+fn write_the_s20_gate_bundles() {
+    let root = PathBuf::from(std::env::var("HL_RUN_CAPTURE_DIR").expect("HL_RUN_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    assert!(
+        std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").map(|v| v == "1").unwrap_or(false),
+        "HL_RUN_CAPTURE_PUBLIC_TABLES=1 is not set: these bundles exist so the run gate can close every slot's terminal identity, which needs the public tables' VALUES"
+    );
+    let sh = Shape::rung_g();
+    assert!(!sh.hashes_under_the_legacy_rule(), "these bundles are meant to be TAGGED and this shape is not");
+    let lkv = (sh.kv_heads as u32).trailing_zeros() as usize;
+    assert!(lkv > 0, "this shape does not group, so there would be no repaired slot to capture");
+    let mut total = 0usize;
+    for (tag, dense) in [("run-g-dense-s20", true), ("run-h-zero-s20", false)] {
+        let (segs, bundle) = if dense { prove_and_capture_dense(3) } else { prove_and_capture(3, true) };
+        assert!(contains(&bundle.run_json, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "{tag}: the run file does not name the keyed hash rule");
+        assert!(contains(&bundle.run_json, "\"public_tables_included\":true"), "{tag}: the run file does not declare that the public tables are included");
+        // THE REPAIRED SLOTS, checked in the bytes before anything is
+        // written: the schedule the capture reports for slots 08 and 09 is
+        // the repaired one, and each of them carries the group `eq` at
+        // `start: 0` in every stage.
+        let (score, pv) = (sh.slots()[SC_SCORE], sh.slots()[SC_PV]);
+        for (k, stage) in bundle.stages.iter().enumerate() {
+            for (s, (main, ext, degree)) in [(SC_SCORE, score), (SC_PV, pv)] {
+                let head = format!("{{\"slot\":{s},\"name\":{:?},\"kind\":\"Private\",\"main\":{main},\"extension\":{ext},\"degree\":{degree},", SLOT_NAMES[s]);
+                assert!(contains(stage, &head), "{tag} stage {k}: slot {s} does not report the repaired schedule ({main}, {ext}, {degree})");
+            }
+            assert!(
+                count(stage, "\"tables\":[{\"kind\":\"eq\",\"start\":0,\"point\":[") >= 2,
+                "{tag} stage {k}: the two bilinear slots do not both open their table list with the group eq at start 0"
+            );
+        }
+        let dir = root.join(tag);
+        let note = format!(
+            "Bundle `{tag}`: one honest three-block run at the development rung\n(`Shape::rung_g`: 24 tokens, width 96, hidden 192, 6 query heads over 2\nkey-value heads), under the D19 separating hash tag, with the public\ntables' values, and — this is what is new — **under the REPAIRED bilinear\nattention argument** (lane stage 20, finding S19-F1).\n\nHidden input and public weights: {}\n\nWHAT CHANGED IN THE BYTES. Slots 08 (`10 score matmul`) and 09 (`11 PV\nmatmul`) now SUM over the {lkv} key-value group bit(s) instead of fixing\nthem on both private factors. In this bundle that means:\n\n* `arguments[8]` is (main {}, extension {}, degree {}) and `arguments[9]` is\n  (main {}, extension {}, degree {}); their `rounds` arrays are longer and\n  each round message carries one more value.\n* each of those two slots' `tables` begins with\n  `{{\"kind\":\"eq\",\"start\":0,\"point\":[...]}}` — the PUBLIC group factor. Its\n  point is the leading {lkv} entrie(s) of that slot's head challenge, which a\n  reader RE-DERIVES from the slot's own `definition_challenges`; `start: 0`\n  says it reads the leading {lkv} sumcheck variable(s) of `rho`. It is a\n  verifier-computed table: never take a value from it, re-derive and compare.\n* the PRIVATE tables are unchanged in number, order and role, so\n  `plane_index.slot_planes[8]` and `[9]` are the same two-plane lists as\n  before and `len(slot_planes[s]) == len(terminals)` still holds.\n* every segment is 336 B per block longer than the stage-18 pair's.\n\nThe stage-18 bundles `run-e-tame-tagged` and `run-f-zero-tagged` are\ntherefore SUPERSEDED for gate purposes, as the parent README says.\n\nStill not a privacy result: no gate has read this.",
+            if dense {
+                "the FULLY DENSE recipe at the chain band (`private_block::dense_tests::dense_run_case`): every entry of all nine public words nonzero, a non-constant hidden input, the upper hidden half of the feed-forward planes live and the two key-value groups carrying DIFFERENT data in every block. THIS IS THE FIRST CAPTURE EVER TAKEN ON A NON-DEGENERATE WITNESS at a grouped profile"
+            } else {
+                "the ALL-ZERO hidden plane on the lane's synthetic tame fixture — the fixed input the privacy case is stated at, under the repaired argument"
+            },
+            score.0,
+            score.1,
+            score.2,
+            pv.0,
+            pv.1,
+            pv.2
+        );
+        run_capture::write_bundle(
+            &dir,
+            &bundle,
+            &segs,
+            &note,
+            "HL_RUN_CAPTURE_DIR=<dir> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib private_block::run_capture_tests::write_the_s20_gate_bundles -- --ignored --nocapture",
+        )
+        .expect("the stage-21 gate bundle is written");
+        let n: usize = std::fs::read_dir(&dir).expect("the bundle directory").filter_map(|e| e.ok()).map(|e| e.metadata().map(|m| m.len() as usize).unwrap_or(0)).sum();
+        total += n;
+        assert!(n < 120_000_000, "{tag} is {n} B, past the 120 MB ceiling this stage was given");
+        eprintln!(
+            "S20 GATE BUNDLE {tag}: {} B run file, {} B of stage files, {} B of segments (pinned by digest; written only with HL_RUN_CAPTURE_SEGMENTS=1), {n} B on disk ({:.1} MB)",
+            bundle.run_json.len(),
+            bundle.stages.iter().map(|s| s.len()).sum::<usize>(),
+            segs.iter().map(|s| s.len()).sum::<usize>(),
+            n as f64 / 1e6
+        );
+    }
+    eprintln!("S20 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
 }

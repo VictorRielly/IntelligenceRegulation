@@ -644,6 +644,55 @@ A capture taken before stage 20 at a shaped profile is not evidence about
 what the code produces now. The toy is unaffected: `kv_heads = 1` leaves the
 group empty, no table is pushed and no byte moves.
 
+**STAGE 21 (2026-09-20): two bundles TAKEN UNDER THE REPAIRED ARGUMENT, one
+of them on a NON-DEGENERATE witness.** `run-g-dense-s20` and
+`run-h-zero-s20`, written by
+`private_block::run_capture_tests::write_the_s20_gate_bundles` (`#[ignore]`d;
+`HL_RUN_CAPTURE_DIR` chooses the directory, `HL_RUN_CAPTURE_PUBLIC_TABLES=1`
+is required). They supersede `run-e-tame-tagged` / `run-f-zero-tagged` for
+gate purposes, for the reason above: those two predate the repair, so at
+rung-G every one of their segments is 336 B per block short of what the code
+produces and their `arguments[8]` / `arguments[9]` carry the pre-repair
+schedule.
+
+**`run-g-dense-s20` is the one that matters.** Every capture before it was
+taken on the diagonal tame fixture or on the all-zero input, and BOTH are
+degenerate in exactly the way that hid finding S19-F1 for nineteen stages:
+the hidden state is the same in every head, the key-value groups carry the
+same data, the upper hidden half `[d, f)` of every `Dom::F` plane is
+identically zero and `A_RQL` is identically zero. `run-g-dense-s20` is a
+FULLY DENSE run — no zero entry in any of the nine public words, a
+non-constant hidden input, the upper hidden half live and the two key-value
+groups carrying different data in every block. **The privacy gate has never
+seen a non-degenerate witness; this is it.** `run-h-zero-s20` keeps the
+all-zero input, which is the fixed input the privacy case is stated at.
+
+**THE GROUP `eq` NEEDS NO NEW FIELD, and that is checked in the writer
+before anything is written.** `Tab::Eq` already serialises as
+
+```
+{"kind":"eq","start":int,"point":[Fp2]}
+```
+
+so in `run-g-dense-s20` / `run-h-zero-s20`, `arguments[8]["tables"][0]` and
+`arguments[9]["tables"][0]` are each `{"kind":"eq","start":0,"point":[…]}`
+with `lkv = log2(kv_heads) = 1` point entry at rung-G. **How a tool
+re-derives it, which is the only legitimate use:** `start` is an index into
+the slot's own `rho`, so the factor's value at the sumcheck's end is
+`eq(point, rho[start .. start + len(point)])`; and `point` itself is the
+LEADING `lkv` entries of that slot's head challenge `r_h`, which the tool
+draws for itself from `definition_challenges` (slot 08 draws `r_h`, `r_t`,
+`r_j` in that order; slot 09 draws `r_h`, `r_t`, `r_i`). It is a
+VERIFIER-COMPUTED table: re-derive and compare, never consume — the same
+rule as the hash-tag keys (§2a, ruling T-7).
+
+`plane_index.slot_planes[8]` and `[9]` are unchanged and still list exactly
+two planes each, in the as-built push order (`[A_QR8, A_KR8]` and
+`[A_P, A_V8]`): the group `eq` is PUBLIC, and the plane index lists only
+`Tab::Priv` tables. The recorder's replay enforces that order against the
+index at every slot of every stage, so the bundle could not be written if it
+had drifted. `len(slot_planes[s]) == len(terminals)` therefore still holds.
+
 ## 11. A DIFFERENT artifact: the public run statement (stage 18)
 
 Not a capture and not in a bundle. A run leaves `L` segment files in its run

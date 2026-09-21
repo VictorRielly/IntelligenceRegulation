@@ -264,6 +264,28 @@ impl Chain {
         }
         Chain { sh: sh.clone(), public, ff, inputs, planes, tamper: None }
     }
+    /// **STAGE 21.** The same chain, censused BLOCK BY BLOCK as it is built,
+    /// so that the non-triviality of every block is established without
+    /// building a single witness twice and with only ONE witness resident —
+    /// which is what makes this affordable at the 125M shape.
+    fn from_parts_censused(sh: &Shape, l: usize, public: AttentionPublic, ff: FeedForwardPublic, x0: Vec<i16>) -> (Chain, Vec<BlockCensus>) {
+        let ids = Ids::new(sh).expect("the shape has a plane map");
+        let mut inputs = Vec::with_capacity(l);
+        let mut planes = Vec::with_capacity(l + 1);
+        let mut census = Vec::with_capacity(l);
+        let mut x = x0;
+        for k in 0..l {
+            let w = witness::build_shaped(sh, &public, &ff, &x).expect("an honest witness of the chain");
+            if k == 0 {
+                planes.push(padded(&w, ids.at(A_X)));
+            }
+            census.push(BlockCensus::of(sh, &ids, &w));
+            planes.push(padded(&w, ids.at(A_X2)));
+            inputs.push(x);
+            x = true_input(sh, &w.output().expect("the block's hidden output"));
+        }
+        (Chain { sh: sh.clone(), public, ff, inputs, planes, tamper: None }, census)
+    }
     /// rebuild `planes[k+1 ..]` from `inputs[k]`, so that everything DOWNSTREAM
     /// of a changed input is honest again and only the one disagreement the
     /// test means is left
@@ -277,6 +299,90 @@ impl Chain {
             self.planes[j + 1] = padded(&w, ids.at(A_X2));
             x = true_input(&self.sh, &w.output().expect("the block's hidden output"));
         }
+    }
+}
+
+/// **STAGE 21: WHAT A BLOCK OF A RUN IS NUMERICALLY, as FRACTIONS and
+/// COUNTS OF LIVE SLOTS ONLY.**
+///
+/// A run recipe is only worth proving if every block of it is non-trivial
+/// where the diagonal fixture is empty, and the honest way to say so is to
+/// MEASURE it rather than to argue from the weights. Nothing here is a
+/// value, a position or a count of hidden words: the three fields are
+/// fractions of a plane's true support and two counts of LIVE STRUCTURAL
+/// SLOTS (how many of the shape's own head slots and key-value groups carry
+/// anything at all), which are properties of the recipe, not of a witness.
+/// The capture rule forbids more, and more is not needed.
+#[derive(Clone, Copy, Debug)]
+pub(super) struct BlockCensus {
+    /// the fraction of `(t, j)` with `j` in `[d, f)` at which the GATE plane
+    /// is nonzero — the half of the hidden axis the diagonal fixture leaves
+    /// identically zero at every shape with `f > d`
+    pub upper_hidden_gate: f64,
+    /// the same for the ACTIVATION plane, which is the gate through SiLU
+    pub upper_hidden_act: f64,
+    /// how many of the shape's TRUE query head slots have a nonzero
+    /// attention output
+    pub live_head_slots: usize,
+    /// how many of the shape's key-value groups have a nonzero rotated key
+    /// AND a nonzero value
+    pub live_kv_groups: usize,
+    /// do any two key-value groups carry DIFFERENT rotated keys? — the
+    /// regime finding S19-F1 rejected, and the only regime in which a
+    /// grouped profile's bilinear slots are exercised at all
+    pub kv_groups_differ: bool,
+}
+
+impl BlockCensus {
+    fn of(sh: &Shape, ids: &Ids, w: &Witness) -> BlockCensus {
+        let (d, f, fp, dh) = (sh.width, sh.hidden, sh.f_pad, sh.head_dim);
+        let kvw = sh.kv_heads * dh;
+        let upper = |plane: usize| -> f64 {
+            let p = &w.planes[plane];
+            let live = (0..sh.tokens).flat_map(|t| (d..f).map(move |j| t * fp + j)).filter(|i| p[*i] != 0).count();
+            live as f64 / (sh.tokens * (f - d)) as f64
+        };
+        let o8 = &w.planes[ids.at(A_O8)];
+        let live_head_slots = (0..sh.h_pad)
+            .filter(|sl| sh.slot_is_true_head(*sl))
+            .filter(|sl| (0..sh.tokens).flat_map(|t| (0..dh).map(move |c| t * sh.d_pad + sl * dh + c)).any(|i| o8[i] != 0))
+            .count();
+        let (kr, v8) = (&w.planes[ids.at(A_KR8)], &w.planes[ids.at(A_V8)]);
+        let group_live = |p: &Vec<i64>, g: usize| (0..sh.tokens).flat_map(|j| (0..dh).map(move |c| j * kvw + g * dh + c)).any(|i| p[i] != 0);
+        let live_kv_groups = (0..sh.kv_heads).filter(|g| group_live(kr, *g) && group_live(v8, *g)).count();
+        let kv_groups_differ = (1..sh.kv_heads).any(|g| (0..sh.tokens).flat_map(|j| (0..dh).map(move |c| (j, c))).any(|(j, c)| kr[j * kvw + c] != kr[j * kvw + g * dh + c]));
+        BlockCensus { upper_hidden_gate: upper(ids.at(A_G8)), upper_hidden_act: upper(ids.at(A_A16)), live_head_slots, live_kv_groups, kv_groups_differ }
+    }
+    /// the assertions every block of an admissible dense run must clear
+    fn assert_non_trivial(&self, sh: &Shape, k: usize) {
+        assert!(self.upper_hidden_gate > 0.5, "block {k}: the gate plane is nonzero at only {:.1}% of the upper hidden half", 100.0 * self.upper_hidden_gate);
+        assert!(self.upper_hidden_act > 0.2, "block {k}: the activation plane is nonzero at only {:.1}% of the upper hidden half", 100.0 * self.upper_hidden_act);
+        assert_eq!(self.live_head_slots, sh.q_heads, "block {k}: only {} of the {} true head slots carry a nonzero attention output", self.live_head_slots, sh.q_heads);
+        assert_eq!(self.live_kv_groups, sh.kv_heads, "block {k}: only {} of the {} key-value groups carry nonzero keys and values", self.live_kv_groups, sh.kv_heads);
+        assert!(self.kv_groups_differ || sh.kv_heads == 1, "block {k}: every key-value group carries the SAME rotated keys, so the run is not in the regime S19-F1 was about");
+    }
+}
+
+/// Print EVERY block's census first and assert afterwards, so that one run
+/// of a two-and-a-half-minute chain build reports all twelve lines even when
+/// a floor is not met.
+fn report_census(tag: &str, sh: &Shape, census: &[BlockCensus]) {
+    for (k, b) in census.iter().enumerate() {
+        // FRACTIONS AND LIVE-SLOT COUNTS ONLY (the capture rule): no witness
+        // value, position or word count is printed or kept
+        eprintln!(
+            "{tag}: block {k:02} upper hidden half gate {:.1}% / activation {:.1}% nonzero, {}/{} head slots live, {}/{} key-value groups live, groups differ {}",
+            100.0 * b.upper_hidden_gate,
+            100.0 * b.upper_hidden_act,
+            b.live_head_slots,
+            sh.q_heads,
+            b.live_kv_groups,
+            sh.kv_heads,
+            b.kv_groups_differ
+        );
+    }
+    for (k, b) in census.iter().enumerate() {
+        b.assert_non_trivial(sh, k);
     }
 }
 
@@ -509,6 +615,10 @@ fn an_honest_three_block_fully_dense_run_verifies_from_its_segments() {
     // the first down band at which a THREE-block chain is admissible, tried
     // from the recipe's own downwards; the attention words never change
     let (band, public, ff, input) = first_admissible_dense_run_band(&sh, 3).expect("no fully dense band makes a three-block chain admissible at the rung-G shape");
+    // **STAGE 21.** The band `dense_tests::band_down_run` PINS for this shape
+    // is the one this search finds — which is what makes the pinned recipe a
+    // deterministic function of the shape and not a number someone chose.
+    assert_eq!(band, super::dense_tests::band_down_run(&sh), "the pinned chain band is not the first admissible one");
     let blocks = blocks_from(&public, &ff, 3);
     let mut c = Chain::from_parts(&sh, 3, public, ff, input);
     for k in 0..3 {
@@ -1171,9 +1281,49 @@ fn the_twelve_block_125m_receipt_is_the_counted_figure() {
 fn the_first_admissible_fully_dense_run_band_at_125m() {
     let sh = Shape::m125();
     match first_admissible_dense_run_band(&sh, 12) {
-        Some((band, _, _, _)) => eprintln!("125M FULLY DENSE RUN: admissible at down band {band} for twelve blocks"),
-        None => eprintln!("125M FULLY DENSE RUN: NO down band from the recipe's own down to 1 makes a twelve-block fully dense chain admissible"),
+        Some((band, _, _, _)) => {
+            eprintln!("125M FULLY DENSE RUN: admissible at down band {band} for twelve blocks");
+            // STAGE 21: the pinned recipe band must be the measured one
+            assert_eq!(band, super::dense_tests::band_down_run(&sh), "the pinned 125M chain band is not the first admissible one");
+        }
+        None => panic!("125M FULLY DENSE RUN: NO down band from the recipe's own down to 1 makes a twelve-block fully dense chain admissible"),
     }
+}
+
+/// **STAGE 21: THE FULLY DENSE TWELVE-BLOCK RECIPE AT 125M IS ADMISSIBLE AND
+/// NON-TRIVIAL IN EVERY BLOCK — witness builder only, nothing is proved.**
+///
+/// This is the acceptance of the recipe `private_run_125m_twelve_blocks`
+/// takes under `HL_PB_WEIGHTS=dense`, and it is separated from it so the
+/// recipe can be established without a seven-minute proving run: it builds
+/// the twelve witnesses of the chain, one at a time, censuses each as it is
+/// built and drops it. About 11 s and 725 MiB per block, so it is
+/// `#[ignore]`d and goes out detached under the heavy lock.
+///
+/// What it establishes, block by block for all twelve: the witness builder
+/// ACCEPTS the block; the upper hidden half `[d, f)` — identically zero in
+/// every proof this lane made before stage 19 — is live in the gate and in
+/// the activation; every one of the twelve true query head slots has a
+/// nonzero attention output; all four key-value groups carry nonzero keys
+/// and values; and the groups carry DIFFERENT rotated keys, which is the
+/// regime finding S19-F1 rejected and the only regime in which the two
+/// repaired bilinear slots are exercised at all.
+///
+/// Only FRACTIONS and LIVE-SLOT COUNTS are printed, and nothing is retained.
+#[test]
+#[ignore = "builds twelve 125M witnesses (about 11 s and 725 MiB each); it proves nothing"]
+fn the_fully_dense_twelve_block_recipe_is_admissible_and_non_trivial_at_125m() {
+    let sh = Shape::m125();
+    let t0 = std::time::Instant::now();
+    let (public, ff, x0) = super::dense_tests::dense_run_case(&sh);
+    let (_c, census) = Chain::from_parts_censused(&sh, 12, public, ff, x0);
+    eprintln!(
+        "125M DENSE L=12 RECIPE: twelve witnesses built and dropped in {:.2} s, peak RSS {:.2} GiB, down band {}",
+        t0.elapsed().as_secs_f64(),
+        run::peak_rss_mib() / 1024.0,
+        super::dense_tests::band_down_run(&sh)
+    );
+    report_census("125M DENSE L=12 RECIPE", &sh, &census);
 }
 
 /// The directory a heavy run writes its segments to, from the environment.
@@ -1218,17 +1368,38 @@ fn heavy_run_dir(var: &str) -> PathBuf {
 ///
 /// It STOPS rather than running on if a segment length is not the counted one
 /// or if the high-water mark passes 11.5 GiB.
+///
+/// **STAGE 21: `HL_PB_WEIGHTS` chooses the recipe.** `tame` (the DEFAULT,
+/// and every figure ever measured for this test is at it) is the diagonal
+/// fixture, whose upper hidden half is identically zero and whose key-value
+/// groups all carry the same data. `dense` is the FULLY DENSE run recipe at
+/// its measured chain band (`dense_tests::dense_run_case`): every entry of
+/// all nine public words nonzero, a non-constant hidden input, and — this is
+/// the point — the upper hidden half live and every head slot and key-value
+/// group carrying different nonzero data in EVERY ONE of the twelve blocks,
+/// asserted block by block as the chain is built. The log line and the
+/// retained run statement both say which recipe ran.
 #[test]
 #[ignore]
 fn private_run_125m_twelve_blocks() {
     let sh = Shape::m125();
     let l = 12usize;
+    let which = std::env::var("HL_PB_WEIGHTS").unwrap_or_else(|_| "tame".into());
     let dir = heavy_run_dir("HL_PB_RUN_DIR");
-    eprintln!("125M RUN L=12: segments go to {}; {}", dir.display(), malloc_threshold_note());
+    eprintln!("125M RUN L=12 [HL_PB_WEIGHTS={which}]: segments go to {}; {}", dir.display(), malloc_threshold_note());
     let t0 = std::time::Instant::now();
-    let mut c = Chain::honest(&sh, l, false);
-    eprintln!("125M RUN L=12: chain built ({l} witnesses, each dropped) in {:.2} s, high-water mark so far {:.2} GiB", t0.elapsed().as_secs_f64(), run::peak_rss_mib() / 1024.0);
-    let blocks = blocks_of(&sh, l);
+    let (mut c, blocks, recipe) = match which.as_str() {
+        "tame" => (Chain::honest(&sh, l, false), blocks_of(&sh, l), super::run_statement_file::TAME_FIXTURE),
+        "dense" => {
+            let (public, ff, x0) = super::dense_tests::dense_run_case(&sh);
+            let blocks = blocks_from(&public, &ff, l);
+            let (c, census) = Chain::from_parts_censused(&sh, l, public, ff, x0);
+            report_census("125M RUN L=12 [dense]", &sh, &census);
+            (c, blocks, super::run_statement_file::DENSE_RUN_FIXTURE)
+        }
+        other => panic!("HL_PB_WEIGHTS={other:?} is not a recipe this test knows; it is `tame` (the default) or `dense`"),
+    };
+    eprintln!("125M RUN L=12 [{which}]: chain built ({l} witnesses, each dropped) in {:.2} s, high-water mark so far {:.2} GiB", t0.elapsed().as_secs_f64(), run::peak_rss_mib() / 1024.0);
     let (st, owners) = statement_of(&c, l, &blocks);
     let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
     assert_eq!(rows, 38, "the 125M boundary is not the counted 38 rows");
@@ -1272,16 +1443,20 @@ fn private_run_125m_twelve_blocks() {
     // twelve segment files' lengths and SHA-256 — so a later process can
     // rebuild the verifier's statement and check the 484 MB of receipt this
     // run leaves behind.
-    let w = super::run_statement_file::verify_then_write(&st, &blocks, &dir, &super::run_statement_file::TAME_FIXTURE)
+    //
+    // **STAGE 21.** The statement records the RECIPE, so a fresh verifier
+    // regenerates the same public weights and checks them against the twelve
+    // block digests the header absorbs.
+    let w = super::run_statement_file::verify_then_write(&st, &blocks, &dir, &recipe)
         .unwrap_or_else(|e| panic!("125M RUN L=12: the run did not verify by streaming, or its public statement could not be retained: {e}"));
     let verify_s = w.verify_s;
-    eprintln!("125M RUN L=12: the PUBLIC run statement is retained at {} — {} B, sha256 {}", w.path.display(), w.bytes, w.sha256);
+    eprintln!("125M RUN L=12 [{which}]: the PUBLIC run statement is retained at {} — {} B, sha256 {}, recipe {:?}", w.path.display(), w.bytes, w.sha256, recipe.name);
     for (k, (len, dg)) in disk.lengths().iter().zip(disk.digests()).enumerate() {
         eprintln!("125M RUN L=12: {} {len} B sha256 {dg}", run_sink::segment_file_name(k));
     }
     hwm_report("125M RUN L=12", &stats.hwm_mib);
     eprintln!(
-        "125M RUN L=12 RESULT: prove {prove_s:.2} s ({:?} per block), verify by streaming {verify_s:.2} s, receipt {} B in {l} files (counted 484,100,736), peak RSS {:.2} GiB, {} — a CORRECTNESS result, not a privacy one",
+        "125M RUN L=12 [{which}] RESULT: prove {prove_s:.2} s ({:?} per block), verify by streaming {verify_s:.2} s, receipt {} B in {l} files (counted 484,100,736 pre-repair), peak RSS {:.2} GiB, {} — a CORRECTNESS result, not a privacy one",
         stats.prove_s.iter().map(|s| (s * 100.0).round() / 100.0).collect::<Vec<f64>>(),
         disk.total_bytes(),
         run::peak_rss_mib() / 1024.0,

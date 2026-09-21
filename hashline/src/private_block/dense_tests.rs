@@ -219,6 +219,74 @@ pub(super) fn dense_ff_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, V
     (public, ff, tx)
 }
 
+/// **STAGE 21: THE FULLY DENSE *RUN* RECIPE — the same nine words, at the
+/// one band a CHAIN can carry.**
+///
+/// A run needs a smaller down-projection band than a single block, and the
+/// reason is arithmetic, not a choice: block `k+1`'s hidden input IS block
+/// `k`'s `xres2 = xres1 + z16`, so `z16`'s spread COMPOUNDS along the chain
+/// and the residual eventually leaves `int16` — the witness builder refuses
+/// it by name, `fixed oracle range refusal: residual 2`. Everything else
+/// about the recipe is untouched: the same seed, the same read order, the
+/// same attention / gate / gain / input bands, so every entry of all nine
+/// words is still nonzero and the two key-value groups still carry different
+/// data, which is what finding S19-F1 was about.
+///
+/// **These bands are MEASURED, not chosen**, by the witness-builder search
+/// `run_tests::first_admissible_dense_run_band`, which walks DOWN from the
+/// recipe's own `band_down` and takes the first band at which the builder
+/// accepts every block of the chain. They are pinned here so that the recipe
+/// stays a deterministic function of the shape alone and a fresh verifier
+/// can regenerate the public weights from its name; the search is re-run as
+/// a test at the rungs and as an `#[ignore]`d probe at 125M.
+///
+/// | shape | `band_down` (one block) | `band_down_run` (a chain) | chain length measured |
+/// |---|---:|---:|---:|
+/// | `rung`, `rung_g` | 48 | **47** | 3 |
+/// | `m125` | 14 | **1** | 12 |
+///
+/// **125M needs band 1, and the search says so with no room to spare**
+/// (`results/zk60_block125m_lane/u4-s21-m125-band.log`, 707 s, twelve
+/// witnesses at the accepted band and two at each of the thirteen refused
+/// ones): every band from the recipe's own 14 down to 2 is refused, always
+/// at the same site, `fixed oracle range refusal: residual 2`, and always by
+/// the SECOND block of the chain. At band 1 every entry of `Wd` is `+1` or
+/// `-1` — still nonzero, so the recipe is still literally dense — and
+/// `z16`'s spread is finally small enough that `xres2 = xres1 + z16` stays
+/// inside `int16` for twelve compositions. The hidden axis is 2,048 wide at
+/// 125M against 192 at the rung, so `z16` accumulates over ten times as many
+/// terms; band 1 is what that costs, and it is a property of THIS
+/// calibration's `int16` residual, not of the argument.
+pub(super) fn band_down_run(s: &Shape) -> i64 {
+    match s.hidden {
+        192 => 47,
+        2048 => 1,
+        // any other geometry has not been measured; fall back to the
+        // single-block band, which is the recipe's own and is honest about
+        // saying nothing new
+        _ => band_down(s),
+    }
+}
+
+/// The fully dense recipe at the chain band: a run's nine public words and
+/// its hidden input, everything else exactly [`dense_words`].
+pub(super) fn dense_run_words(s: &Shape) -> ([Vec<i8>; 9], Vec<i16>) {
+    dense_words_with(s, BAND_ATTN, BAND_GATE, band_down_run(s), GAIN, INPUT_MAG)
+}
+
+/// The same as this module's public STATEMENT, with `tame_case`'s signature.
+pub(super) fn dense_run_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, Vec<i16>) {
+    let (w, input) = dense_run_words(s);
+    let (public, ff) = statement_of_words(s, &w);
+    (public, ff, input)
+}
+
+/// **THE PUBLIC NAME of the fully dense run recipe**, written into a run
+/// statement file so a fresh verifier regenerates exactly these weights.
+/// Every number a reader needs to reproduce the stream is in the string.
+pub(super) const DENSE_RUN_RECIPE_NAME: &str =
+    "private_block::dense_tests::dense_run_case(<block profile's Shape>), the same fully dense public words for every block: SplitMix64 seeded 0xD15EED1900000001, read in the fixed order [Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg, Wu, Wd, x]; Wq/Wk/Wv/Wo uniform on [-56,-1] u [1,56]; gamma_a/gamma_m uniform on [40,127]; Wg/Wu uniform on [-96,-1] u [1,96]; Wd uniform on [-B,-1] u [1,B] with B = band_down_run(shape) (47 at the rungs, 1 at 125M); hidden input uniform on [-6000,-1] u [1,6000]";
+
 // ------------------------------------------------------------ the recipe itself
 
 /// **THE RECIPE IS DENSE AND DETERMINISTIC**, and the fixture it replaces is

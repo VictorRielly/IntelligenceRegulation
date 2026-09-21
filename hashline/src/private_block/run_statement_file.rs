@@ -88,14 +88,31 @@ pub(super) const TAME_FIXTURE: WeightsRecipe = WeightsRecipe {
     description: "deliberately public synthetic test weights, regenerated from the shape; no weight value is written into this file, and every regenerated block is checked against the block_digests the run header absorbs",
 };
 
+/// **STAGE 21: the FULLY DENSE run recipe.** Every entry of all nine public
+/// words nonzero, at the down-projection band a CHAIN can carry, the same
+/// for every block. The name carries the seed, the read order and every
+/// band, so the string alone is enough for a reader to regenerate the
+/// weights — which is the whole contract of this field.
+pub(super) const DENSE_RUN_FIXTURE: WeightsRecipe = WeightsRecipe {
+    name: super::dense_tests::DENSE_RUN_RECIPE_NAME,
+    description: "deliberately public synthetic test weights, FULLY DENSE (no zero entry in any of the nine words) and regenerated from the shape by the named deterministic stream; no weight value is written into this file, and every regenerated block is checked against the block_digests the run header absorbs",
+};
+
 /// The ONE block a recipe produces at this shape. Kept separate from
 /// [`blocks_of_recipe`] because the WRITER only needs a digest to compare
 /// against, and `L` copies of a 125M public statement are 110 MB.
 fn recipe_block(recipe: &str, sh: &Shape) -> Result<BlockPublic, String> {
-    if recipe != TAME_FIXTURE.name {
-        return Err(format!("run statement: this build knows one weights recipe and the file names {recipe:?}"));
-    }
-    let (public, ff, _) = super::grow_tests::tame_case(sh);
+    let (public, ff) = if recipe == TAME_FIXTURE.name {
+        let (p, f, _) = super::grow_tests::tame_case(sh);
+        (p, f)
+    } else if recipe == DENSE_RUN_FIXTURE.name {
+        // STAGE 21: the fully dense run recipe, regenerated from the shape
+        // by exactly the stream the name describes
+        let (p, f, _) = super::dense_tests::dense_run_case(sh);
+        (p, f)
+    } else {
+        return Err(format!("run statement: this build knows two weights recipes and the file names {recipe:?}"));
+    };
     Ok(BlockPublic::new(public, ff))
 }
 

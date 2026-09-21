@@ -1,0 +1,21 @@
+Running scope as unit: run-ra65dc3b077a94c23afbd605f9c0f78e9.scope
+
+running 1 test
+test private_block::run_tests::the_first_admissible_fully_dense_run_band_at_125m ... DENSE RUN band 14: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 13: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 12: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 11: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 10: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 9: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 8: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 7: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 6: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 5: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 4: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 3: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+DENSE RUN band 2: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+125M FULLY DENSE RUN: admissible at down band 1 for twelve blocks
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 328 filtered out; finished in 707.08s
+
