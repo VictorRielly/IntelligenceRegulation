@@ -2129,3 +2129,334 @@ the gate.
 * **It does not generalise to the 125M shape by arithmetic.** The solve is
   `O(rows · d²)` in the pads and `O(G · n · rows)` in the verification; at
   125M both grow, and nobody has measured it.
+
+---
+
+# 12. 2026-09-21, eighth round: the masking commitment `M` and the CFS channel, constructed at the shaped layouts — and the run's preimage made JOINT
+
+**Written 2026-09-21 on the same lane.** New modules:
+`scripts/zk60_native_rg_mask.py` (the port and the driver),
+`scripts/zk60_native_rg_mcontrols.py` (six controls),
+`scripts/zk60_native_rg_mjoint.py` (the joint run preimage); the gate gains
+two stages, `--mask-cfs` → `stage12_mask_and_cfs`, and
+`stage13_joint_run_preimage` when BOTH arms are on. Evidence:
+`results/zk60_native_run_gate_mask/`. Tests:
+`tests/test_zk60_native_run_gate_mask.py`.
+
+§11.7 named the next thing: "the masked sumcheck rounds and the CFS
+channel — still OPEN, and now the largest open one a port could close."
+Round 8 closes it, and closing it makes the run's preimage joint.
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** The
+> masking layer's fixed data is a NAMED PUBLIC element of the channel's data
+> space, not the zero witness's own honest round messages, which no capture
+> carries and which this gate cannot compute. §12.8 is the list of what this
+> does not show.
+
+## 12.1 The headline, in one line each
+
+1. **The reason channel 7 carried since round 1 was partly wrong, and
+   saying so is round 8's first result.** It said the mask-row port and the
+   CFS analysis "are written at the toy's row layout and slot specs". They
+   are not: `MaskModel`, `MaskPreimage`, `disclosed_dimension` and
+   `CfsPreimage` read `mask["specs"]` from the capture and DERIVE `M`'s
+   `2S + 4` rows, so they are already driven by whatever slot table they are
+   handed. Five other things were layout-specific (§12.2), and those are
+   what round 8 supplied.
+2. **`M` has fifty rows and thirty-four functionals at BOTH rungs**, because
+   `layout.rs` sets `M_ROWS = 2·N_SLOTS + 4` and `N_FUNCTIONALS = 34` as
+   constants of the block's slot table and not of the shape. What the rung
+   moves is every `L_s`.
+3. **The two sides are JOINED.** The toy gate solves the masked rounds and
+   `M`'s opening separately and never checks that one coefficient vector
+   does both. Round 8 feeds the CFS-solved coefficients to the `M` preimage:
+   **one vector per stage** reproduces all 23 slots' masked rounds and
+   mask-bearing scalars, all 34 functional values, `M`'s `q`, `M`'s
+   proximity vector and all 12,800 of `M`'s opened column entries.
+4. **Every figure of the port equals the TOY gate's own, to the byte** —
+   including the two exhibited-randomness digests `e0513e22…` and
+   `f943d3a0…`: 19 of 19 compared figures (§12.4).
+5. **Six controls, all fire** (§12.6), and two of them say more than was
+   asked: a moved entry of an a-row's opened column fires at exactly FOUR
+   entries, all on the `b` and `u` rows of that one column; and M-5 is the
+   masking layer's own P-5.
+6. **A JOINT run-wide preimage** (§12.7), the thing §11.7 listed as still
+   open: one assignment, **1,145,727–1,329,905 entries recomputed and
+   compared, none differing, 3,328 salted leaves re-authenticated**, with
+   the four couplings of an honest run enumerated and each checked.
+7. **The channel table goes from 25 to 28 and from 5 / 5 / 4 / 11 to
+   10 / 5 / 4 / 9.** Three channels are new (`M`'s `q`, `M`'s proximity
+   vector, `M`'s own opened columns — the TOY gate has graded them
+   separately since its §14 and the run gate never did); two moved from
+   OPEN to CONSTRUCTED (the masked rounds, and the RUN preimage).
+
+## 12.2 What in the toy port was layout-specific, exactly
+
+Named in the port's own `LAYOUT_SPECIFIC` map, which a test requires to have
+exactly these five keys and each to say what replaces it:
+
+| # | what the toy does | why it cannot be used as written | supplied here |
+|---|---|---|---|
+| 1 | `SOURCE_PINS` / `PATH_PINS` read at the toy lane's commits | **five** of the files the mask port transcribes moved by the bundles' capture commits: `zk.rs`, `pcs.rs`, `merkle.rs`, `transcript.rs`, `argument.rs` | `MASK_LAYER_PINS` (bundle-side, three files) and `NOT_PINNABLE_FROM_A_BUNDLE` (eight files, each with the reading of its difference) |
+| 2 | takes a `Capture` and a `Replay`, one proof, three challenge attributes | a run has L stages and keeps the three per stage | `StageReplay`, three lines; the run `Stage` object serves as the capture unchanged |
+| 3 | `MASK_LOG_MSG = 9`, `MASK_LOG_DOM = 12`, `MASK_Q = 256` as module constants | a bundle declares its own mask domain, and a shape that moved any of the three would make the toy solver silently wrong | `derive_mask_domain`, which READS the domain from the bundle and refuses by name on a difference |
+| 4 | nothing to check `mask["specs"]` against (the toy's slot table is a Rust constant no capture carries) | a run bundle carries `shape["slots"]` | `check_specs_against_shape`: every `(n_s, d_s)` re-derived as `(main + ext, degree)` and compared |
+| 5 | does not hash | a run bundle carries `M`'s root, 256 salts and 12-level paths, and the loader derives the rule | `_hash_layer`, the same arm round 7 added for the PCS side |
+
+**The pins, read and then written down.** `argument.rs` moved from
+`e62f46c2…` to `dd8469cb…`; read hunk by hunk, the declared-order block and
+`acc.fs.extend(hosts)` are IDENTICAL except that `sum_weights(s)` became
+`sum_weights(&sh, s)`, and `fn sum_weights(sh, slot)` is
+`CfsMask::sum_weights(n + e, d)` over `sh.slots()[slot]` where the toy read
+a module-level `SLOTS[slot]` — the same function of the same triple, taken
+from the shape instead of a constant, which is precisely what item 4 above
+now checks. `zk.rs` moved from `c5b54753…` to `d4280962…`; the diff is **106
+lines added and one removed** (a trailing blank), and the addition is the
+three D19 / T-1 keyed entry points `mask_commit_tagged`,
+`mask_verify_tagged` and `pcs_hash_column_keyed`. Every function the port
+transcribes and all three constants are byte-identical, and the tagged
+commit draws its randomness in exactly `mask_commit`'s order and builds
+exactly `mask_commit`'s rows. `sumcheck.rs`, `ntt.rs`, `field.rs` and
+`rng.rs` are **unchanged** at all three capture commits. `pcs.rs`,
+`merkle.rs` and `transcript.rs` moved for the keyed forms, and those are
+checked by COMPUTATION rather than by a pin: the column indices and every
+challenge are re-derived by stage 2, and every one of `M`'s 256 opened
+columns is rebuilt and re-authenticated here.
+
+**And what cannot be pinned at all.** `run_capture.rs::SOURCE_FILES` pins
+eight `private_block` files and no `zkp-core` or `hashline` root file, so no
+bundle carries a digest for `zk.rs` or for any of the seven `zkp-core`
+files. They are NAMED rather than merely absent, with the digest read at the
+capture commits and the reading beside it. That is a writer-side ask, and it
+is R6.8 item 1 again with a longer list.
+
+## 12.3 The `M` system at the shaped layouts
+
+With `S = 23` slots, `M` is `2S + 4 = 50` rows over the coset `7·G_4096`:
+
+| rows | what they hold | free values |
+|---|---|---|
+| `2s`, `2s+1` | slot `s`'s mask coefficients, real and imaginary parts, in VALUE form over `G_512`: `[ L_s coefficients \| 256 pads \| zeros ]` | the 256 pads of each row |
+| `46`, `47` | `b_re`, `b_im`, 1,024 coefficients each, one constraint `b[512] = -b[0]` | 1,023 each |
+| `48`, `49` | `u_re`, `u_im`, 1,024 coefficients each | 1,024 each, unconstrained |
+
+`L_s = CfsMask::len(n_s, d_s) = n_s d_s + 2` with `(n_s, d_s) = (main_s +
+ext_s, degree_s)` from `Shape::slots`. The two BILINEAR slots are the ones
+stage 20 repaired (finding S19-F1): they alone have `ext = 2`, and their
+degree gains one when `lkv > 0`.
+
+| | rung-G | rung-K4 |
+|---|---|---|
+| slots / rows / functionals | 23 / **50** / **34** | 23 / **50** / **34** |
+| slot 08 (`SC_SCORE`) `L` | **23** | **23** |
+| slot 09 (`SC_PV`) `L` | **26** | **29** |
+| largest `L` | **72** (slots 17, 18) | **77** (slot 17) |
+| coefficient unknowns | **1,718 `Fp`** (859 `Fp2`) | **1,772 `Fp`** |
+| blinding unknowns in `M` | **15,870 `Fp`** | 15,870 `Fp` |
+| published round entries / scalars per stage | **1,055** / 23 | **1,070** / 23 |
+| `q` / `prox` / opened column entries per stage | 1,024 / 1,024 / **12,800** | the same |
+| distinct opened columns `D` / pad margin | 246–254 / **2–10** | see §12.5 |
+
+**The functionals and their declared order**, taken from the code and not
+from a memo: for each slot `s` in slot order, a **Standalone** slot's
+`Gamma` immediately before its own evaluation functional, then that
+evaluation; a **Host** slot contributes only its evaluation there, its
+`Gamma` deferred; a **Private** slot contributes its evaluation alone; then
+every Host slot's `Gamma`, in slot order, LAST. At both rungs the slot kinds
+are 12 Private, 6 Host, 5 Standalone, and the port checks the order against
+the capture three ways — POSITION, VALUE and WEIGHTS recomputed from
+`CfsMask::sum_weights · c` and `CfsMask::eval_weights` at the replayed
+challenges. **34 of 34 on all three checks, on every stage of every
+bundle** — the same "34 of 34" the toy gate reports, at a different shape.
+
+**The batching challenge θ** is drawn at the `M` site and stage 2 re-derives
+it; `combined_weights` weights functional `i` by `θ^i`, so the ORDER is
+load-bearing (control M-3). `combined_weights` also bounds every term's
+weights by `L_row`, so `ws[s][t] = 0` for `t ≥ L_s` — checked per stage as
+`weights_vanish_above_L` — and therefore the pads drop out of the sum and
+`b`'s only constraint reads exactly `512 (q[0] + q[512]) = V(a)`, the
+verifier's own first check.
+
+## 12.4 It is the toy module's construction, and that is asserted
+
+`zk60_native_mask_commit.py` and `zk60_native_pg_cfs.py` are hash-pinned
+records this lane does not edit, and round 8 does not edit them: a test
+asserts their sha256 unchanged. Four things keep the port from being a fork:
+
+* **Every object is IMPORTED, not re-derived.** `IMPORTED_OBJECTS` lists
+  twelve names from `zk60_native_mask_commit`, `CfsPreimage` from
+  `zk60_native_pg_cfs` and `column_bytes` from `zk60_native_rg_hashlayer`; a
+  test asserts each name in the new module IS that module's object, and that
+  the new module's source defines no `def`/`class` of those names.
+* **`LAYOUT_SPECIFIC`, `DERIVED_FROM` and `NEW_HERE`** name the five things
+  supplied, the toy entry point each figure comes from, and everything the
+  new module adds; a test requires every definition in the file to be in one
+  of the maps.
+* **The equivalence run.** The driver, at the toy's widths, on the tracked
+  toy block capture `40083e7a…`, against the figures the TOY gate's
+  committed record carries: **19 of 19 equal**, including the disclosed
+  dimension 2, the unknown space 1,166 `Fp`, the fibre 1,164, the 34/34/34
+  order check, 50 rows, 246 distinct columns, pad margin 10, 12,800 column
+  entries, 721 round entries, 23 scalars, the CFS fibre 46 `Fp`, the
+  projection `{34 conditions, 29 unmet, 68 Fp}` and **both
+  exhibited-randomness digests**.
+* **The join also works at the toy**: the CFS-solved coefficients reproduce
+  the toy capture's `M` opening entry by entry too, which the toy gate never
+  asked.
+
+## 12.5 What was constructed and verified
+
+Every stage of all four current bundles. The fixed data of the masking layer
+is the flat honest transcript whose claimed sum the hosted slots' published
+scalars force, projected onto the 34 functional identities (the conservative
+accounting); what is SOLVED is the `L_s` mask coefficients of every slot,
+the 256 pads of every a-row, the two `b` rows and the two `u` rows.
+
+**Where the honest round polynomials went, and why there is no pretending.**
+Round 7 could fix its data block to ZERO because a data block is a public
+object. This channel's hidden data is each slot's *honest, unmasked* round
+messages and honest scalar, and **no capture carries them**: the security
+owner has refused publishing them for a real slot, and
+`ZK60_PRIVACY_CASE_FIRST_MVP.md` §4.3 asks for them only as a labelled
+synthetic fixture. They are not recoverable from a bundle either. For the
+all-zero WITNESS the honest round polynomials *are* a deterministic function
+of the public weights and the challenges — but evaluating them means running
+each slot's composition over its whole `2^(main+ext)` cube through the
+prover's table machinery, which this gate does not have and which the
+capture does not carry. So the gate does what the toy gate does and says so
+in the record: it FIXES `CfsPreimage.flat_transcript`, a named, public,
+deterministic element of the channel's data space, and SOLVES for the
+coefficients. **The zero transcript itself is infeasible** on every stage of
+every bundle — `zero_transcript_is_infeasible: true` — and that infeasibility
+IS the disclosed dimension made visible; the projection then moves the fixed
+transcript onto the identities, 29 of the 34 conditions unmet before it and
+`68 Fp` of conditions in total, the same two figures the toy gate reports.
+
+## 12.6 The controls
+
+Each is shown to PASS on the honest capture first, and each perturbation is
+applied to an in-memory SHADOW of the stage — a shallow copy of `arguments`
+and `mask` with exactly one field replaced. Nothing on disk is written, and
+a test re-reads the bundle afterwards and compares every file's sha256.
+
+**Two of the six say more than the brief asked.**
+
+**M-2 at an a-row fires at exactly four entries.** Moving one entry of an
+opened column at an a-row does NOT break that row: the a-rows carry 256 pads
+against 246–254 distinct sampled nodes, so their Cauchy block is square and
+nonsingular and the pads absorb the moved target exactly. It breaks the
+FOUR rows below — `b_re`, `b_im`, `u_re`, `u_im` — at that one column and at
+no other, because `b` is the residue of `q` and `u` the residue of the
+proximity vector: absorbing the move on the a-row moves the verifier's
+per-column identity at that node, and the capture's own `b` and `u` entries
+there contradict it. **The pads buy the a-row and pay for it four rows
+down.** At a `b` row the same perturbation fires at one entry, directly.
+
+**M-5 is the masking layer's P-5.** Two slots are declared to share one mask
+coefficient, and WHICH index is used is computed from the two slots' own
+kernels rather than chosen. At an index where both slots' rounds leave a
+whole `Fp2` free the identification is satisfiable, and the record says so
+rather than hiding it. At an index where both FORCE the value — index 3 at
+rung-G, found by arithmetic — the two forced values differ and **no joint
+assignment exists**, while `M`'s own disclosed dimension stays at 2 `Fp`
+either way and the unknown space and the fibre each lose exactly the 2 `Fp`
+the identification removes. Per-slot solutions exist and a joint one does
+not: the same shape of fact as round 7's P-5, one layer down, and the reason
+§12.7's joint claim has to be earned rather than assumed.
+
+## 12.7 The JOINT run-wide preimage
+
+§11.7 listed "a preimage for a RUN" as open and P-5 as the reason it was not
+a formality. With the masking layer constructed the two halves can be
+joined, and `stage13_joint_run_preimage` does it — but only after
+enumerating what actually couples the parts of an honest run and checking
+each:
+
+| | coupling | checked | verdict |
+|---|---|---|---|
+| **C1** | the internal boundary planes and the two endpoint planes: rows two commitments HOLD and a third claims about | every identified row pair, row by row, on both sides | **24 pairs at rung-G, 24 of 24 data rows on both sides, none touching a blinding row** |
+| **C2** | published CLAIM VALUES that more than one commitment carries | counted, not assumed to be zero | 531 claim values, 529 distinct, **1** carried by two commitments — and each part meets the number the CAPTURE carries, so it is met identically by both |
+| **C3** | the masking layer against the 23 slots | the declared order 34 of 34 by position, value and weights; all 34 values recomputed from the solved coefficients | **respected, and by ONE coefficient vector per stage** |
+| **C4** | the terminal identity `fin_s = c_s·mask_eval_s + poly_s(terminals)`, degree up to 4 | no linear model sees it | **respected only in a narrow sense**, stated below |
+
+**Why C1 is the whole of it.** An identification between DATA rows is
+satisfied because the data block is zero on both sides. An identification
+that reached a BLINDING row would be P-5 exactly — two commitments each
+forcing the shared row to a different value. So the count "24 of 24 data
+rows, 0 touching a blinding row" is the entire difference between "each part
+has a preimage" and "the run has one", and it is computed from the layout's
+own identifications rather than asserted.
+
+**What C4 can and cannot mean.** Every quantity the terminal identity
+relates — `fin_s`, `c_s`, `mask_eval_s` and the terminals — is a PUBLISHED
+number, and this assignment reproduces every published number of the run
+exactly. So the identity holds at the reproduced view for the trivial reason
+that the reproduced view IS the captured view, entry by entry. That is NOT
+the statement that the assignment is a witness of the identity's arithmetic:
+the terminals are met as claim VALUES by blinding, and whether a model input
+exists whose activations make them is a question about the block's
+arithmetic that no preimage argument answers (§11.8, second bullet).
+
+## 12.8 What this establishes, and what it does not
+
+**It establishes**, for these four captured runs, these two development
+shapes and these runs' real challenges: the masking layer's whole published
+linear view — every slot's masked round messages and mask-bearing scalar,
+all 34 functional values, `M`'s product polynomial, `M`'s proximity vector,
+every one of `M`'s opened column entries and the salted leaves of those
+columns — is reproducible from ONE coefficient vector per stage at a fixed
+public transcript, with blinding the gate exhibits and then checks by
+recomputing the view entry by entry; and that this, joined with round 7's
+per-commitment construction over a data block that is zero everywhere, is a
+single assignment reproducing the WHOLE run's linear view at once, with the
+four couplings enumerated and each checked.
+
+**It does not establish:**
+
+* **anything about the LAW of the blinding or of the mask coefficients.**
+  A preimage exists; whether the honest prover's `CfsMask::random` draws are
+  uniform on the fibre is the lemma's job (obligation O-R2 / gap G-R4) and
+  nothing here bears on it. **The law of the mask coefficients is the
+  lemma's job, not the gate's.**
+* **that the fixed transcript is the zero witness's own.** It is a named
+  public element of the channel's data space; the honest unmasked rounds are
+  in no capture and this gate cannot compute them (§12.5).
+* **that the zero data block is a reachable witness** — unchanged from
+  §11.8.
+* **anything about an unopened Merkle leaf.** `M`'s root, its 256 leaf salts
+  and its 12-level paths stay ARGUED under M-2 / M-3; re-authenticating an
+  OPENED column says nothing about what an unopened one hides.
+* **anything nonlinear** beyond C4's narrow sense, and nothing about the
+  four out-of-band channels.
+* **anything at the 125M shape.** Nothing here was measured there, and
+  `L_s + 256 ≤ 512` is a constraint a bigger shape could break — which is
+  exactly why `derive_mask_domain` refuses rather than assumes.
+* **and it is not a privacy acceptance.** Both bundles carry
+  `privacy_review_complete: false`, and so does every record round 8 wrote.
+
+**Ruling R-3 still applies wherever a joint figure appears**: the run gate's
+joint figures are a consistency check of coordinate classes, not evidence
+that the commitments' blinding is independent. §12.7's joint preimage is a
+construction over those classes, and C1 is the check that the classes really
+are disjoint in the honest layout — it is not evidence about the prover.
+
+## 12.9 Timings, the refresh and the suite
+
+## 12.10 What this round is NOT
+
+* **It is not a privacy result and not a step toward one on its own.** It
+  closes five channels of a table that still has nine open, and the two
+  largest of those — the joint LAW and the hash layer's hiding — are
+  untouched.
+* **It is not a statement about the prover.** The exhibited coefficients and
+  blinding are SOLVED objects for a public fixed transcript. No capture
+  carries a witness and none was read; the record keeps sha256 digests of
+  the exhibited coefficients and blinding, not their values.
+* **It does not make the joint preimage into the joint LAW.** C1 says no
+  coordinate is shared; it does not say the prover's draws for two
+  commitments are independent, which is what a privacy argument needs and
+  what ruling R-3 keeps separate.
+* **It does not generalise to the 125M shape by arithmetic.** `M` keeps 50
+  rows there, but every `L_s` grows with the shape and `L_s + 256 ≤ 512` is
+  an assertion in `mask_commit` itself; whether it survives at 125M is a
+  question for the Rust lane, and nobody has measured the solve there.
