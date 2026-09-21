@@ -1,0 +1,67 @@
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins
++ DIR=(['run-a-tame']='zk60_native_run_gate' ['run-b-zero']='zk60_native_run_gate' ['run-c-tame']='zk60_native_run_gate_planeindex' ['run-d-zero']='zk60_native_run_gate_planeindex' ['run-e-tame-tagged']='zk60_native_run_gate_tagged' ['run-f-zero-tagged']='zk60_native_run_gate_tagged' ['run-g-dense-s20']='zk60_native_run_gate_s20' ['run-h-zero-s20']='zk60_native_run_gate_s20' ['run-i-dense-k4']='zk60_native_run_gate_k4' ['run-j-zero-k4']='zk60_native_run_gate_k4')
++ declare -A DIR
++ mkdir -p /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-e-tame-tagged.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_tagged/run-e-tame-tagged.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-e-tame-tagged.diff.json
+identical leaves: 3861
+only in the old record: 0
+only in the new record: 53
+changed: 4
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-b-zero.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate/run-b-zero.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-b-zero.diff.json
+identical leaves: 2748
+only in the old record: 0
+only in the new record: 47
+changed: 5
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-d-zero.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_planeindex/run-d-zero.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-d-zero.diff.json
+identical leaves: 3528
+only in the old record: 0
+only in the new record: 47
+changed: 5
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-h-zero-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_s20/run-h-zero-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-h-zero-s20.diff.json
+identical leaves: 3944
+only in the old record: 0
+only in the new record: 53
+changed: 4
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-a-tame.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate/run-a-tame.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-a-tame.diff.json
+identical leaves: 2749
+only in the old record: 0
+only in the new record: 47
+changed: 4
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-j-zero-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k4/run-j-zero-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-j-zero-k4.diff.json
+identical leaves: 4029
+only in the old record: 0
+only in the new record: 53
+changed: 3
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-g-dense-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_s20/run-g-dense-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-g-dense-s20.diff.json
+identical leaves: 3944
+only in the old record: 0
+only in the new record: 53
+changed: 4
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-c-tame.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_planeindex/run-c-tame.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-c-tame.diff.json
+identical leaves: 3528
+only in the old record: 0
+only in the new record: 47
+changed: 5
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-f-zero-tagged.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_tagged/run-f-zero-tagged.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-f-zero-tagged.diff.json
+identical leaves: 3861
+only in the old record: 0
+only in the new record: 53
+changed: 4
++ for b in "${!DIR[@]}"
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/before/run-i-dense-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k4/run-i-dense-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-i-dense-k4.diff.json
+identical leaves: 4027
+only in the old record: 0
+only in the new record: 53
+changed: 5
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recclass.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-a-tame.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-b-zero.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-c-tame.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-d-zero.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-e-tame-tagged.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-f-zero-tagged.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-g-dense-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-h-zero-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-i-dense-k4.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/diffs/run-j-zero-k4.diff.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/all_ten_bundles_unchanged.json
+/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_runpins/all_ten_bundles_unchanged.json: 10 bundles, 0 unclassified leaves

@@ -85,6 +85,17 @@ is. The bundle pins its own Rust sources
 02f7ee7e`, `boundary.rs 9860c35d`, `protocol.rs 4e916c69`, `argument.rs
 909670c9`, `layout.rs fec2e647`.
 
+> **DATED CORRECTION, 2026-09-21 (round 6).** A bundle PINNING a file and a
+> gate CHECKING that pin are two different things, and this paragraph read
+> as though they were one. Until tonight only `argument.rs`, `layout.rs`,
+> `protocol.rs`, `plane_index.rs` and `shape.rs` were compared with a digest
+> any run-gate tool had read; the first three named above —
+> `run_capture.rs`, `run.rs` and `boundary.rs` — were compared with nothing
+> (finding **K4-F2**, §9.1 item 3), and the rung-K4 bundles' `run.rs` moved
+> without a tool noticing. §10 closes it: `zk60_native_rg_runpins` now
+> carries all three, at every digest the ten bundles declare, each with a
+> written reading. Nothing above this line changed as a result.
+
 **Nothing is ported.** Every size comes from `run.json["shape"]`, every
 label from `run.json["transcript_labels"]`, the parameter line from
 `run.json["parameter_line"]` and each opening's PCS parameters from its own
@@ -583,6 +594,12 @@ its Rust closure. It is pinned rather than trusted: the bundle's own
 and those are exactly the digests the port declares it was read at. A pin
 that moved makes **every slot NOT CHECKED** rather than silently wrong, and
 a test asserts that.
+
+> **DATED NOTE, 2026-09-21 (round 6).** Those four, plus `shape.rs`, are
+> what THIS port pins. The other three files a bundle pins —
+> `run_capture.rs`, `run.rs`, `boundary.rs` — are the RUN layer and are
+> pinned by `zk60_native_rg_runpins` as of tonight; before tonight they
+> were pinned by nothing (finding K4-F2). See §10.
 
 ## 6.4 The controls
 
@@ -1297,12 +1314,16 @@ Two of the eight digests a bundle pins move between `0426ad2` (rung-G) and
 | file | rung-G | rung-K4 | read |
 |---|---|---|---|
 | `shape.rs` | `8f734422` | **`07a0547f`** | `git diff 0426ad2 3247a89`: **60 added lines, 0 removed** — a doc comment and `Shape::rung_k4()` calling the UNCHANGED `Shape::new`. Not one geometry function this port reads moved: not `true_size`, not `head_slot`, not `pads`, not `clog2`, not `slot_dims`. Accepted as a second read digest in `PINNED_IF_PRESENT` |
-| `run.rs` | `65d55d25` | **`73f68221`** | **12 added lines, 0 removed** — `RUN_PROFILE_RUNG_K4` and `RunShape::rung_k4`. **Pinned by nothing** (finding K4-F2); read and recorded anyway |
+| `run.rs` | `65d55d25` | **`73f68221`** | **9 added lines, 0 removed** (written as 12 on the night; `git diff --numstat 0426ad2 3247a89` says 9/0 — corrected 2026-09-21) — `RUN_PROFILE_RUNG_K4` and `RunShape::rung_k4`. **Pinned by nothing** (finding K4-F2) on the night; read and recorded anyway, and pinned in §10 |
 
 `argument.rs` is `dd8469cb` on both, so both bundles select the REPAIRED
 definition of slots 08 and 09 by their own pin, as round 4's do.
 `layout.rs`, `protocol.rs`, `plane_index.rs`, `run_capture.rs` and
-`boundary.rs` are byte-identical.
+`boundary.rs` are byte-identical **between these two commits**. (Across all
+five capture commits they are not: `run_capture.rs` has three digests and
+`boundary.rs` two. §10's table is the full history, and the tool comment
+that said `boundary.rs` was "byte-identical at every capture commit so far"
+is corrected there, 2026-09-21.)
 
 The shape's numbers are not taken from the moved file: `zk60_native_rg_gqa.Geometry`
 derives `lt`, `lh`, `ldh` and `lkv` from `run.json["shape"]` and compares
@@ -1539,4 +1560,182 @@ asserted unchanged.
   sumcheck / CFS channel is still the largest open one a port could close.
 * **Finding K4-F2 is recorded, not repaired.** Three files a bundle pins
   are checked by nothing, and until they are read at every capture commit
-  they can still move unnoticed.
+  they can still move unnoticed. *(CLOSED 2026-09-21 in §10: all three read
+  at all five capture commits and pinned.)*
+
+---
+
+# 10. 2026-09-21, sixth round: the RUN LAYER's own pins (finding K4-F2, closed)
+
+**Written 2026-09-21 on the same lane.** Tool:
+`scripts/zk60_native_rg_runpins.py` (new). Evidence:
+`results/zk60_native_run_gate_runpins/`. No new figure about any run: this
+round adds a PIN, corrects the record where it said or implied one existed,
+and re-establishes every figure of rounds 1–5 unchanged.
+
+Round 5 (§9.1 item 3) found that three of the eight files a bundle pins in
+its own manifest — `run_capture.rs`, `run.rs`, `boundary.rs` — were checked
+by **no run-gate tool**, while `zk60_native_rg_terminals`'s comment said
+they were "checked by `zk60_native_rg_bundle`". They were not. The rung-K4
+bundles' `run.rs` moved from `65d55d25` to `73f68221` and nothing noticed.
+
+**Why the replay is not a pin.** Everything the gate says about the run
+layer — the run header and its binding, the stage order, the boundary
+geometry and its reserved rows, the segment position tags, what a capture
+records and in which order — rested on the replay reproducing every
+challenge and every tag. That is strong evidence. It is not a pin: **a
+change to the CAPTURE WRITER that altered what is recorded without moving a
+challenge would be invisible to it.**
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** A pin
+> is a statement about which Rust this gate has read. Every bundle still
+> carries `privacy_review_complete: false`, and so does every record.
+
+## 10.1 The headline, in one line each
+
+1. **Eight run-layer files considered; four are depended on; three of those
+   were pinned by nothing.** §10.2 is the dependency list, with each port's
+   own reference. The fourth, `plane_index.rs`, was already pinned by
+   `zk60_native_rg_terminals` and stays there — two tools pinning one file
+   is how a pin quietly stops meaning anything.
+2. **Nine (file, digest) pairs over five capture commits, all READ, none
+   refused.** §10.3. Every diff between consecutive capture commits was
+   classified hunk by hunk and the production / `#[cfg(test)]` split
+   counted rather than eyeballed.
+3. **No port turned out stale.** Three hunks touch something a port depends
+   on, and the port had already been updated for all three (the tagged
+   transcript and the `hash_tag` member in round 3, the `plane_index`
+   member in round 2). The one change to what a capture RECORDS that no
+   port noticed is `TRANSCRIPT_PROGRAM` growing 9 → 10 entries, and no port
+   reads it — checked, not assumed.
+4. **A refusal names the affected stages and does not crash** (§10.4),
+   which is finding K4-F1's lesson one layer up; all three refusal paths
+   are exercised end to end through the whole gate by a live test.
+5. **Two figures of round 5 are corrected** (§10.5), and every figure of
+   record of all ten bundles is unchanged: **0 unclassified differing
+   leaves** on all ten (§10.6).
+6. **Finding R6-F1, small and real:** K4-F1 made the moved-pin arm return
+   every key a caller reads, but `stage8` did not copy the sentence saying
+   the zeros are the absence of a check, so a reader of the JSON saw zeros
+   with no explanation. Fixed, and only on a refusal, so no healthy record
+   gains a leaf.
+
+## 10.2 What the ports depend on in the run layer
+
+The list is `zk60_native_rg_runpins.DEPENDS`, and a test asserts the pin
+table covers it **exactly**, in both directions: a file a port depends on
+with no pin fails, and a pin for a file no port depends on fails.
+
+| file | what a port transcribes or relies on | pinned before tonight |
+|---|---|---|
+| `run.rs` | the run header's six absorbs and their order and the seven-word shape; the stage loop (`pb-run-stage`, `pb-run-block`, `B` before `A`); `position_tag`, two Fp2 from a DISCARDED clone; the opening order; `BOUNDARY_SITES = 2` and `in_site`/`out_site` = slots 21/22 | **no** |
+| `boundary.rs` | `commitment_rows = data + 2·sites + 2`, `site_rows`, `prox_row`, `mask_row`, ruling M-1's declared-row refusal, and `prepare` setting `mask_rows` / `prox_mask_row` | **no** |
+| `run_capture.rs` | the WRITER: schema, the three kinds, `coverage`, every field name and order, `TRANSCRIPT_LABELS` (19) as `EXPECTED_LABELS`, the manifest, and the `plane_index` and `hash_tag` members | **no** |
+| `plane_index.rs` | `plane_index::build` / `render` / `locate`, and the per-slot push order | yes, `rg_terminals.PORTED_FROM` |
+
+**Four run-layer files are NOT depended on, and are named rather than
+merely absent** (`NOT_PINNABLE_FROM_A_BUNDLE`), each with two reasons:
+`wire.rs` (no port decodes a segment; the tags are compared against
+`run::position_tag`, not against the frame), `run_sink.rs` (no port reads a
+segment file), `endpoint_g.rs` (the endpoint's rows come from the shape and
+its non-data rows from the capture's `row_roles`; `MASK_ROWS` is
+transcribed nowhere here) and `hash_domain.rs` (the one guard the gate
+computes, the path length, is ported from `pcs::verify_zk_tagged`). The
+second reason in each case is the same and is the mechanism's limit:
+**this gate reads a BUNDLE, never the Rust tree**, so a file can be pinned
+here only if the writer pins it — and none of the four is in
+`run_capture.rs::SOURCE_FILES`. That fact is read out of the Rust by a
+test, not asserted. Closing it is a Rust-lane ask, recorded in the ledger.
+
+## 10.3 Read, then pinned
+
+| file | digests | lane commits | bundles |
+|---|---|---|---|
+| `run_capture.rs` | `51f26bc1` / `975364b9` / `0cb54ae3` | `cb27845d` / `aff891d` / `facc057`+`0426ad2`+`3247a89` | a,b / c,d / e–j |
+| `run.rs` | `02f7ee7e` / `87b3f0c4` / `65d55d25` / `73f68221` | `cb27845d`+`aff891d` / `facc057` / `0426ad2` / `3247a89` | a–d / e,f / g,h / i,j |
+| `boundary.rs` | `9860c35d` / `3786a300` | `cb27845d`+`aff891d` / `facc057`+`0426ad2`+`3247a89` | a–d / e–j |
+
+Every digest was recomputed from the committed blob at every commit it
+names — fifteen (file, commit) combinations — and equals what the bundles'
+manifests declare. The written reading of each pair is in
+`zk60_native_rg_runpins.READINGS` and is tabulated line by line in the
+ledger's §R6.5b. In short: the two `run_capture.rs` steps are stage 15's
+plane index (84/3) and stage 17/18's D19 tag (65/7), neither touching a
+field the loader already read; the three `run.rs` steps are the D19 tag
+plumbing (48/9, header and stage loop untouched), ruling R-5's scale
+refusal (30/0, no absorb added) and rung-K4's profile constant (9/0); the
+one `boundary.rs` step is the D19 tag plumbing again (production +27/−3,
+tests +15/−10), with **not one geometry accessor moved**.
+
+## 10.4 What a refusal does
+
+A digest outside the table leaves the AFFECTED STAGES not checked, **by
+name**, with every reason listed and a sentence saying the zeros are the
+absence of a check and not a passing one.
+
+| refused file | stages suspended |
+|---|---|
+| `run_capture.rs` | all ten |
+| `run.rs` | all ten |
+| `boundary.rs` | **six** — 1, 3, 4, 5, 6, 7. Stage 2 absorbs the boundary ROOT with the rows and width the capture states, so the replay does not depend on this file; nor do the plane index, the hash layer or the group factor, and a live test shows those four really run |
+
+`stage7_channels` is suspended whenever anything is, so `channels()` is
+never handed a partial record. Three live tests run the WHOLE gate on a
+bundle whose digest the table has not read — one run-layer file, the
+boundary (the partial case), and an ARGUMENT-layer file (`shape.rs`, the
+path K4-F1 repaired) — and none of the three raises.
+
+## 10.5 The record corrected
+
+Nothing is rewritten; each correction is dated in place.
+
+| where | said | says |
+|---|---|---|
+| §1 | the bundle "pins its own Rust sources", reading as though the gate checked them | a dated note: a bundle PINNING and a gate CHECKING are two different things, and three of these were compared with nothing until 2026-09-21 |
+| §6.3 | the four the terminal port pins | plus a dated note naming where the other three are pinned now, and that they were pinned by nothing before |
+| §9.2 here, and §R5.4 of the ledger | `run.rs` `0426ad2 → 3247a89`: "12 added lines, 0 removed" | **9 added, 0 removed** (`git diff --numstat`); both carry the dated correction beside the original figure |
+| §9.2 | "`run_capture.rs` and `boundary.rs` are byte-identical" | true BETWEEN those two commits; across all five, `run_capture.rs` has three digests and `boundary.rs` two |
+| `rg_terminals`'s `NOT_PINNED_BY_ANY_RUN_GATE_TOOL` | "`boundary.rs` … byte-identical at every capture commit so far (`3786a300`)" | **wrong**: bundles a–d pin `9860c35d`. The dict is renamed `WAS_NOT_PINNED_BY_ANY_RUN_GATE_TOOL_UNTIL_20260921`, kept as the dated record of what was true, with the old name as an alias |
+| §9.11 | "finding K4-F2 is recorded, not repaired" | plus "CLOSED 2026-09-21 in §10" |
+
+## 10.6 Every figure of record, unchanged
+
+All ten in-scope bundles re-run under the current tools, into the same
+evidence directory each record of record lives in, and diffed **leaf by
+leaf** against the committed bytes taken with `git show HEAD:…` into
+`results/zk60_native_run_gate_runpins/before/` before any run.
+
+| | a–d | e–j |
+|---|---:|---:|
+| identical leaves | 2,748–3,528 | 3,861–4,029 |
+| new leaves, all under `run_layer_source_pins` | **46** | **52** |
+| changed leaves | **4–5** | **3–5** |
+| leaves only in the OLD record | **0** | **0** |
+| **UNCLASSIFIED differing leaves** | **0** | **0** |
+
+The changed leaves are, on every bundle, one to three wall clocks and two
+tool hashes (`zk60_native_run_gate.py`, `zk60_native_rg_terminals.py`),
+plus one new tool hash for the new module. **Not one rank, disclosed
+dimension, challenge count, slot check, control figure, channel count or
+receipt size differs on any of the ten.**
+
+## 10.7 The suite
+
+`-p 'test_zk60_native_run_gate_runpins.py'`: **25 tests, OK**, 28.5 s.
+`-p 'test_zk60_native_run_gate*.py'`: **184 tests, OK**, 71.6 s (round 5:
+159). The whole native suite is in the ledger's §R6.7.
+
+## 10.8 What this round is NOT
+
+* **It is not a new figure about a run.** Round 6 computes no rank it did
+  not compute before; it makes true a sentence about the tools that was
+  false.
+* **A pin is not a proof that the Rust is right.** It says this gate has
+  READ the bytes that made the bundle. The reading is a human reading,
+  recorded next to the digest so the next reader can disagree with it.
+* **It does not close the writer-side gap.** Four run-layer files are on
+  the run's path and in no bundle's `source_pins`, so they cannot be pinned
+  from a bundle at all. No port depends on any of them today — which is
+  exactly the fact that would stop being true if a port grew.
+* **Nothing here moves D8/D11, ruling M-8's decision, the hash layer's
+  ARGUED hiding, or the open sumcheck / CFS channel.**

@@ -50,6 +50,91 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
+ "run_layer_source_pins": {
+  "files_checked": [
+   "src/private_block/boundary.rs",
+   "src/private_block/run.rs",
+   "src/private_block/run_capture.rs"
+  ],
+  "ok": true,
+  "on_the_run_layer_but_not_pinnable_from_a_bundle": {
+   "src/private_block/endpoint_g.rs": "the external endpoint commitment.  (a) The gate reads the endpoint's row count from `run.json[\"shape\"][\"endpoint_rows\"]` and which rows are non-data from the capture's own `row_roles`; `endpoint_g::MASK_ROWS` is not transcribed anywhere in the run gate (the TOY gate's analogue, `private_seam.rs`, is pinned by `zk60_native_mask_commit.PATH_PINS`).  (b) The writer does not pin it",
+   "src/private_block/hash_domain.rs": "the C-H4 / T-3 / T-4 hash-length guards.  (a) The one guard the gate computes is the path-length check, and it is ported from `pcs::verify_zk_tagged` (pcs.rs:1188) against the commitment's own encoded width, not from this file; no other guard has a Python counterpart.  (b) The writer does not pin it",
+   "src/private_block/run_sink.rs": "the segment writer (a run's bytes to a directory).  (a) No port reads a segment file; `HL_RUN_CAPTURE_SEGMENTS` is off in every committed bundle and no bundle in scope carries a `segments/` directory.  (b) The writer does not pin it",
+   "src/private_block/wire.rs": "the segment codec.  (a) No port decodes a segment: the gate reads the bundle's JSON, and a stage's `segment_bytes` / `segment_sha256` are REPORTED sizes, never inputs to a check.  The start and end tags the frame binds are re-derived from the transcript and compared with the ones the capture recorded, so the comparison is against `run::position_tag`, not against the frame.  (b) The writer does not pin it, so no bundle carries a digest to compare"
+  },
+  "per_file": [
+   {
+    "bundles_written_at_them": [
+     "run-e-tame-tagged",
+     "run-f-zero-tagged",
+     "run-g-dense-s20",
+     "run-h-zero-s20",
+     "run-i-dense-k4",
+     "run-j-zero-k4"
+    ],
+    "bytes": 33954,
+    "declared": "3786a3001b49bcd760f07007096ba285531ae0ecb933630808fef6aa18a5e9db",
+    "file": "src/private_block/boundary.rs",
+    "git_blob": "c6f060c6886deb46b4e3f882b2c35917a3654d96",
+    "lane_commits": [
+     "facc0574a3fe5817c24720157e802b33085a85d8",
+     "0426ad258cd5d1f77cd62760f29ae186dc43e624",
+     "3247a89762248cfb43f9fdd9cd9147251d69d1df"
+    ],
+    "read": true,
+    "reading": "`git diff aff891d facc057`: **42 added, 13 removed, 13 hunks**, and the split matters: **production +27 / -3**, `#[cfg(test)] mod tests` (from line 311 of the old file) **+15 / -10**.  STAGE 17/18: `new` keeps its signature and delegates to a new `new_with_tag` under `HashTag::legacy()`; the C-H4 guard becomes `no_commitment_has_a_node_shaped_column_under(..., tag)`, imposed under the legacy rule only; `prepare` takes the run's tag and calls `commit_zk_owned_tagged`.  The ten test-side removals are `prepare` call sites gaining `&HashTag::legacy()` and the claim-sites refusal case moving from 3 sites to 4 (three would give 12 commitment rows, whose column hashes to 96 bytes, which the completed C-H4 now refuses for its own reason).  **Not one geometry accessor moved**: `data_rows`, `commitment_rows`, `site_rows`, `prox_row`, `mask_row`, `MAX_SITES` and ruling M-1's refusal are byte-identical, and the ports read only those"
+   },
+   {
+    "bundles_written_at_them": [
+     "run-e-tame-tagged",
+     "run-f-zero-tagged"
+    ],
+    "bytes": 39294,
+    "declared": "87b3f0c47dbd4d9bc8f29ea758504cf18f1eff731ad13038a8dfceac8a7c3ef8",
+    "file": "src/private_block/run.rs",
+    "git_blob": "c38c30e8657a29f6a2f4afceab06d8b326ee74c0",
+    "lane_commits": [
+     "facc0574a3fe5817c24720157e802b33085a85d8"
+    ],
+    "read": true,
+    "reading": "`git diff aff891d facc057`: **48 added, 9 removed, 12 hunks, no test module in this file**.  STAGE 16/17/18, decision D19 and rulings T-1 / T-3 / T-4 / T-7: the run-level hash-length guard (`hash_domain::imposed_at_shape_with` over A, H, M, the external endpoint and the internal boundary), `boundary_spec` -> `BoundarySpec::new_with_tag(..., &sh.hash_tag())`, `transcript` -> `protocol::tagged_transcript(sh, profile)`, T-4's `segment_paths_are_the_tree_depth`, the verifier's own `tag` field derived from its statement and never from a segment, and three `pcs::verify_zk` -> `verify_zk_tagged`.  **The header's six absorbs and their order, `position_tag`, the stage loop, the boundary-before-A rule, `BOUNDARY_SITES` and the opening order are untouched.**  The one thing a port depends on that DID move is the transcript constructor, and that is precisely what the D19 rule the loader DERIVES selects: `RunReplay.run` opens with `rule.transcript(...)`, written in round 3"
+   },
+   {
+    "bundles_written_at_them": [
+     "run-e-tame-tagged",
+     "run-f-zero-tagged",
+     "run-g-dense-s20",
+     "run-h-zero-s20",
+     "run-i-dense-k4",
+     "run-j-zero-k4"
+    ],
+    "bytes": 67932,
+    "declared": "0cb54ae30f7aed660b69d973624a262a12777387eb85b6ca83709dfeb19f6a63",
+    "file": "src/private_block/run_capture.rs",
+    "git_blob": "18fb8817c7203397d3fadbe8c0b6aeecf1058d13",
+    "lane_commits": [
+     "facc0574a3fe5817c24720157e802b33085a85d8",
+     "0426ad258cd5d1f77cd62760f29ae186dc43e624",
+     "3247a89762248cfb43f9fdd9cd9147251d69d1df"
+    ],
+    "read": true,
+    "reading": "`git diff aff891d facc057`: **65 added, 7 removed, 9 hunks, none in a test module**.  STAGE 17/18, decision D19: the recorder rebuilds the header under `protocol::tagged_transcript` (so its binding comparison is the verifier's and a legacy-rule recorder would fail it at every tagged profile), `mask_verify_tagged` and `verify_zk_tagged` at the two replay call sites, a new `hash_tag` member in `run.json` with 9 new `ALLOWED_KEYS`, and `SOURCE_FILES` 7 -> 8 (`shape.rs`).  `TRANSCRIPT_PROGRAM` grows 9 -> 10 entries; NO port reads it (`grep -rn transcript_program scripts/ tests/` is empty), and `transcript_labels`, which every port does read through `EXPECTED_LABELS`, is **unchanged at 19 entries**.  The `hash_tag` member is what `zk60_native_rg_hashrule` re-derives and compares under ruling T-7, written in round 3"
+   }
+  ],
+  "pinned_elsewhere": {
+   "src/private_block/plane_index.rs": "zk60_native_rg_terminals.PORTED_FROM (one digest, 9de8320a8477...); a moved pin makes every slot of every stage NOT CHECKED"
+  },
+  "pins_at_a_read_digest": [
+   "src/private_block/boundary.rs: 3786a3001b49 -- read at facc057, 0426ad2, 3247a89",
+   "src/private_block/run.rs: 87b3f0c47dbd -- read at facc057",
+   "src/private_block/run_capture.rs: 0cb54ae30f7a -- read at facc057, 0426ad2, 3247a89"
+  ],
+  "pins_missing_from_the_bundle": [],
+  "pins_that_moved": [],
+  "stages_not_checked": {},
+  "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
+ },
  "seconds": 16.7,
  "stage10_bilinear_group_factor": {
   "controls": {
@@ -849,7 +934,7 @@
    "exact_rank_of_the_pad_block": 246,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.6,
+   "seconds": 3.4,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -3510,7 +3595,7 @@
    },
    "rows_total": 3785,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 1.2,
+   "seconds": 1.1,
    "sum_of_parts_fp": 6
   }
  },
@@ -5330,9 +5415,10 @@
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
+  "zk60_native_rg_runpins.py": "24e3c391275b792b0f91d53450e459820d3a9214dcd16268149add299aee2dda",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
-  "zk60_native_rg_terminals.py": "9edad3ee03ae8c1e3fe7a46adcc68004a81e96d411f400325a4b2c70ed426f6f",
-  "zk60_native_run_gate.py": "a58dd83d1967ff3b689d04ef84886d508e5179017914dc4d66862aa4fd9cf877"
+  "zk60_native_rg_terminals.py": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
+  "zk60_native_run_gate.py": "7f76c8ecd9152ea6a7ae5a24abe4c88130b6bafeb060962db68cb1da77f430ce"
  },
  "version": 1,
  "what_it_does_not_show": [

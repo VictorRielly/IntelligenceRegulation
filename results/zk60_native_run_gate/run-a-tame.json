@@ -37,7 +37,86 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 9.8,
+ "run_layer_source_pins": {
+  "files_checked": [
+   "src/private_block/boundary.rs",
+   "src/private_block/run.rs",
+   "src/private_block/run_capture.rs"
+  ],
+  "ok": true,
+  "on_the_run_layer_but_not_pinnable_from_a_bundle": {
+   "src/private_block/endpoint_g.rs": "the external endpoint commitment.  (a) The gate reads the endpoint's row count from `run.json[\"shape\"][\"endpoint_rows\"]` and which rows are non-data from the capture's own `row_roles`; `endpoint_g::MASK_ROWS` is not transcribed anywhere in the run gate (the TOY gate's analogue, `private_seam.rs`, is pinned by `zk60_native_mask_commit.PATH_PINS`).  (b) The writer does not pin it",
+   "src/private_block/hash_domain.rs": "the C-H4 / T-3 / T-4 hash-length guards.  (a) The one guard the gate computes is the path-length check, and it is ported from `pcs::verify_zk_tagged` (pcs.rs:1188) against the commitment's own encoded width, not from this file; no other guard has a Python counterpart.  (b) The writer does not pin it",
+   "src/private_block/run_sink.rs": "the segment writer (a run's bytes to a directory).  (a) No port reads a segment file; `HL_RUN_CAPTURE_SEGMENTS` is off in every committed bundle and no bundle in scope carries a `segments/` directory.  (b) The writer does not pin it",
+   "src/private_block/wire.rs": "the segment codec.  (a) No port decodes a segment: the gate reads the bundle's JSON, and a stage's `segment_bytes` / `segment_sha256` are REPORTED sizes, never inputs to a check.  The start and end tags the frame binds are re-derived from the transcript and compared with the ones the capture recorded, so the comparison is against `run::position_tag`, not against the frame.  (b) The writer does not pin it, so no bundle carries a digest to compare"
+  },
+  "per_file": [
+   {
+    "bundles_written_at_them": [
+     "run-a-tame",
+     "run-b-zero",
+     "run-c-tame",
+     "run-d-zero"
+    ],
+    "bytes": 31741,
+    "declared": "9860c35d4db93afa52ba4287ac949209dc3d93957da51a6aeee91b0951a215e6",
+    "file": "src/private_block/boundary.rs",
+    "git_blob": "18f951e77f76370671d6fdd9a4cce29eeb5aba09",
+    "lane_commits": [
+     "cb27845d5ad3a0e401c48c4eebeac7fe4a86f171",
+     "aff891dba109812a625b8a15459f9710abcb7a1a"
+    ],
+    "read": true,
+    "reading": "BASE (stage 14/15).  Read whole against `zk60_native_rg_bundle` and `zk60_native_rg_joint`: `commitment_rows() = data_rows + 2*sites + 2`, `site_rows()` the `2*sites` rows after the data, `prox_row()` the first row after them, `mask_row(s) = data_rows + 2*s` with site 0 the outgoing claim and site 1 the incoming, `MAX_SITES = 4`, ruling M-1's refusal of a declared row count that is not the derived one (with both numbers in the message), and `prepare` writing the plane at the front and setting `mask_rows = site_rows()`, `prox_mask_row = prox_row()`.  Those are exactly `integrity`'s boundary-table checks and the `2*sites + 2 = 6` reserved columns over `2(G+1) = 6` generators that `boundary_reserved_figure` ranks, and they are what controls C1 and C2 perturb"
+   },
+   {
+    "bundles_written_at_them": [
+     "run-a-tame",
+     "run-b-zero",
+     "run-c-tame",
+     "run-d-zero"
+    ],
+    "bytes": 36594,
+    "declared": "02f7ee7e922d83f66d77aa64540ee141305b3fe7a6c1127aca55739884cde6bb",
+    "file": "src/private_block/run.rs",
+    "git_blob": "4e79342ae11e3f9df67e960bd62eb6d166c451fb",
+    "lane_commits": [
+     "cb27845d5ad3a0e401c48c4eebeac7fe4a86f171",
+     "aff891dba109812a625b8a15459f9710abcb7a1a"
+    ],
+    "read": true,
+    "reading": "BASE (stage 14/15).  Read whole against `zk60_native_rg_replay`: `RunStatement::transcript` opens `Transcript::new(profile)` and absorbs `run-shape` (seven little-endian u64 in the order L, tokens, width, hidden, q_heads, kv_heads, head_dim), `expected-IO`, `public-statement`, `parameters`, `calibration`, `schedule`; `binding()` is the state there.  `prove_run` and `RunVerifier::step` absorb `pb-run-stage`, `pb-run-block`, then `absorb_root(b\"B\")` when `k + 1 < L`, then the block family.  `position_tag` squeezes two Fp2 from a DISCARDED clone.  `BOUNDARY_SITES = 2`, and `in_site` / `out_site` put the incoming claim at slot 21 and the outgoing at slot 22.  Each of those is a line of `RunReplay.run` / `._stage`, and the opening order is `integrity`'s `want_order`"
+   },
+   {
+    "bundles_written_at_them": [
+     "run-a-tame",
+     "run-b-zero"
+    ],
+    "bytes": 60883,
+    "declared": "51f26bc1f0d341973992f36187c5e831460093a80db4ba32528e4b072dba89f9",
+    "file": "src/private_block/run_capture.rs",
+    "git_blob": "8477446f295c915d4822a45e1f95d2eb041171c2",
+    "lane_commits": [
+     "cb27845d5ad3a0e401c48c4eebeac7fe4a86f171"
+    ],
+    "read": true,
+    "reading": "BASE (stage 14, the writer's first version).  Read whole against `zk60_native_rg_bundle`: `SCHEMA = \"hashline-native-capture/4-run\"`, the three kinds, `coverage = \"native-run-all-stages-v1\"`, the run-file and stage-file field orders in `write_run` / `write_stage`, `TRANSCRIPT_LABELS` (19 entries, equal entry for entry to `EXPECTED_LABELS`), `ALLOWED_KEYS`, `SOURCE_FILES` (6), and `write_bundle`'s manifest with its per-file digests and `source_pins`.  Every field the loader reads by name is emitted here, and nothing the loader reads is absent"
+   }
+  ],
+  "pinned_elsewhere": {
+   "src/private_block/plane_index.rs": "zk60_native_rg_terminals.PORTED_FROM (one digest, 9de8320a8477...); a moved pin makes every slot of every stage NOT CHECKED"
+  },
+  "pins_at_a_read_digest": [
+   "src/private_block/boundary.rs: 9860c35d4db9 -- read at cb27845, aff891d",
+   "src/private_block/run.rs: 02f7ee7e922d -- read at cb27845, aff891d",
+   "src/private_block/run_capture.rs: 51f26bc1f0d3 -- read at cb27845"
+  ],
+  "pins_missing_from_the_bundle": [],
+  "pins_that_moved": [],
+  "stages_not_checked": {},
+  "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
+ },
+ "seconds": 9.3,
  "stage10_bilinear_group_factor": {
   "controls": {
    "ok": true,
@@ -662,7 +741,7 @@
    "exact_rank_of_the_pad_block": 247,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 4.0,
+   "seconds": 3.5,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -3601,9 +3680,10 @@
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
+  "zk60_native_rg_runpins.py": "24e3c391275b792b0f91d53450e459820d3a9214dcd16268149add299aee2dda",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
-  "zk60_native_rg_terminals.py": "9edad3ee03ae8c1e3fe7a46adcc68004a81e96d411f400325a4b2c70ed426f6f",
-  "zk60_native_run_gate.py": "a58dd83d1967ff3b689d04ef84886d508e5179017914dc4d66862aa4fd9cf877"
+  "zk60_native_rg_terminals.py": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
+  "zk60_native_run_gate.py": "7f76c8ecd9152ea6a7ae5a24abe4c88130b6bafeb060962db68cb1da77f430ce"
  },
  "version": 1,
  "what_it_does_not_show": [

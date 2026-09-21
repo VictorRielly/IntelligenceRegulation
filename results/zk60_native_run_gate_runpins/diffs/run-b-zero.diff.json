@@ -1,0 +1,82 @@
+{
+ "changed": [
+  {
+   "new": 9.2,
+   "old": 9.6,
+   "path": "seconds"
+  },
+  {
+   "new": 3.5,
+   "old": 3.7,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.1,
+   "old": 1.2,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
+   "old": "9edad3ee03ae8c1e3fe7a46adcc68004a81e96d411f400325a4b2c70ed426f6f",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  },
+  {
+   "new": "7f76c8ecd9152ea6a7ae5a24abe4c88130b6bafeb060962db68cb1da77f430ce",
+   "old": "a58dd83d1967ff3b689d04ef84886d508e5179017914dc4d66862aa4fd9cf877",
+   "path": "tool_sha256/zk60_native_run_gate.py"
+  }
+ ],
+ "identical_leaves": 2748,
+ "leaves_new": 2800,
+ "leaves_old": 2753,
+ "only_in_the_new_record": [
+  "run_layer_source_pins/files_checked/[0]",
+  "run_layer_source_pins/files_checked/[1]",
+  "run_layer_source_pins/files_checked/[2]",
+  "run_layer_source_pins/ok",
+  "run_layer_source_pins/on_the_run_layer_but_not_pinnable_from_a_bundle/src/private_block/endpoint_g.rs",
+  "run_layer_source_pins/on_the_run_layer_but_not_pinnable_from_a_bundle/src/private_block/hash_domain.rs",
+  "run_layer_source_pins/on_the_run_layer_but_not_pinnable_from_a_bundle/src/private_block/run_sink.rs",
+  "run_layer_source_pins/on_the_run_layer_but_not_pinnable_from_a_bundle/src/private_block/wire.rs",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[0]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[1]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[2]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[3]",
+  "run_layer_source_pins/per_file/[0]/bytes",
+  "run_layer_source_pins/per_file/[0]/declared",
+  "run_layer_source_pins/per_file/[0]/file",
+  "run_layer_source_pins/per_file/[0]/git_blob",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[0]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[1]",
+  "run_layer_source_pins/per_file/[0]/read",
+  "run_layer_source_pins/per_file/[0]/reading",
+  "run_layer_source_pins/per_file/[1]/bundles_written_at_them/[0]",
+  "run_layer_source_pins/per_file/[1]/bundles_written_at_them/[1]",
+  "run_layer_source_pins/per_file/[1]/bundles_written_at_them/[2]",
+  "run_layer_source_pins/per_file/[1]/bundles_written_at_them/[3]",
+  "run_layer_source_pins/per_file/[1]/bytes",
+  "run_layer_source_pins/per_file/[1]/declared",
+  "run_layer_source_pins/per_file/[1]/file",
+  "run_layer_source_pins/per_file/[1]/git_blob",
+  "run_layer_source_pins/per_file/[1]/lane_commits/[0]",
+  "run_layer_source_pins/per_file/[1]/lane_commits/[1]",
+  "run_layer_source_pins/per_file/[1]/read",
+  "run_layer_source_pins/per_file/[1]/reading",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[0]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[1]",
+  "run_layer_source_pins/per_file/[2]/bytes",
+  "run_layer_source_pins/per_file/[2]/declared",
+  "run_layer_source_pins/per_file/[2]/file",
+  "run_layer_source_pins/per_file/[2]/git_blob",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[0]",
+  "run_layer_source_pins/per_file/[2]/read",
+  "run_layer_source_pins/per_file/[2]/reading",
+  "run_layer_source_pins/pinned_elsewhere/src/private_block/plane_index.rs",
+  "run_layer_source_pins/pins_at_a_read_digest/[0]",
+  "run_layer_source_pins/pins_at_a_read_digest/[1]",
+  "run_layer_source_pins/pins_at_a_read_digest/[2]",
+  "run_layer_source_pins/what",
+  "tool_sha256/zk60_native_rg_runpins.py"
+ ],
+ "only_in_the_old_record": []
+}

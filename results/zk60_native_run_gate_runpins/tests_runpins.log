@@ -1,0 +1,39 @@
+test_a_digest_of_a_neighbouring_commit_is_still_accepted (test_zk60_native_run_gate_runpins.AChangedByteIsRefusedByName)
+The table is a set of READ digests, not one value: a bundle from ... ok
+test_a_file_dropped_from_the_manifest_is_refused_too (test_zk60_native_run_gate_runpins.AChangedByteIsRefusedByName) ... ok
+test_each_newly_pinned_file_is_refused_by_its_own_name (test_zk60_native_run_gate_runpins.AChangedByteIsRefusedByName) ... ok
+test_the_control_nothing_flipped_passes (test_zk60_native_run_gate_runpins.AChangedByteIsRefusedByName)
+So the refusals above are the perturbation's, not the copying's. ... ok
+test_a_run_layer_digest_suspends_every_stage_by_name (test_zk60_native_run_gate_runpins.AnUnknownDigestLeavesStagesNotCheckedWithoutCrashing) ... ok
+test_an_argument_layer_digest_still_refuses_without_crashing (test_zk60_native_run_gate_runpins.AnUnknownDigestLeavesStagesNotCheckedWithoutCrashing)
+The other refusal path, the one K4-F1 repaired: `shape.rs` is an ... ok
+test_the_boundary_suspends_six_stages_and_the_other_four_still_run (test_zk60_native_run_gate_runpins.AnUnknownDigestLeavesStagesNotCheckedWithoutCrashing) ... ok
+test_all_ten_bundles_run_layer_pins_are_read_digests (test_zk60_native_run_gate_runpins.EveryInScopeBundlePasses) ... ok
+test_the_source_commit_a_bundle_declares_is_one_the_table_lists (test_zk60_native_run_gate_runpins.EveryInScopeBundlePasses)
+A bundle names its own lane commit in `run.json`; the digest it ... ok
+test_the_tables_bundle_cross_reference_is_the_manifests (test_zk60_native_run_gate_runpins.EveryInScopeBundlePasses)
+The table says which bundles were written at each digest.  That ... ok
+test_every_pinned_digest_is_the_blob_at_every_commit_it_names (test_zk60_native_run_gate_runpins.TheDigestsAreTheCommittedBlobs) ... ok
+test_one_flipped_byte_in_each_file_is_not_a_read_digest (test_zk60_native_run_gate_runpins.TheDigestsAreTheCommittedBlobs)
+The refusal above is asserted on a made-up digest; this is the ... ok
+test_the_four_unpinnable_files_are_really_not_in_source_files (test_zk60_native_run_gate_runpins.TheDigestsAreTheCommittedBlobs)
+`NOT_PINNABLE_FROM_A_BUNDLE` claims the WRITER does not pin them. ... ok
+test_every_dependency_names_a_port_and_a_reference (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_every_file_a_port_depends_on_is_pinned_somewhere (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_every_pinned_digest_has_a_written_reading (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList)
+A pin added without a reading is what this discipline forbids. ... ok
+test_plane_index_is_pinned_elsewhere_and_not_twice (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList)
+Two tools pinning one file at two digests is how a pin quietly ... ok
+test_the_affected_stage_table_is_complete_and_names_real_stages (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_the_boundary_suspends_a_named_subset_not_everything (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_the_not_checked_record_says_the_absence_is_not_a_figure (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_the_not_pinnable_files_are_named_and_disjoint (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_the_three_newly_pinned_files_are_the_ones_k4_f2_named (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_the_writer_and_the_run_suspend_everything (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList) ... ok
+test_boundary_rs_is_not_byte_identical_at_every_capture_commit (test_zk60_native_run_gate_runpins.TheRoundFiveFiguresThisRoundCorrects) ... ok
+test_the_run_rs_line_count_is_corrected_to_nine (test_zk60_native_run_gate_runpins.TheRoundFiveFiguresThisRoundCorrects) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 28.545s
+
+OK
