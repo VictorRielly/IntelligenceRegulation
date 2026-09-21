@@ -426,7 +426,7 @@ fn rung_witness() -> (Shape, Ids, witness::Witness) {
 ///
 /// `true` means "everything this module can check still holds".
 #[cfg(test)]
-fn every_checkable_relation_holds(s: &Shape, ids: &Ids, w: &witness::Witness) -> bool {
+pub(super) fn every_checkable_relation_holds(s: &Shape, ids: &Ids, w: &witness::Witness) -> bool {
     let g = Geom::new(s);
     let sup_d = g.support(Dom::D);
     let limb = |p: usize, base: usize, t: usize| -> i64 { (0..LIMBS_ISQRT).map(|k| w.planes[p][(base + k) * s.t_pad + t] << (8 * k)).sum() };
@@ -813,36 +813,72 @@ mod tests {
     /// construction check is entrywise, which is strictly stronger; this ties
     /// the two together by folding each matrix the way its slot folds it and
     /// asserting the result vanishes off the inner axis's support.
+    ///
+    /// **STAGE 19, the one-sided check tightened.** Until this stage the
+    /// attention branch asserted that its fold is NOT identically zero — so
+    /// that "vanishes off support" says something — and the feed-forward
+    /// branch did not. It now does, and it also makes the statement the
+    /// `f > d` geometry needs and no test had: along the HIDDEN axis the
+    /// feed-forward weights must reach **above `d`**, into `[d, f)`, and stop
+    /// at `f`. `Wd`'s own fold is already a hidden-axis vector; `Wg` and `Wu`
+    /// fold the other way, so their hidden-axis support is read with the
+    /// mirror fold — an instrument for the support statement, not a fold any
+    /// slot performs. Run at BOTH `Shape::rung()` and `Shape::rung_g()`, the
+    /// two shapes with `f = 2d`.
     #[test]
     fn the_folded_weight_vectors_vanish_off_support() {
         use crate::field::Fp2;
         use crate::mle::{fold_cols_i8, fold_rows_i8};
-        let s = Shape::rung();
-        let (d, f, kvw, dp, fp) = (s.width, s.hidden, s.kv_heads * s.head_dim, s.d_pad, s.f_pad);
-        let band = |outer: usize, inner: usize| -> Vec<i8> { (0..outer * inner).map(|k| ((k * 37 + 11) % 61) as i8 - 30).collect() };
-        let aw = super::super::grow_tests::pad_attention_weights(&s, &band(d, d), &band(kvw, d), &band(kvw, d), &band(d, d), &vec![64i8; d]);
-        let fw = super::super::grow_tests::pad_ff_weights(&s, &vec![64i8; d], &band(d, f), &band(d, f), &band(f, d));
-        let pt = |n: usize| -> Vec<Fp2> { (0..n).map(|i| Fp2::from_i64((i * 1_000_003 + 7) as i64)).collect() };
-        let q_supported = |i: usize| s.slot_is_true_head(i / s.head_dim);
-        // `SC_QMM` / `SC_KMM` / `SC_VMM` / `SC_WO` fold over the OUTPUT axis
-        // the folded vector is over the INNER (input) axis: `Dom::D` for
-        // `Wq` / `Wk` / `Wv`, the head-permuted `Dom::Q` for `Wo`
-        let d_supported = |i: usize| i < d;
-        let cases: [(&Vec<i8>, usize, &str, &dyn Fn(usize) -> bool); 4] =
-            [(&aw[0], dp, "Wq", &d_supported), (&aw[1], kvw, "Wk", &d_supported), (&aw[2], kvw, "Wv", &d_supported), (&aw[3], dp, "Wo", &q_supported)];
-        for (w, outer, name, supported) in cases {
-            let folded = fold_rows_i8(w, outer, dp, &pt(outer));
-            assert!(folded.iter().any(|v| *v != Fp2::ZERO), "{name}: the fold is identically zero, so the check says nothing");
-            for (i, v) in folded.iter().enumerate() {
-                assert!(supported(i) || *v == Fp2::ZERO, "{name}: the folded weight is nonzero at unsupported input index {i}");
+        for s in [Shape::rung(), Shape::rung_g()] {
+            let (d, f, kvw, dp, fp) = (s.width, s.hidden, s.kv_heads * s.head_dim, s.d_pad, s.f_pad);
+            assert!(f > d, "{}: this test is about the f > d geometry", s.name);
+            let band = |outer: usize, inner: usize| -> Vec<i8> { (0..outer * inner).map(|k| ((k * 37 + 11) % 61) as i8 - 30).collect() };
+            let aw = super::super::grow_tests::pad_attention_weights(&s, &band(d, d), &band(kvw, d), &band(kvw, d), &band(d, d), &vec![64i8; d]);
+            let fw = super::super::grow_tests::pad_ff_weights(&s, &vec![64i8; d], &band(d, f), &band(d, f), &band(f, d));
+            let pt = |n: usize| -> Vec<Fp2> { (0..n).map(|i| Fp2::from_i64((i * 1_000_003 + 7) as i64)).collect() };
+            let q_supported = |i: usize| s.slot_is_true_head(i / s.head_dim);
+            // `SC_QMM` / `SC_KMM` / `SC_VMM` / `SC_WO` fold over the OUTPUT axis
+            // the folded vector is over the INNER (input) axis: `Dom::D` for
+            // `Wq` / `Wk` / `Wv`, the head-permuted `Dom::Q` for `Wo`
+            let d_supported = |i: usize| i < d;
+            let cases: [(&Vec<i8>, usize, &str, &dyn Fn(usize) -> bool); 4] =
+                [(&aw[0], dp, "Wq", &d_supported), (&aw[1], kvw, "Wk", &d_supported), (&aw[2], kvw, "Wv", &d_supported), (&aw[3], dp, "Wo", &q_supported)];
+            for (w, outer, name, supported) in cases {
+                let folded = fold_rows_i8(w, outer, dp, &pt(outer));
+                assert!(folded.iter().any(|v| *v != Fp2::ZERO), "{}: {name}: the fold is identically zero, so the check says nothing", s.name);
+                for (i, v) in folded.iter().enumerate() {
+                    assert!(supported(i) || *v == Fp2::ZERO, "{}: {name}: the folded weight is nonzero at unsupported input index {i}", s.name);
+                }
             }
-        }
-        // the three feed-forward matmuls fold over the OUTPUT axis too, but
-        // their matrices are `(input, output)` row-major, so `fold_cols_i8`
-        for (w, rows, cols, name, lim) in [(&fw[1], dp, fp, "Wg", d), (&fw[2], dp, fp, "Wu", d), (&fw[3], fp, dp, "Wd", f)] {
-            let folded = fold_cols_i8(w, rows, cols, &pt(cols));
-            for (i, v) in folded.iter().enumerate() {
-                assert!(i < lim || *v == Fp2::ZERO, "{name}: the folded weight is nonzero at unsupported input index {i}");
+            // the three feed-forward matmuls fold over the OUTPUT axis too, but
+            // their matrices are `(input, output)` row-major, so `fold_cols_i8`
+            for (w, rows, cols, name, lim) in [(&fw[1], dp, fp, "Wg", d), (&fw[2], dp, fp, "Wu", d), (&fw[3], fp, dp, "Wd", f)] {
+                let folded = fold_cols_i8(w, rows, cols, &pt(cols));
+                // STAGE 19: what the attention branch above already asserted
+                assert!(folded.iter().any(|v| *v != Fp2::ZERO), "{}: {name}: the fold is identically zero, so the check says nothing", s.name);
+                for (i, v) in folded.iter().enumerate() {
+                    assert!(i < lim || *v == Fp2::ZERO, "{}: {name}: the folded weight is nonzero at unsupported input index {i}", s.name);
+                }
+            }
+            // **STAGE 19, THE HIDDEN AXIS.** `Wd`'s slot fold is already the
+            // hidden-axis vector (`lim = f` above), so the statement is read
+            // off it directly; `Wg` / `Wu` need the mirror fold. In all three
+            // the band must reach into `[d, f)` — the half of the hidden axis
+            // that the diagonal fixture `tame_case` leaves identically zero at
+            // every shape with `f > d` — and must vanish on `[f, f_pad)`.
+            let hidden_axis: [(Vec<Fp2>, &str); 3] = [
+                (fold_rows_i8(&fw[1], dp, fp, &pt(dp)), "Wg (mirror fold)"),
+                (fold_rows_i8(&fw[2], dp, fp, &pt(dp)), "Wu (mirror fold)"),
+                (fold_cols_i8(&fw[3], fp, dp, &pt(dp)), "Wd"),
+            ];
+            for (folded, name) in hidden_axis {
+                assert_eq!(folded.len(), fp, "{}: {name}: the hidden-axis fold is not the padded hidden length", s.name);
+                let upper = folded[d..f].iter().filter(|v| **v != Fp2::ZERO).count();
+                assert!(upper > 0, "{}: {name}: the folded weight is ZERO at every hidden index in [{d}, {f}) — the upper hidden half is not exercised", s.name);
+                for (i, v) in folded.iter().enumerate().take(fp).skip(f) {
+                    assert!(*v == Fp2::ZERO, "{}: {name}: the folded weight is nonzero at padded hidden index {i}", s.name);
+                }
+                eprintln!("{}: {name}: {upper} of {} hidden indices in [{d}, {f}) carry a nonzero fold, and all {} of [{f}, {fp}) vanish", s.name, f - d, fp - f);
             }
         }
     }
