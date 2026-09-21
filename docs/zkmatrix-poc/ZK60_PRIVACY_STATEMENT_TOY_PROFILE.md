@@ -63,7 +63,7 @@ D21").
 > cover.
 
 > **Two clarifications of scope and of one assumption — note of 2026-09-21
-> 03:24** (rulings J-2 and J-3 of
+> 03:23** (rulings J-2 and J-3 of
 > `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES_DISPOSITION.md`). Neither changes the
 > statement's sentence or any number; both say more exactly what it covers.
 > **(1) This statement covers the profile on the CPU path.** At this untagged
