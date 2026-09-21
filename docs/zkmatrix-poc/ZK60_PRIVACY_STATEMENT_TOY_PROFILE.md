@@ -8,6 +8,20 @@ D21").
 | Status | **IN FORCE for ONE artifact, as register entry D22.** The security owner accepts the privacy of the toy private-block profile in the model the project owner accepted, with the residuals, conditions and limits written below. It is an argument each of whose steps was drafted by one delegated agent and survived an attack by another told to assume it wrong; **it is not a proof re-derived by the security owner, and it lapses for any code that changes one of the seven conditions of §5.** Nothing outside §1's scope may be described as private on the strength of this page. |
 |---|---|
 
+> **Condition 7 is in play — note of 2026-09-20 21:28.** At 20:52 the
+> integrator committed its host/private work to the main branch (`4751b93`). It
+> changes two Rust files the gate of step 3 pins, `hashline/src/pcs.rs` (47
+> lines) and `hashline/src/zk.rs` (395 lines), besides files off this
+> profile's path.
+> The integrator states that the private opening, masks, salts, row spans and
+> transcript are byte-identical and that the toy's proof gates pass; **that is
+> its statement, not yet my reading.** By this page's own condition 7, **for
+> the tree at and after `4751b93`, step 3 is suspended until the changed
+> functions on this profile's path have been re-read and the pins moved with
+> both hashes kept, and the gate re-run on the four captures.** The acceptance
+> stands unchanged for the tree it was argued on (main before `4751b93`). The
+> re-read is queued behind the run gate's current round.
+
 **Changes since the 05:32 draft** (nothing in the argument changed): D19–D21
 are decisions, no longer proposals; the gate's record of record was found
 stale in one file and is being refreshed (its numbers were right); the run
