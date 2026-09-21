@@ -960,6 +960,90 @@ fn write_the_k4_gate_bundles() {
     eprintln!("K4 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
 }
 
+// ============================================================
+// STAGE 30: the bundles at the BOTH-PAD-BRANCHES shape
+// ============================================================
+
+/// **STAGE 30: `run-k-dense-p2` and `run-l-zero-p2`.**
+///
+/// **Why they exist.** Ruling P-1's pad-zero term is drawn per HOST SLOT and
+/// only when that slot's domain pads. Every bundle written before these two
+/// is at a shape where **all nine domains pad**, so in every one of them all
+/// eight host slots are on the padded arm. The only shape that takes the
+/// other arm is 125M — `Dom::T`, `Dom::Kv` and `Dom::F` are exact powers of
+/// two there — and the Python run gate's port of the rule was WRONG on that
+/// arm until 2026-09-21 precisely because no bundle it could read had ever
+/// contained it (its finding **M-F1**).
+///
+/// `Shape::rung_p2` is that case at a size a gate reads in seconds: 125M's
+/// own padded-domain set on rung-K4's padded layout. In these bundles
+/// **slots 02, 16 and 18 carry two challenges fewer** in their
+/// `definition_challenges` than the rung-K4 pair does, and slots 16 and 18
+/// report `"degree":4` where `run-i-dense-k4` reports 5 — which is the whole
+/// of what a port has to get right.
+///
+/// The array store is ON (schema `/5-run`): the classic encoding writes
+/// about 30 MB for a two-block bundle at this size and the store writes
+/// about half of that, and the two are proved to carry the same values by
+/// `the_array_store_and_the_classic_encoding_carry_the_same_values`.
+///
+/// Nothing here deletes or rewrites a bundle: `write_bundle` creates every
+/// file with `create_new`, so a re-run into an existing directory refuses.
+#[test]
+#[ignore = "writes the stage-30 rung-P2 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1"]
+fn write_the_p2_gate_bundles() {
+    let root = PathBuf::from(std::env::var("HL_RUN_CAPTURE_DIR").expect("HL_RUN_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    assert!(
+        std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").map(|v| v == "1").unwrap_or(false),
+        "HL_RUN_CAPTURE_PUBLIC_TABLES=1 is not set: these bundles exist so the run gate can close every slot's terminal identity at a shape with UNPADDED domains, which needs the public tables' VALUES"
+    );
+    let sh = Shape::rung_p2();
+    let l = capture_blocks_from_env(2);
+    assert!(!sh.hashes_under_the_legacy_rule(), "these bundles are meant to be TAGGED and this shape is not");
+    let unpadded: Vec<Dom> = ALL_DOMS.into_iter().filter(|d| !sh.pads(*d)).collect();
+    assert_eq!(unpadded, vec![Dom::T, Dom::Kv, Dom::F], "this shape does not have the three unpadded domains these bundles exist for");
+    let mut total = 0usize;
+    for (tag, dense) in [("run-k-dense-p2", true), ("run-l-zero-p2", false)] {
+        let dir = root.join(tag);
+        let note = format!(
+            "Bundle `{tag}`: one honest {l}-block run at the BOTH-PAD-BRANCHES\ndevelopment shape (`Shape::rung_p2`: 32 tokens, width 96, hidden 256, 12 query\nheads of 8 over 4 key-value heads, padded head slots {{3, 7, 11, 15}}), under\nthe D19 separating hash tag, with the public tables' values.\n\nWHY THIS PAIR EXISTS, AND WHAT IS NEW IN IT. Ruling P-1's pad-zero term is\ndrawn per HOST SLOT and only when the domain that slot hosts actually PADS:\nthe slot draws one extra `mu` and one `zeta` if it does, and neither if it\ndoes not, and the support indicator (one public table, one degree) exists\nonly in the first case. Every bundle written before this pair is at a shape\nwhere all nine domains pad, so no reader has ever seen the other arm at a\nsize it can ingest; the only shape that takes it is 125M.\n\nHere `Dom::T` (32 = 2^5), `Dom::Kv` (32 * 4 * 8 = 2^10) and `Dom::F`\n(32 * 256 = 2^13) are exact powers of two and DO NOT PAD, while `Dom::Ht`,\n`Dom::L`, `Dom::D`, `Dom::Q`, `Dom::S` and `Dom::Tab` do — which is 125M's own\npadded-domain set. Concretely, against `run-i-dense-k4` (the same padded\nlayout with every domain padded):\n\n* `arguments[2]` (`02 norm squares zero-check`), `arguments[16]`\n  (`05 KV zero-check`) and `arguments[18]` (`14 F zero-check`) each carry TWO\n  FEWER entries in `definition_challenges` — the `mu` entry and the `zeta`;\n* `arguments[16]` and `arguments[18]` report `\"degree\":4` where the rung-K4\n  bundles report 5, and their `rounds` carry one value fewer each;\n* those three slots' `tables` lists carry no support-indicator table.\n\nEverything else — the plane index, the slot order, the terminals, the two\ngroup bits of the bilinear slots — is rung-K4's.\n\nHidden input and public weights: {}\n\nThis is a NEW PROFILE (D17): `hashline-zk-mr1/private-block-rung-p2-t32-dev/1`\nfor the block and `hashline-zk-mr1/private-run-rung-p2-t32-dev/1` for the run,\nwith their own hash-tag key set. No byte of any earlier profile moves.\n\nDevelopment grade (ruling P-7). Still not a privacy result: no gate has read\nthis.",
+            if dense {
+                "the FULLY DENSE recipe at this shape's MEASURED chain band (down band 39; `private_block::dense_tests::dense_run_case`): every entry of all nine public words nonzero, a non-constant hidden input from its own unpublished stream, the upper hidden half of the feed-forward planes live, twelve of twelve true head slots live and all four key-value groups carrying PAIRWISE DIFFERENT rotated keys. THE GENERIC WITNESS"
+            } else {
+                "the ALL-ZERO hidden plane on the lane's synthetic tame fixture — the fixed input the privacy case is stated at, and a DEGENERATE witness: every key-value group is identically zero, so it says nothing about the group bits and is kept as the pair's control"
+            }
+        );
+        let n = capture_a_run_into(
+            tag,
+            &sh,
+            RunShape::rung_p2(l).expect("the rung-P2 run shape"),
+            l,
+            dense,
+            true,
+            &dir,
+            &note,
+            "HL_RUN_CAPTURE_DIR=<dir> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib private_block::run_capture_tests::write_the_p2_gate_bundles -- --ignored --nocapture",
+        );
+        // what the bundle must SAY, read back off the files it just wrote
+        let run_json = std::fs::read(dir.join("run.json")).expect("the run file");
+        assert!(contains(&run_json, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "{tag}: the run file does not name the keyed hash rule");
+        assert!(contains(&run_json, "\"public_tables_included\":true"), "{tag}: the run file does not declare that the public tables are included");
+        assert!(contains(&run_json, "hashline-zk-mr1/private-run-rung-p2-t32-dev/1"), "{tag}: the run file does not carry the rung-P2 run profile");
+        for k in 0..l {
+            let stage = std::fs::read(dir.join(run_capture::stage_file(k))).expect("a stage file");
+            for s in [SC_KVZC, SC_FZC] {
+                let (main, ext, degree) = sh.slots()[s];
+                let head = format!("{{\"slot\":{s},\"name\":{:?},\"kind\":\"Host\",\"main\":{main},\"extension\":{ext},\"degree\":{degree},", SLOT_NAMES[s]);
+                assert!(contains(&stage, &head), "{tag} stage {k}: slot {s} does not report the UNPADDED schedule ({main}, {ext}, {degree})");
+            }
+        }
+        total += n;
+        assert!(n < 60_000_000, "{tag} is {n} B, past the 60 MB ceiling this stage was given");
+        eprintln!("P2 GATE BUNDLE {tag}: {n} B on disk ({:.1} MB)", n as f64 / 1e6);
+    }
+    eprintln!("P2 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
+}
+
 // ===========================================================================
 // STAGE 23, GAP GS-2 — THE REFUSAL REPLAY ORDER, PINNED ON A REAL BLOCK
 // ===========================================================================

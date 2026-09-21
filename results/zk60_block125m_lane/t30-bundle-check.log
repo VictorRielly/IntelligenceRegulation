@@ -1,0 +1,19 @@
+== run-k-dense-p2 (stage 0) against run-i-dense-k4 (stage 0)
+   slots whose (definition draws, degree) differ: [2, 16, 18]
+   slot 02 02 norm squares zero-check (hosts 01, 01m) NEW draws  13 degree 3  |  K4 draws  15 degree 3
+   slot 16 05 KV zero-check (hosts 09K, 09V)  NEW draws  19 degree 4  |  K4 draws  21 degree 5
+   slot 18 14 F zero-check (hosts 13G, 13U)   NEW draws  24 degree 4  |  K4 draws  26 degree 5
+   identical in both: 20 of 23 slots
+   all 2 stages of run-k-dense-p2 carry the same schedule and the same draw counts
+   manifest: 5 files, every length and SHA-256 matches, 16001981 B, blocks 2, source pin 4ccbad1 over 38 files
+   run.json: schema /5-run, public tables included, keyed hash rule, the rung-P2 run profile
+== run-l-zero-p2 (stage 0) against run-j-zero-k4 (stage 0)
+   slots whose (definition draws, degree) differ: [2, 16, 18]
+   slot 02 02 norm squares zero-check (hosts 01, 01m) NEW draws  13 degree 3  |  K4 draws  15 degree 3
+   slot 16 05 KV zero-check (hosts 09K, 09V)  NEW draws  19 degree 4  |  K4 draws  21 degree 5
+   slot 18 14 F zero-check (hosts 13G, 13U)   NEW draws  24 degree 4  |  K4 draws  26 degree 5
+   identical in both: 20 of 23 slots
+   all 2 stages of run-l-zero-p2 carry the same schedule and the same draw counts
+   manifest: 5 files, every length and SHA-256 matches, 15912181 B, blocks 2, source pin 4ccbad1 over 38 files
+   run.json: schema /5-run, public tables included, keyed hash rule, the rung-P2 run profile
+0 mismatches

@@ -372,3 +372,65 @@ one run BOTH ways and compares the two bundles byte for byte.
 **125M bundles are written OUTSIDE the repository** (`HL_PB_CAPTURE_DIR` is
 refused inside the tree) and are never committed here. The launch commands
 are in stage 27 of `ZK60_BLOCK125M_LANE_PROGRESS.md`.
+
+## Stage 30 (2026-09-21): `run-k-dense-p2` and `run-l-zero-p2` — the first bundles with an UNPADDED domain
+
+The directory now holds **TWELVE bundles**; the two new ones are the first
+written at a shape that takes the OTHER arm of ruling P-1's pad rule, and the
+first here in schema `hashline-native-capture/5-run`.
+
+**Why they exist.** The pad-zero term is drawn per HOST SLOT and only when
+the domain that slot hosts actually pads: that slot then draws one extra `mu`
+and one `zeta`, and its support indicator adds a public table and (at the
+eight indicator slots) one degree. Every one of the ten older bundles is at a
+shape where **all nine domains pad**, so all eight host slots are on the
+padded arm in every one of them. The only shape that takes the other arm is
+125M, and the Python run gate's port of the rule was wrong on that arm until
+2026-09-21 because no bundle it could read contained it (its finding
+**M-F1**).
+
+`Shape::rung_p2` — 32 tokens, width 96, hidden 256, twelve query heads of 8
+over four key-value heads — is 125M's padded-domain set on rung-K4's padded
+layout: `Dom::T` (2^5), `Dom::Kv` (32·4·8 = 2^10) and `Dom::F` (32·256 =
+2^13) are exact powers of two and do NOT pad; `Dom::Ht`, `Dom::L`, `Dom::D`,
+`Dom::Q`, `Dom::S` and `Dom::Tab` do.
+
+### What is different in the bytes, against `run-i-dense-k4` / `run-j-zero-k4`
+
+Read off the committed files (`results/zk60_block125m_lane/t30-bundle-check.log`,
+0 mismatches), stage 0 against stage 0, **20 of 23 slots identical** in both
+their schedule and their `definition_challenges` length:
+
+| slot | name | rung-P2 draws / degree | rung-K4 draws / degree |
+|---|---|---:|---:|
+| 02 | `02 norm squares zero-check` | **13** / 3 | 15 / 3 |
+| 16 | `05 KV zero-check` | **19** / **4** | 21 / 5 |
+| 18 | `14 F zero-check` | **24** / **4** | 26 / 5 |
+
+Two fewer challenges is exactly the `mu` entry and the `zeta`; the lost
+degree at 16 and 18 is the support indicator, which is why those slots'
+`rounds` carry one value fewer each. Both stages of each bundle carry the
+same schedule and the same counts. A port that models the pad rule as "always
+on" fails on these two bundles in seconds, which is the whole reason they are
+here.
+
+### The pair, as written
+
+| bundle | blocks | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|---:|
+| `run-k-dense-p2` (FULLY DENSE, generic) | 2 | 34,950 B | 3,151,494 / 3,713,252 B | 9,097,448 B | **16,001,981 B** |
+| `run-l-zero-p2` (all-zero, degenerate) | 2 | 34,947 B | 3,148,521 / 3,709,513 B | 9,014,520 B | **15,912,181 B** |
+
+**Two blocks and the array store, deliberately**: the classic encoding at
+three blocks would be about 46 MB each, as the rung-K4 pair is. Both are
+schema `/5-run`, both carry the public tables' VALUES
+(`"public_tables_included":true`), both are tagged
+(`"rule":"blake3-keyed/1"`), both name
+`hashline-zk-mr1/private-run-rung-p2-t32-dev/1`, and each manifest's five
+files match their recorded length and SHA-256 with the source pin `4ccbad1`
+over 38 files.
+
+They are **not gate evidence** (ruling T-6): the Python run gate has to learn
+this profile's key set and this shape's plane index before a bundle is
+judged. They are the INPUT to that work, and the reason they exist is finding
+M-F1.

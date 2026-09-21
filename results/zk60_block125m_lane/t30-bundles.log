@@ -1,0 +1,19 @@
+
+running 1 test
+test private_block::run_capture_tests::write_the_p2_gate_bundles ... CAPTURE run-k-dense-p2: L=2, witness=dense (generic), public tables=values, prove+verify+record 1.61 s, high-water mark 0.09 GiB
+CAPTURE run-k-dense-p2: run.json 34950 B, stage files [3151494, 3713252] B
+CAPTURE run-k-dense-p2: arrays.bin 9097448 B over 1134 distinct arrays; 1177 references (43 deduplicated), 1295 small arrays inline
+CAPTURE run-k-dense-p2: segments 9340240 B (pinned by digest, written only with HL_RUN_CAPTURE_SEGMENTS=1)
+CAPTURE run-k-dense-p2: 16001981 B on disk (16.0 MB) in /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2, self-consistent, every key on the allow-list, every array reference resolved
+P2 GATE BUNDLE run-k-dense-p2: 16001981 B on disk (16.0 MB)
+CAPTURE run-l-zero-p2: L=2, witness=all-zero (degenerate), public tables=values, prove+verify+record 1.55 s, high-water mark 0.11 GiB
+CAPTURE run-l-zero-p2: run.json 34947 B, stage files [3148521, 3709513] B
+CAPTURE run-l-zero-p2: arrays.bin 9014520 B over 1130 distinct arrays; 1177 references (47 deduplicated), 1295 small arrays inline
+CAPTURE run-l-zero-p2: segments 9340240 B (pinned by digest, written only with HL_RUN_CAPTURE_SEGMENTS=1)
+CAPTURE run-l-zero-p2: 15912181 B on disk (15.9 MB) in /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-l-zero-p2, self-consistent, every key on the allow-list, every array reference resolved
+P2 GATE BUNDLE run-l-zero-p2: 15912181 B on disk (15.9 MB)
+P2 GATE BUNDLES total about 31.9 MB in /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 428 filtered out; finished in 3.46s
+
