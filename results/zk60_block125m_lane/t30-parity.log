@@ -1,0 +1,39 @@
+
+running 12 tests
+test private_block::parity::a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung ... private block rung grouping: case 14, group 3, 2 key-value heads
+ok
+test private_block::parity::the_case_generator_is_deterministic_and_covers_its_grid ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_g ... private block DENSE reference agreement at development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): every kernel-backed plane agrees element for element, and the block output agrees on all 2304 words
+ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_k4 ... private block DENSE reference agreement at development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads): every kernel-backed plane agrees element for element, and the block output agrees on all 2304 words
+ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_p2 ... private block DENSE reference agreement at development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads): every kernel-backed plane agrees element for element, and the block output agrees on all 3072 words
+ok
+test private_block::parity::the_key_value_rope_table_is_laid_out_over_the_key_value_heads ... ok
+test private_block::parity::the_memo_section_three_bounds_hold_at_the_rung ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_calibration_exactly ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_primitives_exactly ... ok
+test private_block::parity::the_shaped_kernel_equals_the_frozen_kernel_at_the_toy ... job K cross-parity: 1200 toy cases — 905 accepted by both crates, 295 refused identically, 23 trace planes equal on every case
+ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel ... private block whole-block parity: 1200 generated public cases — 905 accepted by both, 295 refused identically by both
+  refusal site `fixed oracle range refusal: FFN down`: 8
+  refusal site `fixed oracle range refusal: FFN gate`: 2
+  refusal site `fixed oracle range refusal: K`: 4
+  refusal site `fixed oracle range refusal: Q`: 4
+  refusal site `fixed oracle range refusal: QR`: 3
+  refusal site `fixed oracle range refusal: V`: 6
+  refusal site `fixed oracle range refusal: residual 1`: 16
+  refusal site `fixed oracle range refusal: residual 2`: 84
+  refusal site `fixed oracle range refusal: score`: 168
+ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel_at_the_rung ... private block rung parity: 160 cases — 131 accepted by both, 29 refused identically by both
+  rung refusal site `fixed oracle range refusal: FFN gate`: 2
+  rung refusal site `fixed oracle range refusal: K`: 1
+  rung refusal site `fixed oracle range refusal: Q`: 3
+  rung refusal site `fixed oracle range refusal: QR`: 1
+  rung refusal site `fixed oracle range refusal: residual 1`: 3
+  rung refusal site `fixed oracle range refusal: residual 2`: 19
+ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 417 filtered out; finished in 1.67s
+
