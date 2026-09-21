@@ -74,6 +74,11 @@ BASE_DEGREE = [3, 3, 3, 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 2, 2,
 EXT_ROUNDS = [1] * N_SLOTS
 EXT_ROUNDS[SC_SCORE] = 2   # two private factors, masked in extension rounds 0 and 1
 EXT_ROUNDS[SC_PV] = 2
+# The two BILINEAR slots: the only slots whose monomial is a product of TWO
+# private factors, and the only ones that read the head axis in two different
+# ways (the query head is the whole of `r_h`, the key-value head is its top
+# `log2(kv_heads)` bits).  See `group_sumcheck_bits`.
+BILINEAR_SLOTS = (SC_SCORE, SC_PV)
 SLOT_KIND = (["private", "private", "host", "standalone", "private"] + ["private"] * 9
              + ["host"] * 5 + ["standalone"] * 4)
 # host slot -> the private slots it hosts (`layout.rs:501-508`)
@@ -310,19 +315,51 @@ def slot_terms(sh: Shape):
 # --------------------------------------------------------------------------
 # the slot schedule
 # --------------------------------------------------------------------------
+def group_sumcheck_bits(sh: Shape) -> int:
+    """`lkv`, the number of KEY-VALUE GROUP bits the two BILINEAR slots must
+    sum over rather than fix.
+
+    DERIVED HERE, from the shape and from the construction's own algebra —
+    not transcribed from the Rust.  `score[h,t,j] = sum_c q[t,h,c]
+    k[j,g(h),c]` with `g(h)` the key-value group of padded head slot `h`, and
+    `out[t,h,i] = sum_s P[h,t,s] V[s,g(h),i]`.  A slot must claim the
+    multilinear extension of that POINTWISE PRODUCT at the challenge point.
+    Writing `r_h = (r_g, r_hj)` — the group bits are the HIGH bits of the head
+    slot (correction C-1) — the extension is
+
+        sum_{g} eq(r_g, g) . q~(r_t, (g, r_hj), c) . k~(r_j, g, c)
+
+    because the key/value factor does not depend on the within-group head `hj`
+    while the query/probability factor is multilinear in it.  Taking the group
+    as a FIXED coordinate of BOTH factors instead computes the PRODUCT OF THE
+    TWO EXTENSIONS, which is QUADRATIC in each shared group bit and so is a
+    different polynomial: that is exactly finding S19-F1, a completeness
+    failure, and it is why the group must be summed.
+
+    So each bilinear slot gains `lkv = log2(kv_heads)` MAIN ROUNDS, and one
+    DEGREE for the public `eq(r_g, .)` factor, which is a third factor of its
+    monomial.  `kv_heads == 1` gives `lkv == 0`: no extra round, no `eq`, no
+    extra degree — which is why the frozen toy profile pays nothing.
+    """
+    return clog2(sh.kv_heads)
+
+
 def slots(sh: Shape):
     """(name, main rounds, extension rounds, degree, L, indicator?) per slot.
 
     Main rounds are the slot's cube: the domain log for a zero-check or a row
-    sum, and the matmul's INNER index log for a matmul."""
+    sum, and the matmul's INNER index log for a matmul — plus, for the two
+    BILINEAR slots, the key-value group bits of `group_sumcheck_bits`."""
     dom_of_cube = {
         SC_SS: "D", SC_SSM: "D", SC_TZC: "T", SC_LZC: "L", SC_RS: "S",
         SC_DZC: "D", SC_QZC: "Q", SC_KVZC: "Kv", SC_SZC: "S", SC_FZC: "F",
         SC_TAB: "Tab", SC_ZS: "Tab", SC_IO_IN: "D", SC_IO_OUT: "D",
     }
+    lkv = group_sumcheck_bits(sh)
     inner = {
         SC_QMM: clog2(sh.d_pad), SC_KMM: clog2(sh.d_pad), SC_VMM: clog2(sh.d_pad),
-        SC_WO: clog2(sh.d_pad), SC_SCORE: clog2(sh.head_dim), SC_PV: clog2(sh.t_pad),
+        SC_WO: clog2(sh.d_pad),
+        SC_SCORE: lkv + clog2(sh.head_dim), SC_PV: lkv + clog2(sh.t_pad),
         SC_GMM: clog2(sh.d_pad), SC_UMM: clog2(sh.d_pad), SC_DMM: clog2(sh.f_pad),
     }
     pads = padded_domains(sh)
@@ -330,12 +367,17 @@ def slots(sh: Shape):
     for s in range(N_SLOTS):
         main = inner[s] if s in inner else sh.log(dom_of_cube[s])
         ind = s in INDICATOR_SLOT_DOMAIN and INDICATOR_SLOT_DOMAIN[s] in pads
-        deg = BASE_DEGREE[s] + (1 if ind else 0)
+        # the public group `eq` is a third factor of a bilinear slot's
+        # monomial, and only exists when the shape actually groups
+        group_eq = s in BILINEAR_SLOTS and lkv > 0
+        deg = BASE_DEGREE[s] + (1 if ind else 0) + (1 if group_eq else 0)
         ext = EXT_ROUNDS[s]
         out.append({
             "slot": s, "name": SLOT_NAMES[s], "kind": SLOT_KIND[s],
             "main_rounds": main, "extension_rounds": ext, "degree": deg,
             "carries_support_indicator": ind,
+            "carries_group_eq": group_eq,
+            "group_sumcheck_bits": lkv if s in BILINEAR_SLOTS else 0,
             "L": (main + ext) * deg + 2,
         })
     return out
@@ -511,6 +553,14 @@ def model(sh: Shape):
             "worst_L_plus_256": max_l + 256,
             "main_round_total": sum(s["main_rounds"] for s in sl),
             "extension_round_total": sum(s["extension_rounds"] for s in sl),
+            # what the PROVER publishes and what the VERIFIER draws, both a
+            # function of the schedule alone: a round message is `degree + 1`
+            # evaluations (`sumcheck.rs`'s length refusal), and every round —
+            # main or extension — consumes exactly one challenge
+            "published_round_values": sum((s["main_rounds"] + s["extension_rounds"]) * (s["degree"] + 1) for s in sl),
+            "sumcheck_challenge_draws": sum(s["main_rounds"] + s["extension_rounds"] for s in sl),
+            "slot_lengths": [s["L"] for s in sl],
+            "group_sumcheck_bits": group_sumcheck_bits(sh),
             "hosts": {SLOT_NAMES[k]: [SLOT_NAMES[x] for x in v] for k, v in HOSTS.items()},
         },
         "lookups": lookups(sh),
@@ -532,12 +582,19 @@ RUNG = Shape("development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
              endpoint_rows=14, endpoint_log_n=8, endpoint_inv_rate=4,
              note="memo §9a; F_E = 12 is a rung-only calibration, chosen to break the softmax window")
 
+RUNG_G = Shape("development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
+               tokens=24, width=96, hidden=192, q_heads=6, head_dim=16, kv_heads=2,
+               log_cols=10, inv_rate=4, f_e=12, endpoint_rows=9,
+               note="S11b: the rung's geometry exactly, with the GENERALISED endpoint — the "
+                    "block's own PCS parameters (log_cols 10, inv_rate 4) instead of the frozen "
+                    "seam's 8 / 8, and 9 commitment rows for the 2^5 x 2^7 padded Dom::D plane")
+
 M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
              tokens=512, width=768, hidden=2048, q_heads=12, head_dim=64, kv_heads=4,
              log_cols=14, inv_rate=4, f_e=9, endpoint_rows=29,
              note="memo §2; endpoint rows 29 per §6 / step S11")
 
-SHAPES = {"toy": TOY, "rung": RUNG, "m125": M125}
+SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "m125": M125}
 
 # What the module's own Rust asserts at the toy (`layout.rs:523-526`, `:700-749`,
 # `:778-780`, `tests.rs:106-108`).  The model must reproduce every one of these.
@@ -572,6 +629,15 @@ MEMO_FIGURES = {
 
 # Every difference the model shows against the memo, with the rule responsible.
 # These are RESULTS: the model is not tuned to remove them.
+S20_MEMO_DIFFERENCE = (
+    " PLUS the stage-20 repair of finding S19-F1 (`group_sumcheck_bits`): the two "
+    "bilinear slots sum over the log2(kv_heads) key-value GROUP bits instead of fixing "
+    "them on both private factors, which adds those main rounds and one degree for the "
+    "public eq(r_g, .). The memo predates the repair and prices the old schedule. This "
+    "term is +336 B at both rungs (lkv = 1) and +560 B at 125M (lkv = 2), and it is zero "
+    "at the toy (lkv = 0), which is why the frozen toy profile does not move."
+)
+
 KNOWN_MEMO_DIFFERENCES = {
     "rung": {
         "receipt_bytes": (
@@ -582,13 +648,17 @@ KNOWN_MEMO_DIFFERENCES = {
             "degree by one, which lengthens each of its 11 round messages by one Fp2 word: "
             "(10 main + 1 ext) x 16 B = 176 B. The memo's 19,552-byte slot line prices "
             "SC_FZC's indicator but not SC_KVZC's, and §9a's open question 2 mentions only "
-            "SC_FZC. Either the rung receipt is 4,173,208 B, or supp_Kv does not gate "
+            "SC_FZC. Either the rung receipt is 4,173,208 B before the S20 term below, or "
+            "supp_Kv does not gate "
             "SC_KVZC's inhomogeneous RoPE constraint and the domain paragraph is wrong. "
             "Nothing else moves: SC_KVZC's L is 57 with the indicator, well under the rung's "
             "largest L of 72, so the mask budget is untouched."
-        ),
+        ) + S20_MEMO_DIFFERENCE,
     },
-    "m125": {},
+    "rung_g": {},
+    "m125": {
+        "receipt_bytes": "+560 B in the slot line and nothing else." + S20_MEMO_DIFFERENCE,
+    },
 }
 
 
@@ -758,7 +828,7 @@ def report(out=sys.stdout):
         w(f"  {'OK ' if ok else 'XX '} {k:28s} model {str(got[k]):>28s}   rust {str(want):>28s}\n")
     w(f"  -> {'ALL TOY NUMBERS REPRODUCED EXACTLY' if bad == 0 else str(bad) + ' TOY MISMATCHES'}\n\n")
 
-    for name in ("rung", "m125"):
+    for name in ("rung", "rung_g", "m125"):
         m = models[name]
         w(f"-- 2. {m['shape']['name']} --\n")
         w(f"  padded domains: {', '.join(m['padded_domains'])}\n")
@@ -769,7 +839,7 @@ def report(out=sys.stdout):
               f" {'yes' if x['lifted_by_P3'] else '  -':>7s} {x['rows_each']:>5d}\n")
         w(f"  A planes {m['a_planes']['total']}  H planes {m['h_planes']['total']}\n")
         w("  quantity                      model            memo [COUNTED]    delta\n")
-        want = MEMO_FIGURES[name]
+        want = MEMO_FIGURES.get(name)
         gotm = {
             "a_planes": m["a_planes"]["total"], "h_planes": m["h_planes"]["total"],
             "a_data_rows": m["rows"]["a_data_rows"], "h_data_rows": m["rows"]["h_data_rows"],
@@ -781,12 +851,23 @@ def report(out=sys.stdout):
             "largest_L": m["slot_summary"]["largest_L"],
             "receipt_bytes": m["receipt_bytes"]["total"],
         }
-        for k in gotm:
-            d = gotm[k] - want[k]
-            flag = "" if d == 0 else "   <-- DIFFERENCE"
-            w(f"  {k:<26s} {gotm[k]:>16d} {want[k]:>16d} {d:>8d}{flag}\n")
+        if want is None:
+            w("  (this shape has no [COUNTED] memo table of its own; it is the rung's\n"
+              "   geometry with the generalised endpoint, so only the endpoint line moves)\n")
+            for k in gotm:
+                w(f"  {k:<26s} {gotm[k]:>16d}\n")
+        else:
+            for k in gotm:
+                d = gotm[k] - want[k]
+                flag = "" if d == 0 else "   <-- DIFFERENCE"
+                w(f"  {k:<26s} {gotm[k]:>16d} {want[k]:>16d} {d:>8d}{flag}\n")
         for k, why in KNOWN_MEMO_DIFFERENCES.get(name, {}).items():
             w(f"  CAUSE of the {k} difference: {why}\n")
+        ss = m["slot_summary"]
+        w(f"  bilinear group sumcheck bits lkv = {ss['group_sumcheck_bits']};"
+          f" main rounds {ss['main_round_total']}, extension rounds {ss['extension_round_total']},"
+          f" published round values {ss['published_round_values']},"
+          f" sumcheck challenge draws {ss['sumcheck_challenge_draws']}\n")
         w(f"  slots carrying a support indicator: "
           f"{[s['name'] for s in m['slots'] if s['carries_support_indicator']]}\n")
         w(f"  LogUp sum-claim keys WITHOUT the P-3 lift: "

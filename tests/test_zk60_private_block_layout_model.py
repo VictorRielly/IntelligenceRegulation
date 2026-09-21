@@ -36,6 +36,22 @@ RUST_H_SITES = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 7, 6, 8, 6, 3, 1, 
 RUST_TOY_DOM_LOG = {"T": 5, "Ht": 6, "L": 9, "D": 9, "Q": 9, "Kv": 8, "S": 11, "F": 9, "Tab": 8}
 
 
+def s20_slot_delta(sh):
+    """The bytes the stage-20 repair of S19-F1 adds to a frame's slot line at
+    `sh`, recomputed HERE from the shape's own axes so the test does not lean
+    on the model's arithmetic: each bilinear slot gains `lkv` main rounds and
+    (when `lkv > 0`) one degree, and a round message is `degree + 1` Fp2
+    words of 16 B."""
+    lkv = M.clog2(sh.kv_heads)
+    if lkv == 0:
+        return 0
+    total = 0
+    for old_main in (M.clog2(sh.head_dim), M.clog2(sh.t_pad)):
+        ext = 2
+        total += (old_main + lkv + ext) * 4 - (old_main + ext) * 3
+    return 16 * total
+
+
 class ToyReproduction(unittest.TestCase):
     """Only if the toy reproduces EXACTLY do the other shapes mean anything."""
 
@@ -125,22 +141,43 @@ class Rung(unittest.TestCase):
         self.assertEqual(sorted(self.m["padded_domains"]), sorted(M.ALL_DOMS))
 
     def test_the_only_difference_against_the_memo_is_the_diagnosed_receipt_line(self):
+        """**Stage 21, review finding F-1.** The delta was 176 B while the model
+        still declared the PRE-repair bilinear schedule. The model now derives
+        the repaired one itself (`group_sumcheck_bits`), so the rung's receipt
+        is 336 B longer and the one diagnosed difference against the memo is
+        176 + 336 = 512 B. The memo predates the repair."""
         diffs = M.compare_to_memo("rung", self.m)
         self.assertEqual([d["quantity"] for d in diffs], ["receipt_bytes"])
-        self.assertEqual(diffs[0]["delta"], 176)
-        self.assertEqual(self.m["receipt_bytes"]["total"], 4_173_208)
+        self.assertEqual(diffs[0]["delta"], 512)
+        self.assertEqual(self.m["receipt_bytes"]["total"], 4_173_544)
         self.assertNotIn("UNDIAGNOSED", diffs[0]["cause"])
 
-    def test_the_176_bytes_are_SC_KVZCs_support_indicator(self):
+    def test_the_512_bytes_are_SC_KVZCs_indicator_plus_the_S20_group_rounds(self):
         """The rung's Dom::Kv pads (768 of 1,024), so the model gives SC_KVZC
         the indicator and one more degree; that is 11 rounds x 1 Fp2 = 176 B.
-        Removing it reproduces the memo's 19,552-byte slot line exactly."""
+        The two bilinear slots then carry the S19-F1 repair's group rounds and
+        group `eq` degree: 336 B. Removing BOTH reproduces the memo's
+        19,552-byte slot line exactly."""
         kvzc = self.m["slots"][M.SC_KVZC]
         self.assertTrue(self.m["domains"]["Kv"]["pads"])
         self.assertTrue(kvzc["carries_support_indicator"])
         rounds = kvzc["main_rounds"] + kvzc["extension_rounds"]
         self.assertEqual(rounds * 16, 176)
-        self.assertEqual(self.m["receipt_bytes"]["slots"] - rounds * 16, 19_552)
+        self.assertEqual(self.m["receipt_bytes"]["slots"] - rounds * 16 - s20_slot_delta(M.RUNG), 19_552)
+        self.assertEqual(s20_slot_delta(M.RUNG), 336)
+
+    def test_the_bilinear_slots_carry_the_group_rounds_and_the_group_eq(self):
+        """F-1: derived by the MODEL from `kv_heads`, not copied from Rust."""
+        self.assertEqual(M.group_sumcheck_bits(M.RUNG), 1)
+        score, pv = self.m["slots"][M.SC_SCORE], self.m["slots"][M.SC_PV]
+        self.assertEqual((score["main_rounds"], score["extension_rounds"], score["degree"]), (5, 2, 3))
+        self.assertEqual((pv["main_rounds"], pv["extension_rounds"], pv["degree"]), (6, 2, 3))
+        self.assertEqual((score["L"], pv["L"]), (23, 26))
+        self.assertTrue(score["carries_group_eq"] and pv["carries_group_eq"])
+        self.assertEqual(self.m["slot_summary"]["main_round_total"], 217)
+        self.assertEqual(self.m["slot_summary"]["published_round_values"], 1_055)
+        self.assertEqual(self.m["slot_summary"]["sumcheck_challenge_draws"], 242)
+        self.assertEqual(self.m["slot_summary"]["largest_L"], 72, "the worst slot is not a bilinear one")
 
     def test_the_lift_is_what_makes_the_sum_claim_instantiable(self):
         """B-3: without the P-3 lift the rung's H domains raise THREE distinct
@@ -167,16 +204,39 @@ class M125(unittest.TestCase):
         self.assertLessEqual(m["slot_summary"]["worst_L_plus_256"], 512)
 
     def test_the_receipt_is_the_memos_final_figure_part_by_part(self):
+        """Every part but the slot line is the memo's to the byte; the slot
+        line carries the stage-20 repair (finding F-1), which the memo
+        predates."""
         p = self.m["receipt_bytes"]
         self.assertEqual(p["a_opening"], 21_626_880)
         self.assertEqual(p["h_opening"], 17_385_472)
         self.assertEqual(p["endpoint_openings"], 1_466_368)
         self.assertEqual(p["mask_opening"], 243_712)
         self.assertEqual(p["header_and_three_roots"], 136)
-        self.assertEqual(p["total"], 40_750_024)
+        self.assertEqual(p["slots"], 28_016)
+        self.assertEqual(p["total"], 40_750_584)
 
-    def test_no_difference_at_all_against_the_memo(self):
-        self.assertEqual(M.compare_to_memo("m125", self.m), [])
+    def test_the_only_difference_against_the_memo_is_the_S20_slot_line(self):
+        """**Stage 21, review finding F-1.** The model reproduced the memo to
+        the byte while it declared the PRE-repair bilinear schedule. It now
+        derives the repaired one, so it is 560 B longer — and that is the WHOLE
+        difference: nothing else about the 125M layout moves."""
+        diffs = M.compare_to_memo("m125", self.m)
+        self.assertEqual([d["quantity"] for d in diffs], ["receipt_bytes"])
+        self.assertEqual(diffs[0]["delta"], 560)
+        self.assertEqual(s20_slot_delta(M.M125), 560)
+        self.assertNotIn("UNDIAGNOSED", diffs[0]["cause"])
+
+    def test_the_bilinear_slots_carry_two_group_bits_at_125M(self):
+        self.assertEqual(M.group_sumcheck_bits(M.M125), 2)
+        score, pv = self.m["slots"][M.SC_SCORE], self.m["slots"][M.SC_PV]
+        self.assertEqual((score["main_rounds"], score["extension_rounds"], score["degree"]), (8, 2, 3))
+        self.assertEqual((pv["main_rounds"], pv["extension_rounds"], pv["degree"]), (11, 2, 3))
+        self.assertEqual((score["L"], pv["L"]), (32, 41))
+        self.assertEqual(self.m["slot_summary"]["main_round_total"], 336)
+        self.assertEqual(self.m["slot_summary"]["published_round_values"], 1_554)
+        self.assertEqual(self.m["slot_summary"]["sumcheck_challenge_draws"], 361)
+        self.assertLessEqual(max(score["L"], pv["L"]) + 256, 512)
 
     def test_the_lift_is_what_makes_the_sum_claim_instantiable(self):
         self.assertEqual(len(M.logup_sum_claim_keys(M.M125, lift=False)), 3)
@@ -187,6 +247,64 @@ class M125(unittest.TestCase):
         self.assertFalse(self.m["domains"]["F"]["pads"])
         self.assertFalse(self.m["slots"][M.SC_KVZC]["carries_support_indicator"])
         self.assertFalse(self.m["slots"][M.SC_FZC]["carries_support_indicator"])
+
+
+class RungG(unittest.TestCase):
+    """**Stage 21.** The rung's geometry with the GENERALISED endpoint (S11b) —
+    the profile every shaped proof, run and capture of this lane is actually
+    taken at. It had no model of its own, so the Rust's 4,234,984-byte figure
+    had no independent witness at all."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.m = M.model(M.RUNG_G)
+        cls.rung = M.model(M.RUNG)
+
+    def test_only_the_endpoint_line_differs_from_the_frozen_seam_rung(self):
+        a, b = self.m["receipt_bytes"], self.rung["receipt_bytes"]
+        for part in ("header_and_three_roots", "slots", "mask_opening", "a_opening", "h_opening"):
+            with self.subTest(part=part):
+                self.assertEqual(a[part], b[part])
+        self.assertNotEqual(a["endpoint_openings"], b["endpoint_openings"])
+        self.assertEqual(a["endpoint_openings"], 335_872)
+        self.assertEqual(a["total"], 4_234_984)
+
+    def test_the_schedule_is_the_rungs_and_carries_the_group_rounds(self):
+        self.assertEqual([(s["main_rounds"], s["extension_rounds"], s["degree"]) for s in self.m["slots"]],
+                         [(s["main_rounds"], s["extension_rounds"], s["degree"]) for s in self.rung["slots"]])
+        self.assertEqual(M.group_sumcheck_bits(M.RUNG_G), 1)
+        self.assertEqual(self.m["slot_summary"]["main_round_total"], 217)
+        self.assertEqual(self.m["slot_summary"]["published_round_values"], 1_055)
+        self.assertEqual(self.m["slot_summary"]["sumcheck_challenge_draws"], 242)
+        self.assertEqual(self.m["slot_summary"]["largest_L"], 72)
+
+    def test_the_rows_and_groups_are_the_rungs(self):
+        for key in ("a_data_rows", "h_data_rows", "a_rows", "h_rows", "a_sites", "h_sites", "m_rows"):
+            with self.subTest(quantity=key):
+                self.assertEqual(self.m["rows"][key], self.rung["rows"][key])
+        self.assertEqual((self.m["opening_groups"]["a_groups"], self.m["opening_groups"]["h_groups"]), (36, 9))
+
+
+class TheToyPaysNothing(unittest.TestCase):
+    """**Stage 21, review finding F-1.** The repaired model must leave the
+    BYTE-FROZEN toy profile alone, which is the whole reason the repair is
+    expressed as `lkv = log2(kv_heads)` and not as a flag."""
+
+    def test_the_toy_has_no_group_bits_and_no_group_eq(self):
+        self.assertEqual(M.TOY.kv_heads, 1)
+        self.assertEqual(M.group_sumcheck_bits(M.TOY), 0)
+        self.assertEqual(s20_slot_delta(M.TOY), 0)
+        m = M.model(M.TOY)
+        self.assertFalse(any(s["carries_group_eq"] for s in m["slots"]))
+        self.assertEqual(m["receipt_bytes"]["total"], 2_816_472)
+
+    def test_the_repair_is_a_pure_function_of_kv_heads(self):
+        """One key-value head: nothing moves. More: exactly the two bilinear
+        slots move, and nothing else in the schedule does."""
+        for sh in (M.TOY, M.RUNG, M.RUNG_G, M.M125):
+            with self.subTest(shape=sh.name):
+                moved = [s["slot"] for s in M.slots(sh) if s["carries_group_eq"]]
+                self.assertEqual(moved, [] if sh.kv_heads == 1 else [M.SC_SCORE, M.SC_PV])
 
 
 class PadTable(unittest.TestCase):

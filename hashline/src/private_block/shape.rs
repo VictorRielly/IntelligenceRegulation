@@ -189,7 +189,7 @@ impl Shape {
         }
         let d_max = isqrt_i128(NORM_CEPS + width as i128 * INT16_MAX * INT16_MAX);
         let (e_log_n, e_rate) = (endpoint_log_n.unwrap_or(log_cols), endpoint_inv_rate.unwrap_or(inv_rate));
-        Ok(Shape {
+        let sh = Shape {
             name,
             profile,
             tokens,
@@ -227,7 +227,38 @@ impl Shape {
             h_pad,
             f_pad,
             d_max,
-        })
+        };
+        // **STAGE 21, finding F-2 of the stage-20 review: a NAMED refusal
+        // where there was only a symptom.**
+        //
+        // The two BILINEAR slots (`argument.rs`'s `SC_SCORE` and `SC_PV`)
+        // build their coordinate lists AXIS BY AXIS from the geometry —
+        // `A_QR8` as `(t | group | head-in-group | c)`, `A_KR8` as
+        // `(j | group | c)`, `A_P` as `(group | head-in-group | t | s)`,
+        // `A_V8` as `(s | group | i)` — so each list is exactly as long as
+        // its domain's NATURAL log. `B::a_at` measures a list against the
+        // plane's `Shape::log`, which is the P-3 LIFTED log. At a shape whose
+        // `Dom::Q`, `Dom::Kv` or `Dom::S` sits BELOW the row width, the lift
+        // makes the plane's log larger than any list the bilinear arms can
+        // write, and `run_slot` refuses "slot s table shape" — fail-closed,
+        // but the message names a symptom and arrives deep inside the
+        // argument rather than at construction. (The reviewer met exactly
+        // this while choosing a synthetic four-key-value-head geometry; it
+        // forced `head_dim = 8` rather than 2.)
+        //
+        // No shape this module builds is affected: the toy's `Dom::Kv` is at
+        // the row width and everything else is above it. This refusal is a
+        // construction-time statement of the same fact, by name.
+        for dom in [Dom::Q, Dom::Kv, Dom::S] {
+            if sh.log(dom) != sh.natural_log(dom) {
+                return Err(format!(
+                    "private block shape: the bilinear attention slots cannot serve a shape whose {dom:?} domain is lifted by P-3 (natural log {}, lifted to the row width {})",
+                    sh.natural_log(dom),
+                    sh.log(dom)
+                ));
+            }
+        }
+        Ok(sh)
     }
 
     /// THE TOY, the only shape that proves anything today.

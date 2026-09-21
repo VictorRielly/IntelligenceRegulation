@@ -648,11 +648,106 @@ fn a_run_verified_with_the_wrong_l_is_rejected() {
     assert!(e.contains("another run"), "{e}");
 }
 
+// ====================================================================
+// STAGE 21 / RULING R-5: the interior boundary scales
+// ====================================================================
+
+/// **THE BYTE-IDENTITY WITNESS FOR RULING R-5.** Everything the run header
+/// absorbs, for the APPROVED scales, as literals.
+///
+/// R-5 adds a REFUSAL and nothing else: a run that used to construct with an
+/// interior scale other than the approved calibration's now does not, and a
+/// run at the approved scales is untouched. "Untouched" has to be MEASURED,
+/// not argued, because the temptation R-5 declines is to bind the interior
+/// scales by absorbing `BoundarySpec::digest()` — which would move every
+/// proof byte. These literals were captured on the lane tip BEFORE the
+/// refusal was added and must not move when it is.
+///
+/// The statement is built with SYNTHETIC, FIXED endpoint roots
+/// (`ExpectedIo::from_roots`) because the real ones come from an
+/// OS-seeded-RNG commitment and are not reproducible across processes. Every
+/// other word of the header — the parameter line, the block digests, the
+/// boundary digests, the schedule digest, the calibration — is a
+/// deterministic function of the public statement, so the binding below is
+/// too.
+fn r5_fixed_statement(l: usize, scales: &[(i32, i32)]) -> Result<RunStatement, String> {
+    let sh = Shape::rung_g();
+    let spec = IoSpec::new_shaped(&sh, run_context(), 0, 0)?;
+    let expected = super::ExpectedIo::from_roots(spec, [0x11; 32], [0x22; 32]);
+    RunStatement::new(run_shape_for(&sh, l), run_context(), expected, &blocks_of(&sh, l), scales)
+}
+
+/// the rung-G `L = 3` run binding at the approved scales, captured before the
+/// R-5 refusal existed (`u3-s21-r5-pin.log`)
+const R5_RUNG_G_L3_BINDING: [u8; 32] = [
+    161, 7, 121, 146, 199, 166, 87, 15, 139, 122, 99, 225, 216, 105, 193, 132, 236, 40, 177, 39, 105, 8, 163, 160, 180, 109, 150, 228, 120, 158, 27, 105,
+];
+/// the two internal boundary digests of the same run, same capture
+const R5_RUNG_G_L3_BOUNDARIES: [[u8; 32]; 2] = [
+    [158, 51, 156, 18, 113, 248, 140, 198, 238, 67, 15, 141, 45, 5, 238, 153, 159, 113, 151, 213, 84, 175, 168, 86, 240, 93, 230, 219, 96, 11, 61, 209],
+    [8, 8, 151, 49, 39, 84, 136, 12, 255, 240, 178, 115, 225, 107, 28, 12, 33, 14, 184, 48, 200, 168, 211, 70, 7, 85, 81, 47, 127, 155, 104, 81],
+];
+
+#[test]
+fn the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5() {
+    let st = r5_fixed_statement(3, &[(0, 0); 3]).expect("the approved statement constructs");
+    let h = st.capture_header().expect("the capture header");
+    assert_eq!(st.binding().expect("the binding"), R5_RUNG_G_L3_BINDING, "the run binding moved: R-5 must add NO absorb");
+    assert_eq!([h.boundaries[0].digest, h.boundaries[1].digest], R5_RUNG_G_L3_BOUNDARIES, "a boundary digest moved");
+    assert_eq!(h.boundary_scales, vec![0, 0], "the interior scales are the approved calibration's");
+    assert_eq!(h.external_scales, super::ENDPOINT_SCALES, "the external scales are the approved calibration's");
+    // and the thing R-5 deliberately does NOT do: the boundary digest is not
+    // among the header's absorbs, so the interior scales stay unbound by the
+    // transcript and bound instead by this construction-time refusal
+    assert_eq!(
+        h.parameter_line,
+        "T24/d96/f192/H6/KV2/dh16/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows9/L3/boundary-log_n10-rate4-pad256-rows10-sites2/external-rows9/one-run-one-transcript",
+        "the run parameter line moved"
+    );
+}
+
+/// **RULING R-5, the refusal itself.** The security owner's reading: the
+/// EXTERNAL scales are bound through the absorbed expected-IO bytes, the
+/// INTERIOR ones by nothing at all — not the parameter line, not a stage
+/// line, and `BoundarySpec::digest()` is never absorbed. They have no
+/// arithmetic effect, so no equation is at risk; but a receipt does not
+/// attest to them, and a scale chosen from the hidden input would publish a
+/// hidden intermediate's dynamic range. The ruling is that a run REFUSES any
+/// block scale pair other than the approved calibration's, exactly as
+/// `IoSpec::new` already does for the endpoints.
+///
+/// Before this refusal, `RunStatement::new(.., &[(0,0),(0,1),(1,0)])`
+/// CONSTRUCTED: the interior scale 1 agreed with itself across the boundary
+/// and the external pair was `(0, 0)`, so both existing checks passed.
+#[test]
+fn an_interior_boundary_scale_other_than_the_approved_calibrations_is_refused() {
+    // an interior scale of 1, consistent across the boundary and with the
+    // approved external pair at both ends: the case that used to construct
+    let e = r5_fixed_statement(3, &[(0, 1), (1, 1), (1, 0)]).err().expect("a run with an interior scale of 1 constructed");
+    assert!(e.contains("block scales are pinned to the approved calibration (0, 0)"), "{e}");
+    assert!(e.contains("block 0 declares (0, 1)"), "the refusal must name the block and the pair it refused: {e}");
+    // one block in the middle out of calibration, likewise
+    let e = r5_fixed_statement(3, &[(0, 0), (0, 3), (3, 0)]).err().expect("a run with an interior scale of 3 constructed");
+    assert!(e.contains("block scales are pinned to the approved calibration (0, 0)"), "{e}");
+    // a single block has no interior boundary at all, and is still pinned
+    let e = r5_fixed_statement(1, &[(2, 2)]).err().expect("a one-block run out of calibration constructed");
+    assert!(e.contains("not the endpoint policy's") || e.contains("pinned to the approved calibration"), "{e}");
+    // and the approved pairs construct, at L = 1, 2, 3
+    for l in 1..=3 {
+        r5_fixed_statement(l, &vec![(0, 0); l]).unwrap_or_else(|e| panic!("the approved scales must construct at L = {l}: {e}"));
+    }
+}
+
 /// **RULING M-4, both halves.** A run in which block `k+1` declares a
 /// different input scale than block `k`'s output scale DOES NOT CONSTRUCT —
 /// a boundary has one scale field and there is nowhere to put the second —
 /// and a receipt made under one calibration identity is rejected under
 /// another.
+///
+/// **STAGE 21.** M-4's check stays AHEAD of R-5's in `RunStatement::new`, so
+/// this test still exercises M-4 and not the new refusal: a boundary whose
+/// two sides disagree is refused as a boundary disagreement, and only a
+/// self-consistent run that is out of calibration reaches R-5.
 #[test]
 fn a_boundary_scale_disagreement_does_not_construct_and_a_foreign_calibration_is_rejected() {
     let sh = Shape::rung_g();

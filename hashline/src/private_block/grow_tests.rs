@@ -244,14 +244,17 @@ use super::shape::{ReceiptBytes, Shape, Totals};
 /// the same memo but not from each other, so an agreement is evidence and a
 /// disagreement is a finding.
 ///
-/// **STAGE 20.** Two of these figures — `main_rounds` and `receipt_total` —
-/// are the PRE-repair ones, because the Python model is outside this lane's
-/// write set and still declares the old bilinear schedule. They are compared
-/// against the Rust through [`s20_bilinear_delta`], which COUNTS what the
-/// S19-F1 repair adds from the shape's axes alone; the model owes the same
-/// two-line change (`SC_SCORE` / `SC_PV` gain `log2(kv_heads)` main rounds
-/// and one degree) and the lane ledger records it. Every other figure here is
-/// untouched by the repair.
+/// **STAGE 20, and its repair in STAGE 21 (review finding F-1).** Stage 20
+/// left `main_rounds` and `receipt_total` at their PRE-repair values and
+/// adjusted them here by a RUST-computed delta, because the Python model was
+/// then outside the lane's write set and still declared the old bilinear
+/// schedule. Both sides of the comparison were therefore this module's own
+/// arithmetic, which is exactly what an independent model is for. Stage 21
+/// repaired the model — it now DERIVES the group rounds and the group `eq`
+/// degree from `kv_heads` itself (`group_sumcheck_bits`) — so every figure
+/// below is once more the model's own output, transcribed, and no delta is
+/// applied. [`s20_bilinear_delta`] survives only where a pin is stated as a
+/// MEASURED pre-repair length plus a counted delta.
 struct Expected {
     a_planes: usize,
     h_planes: usize,
@@ -266,6 +269,13 @@ struct Expected {
     largest_slot_length: usize,
     main_rounds: usize,
     extension_rounds: usize,
+    /// `sum_s (main + ext)(degree + 1)` — what the prover publishes
+    published_round_values: usize,
+    /// `sum_s (main + ext)` — what the verifier draws
+    challenge_draws: usize,
+    /// the two BILINEAR slots' mask lengths `L`, `(SC_SCORE, SC_PV)`: the two
+    /// the S19-F1 repair moves and the only ones it moves
+    bilinear_lengths: (usize, usize),
     u8_per_domain: [usize; 6],
     u8_lookups: usize,
     exp_pairs: usize,
@@ -287,6 +297,9 @@ const MODEL_TOY: Expected = Expected {
     largest_slot_length: 50,
     main_rounds: 159,
     extension_rounds: 25,
+    published_round_values: 721,
+    challenge_draws: 184,
+    bilinear_lengths: (12, 16),
     u8_per_domain: [1_024, 19_456, 4_608, 6_656, 3_072, 26_624],
     u8_lookups: 61_440,
     exp_pairs: 2_048,
@@ -306,8 +319,11 @@ const MODEL_RUNG: Expected = Expected {
     a_groups: 36,
     h_groups: 9,
     largest_slot_length: 72,
-    main_rounds: 215,
+    main_rounds: 217,
     extension_rounds: 25,
+    published_round_values: 1_055,
+    challenge_draws: 242,
+    bilinear_lengths: (23, 26),
     u8_per_domain: [2_048, 155_648, 73_728, 53_248, 12_288, 122_880],
     u8_lookups: 419_840,
     exp_pairs: 8_192,
@@ -317,7 +333,7 @@ const MODEL_RUNG: Expected = Expected {
     // requires because `Dom::Kv` pads at the rung (lane finding B-F3, open
     // for the security owner).
     //
-    // **S11a: +45,056 B on top of the model's 4,173,208 (finding S11-F4).**
+    // **S11a: +45,056 B on top of the model's 4,173,544 (finding S11-F4).**
     // The model priced the endpoints at the TRUE `(24, 96)` plane — 14 rows
     // at inverse rate 4 — and `SeamSpec::new` refuses that plane outright
     // (both axes must be powers of two). What the frozen seam actually gives
@@ -326,10 +342,48 @@ const MODEL_RUNG: Expected = Expected {
     // `INV_RATE = 8`, which is hashed into every `SeamSpec::digest()` and so
     // not editable. The two endpoint openings therefore cost
     // `2 * [(1+1)(256+256)(16) + 256(8 + 21*8 + 32 + 11*32)] = 319,488 B`
-    // against the model's 274,432 B. The PYTHON MODEL IS UNCHANGED and now
-    // differs from the Rust by exactly this term; the difference and its
-    // cause are recorded in the lane ledger, as the ruling on S11-F4 asks.
-    receipt_total: 4_218_264,
+    // against the model's 274,432 B. The PYTHON MODEL still prices the FROZEN
+    // SEAM rung the memo's way and differs from the Rust by exactly this
+    // term; the difference and its cause are recorded in the lane ledger, as
+    // the ruling on S11-F4 asks. (`Shape::rung_g` has no such term at all —
+    // see `MODEL_RUNG_G`.)
+    receipt_total: 4_218_600,
+};
+
+/// **STAGE 21.** `Shape::rung_g` — the rung's geometry with the GENERALISED
+/// endpoint of S11b, and the profile at which every shaped proof, run and
+/// capture of this lane is actually taken. It had no independent model at
+/// all until stage 21 added `RUNG_G` to
+/// `scripts/zk60_private_block_layout_model.py`; these are that model's own
+/// figures, transcribed.
+///
+/// **And this shape has NO Rust-side correction term.** The frozen seam's
+/// endpoint forced +45,056 B at the rung and the padded `Dom::D` cube forced
+/// +32,768 B at 125M; the generalised endpoint is priced from the block's own
+/// PCS parameters, which the model already models, so the model's 4,234,984 B
+/// and the Rust's agree TO THE BYTE with nothing in between.
+const MODEL_RUNG_G: Expected = Expected {
+    a_planes: 83,
+    h_planes: 52,
+    a_data_rows: 377,
+    h_data_rows: 470,
+    a_rows: 623,
+    h_rows: 576,
+    a_sites: 122,
+    h_sites: 52,
+    a_groups: 36,
+    h_groups: 9,
+    largest_slot_length: 72,
+    main_rounds: 217,
+    extension_rounds: 25,
+    published_round_values: 1_055,
+    challenge_draws: 242,
+    bilinear_lengths: (23, 26),
+    u8_per_domain: [2_048, 155_648, 73_728, 53_248, 12_288, 122_880],
+    u8_lookups: 419_840,
+    exp_pairs: 8_192,
+    act_pairs: 8_192,
+    receipt_total: 4_234_984,
 };
 
 const MODEL_M125: Expected = Expected {
@@ -344,13 +398,16 @@ const MODEL_M125: Expected = Expected {
     a_groups: 36,
     h_groups: 9,
     largest_slot_length: 117,
-    main_rounds: 332,
+    main_rounds: 336,
     extension_rounds: 25,
+    published_round_values: 1_554,
+    challenge_draws: 361,
+    bilinear_lengths: (32, 41),
     u8_per_domain: [32_768, 17_825_792, 9_437_184, 6_815_744, 1_572_864, 62_914_560],
     u8_lookups: 98_598_912,
     exp_pairs: 4_194_304,
     act_pairs: 1_048_576,
-    // **S11b: +32,768 B on top of the model's 40,750,024 (finding S11b-F1).**
+    // **S11b: +32,768 B on top of the model's 40,750,584 (finding S11b-F1).**
     // The Python model priced 125M's endpoints at the memo's 29 commitment
     // rows, which come from the TRUE `512 x 768 = 393,216`-word plane. What
     // this module commits is the PADDED `Dom::D` cube, `t_pad * d_pad = 512 *
@@ -362,7 +419,7 @@ const MODEL_M125: Expected = Expected {
     // difference and its cause are in the lane ledger. Padding is also what
     // removes the need for the memo's C6 `mu`-batched multi-block claim: the
     // padded plane IS a power of two.
-    receipt_total: 40_782_792,
+    receipt_total: 40_783_352,
 };
 
 /// **STAGE 20's COUNTED DELTA (the repair of finding S19-F1).**
@@ -408,10 +465,14 @@ pub(super) fn s20_frame_bytes(sh: &Shape, before: usize) -> usize {
 
 fn check_against_model(sh: &Shape, want: &Expected) {
     let t: Totals = sh.totals();
-    // STAGE 20: the two figures the S19-F1 repair moves, derived and not
-    // re-pinned. `want` stays the INDEPENDENT model's number.
-    let (d_rounds, d_bytes) = s20_bilinear_delta(sh);
-    let (want_main_rounds, want_receipt_total) = (want.main_rounds + d_rounds, want.receipt_total + d_bytes);
+    // **STAGE 21, review finding F-1.** No adjustment: `want` is the
+    // independent Python model's own output at this shape, the repaired
+    // bilinear schedule included, so every assertion below compares the Rust
+    // with a count made outside it.
+    let sl = sh.slots();
+    let published_round_values: usize = sl.iter().map(|(m, e, d)| (m + e) * (d + 1)).sum();
+    let challenge_draws: usize = sl.iter().map(|(m, e, _)| m + e).sum();
+    let lengths = sh.slot_lengths();
     assert_eq!(t.a_planes, want.a_planes, "{}: A planes", sh.name);
     assert_eq!(t.h_planes, want.h_planes, "{}: H planes", sh.name);
     assert_eq!(t.a_data_rows, want.a_data_rows, "{}: A data rows", sh.name);
@@ -426,13 +487,16 @@ fn check_against_model(sh: &Shape, want: &Expected) {
     assert_eq!(t.functionals, 34, "{}: functionals", sh.name);
     assert_eq!(t.largest_slot_length, want.largest_slot_length, "{}: largest slot L", sh.name);
     assert!(t.largest_slot_length + 256 <= 512, "{}: the mask budget L + 256 <= 512 is broken", sh.name);
-    assert_eq!(t.main_rounds, want_main_rounds, "{}: main rounds (the model's {} plus the stage-20 bilinear delta {d_rounds})", sh.name, want.main_rounds);
+    assert_eq!(t.main_rounds, want.main_rounds, "{}: main rounds", sh.name);
     assert_eq!(t.extension_rounds, want.extension_rounds, "{}: extension rounds", sh.name);
+    assert_eq!(published_round_values, want.published_round_values, "{}: published round values", sh.name);
+    assert_eq!(challenge_draws, want.challenge_draws, "{}: sumcheck challenge draws per block", sh.name);
+    assert_eq!((lengths[SC_SCORE], lengths[SC_PV]), want.bilinear_lengths, "{}: the two bilinear slots' mask lengths", sh.name);
     assert_eq!(t.u8_per_domain, want.u8_per_domain.to_vec(), "{}: U8 lookups per domain", sh.name);
     assert_eq!(t.u8_lookups, want.u8_lookups, "{}: U8 lookups", sh.name);
     assert_eq!(t.exp_pairs, want.exp_pairs, "{}: exp pairs", sh.name);
     assert_eq!(t.act_pairs, want.act_pairs, "{}: act pairs", sh.name);
-    assert_eq!(t.receipt_bytes.total, want_receipt_total, "{}: receipt bytes (the model's {} plus the stage-20 bilinear delta {d_bytes})", sh.name, want.receipt_total);
+    assert_eq!(t.receipt_bytes.total, want.receipt_total, "{}: receipt bytes", sh.name);
     // B-3 must be closed at EVERY shape, or that shape produces no receipt
     assert_eq!(t.logup_sum_claim_keys, 1, "{}: the LogUp sum claim raises more than one column-weight key", sh.name);
 }
@@ -467,10 +531,46 @@ fn the_shape_driven_layout_reproduces_the_toy_exactly() {
 }
 
 /// **S5, the two new shapes.** Layouts only: nothing is proved at either.
+///
+/// **STAGE 21 (review finding F-1).** `Shape::rung_g` joined them — it is the
+/// profile the lane actually proves at and it had no independent model — and
+/// the stage-20 delta adjustment is gone: the Python model derives the
+/// repaired bilinear schedule itself now, so these are three independent
+/// counts against three Rust ones.
 #[test]
 fn the_shape_driven_layout_matches_the_python_model_at_the_rung_and_at_125m() {
     check_against_model(&Shape::rung(), &MODEL_RUNG);
+    check_against_model(&Shape::rung_g(), &MODEL_RUNG_G);
     check_against_model(&Shape::m125(), &MODEL_M125);
+}
+
+/// **STAGE 21, review finding F-1, stated as its own test.** The three
+/// figures the S19-F1 repair moves are now pinned AS THE MODEL'S OWN OUTPUT
+/// at all four shapes, with no counted delta in between — which is the
+/// property F-1 says was lost. A disagreement here is a finding about the
+/// construction, not a stale literal.
+#[test]
+fn the_repaired_bilinear_schedule_agrees_with_the_independent_model_at_every_shape() {
+    // (shape, model main rounds, model published round values, model draws,
+    //  model (L_score, L_pv)) — `scripts/zk60_private_block_layout_model.py`
+    let cases: [(Shape, usize, usize, usize, (usize, usize)); 4] = [
+        (Shape::toy(), 159, 721, 184, (12, 16)),
+        (Shape::rung(), 217, 1_055, 242, (23, 26)),
+        (Shape::rung_g(), 217, 1_055, 242, (23, 26)),
+        (Shape::m125(), 336, 1_554, 361, (32, 41)),
+    ];
+    for (sh, main, values, draws, bilinear) in cases {
+        let sl = sh.slots();
+        assert_eq!(sl.iter().map(|(m, _, _)| m).sum::<usize>(), main, "{}: main rounds", sh.name);
+        assert_eq!(sl.iter().map(|(m, e, d)| (m + e) * (d + 1)).sum::<usize>(), values, "{}: published round values", sh.name);
+        assert_eq!(sl.iter().map(|(m, e, _)| m + e).sum::<usize>(), draws, "{}: challenge draws", sh.name);
+        let l = sh.slot_lengths();
+        assert_eq!((l[SC_SCORE], l[SC_PV]), bilinear, "{}: bilinear mask lengths", sh.name);
+        // and the toy pays nothing: `lkv == 0` leaves degree 2 and no eq
+        let grouped = sh.kv_heads > 1;
+        assert_eq!(sl[SC_SCORE].2, if grouped { 3 } else { 2 }, "{}: SC_SCORE degree", sh.name);
+        assert_eq!(sl[SC_PV].2, if grouped { 3 } else { 2 }, "{}: SC_PV degree", sh.name);
+    }
 }
 
 /// **S5, the derived calibration.** The two integer windows and the limb
@@ -515,6 +615,27 @@ fn an_inexpressible_shape_is_refused_at_construction_by_name() {
     assert_eq!(err, "private block shape: the query heads do not divide into the key-value heads");
     let err = mk(0, 16, 16, 2, 8, 1).expect_err("a zero axis must be refused");
     assert_eq!(err, "private block shape: an axis is zero");
+    // **STAGE 21, finding F-2 of the stage-20 review.** A shape whose
+    // `Dom::Q`, `Dom::Kv` or `Dom::S` is lifted to the row width by P-3 is
+    // one the bilinear attention slots cannot serve — their coordinate lists
+    // are written at the NATURAL log — and it is now refused BY NAME at
+    // construction instead of by `run_slot`'s generic "slot s table shape"
+    // from inside the argument. `T8/H4/dh2/KV4` at `log_cols = 8` is the
+    // geometry the stage-20 reviewer actually met.
+    let err = mk(8, 8, 8, 4, 2, 4).expect_err("a shape whose bilinear domains are P-3 lifted must be refused");
+    assert_eq!(
+        err,
+        "private block shape: the bilinear attention slots cannot serve a shape whose Q domain is lifted by P-3 (natural log 6, lifted to the row width 8)"
+    );
+    // the same geometry with a head dimension of 8 lifts nothing and is
+    // accepted — which is the reviewer's own workaround, now explained
+    let ok = Shape::new("probe", "probe/1", 8, 32, 32, 4, 8, 4, 8, 8, 9, 7, None, None, None, None).expect("dh = 8 lifts no bilinear domain");
+    for dom in [Dom::Q, Dom::Kv, Dom::S] {
+        assert_eq!(ok.log(dom), ok.natural_log(dom), "{dom:?} must not be lifted at the accepted probe shape");
+    }
+    // and `Dom::Kv` exactly AT the row width is not a lift: the toy is that case
+    assert_eq!(Shape::toy().natural_log(Dom::Kv), 8);
+    assert_eq!(Shape::toy().log(Dom::Kv), 8);
     // and the three shapes the lane uses are all accepted
     for sh in [Shape::toy(), Shape::rung(), Shape::m125()] {
         assert_eq!(sh.d_pad, sh.h_pad * sh.head_dim, "{}", sh.name);

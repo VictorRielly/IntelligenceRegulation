@@ -131,6 +131,36 @@ impl RunStatement {
         if (first, last) != (expected.spec.input_scale(), expected.spec.output_scale()) {
             return Err(format!("private run: the run's external scales ({first}, {last}) are not the endpoint policy's ({}, {})", expected.spec.input_scale(), expected.spec.output_scale()));
         }
+        // **RULING R-5 (register D12b item 3), STAGE 21.** The two EXTERNAL
+        // scales are bound to the statement through the absorbed
+        // expected-IO bytes; the INTERIOR ones were bound by nothing — they
+        // are in no absorbed word, and `BoundarySpec::digest()` is never
+        // absorbed. They have no arithmetic effect, so no equation was at
+        // risk, but a receipt did not attest to them and a scale chosen from
+        // the hidden input would publish a hidden intermediate's dynamic
+        // range. So a run refuses any block scale pair but the approved
+        // calibration's, exactly as `IoSpec::new` already does for the
+        // endpoints, and the scales are then carried by the calibration
+        // identity the header already absorbs.
+        //
+        // **NO ABSORB IS ADDED AND NO PROOF BYTE MOVES**: this is a refusal
+        // and nothing else. `run_tests::the_run_header_the_approved_scales_
+        // bind_is_byte_identical_under_ruling_r5` pins the rung-G `L = 3`
+        // binding, both boundary digests and the parameter line as literals
+        // captured before this refusal existed.
+        //
+        // This check is AFTER M-4's boundary-agreement check on purpose: a
+        // boundary whose two sides disagree is a different fault and keeps
+        // its own message. A future calibration with per-layer scales must
+        // put them under its own identity; until then there is one pair.
+        for (k, pair) in block_scales.iter().enumerate() {
+            if *pair != super::ENDPOINT_SCALES {
+                return Err(format!(
+                    "private run: block scales are pinned to the approved calibration {:?}; block {k} declares {pair:?}",
+                    super::ENDPOINT_SCALES
+                ));
+            }
+        }
         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
         let st = RunStatement { rs, expected, block_digests: blocks.iter().map(|b| b.digest()).collect(), context, boundary_scales, calibration: super::calibration_identity() };
         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
