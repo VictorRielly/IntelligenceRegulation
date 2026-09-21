@@ -430,10 +430,14 @@ RUN_LAYER_PINS = {
             "bytes": 67932,
         },
         # [ROUND 9] stage 27: the /5-run array store and the shared pins.
+        # [ROUND 9b] byte-identical at 4ccbad1, which the rung-P2 bundles
+        # pin: `git diff f4697f9 4ccbad1` does not touch this file.
         "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6": {
             "blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
-            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",),
-            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
+                        "4ccbad1b1da0a23449ac06461740750a6818c6e8"),
+            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
+                        "run-k-dense-p2", "run-l-zero-p2"),
             "bytes": 85434,
         },
     },
@@ -471,6 +475,13 @@ RUN_LAYER_PINS = {
             "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
             "bytes": 44863,
         },
+        # [ROUND 9b] stage 30: the rung-P2 run profile.
+        "9a0ae11f92489be8c01e616372c8be32a0d539989ca623b746d0505ae2c104b5": {
+            "blob": "a9d9d08885988312d24a143ae3faa027e41142ca",
+            "commits": ("4ccbad1b1da0a23449ac06461740750a6818c6e8",),
+            "bundles": ("run-k-dense-p2", "run-l-zero-p2"),
+            "bytes": 45313,
+        },
     },
     "src/private_block/boundary.rs": {
         "9860c35d4db93afa52ba4287ac949209dc3d93957da51a6aeee91b0951a215e6": {
@@ -492,10 +503,14 @@ RUN_LAYER_PINS = {
             "bytes": 33954,
         },
         # [ROUND 9] stage 26.
+        # [ROUND 9b] byte-identical at 4ccbad1, which the rung-P2 bundles
+        # pin: `git diff f4697f9 4ccbad1` does not touch this file.
         "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581": {
             "blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
-            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",),
-            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
+                        "4ccbad1b1da0a23449ac06461740750a6818c6e8"),
+            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
+                        "run-k-dense-p2", "run-l-zero-p2"),
             "bytes": 36123,
         },
     },
@@ -690,6 +705,22 @@ READINGS = {
         "boundary-before-A rule, `BOUNDARY_SITES` and the opening order are "
         "byte-identical**, and those are the whole of what "
         "`zk60_native_rg_replay` transcribes",
+    ("src/private_block/run.rs",
+     "9a0ae11f92489be8c01e616372c8be32a0d539989ca623b746d0505ae2c104b5"):
+        "`git diff f4697f9 4ccbad1`: **7 added, 0 removed, two hunks -- "
+        "ADDITIONS ONLY**, and they are one constant and one constructor.  "
+        "STAGE 30: `RUN_PROFILE_RUNG_P2 = "
+        "\"hashline-zk-mr1/private-run-rung-p2-t32-dev/1\"` (one profile per "
+        "shape, decision D17, so the rung-P2 runs get their own hash-tag key "
+        "set and no existing profile moves) and `RunShape::rung_p2(l)` "
+        "delegating to the UNCHANGED `RunShape::new`.  **Nothing this port "
+        "transcribes moved**: `RunStatement::transcript`'s six absorbs and "
+        "their order, the seven-word `run-shape`, `position_tag`'s discarded "
+        "clone, the stage loop's `pb-run-stage` / `pb-run-block` / boundary "
+        "order, `BOUNDARY_SITES`, `in_site` / `out_site` and the opening "
+        "order `M, A, H, Input(, Output)` are byte-identical -- which is why "
+        "the rung-P2 replay re-derives every challenge of a bundle written "
+        "under a profile string this gate had never seen",
     ("src/private_block/boundary.rs",
      "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581"):
         "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split "

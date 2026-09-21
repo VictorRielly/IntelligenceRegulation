@@ -253,11 +253,52 @@ ALSO_ACCEPTED = {
             "squeeze, no label and no published byte moves, and the slot "
             "loop, the `(beta, gamma, alpha)` draw, `tagged_transcript`, "
             "`endpoint_pcs_params` and every row count are byte-identical",
+        # [ROUND 9b] the rung-P2 capture commit.
+        "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413":
+            "stages 28 and 29 (the 125M prover made faster), at commit "
+            "4ccbad1.  `git diff f4697f9 4ccbad1 -- .../protocol.rs` is "
+            "**213 added, 15 removed, FOUR hunks**, and every one of them is "
+            "on the PROVER'S WITNESS-BUILDING path: `lookup_values` gains an "
+            "`_at` form with a parallel branch above `LOOKUP_PAR_MIN`; the "
+            "byte histogram moves out of `prove_core` into "
+            "`byte_histogram_at` with a chunked branch; and the LogUp helper "
+            "inverses are taken from a 256-entry table of byte denominators "
+            "(`u8_denominator_inverses`) instead of an element-wise batch "
+            "inversion, through `helper_one`, with single and paired forms.  "
+            "**Nothing this port reads moved**: not `lookups_at`, not a "
+            "plane order or row count, not a calibration constant, and not "
+            "the `(beta, gamma, alpha)` draw at protocol.rs:660-662 that "
+            "`Geometry.set_logup` transcribes.  The three parallel "
+            "thresholds are word counts of the PUBLIC shape, so no branch is "
+            "chosen by a witness value; every changed computation is a "
+            "rearrangement of exact field or integer arithmetic, and the "
+            "lane's own `s28_tests` / `s29_tests` compare each against the "
+            "text at `79f0726`.  Two things follow that this gate can check "
+            "rather than believe: the transcript is unmoved (the rung-P2 "
+            "replay re-derives every challenge) and the LogUp identity `H` "
+            "carries is unmoved (slot 05's terminal identity and `H`'s "
+            "disclosed 2 are recomputed here)",
     },
 }
 
-# Not pinned by a bundle, and read for the pad rule and the domain geometry.
-# Their digests are recorded so that a later reader can see what was read.
+# Read for the pad rule and the domain geometry, at the digest each was READ
+# at.  Their digests are recorded so that a later reader can see what was
+# read.
+#
+# **DATED CORRECTION AND FINDING P-F1, 2026-09-21 (round 9b).**  The header
+# above said "Not pinned by a bundle".  That was true of every bundle up to
+# `3247a89` and is FALSE since stage 27: `pad.rs`, `shape.rs` and
+# `witness.rs` are all in a `/5-run` bundle's `source_pins` (round 9's
+# `WRITER_SIDE_ASK_GRANTED`).  `shape.rs` has been checked against a bundle
+# since round 3 through `PINNED_IF_PRESENT`; `pad.rs` was checked by nothing,
+# and the digest recorded here is the one it had at `cb27845d` … `facc057`.
+# It moved twice after that -- at `0426ad2` and at `3247a89` -- and no port
+# noticed, which is finding K4-F2 again on the one file this port transcribes
+# the pad rule from.  It is closed the same way: `pad.rs` joins
+# `PINNED_IF_PRESENT` below with all three digests and a reading beside each,
+# and the reading is that **not one production line of `pad.rs` has moved
+# since round 1**.  `witness.rs` is byte-identical at all seven capture
+# commits and no port transcribes it, so it stays a recorded digest.
 ALSO_READ = {
     "src/private_block/pad.rs":
         "7b6a990be900ad56e890660e9e3587c19fefc69f434a9bb3d4eab817f603d1ff",
@@ -265,6 +306,14 @@ ALSO_READ = {
         "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
     "src/private_block/witness.rs":
         "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
+}
+ALSO_READ_NOW_PINNED = {
+    "src/private_block/pad.rs": "checked from a bundle since round 9b, in "
+    "PINNED_IF_PRESENT (finding P-F1)",
+    "src/private_block/shape.rs": "checked from a bundle since round 3, in "
+    "PINNED_IF_PRESENT",
+    "src/private_block/witness.rs": "pinned by the writer since stage 27 and "
+    "transcribed by no port -- a capture carries no witness",
 }
 
 # A file this port READ that a bundle did not pin until stage 18.  It is
@@ -321,6 +370,60 @@ PINNED_IF_PRESENT = {
             "port reads moved**, and every dimension is re-derived here "
             "from `run.json[\"shape\"]` and compared with the shape's own "
             "`slots` array",
+        # [ROUND 9b] the rung-P2 capture commit.
+        "502ba5caac76bdfd026c77761a7735ccc94cf56a157d8bd0dbfbde6c773dd04b":
+            "stage 30, at commit 4ccbad1.  `git diff f4697f9 4ccbad1 -- "
+            ".../shape.rs` is **63 added, 0 removed, ONE hunk -- ADDITIONS "
+            "ONLY**: `Shape::rung_p2()`, one constructor delegating to the "
+            "UNCHANGED `Shape::new` (32 tokens, width 96, hidden 256, 12 "
+            "query heads of 8 over 4 key-value heads), and its doc comment.  "
+            "It is rung-K4's PADDED layout with two true sizes moved onto "
+            "their pads -- tokens 24 -> 32 so `Dom::T = t_pad = 2^5` and "
+            "`Dom::Kv = 2^10` are exact, hidden 192 -> 256 so "
+            "`Dom::F = 2^13` is exact -- while `Ht`, `L`, `D`, `Q`, `S` and "
+            "`Tab` still pad.  That is **125M's own padded-domain set at a "
+            "development size**, which is the shape finding M-F1's control "
+            "needed.  **Not one geometry function this port reads moved** -- "
+            "not `true_size`, not `pads`, not `head_slot`, not `clog2`, not "
+            "`slot_dims` -- and every dimension is re-derived here from "
+            "`run.json[\"shape\"]` and compared with the shape's own `slots` "
+            "array",
+    },
+    # [ROUND 9b, finding P-F1] `pad.rs`, the file this port transcribes the
+    # pad rule from (`PadGeometry`: `BitForm` at pad.rs:124,
+    # `closed_form_indicator` at pad.rs:160, `zero_rule_a_planes` at
+    # pad.rs:365 and `pad_zero_host`, which is what `Ctx.pad_on` and
+    # `Ctx.zero_planes` are).  It was recorded in `ALSO_READ` as one digest
+    # and compared against nothing; it has been in a bundle's `source_pins`
+    # since stage 27 and it moved twice before that.  All three digests are
+    # read, and the reading is the same for both moves.
+    "src/private_block/pad.rs": {
+        "7b6a990be900ad56e890660e9e3587c19fefc69f434a9bb3d4eab817f603d1ff":
+            "the digest this port was read at (round 1, commits cb27845d "
+            "through facc057)",
+        "cc1ab831d377bb0542edab1ce8659024aaaee6bc72897b5c8ede3f7c053704a5":
+            "stage 19/20, at commit 0426ad2.  `git diff facc057 0426ad2 -- "
+            ".../pad.rs` is **94 added, 26 removed, three hunks**, and every "
+            "changed line is inside `#[cfg(test)] mod tests` except ONE: the "
+            "`#[cfg(test)] fn every_checkable_relation_holds` becomes "
+            "`pub(super)`, a visibility change on a function that is "
+            "compiled only in tests.  The tests themselves gained the `f > "
+            "d` hidden-axis support statement and now run at both "
+            "`Shape::rung()` and `Shape::rung_g()`.  **Not one production "
+            "line moved**: `BitForm::of`, `closed_form_indicator`, "
+            "`zero_rule_a_planes`, `pad_zero_host` and the exempt-plane rule "
+            "are byte-identical, and those are the whole of what this port "
+            "transcribes",
+        "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0":
+            "stage 22, at commit 3247a89, and UNCHANGED at f4697f9 and "
+            "4ccbad1.  `git diff 0426ad2 3247a89 -- .../pad.rs` is **2 "
+            "added, 2 removed, two hunks, both inside `mod tests`**: "
+            "`Shape::rung_k4()` is added to the shape list of two test loops "
+            "(the masked-length check and the declared-degree range).  **Not "
+            "one production line moved.**  So the pad rule this port "
+            "transcribes is byte-identical from round 1 to round 9b, which "
+            "is what makes finding M-F1 a defect of the PORT alone and not "
+            "of a moved Rust file",
     },
 }
 

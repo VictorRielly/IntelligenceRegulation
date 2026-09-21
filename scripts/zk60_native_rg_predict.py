@@ -43,6 +43,174 @@ if HERE not in sys.path:
 from zk60_native_rg_bundle import RunBundle  # noqa: E402
 from zk60_native_rg_gqa import Geometry  # noqa: E402
 
+# ------------------------------------------------- [ROUND 9b] the pad rule
+# `shape.rs`'s own arithmetic, restated here rather than imported, so that
+# this module PREDICTS the pad rule instead of agreeing with the port that
+# implements it.  `zk60_native_rg_terminals.PadGeometry` is the port; if the
+# two ever disagree, the prediction says so before the gate is run.
+LIMBS_ISQRT = 3      # shape.rs:28
+U8_LEN = 256         # layout.rs:59
+
+# The eight zero-check slots, each with the domains it HOSTS
+# (`pad::pad_zero_host`), the domain whose log gives its `tau` draws, and the
+# `mu` base and `nu` counts its closure asks for at `argument.rs`'s own
+# arithmetic.  `helpers` is the number of LogUp helper columns of the named
+# domain, read from the capture's plane index.  The draw count is then
+#
+#     tau(log dom) + mu(base + n_pad) + nu + zeta(n_pad),   n_pad = pad_on
+#
+# and `pad_on = any(Shape::pads(d))` over the hosted domains -- the sentence
+# of `pad.rs` that finding M-F1 is about.
+ZERO_CHECK_SLOTS = {
+    2:  ("SC_TZC",  "T",   ("T",),        0,  6, 2),
+    3:  ("SC_LZC",  "L",   ("L",),        0,  0, 0),
+    14: ("SC_DZC",  "D",   ("D",),        1, 11, 2),
+    15: ("SC_QZC",  "Q",   ("Q",),        1,  1, 2),
+    16: ("SC_KVZC", "Kv",  ("Kv",),       1,  1, 2),
+    17: ("SC_SZC",  "S",   ("Ht", "S"),   1,  6, 2),
+    18: ("SC_FZC",  "F",   ("F",),        1,  4, 2),
+    19: ("SC_TAB",  "Tab", ("Tab",),      0,  3, 0),
+}
+# (name, tau domain, hosted domains, helpers_of_the_tau_domain, mu base, nu).
+# Slot 17's base is `5 + n_help + 1`, written as `6 + n_help` here; slot 14's
+# is `11 + n_help`, slot 15's and 16's `1 + n_help`, slot 18's `4 + n_help`,
+# and slots 02, 03 and 19 take no helper into their `mu`.
+HOST_SLOT = {d: s for s, (_n, _t, doms, *_r) in ZERO_CHECK_SLOTS.items()
+             for d in doms}
+
+
+def true_size(sh: dict, dom: str) -> int:
+    """`Shape::true_size` (shape.rs:405), from `run.json["shape"]` alone."""
+    return {
+        "T": sh["tokens"],
+        "Ht": sh["q_heads"] * sh["tokens"],
+        "L": 3 * LIMBS_ISQRT * sh["tokens"],
+        "D": sh["tokens"] * sh["width"],
+        "Q": sh["tokens"] * sh["q_heads"] * sh["head_dim"],
+        "Kv": sh["tokens"] * sh["kv_heads"] * sh["head_dim"],
+        "S": sh["q_heads"] * sh["tokens"] * sh["tokens"],
+        "F": sh["tokens"] * sh["hidden"],
+        "Tab": U8_LEN,
+    }[dom]
+
+
+def domain_logs(bundle) -> dict:
+    """Each domain's log, as the capture's plane index DECLARES it (an
+    input, like the per-opening geometry: `domain_log_at`'s P-3 lift is the
+    table's business and this module does not re-derive it)."""
+    out = {}
+    idx = bundle.run["plane_index"]
+    for p in idx["a_planes"] + idx["h_planes"]:
+        out.setdefault(p["domain"], p["log_size"])
+    return out
+
+
+def helper_counts(bundle) -> dict:
+    """`Shape::helpers(dom)`, read from the plane index: the `H` planes of
+    the domain, minus the ONE extra pair helper `Dom::S` and `Dom::F` carry
+    (`H_SEXP`, `H_FACT`; shape.rs:486-489)."""
+    extra = {"S": "H_SEXP", "F": "H_FACT"}
+    out: dict = {}
+    for p in bundle.run["plane_index"]["h_planes"]:
+        d = p["domain"]
+        if p["name"] == extra.get(d):
+            continue
+        out[d] = out.get(d, 0) + 1
+    return out
+
+
+def pad_rule(bundle) -> dict:
+    """[ROUND 9b] Which domains pad, which host slot each one sits in, and
+    how many DEFINITION draws each zero-check slot therefore consumes --
+    computed from the shape and compared with what the capture declares.
+
+    Round 9's finding M-F1 was exactly this number being wrong at three
+    slots, and the reason it could not be found earlier is in the table:
+    until the 125M shape every domain padded, so `n_pad` was 1 everywhere
+    and a hardcoded 1 was right.  At `rung-P2` three domains are exact
+    powers of two at a development size."""
+    sh = bundle.shape.raw
+    logs = domain_logs(bundle)
+    helps = helper_counts(bundle)
+    doms = []
+    for d in sorted(logs):
+        ts, log = true_size(sh, d), logs[d]
+        doms.append({
+            "domain": d,
+            "true_size": ts,
+            "domain_log": log,
+            "padded_size": 1 << log,
+            "pads": (1 << log) != ts,
+            "host_slot": HOST_SLOT.get(d),
+        })
+    slots = []
+    declared = [len(s["definition_challenges"]) for s in bundle.stages[0].slots]
+    for s in sorted(ZERO_CHECK_SLOTS):
+        name, tau_dom, hosts, uses_help, base, nu = ZERO_CHECK_SLOTS[s]
+        on = any((1 << logs[d]) != true_size(sh, d) for d in hosts)
+        n_pad = 1 if on else 0
+        n_help = helps.get(tau_dom, 0) if uses_help else 0
+        want = logs[tau_dom] + base + n_help + n_pad + nu + n_pad
+        slots.append({
+            "slot": s, "name": name, "hosts": list(hosts),
+            "tau_domain": tau_dom, "tau_draws": logs[tau_dom],
+            "mu_base": base + n_help, "helpers_in_mu": n_help,
+            "pad_on": on, "n_pad": n_pad, "nu": nu, "zeta": n_pad,
+            "predicted_definition_draws": want,
+            "declared_by_the_capture": declared[s],
+            "equal": want == declared[s],
+        })
+    return {
+        "the_rule": "tau(log dom) + mu(base + n_pad) + nu + zeta(n_pad), "
+        "with pad_on = any(Shape::pads(d)) over the domains the slot hosts "
+        "(argument.rs:936, pad.rs:361-369)",
+        "domains": doms,
+        "domains_that_pad": [d["domain"] for d in doms if d["pads"]],
+        "domains_that_do_not_pad": [d["domain"] for d in doms
+                                    if not d["pads"]],
+        "per_zero_check_slot": slots,
+        "slots_whose_draw_count_is_derived_here": sorted(ZERO_CHECK_SLOTS),
+        "all_derived_counts_equal_the_capture": all(x["equal"] for x in slots),
+        "disagreements": [
+            f"slot {x['slot']} ({x['name']}): this module derives "
+            f"{x['predicted_definition_draws']} definition draws and the "
+            f"capture declares {x['declared_by_the_capture']}"
+            for x in slots if not x["equal"]
+        ],
+        "what_this_is_not": "a check of the prover: the capture's declared "
+        "count is an INPUT.  What it predicts is that the port will consume "
+        "exactly this many, and the gate's own confirmation is that the "
+        "slot's terminal identity holds -- `Ctx.pad_draws` refuses BY NAME "
+        "on any mismatch, which is finding M-F1's repair",
+    }
+
+
+def receipt(bundle) -> dict:
+    """[ROUND 9b] The segment lengths, and the one arithmetic statement that
+    relates two shapes with the same padded layout.
+
+    A sumcheck round sends one field-extension element per degree, so a slot
+    that loses its pad-zero factor loses one `Fp2` (16 bytes) in each of its
+    `main + ext` rounds.  Between `rung-K4` and `rung-P2` -- the same padded
+    layout, the same domain logs, the same slot table -- the only slots whose
+    declared degree moves are 16 and 18, and that is the whole difference
+    between a stage of one and a stage of the other."""
+    sh = bundle.shape.raw
+    rounds = [m + e for m, e, _d in bundle.shape.slots]
+    segs = [st.doc["segment_bytes"] for st in bundle.stages]
+    return {
+        "segment_bytes_declared": segs,
+        "total_segment_bytes": sum(segs),
+        "sumcheck_rounds_per_slot": rounds,
+        "degrees": [d for _m, _e, d in bundle.shape.slots],
+        "rounds_of_slots_16_and_18": rounds[16] + rounds[18],
+        "bytes_per_round_per_degree": 16,
+        "the_law": "a stage of a shape whose slots 16 and 18 have one degree "
+        f"less sends {16 * (rounds[16] + rounds[18])} bytes less per stage, "
+        "everything else being equal",
+        "endpoint_rows": sh["endpoint_rows"],
+    }
+
 
 # ---------------------------------------------------------------- the laws
 SHAPE_INDEPENDENT = {
@@ -114,6 +282,10 @@ def predict(bundle) -> dict:
          "derived": g.n_definition_challenges(s)}
         for s in (8, 9)
     ]
+    # [ROUND 9b] and the EIGHT zero-check slots are derived too now, from the
+    # pad rule, which is the half of the sentence above that finding M-F1
+    # made worth deriving.  Thirteen of the twenty-three are still read.
+    pads = pad_rule(bundle)
     sc_rounds = sum(m + e for m, e, _d in sh.slots)
 
     # ---- the transcript replay, exactly as `RunReplay` counts it
@@ -185,11 +357,18 @@ def predict(bundle) -> dict:
         "n_slots": sh.n_slots,
         "shape_independent": {k: v[0] for k, v in SHAPE_INDEPENDENT.items()},
         "shape_independent_why": {k: v[1] for k, v in SHAPE_INDEPENDENT.items()},
+        "pad_rule": pads,
+        "receipt": receipt(bundle),
         "replay": {
             "positions_checked": positions,
             "challenges_checked": challenges,
             "definition_draws_per_stage": n_defs,
             "definition_draws_are_read_from_the_capture": True,
+            "definition_draws_derived_for": sorted(
+                set(ZERO_CHECK_SLOTS) | {8, 9}),
+            "definition_draws_still_read_from_the_capture": [
+                s for s in range(sh.n_slots)
+                if s not in ZERO_CHECK_SLOTS and s not in (8, 9)],
             "bilinear_definition_draws_derived_and_compared": bilinear,
             "sumcheck_rounds_per_stage": sc_rounds,
             "m_proximity_rhos_per_stage": m_prox,
@@ -293,6 +472,24 @@ def validate(pred_fn, bundle_dir, record_path) -> dict:
                      "equal": want == got})
         if want != got:
             bad.append(f"{name}: predicted {want}, the record says {got}")
+    # [ROUND 9b] the pad rule, two ways: the derived per-slot draw counts
+    # against the capture's declaration (both are available before the gate
+    # runs), and the record's own slot checks -- which are what says the
+    # PORT consumed those draws, since `Ctx.pad_draws` refuses by name on a
+    # mismatch and a refused slot is not in `slot_checks_equal`.
+    bad.extend(p["pad_rule"]["disagreements"])
+    want_eq = p["terminals"]["slot_checks_expected"]
+    try:
+        got_eq = sum(len(s["equal"]) for s in
+                     rec["stage8_plane_index_and_terminals"]
+                     ["terminal_identity"]["per_stage"])
+    except (KeyError, IndexError, TypeError):
+        got_eq = "<absent>"
+    rows.append({"figure": "terminals.slot_checks_equal", "predicted": want_eq,
+                 "recorded": got_eq, "equal": want_eq == got_eq})
+    if want_eq != got_eq:
+        bad.append(f"terminals.slot_checks_equal: predicted {want_eq}, "
+                   f"the record says {got_eq}")
     for r in p["per_commitment"]:
         recorded = next(
             (x for x in rec["stage3_per_commitment"]["per_commitment"]
@@ -344,7 +541,8 @@ def main(argv=None):
             print("   ", m)
     print(json.dumps({k: v for k, v in out["prediction"].items()
                       if k in ("replay", "hash_layer", "masking", "terminals",
-                               "joint", "shape_independent")}, indent=1))
+                               "joint", "shape_independent", "pad_rule",
+                               "receipt")}, indent=1))
     print(f"record: {path}")
     return 0 if out["ok"] else 1
 

@@ -112,6 +112,35 @@ ARGUMENT_DEFINITIONS = {
         "is these two slots, the `B::group_eq` helper and a #[cfg(test)] "
         "accessor -- no other slot's polynomial moved",
     ),
+    # [ROUND 9b] the rung-P2 capture commit, 4ccbad1.  The SAME definition as
+    # the digest above, and the diff is the reason it is the same.
+    "ec3f97443245f119dd8adc0739a5df17588dc15bb3730382310a95fb7d2a9f9d": (
+        REPAIRED,
+        "stages 28 and 29 (the 125M prover made faster), at commit 4ccbad1.  "
+        "`git diff f4697f9 4ccbad1 -- .../argument.rs` is **230 added, 48 "
+        "removed, FIVE hunks**, and every one is on the PROVER'S table-build "
+        "path: (1) `priv_table` reads its `(x, z)` out of two precomputed "
+        "bit-permutation maps instead of walking `p.log` coordinates per "
+        "entry, with a plain store when nothing can collide and the "
+        "broadcast pass skipped when the plane uses every variable; (2) the "
+        "`eq` cube is built by filling one block and doubling it "
+        "(`eq_cube`), with the precondition `start + |point| <= n_vars` now "
+        "a hard assertion; (3) a public table is MOVED into the table set on "
+        "the proving path instead of copied (`table_of_taking`); (4) a "
+        "slot's tables are built in parallel above `TABLES_PAR_MIN` through "
+        "an INDEXED iterator; (5) the claimed sum is chunked and reduced "
+        "above `TOTAL_PAR_MIN`, which is a regrouping of an exact field sum.  "
+        "Plus `timing::slot_step` wrappers and the env-gated base-field "
+        "census, which counts and prints.  **NOTHING THIS PORT PORTS "
+        "MOVED**: the slot closures of all 23 slots, the push order of every "
+        "private table, `n_pad` / `pad_on` and the `mu`, `nu`, `zeta` draws "
+        "at argument.rs:936, `lg`, `lk_tables`, `table_values_u8_at`, "
+        "`B::supp` / `B::group_eq` and the single "
+        "`tr.absorb_fp2(b\"pb-scalar\", ...)` are byte-identical -- the five "
+        "hunks are HOW a table is filled, never WHICH polynomial a slot is.  "
+        "The two bilinear slots therefore carry stage 20's repaired "
+        "definition, unchanged",
+    ),
 }
 
 
