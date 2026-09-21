@@ -325,6 +325,20 @@ class TestTheRecord(unittest.TestCase):
                     "respected_only_in_that_narrow_sense"])
             self.assertFalse(j["privacy_property_established"], name)
 
+    def test_the_evidence_came_from_the_tool_bytes_now_in_the_tree(self):
+        """The record's `tool_sha256` must name files that still exist as
+        they were: a figure whose tool has moved is a figure nobody can
+        reproduce."""
+        for name, r in self.recs.items():
+            for tool, want in r["tool_sha256"].items():
+                p = os.path.join(ROOT, "scripts", tool)
+                with open(p, "rb") as fh:
+                    got = hashlib.sha256(fh.read()).hexdigest()
+                self.assertEqual(got, want, f"{name}: {tool} moved since the run")
+            for t in ("zk60_native_rg_mask.py", "zk60_native_rg_mcontrols.py",
+                      "zk60_native_rg_mjoint.py"):
+                self.assertIn(t, r["tool_sha256"], name)
+
     def test_no_record_claims_a_privacy_property(self):
         for name, r in self.recs.items():
             self.assertFalse(r["privacy_property_established"], name)
