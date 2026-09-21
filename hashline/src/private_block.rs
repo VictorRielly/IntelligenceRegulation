@@ -211,6 +211,12 @@ mod s25_tests;
 // profiles keep theirs byte for byte.
 #[cfg(test)]
 mod s26_tests;
+// STAGE 28: the PERFORMANCE stage's equality gates. Every arithmetic change
+// it makes to the prover is compared, in the same test, against the
+// computation it replaces — on ordinary inputs, on the inputs a dishonest
+// witness carries, and on the inputs that must be refused.
+#[cfg(test)]
+mod s28_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

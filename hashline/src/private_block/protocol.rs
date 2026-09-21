@@ -404,6 +404,85 @@ fn inverses(mut den: Vec<Fp2>) -> Result<Vec<Fp2>, String> {
     Ok(den)
 }
 
+/// The one refusal string every LogUp denominator shares. It was written out
+/// twice before stage 28 and is written out once now, so the table path below
+/// cannot drift from [`inverses`].
+const ZERO_DENOMINATOR: &str = "zero LogUp denominator; discard attempt";
+
+/// **STAGE 28 (performance, no byte moves).** The `U8_LEN` denominators
+/// `alpha - (v + g_u8)` of the BYTE TABLE, inverted once per proof.
+///
+/// Every value a looked column carries is looked up in the same 256-entry
+/// byte table, so at most 256 distinct denominators exist over the whole of
+/// `H`'s helper half — at the 125M shape 98,598,912 entries share them. Entry
+/// `v` is `None` exactly when its denominator is zero, which at most one `v`
+/// can be (`v -> Fp2::from_i64(v) + g_u8` is injective on `0..U8_LEN`).
+///
+/// The batch inversion is over the NONZERO denominators alone, so this
+/// function never refuses: whether a zero denominator refuses THIS attempt is
+/// decided by [`helper_inverses_u8`], value by value, exactly as the
+/// element-wise batch inversion decided it before.
+pub(super) fn u8_denominator_inverses(alpha: Fp2, g_u8: Fp2) -> Vec<Option<Fp2>> {
+    let den: Vec<Fp2> = (0..U8_LEN).map(|v| alpha.sub(Fp2::from_i64(v as i64).add(g_u8))).collect();
+    let mut nonzero: Vec<Fp2> = den.iter().copied().filter(|d| !d.is_zero()).collect();
+    crate::field::batch_inverse2(&mut nonzero);
+    let mut k = 0usize;
+    den.iter()
+        .map(|d| {
+            if d.is_zero() {
+                None
+            } else {
+                k += 1;
+                Some(nonzero[k - 1])
+            }
+        })
+        .collect()
+}
+
+/// **STAGE 28.** One looked column's LogUp helper values,
+/// `1 / (alpha - (v + g_u8))` entry by entry.
+///
+/// **What it must not change, and does not.** The old line built the whole
+/// column of denominators and handed it to `batch_inverse2_checked`, which
+/// refuses iff SOME ENTRY OF THAT COLUMN is zero — that is, iff a zero
+/// denominator sits at a value the witness ACTUALLY CARRIES. This keeps that
+/// rule exactly: a byte value whose table entry is `None` refuses here, and a
+/// value the column does not carry cannot. (Whether a zero denominator at an
+/// ABSENT table value refuses anyway, later, through the three table helpers,
+/// is finding S28-F1 — it does, and this function is deliberately not the
+/// place where that changes.)
+///
+/// A value outside `0..U8_LEN` is only ever a dishonest or tampered witness
+/// (the soundness tests build them). It takes the old arithmetic, one
+/// inversion at a time: the field inverse is unique and every representation
+/// is canonical, so the word written is the batch inversion's word.
+///
+/// The parallel form is the crate's (`rayon`, as `pcs.rs` and `zk.rs` use it)
+/// and is INDEXED, so the output vector is the same whatever the thread count
+/// is; no randomness is drawn here, so no draw order can move.
+pub(super) fn helper_inverses_u8(col: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<Vec<Fp2>, String> {
+    let one = |v: &i64| -> Result<Fp2, String> {
+        match usize::try_from(*v) {
+            Ok(k) if k < U8_LEN => tbl[k].ok_or_else(|| ZERO_DENOMINATOR.to_string()),
+            _ => {
+                let d = alpha.sub(Fp2::from_i64(*v).add(g_u8));
+                if d.is_zero() {
+                    Err(ZERO_DENOMINATOR.to_string())
+                } else {
+                    Ok(d.inv())
+                }
+            }
+        }
+    };
+    // small columns stay on one thread: a rayon region costs more than the
+    // work, in the house style of `sumcheck::prove`'s own `small` branch
+    if col.len() < 1 << 14 {
+        return col.iter().map(one).collect();
+    }
+    use rayon::prelude::*;
+    col.par_iter().map(one).collect()
+}
+
 // **FINDING F-4 OF THE INDEPENDENT REVIEW: THE ONE TEST-ONLY PROVER HOOK.**
 //
 // `Dom::Tab`'s pad-zero term is the single arm of ruling P-1 that NO witness
@@ -695,9 +774,14 @@ pub(crate) fn prove_core(
     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
     let mut h_data = vec![Fp::ZERO; lay.h_rows * n];
+    // **STAGE 28.** The 256 byte-table denominators, inverted once for the
+    // whole of `H`: what was an element-wise batch inversion over every looked
+    // word is a table build plus one indexed lookup per word. Same words, same
+    // refusal (see [`helper_inverses_u8`]).
+    let u8_inv = u8_denominator_inverses(alpha, g_u8);
     for (dom, cols) in &looked {
         let (first, count) = lay.helpers(*dom);
-        let inv: Vec<Vec<Fp2>> = cols.iter().map(|c| inverses(c.iter().map(|v| alpha.sub(Fp2::from_i64(*v).add(g_u8))).collect())).collect::<Result<_, _>>()?;
+        let inv: Vec<Vec<Fp2>> = cols.iter().map(|c| helper_inverses_u8(c, alpha, g_u8, &u8_inv)).collect::<Result<_, _>>()?;
         for k in 0..count {
             let col: Vec<Fp2> = match inv.get(2 * k + 1) {
                 Some(second) => inv[2 * k].iter().zip(second.iter()).map(|(x, y)| x.add(*y)).collect(),
