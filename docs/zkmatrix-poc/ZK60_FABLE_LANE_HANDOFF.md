@@ -6,6 +6,59 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 18:39 (2026-09-20) — STOP before you optimise the attention slots: a COMPLETENESS DEFECT in the shaped block (mine). An honest proof is rejected by the verifier as soon as the hidden state differs between heads. `caa9b9a` is NOT a base to build on for slots 08 and 09
+
+- **Finding S19-F1, reproduced by me at 18:35** (lane `zk60-private-block-125m`
+  at `d4742ce`, pushed; the test
+  `private_block::dense_tests::s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_rejected`,
+  run with `--ignored`): the production fixture `tame_case` at the generalised
+  rung with **one word of the hidden input changed** is admitted by the
+  witness builder, agrees plane for plane with the independent shaped kernel,
+  and its receipt is refused: `slot 15 [04 Q zero-check (hosts 09Q, 11)]:
+  sumcheck round 0: s(0) + s(1) != claim`. It affects every profile with more
+  than one key-value head: both rungs and 125M. **The toy is exempt**
+  (`kv_heads = 1`), so D22 and every frozen byte are untouched.
+- **The cause, read by me in `argument.rs:1057-1087`** [ARGUED by me, not yet
+  confirmed by a fix]: `SC_SCORE` multiplies `A_QR8` at `(r_t, r_h, ρ)` by
+  `A_KR8` at `(r_j, r_h[..lkv], ρ)` and sums over the head-dimension variables
+  `ρ` only; `SC_PV` does the same with `A_P` at `(r_h, r_t, ρ)` and `A_V8` at
+  `(ρ, r_h[..lkv], r_i)`. **The key-value group bits `r_h[..lkv]` are FIXED
+  coordinates of BOTH private factors.** The multilinear extension of
+  `score[h] = Σ_c q[h,c]·k[g(h),c]` is `Σ_h eq(r_h,h)·(…)`, which is *not* the
+  product of the two extensions when both depend on the shared bits: the
+  product is quadratic in them. It coincides exactly when one factor does not
+  vary across groups — which is every input ever proved at a shaped profile
+  (`tame_case`'s norm output is +3 / −3 by parity at every token, so every head
+  sees the same state; the all-zero input likewise; the review's
+  `distinct_kv_case` has a zero second key-value head).
+- **Soundness, as far as I can argue it [ARGUED, unchecked]:** not weakened.
+  An accepted proof forces the enforced identity as polynomials, hence at
+  Boolean points, where a product of extensions *is* the right relation. The
+  defect costs completeness: the verifier refuses honest proofs of generic
+  inputs. **So this morning's 125M results are true of what they proved — a
+  degenerate witness — and the shaped block is NOT yet a working proof for
+  general inputs.** I am correcting `MVP_STATUS.md` and telling Victor now.
+- **The fix (starting now on the lane):** the shared group bits become
+  sumcheck variables — sum over `(g, c)` of `eq(r_g, g)·q̃(r_t, g, r_hj, c)·
+  k̃(r_j, g, c)`, a public `eq` factor, degree 3, `lkv` more rounds in each of
+  the two slots; the same for `SC_PV`. With `lkv = 0` it must reduce to
+  today's toy path byte for byte. It moves the proof bytes, round counts,
+  mask lengths and receipt sizes of every shaped profile; an independent
+  review of the two changed slots (soundness and the masking budget) follows
+  the fix. **Please do not cut an optimisation delta against slots 08 / 09 or
+  their hosts (15, 17) until I name a new tip.** The feed-forward side held up:
+  a dense feed-forward block and a dense three-block run prove and verify, and
+  11 of 11 perturbations at hidden indices ≥ d are rejected by the verifier.
+- **Also from the same stage:** the all-zero hidden input IS admitted by the
+  witness builder at the 125M shape under both recipes, with zero headroom on
+  one bound (softmax remainder complement 262,143 of 262,144) — pinned as
+  normal tests. The heavy dense and zero 125M runs wait for the fix.
+- **How it was missed, for both of us:** every shaped proof, the code review's
+  80 perturbations, the captures and the Python gate all ran on one fixture
+  whose hidden state is identical in every head. The layout design, its
+  checker and the reviewer attacked soundness and privacy; nobody proved a
+  generic honest witness. The dense-recipe test now exists for that.
+
 ### 18:00 (2026-09-20) — CORRECTION to "production source is final": ONE small production change is coming in `run.rs` (no proof byte moves); and three rules for your run wrapper, from the check of the run's privacy argument
 
 `ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md` (register D12b). The argument
