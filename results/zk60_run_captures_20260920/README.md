@@ -434,3 +434,81 @@ They are **not gate evidence** (ruling T-6): the Python run gate has to learn
 this profile's key set and this shape's plane index before a bundle is
 judged. They are the INPUT to that work, and the reason they exist is finding
 M-F1.
+
+## Stage 31 (2026-09-21): `run-m-dense-c6` and `run-n-zero-c6` — the first bundles with CORRECTION C-6 applied
+
+The directory now holds **FOURTEEN bundles**; the two new ones are the first
+written at a shape whose norm window fills its top byte limb, so the layout
+they carry is the CORRECTED one.
+
+**Why they exist.** A window of `w` bits held in `l` byte limbs leaves
+`8l − w` slack bits in its top limb, so the layout pins that limb with
+`scaled(top, 1 << (8l − w))` beside the `byte` lookup every limb already
+gets. When the window FILLS its top limb the coefficient is `1 << 0 = 1`,
+the scaled entry is the very same lookup as the byte entry, and all four of
+them — `rho` and `sigma` of `norm_a` and of `norm_m` — are dropped. That is
+**correction C-6**, and it happens exactly when the width passes 256:
+`D_max = isqrt(1 + width · 32767²)`, the window is `12 + bit_length(D_max)`,
+and at width 384 it is `32 = 8 · 4` limbs. Every one of the twelve older
+bundles is at width 96 or 16, so no reader has ever seen the corrected
+layout at a size it can ingest; the only shape that takes it is 125M.
+
+`Shape::rung_c6` — 32 tokens, width 384, hidden 512, twelve query heads of
+**32** over four key-value heads — is `Shape::rung_p2` with the head
+dimension widened, which is the smallest move that crosses the window.
+
+### What is different in the bytes, against `run-k-dense-p2`
+
+Read off the committed files
+(`results/zk60_block125m_lane/u31-bundle-check.log`, **0 mismatches**),
+stage 0 against stage 0:
+
+| what | rung-C6 | rung-P2 |
+|---|---:|---:|
+| `Dom::D` helper planes in the plane index | **17** | 19 |
+| `H` planes in the plane index | **50** | 52 |
+| `arguments[14]` (`03 D zero-check`) terminals | **54** | 56 |
+| `a_rows` / `h_rows` | 1,337 / 1,408 | 727 / 720 |
+
+The two missing terminals of slot 14 are the two dropped helper claims; the
+row totals also carry the widened head dimension, which is why they are not
+simply two rows apart. **No other domain's helper block moves**, which is the
+whole of C-6.
+
+### What is deliberately the SAME: stage 30's unpadded arm
+
+This shape keeps 125M's padded-domain set — `Dom::T` (2^5), `Dom::Kv`
+(32·4·32 = 2^12) and `Dom::F` (32·512 = 2^14) do not pad — so slots 16 and
+18 still report `"degree":4` where the rung-K4 bundles report 5, and slot 02
+still draws no `zeta`. The pair is therefore a regression for finding
+**M-F1** as well as the first evidence for C-6. (The absolute
+`definition_challenges` counts are NOT rung-P2's: every domain log is larger
+here, so each `tau` is longer. The pad-rule fact a port has to get right is
+the DEGREE and the presence of the support-indicator table, and those are
+rung-P2's exactly.)
+
+### The pair, as written
+
+| bundle | blocks | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|---:|
+| `run-m-dense-c6` (FULLY DENSE, generic) | 2 | 34,847 B | 3,275,672 / 3,913,538 B | 15,635,336 B | **22,864,518 B** |
+| `run-n-zero-c6` (all-zero, degenerate) | 2 | 34,852 B | 3,282,805 / 3,913,226 B | 15,464,440 B | **22,700,238 B** |
+
+**22.9 and 22.7 MB, with both size levers already taken**: two blocks (one
+internal boundary, the least a run-level reader needs) and the `/5-run`
+array store, which deduplicated 52 arrays here. What is left is the shape
+itself — the helper commitment is 1,408 rows against rung-P2's 720 because
+the head dimension is four times as wide — and it is not C-6's doing: C-6
+makes the bundle SMALLER by two helper planes. A one-block bundle would be
+about 12 MB and would carry no internal boundary, so it was not taken.
+
+Both are schema `/5-run`, both carry the public tables' VALUES
+(`"public_tables_included":true`), both are tagged
+(`"rule":"blake3-keyed/1"`), both name
+`hashline-zk-mr1/private-run-rung-c6-t32-dev/1`, and each manifest's five
+files match their recorded length and SHA-256 with the source pin `3e106e1`
+over 38 files.
+
+They are **not gate evidence** (ruling T-6): the Python run gate has to learn
+this profile's key set and this shape's plane index before a bundle is
+judged. They are the INPUT to that work.

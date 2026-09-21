@@ -1,0 +1,47 @@
+==============================================================================
+STAGE 31 BUNDLE SELF-CHECK - run-m-dense-c6 / run-n-zero-c6
+==============================================================================
+
+-- 1. the manifests --
+  run-m-dense-c6: source pin 3e106e1, 38 source files pinned, 5 bundle files all matching their length and SHA-256; 22869510 B on disk (22.9 MB), manifest total_bytes 22864518
+  run-n-zero-c6: source pin 3e106e1, 38 source files pinned, 5 bundle files all matching their length and SHA-256; 22705230 B on disk (22.7 MB), manifest total_bytes 22700238
+
+-- 2. what is NEW: correction C-6 on Dom::D --
+  a_rows  rung-C6  1337   rung-P2   727
+  h_rows  rung-C6  1408   rung-P2   720   (17 Dom::D helper planes against 19)
+  slot 14 [03 D zero-check (hosts 12, 13D)]: rung-C6 54 terminals / degree 5; rung-P2 56 terminals / degree 5
+
+-- 3. what is the SAME: stage 30's unpadded arm (the M-F1 regression) --
+  slot 02 [02 norm squares zero-check (hosts 01, 01m)]: rung-C6 13 draws / degree 3 | rung-P2 13 / 3 | rung-K4 15 / 3
+  slot 16 [05 KV zero-check (hosts 09K, 09V)]: rung-C6 21 draws / degree 4 | rung-P2 19 / 4 | rung-K4 21 / 5
+  slot 18 [14 F zero-check (hosts 13G, 13U)]: rung-C6 25 draws / degree 4 | rung-P2 24 / 4 | rung-K4 26 / 5
+
+-- 4. the two stages of each new bundle agree on the schedule --
+  run-m-dense-c6: the two stages carry the same schedule and the same draw counts on all 23 slots
+  run-n-zero-c6: the two stages carry the same schedule and the same draw counts on all 23 slots
+
+-- 5. the declarations a gate reads first --
+  run-m-dense-c6: schema hashline-native-capture/5-run, run profile present True, keyed hash rule True, public tables' values True
+  run-n-zero-c6: schema hashline-native-capture/5-run, run profile present True, keyed hash rule True, public tables' values True
+
+-- 6. every slot, rung-C6 against rung-P2 (stage 0) --
+  slots whose schedule, draw count or terminal count differs: [0, 1, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 21, 22]
+    slot 00 [01 SS row sums norm_a (private)]: rung-C6 (main 14, ext 1, deg 4, draws 5, terms 1) | rung-P2 (12, 1, 4, 5, 1)
+    slot 01 [01m SS row sums norm_m (private)]: rung-C6 (main 14, ext 1, deg 4, draws 5, terms 1) | rung-P2 (12, 1, 4, 5, 1)
+    slot 05 [09Q matmul (private)]: rung-C6 (main 9, ext 1, deg 2, draws 14, terms 1) | rung-P2 (7, 1, 2, 12, 1)
+    slot 06 [09K matmul (private)]: rung-C6 (main 9, ext 1, deg 2, draws 7, terms 1) | rung-P2 (7, 1, 2, 5, 1)
+    slot 07 [09V matmul (private)]: rung-C6 (main 9, ext 1, deg 2, draws 7, terms 1) | rung-P2 (7, 1, 2, 5, 1)
+    slot 08 [10 score matmul (private, bilinear)]: rung-C6 (main 7, ext 2, deg 3, draws 14, terms 2) | rung-P2 (5, 2, 3, 14, 2)
+    slot 09 [11 PV matmul (private, bilinear)]: rung-C6 (main 7, ext 2, deg 3, draws 14, terms 2) | rung-P2 (7, 2, 3, 12, 2)
+    slot 10 [12 Wo matmul (private)]: rung-C6 (main 9, ext 1, deg 2, draws 14, terms 1) | rung-P2 (7, 1, 2, 12, 1)
+    slot 11 [13G gate matmul (private)]: rung-C6 (main 9, ext 1, deg 2, draws 14, terms 1) | rung-P2 (7, 1, 2, 13, 1)
+    slot 12 [13U up matmul (private)]: rung-C6 (main 9, ext 1, deg 2, draws 9, terms 1) | rung-P2 (7, 1, 2, 8, 1)
+    slot 13 [13D down matmul (private)]: rung-C6 (main 9, ext 1, deg 2, draws 14, terms 1) | rung-P2 (8, 1, 2, 12, 1)
+    slot 14 [03 D zero-check (hosts 12, 13D)]: rung-C6 (main 14, ext 1, deg 5, draws 46, terms 54) | rung-P2 (12, 1, 5, 46, 56)
+    slot 15 [04 Q zero-check (hosts 09Q, 11)]: rung-C6 (main 14, ext 1, deg 5, draws 26, terms 15) | rung-P2 (12, 1, 5, 24, 15)
+    slot 16 [05 KV zero-check (hosts 09K, 09V)]: rung-C6 (main 12, ext 1, deg 4, draws 21, terms 13) | rung-P2 (10, 1, 4, 19, 13)
+    slot 18 [14 F zero-check (hosts 13G, 13U)]: rung-C6 (main 14, ext 1, deg 4, draws 25, terms 17) | rung-P2 (13, 1, 4, 24, 17)
+    slot 21 [IO-in endpoint equality]: rung-C6 (main 14, ext 1, deg 2, draws 14, terms 2) | rung-P2 (12, 1, 2, 12, 2)
+    slot 22 [IO-out endpoint equality]: rung-C6 (main 14, ext 1, deg 2, draws 14, terms 2) | rung-P2 (12, 1, 2, 12, 2)
+
+VERDICT: 0 mismatches

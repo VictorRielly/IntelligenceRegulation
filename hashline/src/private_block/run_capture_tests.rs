@@ -1044,6 +1044,99 @@ fn write_the_p2_gate_bundles() {
     eprintln!("P2 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
 }
 
+// ============================================================
+// STAGE 31: the bundles at the FULL-TOP-BYTE shape
+// ============================================================
+
+/// **STAGE 31: `run-m-dense-c6` and `run-n-zero-c6`.**
+///
+/// **Why they exist.** Correction C-6 drops the four `scaled` norm lookups
+/// when the norm window fills its top byte limb, so `Dom::D` carries 34
+/// lookups per position instead of 38, **seventeen** helper planes instead
+/// of nineteen, and the whole `H` plane index is two planes shorter. A
+/// reader of a bundle sees that everywhere: the plane index, slot 14's
+/// terminal list, the `H` commitment's row count and every `H` opening.
+/// Every bundle written before this pair is at a shape with the flag OFF —
+/// the only shape with it ON is 125M, whose runs are 484 MB and which no
+/// Python gate can ingest.
+///
+/// `Shape::rung_c6` is that case at a size a gate reads in seconds. It is
+/// `Shape::rung_p2` with the head dimension widened from 8 to 32, so it
+/// ALSO keeps stage 30's unpadded arm: the three host slots 02, 16 and 18
+/// are still on the `pad_on == false` side, and this pair is therefore a
+/// regression for finding M-F1 as well as the first evidence for C-6.
+///
+/// The array store is ON (schema `/5-run`) and the run is two blocks, for
+/// the same reasons as stage 30's pair: one internal boundary is enough to
+/// exercise the run layer and the store halves the bytes.
+///
+/// Nothing here deletes or rewrites a bundle: `write_bundle` creates every
+/// file with `create_new`, so a re-run into an existing directory refuses.
+#[test]
+#[ignore = "writes the stage-31 rung-C6 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1"]
+fn write_the_c6_gate_bundles() {
+    let root = PathBuf::from(std::env::var("HL_RUN_CAPTURE_DIR").expect("HL_RUN_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    assert!(
+        std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").map(|v| v == "1").unwrap_or(false),
+        "HL_RUN_CAPTURE_PUBLIC_TABLES=1 is not set: these bundles exist so the run gate can close every slot's terminal identity at a shape where correction C-6 removes four lookups, which needs the public tables' VALUES"
+    );
+    let sh = Shape::rung_c6();
+    let l = capture_blocks_from_env(2);
+    assert!(!sh.hashes_under_the_legacy_rule(), "these bundles are meant to be TAGGED and this shape is not");
+    assert!(sh.norm_top_is_full_byte(), "this shape is not on the C-6 arm these bundles exist for");
+    assert_eq!((sh.lookups_per_position(Dom::D), sh.helpers(Dom::D)), (34, 17), "this shape does not carry C-6's Dom::D counts");
+    let unpadded: Vec<Dom> = ALL_DOMS.into_iter().filter(|d| !sh.pads(*d)).collect();
+    assert_eq!(unpadded, vec![Dom::T, Dom::Kv, Dom::F], "this shape lost stage 30's unpadded arm");
+    let mut total = 0usize;
+    for (tag, dense) in [("run-m-dense-c6", true), ("run-n-zero-c6", false)] {
+        let dir = root.join(tag);
+        let note = format!(
+            "Bundle `{tag}`: one honest {l}-block run at the FULL-TOP-BYTE\ndevelopment shape (`Shape::rung_c6`: 32 tokens, width 384, hidden 512, 12\nquery heads of 32 over 4 key-value heads, padded head slots {{3, 7, 11, 15}}),\nunder the D19 separating hash tag, with the public tables' values.\n\nWHY THIS PAIR EXISTS, AND WHAT IS NEW IN IT. Correction C-6: a window of w\nbits held in l byte limbs leaves 8l - w slack bits in its top limb, so the\nlayout pins that limb with `scaled(top, 1 << (8l - w))` beside the `byte`\nlookup every limb already gets. When the window FILLS its top limb the\ncoefficient is 1, the scaled entry is the same lookup as the byte entry, and\nall four of them -- rho and sigma of norm_a and of norm_m -- are dropped.\nThat happens exactly when the width passes 256: D_max = isqrt(1 + width *\n32767^2), the window is 12 + bit_length(D_max), and at width 384 it is 32 =\n8 * 4 limbs. Every bundle written before this pair is at width 96 or 16, so\nno reader has ever seen the corrected layout at a size it can ingest; the\nonly shape that takes it is 125M.\n\nConcretely, against `run-k-dense-p2` (the same pad-rule arm, the same two\ngroup bits, the same row width):\n\n* the plane index carries SEVENTEEN `Dom::D` helper planes, not nineteen, and\n  the `H` plane list is 50 planes, not 52;\n* `arguments[14]` (`03 D zero-check`) carries 54 terminals, not 56 -- the two\n  dropped helper claims;\n* the `H` commitment's opening counts and row totals follow from that, and no\n  other domain's helper block moves.\n\nWHAT IS THE SAME, deliberately: `Dom::T` (32 = 2^5), `Dom::Kv` (32 * 4 * 32 =\n2^12) and `Dom::F` (32 * 512 = 2^14) are exact powers of two and DO NOT PAD,\nwhile Ht, L, D, Q, S and Tab do -- 125M's own padded-domain set. So slots 02,\n16 and 18 still carry two fewer `definition_challenges` than an all-padded\nshape and slots 16 and 18 still report \"degree\":4, and this pair is a\nregression for finding M-F1 too.\n\nHidden input and public weights: {}\n\nThis is a NEW PROFILE (D17): `hashline-zk-mr1/private-block-rung-c6-t32-dev/1`\nfor the block and `hashline-zk-mr1/private-run-rung-c6-t32-dev/1` for the run,\nwith their own hash-tag key set. No byte of any earlier profile moves.\n\nDevelopment grade (ruling P-7). Still not a privacy result: no gate has read\nthis.",
+            if dense {
+                "the FULLY DENSE recipe at this shape's MEASURED chain band (down band 27; `private_block::dense_tests::dense_run_case`): every entry of all nine public words nonzero, a non-constant hidden input from its own unpublished stream, the upper hidden half of the feed-forward planes live, twelve of twelve true head slots live, all four key-value groups carrying PAIRWISE DIFFERENT rotated keys, and all four norm remainders using their TOP byte limb. THE GENERIC WITNESS"
+            } else {
+                "the ALL-ZERO hidden plane on the lane's synthetic tame fixture — the fixed input the privacy case is stated at, and a DEGENERATE witness: every key-value group is identically zero, so it says nothing about the group bits and is kept as the pair's control"
+            }
+        );
+        let n = capture_a_run_into(
+            tag,
+            &sh,
+            RunShape::rung_c6(l).expect("the rung-C6 run shape"),
+            l,
+            dense,
+            true,
+            &dir,
+            &note,
+            "HL_RUN_CAPTURE_DIR=<dir> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib private_block::run_capture_tests::write_the_c6_gate_bundles -- --ignored --nocapture",
+        );
+        // what the bundle must SAY, read back off the files it just wrote
+        let run_json = std::fs::read(dir.join("run.json")).expect("the run file");
+        assert!(contains(&run_json, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "{tag}: the run file does not name the keyed hash rule");
+        assert!(contains(&run_json, "\"public_tables_included\":true"), "{tag}: the run file does not declare that the public tables are included");
+        assert!(contains(&run_json, "hashline-zk-mr1/private-run-rung-c6-t32-dev/1"), "{tag}: the run file does not carry the rung-C6 run profile");
+        let lay = Layout::for_shape(&sh).expect("the rung-C6 layout");
+        for k in 0..l {
+            let stage = std::fs::read(dir.join(run_capture::stage_file(k))).expect("a stage file");
+            // slot 14 carries the SHORTENED term list — the C-6 fact a
+            // reader sees first
+            let (main, ext, degree) = sh.slots()[SC_DZC];
+            let head = format!("{{\"slot\":{SC_DZC},\"name\":{:?},\"kind\":\"Host\",\"main\":{main},\"extension\":{ext},\"degree\":{degree},", SLOT_NAMES[SC_DZC]);
+            assert!(contains(&stage, &head), "{tag} stage {k}: slot 14 does not report the C-6 schedule ({main}, {ext}, {degree})");
+            assert_eq!(lay.slot_terms(SC_DZC), 54, "{tag}: slot 14's term list is not C-6's 54");
+            // and the unpadded arm is still there
+            for s in [SC_KVZC, SC_FZC] {
+                let (m2, e2, d2) = sh.slots()[s];
+                let h2 = format!("{{\"slot\":{s},\"name\":{:?},\"kind\":\"Host\",\"main\":{m2},\"extension\":{e2},\"degree\":{d2},", SLOT_NAMES[s]);
+                assert!(contains(&stage, &h2), "{tag} stage {k}: slot {s} does not report the UNPADDED schedule ({m2}, {e2}, {d2})");
+            }
+        }
+        total += n;
+        assert!(n < 60_000_000, "{tag} is {n} B, past the 60 MB ceiling this stage was given");
+        eprintln!("C6 GATE BUNDLE {tag}: {n} B on disk ({:.1} MB)", n as f64 / 1e6);
+    }
+    eprintln!("C6 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
+}
+
 // ===========================================================================
 // STAGE 23, GAP GS-2 — THE REFUSAL REPLAY ORDER, PINNED ON A REAL BLOCK
 // ===========================================================================
