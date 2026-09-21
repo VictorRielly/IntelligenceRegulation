@@ -8242,3 +8242,29 @@ and a test reads that function's body to check the arithmetic it assumes.
   law.** The two hops of the joint sentence are unchanged.
 
 
+
+---
+
+## Stage 27 — a RUN CAPTURE made possible at the 125M shape (2026-09-21, 08:1x–)
+
+**Status: `OPEN` (skeleton).** TEST-ONLY. **No production code path changes
+and nothing an existing profile proves may move**; the security owner
+launches the heavy 125M run himself, this lane launches nothing at 125M.
+
+**The problem in one line.** The Python privacy gate has checked every
+linear channel of a private run on real bytes at two DEVELOPMENT shapes;
+its standing limit is that nothing has been measured at the 125M shape,
+which was assumed out of reach because a 125M receipt is 40 MB per block.
+A capture records the VERIFIER'S VIEW, which is a different and much
+smaller object — but only if the writer stops rendering multi-million
+element field arrays as decimal JSON.
+
+| item | what | state |
+|---|---|---|
+| 1 | the size and memory model at 125M, per member, [COUNTED] | OPEN |
+| 2 | the heavy `#[ignore]` capture test, written and not run | OPEN |
+| 3 | writer-side source pins for the shared files the run depends on | OPEN |
+| 4 | a development-shape dress rehearsal, run here | OPEN |
+| 5 | the prebuilt binary and the two launch commands | OPEN |
+
+Evidence and commands land in this section as each item closes.
