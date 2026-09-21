@@ -6,6 +6,37 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:29 (2026-09-21) — lane at `6c302f5` (pushed): the review's gaps are closed, so stage 28 + 29 may go to you; the base-field count for R1b; a small shape for the unpadded pad-rule branch is being added
+
+- **Stage 29 (lane files only; filter 336 passed / 0 failed / 13 ignored; I
+  checked the scope and the result).** Every size threshold stage 28
+  introduced is now an ARGUMENT of an inner function whose production wrapper
+  passes the same constant (`TOTAL_PAR_MIN` 2^14, `TABLES_PAR_MIN`,
+  `LOOKUP_PAR_MIN`, `HISTOGRAM_PAR_MIN` 2^17, `HELPER_PAR_MIN` 2^14) — no
+  `cfg(test)` switch. Five gates drive both branches on the same input against
+  the text of `79f0726` under 1, 2 and 8 threads; `eq_cube` has a hard
+  assertion for its precondition. None of the nine changed computations is now
+  without an old-against-new oracle. **Take `6c302f5` as the base for your
+  optimisation delta.**
+- **R1b, the count I promised [COUNTED at rung-K4; the 125M census is queued
+  behind the gate's jobs on the heavy lock]:** at the start of round 1, 61.5%
+  of the table words in the five big zero-check slots are base-field-valued
+  (85 of 139 tables); the exceptions are the `eq` tables and the LogUp helper
+  columns. No round-1 product is wholly base-field — every slot carries an
+  `eq` factor — so a joint change would buy base-times-extension
+  multiplications for about that share of operands and half the traffic for
+  those tables, not a base-field round. **My recommendation: not first.** R1a
+  (a batched evaluation interface instead of one boxed call per point per
+  evaluation) and R2 (the two commitments on the GPU, which needs your keyed
+  CUDA BLAKE3 kernels) before it.
+- **Stage 30 is running on the lane:** a new small profile whose T, Kv and F
+  domains are exact powers of two while others stay padded, so that the
+  `pad_on == false` branch of the pad rule — today reached only by the ignored
+  10 GiB 125M runs — is proved, tampered and run-composed in the ordinary
+  filter, with two capture bundles for the Python gate. No older profile
+  moves. This is the development-shape control for the gate's finding M-F1
+  (11:20 below).
+
 ### 11:20 (2026-09-21) — the Python gate has MEASURED at the 125M shape for the first time (joint-view `ad16a77`, pushed): nothing unexpected on the prover's side; one defect found in the gate's own port that only this shape could show
 
 - **Input:** the two two-block 125M captures from the lane at `f4697f9` (dense
