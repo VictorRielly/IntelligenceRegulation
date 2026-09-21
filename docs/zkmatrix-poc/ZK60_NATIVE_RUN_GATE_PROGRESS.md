@@ -1476,7 +1476,32 @@ records this lane does not edit. Round 8 does not edit them: a test asserts
 
 ## R8.6 Results — what was constructed and verified
 
-(pending)
+Report §12.5 has the tables. Two things belong in the ledger rather than in
+the report.
+
+**Finding R8-F1 — a refusal in round 8's own stage would have been a
+crash.** Found by reading my own code while the second pass was in flight:
+`mask_cfs_stage` returned early when the CFS side did not solve, WITHOUT
+the `entries_recomputed` block, and both summaries that add those counts up
+— `mask_cfs_run` and the gate's `channels()` — indexed it directly. A
+`KeyError` on exactly the case the gate exists to report. That is round 5's
+finding K4-F1 one layer up, and the lane's own rule ("a refusal is never a
+crash") forbids it. Fixed at commit `2c18a87`: a refusing stage now carries
+zeroed counts, an `these_zeros_are_an_absence` note and a `why` naming the
+refusal, both summaries use `.get`, and a test FORCES the refusal and
+asserts every key a caller reads is present. **The fix moved two tool
+files, so the run of record was taken a third time on frozen bytes**
+(`run3.sh`), which is why three run scripts are in the evidence directory
+and only the third is of record.
+
+**Three passes, and what each was.** `run.sh` — the first, taken while
+stage 13 was still being written; superseded. `run2.sh` — the second, taken
+before R8-F1 was found; superseded. `run3.sh` — **of record**, on frozen
+bytes, and it ends by running the three suites inside the SAME lock hold so
+that nothing can interleave between the records and the tests that read
+them. Every pass was detached under `flock /tmp/zk-heavy.lock` with a
+`.done` marker, and the later ones were ENQUEUED on the lock while the
+earlier still held it, so the box kept working without a session.
 
 ## R8.7 The controls
 
