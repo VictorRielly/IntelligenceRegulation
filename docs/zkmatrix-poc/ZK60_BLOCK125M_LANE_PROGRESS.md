@@ -6618,22 +6618,384 @@ tip `e6b612f`. The whole diff against `e6b612f` touches only
 
 ## Stage 23 — the four items of tonight's ruling on the shaped generic-rank lemma (2026-09-20, 23:3x–)
 
-**Status: `SKELETON`.** Opened 2026-09-20 23:37 PDT on the lane tip
-`823d86d`. It works the four items the security owner's disposition
+**Status: `LANDED`.** Opened 2026-09-20 23:37 PDT on the lane tip `823d86d`.
+It works the four items the security owner's disposition
 `ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md` (rulings S-1, S-3, S-5) and
 the independent check `ZK60_GENERIC_RANK_LEMMA_SHAPED_CHECK.md` (findings
 B-2, B-3, B-12) leave on this lane.
 
-**The hard constraint of the stage: nothing an existing profile proves may
-move by a byte.** Every refusal added here must be FALSE at the toy, the
-frozen-seam rung, rung-G, rung-K4 and 125M, and that is asserted rather than
-argued.
+**Nothing an existing profile proves moved by a byte.** The toy's 2,816,472,
+the rung's 4,218,600, rung-G's 4,234,984, rung-K4's 4,743,128 and 125M's
+40,783,352 are all in the pass list; the toy schedule digest and parameter
+line are frozen; the forbidden-file trees are byte-identical to the stage
+start and to the hand-back tip `e6b612f` (proof at the end). Both new
+refusals are asserted FALSE at all five shapes, which is what makes them
+unable to move a receipt.
+
+**No heavy run, no GPU, nothing at 125M proved.** The only new proving is a
+two-block rung-G dense run inside one test (1.43 s).
+
+**No privacy or soundness acceptance is claimed.** Two shape conditions the
+privacy argument depends on became named refusals, one independent model
+became independent at two more shapes, and one ordering fact became a test.
+Gap G-R1 is narrowed where the disposition says it is; nothing else moves.
+
+Commits: the skeleton `16deca7`, items 1 and 2 `9661094`, item 3 `b804087`,
+item 4 `46baa40`, and this ledger.
 
 | item | ruling / finding | what | state |
 |---|---|---|---|
-| 1 | S-1 (check B-2) | `log(Dom::Tab) == log_cols` becomes a named, tested shape refusal and a documented invariant at the P-3 lift | PENDING |
-| 2 | S-3 (check B-3) | `head_dim >= row width` becomes a named, tested shape refusal; `SC_PV` and the feed-forward slots checked for the same trap | PENDING |
-| 3 | S-5 (check B-12) | the layout model derives each shape's endpoint geometry instead of declaring it; both Rust-side correction terms removed if it then agrees to the byte | PENDING |
-| 4 | gap GS-2 | the refusal replay order pinned in Rust at a shaped layout, on a generic dense witness | PENDING |
+| 1 | S-1 (check B-2) | `log(Dom::Tab) == log_cols` is a named `Shape::new` refusal and a documented invariant at the P-3 lift | **DONE**, failing-first recorded |
+| 2 | S-3 (check B-3) | `head_dim >= row width` is a named `Shape::new` refusal; `SC_PV` and the feed-forward slots checked for the same trap | **DONE**, failing-first recorded |
+| 3 | S-5 (check B-12) | the layout model derives every endpoint's geometry; BOTH Rust-side correction terms removed; the model is the Rust's to the byte at all five shapes | **DONE** |
+| 4 | gap GS-2 | the refusal replay order pinned in Rust at rung-G on a generic dense witness, through existing hooks only | **DONE**, with the missing hook named |
 
-Sections, evidence and the forbidden-files proof follow as each item lands.
+---
+
+### Item 1 — ruling S-1: the lookup-table domain sits at exactly the row width
+
+**THE DEFECT, IN ONE PARAGRAPH.** The privacy argument's "Fact 1" says a
+claim's evaluation point never reaches a commitment's non-data rows. On the
+helper commitment `H` that is **false**: the claim of slot `SC_ZS` on the
+hidden plane `H_U` and the pairless LogUp sum claim both put data parts on
+the two ZERO-SUM rows, which the argument's own accounting counts as
+non-data, and `audit_claims` does not forbid it (its only row-placement
+checks are the proximity pair and site-row exclusivity). It is harmless today
+for exactly one reason: `Dom::Tab` sits at **exactly** the row width, so for
+both claims `ls == log_cols`, hence `lr = 0` and `eq_table_msb(&point[..0]) =
+[1]`, and each zero-sum row's weight is the point-INDEPENDENT coefficient.
+Put the table domain above the row width and those rows carry an eq-tensor in
+the claim's point: the non-data block becomes point-dependent and the
+argument's corollary about the repaired bilinear slots stops being a theorem.
+**Nothing checked it.** `domain_log_at` only lifts upward and `Dom::Tab`'s
+natural log is the fixed `clog2(U8_LEN) = 8`, so it was safe by construction
+rather than by check.
+
+**WHERE THE REFUSAL SITS AND WHAT IT SAYS.** `Shape::new`
+(`hashline/src/private_block/shape.rs`), immediately after ruling F-2's P-3
+guard — the place where every other P-3-shaped condition is refused:
+
+```
+private block shape: ruling S-1 — the lookup-table domain must sit at EXACTLY
+the row width (Dom::Tab natural log 8, at this shape 8, against a row width of
+2^7); below it the table spans several rows and the helper commitment's
+zero-sum rows would carry point-dependent data weights
+```
+
+The P-3 lift itself (`layout::domain_log_at`) gains a doc-comment section
+headed **"AN INVARIANT THAT MUST NOT BE WEAKENED"**, which states Fact 1's
+failure, the `lr = 0` computation that rescues it, and the two edits that
+would reopen the argument (this function's direction, or `Dom::Tab`'s natural
+log).
+
+**THE LANE KEEPS NO "G-3 list" OF ITS OWN**, so there was nowhere else to add
+the condition: `grep` for `G-3` and for "must not be weakened" across
+`hashline/src/private_block/` and this ledger returns nothing (ruling G-3's
+four `zkp-core/src/pcs.rs` assertions are named in the round's own documents,
+outside this worktree, and `zkp-core` is a forbidden tree here). The
+invariant therefore lives in the three places this lane owns: the refusal,
+the lift's doc comment, and this section.
+
+**WAS A VIOLATING SHAPE CONSTRUCTIBLE? YES — recorded failing-first**
+(`s1-s23-items12-failing-first.log`, exit 101). The toy's axes at a row width
+of `2^7` constructed happily before this commit: `log_cols = 7` is inside the
+declared `2..=30` range, `Dom::Q`, `Dom::Kv` and `Dom::S` all sit at or above
+`2^7` so ruling F-2 does not fire, and no other construction check looked at
+`Dom::Tab` at all. What it would have produced is a two-row table domain —
+the exact configuration the repaired Fact 1 excludes.
+
+**THE TESTS** (`hashline/src/private_block/s23_tests.rs`, new):
+
+| test | what it measures |
+|---|---|
+| `the_lookup_table_domain_sits_at_exactly_the_row_width_at_every_shape` | at all five shapes: `natural_log(Tab) == clog2(U8_LEN)`, `log(Tab) == log_cols`, `rows_of(Tab) == 1`, `log_cols >= 8` |
+| `a_row_width_below_the_lookup_tables_natural_size_is_refused_by_name` | the `2^7` probe refused, the message naming the ruling, the domain and what breaks; a CONTROL with the same axes at `2^8` constructs |
+| `the_lookup_table_refusal_is_exactly_the_row_widths_below_the_tables_log` | a sweep of `log_cols` 2..=11: below 8 ruling S-1 owns the refusal; at 8 the shape constructs; above 8 ruling S-1 is never the reason (ruling F-2's older refusal takes over at these axes, because the toy's `Dom::Kv` is at `2^8`) |
+
+---
+
+### Item 2 — ruling S-3: a head dimension at or above the row width
+
+**THE TRAP.** `SC_SCORE`'s two private factors end their coordinate lists in
+two copies of the SAME symbol segment, `rho(lkv .. lkv + log2(head_dim))`
+(`argument.rs:1141-1158`), because a coordinate list owns its entries. A
+column key is the LAST `log_cols` entries of a list, so if `log2(head_dim)`
+reached `log_cols` both keys would be the last `log_cols` entries of that one
+shared segment — **equal by construction on every run**. `opening_groups_at`
+would return one group fewer than the schedule declares and `check_opening`
+would refuse EVERY proof at that shape. It is a liveness cliff, not a leak,
+and the existing guard covers only the opposite direction.
+
+**THE REFUSAL**, in `Shape::new` beside item 1's:
+
+```
+private block shape: ruling S-3 — the head dimension 256 reaches the row width
+2^8, so the two private factors of the score slot would share their whole tail
+and their column keys would collide on every run; every proof at this shape
+would be refused for its opening-group count
+```
+
+**WAS A VIOLATING SHAPE CONSTRUCTIBLE? YES — recorded failing-first** in the
+same log. 16 tokens, width 256, one query head of 256 over one key-value
+head, at a row width of `2^8`: the padded head slots tile the padded width
+(`d_pad = h_pad * head_dim = 1 * 256`), the head dimension is a power of two,
+the key-value heads divide both head counts, `Dom::Q` and `Dom::Kv` are
+`2^12` and `Dom::S` is exactly `2^8` so ruling F-2 does not fire, and
+`Dom::Tab` is exactly at the row width so item 1 does not fire either. Before
+this stage `Shape::new` returned it, and every proof at it would have been
+refused with a message about opening-group counts and no name.
+
+**WHAT I FOUND FOR `SC_PV` AND THE OTHER SLOTS** — the disposition asks for
+the analogue to be checked, and the answer is that there is none, for reasons
+already enforced elsewhere. Recorded as assertions in
+`the_source_token_axis_and_the_feed_forward_slots_carry_no_such_trap`, so a
+change to either reason fails there:
+
+* **`SC_PV` cannot collide structurally at any shape, and the source-token
+  axis is not the analogue.** Its two private factors are `A_P` on `Dom::S`
+  and `A_V8` on `Dom::Kv` (`argument.rs:1162-1186`). They DO share the
+  source-token segment `tp = rho(lkv .. lkv + log2(t_pad))` — it is the last
+  segment of `A_P`'s list and the FIRST of `A_V8`'s — so the naive analogue
+  of S-3 would be "`t_pad >= row width`". But `A_V8`'s list continues with
+  `rho(0 .. lkv)` and **ends in `fixed(r_i)`**, a segment of
+  `log2(head_dim) >= 1` transcript entries and not sumcheck symbols. However
+  large `t_pad` grows against the row width, the two keys end in different
+  KINDS of coordinate and cannot be equal by construction. **The guard that
+  keeps it that way is the existing T-8 refusal `head_dim >= 2`**: at
+  `head_dim = 1` the `fixed(r_i)` segment would be empty and `A_V8`'s list
+  would end in the shared `tp` exactly as `A_P`'s does. So S-3's analogue for
+  `SC_PV` was already refused, by a rule written for a different reason (the
+  RoPE partner bit), and the test now says so.
+* **The feed-forward slots carry no such trap at all.** `SC_GMM`, `SC_UMM`,
+  `SC_DMM` and the projection `SC_WO` raise **one** `A` claim each
+  (`Shape::claim_sites`, asserted at rung-G), so the two-private-factor
+  configuration cannot arise in them. `SC_GMM` and `SC_UMM` do share a plane
+  and a fixed row point — the disposition's S-5 inventory addition — but they
+  are different SLOTS with different `rho` symbols and one claim apiece.
+* **The margin at every existing shape** is at least two bits:
+  `clog2(head_dim) + 2 <= log_cols` at all five (8/16/16/8/64 against
+  `2^8`/`2^10`/`2^10`/`2^10`/`2^14`).
+
+---
+
+### Item 3 — finding B-12: the layout model derives every endpoint now
+
+**THE DEFECT.** `scripts/zk60_private_block_layout_model.py` DECLARED each
+shape's endpoint row count, and two of the four declarations were stale: **14
+rows for the frozen-seam rung** where the code has 21, and **29 for 125M**
+where the code has 37. Each was hidden behind a named correction term in the
+Rust comparison — `+45,056 B` in `grow_tests::MODEL_RUNG`, `+32,768 B` in
+`MODEL_M125` — so at those two shapes the "independent model" and the Rust
+never actually met; only their difference was explained.
+
+**WHAT THE MODEL DERIVES NOW.** One rule, four new constants, no declaration:
+
+```
+endpoint_words   = t_pad * d_pad              # the PADDED Dom::D cube, the
+                                              # slice SC_IO_IN / SC_IO_OUT claim
+endpoint_general = not (words <= SEAM_MAX_WORDS      # 4,096
+                        and endpoint_log_n  == SEAM_LOG_COLS   # 8
+                        and endpoint_inv_rate == SEAM_INV_RATE) # 8
+data_rows        = max(1, words >> endpoint_log_n)
+endpoint_rows    = data_rows + ENDPOINT_MASK_ROWS    # 5
+```
+
+which is `Shape::new`'s own derivation of `endpoint_general`
+(`shape.rs:208-220`) and `protocol::endpoint_geometry` /
+`endpoint_g::MASK_ROWS`. The constructor no longer takes an `endpoint_rows`
+argument at all — a regression guard asserts that by inspecting its
+signature — and the frozen-seam rung's stale `endpoint_inv_rate=4` is
+corrected to the seam's own 8, which is hashed into every `SeamSpec::digest()`
+and so not editable.
+
+**THE RESULT: the model is the Rust's TO THE BYTE at all five shapes, from
+its own arithmetic, with nothing in between. BOTH correction terms are
+removed.**
+
+| shape | endpoint plane | `log_n` / rate | seam? | data rows | commitment rows | endpoint openings | model total = Rust total |
+|---|---:|---:|---|---:|---:|---:|---:|
+| toy | 512 | 8 / 8 | frozen | 2 | 7 | 262,144 | **2,816,472** |
+| rung | 4,096 | 8 / 8 | frozen | 16 | **21** (was 14) | **319,488** | **4,218,600** |
+| rung-G | 4,096 | 10 / 4 | generalised | 4 | 9 | 335,872 | **4,234,984** |
+| rung-K4 | 4,096 | 10 / 4 | generalised | 4 | 9 | 335,872 | **4,743,128** |
+| 125M | 524,288 | 14 / 4 | generalised | 32 | **37** (was 29) | **1,499,136** | **40,783,352** |
+
+**No `Expected` literal moved**, because every one of them was already the
+Rust's figure; it is the MODEL that came to meet them. What changed on the
+Rust side is only the prose: the two correction-term comments are replaced by
+a statement that the model now derives the geometry and agrees to the byte,
+and the three other places that cited the terms (`rung_tests`'s frame
+constant, `grow_tests`'s codec test, `k4_tests`'s frame constant) say they are
+gone.
+
+**NOTHING IS FORCED.** The difference against the MEMO grows by exactly those
+two terms and stays fully diagnosed: **45,568 B** at the rung (512 of slot
+line + 45,056 of endpoint) and **33,328 B** at 125M (560 + 32,768), each with
+its cause in `KNOWN_MEMO_DIFFERENCES`, and the tests assert that no
+difference is `UNDIAGNOSED`. The memo is what is stale here, not the code:
+its endpoint pricing is of the TRUE plane, which `SeamSpec::new` refuses
+outright (both axes must be powers of two) and which is not what `SC_IO_IN` /
+`SC_IO_OUT` claim.
+
+**ANY REMAINING DISAGREEMENT: none.** All five totals, and every part of
+every receipt, agree.
+
+**Lane Python: 82 passed, 0 failed** (from 76). Six new tests: a
+`DerivedEndpoints` class of four (the five totals against the Rust's, every
+endpoint derived from the cube and the mask rows, the seam selected by the
+same derivation the Rust uses, and the regression guard on the constructor
+signature) plus one per-shape endpoint test in `Rung` and in `M125`. The five
+model JSON files and `model_report.txt` are regenerated; **rung-G's and
+rung-K4's were never written out before** and are added.
+
+---
+
+### Item 4 — gap GS-2: the refusal replay order, pinned on a real block
+
+**THE GAP.** The Python privacy tools replay the prover's refusal checks in
+the order the opening's challenges are drawn, and the argument's reading of a
+refused run depends on that order. Nothing in Rust pinned it.
+
+**THE HOOKS USED — both already exist, and no production file is touched.**
+
+* `run_capture::Recorder::attach` records, for every opening of every stage,
+  the transcript state BEFORE the opening and its own INDEPENDENT replay of
+  that opening's challenges from that state: the lambdas of each group in
+  group order, then one proximity coefficient per commitment row
+  (`run_capture::replay`, whose own comment names the source order). The
+  recorder re-verifies the opening on its own transcript and the bundle is
+  refused on the first mismatch, so **the record IS the draw order** — and it
+  is the same order `zkp-core`'s `pcs::open_zk` / `verify_zk_tagged` use
+  (`pcs.rs:947,961`: one `challenge_fp2_vec(members.len())` per group, then
+  one `challenge_fp2_vec(rows)`).
+* `protocol::check_opening_challenges` already takes an **injectable draw**,
+  built for deterministic negative controls.
+
+The new test joins the two: it reads the partition out of a real **two-block
+FULLY DENSE rung-G run** — generic weights, a non-constant hidden input, both
+key-value groups live — and drives the prover's own refusal logic over
+exactly that partition.
+
+**WHAT IS PINNED** (`s5-s23-gs2.log`, 1 passed, 1.43 s; stage 0: `A` = 36
+groups over 623 rows, `H` = 9 groups over 576 rows, external endpoint = 1
+group over 9 rows):
+
+1. the recorded partition is the schedule's `a_groups()` / `h_groups()` and
+   the layout's rows and proximity row, with one lambda list per group and
+   one proximity coefficient per row;
+2. the honest replay consumes `sum(members) + rows` draws and **no more**;
+3. **every group position is tested for zero, in order, and the check
+   SHORT-CIRCUITS**: a zero at stream position `i` refuses with `zero group
+   member coefficient` after exactly `i + 1` draws, so the proximity
+   coefficients are never drawn on a run discarded for a zero lambda. Swept
+   over all 122 and 53 positions;
+4. **the determinant reads exactly two positions**, `prox` and `prox + 1` of
+   the row block — swept over all 623 and 576 rows, a zero at either refused
+   and a zero at every other accepted — and a DEPENDENT (not zero) pair is
+   refused too, which is what says the check is a determinant and not a zero
+   test;
+5. **precedence**: when a zero group coefficient and a degenerate proximity
+   pair hold at once, the GROUP message wins, because the group block is
+   drawn first;
+6. the external endpoint's opening replays the same way with a single
+   one-member group at its own `(9, 6)` geometry.
+
+**THE OUTER ORDER** is pinned separately, in `s23_tests`, by forcing several
+conditions at once: `check_opening` runs **the claim audit, then the exact
+opening-group count, then the challenge refusals**, and the transcript is not
+touched until the first two have passed. Ruling S-2's strike of finding N-2
+leans on exactly that ordering ("`check_opening` runs the claim audit
+FIRST…"), so it is a test now rather than a reading.
+
+**WHAT IS NOT PINNED, AND THE MINIMAL HOOK THAT WOULD BE NEEDED.** Nothing
+here observes the evaluation order from inside a live `prove_core` /
+`verify_core`: `check_opening` clones the transcript and discards the clone,
+so there is no way to see the live sequence from a test. Observing it would
+need a test-only observer **inside `protocol::check_opening_challenges`** — a
+`#[cfg(test)] fn observe(condition: &str, draw_index: usize)` beside the two
+refusals, called on EVERY evaluation and not only on a refusal, with a
+thread-local sink a test attaches. That is a change to a production file, and
+ruling GS-2's instruction is not to add one, so it is named and not built.
+What stands in its place is the equality above: the partition the test drives
+is READ OUT OF a real block's real capture rather than declared.
+
+---
+
+### Tests and commands of stage 23
+
+All through the shared build lock, `CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`.
+
+| command | log | result |
+|---|---|---|
+| items 1 + 2, **FAILING FIRST** (the refusals not yet written) | `s1-s23-items12-failing-first.log` | **3 passed / 3 failed**, exit 101 — both violating shapes CONSTRUCTED, printed in full |
+| items 1 + 2, after the refusals (one sweep arm still wrong) | `s2-s23-items12-repaired.log` | 5 passed / 1 failed — the sweep assumed shapes above the table's log construct at the toy's axes; ruling F-2 owns them |
+| items 1 + 2, green | `s3-s23-items12-green.log` | **6 passed / 0 failed** |
+| item 3, the model comparisons | `s4-s23-grow.log` | **32 passed / 0 failed** |
+| item 4, the GS-2 replay order | `s5-s23-gs2.log` | **1 passed**, 1.43 s |
+| item 4's outer order, with items 1 + 2 | `s6-s23-check-opening-order.log` | **7 passed / 0 failed** |
+| **THE GATE**: `--lib private_` | `s7-s23-private.log` | **275 passed / 0 failed / 11 ignored**, 67 filtered out, **399.87 s**, exit 0, **13 warnings** |
+| the layout model and the inventory driver, `test_zk60_private_block_*` | run inline | **82 passed** (from 76), 47 s |
+
+**Against the stage-22 baseline of 267 passed / 0 failed / 11 ignored and 13
+warnings**: **275 / 0 / 11**, 13 warnings. **Eight tests are new** and not one
+existing test was weakened or removed:
+
+| where | new tests |
+|---|---|
+| `s23_tests` (new file) | 7 — the S-1 invariant at every shape, the S-1 refusal by name, the S-1 row-width sweep, the S-3 margin at every shape, the S-3 refusal by name, what `SC_PV` and the feed-forward slots do instead, and `check_opening`'s audit → count → challenges order |
+| `run_capture_tests` | 1 — the GS-2 refusal replay order, on a real two-block fully dense rung-G capture |
+
+**The frozen gates are in the pass list**: the toy's **2,816,472 B**,
+`the_toy_schedule_digest_is_frozen`,
+`the_toy_parameter_line_is_the_frozen_literal` and
+`a_toy_receipt_made_before_the_lane_still_verifies`. The four shaped receipt
+sizes are unmoved: **4,218,600 / 4,234,984 / 4,743,128 / 40,783,352**, and
+item 3's model repair is what now reproduces two of them from outside the
+Rust for the first time.
+
+**The Python suite outside this lane** is unchanged from stage 22's ten
+pre-existing results (no 125M export on this box, three pinned `zk.rs`
+digests from an external round-22 manifest against a file this lane has not
+touched, and the `/tmp` evidence-loss condition). Nothing in stage 23 can
+reach any of them.
+
+### FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 823d86d -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs hashline/src/gpu private-block-kernel \
+  private-model-kernel private-block-kernel-shaped zkvm-block
+```
+
+prints NOTHING, and so does the same command against the hand-back tip
+`e6b612f`: every one of those trees is byte-identical to both. The whole diff
+against `823d86d` touches 29 files and only
+`hashline/src/private_block{,/*}`, `scripts/zk60_private_block_layout_model.py`,
+`tests/test_zk60_private_block_layout_model.py`, this ledger and `results/`.
+
+### WHAT STAGE 23 DOES NOT ESTABLISH
+
+* **No privacy property.** Two shape conditions the argument depends on are
+  now checked instead of merely true, and one ordering fact it assumes is now
+  tested. The argument itself is unchanged, and gap G-R1 stands where the
+  disposition leaves it: nothing has been measured at 125M (GS-1), the joint
+  law across commitments (G-R4), the slot closures as a reading (G-R2), the
+  sequential lift for a run (G-R5) and the non-linear channel (GS-13) are all
+  untouched. Register entry D22 is untouched.
+* **GS-2 is narrowed, not closed.** What is pinned is the replay order of one
+  block's openings against the recorded challenge order, and the outer order
+  of `check_opening`'s three checks. What is NOT pinned is the live
+  evaluation order inside `prove_core` / `verify_core`; the minimal test-only
+  hook that would give it is named in item 4 and deliberately not built.
+* **The two new refusals are liveness and hygiene, not soundness.** Item 1's
+  protects an argument, not a proof: a shape that broke it would still
+  produce receipts, and they would still verify — what would stop holding is
+  the reading of what they disclose. Item 2's protects liveness: a shape that
+  broke it would produce no receipt at all.
+* **Item 3 changes no Rust figure.** Every `Expected` literal was already the
+  Rust's; what changed is that the independent model now reaches two of them
+  by itself. A model that agrees is evidence about the COUNT, not about the
+  construction.
