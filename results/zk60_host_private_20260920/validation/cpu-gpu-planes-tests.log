@@ -1,0 +1,20 @@
+
+running 5 tests
+test gpu::planes::tests::a_shape_that_does_not_tile_is_declined ... ok
+test gpu::planes::tests::fill_fp_is_the_layer_buffer ... ok
+
+thread 'gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination' (447508) panicked at src/gpu/mod.rs:358:13:
+plane fill 18446744073709551614+2 past the buffer's 24 elements
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination' (447508) panicked at src/gpu/mod.rs:358:13:
+plane fill 23+2 past the buffer's 24 elements
+
+thread 'gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination' (447508) panicked at src/gpu/mod.rs:358:13:
+plane fill 25+0 past the buffer's 24 elements
+test gpu::planes::tests::invalid_ranges_are_refused_before_writing_the_destination ... ok
+test gpu::planes::tests::overflowing_tiling_products_are_declined_without_large_allocations ... ok
+test gpu::planes::tests::fill_bytes_is_the_packed_image_over_every_range ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 132 filtered out; finished in 0.09s
+

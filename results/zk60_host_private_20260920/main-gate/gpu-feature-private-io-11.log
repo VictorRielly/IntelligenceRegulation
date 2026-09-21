@@ -1,0 +1,15 @@
+
+running 6 tests
+test zk::fresh_poc::io::tests::bound_ffn_consumes_mismatched_owner_and_checks_slot ... ok
+BOUND_FFN privacy=P1 attempt=0 bytes=5029244 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+BOUND_FFN privacy=P1 attempt=1 bytes=5029244 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+test zk::fresh_poc::io::tests::bound_ffn_adversarial_receipt_and_relabelled_policy ... ok
+test zk::fresh_poc::io::tests::bound_ffn_policy_and_endpoint_preflight ... ok
+BOUND_FFN privacy=P3 attempt=0 bytes=5066204 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_input ... ok
+BOUND_FFN privacy=P3 attempt=1 bytes=5066204 A_rows=702 A_groups=7 M_rows=20 independently_expected_endpoints=true
+test zk::fresh_poc::io::tests::bound_ffn_honest_p1_p3_and_fresh_owners ... ok
+test zk::fresh_poc::io::tests::bound_ffn_refuses_recommitted_wrong_output ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 131 filtered out; finished in 3.83s
+

@@ -1,0 +1,78 @@
+pass (v3): 12 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 2)
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[UPERF3-AL] conv W  l00: alloc 0.0000 fill 0.0000 | commit 0.0717 (dev h2d 0.0471 ntt 0.0098 hash 0.0029 -> host 0.0119) | 4 Melem [planes]
+[UPERF3-AL] conv A  l00: alloc 0.0240 fill 0.0067 | commit 0.0475 (dev h2d 0.0185 ntt 0.0216 hash 0.0031 -> host 0.0043) | 8 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0022 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0022 | 3 w_data blocks 0.0002
+  layer  0: prove 0.242 s, 5899988 B
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0000 | commit 0.0159 (dev h2d 0.0022 ntt 0.0043 hash 0.0023 -> host 0.0070) | 4 Melem [planes]
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0064 | commit 0.0302 (dev h2d 0.0166 ntt 0.0077 hash 0.0031 -> host 0.0028) | 8 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0005
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0019 | 3 w_data blocks 0.0002
+  layer  1: prove 0.114 s, 5960912 B
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0000 | commit 0.0165 (dev h2d 0.0024 ntt 0.0044 hash 0.0021 -> host 0.0076) | 4 Melem [planes]
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0068 | commit 0.0316 (dev h2d 0.0176 ntt 0.0078 hash 0.0029 -> host 0.0033) | 8 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0022 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0002
+  layer  2: prove 0.116 s, 5960392 B
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0000 | commit 0.0158 (dev h2d 0.0023 ntt 0.0044 hash 0.0022 -> host 0.0070) | 4 Melem [planes]
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0068 | commit 0.0303 (dev h2d 0.0168 ntt 0.0078 hash 0.0029 -> host 0.0028) | 8 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0024 | 6 w_data blocks 0.0002
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0003
+  layer  3: prove 0.115 s, 5896912 B
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0000 | commit 0.0162 (dev h2d 0.0024 ntt 0.0044 hash 0.0021 -> host 0.0073) | 4 Melem [planes]
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0067 | commit 0.0322 (dev h2d 0.0185 ntt 0.0080 hash 0.0030 -> host 0.0026) | 8 Melem
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0024 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0021 | 3 w_data blocks 0.0002
+  layer  4: prove 0.118 s, 5898448 B
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0000 | commit 0.0170 (dev h2d 0.0023 ntt 0.0046 hash 0.0022 -> host 0.0079) | 4 Melem [planes]
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0069 | commit 0.0323 (dev h2d 0.0184 ntt 0.0083 hash 0.0029 -> host 0.0027) | 8 Melem
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0022 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0022 | 3 w_data blocks 0.0002
+  layer  5: prove 0.124 s, 5862608 B
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0000 | commit 0.0151 (dev h2d 0.0023 ntt 0.0047 hash 0.0021 -> host 0.0060) | 4 Melem [planes]
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0066 | commit 0.0305 (dev h2d 0.0167 ntt 0.0085 hash 0.0029 -> host 0.0025) | 8 Melem
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0004
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0002
+  layer  6: prove 0.121 s, 5895120 B
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0000 | commit 0.0172 (dev h2d 0.0025 ntt 0.0055 hash 0.0027 -> host 0.0065) | 4 Melem [planes]
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0065 | commit 0.0334 (dev h2d 0.0180 ntt 0.0098 hash 0.0029 -> host 0.0028) | 8 Melem
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0027 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0019 | 3 w_data blocks 0.0002
+  layer  7: prove 0.134 s, 5862608 B
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0000 | commit 0.0172 (dev h2d 0.0025 ntt 0.0057 hash 0.0022 -> host 0.0068) | 4 Melem [planes]
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0068 | commit 0.0327 (dev h2d 0.0168 ntt 0.0103 hash 0.0030 -> host 0.0026) | 8 Melem
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0020 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0019 | 3 w_data blocks 0.0003
+  layer  8: prove 0.134 s, 5895376 B
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0000 | commit 0.0197 (dev h2d 0.0023 ntt 0.0061 hash 0.0022 -> host 0.0091) | 4 Melem [planes]
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0064 | commit 0.0337 (dev h2d 0.0171 ntt 0.0109 hash 0.0032 -> host 0.0026) | 8 Melem
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0019 | 3 w_data blocks 0.0002
+  layer  9: prove 0.143 s, 5895376 B
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0000 | commit 0.0175 (dev h2d 0.0025 ntt 0.0067 hash 0.0023 -> host 0.0060) | 4 Melem [planes]
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0065 | commit 0.0390 (dev h2d 0.0211 ntt 0.0120 hash 0.0033 -> host 0.0026) | 8 Melem
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0004
+  layer 10: prove 0.151 s, 5864148 B
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0000 | commit 0.0172 (dev h2d 0.0025 ntt 0.0063 hash 0.0024 -> host 0.0060) | 4 Melem [planes]
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0069 | commit 0.0364 (dev h2d 0.0189 ntt 0.0113 hash 0.0034 -> host 0.0028) | 8 Melem
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0018 | 3 w_data blocks 0.0002
+  layer 11: prove 0.145 s, 5866196 B
+prover phases (summed over layers):
+      commit W                  0.257 s
+      commit A                  0.514 s
+      helpers + commit H        0.305 s
+      matmul g/u                0.066 s
+      matmul d                  0.044 s
+      zero-check F              0.266 s
+      zero-check D              0.061 s
+      pcs openings              0.142 s
+  gpu device-side (summed): h2d 0.288 s (261 MB) | ntt 0.296 s | hash 0.096 s | sumcheck 0.326 s | fold 0.127 s | helpers 0.077 s | d2h 0.000 s (137 MB) | vram peak 2430 MB
+  gpu chunked [UPERF3-AC]: chunked commits 0 | opening re-encode 0.000 s
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+  proof written to /tmp/zk60-host-private-nfdz8v2z/gpu-plane-cache-cold.proof
+  wcache /tmp/zk60-host-private-nfdz8v2z/wcache: hits 0 | misses 12 | rejected 0 | read 0.0 MB | wrote 50.3 MB | key 0.013 s | load+verify 0.000 s | re-encode 0.000 s | commit(miss) 0.210 s | save 0.034 s
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 3.77 s | PROVE 1.66 s | VERIFY 0.32 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.750e10 proven MAC/s (prove wall) | wall 5.87 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":3.772367211,"prove_s":1.656992222,"serialize_s":0.100092441,"proof_ready_s":5.549035845,"verify_s":0.319037993,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}

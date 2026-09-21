@@ -1,0 +1,12 @@
+{
+  "state": "passed",
+  "source_hashes_checked": 132,
+  "binary_hashes_checked": 9,
+  "logs_checked": 23,
+  "fresh_receipts": 2,
+  "cross_version_verifications": 14,
+  "verifier_corruption_controls": 42,
+  "gpu_feature_private_io_tests": 24,
+  "model_scale_speed_claim": false,
+  "privacy_extension": false
+}

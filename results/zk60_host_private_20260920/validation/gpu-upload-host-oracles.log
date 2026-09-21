@@ -1,0 +1,8 @@
+
+running 3 tests
+test gpu::cuda::fsp4_plane_oracle::narrow_off_declines_planes_before_either_device_strategy ... ok
+test gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_staging_piece_boundaries ... ok
+test gpu::cuda::fsp4_plane_oracle::plane_fill_equals_pack_narrow_at_w1 ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 134 filtered out; finished in 0.15s
+

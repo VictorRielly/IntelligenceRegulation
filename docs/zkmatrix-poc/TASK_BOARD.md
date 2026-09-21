@@ -1,5 +1,17 @@
 # TASK BOARD — the standing queue of small, self-checking tasks
 
+**2026-09-20, combined host/private integration:** corrected direct-plane
+uploads, lazy cache keys and private host reuse/folds pass 43 isolated
+validation steps, including 307 storage tests, 189 actual-device cases and
+twenty frozen proof comparisons. The exact validated source is applied to
+main; floors v11 pins the new inventory (89 tooling tests pass). Main's
+23 rebuild/receipt steps pass too, including fourteen old/new verifier
+processes and 24 GPU-feature private-IO tests under all pool/fold settings.
+[Review](ZK60_HOST_PRIVATE_INTEGRATION_20260920.md). Next: the tagged shaped
+private-block/run delivery and its fresh-process interface, then optimize
+the measured private softmax, commitments and lookup helpers. Model-scale
+five-second proving remains unverified.
+
 **2026-09-19, row-fold acceptance:** bounded signed accumulation is enabled
 after arithmetic differential tests, twelve frozen CPU/GPU byte gates,
 four fresh native receipts verified with both implementations, and repaired

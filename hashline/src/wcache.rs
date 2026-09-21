@@ -136,6 +136,40 @@ impl<'a> WKey<'a> {
     }
 }
 
+/// One immutable cache identity shared by the direct-plane attempt and its
+/// field-buffer fallback. Holding a borrow prevents the source key from
+/// being changed between the two, and the geometry is fixed at construction.
+/// The digest remains lazy: uncached commitments do not hash the planes.
+pub(crate) struct PreparedWKey<'key, 'planes> {
+    key: &'key WKey<'planes>,
+    params: PcsParams,
+    len: usize,
+    digest: OnceLock<Digest>,
+    #[cfg(test)]
+    digest_calls: AtomicU64,
+}
+
+impl<'key, 'planes> PreparedWKey<'key, 'planes> {
+    pub(crate) fn new(params: &PcsParams, len: usize, key: &'key WKey<'planes>) -> Self {
+        assert!(len != 0 && len % params.cols() == 0);
+        Self { key, params: *params, len, digest: OnceLock::new(),
+               #[cfg(test)] digest_calls: AtomicU64::new(0) }
+    }
+
+    fn rows(&self) -> usize { self.len / self.params.cols() }
+
+    fn digest(&self) -> Digest {
+        *self.digest.get_or_init(|| {
+            #[cfg(test)]
+            self.digest_calls.fetch_add(1, Ordering::Relaxed);
+            let t = Instant::now();
+            let digest = self.key.digest(&self.params, self.rows(), self.len);
+            stat(|s| s.secs_key += t.elapsed().as_secs_f64());
+            digest
+        })
+    }
+}
+
 const MAGIC: &[u8; 8] = b"HLWCACH1";
 
 fn hex(d: &[u8]) -> String {
@@ -289,14 +323,20 @@ fn reencode_store(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Store {
 /// THE HOOK: commit `data` (a layer's W matrix) through the cache when one
 /// is configured, else `pcs::commit` unchanged.
 pub fn commit_w(params: &PcsParams, data: &[Fp], ntt: &NttTables, key: &WKey) -> Committed {
-    let Some(dir) = dir() else { return pcs::commit(params, data, ntt) };
-    let n = params.cols();
-    assert!(data.len() % n == 0 && !data.is_empty());
-    let rows = data.len() / n;
-    let t0 = Instant::now();
-    let kd = key.digest(params, rows, data.len());
-    stat(|s| s.secs_key += t0.elapsed().as_secs_f64());
-    let path = entry_path(dir, key, &kd);
+    commit_w_prepared(data, ntt, &PreparedWKey::new(params, data.len(), key))
+}
+
+pub(crate) fn commit_w_prepared(data: &[Fp], ntt: &NttTables, prepared: &PreparedWKey) -> Committed {
+    commit_w_prepared_at(data, ntt, prepared, dir())
+}
+
+fn commit_w_prepared_at(data: &[Fp], ntt: &NttTables, prepared: &PreparedWKey, cache_dir: Option<&Path>) -> Committed {
+    assert_eq!(data.len(), prepared.len, "prepared weight-cache geometry changed");
+    let params = &prepared.params;
+    let Some(dir) = cache_dir else { return pcs::commit(params, data, ntt) };
+    let rows = prepared.rows();
+    let kd = prepared.digest();
+    let path = entry_path(dir, prepared.key, &kd);
     let verbose = std::env::var("HL_WCACHE_VERBOSE").map(|v| v == "1").unwrap_or(false);
     if path.exists() {
         let t1 = Instant::now();
@@ -333,6 +373,59 @@ pub fn commit_w(params: &PcsParams, data: &[Fp], ntt: &NttTables, key: &WKey) ->
     cm
 }
 
+/// [FSP-HOST] ITEM (a) THROUGH THE CACHE. `commit_w`'s hook, with the int8
+/// planes as the commitment's source instead of the `Vec<Fp>` tiling of
+/// them. `None` is a DECLINE: the caller builds that `Vec<Fp>` and calls
+/// the prepared-key fallback without reading and hashing the planes again.
+///
+/// The three routes, and why a cache HIT and a cache MISS stay
+/// byte-identical:
+///
+/// * **no cache configured** (every byte gate, and the 8B pass as it was
+///   run) — straight to `pcs::commit_planes`;
+/// * **configured, entry present (a HIT)** — DECLINED here. The hit route
+///   rebuilds the store with `reencode_store`, which needs the `Vec<Fp>`;
+///   rather than add a second encode path that no gate exercises, the
+///   caller builds the buffer and takes the inherited hit route, so a hit
+///   produces exactly the bytes it produces today. Both paths share the
+///   immutable prepared key, so its full-plane digest is computed once.
+/// * **configured, entry absent (a MISS)** — the plane commitment, then
+///   the SAME `save_tree` of the SAME Merkle tree. The key itself needs no
+///   change: `WKey` already hashes the three int8 planes and never
+///   `w_data`, so an entry written by either arm is the same entry.
+pub(crate) fn commit_w_planes(pt: &crate::gpu::PlaneTiling, ntt: &NttTables, prepared: &PreparedWKey) -> Option<Committed> {
+    commit_w_planes_at(pt, ntt, prepared, dir())
+}
+
+fn commit_w_planes_at(pt: &crate::gpu::PlaneTiling, ntt: &NttTables, prepared: &PreparedWKey, cache_dir: Option<&Path>) -> Option<Committed> {
+    if pt.len() != prepared.len {
+        return None;
+    }
+    let params = &prepared.params;
+    let Some(dir) = cache_dir else { return pcs::commit_planes(params, pt, ntt) };
+    let rows = prepared.rows();
+    let kd = prepared.digest();
+    let path = entry_path(dir, prepared.key, &kd);
+    if path.exists() {
+        return None; // the HIT route re-encodes from the Vec<Fp>; let the caller build it
+    }
+    let t3 = Instant::now();
+    let cm = pcs::commit_planes(params, pt, ntt)?;
+    stat(|s| {
+        s.misses += 1;
+        s.secs_commit += t3.elapsed().as_secs_f64();
+    });
+    let t4 = Instant::now();
+    match save_tree(&path, &kd, params, rows, &cm.tree) {
+        Ok(nbytes) => stat(|s| {
+            s.bytes_written += nbytes;
+            s.secs_save += t4.elapsed().as_secs_f64();
+        }),
+        Err(e) => eprintln!("[UPERF3-AC] wcache: cannot write {} ({e}); continuing uncached", path.display()),
+    }
+    Some(cm)
+}
+
 /// One line for the driver's report.
 pub fn report() -> Option<String> {
     let d = dir()?;
@@ -355,6 +448,51 @@ mod tests {
     fn data(seed: u64, len: usize) -> Vec<Fp> {
         let mut s = seed;
         (0..len).map(|_| { s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407); Fp::new((s >> 1) % 256) }).collect()
+    }
+
+    #[test]
+    fn prepared_key_is_lazy_and_hashes_once_across_plane_decline_and_cache_hit() {
+        let p = PcsParams { log_cols: 4, inv_rate: 4, num_col_checks: 8 };
+        let ntt = NttTables::new(6);
+        let (wg, wu, wd) = (vec![-128i8; 64], vec![127i8; 64], vec![-1i8; 64]);
+        let pt = crate::gpu::PlaneTiling::new(&wg, &wu, &wd, 8, 8, 4, 4, 2, 2).unwrap();
+        let mut data = vec![Fp::ZERO; pt.len()];
+        pt.fill_fp(0, &mut data);
+        let key = WKey::new("v3", 901, 8, 8, &wg, &wu, &wd);
+        let prepared = PreparedWKey::new(&p, data.len(), &key);
+        let uncached = commit_w_prepared_at(&data, &ntt, &prepared, None);
+        assert!(prepared.digest.get().is_none(), "uncached commit hashed its cache key");
+
+        // Install an entry under the inherited digest. The plane route must
+        // decline the hit, and its fallback must reuse the already-read key.
+        let kd = key.digest(&p, prepared.rows(), data.len());
+        let tmp = std::env::temp_dir().join(format!("hl-wcache-prepared-{}", std::process::id()));
+        std::fs::create_dir_all(&tmp).unwrap();
+        let path = entry_path(&tmp, &key, &kd);
+        save_tree(&path, &kd, &p, prepared.rows(), &uncached.tree).unwrap();
+        assert!(commit_w_planes_at(&pt, &ntt, &prepared, Some(&tmp)).is_none());
+        assert_eq!(prepared.digest_calls.load(Ordering::Relaxed), 1);
+        let hit = commit_w_prepared_at(&data, &ntt, &prepared, Some(&tmp));
+        assert_eq!(hit.tree.levels, uncached.tree.levels);
+        assert_eq!(prepared.digest_calls.load(Ordering::Relaxed), 1);
+        assert_eq!(prepared.digest(), kd, "cache identity changed");
+
+        // Reusing the key must not bypass the existing cache-file validation.
+        std::fs::write(&path, b"corrupted entry").unwrap();
+        let repaired = commit_w_prepared_at(&data, &ntt, &prepared, Some(&tmp));
+        assert_eq!(repaired.tree.levels, uncached.tree.levels);
+        assert!(load_tree(&path, &kd, &p, prepared.rows()).is_ok());
+        assert_eq!(prepared.digest_calls.load(Ordering::Relaxed), 1);
+        std::fs::remove_dir_all(tmp).unwrap();
+    }
+
+    #[test]
+    #[should_panic(expected = "prepared weight-cache geometry changed")]
+    fn a_prepared_key_cannot_be_reused_with_a_different_data_length() {
+        let p = PcsParams { log_cols: 4, inv_rate: 4, num_col_checks: 8 };
+        let key = WKey::new("v3", 902, 8, 8, &[], &[], &[]);
+        let prepared = PreparedWKey::new(&p, 32, &key);
+        commit_w_prepared_at(&[Fp::ZERO; 16], &NttTables::new(6), &prepared, None);
     }
 
     /// The tree round-trips through the file, verifies on load, and every

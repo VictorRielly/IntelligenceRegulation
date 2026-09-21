@@ -1,0 +1,17 @@
+[
+  {
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU, 8188 MiB, 13 MiB, 12 %",
+    "apps": "",
+    "idle": false
+  },
+  {
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU, 8188 MiB, 13 MiB, 0 %",
+    "apps": "",
+    "idle": true
+  },
+  {
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU, 8188 MiB, 13 MiB, 0 %",
+    "apps": "",
+    "idle": true
+  }
+]

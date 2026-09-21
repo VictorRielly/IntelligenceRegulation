@@ -65,6 +65,8 @@ mod wire;
 mod witness;
 
 #[cfg(test)]
+mod norm_alias;
+#[cfg(test)]
 mod parity;
 #[cfg(test)]
 mod refusals;

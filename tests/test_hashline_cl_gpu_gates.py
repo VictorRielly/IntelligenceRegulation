@@ -216,12 +216,13 @@ class SuiteDefinition(unittest.TestCase):
         # describable — and everything but the oracle expectation is identical.
         v1, v2, v3 = gg.suite(1), gg.suite(2), gg.suite(3)
         # [ZK60-CL18] v3 = CL18's 189; [ZK60-CL21] v4 = v3 + the core cases; v5 adds storage
-        self.assertEqual(gg.DEFAULT_SUITE, 10)
+        self.assertEqual(gg.DEFAULT_SUITE, 11)
         self.assertEqual(gg.case_definition(7, "storage_tests")["expect"]["passed"], 218)
         self.assertEqual(gg.case_definition(8, "storage_tests")["expect"]["passed"], 220)
         self.assertEqual(gg.case_definition(9, "storage_tests")["expect"]["passed"], 227)
         self.assertEqual(gg.case_definition(10, "core_tests")["expect"], {"passed": 37, "failed": 0, "ignored": 0})
         self.assertEqual(gg.case_definition(10, "storage_tests")["expect"], {"passed": 288, "failed": 0, "ignored": 2})
+        self.assertEqual(gg.case_definition(11, "storage_tests")["expect"], {"passed": 307, "failed": 0, "ignored": 2})
         self.assertEqual(gg.case_definition(1, "oracle_gpu")["expect"]["executed_cases"], 49)
         self.assertEqual(gg.case_definition(2, "oracle_gpu")["expect"]["executed_cases"], 141)
         self.assertEqual(gg.case_definition(3, "oracle_gpu")["expect"]["executed_cases"], 189)
@@ -427,6 +428,16 @@ class Validator(unittest.TestCase):
             with self.subTest(case=case, key=key, value=value):
                 m = green(suite_version=10)
                 record_of(m, case)["test_results"][0][key] = value
+                self.assertFalse(gg.validate_manifest(m)["ok"])
+
+    def test_v11_rejects_old_or_incomplete_inventory_and_preserves_v10(self):
+        for version in (9, 10, 11):
+            self.assertTrue(gg.validate_manifest(green(suite_version=version))["ok"])
+        for key, value in (("passed", 288), ("passed", 306), ("passed", 308),
+                           ("ignored", 0), ("ignored", 3), ("failed", 1)):
+            with self.subTest(key=key, value=value):
+                m = green(suite_version=11)
+                record_of(m, "storage_tests")["test_results"][0][key] = value
                 self.assertFalse(gg.validate_manifest(m)["ok"])
 
     # ------------------------------------------------ [CL21] source identity

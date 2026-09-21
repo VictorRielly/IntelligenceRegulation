@@ -1,0 +1,49 @@
+NOTE: several arms in ONE process. `peak RSS` is the process high-water mark, so every arm after the first inherits the previous arms' peak, and the device counters accumulate. For a fair measurement run ONE arm per invocation.
+=== [UPERF3-FSP5] repaired-mask COST PROBE — NO PRIVACY PROPERTY IS ESTABLISHED HERE ===
+    all three arms have PUBLIC endpoints; the hiding-endpoint profile is untouched and still pinned to T32/d16/f16.
+    export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export — model frugal-125m (T 512 d 768 f 2048 layers 12)
+    shape 12 layers x 512 tokens | log_cols 14, inv_rate 4, col checks 256 | threads 2
+    gpu: OFF | gpu: off (built without --features gpu-cuda)
+    both private arms draw fresh OS randomness (no seed), so the only difference between them is the mask schedule.
+--- ARM public ---
+  prover phases (summed over 12 layers):
+      commit W                      4.542 s
+      commit A                      8.197 s
+      helpers + commit H            9.431 s
+      matmul g/u                    0.222 s
+      matmul d                      0.062 s
+      zero-check F                  7.012 s
+      zero-check D                  0.960 s
+      pcs openings                  1.866 s
+  ARM public ACCEPT: 12 x 512 | witness load 3.70 s | PROVE 32.312 s | VERIFY 0.321 s | proof 70758084 B | rows A 520 H 432 W 288 M 0 | peak RSS 1157 MB | wall 36.34 s
+PROBE_JSON {"arm":"public","layers":12,"tokens":512,"d":768,"f":2048,"gpu":false,"accept":true,"prove_s":32.311662,"verify_s":0.321411,"load_s":3.704833,"bytes":70758084,"rows_a":520,"rows_h":432,"rows_w":288,"rows_m":0,"rss_mb":1157.0,"phases":{"commit W":4.541953,"commit A":8.197047,"helpers + commit H":9.430558,"matmul g/u":0.221913,"matmul d":0.062294,"zero-check F":7.011510,"zero-check D":0.960427,"pcs openings":1.866484}}
+--- ARM legacy ---
+  prover phases (summed over 12 layers):
+      commit W                      4.398 s
+      commit A (zk)                 8.692 s
+      mask commit                   0.035 s
+      helpers + commit H (zk)       9.965 s
+      matmul g/u (zk)               0.286 s
+      matmul d (zk)                 0.090 s
+      zero-check F (zk)             6.867 s
+      zero-check D (zk)             0.849 s
+      table zero-check (zk)         0.432 s
+      zsum + mask open              0.029 s
+      pcs openings (zk)             1.739 s
+  ARM legacy ACCEPT: 12 x 512 | witness load 3.70 s | PROVE 33.383 s | VERIFY 0.505 s | proof 87697008 B | rows A 559 H 485 W 288 M 16 | peak RSS 1362 MB | wall 37.59 s
+PROBE_JSON {"arm":"legacy","layers":12,"tokens":512,"d":768,"f":2048,"gpu":false,"accept":true,"prove_s":33.382623,"verify_s":0.505104,"load_s":3.700444,"bytes":87697008,"rows_a":559,"rows_h":485,"rows_w":288,"rows_m":16,"rss_mb":1362.3,"phases":{"commit W":4.397723,"commit A (zk)":8.692477,"mask commit":0.034692,"helpers + commit H (zk)":9.964695,"matmul g/u (zk)":0.285775,"matmul d (zk)":0.090280,"zero-check F (zk)":6.867079,"zero-check D (zk)":0.849044,"table zero-check (zk)":0.431688,"zsum + mask open":0.029214,"pcs openings (zk)":1.739045}}
+--- ARM repaired ---
+  prover phases (summed over 12 layers):
+      commit W                      4.467 s
+      commit A (zk)                 9.369 s
+      mask commit                   0.032 s
+      helpers + commit H (zk)      10.232 s
+      matmul g/u (zk)               0.281 s
+      matmul d (zk)                 0.093 s
+      zero-check F (zk)             6.983 s
+      zero-check D (zk)             0.841 s
+      table zero-check (zk)         0.446 s
+      zsum + mask open              0.030 s
+      pcs openings (zk)             1.860 s
+  ARM repaired ACCEPT: 12 x 512 | witness load 3.59 s | PROVE 34.634 s | VERIFY 0.512 s | proof 88356464 B | rows A 585 H 486 W 288 M 16 | peak RSS 1392 MB | wall 38.74 s
+PROBE_JSON {"arm":"repaired","layers":12,"tokens":512,"d":768,"f":2048,"gpu":false,"accept":true,"prove_s":34.633778,"verify_s":0.511886,"load_s":3.590408,"bytes":88356464,"rows_a":585,"rows_h":486,"rows_w":288,"rows_m":16,"rss_mb":1392.0,"phases":{"commit W":4.466665,"commit A (zk)":9.368897,"mask commit":0.031594,"helpers + commit H (zk)":10.232104,"matmul g/u (zk)":0.280597,"matmul d (zk)":0.093145,"zero-check F (zk)":6.983265,"zero-check D (zk)":0.841206,"table zero-check (zk)":0.445601,"zsum + mask open":0.029514,"pcs openings (zk)":1.860259}}

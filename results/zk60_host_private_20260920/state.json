@@ -1,17 +1,21 @@
 {
-  "state": "running",
+  "state": "passed",
   "worktree": "/tmp/wt-zk60-host-private-20260920",
   "branch": "integrate/zk60-host-private-20260920",
   "base": "4bf1fa0",
   "runner_sha256": "4c1102644d00b6b966b3564890cbeb7ee1b9b76232ae2cac7f042b8a08ba9bf6",
   "runner_pid": 439093,
-  "validation": "/tmp/wt-zk60-host-private-20260920/results/zk60_host_private_20260920/validation.json",
-  "integrated": false,
+  "validation": "results/zk60_host_private_20260920/validation/validation.json",
+  "integrated": true,
   "model_scale_speed_claim": false,
   "privacy_acceptance": false,
   "candidate_commit": "3d5c60c",
-  "last_observed": "2026-09-20T20:48:10.325430+00:00",
-  "current": "storage-tests",
-  "child_pid": 439391,
-  "completed": []
+  "last_observed": "2026-09-20T21:15:56.077103+00:00",
+  "current": null,
+  "child_pid": null,
+  "completed_steps": 43,
+  "main_rebuild": "results/zk60_host_private_20260920/main-gate/validation.json",
+  "main_runner_pid": 452972,
+  "main_rebuild_state": "passed",
+  "main_rebuild_steps": 23
 }

@@ -402,8 +402,50 @@ fn i8fold() -> bool {
 /// `col0 .. col0 + cols`. Byte-identical by construction — the field is
 /// Z_p, every operation is exact, and skipping a zero adds zero (which is
 /// what `fold_cols_i8` already does elsewhere in this file).
+///
+/// [FSP-HOST] The inner loop has TWO arms and they compute the same field
+/// element. The inherited arm (`HL_FSP4_I128FOLD=0`) does a field multiply
+/// per element: `Fp::from_i64` (a branch plus, for the negative half of an
+/// int8 plane, a 128-bit negate and a reduction) and `Fp2::mul_base` (two
+/// 64x64 Goldilocks multiplies with their reductions). The default arm
+/// DEFERS the reduction: it shifts the int8 value to `u = v + 128` in
+/// `[0, 255]`, accumulates `sum_j c_j * u_j` as an exact 128-bit INTEGER
+/// (one unsigned 64x8 multiply and one 128-bit add per element, no branch
+/// and no reduction), and finishes each row with
+/// `sum_j c_j * v_j = red(sum_j c_j * u_j) - 128 * sum_j c_j`, where
+/// `sum_j c_j` is one Fp2 sum over the weights, computed once per call.
+///
+/// Why it is byte-identical: every `c_j` is a canonical representative in
+/// `[0, p)` and `Fp::from_i64(v) = v mod p`, so the integer sum reduced
+/// mod p IS the field sum — Z_p arithmetic is exact and the regrouping
+/// `sum c_j (u_j - 128) = sum c_j u_j - 128 sum c_j` is an identity over
+/// the integers. The overflow bound is stated at the accumulator.
 fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
     debug_assert_eq!(c.len(), cols);
+    // [FSP-HOST] |sum_j c_j u_j| <= cols * 255 * (p - 1) < 2^48 * 2^8 * 2^64
+    // = 2^120 < u128::MAX, so the guard below is what makes the accumulator
+    // exact; a wider block falls back to the inherited arm.
+    if i128fold() && cols <= (1usize << 48) {
+        let mut sum_c = Fp2::ZERO;
+        for &cw in c.iter() {
+            sum_c = sum_c.add(cw);
+        }
+        let shift = sum_c.mul_base(Fp::new(128));
+        return (0..rows)
+            .into_par_iter()
+            .map(|i| {
+                let base = (row0 + i) * stride + col0;
+                let row = &src[base..base + cols];
+                let (mut s0, mut s1) = (0u128, 0u128);
+                for (&v, &cw) in row.iter().zip(c.iter()) {
+                    let u = (v as i32 + 128) as u128; // 0 ..= 255
+                    s0 += (cw.c0.0 as u128) * u;
+                    s1 += (cw.c1.0 as u128) * u;
+                }
+                Fp2::new(Fp::from_u128(s0), Fp::from_u128(s1)).sub(shift)
+            })
+            .collect();
+    }
     (0..rows)
         .into_par_iter()
         .map(|i| {
@@ -420,6 +462,23 @@ fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usiz
             acc
         })
         .collect()
+}
+
+/// [FSP-HOST] ITEM (a)'s SWITCH. `HL_FSP4_PLANES=0` restores the inherited
+/// W commitment — build the `Vec<Fp>` block tiling, hand it to the
+/// commitment, let `pack_narrow` read all eight bytes of every element —
+/// so the A/B runs on ONE binary and a rollback is one environment
+/// variable. Default ON.
+fn planes_commit() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_FSP4_PLANES").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [FSP-HOST] `HL_FSP4_I128FOLD=0` restores the inherited per-element field
+/// multiply in `fold_block_i8`, so the A/B runs on ONE binary.
+fn i128fold() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_FSP4_I128FOLD").map(|v| v != "0").unwrap_or(true))
 }
 
 // [UPERF3-AL] Host-conversion instrumentation (round 15, lever L2b).
@@ -1285,41 +1344,84 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
 
     // ---- W data + commit ------------------------------------------------
     let cv = conv_verbose(); // [UPERF3-AL]
-    let t_conv = Instant::now();
-    let mut w_data = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
-    let s_w_alloc = t_conv.elapsed().as_secs_f64();
-    for c in 0..nb_d {
-        for b in 0..nb_f {
-            for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
-                let off = offs[c * nb_f + b];
-                w_data[off..off + wb].par_chunks_mut(fb).enumerate().for_each(|(kp, row)| {
-                    let k = c * db + kp;
-                    for jp in 0..fb { row[jp] = Fp::from_i64(src[k * f + b * fb + jp] as i64); }
-                });
-            }
-            let off = lay.wd[b * nb_d + c];
-            w_data[off..off + wb].par_chunks_mut(db).enumerate().for_each(|(jp, row)| {
-                let j = b * fb + jp;
-                for np in 0..db { row[np] = Fp::from_i64(w.wd_t[j * d + c * db + np] as i64); }
-            });
-        }
-    }
-    let s_w_fill = t_conv.elapsed().as_secs_f64() - s_w_alloc;
     let w_pcs = params.pcs_for(lay.log_wb);
+    // [FSP-HOST] ITEM (a): offer the commitment the three int8 planes and
+    // the block map instead of a converted `Vec<Fp>` copy of them. Taken
+    // only when
+    //   * `HL_FSP4_PLANES` is on (the default),
+    //   * the block folds already read the planes (`HL_AL_I8FOLD`, the
+    //     default) — the inherited fold arm is the ONLY other reader of
+    //     `w_data`, so with it on nothing else needs the buffer, and
+    //   * the compact PCS is not selected (it commits `w_data` itself).
+    // Anything else — and any decline inside the device path — falls
+    // through to the inherited fill below, which is untouched.
+    let tiling = if planes_commit() && i8fold() && !pcs_compact::selected() {
+        match crate::gpu::PlaneTiling::new(&w.wg_t, &w.wu_t, &w.wd_t, d, f, db, fb, nb_d, nb_f) {
+            Ok(pt) => Some(pt),
+            Err(e) => {
+                eprintln!("[FSP-HOST] plane tiling declined ({e}); Vec<Fp> path");
+                None
+            }
+        }
+    } else {
+        None
+    };
+    let mut w_data: Option<Vec<Fp>> = None;
+    let w_key = crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t);
+    let prepared_w_key = crate::wcache::PreparedWKey::new(&w_pcs, lay.w_len, &w_key);
+    let (mut s_w_alloc, mut s_w_fill) = (0.0f64, 0.0f64);
     let (m0h, m0n, m0s) = dev_marks(); // [UPERF3-AL]
     let t_wcom = Instant::now();
-    // [UPERF3-AC]+[UPERF3-AF] the per-model weight cache serves the LIGERO path (its entries are
-    // Ligero commitments); `--pcs compact` bypasses it and commits compactly.
-    let w_cm = if pcs_compact::selected() {
-        pcs_compact::commit(&w_pcs, &w_data, ntt)
-    } else {
-        pcs_compact::AnyCm::Ligero(crate::wcache::commit_w(&w_pcs, &w_data, ntt, &crate::wcache::WKey::new("v3", w.l, d, f, &w.wg_t, &w.wu_t, &w.wd_t)))
+    let w_planes_cm = tiling
+        .as_ref()
+        .and_then(|pt| crate::wcache::commit_w_planes(pt, ntt, &prepared_w_key));
+    if w_planes_cm.is_none() {
+        // THE INHERITED ARM, unchanged: build the block tiling as a
+        // `Vec<Fp>`. It is stored in `w_data` BEFORE the commit because the
+        // compact commitment borrows it and must not outlive it.
+        let t_conv = Instant::now();
+        let mut buf = hostbuf::take(hostbuf::W, lay.w_len); // [UPERF3-AL] arbitrary contents; every element is written below
+        s_w_alloc = t_conv.elapsed().as_secs_f64();
+        for c in 0..nb_d {
+            for b in 0..nb_f {
+                for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
+                    let off = offs[c * nb_f + b];
+                    buf[off..off + wb].par_chunks_mut(fb).enumerate().for_each(|(kp, row)| {
+                        let k = c * db + kp;
+                        for jp in 0..fb { row[jp] = Fp::from_i64(src[k * f + b * fb + jp] as i64); }
+                    });
+                }
+                let off = lay.wd[b * nb_d + c];
+                buf[off..off + wb].par_chunks_mut(db).enumerate().for_each(|(jp, row)| {
+                    let j = b * fb + jp;
+                    for np in 0..db { row[np] = Fp::from_i64(w.wd_t[j * d + c * db + np] as i64); }
+                });
+            }
+        }
+        s_w_fill = t_conv.elapsed().as_secs_f64() - s_w_alloc;
+        w_data = Some(buf);
+    }
+    let w_cm = match w_planes_cm {
+        Some(cm) => pcs_compact::AnyCm::Ligero(cm),
+        None => {
+            let buf = w_data.as_ref().expect("the inherited W arm built the buffer above");
+            // [UPERF3-AC]+[UPERF3-AF] the per-model weight cache serves the LIGERO path (its entries are
+            // Ligero commitments); `--pcs compact` bypasses it and commits compactly.
+            if pcs_compact::selected() {
+                pcs_compact::commit(&w_pcs, buf, ntt)
+            } else {
+                pcs_compact::AnyCm::Ligero(crate::wcache::commit_w_prepared(buf, ntt, &prepared_w_key))
+            }
+        }
     };
     if cv {
-        let s = t_wcom.elapsed().as_secs_f64();
+        // [FSP-HOST] `t_wcom` now starts BEFORE the (conditional) fill, so
+        // the commit figure subtracts it back out and means what it meant.
+        let s = t_wcom.elapsed().as_secs_f64() - s_w_alloc - s_w_fill;
         let (m1h, m1n, m1s) = dev_marks();
-        eprintln!("[UPERF3-AL] conv W  l{:02}: alloc {:.4} fill {:.4} | commit {:.4} (dev h2d {:.4} ntt {:.4} hash {:.4} -> host {:.4}) | {} Melem",
-            w.l, s_w_alloc, s_w_fill, s, m1h - m0h, m1n - m0n, m1s - m0s, s - (m1h - m0h) - (m1n - m0n) - (m1s - m0s), lay.w_len / 1_000_000);
+        eprintln!("[UPERF3-AL] conv W  l{:02}: alloc {:.4} fill {:.4} | commit {:.4} (dev h2d {:.4} ntt {:.4} hash {:.4} -> host {:.4}) | {} Melem{}",
+            w.l, s_w_alloc, s_w_fill, s, m1h - m0h, m1n - m0n, m1s - m0s, s - (m1h - m0h) - (m1n - m0n) - (m1s - m0s), lay.w_len / 1_000_000,
+            if w_data.is_none() { " [planes]" } else { "" });
     }
     proof.w_com = Some(w_cm.commitment());
     absorb_com(tr, b"W", proof.w_com.as_ref().unwrap());
@@ -1542,6 +1644,9 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
             term.push(eval_mle_ext(folded, &r_kp));
         }
     } else {
+        // [FSP-HOST] this arm is the only reader of `w_data` after the
+        // commit, and item (a)'s plane path is taken only when it is off.
+        let w_data = w_data.as_ref().expect("the inherited fold arm needs the converted W buffer");
         for offs in [&lay.wg, &lay.wu] {
             for c in 0..nb_d {
                 for b in 0..nb_f {
@@ -1621,6 +1726,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
             term.push(eval_mle_ext(folded, &r_k));
         }
     } else {
+        let w_data = w_data.as_ref().expect("the inherited fold arm needs the converted W buffer"); // [FSP-HOST]
         for b in 0..nb_f {
             for c in 0..nb_d {
                 let blk = &w_data[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
@@ -1801,13 +1907,13 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         // [UPERF3-AF] ONE batched compact opening of the three commitments
         proof.cpcs_open = Some(pcs_compact::open_batch(&[(w_cm.compact(), &w_claims), (a_cm.compact(), &a_claims), (h_cm.compact(), &h_claims)], tr));
         drop(w_cm);
-        hostbuf::give(hostbuf::W, w_data); // [UPERF3-AL] was drop(w_data)
+        if let Some(buf) = w_data.take() { hostbuf::give(hostbuf::W, buf); } // [UPERF3-AL] was drop(w_data); [FSP-HOST] None on the plane path
         drop(a_cm);
         drop(h_cm);
     } else {
         proof.w_open = pcs::open(w_cm.lig(), &w_claims, tr);
         drop(w_cm);
-        hostbuf::give(hostbuf::W, w_data); // [UPERF3-AL] was drop(w_data)
+        if let Some(buf) = w_data.take() { hostbuf::give(hostbuf::W, buf); } // [UPERF3-AL] was drop(w_data); [FSP-HOST] None on the plane path
         proof.a_open = pcs::open(a_cm.lig(), &a_claims, tr);
         drop(a_cm);
         proof.h_open = pcs::open(h_cm.lig(), &h_claims, tr);

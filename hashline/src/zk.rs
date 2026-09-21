@@ -2275,6 +2275,207 @@ struct HostTabsZkV3 {
     db: Vec<Vec<Vec<Fp2>>>,
 }
 
+/// [UPERF3-FSP3] Lane AL's host staging pool (`layer.rs` rung 1), ported to the
+/// PRIVATE v3 prover body below, which carries its own `w_data` / `a_data`
+/// allocations and was deliberately left out of lane AL.
+///
+/// The item AL found: `Fp` is a user type, so `vec![Fp::ZERO; len]` does NOT
+/// specialise to `alloc_zeroed`. The macro expands to an allocation plus a
+/// single-threaded write of the whole buffer, at the 8B shape 1.4 GB of zeros
+/// over ~344k first-touch page faults — 0.60 s per layer against 0.05 s for
+/// the `Fp::from_i64` fill that immediately overwrites every one of them.
+///
+/// WHY REIMPLEMENTED AND NOT CALLED: AL's `mod hostbuf` is module-private to
+/// `layer.rs`, which this lane does not own, and this lane may not change a
+/// foreign file's visibility. The statics are therefore separate. Promoting
+/// `layer.rs`'s `hostbuf` to `pub(crate)` and deleting this copy is left as a
+/// follow-up for that file's owner.
+///
+/// WHY `take` TAKES A `tiled` ARGUMENT, WHICH AL'S DOES NOT. AL's safety
+/// argument is that `LayoutV3`'s blocks tile the buffer exactly, so every
+/// element is written before any is read (`Layout::new` in
+/// `zkp-core/src/ffn_v3/statement.rs`: `a_len` is the 7 nb_f + 3 nb_d witness
+/// columns laid contiguously from 0, `w_len` the 3 nb_d nb_f weight blocks
+/// laid contiguously from 0 — and nothing else). That holds here for the same
+/// prefix, but `ZkLayoutV3` APPENDS rows after it — the CFS mask rows, the
+/// table rows, the table mask rows, the predicate row, the fresh-IO endpoint
+/// rows, and under P3 the W mask rows — and two of the writes into that tail
+/// are PARTIAL and rely on the surrounding zeros: the table multiplicity rows
+/// (columns `0..t.size` of `n`) and the predicate slack row (columns `0..16`
+/// of `n`). So the pooled arm zeroes `[tiled, len)` and skips the zeroing only
+/// over the provably tiled prefix `[0, tiled)`, which is where all but a
+/// handful of rows live. The contents handed back are then EXACTLY what
+/// `vec![Fp::ZERO; len]` followed by the same fills would have produced —
+/// which is what the frozen digests test, twelve layers deep: a buffer that
+/// was not fully overwritten would carry layer k-1's weights into layer k's
+/// commitment and move the digest on the second of twelve layers.
+///
+/// `HL_FSP_POOL=0` restores the pre-lane form (a fresh `vec![Fp::ZERO; len]`
+/// per layer, freed at the end of it) so the A/B runs on ONE binary.
+mod zkhostbuf {
+    use crate::field::Fp;
+    use rayon::prelude::*;
+    use std::sync::Mutex;
+
+    pub const W: usize = 0;
+    pub const A: usize = 1;
+    /// One retired buffer per slot. A second concurrent prover (the test suite
+    /// runs several) allocates its own and drops it on return, so the pool
+    /// cannot grow with the thread count.
+    const KEEP: usize = 1;
+    static POOL: Mutex<[Vec<Vec<Fp>>; 2]> = Mutex::new([Vec::new(), Vec::new()]);
+
+    pub fn on() -> bool {
+        static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+        *V.get_or_init(|| std::env::var("HL_FSP_POOL").map(|v| v != "0").unwrap_or(true))
+    }
+
+    /// A buffer of exactly `len` elements in which `[0, tiled)` holds ARBITRARY
+    /// contents — the caller must write every one of those elements before
+    /// reading any — and `[tiled, len)` is ZERO.
+    pub fn take(slot: usize, len: usize, tiled: usize) -> Vec<Fp> {
+        assert!(tiled <= len, "zk v3 staging pool: tiled prefix {tiled} exceeds the buffer {len}");
+        if !on() {
+            return vec![Fp::ZERO; len];
+        }
+        let mut v = POOL.lock().unwrap()[slot].pop().unwrap_or_default();
+        if v.capacity() < len {
+            drop(v);
+            return vec![Fp::ZERO; len];
+        }
+        if v.len() < len {
+            v.resize(len, Fp::ZERO);
+        } else {
+            v.truncate(len);
+        }
+        v[tiled..].par_chunks_mut(1 << 16).for_each(|c| c.fill(Fp::ZERO));
+        v
+    }
+
+    /// Retire a buffer. An emptied `Vec` (one whose contents were moved into a
+    /// commitment by `std::mem::take`) carries no capacity and is dropped
+    /// rather than parked, so it cannot displace a real buffer in the slot.
+    pub fn give(slot: usize, v: Vec<Fp>) {
+        if !on() || v.capacity() == 0 {
+            return;
+        }
+        let mut p = POOL.lock().unwrap();
+        if p[slot].len() < KEEP {
+            p[slot].push(v);
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn pooled_tail_is_cleared_when_geometry_changes() {
+            const CHILD: &str = "HL_TEST_PRIVATE_POOL_CHILD";
+            if std::env::var_os(CHILD).is_none() {
+                // Isolate the global pool and OnceLock from concurrent proof
+                // tests, and require actual reuse rather than a fresh buffer.
+                let out = std::process::Command::new(std::env::current_exe().unwrap())
+                    .args(["--exact", "zk::zkhostbuf::tests::pooled_tail_is_cleared_when_geometry_changes", "--nocapture"])
+                    .env(CHILD, "1").env("HL_FSP_POOL", "1")
+                    .output().unwrap();
+                assert!(out.status.success(), "{}\n{}", String::from_utf8_lossy(&out.stdout), String::from_utf8_lossy(&out.stderr));
+                assert!(String::from_utf8_lossy(&out.stdout).contains("1 passed; 0 failed; 0 ignored"));
+                return;
+            }
+            assert!(on());
+            for slot in [W, A] {
+                let mut initial = Vec::with_capacity(64);
+                initial.resize(60, Fp::from_i64(-91));
+                let ptr = initial.as_ptr();
+                let mut prior = initial.clone();
+                give(slot, initial);
+                // Shrink, grow within capacity, move the tiled boundary in
+                // both directions, and exercise empty/nonempty tails.
+                for (step, (len, tiled)) in [(32, 20), (56, 12), (24, 24), (48, 0), (64, 63)].into_iter().enumerate() {
+                    prior.resize(len, Fp::ZERO);
+                    prior.truncate(len);
+                    let mut v = take(slot, len, tiled);
+                    assert_eq!(v.as_ptr(), ptr, "test failed to exercise pool reuse");
+                    assert_eq!(&v[..tiled], &prior[..tiled]);
+                    assert!(v[tiled..].iter().all(|x| *x == Fp::ZERO), "stale private tail: slot {slot}, step {step}");
+                    // Simulate a complete prefix and a partial table/predicate
+                    // tail write. Every untouched tail position must stay zero.
+                    v[..tiled].fill(Fp::ONE);
+                    if tiled < len { v[tiled] = Fp::from_i64(7); }
+                    assert!(v[(tiled + 1).min(len)..].iter().all(|x| *x == Fp::ZERO));
+                    // Dirty *all* positions before the next geometry, so an
+                    // omitted tail reset cannot pass on pre-existing zeros.
+                    v.fill(Fp::from_i64(101 + step as i64));
+                    prior = v.clone();
+                    give(slot, v);
+                }
+            }
+        }
+    }
+}
+
+/// [UPERF3-FSP3] Lane AL's second host fix (`layer.rs` rung 2), ported to the
+/// PRIVATE v3 prover body below. `HL_FSP_I8FOLD=0` restores the pre-lane arm
+/// (two passes over each int8 plane plus one over the 8x larger `w_data`) so
+/// the A/B runs on ONE binary.
+///
+/// The v3 prover folded each weight block TWICE, over two different copies of
+/// the same numbers: `fold_cols_i8` over the int8 plane to build the
+/// sumcheck's weight tables `wgk` / `wuk` / `wdk`, and `fold_cols_base` over
+/// the `w_data` blocks — the same numbers as `Fp`, 8x the bytes — to build the
+/// block terminals of `gu_term` / `d_term`. They are the same fold: with
+/// `cw_gu[j] = lam_f[b] * eq_rj[jp]` and `j = b * fb + jp`,
+///
+/// ```text
+/// wgk[c*db + kp] = sum_j cw_gu[j] . src = sum_b lam_f[b] * blk_b[kp]
+/// ```
+///
+/// where `blk_b` is exactly the block fold the terminal wants. `eq_rj` is
+/// drawn BEFORE the sumcheck, so the block folds can be computed first and the
+/// plane fold read off them for the price of `d x nb_f` extension multiplies.
+///
+/// Byte-identical by construction, not by luck: the field is Z_p and every
+/// operation is exact; `Fp2` multiplication is bilinear over the base field,
+/// so `(lam * eq) . v` and `lam * (eq . v)` are the same element; summation
+/// order is irrelevant in an abelian group; and skipping a zero adds zero,
+/// which is what `fold_cols_i8` already does. Under P3 the terminals read the
+/// blocks out of the hiding commitment's `data`, whose block region is the
+/// same conversion of the same int8 planes (the P3 mask rows are appended
+/// AFTER `lay.w_len`), so the substitution is valid in both modes.
+fn fsp_i8fold() -> bool {
+    static V: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *V.get_or_init(|| std::env::var("HL_FSP_I8FOLD").map(|v| v != "0").unwrap_or(true))
+}
+
+/// [UPERF3-FSP3] `fold_cols_base` over ONE `w_data` block, read straight from
+/// the int8 source plane instead of from the converted 64-bit copy. The block
+/// at `wg[c * nb_f + b]` is laid out as
+/// `blk[kp * fb + jp] = Fp::from_i64(wg_t[(c * db + kp) * f + b * fb + jp])`,
+/// so folding its columns is a STRIDED fold over the plane: rows
+/// `row0 .. row0 + rows` of a `stride`-wide matrix, columns
+/// `col0 .. col0 + cols`. (A copy of `layer.rs`'s private helper of the same
+/// name; this lane may not change that file's visibility — see the ledger.)
+fn fold_block_i8(src: &[i8], row0: usize, rows: usize, stride: usize, col0: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
+    debug_assert_eq!(c.len(), cols);
+    (0..rows)
+        .into_par_iter()
+        .map(|i| {
+            let base = (row0 + i) * stride + col0;
+            let row = &src[base..base + cols];
+            let mut acc = Fp2::ZERO;
+            for (&v, &cw) in row.iter().zip(c.iter()) {
+                let v = v as i64;
+                if v == 0 {
+                    continue;
+                }
+                acc = acc.add(cw.mul_base(Fp::from_i64(v)));
+            }
+            acc
+        })
+        .collect()
+}
+
 /// Prove one v3 layer in ZK mode (P1) over the first `t_rows` rows of the witness.
 pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript) -> ProveOutputZk {
     prove_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, false, cfg.rng(format!("layer-v3-{}", w.l).as_bytes())).expect("legacy FFN proof")
@@ -2282,6 +2483,60 @@ pub fn prove_layer_zk_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt
 
 fn prove_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript, mr1: bool, rng: ZkRng) -> Result<ProveOutputZk, String> {
     prepare_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, mr1, false, rng)?.finish(ntt, tr)
+}
+
+// ===========================================================================
+// [UPERF3-FSP5] THE PUBLIC-ENDPOINT REPAIRED-MASK PROBE.
+//
+// `mr1` is the REPAIRED mask schedule: every CFS mask row becomes an
+// Fp2-valued PAIR, a zero mask challenge DISCARDS the attempt instead of
+// resampling it, and prover and verifier replay the PCS challenge prefix and
+// refuse unless the mask coefficients span Fp2 (`zk_ffn_fresh_poc.rs`
+// 221-341). It has ever run at exactly ONE shape — the T32/d16/f16 of
+// `zk_ffn_fresh_poc` — because `prove_layer_zk_v3` above hard-codes
+// `mr1 = false` and both inner functions are private. `ZkLayoutV3::with_masks`
+// takes the shape as a parameter, `mask_specs_v3` derives its counts from the
+// layout, and every refusal is written against `rows` / `log_n` / `mask_rows`
+// / `prox`, so the only thing missing was a caller. This pair is that caller
+// and nothing else: no new protocol, no new cryptography, no change to any
+// existing path's transcript, mask schedule, endpoints or policy.
+//
+// WHAT THIS IS NOT. The endpoints are PUBLIC here. This pair does not hide
+// the feed-forward's input or its output; the profile that does is
+// `zk_ffn_fresh_io`, which is untouched and still pinned to its tiny shape.
+// **Producing a proof through this pair establishes NO privacy property.** It
+// exists so that the repaired schedule's COST can be measured at a real shape,
+// which no binary, example or test could do before.
+//
+// THE TWO PROFILES CANNOT BE CONFUSED, by two independent mechanisms:
+//  1. both entries absorb `MR1_PROBE_PROFILE` into the Fiat-Shamir transcript
+//     before anything else they do, and neither legacy entry absorbs it, so
+//     every challenge downstream of it differs; and
+//  2. the repaired layout commits strictly more rows, so a verifier on the
+//     wrong profile rejects on the commitment's shape before it reaches a
+//     challenge at all.
+// ===========================================================================
+
+/// The Fiat-Shamir domain separator of the repaired-mask probe. Absorbed by
+/// [`prove_layer_zk_v3_mr1`] and [`verify_layer_zk_v3_mr1`], and by no other
+/// entry point in this file.
+pub const MR1_PROBE_PROFILE: &[u8] = b"hashline-zk-mr1/ffn-v3-mr1-probe/1";
+
+/// Prove one v3 layer with the REPAIRED mask schedule at the caller's shape,
+/// with PUBLIC endpoints. **Cost probe only: no privacy property is
+/// established by a proof made here.**
+///
+/// A deterministic seed is refused. The repaired schedule DISCARDS an attempt
+/// on a degenerate challenge instead of resampling it, and a replayable
+/// attempt is exactly what that refusal exists to prevent, so this entry draws
+/// fresh OS randomness the way `zk_ffn_fresh_poc::prove` does.
+pub fn prove_layer_zk_v3_mr1(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &NttTables, cfg: &ZkConfig, tr: &mut Transcript) -> Result<ProveOutputZk, String> {
+    if cfg.seed.is_some() {
+        return Err("repaired mask profile: a deterministic seed is refused (the schedule discards an attempt rather than resampling it)".into());
+    }
+    let rng = ZkRng::from_os(MR1_PROBE_PROFILE).map_err(|e| format!("repaired mask profile randomness: {e}"))?;
+    tr.absorb(b"zk-mask-profile", MR1_PROBE_PROFILE);
+    prove_layer_zk_v3_inner(w, t_rows, params, ntt, cfg, tr, true, rng)
 }
 
 // Private owners and claims are retained only until their ONE final opening.
@@ -2312,17 +2567,24 @@ impl PendingV3 {
         self.tick = std::time::Instant::now();
         match self.w {
             PendingWeightV3::Public(cm, claims) => { self.proof.w_open = pcs::open(&cm, &claims, tr); }
-            PendingWeightV3::Private(cm, claims) => {
+            PendingWeightV3::Private(mut cm, claims) => {
                 self.sites.push(format!("W: {} claims in {} groups", claims.len(), pcs::zk_groups_for_record(&cm, &claims)));
                 if zl.mr1 { fresh_poc::check_masks(&claims, cm.cm.rows, zl.log_wn, &zl.w_mask_rows(), zl.w_prox, tr)?; }
                 self.proof.w_open_zk = pcs::open_zk(&cm, &claims, tr);
                 self.sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("W {s}")));
+                // [UPERF3-FSP3] the hiding W commitment OWNS the staging buffer (P3 moved it
+                // in with `std::mem::take`). Its last reader is the opening above; retire it
+                // to the pool here instead of letting the commitment's drop free it.
+                zkhostbuf::give(zkhostbuf::W, std::mem::take(&mut cm.data));
             }
         }
         self.sites.push(format!("A: {} claims in {} groups", self.ac.len(), pcs::zk_groups_for_record(&self.a, &self.ac)));
         if zl.mr1 { fresh_poc::check_masks(&self.ac, self.a.cm.rows, zl.log_n, &zl.a_mask_rows(), zl.a_prox, tr)?; }
         self.proof.a_open = pcs::open_zk(&self.a, &self.ac, tr);
         self.sites.extend(pcs::last_mask_sites().into_iter().map(|s| format!("A {s}")));
+        // [UPERF3-FSP3] same for A, which is ALWAYS moved into its hiding commitment (both
+        // modes). The opening above is its last reader.
+        zkhostbuf::give(zkhostbuf::A, std::mem::take(&mut self.a.data));
         drop(self.a);
         self.sites.push(format!("H: {} claims in {} groups", self.hc.len(), pcs::zk_groups_for_record(&self.h, &self.hc)));
         if zl.mr1 { fresh_poc::check_masks(&self.hc, self.h.cm.rows, zl.log_n, &zl.h_mask_rows(), zl.h_prox, tr)?; }
@@ -2413,7 +2675,10 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
 
     // ---- W data + commit (P1: public weights, ZB's block layout; P3: the same
     // matrix with one mask row per block terminal and the HIDING commitment) ----
-    let mut w_data = vec![Fp::ZERO; if is_p3 { zl.w_len_p3 } else { lay.w_len }];
+    // [UPERF3-FSP3] pooled: `[0, lay.w_len)` is arbitrary and every element of it is written
+    // by the block loop below; the P3 tail (the W mask rows) is zero, as `vec![Fp::ZERO; ..]`
+    // left it, before the mask draw overwrites the rows it owns.
+    let mut w_data = zkhostbuf::take(zkhostbuf::W, if is_p3 { zl.w_len_p3 } else { lay.w_len }, lay.w_len);
     for c in 0..nb_d {
         for b in 0..nb_f {
             for (offs, src) in [(&lay.wg, &w.wg_t), (&lay.wu, &w.wu_t)] {
@@ -2473,7 +2738,12 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     vnote("after commit W");
 
     // ---- A data + the committed multiplicities + mask rows + ZK commit ----
-    let mut a_data = vec![Fp::ZERO; zl.a_len];
+    // [UPERF3-FSP3] pooled: `[0, lay.a_len)` is arbitrary and every element of it is written
+    // by the witness-column loops below; the tail — the CFS mask rows, the table rows and
+    // their mask rows, the predicate row, the fresh-IO endpoint rows — is zero, which the
+    // PARTIAL writes into it (multiplicities `0..t.size` of `n`, predicate bits `0..16` of
+    // `n`) require.
+    let mut a_data = zkhostbuf::take(zkhostbuf::A, zl.a_len, lay.a_len);
     for b in 0..nb_f {
         for (offs, col) in [(&lay.g8, &w.g8), (&lay.rg, &w.rg), (&lay.a16, &w.a16), (&lay.u16, &w.u16v), (&lay.ru, &w.ru), (&lay.h16, &w.h16), (&lay.rh, &w.rh)] {
             let off = offs[b];
@@ -2740,9 +3010,41 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     let eq_ri = eq_table_msb(&r_i);
     let eq_rj = eq_table_msb(&r_j);
     let xk = fold_rows_i8(&w.x[..t_rows * d], t_rows, d, &eq_ri);
-    let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
-    let wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu);
-    let wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu);
+    // [UPERF3-FSP3] the block folds first, off the int8 planes; the plane fold is their
+    // lam_f combination. The block order is the terminal loop's below (wg's nb_d x nb_f,
+    // then wu's), so `gu_blocks[half * nb_d * nb_f + c * nb_f + b]` is that loop's block.
+    let mut gu_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wgk: Vec<Fp2>;
+    let wuk: Vec<Fp2>;
+    if fsp_i8fold() {
+        gu_blocks.reserve(2 * nb_d * nb_f);
+        for src in [&w.wg_t[..], &w.wu_t[..]] {
+            for c in 0..nb_d {
+                for b in 0..nb_f {
+                    gu_blocks.push(fold_block_i8(src, c * db, db, f, b * fb, fb, &eq_rj));
+                }
+            }
+        }
+        let comb = |half: usize| -> Vec<Fp2> {
+            (0..d)
+                .into_par_iter()
+                .map(|k| {
+                    let (c, kp) = (k / db, k % db);
+                    let mut acc = Fp2::ZERO;
+                    for b in 0..nb_f {
+                        acc = acc.add(lam_f[b].mul(gu_blocks[half * nb_d * nb_f + c * nb_f + b][kp]));
+                    }
+                    acc
+                })
+                .collect()
+        };
+        wgk = comb(0);
+        wuk = comb(1);
+    } else {
+        let cw_gu: Vec<Fp2> = (0..f).into_par_iter().map(|j| lam_f[j / fb].mul(eq_rj[j % fb])).collect();
+        wgk = fold_cols_i8(&w.wg_t, d, f, &cw_gu);
+        wuk = fold_cols_i8(&w.wu_t, d, f, &cw_gu);
+    }
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_d);
     for c in 0..nb_d { tables.push(xk[c * db..(c + 1) * db].to_vec()); }
     for c in 0..nb_d {
@@ -2801,9 +3103,13 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     for (ri, offs) in [(0usize, &lay.wg), (1, &lay.wu)] {
         for c in 0..nb_d {
             for b in 0..nb_f {
-                let blk = &w_data_ref[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
-                let folded = fold_cols_base(blk, db, fb, &eq_rj);
-                let v = eval_mle_ext(&folded, &r_kp);
+                // [UPERF3-FSP3] the same block, folded above in the single plane pass.
+                let v = if fsp_i8fold() {
+                    eval_mle_ext(&gu_blocks[ri * nb_d * nb_f + c * nb_f + b], &r_kp)
+                } else {
+                    let blk = &w_data_ref[offs[c * nb_f + b]..offs[c * nb_f + b] + wb];
+                    eval_mle_ext(&fold_cols_base(blk, db, fb, &eq_rj), &r_kp)
+                };
                 term.push(if is_p3 { cd_w_gu.mul(v).add(e_gu2.mul(w_mev[ri * nb_d * nb_f + c * nb_f + b])) } else { v });
             }
         }
@@ -2829,8 +3135,33 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     let eq_rip = eq_table_msb(&r_ip);
     let eq_rjp = eq_table_msb(&r_jp);
     let hk = fold_rows_i32(&w.h16[..t_rows * f], t_rows, f, &eq_rip);
-    let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|k| lam_d[k / db].mul(eq_rjp[k % db])).collect();
-    let wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d);
+    // [UPERF3-FSP3] the same fusion on the d side: the block at `wd[b*nb_d+c]` is
+    // `blk[jp*db+np] = wd_t[(b*fb+jp)*d + c*db+np]`, and `wdk[b*fb+jp] = sum_c lam_d[c] *
+    // blk_c[jp]`. The block order is the terminal loop's below.
+    let mut d_blocks: Vec<Vec<Fp2>> = Vec::new();
+    let wdk: Vec<Fp2>;
+    if fsp_i8fold() {
+        d_blocks.reserve(nb_f * nb_d);
+        for b in 0..nb_f {
+            for c in 0..nb_d {
+                d_blocks.push(fold_block_i8(&w.wd_t, b * fb, fb, d, c * db, db, &eq_rjp));
+            }
+        }
+        wdk = (0..f)
+            .into_par_iter()
+            .map(|j| {
+                let (b, jp) = (j / fb, j % fb);
+                let mut acc = Fp2::ZERO;
+                for c in 0..nb_d {
+                    acc = acc.add(lam_d[c].mul(d_blocks[b * nb_d + c][jp]));
+                }
+                acc
+            })
+            .collect();
+    } else {
+        let cw_d: Vec<Fp2> = (0..d).into_par_iter().map(|k| lam_d[k / db].mul(eq_rjp[k % db])).collect();
+        wdk = fold_cols_i8(&w.wd_t, f, d, &cw_d);
+    }
     let mut tables: Vec<Vec<Fp2>> = Vec::with_capacity(2 * nb_f);
     for b in 0..nb_f { tables.push(hk[b * fb..(b + 1) * fb].to_vec()); }
     for b in 0..nb_f { tables.push(wdk[b * fb..(b + 1) * fb].to_vec()); }
@@ -2874,9 +3205,13 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     }
     for b in 0..nb_f {
         for c in 0..nb_d {
-            let blk = &w_data_ref[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
-            let folded = fold_cols_base(blk, fb, db, &eq_rjp);
-            let v = eval_mle_ext(&folded, &r_k);
+            // [UPERF3-FSP3] the same block, folded above in the single plane pass.
+            let v = if fsp_i8fold() {
+                eval_mle_ext(&d_blocks[b * nb_d + c], &r_k)
+            } else {
+                let blk = &w_data_ref[lay.wd[b * nb_d + c]..lay.wd[b * nb_d + c] + wb];
+                eval_mle_ext(&fold_cols_base(blk, fb, db, &eq_rjp), &r_k)
+            };
             term.push(if is_p3 { cd_w_d.mul(v).add(e_d2.mul(wd_mev[b * nb_d + c])) } else { v });
         }
     }
@@ -2885,7 +3220,11 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
     // the systematic W data is dead from here (its encoding lives in w_cm): 1.4 GB at the 7B
     // shape. Under P3 it is not: the ZK commitment owns it (`pcs::CommittedZk::data`) and the
     // host fold at the opening reads it, so the P3 row carries it to the end of the layer.
-    drop(w_data);
+    // [UPERF3-FSP3] was `drop(w_data)`. Under P1 this retires the systematic W buffer to the
+    // pool; under P3 `w_data` was emptied by the `std::mem::take` into `commit_zk_owned`, so
+    // it carries no capacity and `give` drops it — that buffer comes back from the
+    // commitment in `PendingV3::finish` instead.
+    zkhostbuf::give(zkhostbuf::W, w_data);
     lap("matmul d (zk)", &mut timings, &mut tick);
 
     // ---- zero-check F (masked; claim nu0 S''_gu + Gamma_F) ----
@@ -3464,6 +3803,28 @@ pub fn verify_layer_zk_v3(st: &StatementV3, proof: &LayerProofZk, params: &Layer
     verify_layer_zk_v3_inner(st, proof, params, ntt, tr, mode, false)
 }
 
+/// [UPERF3-FSP5] Verify a proof made by [`prove_layer_zk_v3_mr1`]: the
+/// REPAIRED mask schedule at the caller's shape, PUBLIC endpoints. **This
+/// accepting does not establish any privacy property** — see the block above
+/// `MR1_PROBE_PROFILE`. It absorbs the same profile separator the prover
+/// absorbs, so a legacy proof cannot be presented here and a repaired proof
+/// cannot be presented to [`verify_layer_zk_v3`].
+pub fn verify_layer_zk_v3_mr1(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode) -> Result<(), String> {
+    tr.absorb(b"zk-mask-profile", MR1_PROBE_PROFILE);
+    verify_layer_zk_v3_inner(st, proof, params, ntt, tr, mode, true)
+}
+
+/// [UPERF3-FSP5] The committed row counts of one v3 layer — A, H, W and the
+/// CFS mask commitment M — under either mask schedule, computed from the
+/// layout alone with nothing proven and nothing allocated. `ZkLayoutV3`'s
+/// shape-taking constructor is private, so without this the probe's driver
+/// could not report the repaired row counts it is measuring.
+pub fn zk_v3_committed_rows(st: &StatementV3, params: &LayerParams, is_p3: bool, mr1: bool) -> [usize; 4] {
+    let zl = ZkLayoutV3::with_masks(st.t_rows, st.d, st.f, params, st.shifts, false, mr1);
+    let w_rows = if is_p3 { zl.w_len_p3 } else { zl.lay.w_len } / zl.w_n;
+    [zl.a_len / zl.a_n, zl.h_len / zl.a_n, w_rows, 2 * mask_specs_v3(&zl, is_p3).len() + 4]
+}
+
 fn verify_layer_zk_v3_inner(st: &StatementV3, proof: &LayerProofZk, params: &LayerParams, ntt: &NttTables, tr: &mut Transcript, mode: &ZkStatementMode, mr1: bool) -> Result<(), String> {
     verify_layer_zk_v3_with_seams(st, proof, params, ntt, tr, mode, mr1, false, |_, _, _, _| Ok(()))
 }
@@ -3789,6 +4150,10 @@ fn verify_layer_zk_v3_with_seams(st: &StatementV3, proof: &LayerProofZk, params:
 #[cfg(test)]
 #[path = "zk_ffn_mask_diagnostic.rs"]
 mod mask_diagnostic;
+
+#[cfg(test)]
+#[path = "zk_mr1_probe_tests.rs"]
+mod mr1_probe_tests;
 
 #[cfg(test)]
 mod tests_v3 {

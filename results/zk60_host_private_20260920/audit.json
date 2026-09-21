@@ -1,0 +1,20 @@
+{
+  "state": "passed",
+  "candidate": "3d5c60c",
+  "source_hashes_checked": 132,
+  "candidate_binaries_checked": 12,
+  "main_binaries_unchanged": 4,
+  "logs_checked": 43,
+  "frozen_proof_gates": 20,
+  "device_cases": 189,
+  "storage_totals": [
+    307,
+    0,
+    2
+  ],
+  "probe_arms": 6,
+  "inherited_pcs_source_identical": true,
+  "proof_hash_scope": "Checked by pinned runner before deleting its own scratch proofs; manifest expectations and logs rechecked here.",
+  "privacy_acceptance": false,
+  "model_scale_speed_claim": false
+}

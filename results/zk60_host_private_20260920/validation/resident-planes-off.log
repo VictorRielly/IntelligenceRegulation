@@ -1,0 +1,101 @@
+pass (v3): 12 layers x 512 tokens of 512 — /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export (d 768 f 2048; log_cols 14, inv_rate 4, col checks 256, threads 2)
+  gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0099 = host pack 0.0090 + 0.0009 rest
+[UPERF3-AL] conv W  l00: alloc 0.0114 fill 0.0033 | commit 0.0693 (dev h2d 0.0457 ntt 0.0123 hash 0.0022 -> host 0.0091) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0173 = host pack 0.0145 + 0.0029 rest
+[UPERF3-AL] conv A  l00: alloc 0.0229 fill 0.0065 | commit 0.0487 (dev h2d 0.0180 ntt 0.0240 hash 0.0030 -> host 0.0038) | 8 Melem
+[UPERF3-AL] fold gu l00: pre (eq + i8 row/col folds) 0.0020 | 6 w_data blocks 0.0002
+[UPERF3-AL] fold d  l00: pre (eq + i32 row / i8 col folds) 0.0023 | 3 w_data blocks 0.0003
+  layer  0: prove 0.262 s, 5899988 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0093 = host pack 0.0084 + 0.0009 rest
+[UPERF3-AL] conv W  l01: alloc 0.0000 fill 0.0039 | commit 0.0213 (dev h2d 0.0103 ntt 0.0052 hash 0.0021 -> host 0.0036) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0148 = host pack 0.0119 + 0.0029 rest
+[UPERF3-AL] conv A  l01: alloc 0.0000 fill 0.0064 | commit 0.0309 (dev h2d 0.0158 ntt 0.0094 hash 0.0030 -> host 0.0027) | 8 Melem
+[UPERF3-AL] fold gu l01: pre (eq + i8 row/col folds) 0.0022 | 6 w_data blocks 0.0002
+[UPERF3-AL] fold d  l01: pre (eq + i32 row / i8 col folds) 0.0021 | 3 w_data blocks 0.0004
+  layer  1: prove 0.135 s, 5960912 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0093 = host pack 0.0083 + 0.0010 rest
+[UPERF3-AL] conv W  l02: alloc 0.0000 fill 0.0031 | commit 0.0206 (dev h2d 0.0102 ntt 0.0053 hash 0.0022 -> host 0.0029) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0191 = host pack 0.0161 + 0.0029 rest
+[UPERF3-AL] conv A  l02: alloc 0.0000 fill 0.0064 | commit 0.0353 (dev h2d 0.0201 ntt 0.0096 hash 0.0028 -> host 0.0027) | 8 Melem
+[UPERF3-AL] fold gu l02: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0005
+[UPERF3-AL] fold d  l02: pre (eq + i32 row / i8 col folds) 0.0021 | 3 w_data blocks 0.0002
+  layer  2: prove 0.140 s, 5960392 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0094 = host pack 0.0085 + 0.0009 rest
+[UPERF3-AL] conv W  l03: alloc 0.0000 fill 0.0033 | commit 0.0202 (dev h2d 0.0102 ntt 0.0053 hash 0.0022 -> host 0.0024) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0160 = host pack 0.0132 + 0.0029 rest
+[UPERF3-AL] conv A  l03: alloc 0.0000 fill 0.0063 | commit 0.0319 (dev h2d 0.0168 ntt 0.0096 hash 0.0029 -> host 0.0026) | 8 Melem
+[UPERF3-AL] fold gu l03: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l03: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0002
+  layer  3: prove 0.135 s, 5896912 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0093 = host pack 0.0084 + 0.0010 rest
+[UPERF3-AL] conv W  l04: alloc 0.0000 fill 0.0034 | commit 0.0207 (dev h2d 0.0101 ntt 0.0053 hash 0.0024 -> host 0.0028) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0160 = host pack 0.0132 + 0.0029 rest
+[UPERF3-AL] conv A  l04: alloc 0.0000 fill 0.0062 | commit 0.0324 (dev h2d 0.0171 ntt 0.0096 hash 0.0031 -> host 0.0026) | 8 Melem
+[UPERF3-AL] fold gu l04: pre (eq + i8 row/col folds) 0.0021 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l04: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0003
+  layer  4: prove 0.137 s, 5898448 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0101 = host pack 0.0092 + 0.0009 rest
+[UPERF3-AL] conv W  l05: alloc 0.0000 fill 0.0034 | commit 0.0216 (dev h2d 0.0109 ntt 0.0053 hash 0.0024 -> host 0.0030) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0165 = host pack 0.0136 + 0.0029 rest
+[UPERF3-AL] conv A  l05: alloc 0.0000 fill 0.0063 | commit 0.0326 (dev h2d 0.0175 ntt 0.0096 hash 0.0030 -> host 0.0025) | 8 Melem
+[UPERF3-AL] fold gu l05: pre (eq + i8 row/col folds) 0.0020 | 6 w_data blocks 0.0002
+[UPERF3-AL] fold d  l05: pre (eq + i32 row / i8 col folds) 0.0021 | 3 w_data blocks 0.0004
+  layer  5: prove 0.139 s, 5862608 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0113 = host pack 0.0104 + 0.0009 rest
+[UPERF3-AL] conv W  l06: alloc 0.0000 fill 0.0032 | commit 0.0222 (dev h2d 0.0122 ntt 0.0053 hash 0.0022 -> host 0.0026) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0164 = host pack 0.0135 + 0.0029 rest
+[UPERF3-AL] conv A  l06: alloc 0.0000 fill 0.0062 | commit 0.0325 (dev h2d 0.0174 ntt 0.0096 hash 0.0030 -> host 0.0025) | 8 Melem
+[UPERF3-AL] fold gu l06: pre (eq + i8 row/col folds) 0.0024 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l06: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0002
+  layer  6: prove 0.140 s, 5895120 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0093 = host pack 0.0084 + 0.0009 rest
+[UPERF3-AL] conv W  l07: alloc 0.0000 fill 0.0037 | commit 0.0201 (dev h2d 0.0101 ntt 0.0054 hash 0.0022 -> host 0.0025) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0162 = host pack 0.0134 + 0.0028 rest
+[UPERF3-AL] conv A  l07: alloc 0.0000 fill 0.0060 | commit 0.0324 (dev h2d 0.0173 ntt 0.0095 hash 0.0029 -> host 0.0027) | 8 Melem
+[UPERF3-AL] fold gu l07: pre (eq + i8 row/col folds) 0.0022 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l07: pre (eq + i32 row / i8 col folds) 0.0019 | 3 w_data blocks 0.0002
+  layer  7: prove 0.137 s, 5862608 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0097 = host pack 0.0087 + 0.0009 rest
+[UPERF3-AL] conv W  l08: alloc 0.0000 fill 0.0033 | commit 0.0214 (dev h2d 0.0105 ntt 0.0060 hash 0.0022 -> host 0.0027) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0163 = host pack 0.0134 + 0.0029 rest
+[UPERF3-AL] conv A  l08: alloc 0.0000 fill 0.0061 | commit 0.0339 (dev h2d 0.0174 ntt 0.0108 hash 0.0031 -> host 0.0027) | 8 Melem
+[UPERF3-AL] fold gu l08: pre (eq + i8 row/col folds) 0.0024 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l08: pre (eq + i32 row / i8 col folds) 0.0020 | 3 w_data blocks 0.0002
+  layer  8: prove 0.147 s, 5895376 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0102 = host pack 0.0093 + 0.0009 rest
+[UPERF3-AL] conv W  l09: alloc 0.0000 fill 0.0032 | commit 0.0223 (dev h2d 0.0111 ntt 0.0063 hash 0.0023 -> host 0.0026) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0163 = host pack 0.0134 + 0.0029 rest
+[UPERF3-AL] conv A  l09: alloc 0.0000 fill 0.0061 | commit 0.0348 (dev h2d 0.0174 ntt 0.0114 hash 0.0031 -> host 0.0029) | 8 Melem
+[UPERF3-AL] fold gu l09: pre (eq + i8 row/col folds) 0.0022 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l09: pre (eq + i32 row / i8 col folds) 0.0019 | 3 w_data blocks 0.0002
+  layer  9: prove 0.151 s, 5895376 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0102 = host pack 0.0093 + 0.0010 rest
+[UPERF3-AL] conv W  l10: alloc 0.0000 fill 0.0031 | commit 0.0235 (dev h2d 0.0111 ntt 0.0074 hash 0.0025 -> host 0.0025) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0178 = host pack 0.0149 + 0.0029 rest
+[UPERF3-AL] conv A  l10: alloc 0.0000 fill 0.0060 | commit 0.0377 (dev h2d 0.0187 ntt 0.0131 hash 0.0035 -> host 0.0024) | 8 Melem
+[UPERF3-AL] fold gu l10: pre (eq + i8 row/col folds) 0.0025 | 6 w_data blocks 0.0003
+[UPERF3-AL] fold d  l10: pre (eq + i32 row / i8 col folds) 0.0021 | 3 w_data blocks 0.0002
+  layer 10: prove 0.163 s, 5864148 B
+[FSP4] whole-buffer narrow upload 4718592 elem w 1 (64-bit words): h2d counter 0.0094 = host pack 0.0084 + 0.0010 rest
+[UPERF3-AL] conv W  l11: alloc 0.0000 fill 0.0032 | commit 0.0214 (dev h2d 0.0102 ntt 0.0063 hash 0.0023 -> host 0.0026) | 4 Melem
+[FSP4] whole-buffer narrow upload 8519680 elem w 2 (64-bit words): h2d counter 0.0190 = host pack 0.0161 + 0.0029 rest
+[UPERF3-AL] conv A  l11: alloc 0.0000 fill 0.0066 | commit 0.0374 (dev h2d 0.0201 ntt 0.0114 hash 0.0034 -> host 0.0025) | 8 Melem
+[UPERF3-AL] fold gu l11: pre (eq + i8 row/col folds) 0.0022 | 6 w_data blocks 0.0002
+[UPERF3-AL] fold d  l11: pre (eq + i32 row / i8 col folds) 0.0018 | 3 w_data blocks 0.0004
+  layer 11: prove 0.153 s, 5866196 B
+prover phases (summed over layers):
+      commit W                  0.357 s
+      commit A                  0.519 s
+      helpers + commit H        0.324 s
+      matmul g/u                0.069 s
+      matmul d                  0.045 s
+      zero-check F              0.296 s
+      zero-check D              0.070 s
+      pcs openings              0.155 s
+  gpu device-side (summed): h2d 0.376 s (261 MB) | ntt 0.330 s | hash 0.097 s | sumcheck 0.366 s | fold 0.143 s | helpers 0.085 s | d2h 0.000 s (137 MB) | vram peak 2430 MB
+  gpu chunked [UPERF3-AC]: chunked commits 0 | opening re-encode 0.000 s
+PROOF sha256 5f368db6240e061428a90eccdb22ff456b1507708ef95f1bed39615042973c1d (70758084 B)
+  proof written to /tmp/zk60-host-private-nfdz8v2z/resident-planes-off.proof
+PASS-V3 ACCEPT: 12 x 512 (d 768 f 2048): witness load+chain 3.74 s | PROVE 1.84 s | VERIFY 0.32 s | proof 70758084 B (70.8 MB) | 2.899e10 MACs | 1.579e10 proven MAC/s (prove wall) | wall 6.03 s
+HASHLINE_TIMING {"schema":1,"coverage":"ffn-only","privacy":"P0","layers":12,"tokens":512,"d":768,"f":2048,"witness_s":3.741392805,"prove_s":1.836417557,"serialize_s":0.103819866,"proof_ready_s":5.709157072,"verify_s":0.315952271,"verified":true,"proof_bytes":70758084,"serialized":true,"gpu_requested":true,"gpu_enabled":true,"randomness":"none"}

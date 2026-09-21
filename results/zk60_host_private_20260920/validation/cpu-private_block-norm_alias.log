@@ -1,0 +1,10 @@
+
+running 5 tests
+test private_block::norm_alias::the_alias_satisfies_every_norm_relation_in_the_field ... ok
+test private_block::norm_alias::the_denominator_range_fact_excludes_the_alias_at_every_expressible_width ... ok
+test private_block::norm_alias::the_half_p_isqrt_alias_with_reconstructing_limbs_is_refused_by_the_u8_table ... ok
+test private_block::norm_alias::the_half_p_isqrt_alias_is_refused_by_the_byte_limb_pin_on_the_denominator ... ok
+test private_block::norm_alias::the_limb_count_the_widened_geometry_needs ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 132 filtered out; finished in 0.39s
+

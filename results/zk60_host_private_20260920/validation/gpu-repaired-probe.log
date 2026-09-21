@@ -1,0 +1,52 @@
+NOTE: several arms in ONE process. `peak RSS` is the process high-water mark, so every arm after the first inherits the previous arms' peak, and the device counters accumulate. For a fair measurement run ONE arm per invocation.
+=== [UPERF3-FSP5] repaired-mask COST PROBE — NO PRIVACY PROPERTY IS ESTABLISHED HERE ===
+    all three arms have PUBLIC endpoints; the hiding-endpoint profile is untouched and still pinned to T32/d16/f16.
+    export /home/victor/wt-uperf3-aa/results/m8b_test/m125_v3_export — model frugal-125m (T 512 d 768 f 2048 layers 12)
+    shape 12 layers x 512 tokens | log_cols 14, inv_rate 4, col checks 256 | threads 2
+    gpu: ON | gpu: ON — NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)
+    both private arms draw fresh OS randomness (no seed), so the only difference between them is the mask schedule.
+--- ARM public ---
+  prover phases (summed over 12 layers):
+      commit W                      0.219 s
+      commit A                      0.536 s
+      helpers + commit H            0.328 s
+      matmul g/u                    0.071 s
+      matmul d                      0.048 s
+      zero-check F                  0.301 s
+      zero-check D                  0.073 s
+      pcs openings                  0.165 s
+  gpu device-side (summed): h2d 0.290 s (261 MB) | ntt 0.332 s | hash 0.098 s | sumcheck 0.374 s | fold 0.148 s | helpers 0.086 s | d2h 0.000 s (137 MB) | vram peak 2430 MB
+  ARM public ACCEPT: 12 x 512 | witness load 3.83 s | PROVE 1.743 s | VERIFY 0.319 s | proof 70758084 B | rows A 520 H 432 W 288 M 0 | peak RSS 514 MB | wall 5.93 s
+PROBE_JSON {"arm":"public","layers":12,"tokens":512,"d":768,"f":2048,"gpu":true,"accept":true,"prove_s":1.743382,"verify_s":0.318922,"load_s":3.832313,"bytes":70758084,"rows_a":520,"rows_h":432,"rows_w":288,"rows_m":0,"rss_mb":513.6,"phases":{"commit W":0.219396,"commit A":0.536146,"helpers + commit H":0.328186,"matmul g/u":0.071241,"matmul d":0.048192,"zero-check F":0.301136,"zero-check D":0.073428,"pcs openings":0.165281}}
+--- ARM legacy ---
+  prover phases (summed over 12 layers):
+      commit W                      0.539 s
+      commit A (zk)                 1.103 s
+      mask commit                   0.034 s
+      helpers + commit H (zk)       1.221 s
+      matmul g/u (zk)               0.100 s
+      matmul d (zk)                 0.071 s
+      zero-check F (zk)             0.423 s
+      zero-check D (zk)             0.081 s
+      table zero-check (zk)         0.140 s
+      zsum + mask open              0.029 s
+      pcs openings (zk)             0.316 s
+  gpu device-side (summed): h2d 0.619 s (1320 MB) | ntt 1.364 s | hash 0.202 s | sumcheck 0.915 s | fold 0.307 s | helpers 0.213 s | d2h 0.000 s (293 MB) | vram peak 3068 MB
+  ARM legacy ACCEPT: 12 x 512 | witness load 3.63 s | PROVE 4.059 s | VERIFY 0.478 s | proof 87697008 B | rows A 559 H 485 W 288 M 16 | peak RSS 723 MB | wall 8.20 s
+PROBE_JSON {"arm":"legacy","layers":12,"tokens":512,"d":768,"f":2048,"gpu":true,"accept":true,"prove_s":4.059238,"verify_s":0.478199,"load_s":3.628081,"bytes":87697008,"rows_a":559,"rows_h":485,"rows_w":288,"rows_m":16,"rss_mb":723.0,"phases":{"commit W":0.539116,"commit A (zk)":1.103151,"mask commit":0.034475,"helpers + commit H (zk)":1.220835,"matmul g/u (zk)":0.100109,"matmul d (zk)":0.070998,"zero-check F (zk)":0.423415,"zero-check D (zk)":0.081290,"table zero-check (zk)":0.140330,"zsum + mask open":0.029076,"pcs openings (zk)":0.315532}}
+--- ARM repaired ---
+  prover phases (summed over 12 layers):
+      commit W                      0.497 s
+      commit A (zk)                 1.096 s
+      mask commit                   0.034 s
+      helpers + commit H (zk)       1.093 s
+      matmul g/u (zk)               0.105 s
+      matmul d (zk)                 0.071 s
+      zero-check F (zk)             0.344 s
+      zero-check D (zk)             0.070 s
+      table zero-check (zk)         0.138 s
+      zsum + mask open              0.029 s
+      pcs openings (zk)             0.282 s
+  gpu device-side (summed): h2d 0.948 s (2422 MB) | ntt 2.175 s | hash 0.300 s | sumcheck 1.346 s | fold 0.434 s | helpers 0.307 s | d2h 0.000 s (449 MB) | vram peak 3101 MB
+  ARM repaired ACCEPT: 12 x 512 | witness load 3.73 s | PROVE 3.760 s | VERIFY 0.497 s | proof 88356464 B | rows A 585 H 486 W 288 M 16 | peak RSS 725 MB | wall 8.01 s
+PROBE_JSON {"arm":"repaired","layers":12,"tokens":512,"d":768,"f":2048,"gpu":true,"accept":true,"prove_s":3.760054,"verify_s":0.497484,"load_s":3.729184,"bytes":88356464,"rows_a":585,"rows_h":486,"rows_w":288,"rows_m":16,"rss_mb":724.8,"phases":{"commit W":0.496966,"commit A (zk)":1.096018,"mask commit":0.033571,"helpers + commit H (zk)":1.092637,"matmul g/u (zk)":0.105096,"matmul d (zk)":0.071043,"zero-check F (zk)":0.344001,"zero-check D (zk)":0.070116,"table zero-check (zk)":0.138162,"zsum + mask open":0.029430,"pcs openings (zk)":0.282026}}

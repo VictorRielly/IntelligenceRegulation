@@ -1,0 +1,23 @@
+
+running 12 tests
+test a_corrupted_entry_is_rejected_and_recommitted ... [UPERF3-AC] wcache entry /tmp/zk60_cl9_447790/v3-l77-93b14055461ede80.wc REJECTED (level 0: 1 nodes do not hash to their parent); re-committing
+ok
+test a_different_pcs_shape_cannot_reuse_the_entry ... ok
+test a_fresh_uncached_p3_process_accepts_and_never_touches_a_cache ... ok
+test cold_and_warm_processes_produce_the_same_verified_proof_bytes ... ok
+test configure_is_once_per_process_so_a_cached_process_cannot_later_serve_p3 ... 
+thread 'configure_is_once_per_process_so_a_cached_process_cannot_later_serve_p3' (448082) panicked at src/wcache.rs:66:9:
+wcache: configured twice
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+ok
+test equivalent_approved_state_hits_and_preserves_the_commitment_root ... ok
+test every_keyed_field_separates_the_entry ... ok
+test p3_with_wcache_is_refused_by_the_driver_before_any_work ... ok
+test same_key_concurrent_writers_leave_one_verifying_entry ... [ZK60-CL9] same-key writers: 12 rounds x 8 threads: hits 0 | misses 96 | rejected 0 | saves 96 | lost renames (continuing uncached) 0
+ok
+test the_callers_packing_ties_the_key_to_the_committed_data ... ok
+test the_shape_and_length_fields_separate_the_entry_too ... ok
+test there_is_no_eviction_entries_accumulate_by_key ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 88.71s
+

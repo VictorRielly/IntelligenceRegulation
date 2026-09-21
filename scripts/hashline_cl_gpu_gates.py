@@ -17,6 +17,9 @@ Stdlib only; CPU only. Nothing here builds, proves or touches a device: the
 runner does, and reports each case through `start` / `record`.
 
 Suite versions
+  11 Direct weight-plane upload, private host reuse/folds and norm controls:
+     37 core tests; 307 storage-enabled hashline tests, 2 ignored capture
+     writers. Device oracle remains 189 cases.
   10 Native private attention/block, capture and row-fold regressions:
      37 core tests; 288 storage-enabled hashline tests, 2 ignored capture
      writer entry points (their explicit capture runs are separate evidence).
@@ -301,12 +304,28 @@ def _suite_v10():
     return s
 
 
+def _suite_v11():
+    s = copy.deepcopy(_suite_v10())
+    s["version"] = 11
+    for c in s["cases"]:
+        if c["id"] == "storage_tests":
+            c["expect"] = {"passed": 307, "failed": 0, "ignored": 2}
+            c["established"] = (
+                "2026-09-20 combined host/private integration: "
+                "results/zk60_host_private_20260920/validation/storage-tests.log. "
+                "v10's 288 plus five plane geometry, two cache, six repaired-mask probe, "
+                "five norm-alias and one dirty-pool geometry-reuse regressions. "
+                "The two explicit capture writers remain ignored; core remains 37. "
+                "All exact counts are fixed to v11.")
+    return s
+
+
 def _suite_v0():
-    # [ZK60-CL21] derived from the newest production suite (v10) so the synthetic
+    # [ZK60-CL21] derived from the newest production suite (v11) so the synthetic
     # round trip exercises every case kind, the core's included. The synthetic
     # suite records identity when the runner gives it one but does not REQUIRE
     # it: it is never evidence and the CLI round trip runs without a checkout.
-    suite = copy.deepcopy(_suite_v10())
+    suite = copy.deepcopy(_suite_v11())
     suite.update({"version": 0, "production": False, "requires_source_identity": False, "requires_untracked_identity": False,
                   "note": "synthetic self-check suite: tiny fixed byte strings stand in for proofs; never evidence"})
     for case in suite["cases"]:
@@ -360,8 +379,8 @@ def _suite_v3():
     return suite
 
 
-SUITES = {10: _suite_v10(), 9: _suite_v9(), 8: _suite_v8(), 7: _suite_v7(), 6: _suite_v6(), 5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
-DEFAULT_SUITE = 10
+SUITES = {11: _suite_v11(), 10: _suite_v10(), 9: _suite_v9(), 8: _suite_v8(), 7: _suite_v7(), 6: _suite_v6(), 5: _suite_v5(), 4: _suite_v4(), 3: _suite_v3(), 2: _suite_v2(), 1: _suite_v1(), 0: _suite_v0()}
+DEFAULT_SUITE = 11
 
 
 def suite(version):

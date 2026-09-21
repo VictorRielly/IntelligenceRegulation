@@ -1,0 +1,15 @@
+
+running 3 tests
+
+thread 'wcache::tests::a_prepared_key_cannot_be_reused_with_a_different_data_length' (447511) panicked at src/wcache.rs:334:5:
+assertion `left == right` failed: prepared weight-cache geometry changed
+  left: 16
+ right: 32
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test wcache::tests::a_prepared_key_cannot_be_reused_with_a_different_data_length - should panic ... ok
+[UPERF3-AC] wcache entry /tmp/hl-wcache-prepared-447510/v3-l901-1bacfcb71d7730ee.wc REJECTED (bad magic); re-committing
+test wcache::tests::prepared_key_is_lazy_and_hashes_once_across_plane_decline_and_cache_hit ... ok
+test wcache::tests::tree_roundtrip_and_every_corruption_rejected ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 134 filtered out; finished in 0.00s
+

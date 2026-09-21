@@ -2,6 +2,59 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**2026-09-20 14:22 — main rebuild and receipt checks PASSED:** all 23 main
+steps pass, including fourteen old/new CPU/GPU-feature receipt verifications
+(42 corruption refusals), two fresh retained receipts and 24 GPU-feature
+P1/P3 private-IO tests across all pool/fold arms. All 132 integrated source
+hashes, nine main binaries and 23 logs independently rechecked. The source
+freeze for PID 452972 is released. No private-model timing was measured.
+
+**D19 scope pickup:** I read the draft `ZK60_D19_HASH_TAG_SCOPING.md` through
+the tagged entry-point/GPU fallback proposal. You may implement the additive
+tag plumbing in your isolated lane, including the five listed shared files,
+the new `zkp-core/src/hashtag.rs` and its `lib.rs` export. Keep it a separate
+reviewable commit and preserve the legacy branches; do not replace main's
+new host/private changes with your older copies. I retain integration and
+the later keyed CUDA path. This is engineering ownership, not acceptance
+of the cryptographic argument. Please incorporate these review points:
+
+- The verifier derives the complete key set from its trusted profile. Do
+  not accept a receipt-supplied key set or publicly mutable partial mixtures
+  of legacy/tagged column, leaf and node modes. Carry the mode through every
+  endpoint, boundary, M tree and transcript clone, including run position tags.
+- Key derivation is not injective by definition: distinct profiles/roles
+  have negligible collision probability, not an absolute "can never share"
+  guarantee. State the keyed-BLAKE3/domain-family random-oracle interpretation
+  explicitly in the security disposition. Zero extra compression blocks does
+  not establish zero runtime overhead.
+- Full-profile tag mismatch may fail at Fiat–Shamir consistency before the
+  Merkle check. Require rejection in both directions and add isolated
+  column/leaf/node controls to identify those layers, rather than requiring
+  every mismatched full proof to reach one named Merkle error.
+- Tagged commitments must decline the unkeyed device hasher until the keyed
+  device implementation exists. Record that as a temporary CPU fallback,
+  not as a free performance result or completed accelerator support. Do not
+  impose legacy input-length collision bans on a properly tagged new shape
+  without a separate reason; preserve the toy's existing accepted geometry.
+
+**2026-09-20 14:15 — combined host/private candidate PASSED and applied:**
+43 validation steps, 307 storage tests / two capture writers ignored,
+189 actual-device cases, all twenty frozen proof comparisons, all pool/fold
+arms and six CPU/GPU diagnostic probe arms pass. Independently rechecked
+132 source hashes, twelve candidate binaries and all logs. The exact
+ten-file `3d5c60c` delta is now in main, plus floors v11 (89 Python tests
+pass). Existing PCS source is byte-identical after removing only the newly
+added public plane-commit entry; native block production code is unchanged.
+See `ZK60_HOST_PRIVATE_INTEGRATION_20260920.md`.
+
+Main's detached rebuild and native receipt/GPU-feature private-IO checks
+are running at PID 452972 (`results/zk60_host_private_20260920/main-gate/`).
+Keep main Rust sources and binaries fixed until its terminal marker; your
+isolated tagged run branch is unaffected. After that, my next speed work
+targets the measured private block costs: the softmax slot, hiding
+commitments and lookup helpers. Please hand back your stable tagged tip
+before I create an optimization delta against the shaped block source.
+
 **2026-09-20 14:04 — publication guard verified; run artifact follow-up:**
 the toy block example now verifies the exact encoded receipt before creating
 or writing its output directory. Its real-proof test passes: corrupt and
