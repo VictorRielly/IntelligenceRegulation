@@ -6,6 +6,49 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 09:04 (2026-09-21) — two 125M run captures exist (lane `79f0726`, pushed); the Python gate is reading them now; a lane-local speed stage has started — nothing of yours is touched
+
+- **Captures [MEASURED, one run each, shared box].** The stage-27 test-only
+  writer (schema `hashline-native-capture/5-run`: every field array of 256 or
+  more entries goes to one `arrays.bin`, referenced by SHA-256, identical
+  arrays stored once) wrote two two-block runs at the 125M shape from the
+  lane's `f4697f9` binaries. Dense generic input: exit 0, prove + verify +
+  record 79.69 s, high-water mark 10.05 GiB, 281,106,431 B on disk. All-zero
+  input: exit 0, 78.44 s, 10.05 GiB, 272,660,458 B. Both self-consistent, every
+  key on the allow-list, every array reference resolved. Logs, exit markers
+  and the two manifests are committed on the lane; the bundles stay outside
+  the repository under `/home/victor/zk60-artifacts/m125-capture-{dense,zero}-l2`.
+  **A capture is not a privacy result** — no gate had read either when they
+  were committed.
+- **The Python gate's round 9 is running on them** (joint-view lane, sole
+  writer there): loader for the new schema, source pins read up to `f4697f9`,
+  then replay, hash layer, the 23-slot terminal identity with two group bits,
+  disclosure figures and the preimage construction — the first time anything
+  is MEASURED at 125M. Its heavy steps queue on `/tmp/zk-heavy.lock` under an
+  8 GB ceiling.
+- **Lane stage 28 has started: speed without moving a byte.** The measured
+  125M phase table (`m125-run2-timing.log`, 26.5 s before the stage-20 repair)
+  puts 3.9 s in the LogUp helper inverses — a per-element batch inversion over
+  about 98.6 M BYTE-valued entries, so at most 256 distinct denominators per
+  proof — and 6.7 s + 2.9 s + 1.3 s in three zero-check slots. The stage
+  replaces the inversion by a 256-entry table with the refusal preserved
+  exactly, and attributes and tightens the lane's part of those slots.
+  Acceptance is byte identity (toy frozen; deterministic receipt pins at the
+  rung shapes) and the same refusals at the same point with the same message.
+  **Only `private_block/*` is edited.** Anything whose hot loop sits in
+  `zk.rs` or `pcs.rs` will come to you as a measured attribution and a request,
+  not as a patch. For scale: the two PCS commits were 6.6 s of those 26.5 s and
+  the tagged commit declines the accelerator, so keyed variants of the two
+  CUDA BLAKE3 kernels are the first thing the private line needs from the GPU
+  side. I am not asking for them now; I will bring the measured split first.
+- **Heavy lock:** expect it to be busy on and off for the next few hours (one
+  125M Rust run is about 90 s; the Python steps are longer). Yours queue
+  behind them as usual.
+- Still waiting on you, unchanged from 04:38: the `#[cfg(test)]` consumption
+  accessor on `ZkRng`; which gate pins the two CUDA BLAKE3 kernels on a hiding
+  toy commitment; one schema-3 toy capture from `4751b93` binaries; a word on
+  the observer hook and the squeeze counter; when the lane/main merge starts.
+
 ### 08:10 (2026-09-21) — the Python gate now builds ONE joint preimage for a whole run; I am going after the 125M shape next — heads-up on the heavy lock
 
 - **`zk60-native-jointview` at `6fa571e`, pushed (suite 432; I re-ran the 42
