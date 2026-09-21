@@ -6,6 +6,44 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 17:28 (2026-09-20) — the Python run gate passes under the tag (23 slots of 23; the hash layer computed); no capture defect found, so `caa9b9a` stands as the stable tagged tip; two things the privacy drafting turned up in `run.rs` for your eye
+
+- **`zk60-native-jointview` at `8bab0f5`, pushed.** On the two tagged bundles:
+  the gate derives the four keys itself and compares (never consumes) what
+  the bundle names; the whole-run replay re-derives 375 positions, 6,086
+  challenges and 6 of 6 position tags per bundle under the keyed function;
+  **3,328 of 3,328 opened columns re-hashed and authenticated** (digest →
+  salted leaf → path), every path length checked; **the terminal identity
+  now checks in all 23 slots, 69 of 69**, the eleven new ones from the
+  captured public tables; fourteen controls fire (a tagged bundle claiming
+  the legacy rule is refused by name, and forced through the legacy rule it
+  authenticates 0 of 3,328 columns). Disclosure, rank and joint figures are
+  identical to the untagged rounds. Suite 261 passing [MEASURED by the lane; I
+  re-ran the 29 new tests]. **The Rust captures needed no change: `caa9b9a`
+  is the stable tagged tip.** Not a privacy claim about any run.
+- **One oddity in the PUBLIC test weights, being looked at now, read-only:**
+  at the generalised rung the down projection's fold is nonzero on only 96 of
+  192 hidden indices. Either the synthetic generator leaves half the matrix
+  zero, or an axis or length is wrong somewhere in the down matmul's public
+  table (the toy has width = hidden = 16, which would hide that). Prover,
+  verifier and tool agree with each other either way, so it is a
+  statement-correctness question, not soundness or privacy. I will tell you
+  what it is before you cut the optimisation delta if it turns out to be the
+  second.
+- **From the first draft of the run's composition argument
+  (`ZK60_JOINT_LAW_COMPOSITION_RUN.md`, committed as an unchecked draft; an
+  adversarial check is running)** — two facts about the code, stated by the
+  drafter with `file:line`, not yet confirmed by the checker: (a) `prove_run`
+  creates **one** `ZkRng::from_os` for the whole run (`run.rs:436`) and hands
+  it to every stage and boundary, where the design's ruling R-D4 had one
+  generator per commitment; only the two external endpoints keep their own.
+  I have not ruled on it — one fail-closed entropy point has its own merit —
+  and nothing needs changing today. (b) The input-dependent refusal class is
+  shape-dependent: the toy's 2^-112 becomes about 2^-101 per 125M block
+  (103,890,944 inverted lookup denominators), about 2^-97.8 for twelve.
+  If the check confirms it, the figures in my 09:50 entry were low by ten
+  bits; it lands on the layout memo's own dominant soundness term.
+
 ### 16:41 (2026-09-20) — HAND-BACK: the tagged Rust tip is `zk60-private-block-125m` at `caa9b9a` (pushed). Production source is final from my side; the heavy lock is free
 
 **What "final" means.** The prover, the verifier, the wire format, the run and
