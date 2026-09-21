@@ -183,6 +183,45 @@ Independent shape-driven layout model of the private block
   LogUp sum-claim column-weight keys: 1 (instantiable: True)
   receipt parts: header_and_three_roots 136, slots 19,904, mask_opening 243,712, a_opening 2,355,200, h_opening 1,787,904, endpoint_openings 335,872, total 4,742,728
 
+-- 2. development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) --
+  padded domains: Ht, L, D, Q, S, Tab
+  domain      true        padded   log  lifted  rows
+  T              32            32     5       -     1
+  Ht            384           512     9       -     1
+  L             288          1024    10     yes     1
+  D           12288         16384    14       -    16
+  Q           12288         16384    14       -    16
+  Kv           4096          4096    12       -     4
+  S           12288         16384    14       -    16
+  F           16384         16384    14       -    16
+  Tab           256          1024    10     yes     1
+  A planes 83  H planes 50
+  quantity                      model            memo [COUNTED]    delta
+  (this shape has no [COUNTED] memo table of its own; it is the rung's
+   geometry with the generalised endpoint, so only the endpoint line moves)
+  a_planes                                 83
+  h_planes                                 50
+  a_data_rows                            1091
+  h_data_rows                            1306
+  a_sites                                 122
+  h_sites                                  50
+  a_rows                                 1337
+  h_rows                                 1408
+  m_rows                                   50
+  a_groups                                 36
+  h_groups                                  9
+  u8_total                            1214464
+  exp_pairs                             16384
+  act_pairs                             16384
+  largest_L                                77
+  receipt_bytes                       7452040
+  bilinear group sumcheck bits lkv = 2; main rounds 250, extension rounds 25, published round values 1163, sumcheck challenge draws 275
+  slots carrying a support indicator: ['01 SS row sums norm_a', '01m SS row sums norm_m', '07 masked row sums + selector', '03 D zero-check', '04 Q zero-check', '06 softmax zero-check']
+  LogUp sum-claim keys WITHOUT the P-3 lift: 3 [('full', 0, 1024), ('sub', 0, 256), ('sub', 0, 512)]
+  largest L slots: ['03 D zero-check', '04 Q zero-check', '06 softmax zero-check']  (L + 256 = 333 <= 512: True)
+  LogUp sum-claim column-weight keys: 1 (instantiable: True)
+  receipt parts: header_and_three_roots 136, slots 21,760, mask_opening 243,712, a_opening 3,604,480, h_opening 3,196,928, endpoint_openings 385,024, total 7,452,040
+
 -- 2. 125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) --
   padded domains: Ht, L, D, Q, S, Tab
   domain      true        padded   log  lifted  rows

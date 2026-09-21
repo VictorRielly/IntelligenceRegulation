@@ -392,6 +392,121 @@ class RungK4(unittest.TestCase):
         self.assertEqual(self.m["receipt_bytes"]["endpoint_openings"], self.g["receipt_bytes"]["endpoint_openings"])
 
 
+class TheFullTopByteShape(unittest.TestCase):
+    """**LANE STAGE 31 — correction C-6, reached by a small shape.**
+
+    `norm_top_is_full_byte` is true when the norm window `NORM_TN + 1 +
+    bit_length(D_max)` is a multiple of eight, and `D_max = isqrt(1 + width *
+    32767^2)`, so the flag is a function of the WIDTH alone: it turns on the
+    moment the width passes 256.  Until this stage the only shape with it on
+    was 125M.
+
+    The model is the independent oracle for the difference: `rung_c6` is
+    `rung_p2` with the head dimension moved from 8 to 32 and the two axes
+    that must follow it, so EVERY lookup family is rung-P2's except
+    `Dom::D`, which loses exactly the four `scaled` norm lookups and the two
+    helper planes that carried them."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.m = M.model(M.RUNG_C6)
+        cls.p = M.model(M.RUNG_P2)
+
+    def test_the_geometry(self):
+        sh = M.RUNG_C6
+        self.assertEqual((sh.tokens, sh.width, sh.hidden), (32, 384, 512))
+        self.assertEqual((sh.q_heads, sh.head_dim, sh.kv_heads), (12, 32, 4))
+        self.assertEqual((sh.t_pad, sh.d_pad, sh.h_pad, sh.f_pad), (32, 512, 16, 512))
+        self.assertEqual(sh.d_pad, sh.h_pad * sh.head_dim)
+        self.assertEqual(sh.width, sh.q_heads * sh.head_dim)
+        self.assertEqual(M.group_sumcheck_bits(M.RUNG_C6), 2)
+        # the bilinear domains are not P-3 lifted (the Rust refuses that by
+        # name, ruling F-2), and the table domain sits AT the row width
+        # (ruling S-1)
+        for dom in ("Q", "Kv", "S"):
+            with self.subTest(domain=dom):
+                self.assertFalse(sh.lifted(dom))
+        self.assertEqual((sh.log("Q"), sh.log("Kv"), sh.log("S")), (14, 12, 14))
+        self.assertEqual(sh.log("Tab"), sh.log_cols)
+        self.assertLess(sh.head_dim, 1 << sh.log_cols)
+
+    def test_the_width_is_what_turns_the_flag_on(self):
+        """The threshold, walked: at this head axis the width is `12 *
+        head_dim`, and the window crosses from 31 to 32 bits between 256 and
+        257.  8 and 16 are the two head dimensions the filter already has,
+        and neither reaches it; 32 is the smallest that does."""
+        self.assertTrue(M.RUNG_C6.norm_top_is_full_byte)
+        for head_dim, width, wrho, flag in ((8, 96, 31, False), (16, 192, 31, False),
+                                            (32, 384, 32, True), (64, 768, 32, True)):
+            with self.subTest(head_dim=head_dim):
+                s = M.Shape("probe", tokens=32, width=width, hidden=512, q_heads=12,
+                            head_dim=head_dim, kv_heads=4, log_cols=10, inv_rate=4, f_e=12)
+                self.assertEqual(s.width, 12 * head_dim)
+                self.assertEqual(s.norm_wrho, wrho)
+                self.assertEqual(s.norm_top_is_full_byte, flag)
+        # the exact boundary, on the window arithmetic alone
+        for width, wrho in ((256, 31), (257, 32), (1024, 32), (1025, 33)):
+            with self.subTest(width=width):
+                s = M.Shape("probe", tokens=32, width=width, hidden=512, q_heads=12,
+                            head_dim=32, kv_heads=4, log_cols=10, inv_rate=4, f_e=12)
+                self.assertEqual(s.norm_wrho, wrho)
+
+    def test_C6_drops_four_lookups_and_two_helpers_and_nothing_else(self):
+        """THE EXPLICIT DIFFERENCE the stage exists to pin, against
+        `rung_p2` — the shape whose byte-limb counts (`ln` 4, `ls` 3, `lp` 2)
+        are identical, so the only thing that can move a lookup count is
+        C-6 itself."""
+        c6, p2 = M.RUNG_C6, M.RUNG_P2
+        self.assertEqual((c6.limbs_norm, c6.limbs_sigma_s, c6.limbs_p),
+                         (p2.limbs_norm, p2.limbs_sigma_s, p2.limbs_p))
+        self.assertEqual((p2.norm_top_is_full_byte, c6.norm_top_is_full_byte), (False, True))
+        lk_c6, lk_p2 = M.lookup_counts(c6), M.lookup_counts(p2)
+        hp_c6, hp_p2 = M.helpers(c6), M.helpers(p2)
+        self.assertEqual({d: lk_p2[d] - lk_c6[d] for d in M.LOOKUP_DOMS},
+                         {"L": 0, "D": 4, "F": 0, "Q": 0, "Kv": 0, "S": 0})
+        self.assertEqual({d: hp_p2[d] - hp_c6[d] for d in M.LOOKUP_DOMS},
+                         {"L": 0, "D": 2, "F": 0, "Q": 0, "Kv": 0, "S": 0})
+        self.assertEqual((lk_p2["D"], lk_c6["D"]), (38, 34))
+        self.assertEqual((hp_p2["D"], hp_c6["D"]), (19, 17))
+        # the four dropped lookups are the ONLY difference in the H plane
+        # list, and the A plane list does not move at all (the limbs are
+        # still committed; it is the lookups ON the top limb that go)
+        self.assertEqual((len(M.a_planes(p2)), len(M.a_planes(c6))), (83, 83))
+        self.assertEqual((len(M.h_planes(p2)), len(M.h_planes(c6))), (52, 50))
+        self.assertEqual(self.p["rows"]["h_sites"] - self.m["rows"]["h_sites"], 2)
+        # and the dropped lookup's coefficient is 1 — `scaled(top, 1)` IS
+        # `byte(top)`, which is why dropping it takes no obligation away
+        self.assertEqual(1 << (8 * c6.limbs_norm - c6.norm_wrho), 1)
+        self.assertEqual(1 << (8 * p2.limbs_norm - p2.norm_wrho), 2)
+
+    def test_it_also_keeps_the_three_unpadded_domains(self):
+        sh = M.RUNG_C6
+        unpadded = [d for d in M.ALL_DOMS if sh.size(d) == sh.true_size(d)]
+        self.assertEqual(unpadded, ["T", "Kv", "F"])
+        self.assertEqual(unpadded, [d for d in M.ALL_DOMS
+                                    if M.M125.size(d) == M.M125.true_size(d)])
+        self.assertEqual(M.padded_domains(sh), M.padded_domains(M.M125))
+
+    def test_the_rows_groups_and_receipt(self):
+        r = self.m["rows"]
+        self.assertEqual((r["a_data_rows"], r["h_data_rows"], r["a_rows"], r["h_rows"]),
+                         (1091, 1306, 1337, 1408))
+        self.assertEqual((r["a_sites"], r["h_sites"], r["m_rows"]), (122, 50, 50))
+        self.assertEqual((self.m["opening_groups"]["a_groups"],
+                          self.m["opening_groups"]["h_groups"]), (36, 9))
+        self.assertEqual(self.m["lookups"]["u8_total"], 1_214_464)
+        self.assertEqual(self.m["receipt_bytes"]["total"], 7_452_040)
+        self.assertEqual(self.m["slot_summary"]["largest_L"], 77)
+        self.assertTrue(self.m["slot_summary"]["L_plus_256_within_512"])
+        # the unpadded arm, unchanged from stage 30: slots 16 and 18 carry no
+        # support indicator and are a degree below the all-padded pattern
+        carriers = [s["slot"] for s in self.m["slots"] if s["carries_support_indicator"]]
+        self.assertNotIn(M.SC_KVZC, carriers)
+        self.assertNotIn(M.SC_FZC, carriers)
+        self.assertEqual((self.m["slots"][M.SC_KVZC]["degree"],
+                          self.m["slots"][M.SC_FZC]["degree"]), (4, 4))
+
+
 class TheToyPaysNothing(unittest.TestCase):
     """**Stage 21, review finding F-1.** The repaired model must leave the
     BYTE-FROZEN toy profile alone, which is the whole reason the repair is
@@ -473,13 +588,20 @@ class Rules(unittest.TestCase):
         self.assertEqual((M.TOY.norm_wrho, M.TOY.wrho_s), (29, 14))
         self.assertEqual((M.RUNG.norm_wrho, M.RUNG.wrho_s), (31, 17))
         self.assertEqual((M.M125.norm_wrho, M.M125.wrho_s), (32, 18))
+        self.assertEqual((M.RUNG_C6.norm_wrho, M.RUNG_C6.wrho_s), (32, 17))
         self.assertEqual([s.limbs_sigma_s for s in (M.TOY, M.RUNG, M.M125)], [2, 3, 3])
-        # only at 125M does the norm window fill its top byte, which is what
-        # drops the FOUR redundant `scaled` lookups (C-6)
-        self.assertEqual([s.norm_top_is_full_byte for s in (M.TOY, M.RUNG, M.M125)],
-                         [False, False, True])
-        self.assertEqual([M.lookup_counts(s)["D"] for s in (M.TOY, M.RUNG, M.M125)], [38, 38, 34])
-        self.assertEqual([M.helpers(s)["D"] for s in (M.TOY, M.RUNG, M.M125)], [19, 19, 17])
+        # **LANE STAGE 31.** The norm window fills its top byte at 125M and,
+        # since stage 31, at `rung_c6` — and nowhere else — which is what
+        # drops the FOUR redundant `scaled` lookups (C-6). Before stage 31
+        # the True column of this census had one entry and it belonged to a
+        # shape no ordinary test proves at.
+        every = (M.TOY, M.RUNG, M.RUNG_G, M.RUNG_K4, M.RUNG_P2, M.RUNG_C6, M.M125)
+        self.assertEqual([s.norm_top_is_full_byte for s in every],
+                         [False, False, False, False, False, True, True])
+        self.assertEqual([s.norm_wrho for s in every], [29, 31, 31, 31, 31, 32, 32])
+        self.assertEqual([M.lookup_counts(s)["D"] for s in every],
+                         [38, 38, 38, 38, 38, 34, 34])
+        self.assertEqual([M.helpers(s)["D"] for s in every], [19, 19, 19, 19, 19, 17, 17])
         self.assertEqual([M.lookup_counts(s)["S"] for s in (M.TOY, M.RUNG, M.M125)], [13, 15, 15])
 
     def test_the_Q_D_coincidence_holds_at_all_three_shapes(self):
@@ -524,6 +646,8 @@ class DerivedEndpoints(unittest.TestCase):
         "rung": 4_218_600,
         "rung_g": 4_234_984,
         "rung_k4": 4_743_128,
+        "rung_p2": 4_742_728,
+        "rung_c6": 7_452_040,
         "m125": 40_783_352,
     }
 
@@ -534,6 +658,12 @@ class DerivedEndpoints(unittest.TestCase):
         "rung": (4096, 8, 8, False, 16, 21),
         "rung_g": (4096, 10, 4, True, 4, 9),
         "rung_k4": (4096, 10, 4, True, 4, 9),
+        "rung_p2": (4096, 10, 4, True, 4, 9),
+        # LANE STAGE 31: the head dimension is 32, so `d_pad` is 512 and the
+        # padded Dom::D cube is 2^14 words — sixteen data rows at the block's
+        # own row width, and twenty-one commitment rows. That is the frozen
+        # seam's row count reached on the GENERALISED endpoint.
+        "rung_c6": (16_384, 10, 4, True, 16, 21),
         "m125": (524_288, 14, 4, True, 32, 37),
     }
 

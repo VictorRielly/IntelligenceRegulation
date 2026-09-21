@@ -664,6 +664,26 @@ RUNG_P2 = Shape("development rung, both pad branches (T32 / d96 / f256, 12 heads
                      "4,743,128, the 400-byte difference being (10 + 1) + (13 + 1) = 25 published "
                      "round values of 16 B")
 
+RUNG_C6 = Shape("development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
+                tokens=32, width=384, hidden=512, q_heads=12, head_dim=32, kv_heads=4,
+                log_cols=10, inv_rate=4, f_e=12,
+                note="LANE STAGE 31: rung-P2's shape with ONE axis moved, the head dimension from 8 "
+                     "to 32, and what must follow from it. The norm window is NORM_TN + 1 + "
+                     "bit_length(isqrt(1 + width * 32767^2)), so it crosses from 31 to 32 bits "
+                     "exactly when the width passes 256; at width 384 it is 32 = 8 * limbs_norm and "
+                     "`norm_top_is_full_byte` is TRUE, which is correction C-6: the four "
+                     "`scaled(top, 1 << (8 ln - wrho))` lookups have coefficient 1, are the same Lk "
+                     "as the `byte(top)` lookups already emitted, and are dropped. Dom::D therefore "
+                     "carries 34 lookups per position instead of 38 and 17 helper planes instead of "
+                     "19, and the H plane list is 50 planes instead of 52. hidden = 512 is the "
+                     "smallest power of two above the width, which keeps Dom::F unpadded and keeps "
+                     "an upper hidden half for the dense fixture; tokens, log_cols, inv_rate and "
+                     "F_E are rung-P2's, so wrho_s stays 17 and limbs_sigma_s stays 3 and the ONLY "
+                     "lookup family that differs from rung-P2 anywhere is Dom::D. Dom::T (2^5), "
+                     "Dom::Kv (32 * 4 * 32 = 2^12) and Dom::F (32 * 512 = 2^14) are exact powers of "
+                     "two, so this shape ALSO carries stage 30's unpadded arm, on 125M's own "
+                     "padded-domain set")
+
 M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
              tokens=512, width=768, hidden=2048, q_heads=12, head_dim=64, kv_heads=4,
              log_cols=14, inv_rate=4, f_e=9,
@@ -674,7 +694,8 @@ M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 o
                   "512 x 768 = 393,216-word plane, which is not a power of two and is not what "
                   "SC_IO_IN / SC_IO_OUT claim (finding S11b-F1)")
 
-SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "rung_p2": RUNG_P2, "m125": M125}
+SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "rung_p2": RUNG_P2,
+          "rung_c6": RUNG_C6, "m125": M125}
 
 # What the module's own Rust asserts at the toy (`layout.rs:523-526`, `:700-749`,
 # `:778-780`, `tests.rs:106-108`).  The model must reproduce every one of these.
@@ -933,7 +954,7 @@ def report(out=sys.stdout):
         w(f"  {'OK ' if ok else 'XX '} {k:28s} model {str(got[k]):>28s}   rust {str(want):>28s}\n")
     w(f"  -> {'ALL TOY NUMBERS REPRODUCED EXACTLY' if bad == 0 else str(bad) + ' TOY MISMATCHES'}\n\n")
 
-    for name in ("rung", "rung_g", "rung_k4", "rung_p2", "m125"):
+    for name in ("rung", "rung_g", "rung_k4", "rung_p2", "rung_c6", "m125"):
         m = models[name]
         w(f"-- 2. {m['shape']['name']} --\n")
         w(f"  padded domains: {', '.join(m['padded_domains'])}\n")

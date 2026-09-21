@@ -1,0 +1,680 @@
+{
+ "a_planes": {
+  "by_domain": {
+   "D": {
+    "planes": 35,
+    "rows": 560
+   },
+   "F": {
+    "planes": 11,
+    "rows": 176
+   },
+   "Ht": {
+    "planes": 2,
+    "rows": 2
+   },
+   "Kv": {
+    "planes": 6,
+    "rows": 24
+   },
+   "L": {
+    "planes": 2,
+    "rows": 2
+   },
+   "Q": {
+    "planes": 7,
+    "rows": 112
+   },
+   "S": {
+    "planes": 13,
+    "rows": 208
+   },
+   "T": {
+    "planes": 4,
+    "rows": 4
+   },
+   "Tab": {
+    "planes": 3,
+    "rows": 3
+   }
+  },
+  "total": 83
+ },
+ "claim_sites": {
+  "a": [
+   1,
+   1,
+   22,
+   2,
+   2,
+   1,
+   1,
+   1,
+   2,
+   2,
+   1,
+   1,
+   1,
+   1,
+   37,
+   8,
+   7,
+   15,
+   11,
+   3,
+   0,
+   1,
+   1
+  ],
+  "a_total": 122,
+  "h": [
+   0,
+   0,
+   0,
+   1,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   17,
+   7,
+   6,
+   9,
+   6,
+   3,
+   1,
+   0,
+   0
+  ],
+  "h_total": 50
+ },
+ "domains": {
+  "D": {
+   "lifted_by_P3": false,
+   "log": 14,
+   "natural_log": 14,
+   "padded": 16384,
+   "pads": true,
+   "rows_each": 16,
+   "true": 12288
+  },
+  "F": {
+   "lifted_by_P3": false,
+   "log": 14,
+   "natural_log": 14,
+   "padded": 16384,
+   "pads": false,
+   "rows_each": 16,
+   "true": 16384
+  },
+  "Ht": {
+   "lifted_by_P3": false,
+   "log": 9,
+   "natural_log": 9,
+   "padded": 512,
+   "pads": true,
+   "rows_each": 1,
+   "true": 384
+  },
+  "Kv": {
+   "lifted_by_P3": false,
+   "log": 12,
+   "natural_log": 12,
+   "padded": 4096,
+   "pads": false,
+   "rows_each": 4,
+   "true": 4096
+  },
+  "L": {
+   "lifted_by_P3": true,
+   "log": 10,
+   "natural_log": 9,
+   "padded": 1024,
+   "pads": true,
+   "rows_each": 1,
+   "true": 288
+  },
+  "Q": {
+   "lifted_by_P3": false,
+   "log": 14,
+   "natural_log": 14,
+   "padded": 16384,
+   "pads": true,
+   "rows_each": 16,
+   "true": 12288
+  },
+  "S": {
+   "lifted_by_P3": false,
+   "log": 14,
+   "natural_log": 14,
+   "padded": 16384,
+   "pads": true,
+   "rows_each": 16,
+   "true": 12288
+  },
+  "T": {
+   "lifted_by_P3": false,
+   "log": 5,
+   "natural_log": 5,
+   "padded": 32,
+   "pads": false,
+   "rows_each": 1,
+   "true": 32
+  },
+  "Tab": {
+   "lifted_by_P3": true,
+   "log": 10,
+   "natural_log": 8,
+   "padded": 1024,
+   "pads": true,
+   "rows_each": 1,
+   "true": 256
+  }
+ },
+ "h_planes": {
+  "by_domain": {
+   "D": {
+    "planes": 17,
+    "rows": 544
+   },
+   "F": {
+    "planes": 6,
+    "rows": 192
+   },
+   "Kv": {
+    "planes": 6,
+    "rows": 48
+   },
+   "L": {
+    "planes": 1,
+    "rows": 2
+   },
+   "Q": {
+    "planes": 7,
+    "rows": 224
+   },
+   "S": {
+    "planes": 9,
+    "rows": 288
+   },
+   "Tab": {
+    "planes": 4,
+    "rows": 8
+   }
+  },
+  "total": 50
+ },
+ "lookups": {
+  "act_pairs": 16384,
+  "exp_pairs": 16384,
+  "per_domain_u8": {
+   "D": 557056,
+   "F": 147456,
+   "Kv": 49152,
+   "L": 2048,
+   "Q": 212992,
+   "S": 245760
+  },
+  "per_domain_u8_list": [
+   2048,
+   557056,
+   147456,
+   212992,
+   49152,
+   245760
+  ],
+  "per_position": {
+   "D": 34,
+   "F": 9,
+   "Kv": 12,
+   "L": 2,
+   "Q": 13,
+   "S": 15
+  },
+  "u8_total": 1214464
+ },
+ "memo_differences": [],
+ "opening_groups": {
+  "a_group_detail": {
+   "01 SS": 1,
+   "01m SS": 1,
+   "02 norm squares zero-check": 9,
+   "03 D zero-check (cube + the two Dom::T denominators)": 2,
+   "04 Q zero-check (cube + the flipped partner)": 2,
+   "05 KV zero-check (cube + the flipped partner)": 2,
+   "06 softmax zero-check (cube + A_MX/A_SUM)": 2,
+   "07 masked row sums": 1,
+   "08 limb zero-check": 1,
+   "09K": 1,
+   "09Q": 1,
+   "09V": 1,
+   "10 score (two private factors)": 2,
+   "11 PV (two private factors)": 2,
+   "12 Wo": 1,
+   "13D": 1,
+   "13G": 1,
+   "13U": 1,
+   "14 F zero-check": 1,
+   "IO-in": 1,
+   "IO-out": 1,
+   "TAB": 1,
+   "ZS": 0
+  },
+  "a_groups": 36,
+  "h_groups": 9,
+  "logup_sum_claim_instantiable": true,
+  "logup_sum_claim_keys": 1
+ },
+ "padded_domains": [
+  "Ht",
+  "L",
+  "D",
+  "Q",
+  "S",
+  "Tab"
+ ],
+ "receipt_bytes": {
+  "a_opening": 3604480,
+  "endpoint_openings": 385024,
+  "h_opening": 3196928,
+  "header_and_three_roots": 136,
+  "mask_opening": 243712,
+  "slots": 21760,
+  "total": 7452040
+ },
+ "rows": {
+  "a_data_rows": 1091,
+  "a_rows": 1337,
+  "a_site_rows": 244,
+  "a_sites": 122,
+  "h_data_rows": 1306,
+  "h_rows": 1408,
+  "h_site_rows": 100,
+  "h_sites": 50,
+  "m_rows": 50
+ },
+ "shape": {
+  "D_max": 642099,
+  "F_E": 12,
+  "NORM_WRHO": 32,
+  "WRHO_S": 17,
+  "d_pad": 512,
+  "d_pad_equals_h_pad_times_head_dim": true,
+  "endpoint_data_rows": 16,
+  "endpoint_general": true,
+  "endpoint_inv_rate": 4,
+  "endpoint_log_n": 10,
+  "endpoint_rows": 21,
+  "endpoint_words": 16384,
+  "f_pad": 512,
+  "h_pad": 16,
+  "head_dim": 32,
+  "hidden": 512,
+  "inv_rate": 4,
+  "kv_heads": 4,
+  "limbs_norm": 4,
+  "limbs_p": 2,
+  "limbs_sigma_s": 3,
+  "log_cols": 10,
+  "name": "development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
+  "norm_top_limb_is_full_byte": true,
+  "note": "LANE STAGE 31: rung-P2's shape with ONE axis moved, the head dimension from 8 to 32, and what must follow from it. The norm window is NORM_TN + 1 + bit_length(isqrt(1 + width * 32767^2)), so it crosses from 31 to 32 bits exactly when the width passes 256; at width 384 it is 32 = 8 * limbs_norm and `norm_top_is_full_byte` is TRUE, which is correction C-6: the four `scaled(top, 1 << (8 ln - wrho))` lookups have coefficient 1, are the same Lk as the `byte(top)` lookups already emitted, and are dropped. Dom::D therefore carries 34 lookups per position instead of 38 and 17 helper planes instead of 19, and the H plane list is 50 planes instead of 52. hidden = 512 is the smallest power of two above the width, which keeps Dom::F unpadded and keeps an upper hidden half for the dense fixture; tokens, log_cols, inv_rate and F_E are rung-P2's, so wrho_s stays 17 and limbs_sigma_s stays 3 and the ONLY lookup family that differs from rung-P2 anywhere is Dom::D. Dom::T (2^5), Dom::Kv (32 * 4 * 32 = 2^12) and Dom::F (32 * 512 = 2^14) are exact powers of two, so this shape ALSO carries stage 30's unpadded arm, on 125M's own padded-domain set",
+  "opened_columns_Q": 256,
+  "query_heads": 12,
+  "t_pad": 32,
+  "tokens": 32,
+  "width": 384
+ },
+ "slot_summary": {
+  "L_plus_256_within_512": true,
+  "count": 23,
+  "extension_round_total": 25,
+  "functionals": 34,
+  "group_sumcheck_bits": 2,
+  "hosts": {
+   "02 norm squares zero-check": [
+    "01 SS row sums norm_a",
+    "01m SS row sums norm_m"
+   ],
+   "03 D zero-check": [
+    "12 Wo matmul",
+    "13D down matmul"
+   ],
+   "04 Q zero-check": [
+    "09Q matmul",
+    "11 PV matmul"
+   ],
+   "05 KV zero-check": [
+    "09K matmul",
+    "09V matmul"
+   ],
+   "06 softmax zero-check": [
+    "07 masked row sums + selector",
+    "10 score matmul"
+   ],
+   "14 F zero-check": [
+    "13G gate matmul",
+    "13U up matmul"
+   ]
+  },
+  "largest_L": 77,
+  "largest_L_slots": [
+   "03 D zero-check",
+   "04 Q zero-check",
+   "06 softmax zero-check"
+  ],
+  "main_round_total": 250,
+  "published_round_values": 1163,
+  "slot_lengths": [
+   62,
+   62,
+   20,
+   46,
+   62,
+   22,
+   22,
+   22,
+   29,
+   29,
+   22,
+   22,
+   22,
+   22,
+   77,
+   77,
+   54,
+   77,
+   62,
+   35,
+   24,
+   32,
+   32
+  ],
+  "sumcheck_challenge_draws": 275,
+  "worst_L_plus_256": 333
+ },
+ "slots": [
+  {
+   "L": 62,
+   "carries_group_eq": false,
+   "carries_support_indicator": true,
+   "degree": 4,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 14,
+   "name": "01 SS row sums norm_a",
+   "slot": 0
+  },
+  {
+   "L": 62,
+   "carries_group_eq": false,
+   "carries_support_indicator": true,
+   "degree": 4,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 14,
+   "name": "01m SS row sums norm_m",
+   "slot": 1
+  },
+  {
+   "L": 20,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 3,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "host",
+   "main_rounds": 5,
+   "name": "02 norm squares zero-check",
+   "slot": 2
+  },
+  {
+   "L": 46,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 4,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "standalone",
+   "main_rounds": 10,
+   "name": "08 limb zero-check",
+   "slot": 3
+  },
+  {
+   "L": 62,
+   "carries_group_eq": false,
+   "carries_support_indicator": true,
+   "degree": 4,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 14,
+   "name": "07 masked row sums + selector",
+   "slot": 4
+  },
+  {
+   "L": 22,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 9,
+   "name": "09Q matmul",
+   "slot": 5
+  },
+  {
+   "L": 22,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 9,
+   "name": "09K matmul",
+   "slot": 6
+  },
+  {
+   "L": 22,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 9,
+   "name": "09V matmul",
+   "slot": 7
+  },
+  {
+   "L": 29,
+   "carries_group_eq": true,
+   "carries_support_indicator": false,
+   "degree": 3,
+   "extension_rounds": 2,
+   "group_sumcheck_bits": 2,
+   "kind": "private",
+   "main_rounds": 7,
+   "name": "10 score matmul",
+   "slot": 8
+  },
+  {
+   "L": 29,
+   "carries_group_eq": true,
+   "carries_support_indicator": false,
+   "degree": 3,
+   "extension_rounds": 2,
+   "group_sumcheck_bits": 2,
+   "kind": "private",
+   "main_rounds": 7,
+   "name": "11 PV matmul",
+   "slot": 9
+  },
+  {
+   "L": 22,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 9,
+   "name": "12 Wo matmul",
+   "slot": 10
+  },
+  {
+   "L": 22,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 9,
+   "name": "13G gate matmul",
+   "slot": 11
+  },
+  {
+   "L": 22,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 9,
+   "name": "13U up matmul",
+   "slot": 12
+  },
+  {
+   "L": 22,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "private",
+   "main_rounds": 9,
+   "name": "13D down matmul",
+   "slot": 13
+  },
+  {
+   "L": 77,
+   "carries_group_eq": false,
+   "carries_support_indicator": true,
+   "degree": 5,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "host",
+   "main_rounds": 14,
+   "name": "03 D zero-check",
+   "slot": 14
+  },
+  {
+   "L": 77,
+   "carries_group_eq": false,
+   "carries_support_indicator": true,
+   "degree": 5,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "host",
+   "main_rounds": 14,
+   "name": "04 Q zero-check",
+   "slot": 15
+  },
+  {
+   "L": 54,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 4,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "host",
+   "main_rounds": 12,
+   "name": "05 KV zero-check",
+   "slot": 16
+  },
+  {
+   "L": 77,
+   "carries_group_eq": false,
+   "carries_support_indicator": true,
+   "degree": 5,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "host",
+   "main_rounds": 14,
+   "name": "06 softmax zero-check",
+   "slot": 17
+  },
+  {
+   "L": 62,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 4,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "host",
+   "main_rounds": 14,
+   "name": "14 F zero-check",
+   "slot": 18
+  },
+  {
+   "L": 35,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 3,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "standalone",
+   "main_rounds": 10,
+   "name": "TAB table helper zero-check",
+   "slot": 19
+  },
+  {
+   "L": 24,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "standalone",
+   "main_rounds": 10,
+   "name": "ZS zero-sum row",
+   "slot": 20
+  },
+  {
+   "L": 32,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "standalone",
+   "main_rounds": 14,
+   "name": "IO-in endpoint equality",
+   "slot": 21
+  },
+  {
+   "L": 32,
+   "carries_group_eq": false,
+   "carries_support_indicator": false,
+   "degree": 2,
+   "extension_rounds": 1,
+   "group_sumcheck_bits": 0,
+   "kind": "standalone",
+   "main_rounds": 14,
+   "name": "IO-out endpoint equality",
+   "slot": 22
+  }
+ ]
+}
