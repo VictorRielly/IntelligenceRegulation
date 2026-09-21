@@ -11048,3 +11048,34 @@ complete (`s24_tests`, `s25_tests`, `s33_tests`, `run_statement_file`) are
 all updated — but if those two censuses are meant to stay current, their
 lists want the same treatment, and that is a decision about what those tests
 are for rather than a defect.
+
+## Stage 34 — the slot expression IR, stage 1: the 23 slot polynomials as DATA beside the closures (2026-09-21, 16:4x–)
+
+**Status: OPEN.** Opened 2026-09-21 16:48 PDT on the lane tip `226f3b2`
+(pushed). The work is ruling **I-8** of
+`docs/zkmatrix-poc/ZK60_SLOT_EXPRESSION_IR_DISPOSITION.md` (the security
+owner's disposition of the slot expression IR design memo and its
+independent adversarial check), with ruling **I-2** — the base-field
+classification is DERIVED from provenance and TESTED, never declared — as
+its load-bearing half.
+
+| task | what | state |
+|---|---|---|
+| 1 | the IR types in a new `private_block/slot_ir.rs`: table references with a stable id, a kind and a provenance; products with coefficients that carry their provenance; sums; the zero-check wrapper; the bilinear group bits; the LogUp terms; the pad-rule terms under `pad_on`; the declared degree. **`FieldKind` is a FUNCTION of provenance and has no setter** (ruling I-2) | OPEN |
+| 2 | a builder per arm of `argument::define` — all 16 arms, all 23 slots — producing that slot's IR from the same inputs and the same challenge draws, BESIDE the arm, with no line of the arm changed | OPEN |
+| 3 | the IR evaluator: the simplest correct interpreter, `#[cfg(test)]`-reachable only, never on the proving path | OPEN |
+| 4 | the oracle tests in `slot_ir_tests.rs`, in the ordinary filter: (a) IR = closure on random tables at every registered shape and both pad branches; (b) the declared degree against the closure's degree by interpolation, with the check's degree finding recorded as an ASSERTED fact; (c) **the `FieldKind` oracle** of ruling I-2, with a deliberately mislabelled table as its control; (d) the IR's counts against the drafter's inventory; (e) IR-C19's premise — `s(0) + s(1) == claim` at every round — measured on the ORACLE side, for the integrator's request R1d | OPEN |
+| 5 | stage 1b: a canonical JSON export of a shape's 23 slot IRs with a SHA-256, pinned per registered shape, so the independent Python gate can CROSS-CHECK its hand port (it does not replace it — ruling I-8) | OPEN |
+| 6 | this ledger section, closed with the commits, the counts and what stage 2 would be | OPEN |
+
+**The rules this stage works under** are the lane's: one writer, the build
+recipe in this file's header, **no 125M proof run**, no registered profile
+moved (toy, rung, rung-G, rung-K4, rung-P2, rung-C6, rung-W14, rung-E32,
+125M — named and kept green), the toy byte-frozen, **no witness VALUE in any
+log**, and — this stage's own, from ruling I-8 — **no execution path change
+and no byte moved**: the closures stay the oracle, `run_slot` and the
+verifier never see the IR, and the diff of `argument.rs` must show no
+deleted or modified line inside any `SC_*` arm. The ordinary filter may not
+grow by more than about two minutes.
+
+**Evidence prefix**: `results/zk60_block125m_lane/x34-*`.
