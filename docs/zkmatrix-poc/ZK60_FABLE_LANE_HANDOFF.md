@@ -6,6 +6,60 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 21:03 (2026-09-20) — THE NEW TIP: `zk60-private-block-125m` at `e6b612f` (pushed). Reviewed repair, dense twelve-block 125M run measured. The hold on slots 08 / 09 is lifted
+
+**Production source is settled again from my side** — with the same caveat as
+at 16:41, now said up front: the Python gate is running on the first
+non-degenerate captures, and if it finds a defect in a *capture* I fix
+test-only code and tell you. What you integrate or optimise against does not
+move for that.
+
+- **Since `caa9b9a`, in production code:** the S19-F1 repair of `SC_SCORE` /
+  `SC_PV` (stage 20, `5155d5b`: group bits summed, a public `eq` factor,
+  degree 3, `lkv` more main rounds; toy byte-identical); `RunStatement::new`
+  refuses any block scale pair but the approved calibration's (stage 21,
+  ruling R-5; no absorb added; the rung-G run's binding, boundary digests and
+  parameter line asserted unchanged); a named `Shape::new` refusal for a
+  shape whose bilinear domains would be lifted (it caught an existing test
+  building a 5-head / 1-group probe that the slots could never serve).
+  **Shared files: untouched since the two tag commits `d2e5988` and
+  `7de6ea1`.** Filter `private_` 254 passed, none failing; warnings 13; the
+  independent review's six tests merged.
+- **The independent layout model is an oracle again** (review finding F-1):
+  it derives the group rounds and degree from the shape, gained the
+  generalised rung, and agrees with Rust on every figure at all four shapes —
+  main rounds 159 / 217 / 217 / 336, round values 721 / 1,055 / 1,055 / 1,554,
+  challenge draws 184 / 242 / 242 / 361, receipts 2,816,472 / 4,218,600 /
+  4,234,984 / 40,783,352 — with the Rust-side adjustment removed.
+- **125M, all twelve blocks, fully dense weights, generic hidden input**
+  [MEASURED by me, one run, launched 20:53, shared box, CPU only, 12 GB
+  ceiling, allocator threshold pinned; `m125-run-l12-dense.log`]: **prove
+  397.71 s (32.3–34.7 s per block), verify by streaming 14.45 s, receipt
+  484,107,456 bytes equal to the counted figure, peak 10.15 GiB, flat.**
+  Recipe `dense_run_case` (seed and bands in the run statement, so a fresh
+  verifier regenerates the public weights): the down band must be ±1 at this
+  shape — every larger band pushes the chain's second block out of the
+  `residual 2` range — and with it every block's upper hidden half is about
+  98% non-zero, all twelve head slots and all four key-value groups live.
+  Artifact: `/home/victor/zk60-artifacts/m125-run-l12-dense` (462 MB, with its
+  `statement/`). One block, dense: 27.67 s prove (19:31 entry).
+- **For your speed work:** the baselines are these dense figures. The two
+  attention slots gained 4 main rounds of 336 at degree 3; nothing else in
+  the phase table should have moved — re-take your phase split on
+  `HL_PB_WEIGHTS=dense` before and after a lever. `HL_PB_INPUT=zero` and the
+  default `tame` remain for regression.
+- **Known small things, mine, not blocking:** the dense recipe's description
+  string in the run statement also says how the synthetic hidden input is
+  drawn — harmless for a test fixture, wrong as a model for a production
+  statement writer, which must describe public weights only; I will split it.
+  The captures a–f are superseded; `run-g-dense-s20` / `run-h-zero-s20` are
+  current.
+- **Your integration list, updated:** the two tag commits; the three Python
+  source pins of S17-F1; the legacy verifiers' path-length check (yours);
+  D22's pins when your candidate is committed; the run wrapper with rule M-9
+  and the refusal-reason rule; and — new — the generic-witness rule for
+  anything that says "proves and verifies".
+
 ### 19:58 (2026-09-20) — the independent review of the S19-F1 repair: NO HOLE FOUND (soundness, completeness, masking budget); lane at `901557e`, pushed; one more lane stage before I name the tip
 
 - **`ZK60_BLOCK125M_S19F1_DISPOSITION.md`** is my ruling on the whole episode;
