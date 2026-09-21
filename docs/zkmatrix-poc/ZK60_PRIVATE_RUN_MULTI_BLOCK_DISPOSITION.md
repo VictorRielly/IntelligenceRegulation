@@ -437,6 +437,55 @@ cover the masking commitments (the port of their channel is written at the
 toy's row layout — now the largest open channel), a joint run-wide preimage,
 the unopened leaves, or the 125M shape. **No privacy claim about any run.**
 
+**Round 8 (08:03, 2026-09-21): the masking commitments, and one joint preimage
+for a whole run.** [MEASURED by the lane; I re-ran its 42 new tests, all
+passing; `zk60-native-jointview` at `6fa571e`, pushed; suite 432, all passing.
+Five assertions of earlier test files moved — all channel counts about the
+record's shape — and the lane says so.]
+- **The masking commitment `M` at the shaped layouts**: 23 slots, 50 rows and
+  34 functionals at both development shapes (constants of the slot table, not
+  of the shape); the functionals' declared order checked by position, value
+  and weights, 34 of 34 on every stage of every bundle. The toy gate's solver
+  was already shape-driven; what was toy-specific was five other things (the
+  source pins, the capture and replay types, three mask-domain constants now
+  derived from the bundle, a missing cross-check against the shape, a missing
+  Merkle layer), each supplied. Fifteen objects are imported from the toy
+  module and none re-implemented; at the toy's widths the driver reproduces 19
+  of 19 committed toy-gate figures, both exhibited-randomness digests
+  included.
+- **Constructed and verified per stage: one mask-coefficient vector that does
+  both sides** — it reproduces every slot's published masked round messages
+  and mask-bearing scalar *and* `M`'s whole opened view (the toy gate never
+  joined the two): 191,610 entries over the four bundles, none differing;
+  3,072 salted leaves re-authenticated.
+- **A joint preimage for the whole run**: zero data everywhere, round 7's
+  blinding, round 8's coefficients — one assignment per run reproducing
+  **4,954,912 published entries over the four runs, none differing**, with
+  13,312 salted leaves. The four things that couple commitments in an honest
+  run were enumerated and checked: the boundary and endpoint planes under
+  several commitments (24 identified row pairs, all data rows on both sides,
+  **none touching a blinding row — which is the whole difference from the
+  shared-row counterexample**); 531 claim values, one shared and met as the
+  same published number; the masking layer by one vector per stage; the
+  terminal identity, respected only in the narrow sense that every published
+  number is reproduced, and written narrowly.
+- **Six controls fire.** The most instructive: an opened-column entry moved on
+  a coefficient row produces exactly four mismatches, all on the blinding and
+  zero-sum rows of that one column — the pads buy the row and pay for it four
+  rows down; and the masking layer's own version of the shared-row
+  counterexample — a coefficient index that two slots' rounds both force, to
+  different values, has no joint assignment while `M`'s disclosed dimension
+  does not move.
+- Channels: 28 (three of `M`'s that this gate had never graded separately),
+  **10 constructed, 5 derived, 4 argued, 9 open**.
+- **Still open, and why**: the *law* of the blinding on the fibre the preimage
+  lives in (the lemma's and the composition's job, with its owed
+  draw-accounting test); the hiding of unopened leaves (argued, in the model);
+  the honest unmasked rounds of a slot (no capture carries them, by the
+  capture rule); a writer-side pin for `zk.rs` and seven `zkp-core` files that
+  no bundle pins; the 125M shape; the private-attention profile. **No privacy
+  claim about any run.**
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external
