@@ -1851,6 +1851,18 @@ the other bundle's own schema and store for the swapped stage. A control
 that crashes is not a control (K4-F1), and nothing before this round had
 ever run these three at an `L` other than 3.
 
+**M-F3's first repair was PARTIAL.** `GQ-2` names stage 2 in two places —
+the `GQ-3`/`GQ-4` aim list and its own `("GQ-2", 2, 9, 1)` tuple — and the
+first pass fixed only the aim list; the next control run raised
+`IndexError` again, 806 s in, taking the whole stage-10 arm with it. A
+partial repair of "a control that crashes" is not a repair, and what caught
+it was RUNNING the controls again rather than reasoning about the diff.
+Both sites derive the stage from `blocks` now. Round 9's own `M9-2` had the
+same shape of bug — a shadow bundle built by copying `__dict__`, while
+`RunBundle.name` is a property — and it was found the same way. Both
+repaired; M9-2 now shows 2,303 of 2,304 columns authenticating against the
+honest 2,304.
+
 Report §13.7. Three new ones, and the third could not exist before:
 **M9-3** makes each unpadded domain look padded to the port and requires its
 host slot to refuse BY NAME with both numbers in the message. At every

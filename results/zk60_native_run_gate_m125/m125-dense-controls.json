@@ -48,7 +48,7 @@
   "what": "the hash rule, DERIVED here from the profile the bundle's shape names and then compared with the bundle's declared hash_tag (ruling T-7: re-derive, never consume)"
  },
  "ok": false,
- "peak_rss_mb": 1530,
+ "peak_rss_mb": 1529,
  "prediction": {
   "a_groups": 36,
   "blocks": 2,
@@ -122,7 +122,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 74,
     "predicted_non_data_rows": 246,
-    "rows": 5681
+    "rows": 5681,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 51,
@@ -135,7 +137,9 @@
     "predicted_disclosed_dimension": 2,
     "predicted_generators": 20,
     "predicted_non_data_rows": 104,
-    "rows": 7120
+    "rows": 7120,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 1,
@@ -144,11 +148,13 @@
     "key": "E-Input",
     "kind": "external-endpoint",
     "non_data_rows_by_row_roles": 5,
-    "non_data_rows_match": false,
+    "non_data_rows_match": true,
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 4,
-    "predicted_non_data_rows": 4,
-    "rows": 37
+    "predicted_non_data_rows": 5,
+    "rows": 37,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 122,
@@ -161,7 +167,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 74,
     "predicted_non_data_rows": 246,
-    "rows": 5681
+    "rows": 5681,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 51,
@@ -174,7 +182,9 @@
     "predicted_disclosed_dimension": 2,
     "predicted_generators": 20,
     "predicted_non_data_rows": 104,
-    "rows": 7120
+    "rows": 7120,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 2,
@@ -187,7 +197,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 6,
     "predicted_non_data_rows": 6,
-    "rows": 38
+    "rows": 38,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 1,
@@ -196,11 +208,13 @@
     "key": "E-Output",
     "kind": "external-endpoint",
     "non_data_rows_by_row_roles": 5,
-    "non_data_rows_match": false,
+    "non_data_rows_match": true,
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 4,
-    "predicted_non_data_rows": 4,
-    "rows": 37
+    "predicted_non_data_rows": 5,
+    "rows": 37,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    }
   ],
   "q_heads": 12,
@@ -1094,7 +1108,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 7.64,
+    "seconds": 8.08,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -2198,7 +2212,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 7.7,
+    "seconds": 7.73,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -2989,7 +3003,7 @@
   "profile": "hashline-zk-mr1/private-run-m125/1",
   "requested": true,
   "salted_leaves_authenticated": 512,
-  "seconds": 15.36,
+  "seconds": 15.83,
   "source_pins": {
    "accepted": [
     {
@@ -3489,7 +3503,7 @@
    "exact_rank_of_the_pad_block": 255,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 40.9,
+   "seconds": 41.2,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -5366,7 +5380,7 @@
    },
    "rows_total": 25814,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 1.6,
+   "seconds": 1.8,
    "sum_of_parts_fp": 4
   }
  },
@@ -5496,21 +5510,394 @@
  },
  "stage6_negative_controls": {
   "ok": false,
-  "seconds_before_it_raised": 3.2,
-  "the_stage_raised": "ValueError: stage-01.json: schema 'hashline-native-capture/5-run' is not 'hashline-native-capture/4-run'",
+  "seconds_before_it_raised": 11.4,
+  "the_stage_raised": "AttributeError: '_ShadowBundle' object has no attribute 'name'",
   "what_this_means": "this stage did not run at this shape.  The absence of a figure is not a figure, and nothing here says the bundle is bad"
  },
  "stage7_channels": {
-  "ok": false,
-  "seconds_before_it_raised": 0.0,
-  "the_stage_raised": "KeyError: 'terminal_identity'",
-  "what_this_means": "this stage did not run at this shape.  The absence of a figure is not a figure, and nothing here says the bundle is bad"
+  "channels": [
+   {
+    "assumption": null,
+    "channel": "opening-group and proximity vectors, message half (the internal boundaries and the two external endpoints)",
+    "commitments": [
+     "B0",
+     "E-Input",
+     "E-Output"
+    ],
+    "how": "every group of these commitments is a singleton, so at each of the 1,024 message positions the view is one 2(G+1) x (non-data rows) system over Fp; with the hidden data fixed to zero it is solved exactly and the view recomputed entry by entry",
+    "preimage_exhibited": true,
+    "section": "run 2.1",
+    "status": "constructed"
+   },
+   {
+    "assumption": null,
+    "channel": "claim values (the internal boundaries and the two external endpoints)",
+    "how": "recomputed from the exhibited zero-data randomness and compared with the capture",
+    "preimage_exhibited": true,
+    "section": "run 2.1",
+    "status": "constructed"
+   },
+   {
+    "assumption": null,
+    "channel": "opening-group and proximity vectors of A and H",
+    "commitments": [],
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "their opening groups have several members, so each claim's own published value is an extra constraint; the correction step that handles it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this shape (1,024 message positions against 256 pads).  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+    "section": "run 2.1",
+    "status": "open",
+    "what_is_computed_instead": {
+     "disclosed_dimension_by_exact_rank": {
+      "A@0": 0,
+      "A@1": 0,
+      "H@0": 2,
+      "H@1": 2
+     },
+     "note": "A discloses 0 and H discloses 2, the public LogUp identity, with a certifying minor; that is a rank, not a preimage"
+    }
+   },
+   {
+    "assumption": null,
+    "channel": "the pad half of every published vector",
+    "excluded": "the masking commitment M's own opening, which is the separate CFS channel below",
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "constructing it needs the Lagrange interpolation through the distinct sampled nodes and the Z_S divisibility test of zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, the exact rank of the pad block over the distinct opened columns.  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+    "section": "run 2.1",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "opened column values",
+    "entries_recomputed_and_compared": null,
+    "how": null,
+    "identities_reproduced": 161,
+    "identity_failures": 0,
+    "preimage_exhibited": false,
+    "reason": "they are a function of the pads, which are not constructed here; the verifier's own column identity IS reproduced from the model on a sample of columns of every commitment, with no failures.  ROUND 7 constructs them; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+    "salted_leaves_authenticated": null,
+    "section": "run 2.1",
+    "status": "open",
+    "unopened_leaves": "NOT reproducible from any preimage and not claimed: an unopened leaf is a salted digest, its hiding is M-2 / M-3, and that channel stays ARGUED"
+   },
+   {
+    "assumption": null,
+    "channel": "column indices (PCS and M)",
+    "function": "Transcript::challenge_indices over the public prefix; the gate's stage 2 re-derives every index of every opening of every stage",
+    "preimage_exhibited": null,
+    "recomputed": true,
+    "section": "run 2.1",
+    "status": "derived"
+   },
+   {
+    "assumption": null,
+    "challenges_rederived": 27828,
+    "channel": "every Fiat-Shamir challenge of the run (definition draws, the slot challenges c, the sumcheck rhos, theta, the M proximity rhos, the opening lambdas and proximity coefficients)",
+    "function": "re-derived with BLAKE3 from the bundle's public data",
+    "positions_compared": 251,
+    "preimage_exhibited": null,
+    "section": "run 2.1",
+    "status": "derived"
+   },
+   {
+    "assumption": null,
+    "channel": "the masked sumcheck round messages and the published scalars",
+    "entries_recomputed_and_compared": 3154,
+    "how": "zk60_native_rg_mask: per slot, the system c_s R_s coef_s = masked_s - honest_s and c_s <w_s, coef_s> = scalar_s - sigma_s is solved exactly over Fp at a FIXED, named, public transcript (the flat honest one whose claimed sum the hosted slots' published scalars force), projected onto the functional identities M's opening pins; every published round value and scalar is then RECOMPUTED from (fixed transcript + solved coefficients) and compared",
+    "joint_note": "the masking commitment IS carried in the joint system as a block with 2S+4 rows and no data row, and its part over the commitments' coordinates is computed as 0",
+    "preimage_exhibited": true,
+    "reason": null,
+    "section": "run 2.1",
+    "status": "constructed",
+    "the_fixed_data_is_not_the_zero_witness_s_transcript": "the honest unmasked rounds are in no capture and are not recoverable from one; what is fixed is a named public element of the channel's data space, and the statement is about the view map"
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's opening: the product polynomial q and the one batched functional value it pins",
+    "disclosed_fp_computed": [
+     2,
+     2
+    ],
+    "how": "b is DEFINED as the residue q - sum_s a_s W_s, so q is reproduced by construction and what the channel really pins is b's zero-sum admissibility, 512 (q[0] + q[512]) = V(a).  The disclosed dimension is COMPUTED as the exact Fp rank of V over the coefficient unknowns, and the refusal one off the V plane is exhibited beside it",
+    "preimage_exhibited": true,
+    "reason": null,
+    "section": "run 2.1 (NEW)",
+    "status": "constructed"
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's proximity vector",
+    "how": "u is DEFINED as the residue prox - sum_row rho_row * row, so the proximity vector is reproduced by construction; its entry count records that two arithmetic paths agree",
+    "preimage_exhibited": true,
+    "reason": null,
+    "section": "run 2.1 (NEW)",
+    "status": "constructed"
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's own opened columns (and their salted leaves)",
+    "entries_recomputed_and_compared": 25600,
+    "how": "genuinely independent data: the pads were solved by a rational interpolation through the distinct sampled nodes and every one of M's 50 rows is re-encoded here through the NTT path mask_commit itself uses, then read at every sampled node; the rebuilt columns are re-hashed under the bundle's own derived rule and their salted leaves re-authenticated against the PUBLISHED salts and 12-level paths",
+    "preimage_exhibited": true,
+    "reason": null,
+    "salted_leaves_authenticated": 512,
+    "section": "run 2.1 (NEW)",
+    "status": "constructed",
+    "unopened_leaves": "NOT reproducible from any preimage and not claimed: M-2 / M-3, and that channel stays ARGUED"
+   },
+   {
+    "assumption": null,
+    "channel": "the derived mask evaluation per slot (the terminal identity) -- the slots whose composition polynomial this gate recomputes",
+    "derivation": null,
+    "of": 0,
+    "preimage_exhibited": false,
+    "reason": "stage 8 was NOT RUN in this pass; it is not a refusal and not a failure -- see the record of record for m125-capture-dense-l2, where the terminal identity is checked for every slot of every stage",
+    "section": "run 2.1",
+    "slot_checks": 0,
+    "slots": [],
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry",
+    "derivation": null,
+    "is_it_public": "yes -- every such table is a function of the PUBLIC statement (the weights, the norm gains, the RoPE constants, the exp and activation tables), so carrying it publishes nothing new",
+    "preimage_exhibited": false,
+    "reason": "stage 8 was NOT RUN in this pass; it is not a refusal and not a failure -- see the record of record for m125-capture-dense-l2, where the terminal identity is checked for every slot of every stage",
+    "section": "run 2.1 (NEW)",
+    "slots": [
+     5,
+     6,
+     7,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     19
+    ],
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "caveat": null,
+    "channel": "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
+    "columns_authenticated": 2304,
+    "derivation": "the four context strings and the list of legacy profiles are pinned in the gate's own source, the key set is DERIVED from the profile the bundle's shape names (the port of Shape::hash_tag) and compared with the bundle's declared hash_tag member by member -- re-derive, never consume (ruling T-7).  The bytes are then shown to be under that rule: the whole transcript replays, and every opened column re-hashes and re-authenticates, only under it",
+    "keys_are_public": "yes -- each key is blake3.derive_key(<public context>, <public profile>), so publishing them discloses nothing; they are never an INPUT",
+    "of": 2304,
+    "preimage_exhibited": false,
+    "reason": null,
+    "rule": "blake3-keyed/1",
+    "section": "run 2.3 (NEW)",
+    "status": "derived"
+   },
+   {
+    "assumption": "M-2",
+    "channel": "the Merkle roots (A, H, M per stage, the L-1 boundary roots, the two endpoint roots)",
+    "model_assumption": "the roots are generated by the prover itself (ruling D18) and indistinguishability rests on M-2, the hiding of unopened salted leaves in the random-oracle model.  A boundary root is an observed commitment and NOT part of the run statement",
+    "preimage_exhibited": null,
+    "roots_this_run": 9,
+    "section": "run 2.1",
+    "status": "argued",
+    "what_stage_9_adds_and_what_it_does_not": "stage 9 re-hashes every OPENED column and folds its path to the root under the rule, so the root is COMPUTED from the opened data rather than read -- a soundness-side check.  The channel stays ARGUED because what it is about is HIDING: what an unopened leaf reveals is M-2's assumption either way"
+   },
+   {
+    "assumption": "M-3",
+    "channel": "leaf salts",
+    "counts": {
+     "openings": 9,
+     "per_opening": 256
+    },
+    "model_assumption": "fresh uniform bytes in both worlds; equality of the two laws rests on M-3, the assumption that the whole output stream of ZkRng is indistinguishable from uniform",
+    "preimage_exhibited": null,
+    "section": "run 2.1",
+    "status": "argued"
+   },
+   {
+    "assumption": "M-2",
+    "channel": "authentication paths",
+    "levels": {
+     "mask": 12,
+     "pcs": 16
+    },
+    "model_assumption": "the paths are genuine hashes of the same world's own columns; hiding of the unopened leaf digests rests on M-2.  That they ARE genuine hashes of this run's own columns is now computed, not assumed (stage 9), including each path's LENGTH against the tree depth -- the check that stops an inner node being presented as a salted leaf",
+    "preimage_exhibited": null,
+    "section": "run 2.1",
+    "status": "argued"
+   },
+   {
+    "assumption": "shape facts + ruling M-6",
+    "channel": "the sequencing surface: the number of segments, their byte lengths and their position tags",
+    "model_assumption": "L is a public word of the run statement (absorbed under run-shape) and a segment's length is a function of the shape and of the stage's position, not of the witness; the position tags are squeezed from a DISCARDED transcript clone, compared by the verifier and never absorbed (ruling M-6), so they are a public function of public transcript data.  EVIDENCE, not proof: the two bundles are independent runs on different hidden inputs and their three segment lengths agree exactly",
+    "position_tags_rederived": [
+     {
+      "end_tag_ok": true,
+      "stage": 0,
+      "start_tag_ok": true
+     },
+     {
+      "end_tag_ok": true,
+      "stage": 1,
+      "start_tag_ok": true
+     }
+    ],
+    "preimage_exhibited": null,
+    "section": "run 2.2 (NEW)",
+    "segments": [
+     {
+      "bytes": 40033896,
+      "sha256": "3b2df1139975707a",
+      "stage": 0
+     },
+     {
+      "bytes": 41051720,
+      "sha256": "84de455213fa7660",
+      "stage": 1
+     }
+    ],
+    "status": "argued"
+   },
+   {
+    "assumption": null,
+    "channel": "the cross-block joint law beyond the linear rank",
+    "preimage_exhibited": null,
+    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b).  ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "section": "run 2.2 (NEW)",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the preimage construction for a RUN (one randomness reproducing the whole run's view under a fixed input)",
+    "constructed_so_far": [
+     "B0",
+     "E-Input",
+     "E-Output"
+    ],
+    "how": null,
+    "joint": null,
+    "per_commitment_not_joint": true,
+    "preimage_exhibited": false,
+    "reason": "exhibited here per commitment, message half only, for the 3 singleton-group commitments of the run.  A RUN preimage is a joint object: it must reproduce every stage's view at once with the boundary planes shared between three commitments, and it needs the pad half and the CFS channel first",
+    "section": "run 2.2 (NEW)",
+    "status": "open",
+    "still_not_shown": null
+   },
+   {
+    "assumption": null,
+    "boundary_scales": [
+     0
+    ],
+    "channel": "the boundary scale tags and the one calibration identity",
+    "one_calibration_identity": true,
+    "preimage_exhibited": null,
+    "reason": "check A7.5: nothing in the run's privacy section covers the boundary's scale/calibration binding, and D12 item 5 records that a tag equality check would pass on a factor-of-8 mismatch.  The gate reads the scales as public constants and checks that the run declares ONE calibration identity (ruling M-4); it does not check what the tag proves",
+    "section": "run 2.2 (NEW)",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "whether a proof attempt produced a receipt (refusal events)",
+    "preimage_exhibited": null,
+    "reason": "the refusal channel is inside the game (ruling C-2); a capture exists only when the run was accepted.  For a RUN the check adds one more refusal class: with 49 commitments a run makes 23 more ZkRng::from_os calls, and from_os fails closed -- now possibly in stage 12, minutes in (A7.2)",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "rejected-but-emitted receipts",
+    "preimage_exhibited": null,
+    "reason": "history item H8, a procedural condition on the deployment",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "retained captures",
+    "preimage_exhibited": null,
+    "reason": "history item H9: a retained capture is a published opening.  This bundle is of a deliberately public synthetic fixture and its writer is behind #[cfg(test)]",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "timing, memory, power",
+    "preimage_exhibited": null,
+    "reason": "declared out of scope for the first MVP (M-5, ruling C-2).  A run adds per-stage wall-clock and a per-stage high-water mark to what an observer could time; no field of the capture bears on it",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "prior proofs by the same prover",
+    "preimage_exhibited": null,
+    "reason": "open item U-3b; this gate analyses one run at a time",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the integer-range facts the statement implies",
+    "preimage_exhibited": null,
+    "reason": "chain item 20: the statement implies the hidden values are in range, which is information about them that no preimage argument removes",
+    "section": "run 2.2",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "any nonlinear functional of the joint view",
+    "preimage_exhibited": null,
+    "reason": "chain item 21: the terminal identity links the commitment and masking channels with degree up to 4 in the terminals, and stage 8 now EVALUATES that identity for the covered slots -- but the DISCLOSURE model of stages 3 and 4 is still a rank over a linear model, so a nonlinear functional of the joint view is outside it",
+    "section": "run 2.2",
+    "status": "open"
+   }
+  ],
+  "counts": {
+   "argued": 4,
+   "constructed": 6,
+   "derived": 3,
+   "open": 15
+  },
+  "grading_failures": [],
+  "new_for_a_run": [
+   "the masking commitment M's opening: the product polynomial q and the one batched functional value it pins",
+   "the masking commitment M's proximity vector",
+   "the masking commitment M's own opened columns (and their salted leaves)",
+   "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry",
+   "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
+   "the sequencing surface: the number of segments, their byte lengths and their position tags",
+   "the cross-block joint law beyond the linear rank",
+   "the preimage construction for a RUN (one randomness reproducing the whole run's view under a fixed input)",
+   "the boundary scale tags and the one calibration identity"
+  ],
+  "ok": true,
+  "total": 28
  },
  "stage8_plane_index_and_terminals": {
-  "ok": false,
-  "seconds_before_it_raised": 539.6,
-  "the_stage_raised": "IndexError: list index out of range",
-  "what_this_means": "this stage did not run at this shape.  The absence of a figure is not a figure, and nothing here says the bundle is bad"
+  "channel_status": "open",
+  "controls": {
+   "skipped": "stage 8 was not run in this pass"
+  },
+  "not_run_in_this_pass": true,
+  "ok": true,
+  "plane_index": {
+   "present": false,
+   "reason": "not read in this pass"
+  },
+  "terminal_identity": {
+   "checked": false,
+   "consequence": "the per-slot terminal identity is NOT checked for a run; the toy gate checks it for the four single-block captures",
+   "is_it_public": "yes -- it is a function of the public layout, not of any hidden value, so the lane can add it to the bundle without publishing anything new",
+   "missing_field": "run.json[shape] carries no plane index table; the A-plane and H-plane index assignment of layout.rs at the run's shape (A_* / H_* and N_A), plus the per-slot table push order",
+   "reason": "stage 8 was NOT RUN in this pass; it is not a refusal and not a failure -- see the record of record for m125-capture-dense-l2, where the terminal identity is checked for every slot of every stage",
+   "slots_checked": 0,
+   "status": "open",
+   "what": "the STRONG form of each slot's final check, fin = c*mask_eval + poly(terminals), with every composition polynomial recomputed from the published terminals",
+   "why_open": "the port `scripts/zk60_native_terminal_polys.py` is a hand-port of the TOY layout: its `_Layout` namespace carries that shape's plane index table (A_D .. N_A = 81, H_L .. H_U) and its `SOURCE_PINS` pin argument.rs, layout.rs and protocol.rs by sha256 at commit 5ca721f, while this bundle's manifest.json[source_pins] names different digests of the same files at commit cb27845.  The shape's geometry axes (norm_wrho 31, wrho_s 17, f_e 12, the pads) ARE in run.json[shape], but the PLANE INDEX TABLE is not, and it is what the 23 closures read"
+  }
  },
  "stage9_hash_layer": {
   "bundle": "m125-capture-dense-l2",
@@ -5664,69 +6051,69 @@
    "peak_rss_mb_after": 603,
    "peak_rss_mb_before": 35,
    "raised": null,
-   "seconds": 0.8,
+   "seconds": 1.0,
    "stage": "load"
   },
   {
    "peak_rss_mb_after": 603,
    "peak_rss_mb_before": 603,
    "raised": null,
-   "seconds": 1.0,
+   "seconds": 1.2,
    "stage": "replay"
   },
   {
    "peak_rss_mb_after": 603,
    "peak_rss_mb_before": 603,
    "raised": null,
-   "seconds": 0.5,
+   "seconds": 0.7,
    "stage": "hash"
   },
   {
-   "peak_rss_mb_after": 1530,
+   "peak_rss_mb_after": 1529,
    "peak_rss_mb_before": 603,
    "raised": "IndexError: list index out of range",
-   "seconds": 539.6,
+   "seconds": 806.4,
    "stage": "terminals"
   },
   {
-   "peak_rss_mb_after": 1530,
-   "peak_rss_mb_before": 1530,
+   "peak_rss_mb_after": 1529,
+   "peak_rss_mb_before": 1529,
    "raised": null,
-   "seconds": 55.7,
+   "seconds": 55.8,
    "stage": "commitments"
   },
   {
-   "peak_rss_mb_after": 1530,
-   "peak_rss_mb_before": 1530,
+   "peak_rss_mb_after": 1529,
+   "peak_rss_mb_before": 1529,
    "raised": null,
-   "seconds": 4.5,
+   "seconds": 4.6,
    "stage": "boundary"
   },
   {
-   "peak_rss_mb_after": 1530,
-   "peak_rss_mb_before": 1530,
+   "peak_rss_mb_after": 1529,
+   "peak_rss_mb_before": 1529,
    "raised": null,
-   "seconds": 0.7,
+   "seconds": 0.8,
    "stage": "preimage"
   },
   {
-   "peak_rss_mb_after": 1530,
-   "peak_rss_mb_before": 1530,
+   "peak_rss_mb_after": 1529,
+   "peak_rss_mb_before": 1529,
    "raised": null,
-   "seconds": 41.4,
+   "seconds": 42.7,
    "stage": "mask"
   },
   {
-   "peak_rss_mb_after": 1530,
-   "peak_rss_mb_before": 1530,
-   "raised": "ValueError: stage-01.json: schema 'hashline-native-capture/5-run' is not 'hashline-native-capture/4-run'",
-   "seconds": 3.2,
+   "peak_rss_mb_after": 1529,
+   "peak_rss_mb_before": 1529,
+   "raised": "AttributeError: '_ShadowBundle' object has no attribute 'name'",
+   "seconds": 11.4,
    "stage": "runcontrols"
   },
   {
-   "peak_rss_mb_after": 1530,
-   "peak_rss_mb_before": 1530,
-   "raised": "KeyError: 'terminal_identity'",
+   "peak_rss_mb_after": 1529,
+   "peak_rss_mb_before": 1529,
+   "raised": null,
    "seconds": 0.0,
    "stage": "channels"
   }
@@ -5740,9 +6127,10 @@
   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
   "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
+  "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
   "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
-  "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
-  "zk60_native_rg_gcontrols.py": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
+  "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
+  "zk60_native_rg_gcontrols.py": "3406eeb396492a3a67ece6547ced1edeeb9eb9a31ab759952db2f944f621a655",
   "zk60_native_rg_gqa.py": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
@@ -5756,11 +6144,11 @@
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
   "zk60_native_rg_runpins.py": "1e94fd1b830261057c32c8fc70c4d566cf3302c9dd645e8bd40aa6069a2f34ea",
-  "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
+  "zk60_native_rg_tcontrols.py": "12985bfc5ccc1725b69e65b1a8c160462926c1042c5699d2499ccce73c514de9",
   "zk60_native_rg_terminals.py": "acb5166d3678bf4cdad469c40b9705d3bc4c6c216865dc9fb2742bb83e9a4352",
-  "zk60_native_run_gate.py": "344ae2b359a96531d22af772cab4da257f15f2a8acc4211c75299fade88cf542"
+  "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"
  },
- "total_seconds": 647.4,
+ "total_seconds": 924.6,
  "what_it_does_not_show": [
   "linear channels of ONE captured two-block run at the 125M shape, at that run's real challenges.  Two runs are not a distribution and two blocks are not twelve",
   "the hash layer's HIDING is still ARGUED: every OPENED column is re-hashed and re-authenticated, which says nothing about what an unopened leaf hides (M-2, M-3)",

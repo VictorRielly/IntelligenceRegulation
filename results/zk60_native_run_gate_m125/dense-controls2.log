@@ -1,0 +1,36 @@
+Running scope as unit: run-r8a1d1d8cce1048f58b1a53172ccc5f1d.scope
+[load          ]      1.0 s   peak RSS     603 MB   ok
+[replay        ]      1.2 s   peak RSS     603 MB   ok
+[hash          ]      0.7 s   peak RSS     603 MB   ok
+[terminals     ]    806.4 s   peak RSS    1529 MB   RAISED   IndexError: list index out of range
+[commitments   ]     55.8 s   peak RSS    1529 MB   ok
+[boundary      ]      4.6 s   peak RSS    1529 MB   ok
+[preimage      ]      0.8 s   peak RSS    1529 MB   ok
+[mask          ]     42.7 s   peak RSS    1529 MB   ok
+[runcontrols   ]     11.4 s   peak RSS    1529 MB   RAISED   AttributeError: '_ShadowBundle' object has no attribute 'name'
+[channels      ]      0.0 s   peak RSS    1529 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_m125/m125-dense-controls.json   total 924.6 s   peak RSS 1529 MB   ok=False
+Command exited with non-zero status 1
+	Command being timed: "systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0 python3 -u /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/m125-capture-dense-l2 --other /home/victor/zk60-artifacts/m125-capture-zero-l2 --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_m125 --name m125-dense-controls --stages load,replay,hash,terminals,commitments,boundary,preimage,mask,runcontrols,channels --controls"
+	User time (seconds): 891.39
+	System time (seconds): 34.61
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 15:24.81
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1565868
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 22607157
+	Voluntary context switches: 45
+	Involuntary context switches: 88272
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 2016
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

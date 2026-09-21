@@ -158,9 +158,25 @@ class _ShadowStage:
 
 
 class _ShadowBundle:
+    """A bundle with one stage replaced.
+
+    `RunBundle.name` is a PROPERTY, not an instance attribute, so copying
+    `__dict__` does not bring it and `check_hash_layer`'s first line raised
+    `AttributeError`.  Found by running the control, which is what a
+    control is for; carried explicitly here with everything else a reader
+    of this shadow needs."""
+
     def __init__(self, bundle, stages):
         self.__dict__.update(bundle.__dict__)
         self.stages = stages
+        self.name = bundle.name
+        self._real = bundle
+
+    def boundary(self, k):
+        return self._real.boundary(k)
+
+    def labels(self):
+        return self._real.labels()
 
 
 def m9_2_a_moved_opened_column_entry(bundle) -> dict:

@@ -3030,8 +3030,25 @@ control set on told the round something it had not asked:
 
 Each is finding K4-F1 again — **a control that crashes is not a control** —
 and each was invisible until a run had a number of blocks no earlier round
-had used. Two runs of three blocks and two runs of two blocks are between
-them the first test any of these three ever had of `L`.
+had used. Four runs of three blocks and two of two are between them the
+first test any of these three ever had of `L`.
+
+> **AND THE FIRST REPAIR WAS PARTIAL, which is the part worth writing
+> down.** `GQ-2` names stage 2 in *two* places — the `GQ-3`/`GQ-4` aim list
+> and its own `("GQ-2", 2, 9, 1)` tuple — and the first pass fixed only the
+> aim list. The next control run raised `IndexError` again, 806 s in,
+> taking the whole stage-10 arm with it. **A partial repair of "a control
+> that crashes" is not a repair**, and the only thing that caught it was
+> running the controls again rather than reasoning about the diff. Both
+> sites derive the stage from `blocks` now: `GQ-1` stays at the FIRST
+> stage and `GQ-2` takes the LAST, which is what the pair was for.
+>
+> One more, in round 9's own control: `M9-2` builds a shadow bundle by
+> copying `__dict__`, and `RunBundle.name` is a **property**, so
+> `check_hash_layer`'s first line raised `AttributeError`. Found the same
+> way — by running it. Repaired, and M9-2 now shows **2,303 of 2,304**
+> columns authenticating against the honest 2,304: exactly one column
+> lost, and no other.
 
 ## 13.8 The full preimage at 125M: measured, then reduced in scope and said so
 

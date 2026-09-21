@@ -260,7 +260,15 @@ def group_controls(bundle, index, replay=None, other_definition=None) -> dict:
         return out
 
     # ------------------------------ GQ-1 / GQ-2: a perturbed bilinear terminal
-    for name, stage, slot, term in (("GQ-1", 0, 8, 0), ("GQ-2", 2, 9, 1)):
+    # **[ROUND 9, finding M-F3, second pass.]**  GQ-2 named stage 2 as a
+    # LITERAL here too -- the first repair reached only the GQ-3/GQ-4 aim
+    # list, and this one raised `IndexError` at L = 2 through the whole
+    # stage-10 arm.  A control that crashes is not a control, and a partial
+    # repair of that failure is not a repair: both sites derive the stage
+    # from `blocks` now, and GQ-1 stays at the FIRST stage while GQ-2 takes
+    # the LAST, which is what the pair was for.
+    _last = bundle.blocks - 1
+    for name, stage, slot, term in (("GQ-1", 0, 8, 0), ("GQ-2", _last, 9, 1)):
         docs, old, new = _docs_with_terminal_perturbed(bundle, stage, slot, term)
         g2 = GroupFactors(bundle, replay=replay, stage_docs=docs)
         got = check_terminals(bundle, index, replay=replay, stage_docs=docs, group=g2)
