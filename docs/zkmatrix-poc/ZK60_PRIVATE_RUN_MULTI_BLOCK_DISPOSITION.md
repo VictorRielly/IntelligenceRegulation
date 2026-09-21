@@ -563,13 +563,62 @@ bundles unless labelled otherwise.
   successor started — and the successor, now the single writer, re-verifies
   that, treats later job output as scratch and regenerates the records once
   its tools are final.*
+- **CORRECTED 14:26 the same day, after round 9b verified round 9 against the
+  committed records (`zk60-native-jointview` at `4db3a4d`; report §14.9 and
+  §14.10). Three things I carried from round 9's report were too strong:**
+  1. **The joint figure is a SUM, not a third verification.** The joint stage
+     builds nothing new: it checks the four couplings between commitments and
+     adds the two arms up — 8,296,654 = 8,263,736 (the seven commitments) +
+     32,918 (the masking layer), 2,304 leaves = 1,792 + 512, and likewise
+     8,289,497 for the all-zero bundle. Every entry WAS recomputed and
+     compared, once, in its own arm (round 9b re-added the seven per-commitment
+     counts and they sum exactly). What makes the statement JOINT is coupling
+     C1: 128 identified row pairs, all data rows on both sides, none touching
+     a blinding row — so the per-commitment assignments are compatible and
+     their union reproduces the run's published view. The same reading applies
+     to round 8's 4,954,912 at the development shapes.
+  2. **"Controls fire at 125M" was true only of two families.** Round 7's six
+     preimage controls and round 8's masking controls fired at 125M. The
+     terminal-identity family and the run-control family RAISED in both 125M
+     control passes (tool defects, finding M-F3 and a shadow-bundle bug, since
+     repaired), and the control written for finding M-F1 (M9-3) **had never
+     fired at any shape** — it read an attribute its input does not have and
+     reported itself inapplicable with `ok: true` (round 9b's finding P-F2).
+     It is repaired and now has a development-shape twin (CT-9) that fires in
+     four directions at rung-P2 in about a second, in the ordinary suite. **A
+     125M control pass under the repaired tools has not landed**; it is queued.
+  3. **The channel table at 125M:** the records of record say 2 / 5 / 4 / 17,
+     the dense full-arm record 10 / 3 / 4 / 11, the all-zero full-arm record
+     5 / 3 / 4 / 16 (its exit code 1 is finding M-F4 only: controls not
+     requested). **No 125M record carries the rungs' 10 / 5 / 4 / 9 yet**; one
+     queued pass can.
+  What stands unchanged: the ranks, the terminal identity 46 of 46, the hash
+  layer, the prediction table, and the per-commitment preimage construction
+  for all seven commitments on both bundles with no entry differing.
+- **Round 9b's own results (same commit; native suite 507 tests, exit 0).**
+  The new small shape rung-P2 — T, Kv and F unpadded, the same three as 125M —
+  through the WHOLE gate on both bundles: the pad rule was derived by the
+  predictor BEFORE the run (slots 02 / 16 / 18 at 13 / 19 / 24 draws against
+  rung-K4's 15 / 21 / 26; a stage exactly 400 B shorter) and the capture
+  agrees; terminal identity 46 of 46 twice; preimage 862,980 entries and the
+  joint sum 894,880, none differing; channels 28 at 10 / 5 / 4 / 9; every
+  control family fires. Source pins re-read from `f4697f9` to `4ccbad1`, hunk
+  by hunk: **the lane's speed stages 28 and 29 changed nothing that is sent,
+  absorbed or drawn — upheld by a second independent reading**, and the replay
+  re-derives all 4,560 challenges. Finding P-F1: `pad.rs`, the file the pad
+  rule is ported from, had been listed as unpinned since a statement that
+  stopped being true at stage 27; it is pinned now, and no production line of
+  it has moved since round 1.
 - **Prediction before measurement.** 180 figures predicted from the shape and
   validated on both development shapes first: 55 shape-independent figures
   identical at all three shapes, 61 block-count figures, 64 scaling figures as
   predicted, **none unexplained**. Dense against all-zero at 125M: 124 of 128
   figures identical; the four that differ are sampled-column counts and the
   pad margins that follow from them — the same classes as at the rungs.
-- **Controls fire at 125M**: a moved array range is refused by digest (this
+- **Controls fire at 125M** *(too strong as written — see the 14:26
+  correction above: only the preimage and masking families are verified to
+  have fired at 125M; the run-control and terminal families raised)*: a moved
+  array range is refused by digest (this
   one caught a defect in the round's own loader cache, finding M-F2, fixed);
   one moved column entry fails exactly one leaf of 2,304; the rung's keys
   authenticate nothing; round 8's six masking controls.
