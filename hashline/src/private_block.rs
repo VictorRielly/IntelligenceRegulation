@@ -252,6 +252,15 @@ mod c6_tests;
 // shape could reach, at the smallest token count refusal F-2 admits.
 #[cfg(test)]
 mod w14_tests;
+// STAGE 33: the two closures the security owner ruled after reading stage 32.
+// Ruling J-7a — the premise under stage 32's DECLARED 60-byte transcript
+// coincidence ("a profile string is ASCII and has no NUL") becomes a check
+// over the whole registry, and the separation becomes a lemma over every
+// registered profile length and every absorb layout of that length. Ruling
+// S-6 — the family of shapes that reaches `Shape::a_groups`'s first arm,
+// which no registered shape does, becomes a NAMED construction refusal.
+#[cfg(test)]
+mod s33_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
