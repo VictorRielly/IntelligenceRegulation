@@ -1,0 +1,56 @@
+========================================================================
+INDEPENDENT RECOUNT — ZK60_JOINT_LAW_COMPOSITION_RUN.md
+p = 2^64 - 2^32 + 1 = 18446744069414584321  |Fp2| = p^2
+========================================================================
+
+-- 1. sampler draws (D9: every fp() draw, 2^-96 each) ------------
+rung-G: block 686,990  {'A': 411392, 'H': 256000, 'M': 17552, 'zero_sum': 2046}
+rung-G: boundary (10 rows) 8,704   external endpoint 7,424
+   L= 3: 2,093,226 draws -> residual 2^-75.00
+   L=12: 8,354,472 draws -> residual 2^-73.01
+   salts (raw bytes, excluded from D9) L=12: 200,704
+125M: block 9,029,742  {'A': 5484800, 'H': 3493888, 'M': 18288, 'zero_sum': 32766}
+125M: boundary (38 rows) 108,032   external endpoint 91,392
+   L= 3: 27,488,074 draws -> residual 2^-71.29
+   L=12: 109,728,040 draws -> residual 2^-69.29
+   salts (raw bytes, excluded from D9) L=12: 2,473,984
+   toy published control: 327,052 draws -> 2^-77.7
+
+-- 2. published field words --------------------------------------
+rung-G: round Fp2/stage 1,034  terminals/stage 176  stage words 446,626
+   L=3: 1,375,206 base-field words = 11,001,648 B
+125M: round Fp2/stage 1,519  terminals/stage 174  stage words 4,861,544
+   L=12: 59,695,840 base-field words = 477,566,720 B
+
+-- 3. LogUp denominators / the one input-dependent refusal -------
+toy: 64,768 inverted -> per block 2^-112.02   L=3: 2^-110.43   L=12: 2^-108.43
+rung-G: 439,296 inverted -> per block 2^-109.26   L=3: 2^-107.67   L=12: 2^-105.67
+125M: 103,890,944 inverted -> per block 2^-101.37   L=3: 2^-99.78   L=12: 2^-97.78
+
+-- 4. challenge-only liveness = (3L+1) proximity determinants ----
+   L= 1: 4/p -> 2^-62.00
+   L= 3: 10/p -> 2^-60.68
+   L=12: 37/p -> 2^-58.79
+
+-- 4b. the toy control, EXACTLY (D9's accepted 327,052) ----------
+   A 178,432 + H 124,928 + M 17,038 + H zero-sum 510 + 2 endpoints 6,144 = 327,052
+   published / D9-accepted: 327,052   ->  MATCH
+   (the H zero-sum term is REQUIRED to hit it: without it, 326,542)
+
+-- 4c. reconciling the 29,800-per-block delta at 125M ------------
+   this recount (and the memo)            9,029,742
+   - H's zero-sum re-draw 2(n-1)          -32,766   (protocol.rs:760-768, omitted by the design)
+   + M with sum_L bounded by 23*117       2,966   (RUN.md:1376-1378 says so in as many words)
+   = the design memo's figure             8,999,942   design says 8,999,942   MATCH
+
+-- 5. degrees of freedom, per commitment -------------------------
+  rung-G:
+    A                    G=36  generators 2(G+1)=74   free non-data rows 246  slack 172
+    H                    G=9   generators 2(G+1)=20   free non-data rows 106  slack 86
+    external endpoint    G=1   generators 2(G+1)=4    free non-data rows 5    slack 1
+    internal boundary    G=2   generators 2(G+1)=6    free non-data rows 6    slack 0
+  125M:
+    A                    G=36  generators 2(G+1)=74   free non-data rows 246  slack 172
+    H                    G=9   generators 2(G+1)=20   free non-data rows 102  slack 82
+    external endpoint    G=1   generators 2(G+1)=4    free non-data rows 5    slack 1
+    internal boundary    G=2   generators 2(G+1)=6    free non-data rows 6    slack 0

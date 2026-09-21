@@ -1,0 +1,19 @@
+==============================================================================
+three roles over one interior boundary plane, one message position
+disclosed = rank([G_b | G_d]) - rank(G_b), over GF(10007)
+==============================================================================
+H    per-role {'A_k': 0, 'B': 0, 'A_k1': 0}  sum 0  joint 0   joint == sum
+      honest: every role's own free rows cover its own published functionals; the shared DATA coordinate couples nothing.
+S    per-role {'A_k': 0, 'B': 0, 'A_k1': 0}  sum 0  joint 1   *** JOINT > SUM ***
+      a blinding ROW shared between B's site-1 pair and A_{k+1}'s reserved pair. THE GATE SEES THIS (control C3): it is a shared coordinate class in the model.
+
+V    the same arithmetic, reached a different way: two rows that
+     the gate's model calls DISTINCT free symbols but whose values
+     the generator makes equal.  In the model the generators are
+     the honest ones (case H) -> the gate reports joint 0 = sum 0.
+     In truth the blinding lives on the subspace b6=b10, b7=b11,
+     so the real disclosed dimension is case S's: 1
+     The gate CANNOT distinguish H from V: it never looks at values.
+
+P    per-role {'A_k': 0, 'B': 1, 'A_k1': 0}  sum 1  joint 1   joint == sum
+      the 37-row geometry (rows = data + 2*sites + 1): 6 published Fp against 5 free rows -> discloses 1. Reproduces ruling M-1 and the gate's control C2.
