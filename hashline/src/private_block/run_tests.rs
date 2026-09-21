@@ -1046,16 +1046,39 @@ fn the_directory_sink_refuses_a_directory_that_is_missing_or_not_empty() {
 /// **THE TWELVE-BLOCK 125M RECEIPT, COUNTED — in a test that costs nothing.**
 /// The figure the heavy run below is measured against, derived from the
 /// block's own counted receipt and the run's framing constants and nothing
-/// else (finding U-6).
+/// else (finding U-6). Stage 20 renamed it: the S19-F1 repair moves the
+/// figure, so a name carrying the old literal would be a lie, and the number
+/// is carried as the pre-repair one plus the counted per-block delta.
 #[test]
-fn the_twelve_block_125m_receipt_is_the_counted_484_100_736_bytes() {
+fn the_twelve_block_125m_receipt_is_the_counted_figure() {
     let sh = Shape::m125();
     let spec = super::boundary::BoundarySpec::new(run_context(), sh.t_pad, sh.d_pad, 0, 1, run::BOUNDARY_SITES, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols, sh.endpoint_rows + 1)
         .expect("the 125M internal boundary statement");
     assert_eq!(spec.commitment_rows(), 38, "the 125M boundary is not the derived 38 rows");
     let want = counted_segment_bytes(&sh, 12, spec.commitment_rows());
-    assert_eq!((want[0], want[1], want[11]), (40_033_336, 40_301_624, 41_051_160), "the three 125M segment lengths");
-    assert_eq!(want.iter().sum::<usize>(), 484_100_736, "the twelve-block 125M receipt is not the counted figure");
+    // STAGE 20: every segment carries the whole block's slot vector, so the
+    // S19-F1 repair adds its COUNTED bilinear delta to each of the twelve.
+    let d = super::grow_tests::s20_bilinear_delta(&sh).1;
+    assert_eq!((want[0], want[1], want[11]), (40_033_336 + d, 40_301_624 + d, 41_051_160 + d), "the three 125M segment lengths");
+    assert_eq!(want.iter().sum::<usize>(), 484_100_736 + 12 * d, "the twelve-block 125M receipt is not the counted figure");
+}
+
+/// **STAGE 20, the 125M half of the fully dense RUN question — `#[ignore]`d
+/// because it builds up to twelve 125M witnesses.** The rung-G answer is
+/// measured by `an_honest_three_block_fully_dense_run_verifies_from_its_segments`
+/// above; this is the same search at the 125M shape, which costs about
+/// eleven seconds and 725 MiB PER BLOCK and so is not a gate. It PROVES
+/// NOTHING: it only asks the witness builder whether a fully dense chain of
+/// twelve blocks is admissible at some down-projection band, and prints the
+/// first band that works or says that none does.
+#[test]
+#[ignore = "builds up to twelve 125M witnesses (about 11 s and 725 MiB each); it proves nothing and is not a gate"]
+fn the_first_admissible_fully_dense_run_band_at_125m() {
+    let sh = Shape::m125();
+    match first_admissible_dense_run_band(&sh, 12) {
+        Some((band, _, _, _)) => eprintln!("125M FULLY DENSE RUN: admissible at down band {band} for twelve blocks"),
+        None => eprintln!("125M FULLY DENSE RUN: NO down band from the recipe's own down to 1 makes a twelve-block fully dense chain admissible"),
+    }
 }
 
 /// The directory a heavy run writes its segments to, from the environment.
@@ -1115,7 +1138,7 @@ fn private_run_125m_twelve_blocks() {
     let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
     assert_eq!(rows, 38, "the 125M boundary is not the counted 38 rows");
     let want = counted_segment_bytes(&sh, l, rows);
-    assert_eq!(want.iter().sum::<usize>(), 484_100_736, "the counted receipt moved");
+    assert_eq!(want.iter().sum::<usize>(), 484_100_736 + 12 * super::grow_tests::s20_bilinear_delta(&sh).1, "the counted receipt moved");
     let mut disk = DirSink::create(&dir, l).unwrap_or_else(|e| panic!("125M RUN L=12: {e}"));
     let mut prev_hwm = run::peak_rss_mib();
     let mut tick = std::time::Instant::now();

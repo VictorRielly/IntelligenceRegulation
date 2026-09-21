@@ -619,6 +619,31 @@ and `"public_tables_included":true`; everything else is the format above,
 unchanged. **Re-derive the four keys from the contexts and the profile and
 COMPARE; never take a key from a bundle** (§2a, ruling T-7).
 
+**STAGE 20: THE SIX EXISTING BUNDLES ARE LEGACY IN ONE MORE WAY.** The
+repair of finding S19-F1 (lane `zk60-private-block-125m`, stage 20) changes
+the two BILINEAR attention slots at every profile with more than one
+key-value head — every shaped profile, the toy excepted. In a capture of such
+a profile:
+
+* `arguments[8]` (`10 score matmul`) and `arguments[9]` (`11 PV matmul`) have
+  `main` raised by `log2(kv_heads)` and `degree` raised from 2 to 3, so their
+  `rounds` arrays are longer and each round message carries one more value.
+  `shape.slots` reports the new triples, as it always did — nothing in this
+  format is a literal.
+* each of those two slots' `tables` gains ONE entry, at position 0:
+  `{"kind":"eq","start":0,"point":[…]}` over the key-value GROUP bits, which
+  are the leading `log2(kv_heads)` entries of the slot's head challenge. The
+  PRIVATE tables are unchanged in number, in order and in role, so
+  `plane_index.slot_planes[8]` / `[9]` and `arguments[*].terminals` do not
+  move, and the rule `len(slot_planes[s].planes) == len(terminals)` still
+  holds — it counts private tables only.
+* every segment therefore grows by the counted per-block delta (336 B at
+  both rungs, 560 B at 125M), and so does every `receipt_bytes` figure.
+
+A capture taken before stage 20 at a shaped profile is not evidence about
+what the code produces now. The toy is unaffected: `kv_heads = 1` leaves the
+group empty, no table is pushed and no byte moves.
+
 ## 11. A DIFFERENT artifact: the public run statement (stage 18)
 
 Not a capture and not in a bundle. A run leaves `L` segment files in its run
