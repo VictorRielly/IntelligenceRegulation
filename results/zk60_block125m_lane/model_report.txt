@@ -57,13 +57,92 @@ Independent shape-driven layout model of the private block
   exp_pairs                              8192             8192        0
   act_pairs                              8192             8192        0
   largest_L                                72               72        0
-  receipt_bytes                       4173208          4173032      176   <-- DIFFERENCE
-  CAUSE of the receipt_bytes difference: +176 B (11 Fp2 words) in the slot line. The model gives SC_KVZC the support indicator, because Dom::Kv PADS at the rung (768 true of 1,024) and §9a's own domain paragraph says so: 'the pad rule of §3.7a is exercised on Kv and F as well (their indicators are supp_Kv and supp_F)'. An indicator raises the slot's degree by one, which lengthens each of its 11 round messages by one Fp2 word: (10 main + 1 ext) x 16 B = 176 B. The memo's 19,552-byte slot line prices SC_FZC's indicator but not SC_KVZC's, and §9a's open question 2 mentions only SC_FZC. Either the rung receipt is 4,173,208 B, or supp_Kv does not gate SC_KVZC's inhomogeneous RoPE constraint and the domain paragraph is wrong. Nothing else moves: SC_KVZC's L is 57 with the indicator, well under the rung's largest L of 72, so the mask budget is untouched.
+  receipt_bytes                       4218600          4173032    45568   <-- DIFFERENCE
+  CAUSE of the receipt_bytes difference: +176 B (11 Fp2 words) in the slot line. The model gives SC_KVZC the support indicator, because Dom::Kv PADS at the rung (768 true of 1,024) and §9a's own domain paragraph says so: 'the pad rule of §3.7a is exercised on Kv and F as well (their indicators are supp_Kv and supp_F)'. An indicator raises the slot's degree by one, which lengthens each of its 11 round messages by one Fp2 word: (10 main + 1 ext) x 16 B = 176 B. The memo's 19,552-byte slot line prices SC_FZC's indicator but not SC_KVZC's, and §9a's open question 2 mentions only SC_FZC. Either the rung receipt is 4,173,208 B before the S20 term below, or supp_Kv does not gate SC_KVZC's inhomogeneous RoPE constraint and the domain paragraph is wrong. Nothing else moves: SC_KVZC's L is 57 with the indicator, well under the rung's largest L of 72, so the mask budget is untouched. PLUS the stage-20 repair of finding S19-F1 (`group_sumcheck_bits`): the two bilinear slots sum over the log2(kv_heads) key-value GROUP bits instead of fixing them on both private factors, which adds those main rounds and one degree for the public eq(r_g, .). The memo predates the repair and prices the old schedule. This term is +336 B at both rungs (lkv = 1) and +560 B at 125M (lkv = 2), and it is zero at the toy (lkv = 0), which is why the frozen toy profile does not move. PLUS the DERIVED endpoint of lane stage 23: an endpoint commits the PADDED Dom::D cube at its own row width, with MASK_ROWS = 5 above its data rows. The memo priced the TRUE plane instead, which the frozen seam refuses outright (both axes must be powers of two) and which is not what SC_IO_IN / SC_IO_OUT claim. At the frozen-seam rung that term is +45,056 B: the seam carries the padded (32, 128) plane at exactly its 4,096-word ceiling, so 16 data rows and 21 commitment rows at the seam's frozen inverse rate 8, against the memo's 14 rows at rate 4 (finding S11-F4).
+  bilinear group sumcheck bits lkv = 1; main rounds 217, extension rounds 25, published round values 1055, sumcheck challenge draws 242
   slots carrying a support indicator: ['01 SS row sums norm_a', '01m SS row sums norm_m', '07 masked row sums + selector', '03 D zero-check', '04 Q zero-check', '05 KV zero-check', '06 softmax zero-check', '14 F zero-check']
   LogUp sum-claim keys WITHOUT the P-3 lift: 3 [('full', 0, 1024), ('sub', 0, 256), ('sub', 0, 512)]
   largest L slots: ['06 softmax zero-check', '14 F zero-check']  (L + 256 = 328 <= 512: True)
   LogUp sum-claim column-weight keys: 1 (instantiable: True)
-  receipt parts: header_and_three_roots 136, slots 19,728, mask_opening 243,712, a_opening 2,142,208, h_opening 1,492,992, endpoint_openings 274,432, total 4,173,208
+  receipt parts: header_and_three_roots 136, slots 20,064, mask_opening 243,712, a_opening 2,142,208, h_opening 1,492,992, endpoint_openings 319,488, total 4,218,600
+
+-- 2. development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) --
+  padded domains: T, Ht, L, D, Q, Kv, S, F, Tab
+  domain      true        padded   log  lifted  rows
+  T              24            32     5       -     1
+  Ht            144           256     8       -     1
+  L             216          1024    10     yes     1
+  D            2304          4096    12       -     4
+  Q            2304          4096    12       -     4
+  Kv            768          1024    10       -     1
+  S            3456          8192    13       -     8
+  F            4608          8192    13       -     8
+  Tab           256          1024    10     yes     1
+  A planes 83  H planes 52
+  quantity                      model            memo [COUNTED]    delta
+  (this shape has no [COUNTED] memo table of its own; it is the rung's
+   geometry with the generalised endpoint, so only the endpoint line moves)
+  a_planes                                 83
+  h_planes                                 52
+  a_data_rows                             377
+  h_data_rows                             470
+  a_sites                                 122
+  h_sites                                  52
+  a_rows                                  623
+  h_rows                                  576
+  m_rows                                   50
+  a_groups                                 36
+  h_groups                                  9
+  u8_total                             419840
+  exp_pairs                              8192
+  act_pairs                              8192
+  largest_L                                72
+  receipt_bytes                       4234984
+  bilinear group sumcheck bits lkv = 1; main rounds 217, extension rounds 25, published round values 1055, sumcheck challenge draws 242
+  slots carrying a support indicator: ['01 SS row sums norm_a', '01m SS row sums norm_m', '07 masked row sums + selector', '03 D zero-check', '04 Q zero-check', '05 KV zero-check', '06 softmax zero-check', '14 F zero-check']
+  LogUp sum-claim keys WITHOUT the P-3 lift: 3 [('full', 0, 1024), ('sub', 0, 256), ('sub', 0, 512)]
+  largest L slots: ['06 softmax zero-check', '14 F zero-check']  (L + 256 = 328 <= 512: True)
+  LogUp sum-claim column-weight keys: 1 (instantiable: True)
+  receipt parts: header_and_three_roots 136, slots 20,064, mask_opening 243,712, a_opening 2,142,208, h_opening 1,492,992, endpoint_openings 335,872, total 4,234,984
+
+-- 2. development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) --
+  padded domains: T, Ht, L, D, Q, Kv, S, F, Tab
+  domain      true        padded   log  lifted  rows
+  T              24            32     5       -     1
+  Ht            288           512     9       -     1
+  L             216          1024    10     yes     1
+  D            2304          4096    12       -     4
+  Q            2304          4096    12       -     4
+  Kv            768          1024    10       -     1
+  S            6912         16384    14       -    16
+  F            4608          8192    13       -     8
+  Tab           256          1024    10     yes     1
+  A planes 83  H planes 52
+  quantity                      model            memo [COUNTED]    delta
+  (this shape has no [COUNTED] memo table of its own; it is the rung's
+   geometry with the generalised endpoint, so only the endpoint line moves)
+  a_planes                                 83
+  h_planes                                 52
+  a_data_rows                             481
+  h_data_rows                             614
+  a_sites                                 122
+  h_sites                                  52
+  a_rows                                  727
+  h_rows                                  720
+  m_rows                                   50
+  a_groups                                 36
+  h_groups                                  9
+  u8_total                             542720
+  exp_pairs                             16384
+  act_pairs                              8192
+  largest_L                                77
+  receipt_bytes                       4743128
+  bilinear group sumcheck bits lkv = 2; main rounds 220, extension rounds 25, published round values 1070, sumcheck challenge draws 245
+  slots carrying a support indicator: ['01 SS row sums norm_a', '01m SS row sums norm_m', '07 masked row sums + selector', '03 D zero-check', '04 Q zero-check', '05 KV zero-check', '06 softmax zero-check', '14 F zero-check']
+  LogUp sum-claim keys WITHOUT the P-3 lift: 3 [('full', 0, 1024), ('sub', 0, 256), ('sub', 0, 512)]
+  largest L slots: ['06 softmax zero-check']  (L + 256 = 333 <= 512: True)
+  LogUp sum-claim column-weight keys: 1 (instantiable: True)
+  receipt parts: header_and_three_roots 136, slots 20,304, mask_opening 243,712, a_opening 2,355,200, h_opening 1,787,904, endpoint_openings 335,872, total 4,743,128
 
 -- 2. 125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) --
   padded domains: Ht, L, D, Q, S, Tab
@@ -94,12 +173,14 @@ Independent shape-driven layout model of the private block
   exp_pairs                           4194304          4194304        0
   act_pairs                           1048576          1048576        0
   largest_L                               117              117        0
-  receipt_bytes                      40750024         40750024        0
+  receipt_bytes                      40783352         40750024    33328   <-- DIFFERENCE
+  CAUSE of the receipt_bytes difference: +560 B in the slot line. PLUS the stage-20 repair of finding S19-F1 (`group_sumcheck_bits`): the two bilinear slots sum over the log2(kv_heads) key-value GROUP bits instead of fixing them on both private factors, which adds those main rounds and one degree for the public eq(r_g, .). The memo predates the repair and prices the old schedule. This term is +336 B at both rungs (lkv = 1) and +560 B at 125M (lkv = 2), and it is zero at the toy (lkv = 0), which is why the frozen toy profile does not move. PLUS the DERIVED endpoint of lane stage 23: an endpoint commits the PADDED Dom::D cube at its own row width, with MASK_ROWS = 5 above its data rows. The memo priced the TRUE plane instead, which the frozen seam refuses outright (both axes must be powers of two) and which is not what SC_IO_IN / SC_IO_OUT claim. At 125M that term is +32,768 B: the padded Dom::D cube is 2^19 words, so 32 data rows and 37 commitment rows at endpoint_log_n = 14, against the memo's 29 rows from the true 393,216-word plane (finding S11b-F1). Padding is also what removes the need for the memo's C6 mu-batched multi-block claim: the padded plane IS a power of two.
+  bilinear group sumcheck bits lkv = 2; main rounds 336, extension rounds 25, published round values 1554, sumcheck challenge draws 361
   slots carrying a support indicator: ['01 SS row sums norm_a', '01m SS row sums norm_m', '07 masked row sums + selector', '03 D zero-check', '04 Q zero-check', '06 softmax zero-check']
   LogUp sum-claim keys WITHOUT the P-3 lift: 3 [('full', 0, 16384), ('sub', 0, 256), ('sub', 0, 8192)]
   largest L slots: ['06 softmax zero-check']  (L + 256 = 373 <= 512: True)
   LogUp sum-claim column-weight keys: 1 (instantiable: True)
-  receipt parts: header_and_three_roots 136, slots 27,456, mask_opening 243,712, a_opening 21,626,880, h_opening 17,385,472, endpoint_openings 1,466,368, total 40,750,024
+  receipt parts: header_and_three_roots 136, slots 28,016, mask_opening 243,712, a_opening 21,626,880, h_opening 17,385,472, endpoint_openings 1,499,136, total 40,783,352
 
 -- 3. THE PAD TABLE OF §3.7a, RECOUNTED FROM ITS OWN ROWS --
   rows transcribed: 40; planes classified: 100

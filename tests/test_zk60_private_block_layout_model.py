@@ -144,13 +144,39 @@ class Rung(unittest.TestCase):
         """**Stage 21, review finding F-1.** The delta was 176 B while the model
         still declared the PRE-repair bilinear schedule. The model now derives
         the repaired one itself (`group_sumcheck_bits`), so the rung's receipt
-        is 336 B longer and the one diagnosed difference against the memo is
-        176 + 336 = 512 B. The memo predates the repair."""
+        is 336 B longer: 176 + 336 = 512 B of slot line. The memo predates the
+        repair.
+
+        **Stage 23, the shaped check's finding B-12.** The model also DERIVES
+        the endpoint now, instead of declaring the memo's 14 rows at inverse
+        rate 4 — a pricing of the TRUE `(24, 96)` plane that `SeamSpec::new`
+        refuses outright. The frozen seam carries the PADDED `(32, 128)` plane
+        at exactly its 4,096-word ceiling: 16 data rows, 21 commitment rows,
+        the seam's frozen inverse rate 8, and 45,056 B more than the memo
+        priced. So the one diagnosed difference is 512 + 45,056 = 45,568 B,
+        and the model's total is the RUST's to the byte with no correction
+        term in between."""
         diffs = M.compare_to_memo("rung", self.m)
         self.assertEqual([d["quantity"] for d in diffs], ["receipt_bytes"])
-        self.assertEqual(diffs[0]["delta"], 512)
-        self.assertEqual(self.m["receipt_bytes"]["total"], 4_173_544)
+        self.assertEqual(diffs[0]["delta"], 45_568)
+        self.assertEqual(self.m["receipt_bytes"]["total"], 4_218_600)
         self.assertNotIn("UNDIAGNOSED", diffs[0]["cause"])
+
+    def test_the_frozen_seam_endpoint_is_derived_and_is_the_rusts(self):
+        """**Stage 23, finding B-12.** Nothing about the rung's endpoint is
+        declared any more: the seam is SELECTED by the same derivation
+        `Shape::new` uses (a plane within the 4,096-word ceiling, at the
+        seam's frozen 8 / 8), and the rows come from the plane and
+        `ENDPOINT_MASK_ROWS`."""
+        s = self.m["shape"]
+        self.assertEqual(s["endpoint_words"], 32 * 128)
+        self.assertEqual(s["endpoint_words"], M.SEAM_MAX_WORDS)
+        self.assertFalse(s["endpoint_general"], "the rung must ride the FROZEN seam")
+        self.assertEqual((s["endpoint_log_n"], s["endpoint_inv_rate"]), (M.SEAM_LOG_COLS, M.SEAM_INV_RATE))
+        self.assertEqual(s["endpoint_data_rows"], 16)
+        self.assertEqual(s["endpoint_rows"], 16 + M.ENDPOINT_MASK_ROWS)
+        self.assertEqual(s["endpoint_rows"], 21)
+        self.assertEqual(self.m["receipt_bytes"]["endpoint_openings"], 319_488)
 
     def test_the_512_bytes_are_SC_KVZCs_indicator_plus_the_S20_group_rounds(self):
         """The rung's Dom::Kv pads (768 of 1,024), so the model gives SC_KVZC
@@ -204,27 +230,49 @@ class M125(unittest.TestCase):
         self.assertLessEqual(m["slot_summary"]["worst_L_plus_256"], 512)
 
     def test_the_receipt_is_the_memos_final_figure_part_by_part(self):
-        """Every part but the slot line is the memo's to the byte; the slot
-        line carries the stage-20 repair (finding F-1), which the memo
-        predates."""
+        """Every part but the slot line and the endpoint line is the memo's to
+        the byte. The slot line carries the stage-20 repair (finding F-1),
+        which the memo predates; the endpoint line carries the DERIVED
+        geometry of stage 23 (finding B-12), which the memo mispriced."""
         p = self.m["receipt_bytes"]
         self.assertEqual(p["a_opening"], 21_626_880)
         self.assertEqual(p["h_opening"], 17_385_472)
-        self.assertEqual(p["endpoint_openings"], 1_466_368)
+        self.assertEqual(p["endpoint_openings"], 1_499_136)
         self.assertEqual(p["mask_opening"], 243_712)
         self.assertEqual(p["header_and_three_roots"], 136)
         self.assertEqual(p["slots"], 28_016)
-        self.assertEqual(p["total"], 40_750_584)
+        self.assertEqual(p["total"], 40_783_352)
+
+    def test_the_generalised_endpoint_is_derived_and_is_the_rusts(self):
+        """**Stage 23, finding B-12.** What an endpoint commits is the PADDED
+        `Dom::D` cube — 512 * 1024 = 2^19 words, which IS a power of two, so
+        no `mu`-batched multi-block claim is needed (finding S11b-F1) — and
+        at `endpoint_log_n = 14` that is 32 data rows and 37 commitment rows.
+        The memo's 29 priced the TRUE 393,216-word plane."""
+        s = self.m["shape"]
+        self.assertEqual(s["endpoint_words"], 512 * 1024)
+        self.assertGreater(s["endpoint_words"], M.SEAM_MAX_WORDS)
+        self.assertTrue(s["endpoint_general"], "the frozen seam cannot carry this plane")
+        self.assertEqual((s["endpoint_log_n"], s["endpoint_inv_rate"]), (14, 4))
+        self.assertEqual(s["endpoint_data_rows"], 32)
+        self.assertEqual(s["endpoint_rows"], 32 + M.ENDPOINT_MASK_ROWS)
+        self.assertEqual(s["endpoint_rows"], 37)
 
     def test_the_only_difference_against_the_memo_is_the_S20_slot_line(self):
         """**Stage 21, review finding F-1.** The model reproduced the memo to
         the byte while it declared the PRE-repair bilinear schedule. It now
-        derives the repaired one, so it is 560 B longer — and that is the WHOLE
-        difference: nothing else about the 125M layout moves."""
+        derives the repaired one, so it is 560 B longer.
+
+        **Stage 23, finding B-12.** It also derives the endpoint, which is
+        32,768 B more than the memo's 29-row pricing. 560 + 32,768 = 33,328,
+        and that is the WHOLE difference: nothing else about the 125M layout
+        moves, and the model's total is now the Rust's to the byte with no
+        correction term in between."""
         diffs = M.compare_to_memo("m125", self.m)
         self.assertEqual([d["quantity"] for d in diffs], ["receipt_bytes"])
-        self.assertEqual(diffs[0]["delta"], 560)
+        self.assertEqual(diffs[0]["delta"], 33_328)
         self.assertEqual(s20_slot_delta(M.M125), 560)
+        self.assertEqual(diffs[0]["delta"] - s20_slot_delta(M.M125), 32_768)
         self.assertNotIn("UNDIAGNOSED", diffs[0]["cause"])
 
     def test_the_bilinear_slots_carry_two_group_bits_at_125M(self):
@@ -450,6 +498,84 @@ class Rules(unittest.TestCase):
             with self.subTest(shape=name):
                 self.assertEqual(M.model(s)["rows"]["m_rows"], 50)
                 self.assertEqual(M.model(s)["receipt_bytes"]["mask_opening"], 243_712)
+
+
+class DerivedEndpoints(unittest.TestCase):
+    """**LANE STAGE 23 — the shaped check's finding B-12.**
+
+    The model used to DECLARE every shape's endpoint row count, and two of
+    the four declarations were stale: 14 rows for the frozen-seam rung where
+    the code has 21, and 29 for 125M where the code has 37. Each was hidden
+    behind a NAMED CORRECTION TERM on the Rust side (`+45,056 B` and
+    `+32,768 B` in `grow_tests::MODEL_RUNG` and `MODEL_M125`), so the two
+    counts never actually met.
+
+    The model now derives the whole endpoint geometry — which endpoint
+    carries the plane, how many data rows it has, how many commitment rows —
+    from the shape alone, by the rule the code uses. **Both correction terms
+    are gone**, and these are the five totals with nothing in between."""
+
+    # The RUST's own counted frame length at each shape
+    # (`grow_tests::MODEL_*.receipt_total`, `rung_tests`, `k4_tests`,
+    # `tests.rs:108`). The model must now produce each one from its own
+    # arithmetic, with no adjustment on either side.
+    RUST_RECEIPT_BYTES = {
+        "toy": 2_816_472,
+        "rung": 4_218_600,
+        "rung_g": 4_234_984,
+        "rung_k4": 4_743_128,
+        "m125": 40_783_352,
+    }
+
+    # (words in the padded Dom::D cube, endpoint_log_n, endpoint_inv_rate,
+    #  rides the generalised endpoint, data rows, commitment rows)
+    ENDPOINTS = {
+        "toy": (512, 8, 8, False, 2, 7),
+        "rung": (4096, 8, 8, False, 16, 21),
+        "rung_g": (4096, 10, 4, True, 4, 9),
+        "rung_k4": (4096, 10, 4, True, 4, 9),
+        "m125": (524_288, 14, 4, True, 32, 37),
+    }
+
+    def test_the_model_totals_are_the_rusts_at_every_shape(self):
+        for name, want in self.RUST_RECEIPT_BYTES.items():
+            with self.subTest(shape=name):
+                self.assertEqual(M.model(M.SHAPES[name])["receipt_bytes"]["total"], want)
+
+    def test_every_endpoint_is_derived_from_the_padded_cube_and_the_mask_rows(self):
+        for name, (words, log_n, rate, general, data, rows) in self.ENDPOINTS.items():
+            with self.subTest(shape=name):
+                s = M.SHAPES[name]
+                self.assertEqual(s.endpoint_words, s.t_pad * s.d_pad)
+                self.assertEqual(s.endpoint_words, words)
+                self.assertEqual((s.endpoint_log_n, s.endpoint_inv_rate), (log_n, rate))
+                self.assertEqual(s.endpoint_general, general)
+                self.assertEqual(s.endpoint_data_rows, max(1, words >> log_n))
+                self.assertEqual(s.endpoint_data_rows, data)
+                self.assertEqual(s.endpoint_rows, data + M.ENDPOINT_MASK_ROWS)
+                self.assertEqual(s.endpoint_rows, rows)
+
+    def test_the_frozen_seam_is_selected_by_the_same_derivation_the_rust_uses(self):
+        """`Shape::new` derives `endpoint_general` from three conditions and
+        never from a flag: a plane within the seam's 4,096-word ceiling, at
+        the seam's frozen `LOG_COLS = 8` and `INV_RATE = 8`. Exactly the two
+        shapes that meet all three ride the seam."""
+        for name, s in M.SHAPES.items():
+            with self.subTest(shape=name):
+                seam = (s.endpoint_words <= M.SEAM_MAX_WORDS
+                        and s.endpoint_log_n == M.SEAM_LOG_COLS
+                        and s.endpoint_inv_rate == M.SEAM_INV_RATE)
+                self.assertEqual(s.endpoint_general, not seam)
+        self.assertEqual(sorted(n for n, s in M.SHAPES.items() if not s.endpoint_general),
+                         ["rung", "toy"])
+
+    def test_no_shape_declares_its_endpoint_row_count_any_more(self):
+        """The regression guard on the defect itself: an `endpoint_rows`
+        keyword would be a declaration, and the constructor no longer takes
+        one."""
+        import inspect
+
+        self.assertNotIn("endpoint_rows", inspect.signature(M.Shape.__init__).parameters)
 
 
 if __name__ == "__main__":

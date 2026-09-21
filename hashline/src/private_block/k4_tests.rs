@@ -49,8 +49,11 @@ use super::*;
 /// transcribed, with nothing in between: rung-K4's endpoint takes the
 /// block's own PCS parameters, exactly as rung-G's does, so there is no
 /// Rust-side correction term of the kind the frozen-seam rung (+45,056 B)
-/// and 125M (+32,768 B) carry. `grow_tests::MODEL_RUNG_K4` compares every
-/// other figure of the layout the same way.
+/// and 125M (+32,768 B) USED to carry — **both of those went away in lane
+/// stage 23**, when the model learnt to derive every endpoint's geometry
+/// instead of declaring it (the shaped check's finding B-12), so all five
+/// shapes now agree with the model to the byte. `grow_tests::MODEL_RUNG_K4`
+/// compares every other figure of the layout the same way.
 pub(super) const K4_FRAME_BYTES: usize = 4_743_128;
 
 /// **THE DOWN-PROJECTION BAND A rung-K4 CHAIN CARRIES**, which

@@ -55,6 +55,38 @@ COL_CHECKS = 256
 MASK_VEC = 1024       # the mask message is 2 * 512 Fp2 words, shape-independent
 MASK_PATH = 12        # log2(MASK_DOM = 4096)
 
+# --------------------------------------------------------------------------
+# THE ENDPOINT, DERIVED (lane stage 23, the check's finding B-12)
+# --------------------------------------------------------------------------
+# Until stage 23 every shape DECLARED its endpoint row count as a constant,
+# and two of the four declarations were stale: the frozen-seam rung said 14
+# rows where the code has 21, and 125M said 29 where the code has 37.  Both
+# were hidden behind a named correction term on the Rust side.  The model now
+# derives the whole endpoint geometry from the shape, by the rule the code
+# uses, and carries no constant at all.
+#
+# THE RULE (`private_block/protocol.rs:316-349`, `endpoint_g.rs:52,148`,
+# `shape.rs:208-220`).  What an endpoint commits is the PADDED `Dom::D` cube,
+# `t_pad * d_pad` words — the slice `SC_IO_IN` / `SC_IO_OUT` claim — laid out
+# at the endpoint's own row width `2^endpoint_log_n`.  Above its data rows sit
+# the terminal pair and three proximity rows, `MASK_ROWS = 5` of them, at
+# every shape and on both the frozen seam and the generalised endpoint.  So
+#
+#     data rows       = max(1, t_pad * d_pad / 2^endpoint_log_n)
+#     commitment rows = data rows + ENDPOINT_MASK_ROWS
+#
+# WHICH ENDPOINT CARRIES IT is a DERIVATION and not a flag, exactly as
+# `Shape::new` derives `endpoint_general`: the frozen `private_seam.rs` can
+# carry a plane only if it is within its `2^MAX_LOG_LEN = 4,096`-word ceiling
+# AND the shape asks for the seam's own frozen `LOG_COLS = 8` and
+# `INV_RATE = 8`, both hashed into every `SeamSpec::digest()` and so not
+# editable.  Otherwise the endpoint is the generalised one of `endpoint_g.rs`,
+# priced at the block's own PCS parameters.
+ENDPOINT_MASK_ROWS = 5    # the terminal pair + three proximity rows
+SEAM_MAX_WORDS = 4096     # 2^MAX_LOG_LEN (`private_seam.rs:69`)
+SEAM_LOG_COLS = 8         # `private_seam.rs:28`, hashed into SeamSpec::digest
+SEAM_INV_RATE = 8         # `private_seam.rs:30`, likewise
+
 # the slot order and the structural degree of each slot, before any pad
 # indicator (`layout.rs:411-462`)
 SLOT_NAMES = [
@@ -115,20 +147,28 @@ class Shape:
 
     def __init__(self, name, tokens, width, hidden, q_heads, head_dim, kv_heads,
                  log_cols, inv_rate=4, opened_cols=COL_CHECKS, f_e=9,
-                 endpoint_rows=7, endpoint_log_n=None, endpoint_inv_rate=None,
+                 endpoint_log_n=None, endpoint_inv_rate=None,
                  norm_wrho=None, wrho_s=None, note=""):
         self.name = name
         self.tokens, self.width, self.hidden = tokens, width, hidden
         self.q_heads, self.head_dim, self.kv_heads = q_heads, head_dim, kv_heads
         self.log_cols, self.inv_rate, self.opened_cols = log_cols, inv_rate, opened_cols
         self.f_e = f_e
-        self.endpoint_rows = endpoint_rows
         self.endpoint_log_n = log_cols if endpoint_log_n is None else endpoint_log_n
         self.endpoint_inv_rate = inv_rate if endpoint_inv_rate is None else endpoint_inv_rate
         self.note = note
         # ---- derived pads
         self.t_pad, self.d_pad = npot(tokens), npot(width)
         self.h_pad, self.f_pad = npot(q_heads), npot(hidden)
+        # ---- the endpoint, DERIVED (stage 23, finding B-12): never declared
+        self.endpoint_words = self.t_pad * self.d_pad
+        self.endpoint_general = not (
+            self.endpoint_words <= SEAM_MAX_WORDS
+            and self.endpoint_log_n == SEAM_LOG_COLS
+            and self.endpoint_inv_rate == SEAM_INV_RATE
+        )
+        self.endpoint_data_rows = max(1, self.endpoint_words >> self.endpoint_log_n)
+        self.endpoint_rows = self.endpoint_data_rows + ENDPOINT_MASK_ROWS
         # ---- derived integer windows (§3.3, §3.4); overridable for a rung-only calibration
         d_max = math.isqrt(NORM_CEPS + width * INT16_MAX ** 2)
         self.d_max = d_max
@@ -534,6 +574,10 @@ def model(sh: Shape):
             "limbs_sigma_s": sh.limbs_sigma_s, "limbs_p": sh.limbs_p,
             "endpoint_rows": sh.endpoint_rows, "endpoint_log_n": sh.endpoint_log_n,
             "endpoint_inv_rate": sh.endpoint_inv_rate,
+            # stage 23: the endpoint is derived, so its inputs are reported too
+            "endpoint_words": sh.endpoint_words,
+            "endpoint_data_rows": sh.endpoint_data_rows,
+            "endpoint_general": sh.endpoint_general,
             "d_pad_equals_h_pad_times_head_dim": sh.d_pad == sh.h_pad * sh.head_dim,
             "note": sh.note,
         },
@@ -573,25 +617,32 @@ def model(sh: Shape):
 # --------------------------------------------------------------------------
 TOY = Shape("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)",
             tokens=32, width=16, hidden=16, q_heads=2, head_dim=8, kv_heads=1,
-            log_cols=8, inv_rate=8, f_e=9, endpoint_rows=7,
-            note="the profile that exists and proves: hashline-zk-mr1/private-block-t32-poc/1")
+            log_cols=8, inv_rate=8, f_e=9,
+            note="the profile that exists and proves: hashline-zk-mr1/private-block-t32-poc/1. "
+                 "Its endpoint takes the defaults, which ARE the frozen seam's 8 / 8, so the "
+                 "512-word padded Dom::D plane gives 2 data rows and 7 commitment rows")
 
 RUNG = Shape("development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
              tokens=24, width=96, hidden=192, q_heads=6, head_dim=16, kv_heads=2,
              log_cols=10, inv_rate=4, f_e=12,
-             endpoint_rows=14, endpoint_log_n=8, endpoint_inv_rate=4,
-             note="memo §9a; F_E = 12 is a rung-only calibration, chosen to break the softmax window")
+             endpoint_log_n=8, endpoint_inv_rate=8,
+             note="memo §9a; F_E = 12 is a rung-only calibration, chosen to break the softmax "
+                  "window. LANE STAGE 23 (finding B-12): this shape rides the FROZEN SEAM, so "
+                  "it declares the seam's own 8 / 8 and not the block's 10 / 4 — the padded "
+                  "(32, 128) plane is 4,096 words, exactly the seam's ceiling, giving 16 data "
+                  "rows and 21 commitment rows. It declared 14 rows at inverse rate 4 until "
+                  "stage 23, which was the TRUE (24, 96) plane's pricing and matched nothing")
 
 RUNG_G = Shape("development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
                tokens=24, width=96, hidden=192, q_heads=6, head_dim=16, kv_heads=2,
-               log_cols=10, inv_rate=4, f_e=12, endpoint_rows=9,
+               log_cols=10, inv_rate=4, f_e=12,
                note="S11b: the rung's geometry exactly, with the GENERALISED endpoint — the "
                     "block's own PCS parameters (log_cols 10, inv_rate 4) instead of the frozen "
                     "seam's 8 / 8, and 9 commitment rows for the 2^5 x 2^7 padded Dom::D plane")
 
 RUNG_K4 = Shape("development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)",
                 tokens=24, width=96, hidden=192, q_heads=12, head_dim=8, kv_heads=4,
-                log_cols=10, inv_rate=4, f_e=12, endpoint_rows=9,
+                log_cols=10, inv_rate=4, f_e=12,
                 note="LANE STAGE 22: rung-G's geometry with the heads recut as 12 of 8 over 4 KV "
                      "heads, so log2(kv_heads) = 2 and the repaired bilinear slots sum over TWO "
                      "group bits. Padded head slots {3, 7, 11, 15} — 125M's head geometry. The "
@@ -600,8 +651,13 @@ RUNG_K4 = Shape("development rung, four key-value heads (T24 / d96 / f192, 12 he
 
 M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
              tokens=512, width=768, hidden=2048, q_heads=12, head_dim=64, kv_heads=4,
-             log_cols=14, inv_rate=4, f_e=9, endpoint_rows=29,
-             note="memo §2; endpoint rows 29 per §6 / step S11")
+             log_cols=14, inv_rate=4, f_e=9,
+             note="memo §2. LANE STAGE 23 (finding B-12): the endpoint is DERIVED like every "
+                  "other shape's — the padded Dom::D cube is 512 * 1024 = 2^19 words, which at "
+                  "endpoint_log_n = 14 is 32 data rows and 37 commitment rows. The model "
+                  "declared the memo's 29 until stage 23; those 29 come from the TRUE "
+                  "512 x 768 = 393,216-word plane, which is not a power of two and is not what "
+                  "SC_IO_IN / SC_IO_OUT claim (finding S11b-F1)")
 
 SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "m125": M125}
 
@@ -647,6 +703,20 @@ S20_MEMO_DIFFERENCE = (
     "at the toy (lkv = 0), which is why the frozen toy profile does not move."
 )
 
+# LANE STAGE 23 (the shaped check's finding B-12).  The model now DERIVES each
+# shape's endpoint geometry from the padded `Dom::D` cube instead of declaring
+# a row count, so it also parts company with the memo wherever the memo priced
+# an endpoint the code does not build.  These two terms replace the Rust-side
+# correction terms that used to sit in `grow_tests::MODEL_RUNG` and
+# `grow_tests::MODEL_M125`: the model is right and the memo is stale, so the
+# difference belongs here and nowhere else.
+ENDPOINT_MEMO_DIFFERENCE = (
+    " PLUS the DERIVED endpoint of lane stage 23: an endpoint commits the PADDED Dom::D "
+    "cube at its own row width, with MASK_ROWS = 5 above its data rows. The memo priced "
+    "the TRUE plane instead, which the frozen seam refuses outright (both axes must be "
+    "powers of two) and which is not what SC_IO_IN / SC_IO_OUT claim."
+)
+
 KNOWN_MEMO_DIFFERENCES = {
     "rung": {
         "receipt_bytes": (
@@ -662,11 +732,22 @@ KNOWN_MEMO_DIFFERENCES = {
             "SC_KVZC's inhomogeneous RoPE constraint and the domain paragraph is wrong. "
             "Nothing else moves: SC_KVZC's L is 57 with the indicator, well under the rung's "
             "largest L of 72, so the mask budget is untouched."
-        ) + S20_MEMO_DIFFERENCE,
+        ) + S20_MEMO_DIFFERENCE + ENDPOINT_MEMO_DIFFERENCE + (
+            " At the frozen-seam rung that term is +45,056 B: the seam carries the padded "
+            "(32, 128) plane at exactly its 4,096-word ceiling, so 16 data rows and 21 "
+            "commitment rows at the seam's frozen inverse rate 8, against the memo's 14 rows "
+            "at rate 4 (finding S11-F4)."
+        ),
     },
     "rung_g": {},
     "m125": {
-        "receipt_bytes": "+560 B in the slot line and nothing else." + S20_MEMO_DIFFERENCE,
+        "receipt_bytes": "+560 B in the slot line." + S20_MEMO_DIFFERENCE + ENDPOINT_MEMO_DIFFERENCE + (
+            " At 125M that term is +32,768 B: the padded Dom::D cube is 2^19 words, so 32 data "
+            "rows and 37 commitment rows at endpoint_log_n = 14, against the memo's 29 rows "
+            "from the true 393,216-word plane (finding S11b-F1). Padding is also what removes "
+            "the need for the memo's C6 mu-batched multi-block claim: the padded plane IS a "
+            "power of two."
+        ),
     },
 }
 

@@ -24,9 +24,14 @@ use super::witness::{self, Witness};
 use super::*;
 
 /// The rung frame's counted length (`Shape::receipt_bytes`, `wire::encoded_len`
-/// and `grow_tests::MODEL_RUNG` all agree on it): the Python model's 4,173,208
-/// plus the 45,056 B the frozen seam's PADDED `(32, 128)` endpoint costs over
-/// the model's TRUE `(24, 96)` pricing (finding S11-F4).
+/// and `grow_tests::MODEL_RUNG` all agree on it). It is what the frozen
+/// seam's PADDED `(32, 128)` endpoint costs — 21 commitment rows at the
+/// seam's own row width `2^8` and inverse rate 8, the plane sitting at
+/// exactly its 4,096-word ceiling (finding S11-F4). **Since lane stage 23
+/// (the shaped check's finding B-12) the independent Python model derives
+/// that geometry itself and produces this figure too**, so the 45,056 B it
+/// used to differ by — its pricing of the TRUE `(24, 96)` plane — is no
+/// longer a correction term anywhere.
 /// **STAGE 20 (the S19-F1 repair) moves both of these**, and by an amount
 /// that is COUNTED from the shape's axes in `grow_tests::s20_bilinear_delta`
 /// and never pasted: the two bilinear attention slots gain `log2(kv_heads)`

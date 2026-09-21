@@ -333,20 +333,21 @@ const MODEL_RUNG: Expected = Expected {
     // requires because `Dom::Kv` pads at the rung (lane finding B-F3, open
     // for the security owner).
     //
-    // **S11a: +45,056 B on top of the model's 4,173,544 (finding S11-F4).**
-    // The model priced the endpoints at the TRUE `(24, 96)` plane — 14 rows
-    // at inverse rate 4 — and `SeamSpec::new` refuses that plane outright
-    // (both axes must be powers of two). What the frozen seam actually gives
-    // is the PADDED `(32, 128)` plane at exactly its 4,096-word ceiling: 16
-    // data rows, `16 + MASK_ROWS = 21` commitment rows, and the seam's frozen
-    // `INV_RATE = 8`, which is hashed into every `SeamSpec::digest()` and so
-    // not editable. The two endpoint openings therefore cost
-    // `2 * [(1+1)(256+256)(16) + 256(8 + 21*8 + 32 + 11*32)] = 319,488 B`
-    // against the model's 274,432 B. The PYTHON MODEL still prices the FROZEN
-    // SEAM rung the memo's way and differs from the Rust by exactly this
-    // term; the difference and its cause are recorded in the lane ledger, as
-    // the ruling on S11-F4 asks. (`Shape::rung_g` has no such term at all —
-    // see `MODEL_RUNG_G`.)
+    // **STAGE 23 (the shaped check's finding B-12): THE CORRECTION TERM IS
+    // GONE.** Until this stage the Python model declared this shape's
+    // endpoint as 14 rows at inverse rate 4 — a pricing of the TRUE
+    // `(24, 96)` plane, which `SeamSpec::new` refuses outright (both axes
+    // must be powers of two) — and the Rust literal below carried the
+    // difference as a named `+45,056 B` term. The model now DERIVES the
+    // endpoint from the shape, by the rule the code uses: what the seam
+    // carries is the PADDED `(32, 128)` plane at exactly its 4,096-word
+    // ceiling, so `4096 / 2^8 = 16` data rows, `16 + MASK_ROWS = 21`
+    // commitment rows, and the seam's frozen `INV_RATE = 8`, which is hashed
+    // into every `SeamSpec::digest()` and so not editable. The two openings
+    // cost `2 * [(1+1)(256+256)(16) + 256(8 + 21*8 + 32 + 11*32)] =
+    // 319,488 B`, and the model's own total is **4,218,600 — this literal,
+    // to the byte, with nothing in between.** Nothing here moved: the figure
+    // was always the Rust's, and it is the MODEL that came to meet it.
     receipt_total: 4_218_600,
 };
 
@@ -357,11 +358,14 @@ const MODEL_RUNG: Expected = Expected {
 /// `scripts/zk60_private_block_layout_model.py`; these are that model's own
 /// figures, transcribed.
 ///
-/// **And this shape has NO Rust-side correction term.** The frozen seam's
-/// endpoint forced +45,056 B at the rung and the padded `Dom::D` cube forced
-/// +32,768 B at 125M; the generalised endpoint is priced from the block's own
-/// PCS parameters, which the model already models, so the model's 4,234,984 B
-/// and the Rust's agree TO THE BYTE with nothing in between.
+/// **And this shape never had a Rust-side correction term.** The frozen
+/// seam's endpoint forced +45,056 B at the rung and the padded `Dom::D` cube
+/// forced +32,768 B at 125M; the generalised endpoint is priced from the
+/// block's own PCS parameters, which the model already modelled, so the
+/// model's 4,234,984 B and the Rust's agreed TO THE BYTE from the start.
+/// **Since stage 23 (finding B-12) that is true at every shape**: the model
+/// derives each endpoint's geometry instead of declaring it, and BOTH
+/// correction terms are gone.
 const MODEL_RUNG_G: Expected = Expected {
     a_planes: 83,
     h_planes: 52,
@@ -446,18 +450,21 @@ const MODEL_M125: Expected = Expected {
     u8_lookups: 98_598_912,
     exp_pairs: 4_194_304,
     act_pairs: 1_048_576,
-    // **S11b: +32,768 B on top of the model's 40,750,584 (finding S11b-F1).**
-    // The Python model priced 125M's endpoints at the memo's 29 commitment
-    // rows, which come from the TRUE `512 x 768 = 393,216`-word plane. What
-    // this module commits is the PADDED `Dom::D` cube, `t_pad * d_pad = 512 *
-    // 1024 = 2^19` words — the slice `SC_IO_IN` / `SC_IO_OUT` already claim —
-    // so at `endpoint_log_n = 14` the endpoint has 32 data rows and 37
-    // commitment rows, and the two openings cost
-    // `2 * [(1+1)(16384+256)(16) + 256(8 + 37*8 + 32 + 16*32)] = 1,499,136 B`
-    // against the model's 1,466,368 B. The PYTHON MODEL IS UNCHANGED; the
-    // difference and its cause are in the lane ledger. Padding is also what
-    // removes the need for the memo's C6 `mu`-batched multi-block claim: the
-    // padded plane IS a power of two.
+    // **STAGE 23 (the shaped check's finding B-12): THE CORRECTION TERM IS
+    // GONE.** Until this stage the Python model declared 125M's endpoint as
+    // the memo's 29 commitment rows, which come from the TRUE
+    // `512 x 768 = 393,216`-word plane, and the Rust literal below carried
+    // the difference as a named `+32,768 B` term (finding S11b-F1). What
+    // this module commits is the PADDED `Dom::D` cube,
+    // `t_pad * d_pad = 512 * 1024 = 2^19` words — the slice `SC_IO_IN` /
+    // `SC_IO_OUT` already claim — so at `endpoint_log_n = 14` the endpoint
+    // has 32 data rows and `32 + MASK_ROWS = 37` commitment rows, and the two
+    // openings cost
+    // `2 * [(1+1)(16384+256)(16) + 256(8 + 37*8 + 32 + 16*32)] = 1,499,136 B`.
+    // The model derives all of that now, and its own total is **40,783,352 —
+    // this literal, to the byte, with nothing in between.** Padding is also
+    // what removes the need for the memo's C6 `mu`-batched multi-block claim:
+    // the padded plane IS a power of two.
     receipt_total: 40_783_352,
 };
 
@@ -1423,9 +1430,10 @@ fn the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_co
 /// path, the 256 checks) plus `A_GROUPS` / `H_GROUPS` / `ENDPOINT_ROWS`. It
 /// now reads all of them off the layout's shape, so it must agree PART FOR
 /// PART with `Shape::receipt_bytes` at every shape — including the toy's
-/// frozen 2,816,472 bytes and, since S11a, the rung's 4,218,264 (the Python
-/// model's 4,173,208 plus the 45,056 B the frozen seam's padded endpoint
-/// costs; see `MODEL_RUNG`).
+/// frozen 2,816,472 bytes and, since S11a, the rung's 4,218,264 (the frozen
+/// seam's PADDED endpoint at its 4,096-word ceiling — 21 rows at the seam's
+/// own 8 / 8; since stage 23 the Python model derives that geometry too and
+/// carries no correction term, see `MODEL_RUNG`).
 ///
 /// It also pins the PER-PROFILE wire bound (the S11a ruling): the toy's is
 /// the unchanged 4 MiB constant and the toy frame is under it; every other
