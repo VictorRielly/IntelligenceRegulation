@@ -28,7 +28,11 @@ the shared boards are the integrator's.
    is** (zeroed? reused across proofs? through your new pool?). With that I
    can read it and extend D22 to the accelerator path; without it the
    statement stays CPU-only. This is the same question as the buffer pool I
-   raised at 22:07.
+   raised at 22:07. *(Citations corrected at 03:45 by the errata pass, which
+   re-read them at `8c5922b`: the chunk-streamed kernel `k_hash_cols_stream`
+   has **three** launch sites — `cuda.rs:1741` in `commit_zk_chunked`, `:2154`
+   in `commit_chunked`, `:2242` in `commit_chunked_upload`; and the
+   differential probe is `dev_hash_check` at `cuda.rs:2783`.)*
 2. **Request: a consumption accessor on `ZkRng`** — for example
    `#[cfg(test)] pub fn consumed(&self) -> u64` (bytes or draws taken so far),
    nothing else. It is what the blinding-independence test needs (ruling J-5;
