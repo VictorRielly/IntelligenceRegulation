@@ -109,6 +109,17 @@ unreachable defensive return.** Lifting the refusal later requires a shape of
 that family in the ordinary test filter and the lemma's counts redone for it.
 No registered shape is affected and no figure on this page moves. Being
 implemented as lane stage 33, failing test first.
+**IMPLEMENTED 2026-09-21 15:25 (lane `226f3b2`, pushed; filter 394 passed /
+0 failed; I checked the diff's scope).** The failing-first log shows the gap
+was real: the toy's axes at 256 tokens (and at 129) passed validation and read
+`a_groups() = 28` out of the unreached arm. The refusal is named
+`private block shape: ruling S-6 …`; the Python layout model refuses the same
+family with the same sentence; the arm is kept as a panic-free defensive
+return because the two arms provably agree on the refused family (`t_pad` a
+power of two at or above the row width makes every offset zero), so it is a
+shortcut and not a second behaviour. One older test's probe geometry sat
+inside the refused family and was moved (its measured mask lengths are
+unchanged).
 
 ## 3. Where gap G-R1 stands
 

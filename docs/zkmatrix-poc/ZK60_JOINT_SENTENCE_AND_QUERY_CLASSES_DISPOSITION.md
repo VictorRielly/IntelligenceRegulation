@@ -165,6 +165,26 @@ pair with no such position is a finding. Being implemented as lane stage 33.
 The table of record stays the code-derived one (J-8); it now covers fourteen
 registered profiles (eight block shapes and six run profiles; I counted them
 in the test's registry at lane `f8b926f`).
+**IMPLEMENTED 2026-09-21 15:25 (lane `226f3b2`, pushed).** 42 fixed literals
+checked when the test was written (the 14 profiles, the 4 key-derivation
+contexts, 22 transcript labels, 2 transcript literals): all printable ASCII,
+no zero byte. The test builds its profile list from the registry AND reads it
+out of `shape.rs` / `run.rs`, requiring the two to agree, so the shape the same
+stage added afterwards (a fifteenth and sixteenth profile) is covered without
+an edit; I have not re-counted the literals at the tip. The general lemma holds everywhere: for every registered profile
+length, every absorb layout of the same total length (124 layouts) is
+separated from the constructor's input by at least 14 forced-zero positions
+inside length fields, the positions computed; one run profile is shorter than
+any absorb and has no layout to compare. It bites: five bad names are
+rejected, and a test-local 48-byte name with zero bytes under both length
+fields has no separating position. **Correction the stage found in stage 32's
+own record (S33-F1, message only):** the declared separator said "six" zero
+bytes at offset 32; a little-endian 8-byte encoding of 4 has SEVEN, and the
+layout has fourteen forced positions over its two length fields — my J-7a text
+above repeated the "six" and is corrected by this sentence. A seventh registry
+guard also recorded that the newest run profile's `parameters` absorb is 299
+bytes, so the 295-byte coincidence of J-7 now arises at three of the six run
+profiles and cannot at the other three.
 
 ## 3. What the composition step rests on after tonight
 
