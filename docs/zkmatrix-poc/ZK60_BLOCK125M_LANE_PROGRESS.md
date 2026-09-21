@@ -9276,3 +9276,119 @@ filter takes a different branch than it did at `db28728`.
 | 4 | **integrator request R1(b)** — the base-field census at the 125M shape and at rung-K4, and the second 125M prove-time sample | (below) |
 | 5 | the gates | (below) |
 
+### Task 1 — both branches of every stage-28 threshold, against the text at `79f0726` (findings S28-R1 and S28-R6)
+
+**What the review found.** Stage 28 introduced five size thresholds. Its own
+gates and the review's gates reached both sides of two of them; the other
+three were reached on one side only, and `total`'s parallel branch — the
+claimed sum — was reached by **no test that is not `#[ignore]`d**, its single
+execution anywhere being inside the 125M run. Four of the nine changed
+computations had no old-against-new oracle at all: the moved public table, the
+parallel table build, the parallel claimed sum and the parallel histogram.
+
+**The means, and why the production path is untouched.** Each threshold is now
+an ARGUMENT of an inner function, and the production wrapper passes the
+constant stage 28 chose and measured:
+
+| computation | production wrapper | inner form | constant |
+|---|---|---|---|
+| the claimed sum | `argument::total` | `total_at(.., par_min)` | `TOTAL_PAR_MIN` = 2^14 |
+| the slot table build | `run_slot`'s prove arm | `build_tables_at(tabs, n, pd, par_min)` | `TABLES_PAR_MIN` = 2^17 |
+| the looked columns | `protocol::lookup_values` | `lookup_values_at(.., par_min)` | `LOOKUP_PAR_MIN` = 2^17 |
+| the byte histogram | `prove_core` (was written inline) | `byte_histogram_at(looked, lookup_words, par_min)` | `HISTOGRAM_PAR_MIN` = 2^17 |
+| the helper inverses | `helper_inverses_u8`, `helper_pair_inverses_u8` | the two `_at` forms | `HELPER_PAR_MIN` = 2^14 |
+
+No `cfg(test)` constant was introduced: **every other test in the filter takes
+the same branch it took at `db28728`**, which is the condition ruling V-4
+sets. `s29_tests::the_five_thresholds_are_the_constants_the_production_path_passes`
+pins the five constants so that a later edit cannot move one silently and
+leave the census below stale.
+
+**The gates** (`hashline/src/private_block/s29_tests.rs`, nine tests, none
+`#[ignore]`d):
+
+| test | what it compares | both branches on the same input? |
+|---|---|---|
+| `the_claimed_sum_is_the_79f0726_fold_through_both_branches_of_its_threshold` | `total_at` forced serial and forced parallel against `total_79f0726` (verbatim), four tables, a degree-3 polynomial, at 16 / 2^10 / 2^14 / 2^14+1 / 2^15 words | yes; two lengths are above the production threshold |
+| `the_slot_table_set_is_the_79f0726_one_through_both_branches_of_its_threshold` | `build_tables_at` forced serial and forced parallel against `build_tables_79f0726` (verbatim `table_of`, whose `priv_table` call points at `s28_tests`' verbatim `priv_table_walked`), on a six-to-ten table set: a challenge-weighted `eq`, a public table, plain `A` planes, a short plane needing the broadcast, an `H` pair with the `u` coefficient, a fixed coordinate | yes, at five sizes: three below and two above the production threshold. It also asserts the public payload was MOVED out of the definition on the new path and that its words are the clone's |
+| `the_looked_columns_are_the_79f0726_serial_maps_through_both_branches` | `lookup_values_at` forced both ways against the `79f0726` serial map, on real honest witnesses at the toy and rung-K4, every lookup domain | yes |
+| `the_byte_histogram_is_the_79f0726_serial_count_through_both_branches` | `byte_histogram_at` forced both ways against the `79f0726` loop, on the same real looked columns, plus a synthetic set carrying `-1, 256, 2^40, i64::MIN, i64::MAX, -2^30` — the bucket-0 fallback only a tampered plane reaches | yes |
+| `the_helper_columns_are_the_same_words_through_both_branches_of_their_threshold` | the single and the paired helper, forced both ways, against the checked batch inversion, at five lengths, accepted columns AND the refusal (in column a, in column b, and the pair that carries none) | yes — stage 28's gates crossed this threshold by changing the column LENGTH; this one holds the column fixed and changes only the branch |
+| `the_eq_cube_agrees_with_the_79f0726_gather_on_every_admitted_triple` | all **560** admitted `(n_vars <= 13, |point|, start)` triples | (task 2) |
+| `a_violated_eq_cube_precondition_panics_by_name`, `an_eq_point_wider_than_the_cube_panics_by_name` | the two ways to violate the precondition | (task 2) |
+| `the_five_thresholds_are_the_constants_the_production_path_passes` | the five constants | — |
+
+Every parallel branch is additionally re-run inside pinned 1, 2 and 8-thread
+pools from inside the test (`in_pools`), and the whole file was run under
+`RAYON_NUM_THREADS=1`, `2` and `8`: **9 passed / 0 failed each time**
+(`results/zk60_block125m_lane/r29-s29-threads.log`).
+
+**Which shape crosses which branch (finding S28-R6, closed in the ledger).**
+The review's census is a fact about the shapes and stands; what changes is
+that the branches no longer depend on a shape to be reached at all:
+
+| shape | lookup words | histogram >=2^17 | `lookup_values` >=2^17 | helper >=2^14 | slot tables >=2^17 | `total` >2^14 |
+|---|---:|---|---|---|---|---|
+| toy (the byte-frozen one) | 61,440 | no | no | no | no | no |
+| development rung / rung-G | 419,840 | **yes** | **yes** | no | **yes** | no |
+| rung-K4 | 542,720 | **yes** | **yes** | **yes** | **yes** | no |
+| 125M | 98,598,912 | **yes** | **yes** | **yes** | **yes** | **yes** |
+| **`s29_tests` (this stage)** | — | **both** | **both** | **both** | **both** | **both** |
+
+So the frozen toy's byte pins still cross none of the five parallel branches —
+they cannot, and that is what S28-R6 says — and the branches are now covered
+by unit gates with oracles rather than by the shapes alone.
+
+**What still has NO old-against-new oracle, and why.** One thing, and it is
+narrower than before: no unit gate builds the REAL slot descriptors the
+schedule emits (`argument::define` constructs them inside the prover and
+hands them straight to `run_slot`; there is no constructor a test can call for
+a whole slot's `SlotDef`). `s29_tests` builds descriptors of the same KINDS by
+hand — every variant of `Tab`, every variant of `Coord`, an `H` pair, a short
+plane, a fixed coordinate — and compares the whole table set against the
+`79f0726` build; the bilinear slots 08/09 with their group-bit variables, and
+the padded tails of a non-power-of-two token count, are still covered
+**end to end only** (every honest proof at five shapes proves and verifies
+from its own bytes, and the group-bit sweep of `k4_tests` rejects all seven
+tampers). That is the same gap the review named in its §12, reduced to the
+DESCRIPTORS rather than the computation: the computation now has an oracle at
+every size, on both sides of every threshold.
+
+### Task 2 — `eq_cube`'s precondition is loud now (finding S28-R7)
+
+`argument::eq_cube` computes `shift = n_vars - start - |point|`. On a violated
+precondition the old gather returned a wrong but in-bounds cube and the
+doubling build computes a WRAPPED shift and tries to `resize` by
+`1 << (shift mod 64)` — the two forms diverge, and the second asks the
+allocator for an absurd vector. The triple is schedule-driven and PUBLIC (no
+frame and no witness can choose it), so this is robustness and not a reachable
+attack; ruling V-4 says to close it with a hard assertion naming the
+precondition, and a panic on a public-shape invariant is acceptable where a
+silent divergence is not.
+
+```
+assert!(start + bits <= n_vars,
+  "private block: eq_cube precondition start + |point| <= n_vars violated (start {start}, |point| {bits}, n_vars {n_vars})");
+```
+
+Both sides are tested: the two forms agree on **all 560 admitted triples**
+(`the_eq_cube_agrees_with_the_79f0726_gather_on_every_admitted_triple`, which
+asserts the count is 560), and the two ways to violate the precondition —
+`start` too large, and a point wider than the cube — now panic by name
+(`a_violated_eq_cube_precondition_panics_by_name`,
+`an_eq_point_wider_than_the_cube_panics_by_name`, both `#[should_panic]` on
+the message text).
+
+### Task 3 — the four ledger corrections (findings S28-R8, S28-R5, S28-R4 and ruling V-3)
+
+All four are made IN PLACE in the stage-28 section above, each as a dated
+`CORRECTED 2026-09-21 11:10 PDT` block that leaves the original sentence
+visible:
+
+| finding | where the correction sits | what it says |
+|---|---|---|
+| **S28-R8** | under "The rule of this stage", and again at task 1b | the ONE refusal string stage 28 adds, `"private block: paired lookup columns of different lengths"`, why it is unreachable, and that it falls under the refusal-reason rule |
+| **S28-R5** | under the equality-gate paragraph | ten tests, not nine — and, in the same note, that the "every computation, same test" sentence was false for four of the nine changed computations at the stage-28 tip and is true at this one |
+| **S28-R4** | under the task-3 sub-step table | the column headed "baseline" is the 24.59 s tree after task 1, which is NO commit; the headline 27.71 -> 17.40 s is between two commits and stands; commit the instrument first next time |
+| **V-3** | under finding S28-F1 | S28-F1a, the qualified form the security owner accepts, with the reviewer's counterexample test named and the consequence for the accepted figures (none) recorded |
+
