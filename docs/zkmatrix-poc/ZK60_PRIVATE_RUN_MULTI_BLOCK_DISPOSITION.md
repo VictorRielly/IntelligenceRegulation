@@ -236,6 +236,45 @@ those eleven with no new arithmetic. The channel count is now 15 open of 24
 (the terminal channel was honestly split in two), so the headline does not
 move yet.
 
+**Round 3 (17:27, 2026-09-20): under the separating hash tag, with the public
+tables — every slot checked, and the hash layer computed for the first time.**
+[MEASURED by the lane; I re-ran its 29 new tests, all passing;
+`zk60-native-jointview` at `8bab0f5`, pushed; suite 261, all passing; no toy
+gate file's bytes moved.] On the two re-taken, tagged three-block bundles
+(`run-e-tame-tagged`, `run-f-zero-tagged`; register D19a):
+- **The gate derives the four keys itself** from its own pinned context
+  strings and the profile it expects, compares them with what the bundle
+  names, and never consumes keys from a bundle. Six controls on that: a wrong
+  key, context, profile, a tagged bundle claiming the legacy rule (refused by
+  name; and replayed under the legacy rule by force, the run binding fails and
+  0 of 3,328 opened columns authenticate), the member removed, a legacy
+  bundle replayed under the tag.
+- **Whole-run replay under the keyed function**: 375 positions, 6,086
+  challenges and 6 of 6 position tags re-derived per bundle, none left over —
+  the same counts as under the legacy rule.
+- **New: the hash layer is computed, not argued, for what a receipt opens**:
+  13 openings, 3,328 of 3,328 opened columns re-hashed (column digest → salted
+  leaf → path) and authenticated against the committed roots, every path
+  length checked.
+- **The per-slot terminal identity: 23 slots of 23, 69 checks of 69 equal**,
+  the eleven new ones using the captured public tables (each table checked
+  against its length and hash, rebuilt where the shape determines it, and
+  structure-checked). Fourteen controls fired, among them a perturbed table
+  value failing at exactly the slots that read it.
+- **Every disclosure, rank and joint figure is identical to rounds 1 and 2**
+  (each boundary 6 of 6, disclosed 0; three roles joint 0 = sum; whole run
+  joint 6 = sum 6). The tag moves values, not sizes or ranks.
+- Channels: 25, of which **14 open** (was 15 of 24): one added and derived
+  (the hash rule), one closed (the table-bearing slots).
+- One thing the tool noticed in the PUBLIC test weights — the down
+  projection's fold is nonzero on only 96 of 192 hidden indices — is being
+  looked at separately: a fixture quirk or an indexing defect, not a privacy
+  matter either way.
+
+Still: linear channels, two runs, one development shape, nothing about the
+125M shape, a captured weight fold is checked against the capture and never
+against a weight matrix. **No privacy claim about any run.**
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external
