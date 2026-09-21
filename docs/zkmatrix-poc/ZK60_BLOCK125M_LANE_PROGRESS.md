@@ -5463,7 +5463,8 @@ out. Re-run them with `--ignored --nocapture` to see them.
 
 ## Stage 20 — FIXING S19-F1: the key-value group bits become sumcheck variables (2026-09-20, 18:4x–19:5x)
 
-**Status: `LANDED`.** The security owner's ruling on finding S19-F1 is
+**Status: `LANDED`, the whole `private_` gate green — 245 passed / 0
+failed / 8 ignored, 13 warnings.** The security owner's ruling on finding S19-F1 is
 implemented. This is the FIRST PRODUCTION CHANGE this lane has made since
 `caa9b9a`: two slot definitions in `argument.rs`, one new builder method, and
 two lines of the slot schedule in `shape.rs`. Everything else is tests, the
@@ -5672,7 +5673,7 @@ The DENSE FEED-FORWARD one-block 125M run (still the one worth having: the
 first 125M measurement whose weight-fold phase is not optimistic):
 
 ```
-setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 HL_PB_WEIGHTS=dense-ff <BIN> --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> results/zk60_block125m_lane/m125-one-block-dense-ff.log 2>&1; echo $? > results/zk60_block125m_lane/m125-one-block-dense-ff.done' >/dev/null 2>&1 &
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 HL_PB_WEIGHTS=dense-ff hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> results/zk60_block125m_lane/m125-one-block-dense-ff.log 2>&1; echo $? > results/zk60_block125m_lane/m125-one-block-dense-ff.done' >/dev/null 2>&1 &
 ```
 
 The FULLY DENSE one-block 125M run — **newly possible**: S19-F1 is what made
@@ -5680,13 +5681,13 @@ The FULLY DENSE one-block 125M run — **newly possible**: S19-F1 is what made
 different activations), and the witness was already known admissible there:
 
 ```
-... HL_PB_TIMING=1 HL_PB_WEIGHTS=dense <BIN> --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block ...
+... HL_PB_TIMING=1 HL_PB_WEIGHTS=dense hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block ...
 ```
 
 The ALL-ZERO-input one-block 125M run (task 9(b)):
 
 ```
-... HL_PB_TIMING=1 HL_PB_INPUT=zero <BIN> --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block ...
+... HL_PB_TIMING=1 HL_PB_INPUT=zero hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block ...
 ```
 
 All three take the HEAVY lock, so enqueuing them together is right: each
@@ -5704,7 +5705,7 @@ search costs up to twelve 125M witness builds (~11 s and 725 MiB each), which
 is a heavy run. It is left as one ignored command:
 
 ```
-... <BIN> --ignored --exact --nocapture --test-threads=1 private_block::run_tests::the_first_admissible_fully_dense_run_band_at_125m
+... hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::run_tests::the_first_admissible_fully_dense_run_band_at_125m
 ```
 
 ### Files this stage wrote
@@ -5736,13 +5737,55 @@ prints NOTHING: every one of those trees is byte-identical to `d4742ce`.
 
 ### Tests and commands of stage 20
 
+All through the shared build lock,
+`CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`, and **without `--nocapture`**
+— which is what keeps per-witness counts out of the retained logs.
+
 | command | log | result |
 |---|---|---|
 | `--lib private_block::grow_tests::the_slot_definitions` (the first build) | `v1-s20-defs.log` | 1 passed, exit 0 |
-| `--lib --no-run` | `v3-s20-build.log` | exit 0, **13 warnings** (the baseline's 13) |
-| the structural filter (grow / pad / layout / hash-domain / rulings) | `v4-s20-struct.log` | the two stale pins found and corrected |
-| **the gate**: `--lib private_` | `v5-s20-private.log`, `v7-s20-private.log` | see below |
-| the Python layout model | — | 25 passed |
-| the Python inventory driver | `v8-s20-inventory.log` | 40 passed |
-| the model probe with the repaired schedule | `v6-s20-model-probe.log` | the deltas reproduce the Rust's |
+| `--lib --no-run` | `v3-s20-build.log` | exit 0, **13 warnings** |
+| the structural filter (grow / pad / layout / hash-domain / rulings) | `v4-s20-struct.log` | 116 passed, **2 failed** — the two stale pins, corrected on the spot |
+| the gate, first pass | `v5-s20-private.log` | 244 passed / **1 failed** / 7 ignored, 372.6 s — the failure being the twelve-block 125M pin, which the re-pin commit had not yet reached the binary |
+| **THE GATE**: `--lib private_` | `v7-s20-private.log` | **245 passed / 0 failed / 8 ignored**, 67 filtered out, **374.71 s**, exit 0, **13 warnings** |
+| `--lib --no-run`, the prebuild handed back | `va-s20-norun.log` | exit 0, 13 warnings |
+| the Python layout model | `v9-s20-model.log` | **25 passed** |
+| the Python inventory driver (it PARSES the repaired `define`) | `v8-s20-inventory.log` | **40 passed**, 45.8 s |
+| the model probe with the repaired schedule | `v6-s20-model-probe.log` | the deltas reproduce the Rust's exactly |
+
+**Against the stage-19 baseline of 233 passed / 0 failed / 13 ignored and 13
+warnings**: `245 / 0 / 8`. Six tests were UN-IGNORED (the S19-F1 reproducer,
+the fully dense block, the grouped-query control and the three bisection
+diagnostics), six are new (the two identity checks, the two second-group
+controls, the fully dense run, the degree-range test) and one new one is
+ignored (the 125M fully dense RUN band probe). **Not one existing test was
+weakened or removed**; the only test-body edits to existing tests are the
+counted re-pins, the un-ignoring, and the T-3 statement restated for the
+repaired construction.
+
+**The verdicts, measured** (from a `--nocapture` re-run of the five tests
+that print them; the output is NOT retained under `results/`, per the
+capture rule, and only these counts are recorded):
+
+| what | verdict |
+|---|---|
+| the head-axis matrix, all five cases | **VERIFIED** (three of them were REJECTED before the repair) |
+| the review's `distinct_kv_case` at both rung profiles | **ACCEPTED** |
+| the eight hidden inputs of the second bisection | all **VERIFIED** (five were REJECTED before) |
+| the identity check on the real rung-G witnesses | FULLY DENSE: `new == lhs` for both slots, `old != lhs` for both. `tame_case`: `new == lhs` AND `old == lhs` |
+| the identity check on random planes | `T8/H4/dh4/KV4`, `T8/H8/dh4/KV4`, `T8/H4/dh4/KV2`: `new == lhs`, `old != lhs`. `T8/H2/dh4/KV1`: `new == lhs`, `old == lhs` |
+| the four second-group perturbations | **4 of 4 REJECTED BY THE VERIFIER**, 0 by the prover, 0 accepted (`A_QR8`, `A_P`, `A_V8` at slot 15 `04 Q zero-check`; `A_KR8` at slot 16 `05 KV zero-check`) |
+| the key-family swap between the two groups (1,456 positions differ) | **REJECTED BY THE VERIFIER**, slot 16 `05 KV zero-check` |
+| the three shared-key-value-head tampers | **3 of 3 REJECTED BY THE VERIFIER** (slots 17, 16, 15) |
+
+### THE PREBUILT TEST BINARY
+
+```
+/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5
+```
+
+**mtime 2026-09-20 19:17:22 -0700**, 12,783,776 B, newer than every source
+file of this lane (`va-s20-norun.log`, exit 0). **Re-read its mtime before
+launching anything**: the target directory is shared with another worktree.
 
