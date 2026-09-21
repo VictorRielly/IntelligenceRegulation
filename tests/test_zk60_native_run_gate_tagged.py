@@ -383,11 +383,13 @@ class TestRecordedEvidence(unittest.TestCase):
         25 with 14 open -- counted from the tool's own array."""
         for name, rec in self.records().items():
             ch = rec["stage7_channels"]
-            self.assertEqual(ch["total"], 25, name)
-            self.assertEqual(len(ch["channels"]), 25, name)
+            # [ROUND 8] 25 -> 28, the three added entries OPEN with both
+            # arms off.
+            self.assertEqual(ch["total"], 28, name)
+            self.assertEqual(len(ch["channels"]), 28, name)
             self.assertEqual(
                 ch["counts"],
-                {"constructed": 2, "derived": 5, "argued": 4, "open": 14},
+                {"constructed": 2, "derived": 5, "argued": 4, "open": 17},
                 name,
             )
             self.assertEqual(ch["grading_failures"], [], name)

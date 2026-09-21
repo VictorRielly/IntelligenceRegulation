@@ -463,12 +463,14 @@ class TheRecordedFigures(unittest.TestCase):
             self.assertEqual(h["columns_authenticated"], 3328)
             self.assertEqual(h["bytes_hashed"], 9275392)
             chans = rec["stage7_channels"]["channels"]
-            self.assertEqual(len(chans), 25)
+            # [ROUND 8] 25 -> 28, the three added entries OPEN with both
+            # arms off.
+            self.assertEqual(len(chans), 28)
             by = {}
             for c in chans:
                 by[c["status"]] = by.get(c["status"], 0) + 1
             self.assertEqual(by, {"constructed": 2, "derived": 5,
-                                  "argued": 4, "open": 14})
+                                  "argued": 4, "open": 17})
 
     def test_every_control_of_record_fires(self):
         for name, rec in (("run-i", self.i), ("run-j", self.j)):

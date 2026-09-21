@@ -202,11 +202,14 @@ class TestRecordedEvidence(unittest.TestCase):
         nothing that was closed opened."""
         for name, rec in self.records().items():
             ch = rec["stage7_channels"]
-            self.assertEqual(ch["total"], 25, name)
-            self.assertEqual(len(ch["channels"]), 25, name)
+            # [ROUND 8] 25 -> 28: M's q, M's proximity vector and M's own
+            # opened columns are graded separately now, and with both arms
+            # off all three are OPEN.
+            self.assertEqual(ch["total"], 28, name)
+            self.assertEqual(len(ch["channels"]), 28, name)
             self.assertEqual(
                 ch["counts"],
-                {"constructed": 2, "derived": 4, "argued": 4, "open": 15},
+                {"constructed": 2, "derived": 4, "argued": 4, "open": 18},
                 name,
             )
             self.assertEqual(ch["grading_failures"], [], name)

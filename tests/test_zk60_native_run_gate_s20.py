@@ -361,8 +361,11 @@ class TestRecordedEvidence(unittest.TestCase):
     def test_the_channel_table_recounted_from_the_tools_own_array(self):
         for name, rec in self.records().items():
             ch = rec["stage7_channels"]
-            self.assertEqual(ch["total"], 25, name)
-            self.assertEqual(ch["counts"]["open"], 14, name)
+            # [ROUND 8] the array gained M's three own channels, all OPEN
+            # with both arms off, so 25 -> 28 and 14 -> 17 open.  No figure
+            # moved: three entries were ADDED.
+            self.assertEqual(ch["total"], 28, name)
+            self.assertEqual(ch["counts"]["open"], 17, name)
             self.assertEqual(ch["counts"]["derived"], 5, name)
             self.assertEqual(ch["counts"]["constructed"], 2, name)
             self.assertEqual(ch["counts"]["argued"], 4, name)
