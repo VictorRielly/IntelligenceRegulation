@@ -2194,8 +2194,9 @@ Round 8 closes it, and closing it makes the run's preimage joint.
    entries, all on the `b` and `u` rows of that one column; and M-5 is the
    masking layer's own P-5.
 6. **A JOINT run-wide preimage** (§12.7), the thing §11.7 listed as still
-   open: one assignment, **1,145,727–1,329,905 entries recomputed and
-   compared, none differing, 3,328 salted leaves re-authenticated**, with
+   open: one assignment per run, **1,145,727–1,329,950 entries recomputed
+   and compared per run and 4,954,912 over the four, none differing, 3,328
+   salted leaves re-authenticated per run and 13,312 over the four**, with
    the four couplings of an honest run enumerated and each checked.
 7. **The channel table goes from 25 to 28 and from 5 / 5 / 4 / 11 to
    10 / 5 / 4 / 9.** Three channels are new (`M`'s `q`, `M`'s proximity
@@ -2326,6 +2327,49 @@ is the flat honest transcript whose claimed sum the hosted slots' published
 scalars force, projected onto the 34 functional identities (the conservative
 accounting); what is SOLVED is the `L_s` mask coefficients of every slot,
 the 256 pads of every a-row, the two `b` rows and the two `u` rows.
+
+**The masking layer, per bundle** (three stages each; an `Fp2` entry counts
+once, as in §11.5):
+
+| bundle | masked round entries | scalars | functional values | `q` | `prox` | opened columns | **total** | **differing** | salted leaves | stage-12 s |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `run-g-dense-s20` | 3,165 | 69 | 102 | 3,072 | 3,072 | 38,400 | **47,880** | **0** | 768 | 18.0 |
+| `run-h-zero-s20` | 3,165 | 69 | 102 | 3,072 | 3,072 | 38,400 | **47,880** | **0** | 768 | 17.9 |
+| `run-i-dense-k4` | 3,210 | 69 | 102 | 3,072 | 3,072 | 38,400 | **47,925** | **0** | 768 | 18.0 |
+| `run-j-zero-k4` | 3,210 | 69 | 102 | 3,072 | 3,072 | 38,400 | **47,925** | **0** | 768 | 18.0 |
+| **total** | 12,750 | 276 | 408 | 12,288 | 12,288 | 153,600 | **191,610** | **0** | **3,072** | |
+
+"Entries compared" means the view was RECOMPUTED from (the fixed transcript
++ the solved coefficients + the solved blinding) by the forward map and
+compared with the capture, entry by entry. **None differ**, on any stage of
+any bundle. The two ZERO bundles are the sanity anchor as they are for round
+7: on them the prover's own hidden input was all zero, and the masking layer
+behaves exactly as on the dense ones — which is itself the point, since the
+masking layer's data is a transcript and not an input.
+
+**Per stage the figures are flat**, because `M`'s geometry does not depend
+on the stage: 50 rows, 34 functionals, disclosed 2 `Fp`, the CFS fibre 46
+`Fp` (2 per slot, on all 23), `q` and `prox` 1,024 entries each, 12,800
+opened column entries, 256 salted leaves at 12 levels. What varies from
+stage to stage is only `D`, the number of distinct sampled columns, and
+therefore the pad margin: **2 to 10** over the twelve stages.
+
+**The hash layer of `M`'s opened columns.** For each of the 256 opened
+columns of each stage the column is rebuilt from the preimage, its leaf
+digest recomputed under the bundle's own derived rule, salted with the
+PUBLISHED salt and folded along the PUBLISHED 12-level path. All 768 per
+bundle reach the committed root and all 768 rebuilt columns equal the
+capture's bytes. The unopened leaves are not reproduced and cannot be.
+
+**Joined with round 7**, the whole run (§12.7):
+
+| bundle | PCS entries (round 7) | masking entries (round 8) | **joint total** | **differing** | salted leaves |
+|---|---:|---:|---:|---:|---:|
+| `run-g-dense-s20` | 1,097,847 | 47,880 | **1,145,727** | **0** | 3,328 |
+| `run-h-zero-s20` | 1,103,569 | 47,880 | **1,151,449** | **0** | 3,328 |
+| `run-i-dense-k4` | 1,282,025 | 47,925 | **1,329,950** | **0** | 3,328 |
+| `run-j-zero-k4` | 1,279,861 | 47,925 | **1,327,786** | **0** | 3,328 |
+| **total** | 4,763,302 | 191,610 | **4,954,912** | **0** | **13,312** |
 
 **Where the honest round polynomials went, and why there is no pretending.**
 Round 7 could fix its data block to ZERO because a data block is a public
