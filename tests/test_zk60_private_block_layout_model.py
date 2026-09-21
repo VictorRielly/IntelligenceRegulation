@@ -838,5 +838,59 @@ class DerivedEndpoints(unittest.TestCase):
         self.assertNotIn("endpoint_rows", inspect.signature(M.Shape.__init__).parameters)
 
 
+class TheTokenCountRefusal(unittest.TestCase):
+    """**LANE STAGE 33, RULING S-6 — the model mirrors the Rust's refusal.**
+
+    A shape whose PADDED token count is at or above the row width is the
+    family that reaches `a_groups`'s first arm, which no registered shape
+    reaches.  The Rust refuses it at construction by name; the model must
+    refuse the same shapes, by the same name, or it would price a geometry
+    the prover will not build."""
+
+    def test_a_padded_token_count_at_the_row_width_is_refused_by_name(self):
+        with self.assertRaises(ValueError) as cm:
+            M.Shape("probe", tokens=256, width=16, hidden=16, q_heads=2,
+                    head_dim=8, kv_heads=1, log_cols=8, inv_rate=8, f_e=9)
+        msg = str(cm.exception)
+        self.assertIn("ruling S-6", msg)
+        self.assertIn("token count", msg)
+        self.assertIn("a_groups", msg)
+
+    def test_the_boundary_is_the_padded_count_and_nothing_else(self):
+        """128 tokens at a row width of 2^8 construct; 129 pad to 256 and are
+        refused.  The same sweep the Rust runs, on the same axes."""
+        for tokens, refused in ((32, False), (64, False), (128, False), (129, True),
+                                (192, True), (256, True), (257, True), (512, True)):
+            with self.subTest(tokens=tokens):
+                mk = lambda: M.Shape("probe", tokens=tokens, width=16, hidden=16,
+                                     q_heads=2, head_dim=8, kv_heads=1, log_cols=8,
+                                     inv_rate=8, f_e=9)
+                if refused:
+                    with self.assertRaises(ValueError) as cm:
+                        mk()
+                    self.assertIn("ruling S-6", str(cm.exception))
+                else:
+                    s = mk()
+                    self.assertLess(s.natural_log("T"), s.log_cols)
+
+    def test_no_registered_shape_is_refused_and_none_reaches_the_first_arm(self):
+        for name, s in M.SHAPES.items():
+            with self.subTest(shape=name):
+                self.assertLess(s.natural_log("T"), s.log_cols)
+
+    def test_the_two_arms_of_the_tzc_term_agree_on_the_refused_family(self):
+        """Why the arm may stay where it is: on exactly the refused family
+        `t_pad` is a multiple of the row width (it is a power of two), so the
+        live arm's deduplicated offset set is `{0}` and it returns the first
+        arm's own 1."""
+        for log_cols in range(2, 17):
+            n = 1 << log_cols
+            for e in range(log_cols, log_cols + 5):
+                t_pad = 1 << e
+                offs = {(k * t_pad) % n for k in range(3 * M.LIMBS_ISQRT)} | {0}
+                with self.subTest(log_cols=log_cols, t_pad=t_pad):
+                    self.assertEqual(len(offs), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -160,6 +160,21 @@ class Shape:
         # ---- derived pads
         self.t_pad, self.d_pad = npot(tokens), npot(width)
         self.h_pad, self.f_pad = npot(q_heads), npot(hidden)
+        # **LANE STAGE 33, RULING S-6 — the Rust's refusal, mirrored.**
+        # `Shape::new` (`shape.rs`) refuses a shape whose PADDED token count is
+        # at or above the row width, because that is the family that reaches
+        # `a_groups`'s first arm and no registered shape reaches it.  The model
+        # must refuse the same shapes, by the same name, or it would price a
+        # shape the prover will not build.  On the refused family the two arms
+        # agree anyway (`t_pad` is a power of two, so every offset
+        # `k * t_pad % n` is 0), so this costs no pricing anybody uses.
+        if clog2(self.t_pad) >= log_cols:
+            raise ValueError(
+                "private block shape: ruling S-6 — the padded token count 2^%d (%d tokens) "
+                "is at or above the row width 2^%d, which is the family that reaches "
+                "`Shape::a_groups`'s unreached first arm; the A opening's group structure "
+                "would then be decided by a branch no registered shape takes and no test covers"
+                % (clog2(self.t_pad), tokens, log_cols))
         # ---- the endpoint, DERIVED (stage 23, finding B-12): never declared
         self.endpoint_words = self.t_pad * self.d_pad
         self.endpoint_general = not (
@@ -457,6 +472,12 @@ def opening_groups(sh: Shape):
     # SC_TZC's 22 sites: 4 Dom::T planes at column offset 0, and 9 limb
     # sub-slices per norm at offsets k * T_pad mod n.  Both limb planes are row
     # aligned, so the two norms raise the same set of offsets.
+    #
+    # STAGE 33, RULING S-6: the first arm is UNREACHABLE — a shape whose padded
+    # token count reaches the row width does not leave the constructor above.
+    # It is kept, as the Rust's is, because it is not a second behaviour: on
+    # exactly that family every offset is 0 and the second arm returns the same
+    # 1.
     if sh.natural_log("T") >= sh.log_cols:
         tzc = 1
     else:
