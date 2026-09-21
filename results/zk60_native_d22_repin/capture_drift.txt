@@ -1,0 +1,16 @@
+capture source_commit: 2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75
+
+== of the 92 files the capture manifest records, those that had ALREADY moved by 4751b93^ (2) ==
+   hashline/src/gpu/cuda.rs
+   zkp-core/src/mle.rs
+
+== those 4751b93 itself moves (7) ==
+   hashline/src/gpu/cuda.rs
+   hashline/src/gpu/mod.rs
+   hashline/src/layer.rs
+   hashline/src/pcs.rs
+   hashline/src/private_block.rs
+   hashline/src/wcache.rs
+   hashline/src/zk.rs
+
+== missing at 4751b93^ == []
