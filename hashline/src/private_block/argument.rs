@@ -456,6 +456,31 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             if tables.iter().any(|t| t.len() != 1usize << n) {
                 return Err(format!("private block: slot {s} table length"));
             }
+            // **STAGE 29 (integrator request R1b).** A COUNT, off unless the
+            // operator names this slot in `HL_PB_BASEFIELD`: how much of the
+            // data round 1 starts from is base-field-valued. It reads the
+            // tables and prints counts; it writes nothing, absorbs nothing and
+            // draws nothing, and the labels are schedule facts (which
+            // commitment, how many slices, how many fixed coordinates).
+            if super::timing::census_on(s) {
+                let labels: Vec<String> = def
+                    .tabs
+                    .iter()
+                    .map(|t| match t {
+                        Tab::Eq { point, start } => format!("Eq (challenge-weighted) |point|={} start={start}", point.len()),
+                        Tab::Pub(_) => "Pub (public table)".to_string(),
+                        Tab::Priv(p) => format!(
+                            "Priv cm={:?} log={} slices={} fixed={} ext_round={}",
+                            p.cm,
+                            p.log,
+                            p.slices.len(),
+                            p.coords.iter().filter(|c| matches!(c, Coord::Fixed(_))).count(),
+                            p.ext_round
+                        ),
+                    })
+                    .collect();
+                super::timing::base_field_census(s, &labels, &tables);
+            }
             let mask = &pd.masks[s];
             let scalar = super::timing::slot_step(s, "claimed sum: total (argument.rs)", 1u64 << n, || match kind {
                 SlotKind::Private => total(&tables, &def.poly).add(c.mul(mask.total())),

@@ -302,6 +302,94 @@ pub(crate) fn slot_step<T>(slot: usize, label: &str, size: u64, f: impl FnOnce()
     out
 }
 
+/// **STAGE 29 — THE BASE-FIELD CENSUS (integrator request R1b).** The switch
+/// of a diagnostic that COUNTS, per slot, how much of the table data a slot's
+/// sumcheck starts round 1 from is BASE-FIELD-valued (imaginary part zero),
+/// so that the joint change request R1(b) — a round-1 specialisation over the
+/// base field — can be decided on a count instead of a guess.
+///
+/// `HL_PB_BASEFIELD=all` censuses every slot; otherwise the value is a
+/// comma-separated list of slot indices (`HL_PB_BASEFIELD=17,14,18,15,04`).
+/// A bare `1` is the slot 1 of that list and NOT "on", deliberately: a census
+/// costs one pass over every word of the slot's tables and must be asked for
+/// by name.
+pub(crate) const BF_ENV: &str = "HL_PB_BASEFIELD";
+
+/// Read fresh at every slot, in this module's own style. Off by default and
+/// off for every slot not named.
+pub(crate) fn census_on(slot: usize) -> bool {
+    let Ok(v) = std::env::var(BF_ENV) else { return false };
+    if v == "all" {
+        return true;
+    }
+    v.split(',').filter_map(|s| s.trim().parse::<usize>().ok()).any(|s| s == slot)
+}
+
+/// **WHAT IT MAY PRINT.** A slot index and its public name, the number of
+/// tables, their lengths (a function of the public shape), a per-table
+/// STRUCTURAL label built from the slot descriptor (which commitment, how many
+/// slices, how many fixed coordinates — all schedule facts, public) and
+/// COUNTS of how many words have a zero imaginary part. **Never a value**: no
+/// field element, no witness word, no challenge is printed or derived from,
+/// and the count is over a predicate (`c1 == 0`) whose answer for an honest
+/// witness is decided by the SHAPE of the table, not by the data — a private
+/// plane's cube is base-field because the plane is integer data, whatever the
+/// integers are.
+///
+/// It is write-only with respect to the protocol: it returns `()`, touches no
+/// transcript, no generator and no buffer, and is called only when
+/// [`census_on`] says the operator asked for this slot.
+pub(crate) fn base_field_census(slot: usize, labels: &[String], tables: &[Vec<crate::field::Fp2>]) {
+    use rayon::prelude::*;
+    let t = Instant::now();
+    let per: Vec<usize> = tables.par_iter().map(|t| t.iter().filter(|w| w.c1.is_zero()).count()).collect();
+    let secs = t.elapsed().as_secs_f64();
+    let name = if slot < N_SLOTS { SLOT_NAMES[slot] } else { "?" };
+    let words: usize = tables.iter().map(|t| t.len()).sum();
+    let base: usize = per.iter().sum();
+    let whole = per.iter().zip(tables.iter()).filter(|(b, t)| **b == t.len()).count();
+    let pc = |a: usize, b: usize| if b > 0 { 100.0 * a as f64 / b as f64 } else { 0.0 };
+    println!(
+        "PB-BFCENSUS slot {slot:02} | {name} | tables {:>3} | wholly base-field {:>3} | words {words:>12} | base-field words {base:>12} ({:>5.1}%) | scan {secs:.3} s",
+        tables.len(),
+        whole,
+        pc(base, words)
+    );
+    // one line per DESCRIPTOR CLASS (identical structural labels collapse: a
+    // zero-check slot carries dozens of plain `A` planes), then the exceptions
+    // by table index. Nothing here is a value.
+    let mut order: Vec<&str> = Vec::new();
+    for l in labels {
+        if !order.contains(&l.as_str()) {
+            order.push(l);
+        }
+    }
+    for lab in order {
+        let mut ts = 0usize;
+        let (mut w, mut b, mut whole_g) = (0usize, 0usize, 0usize);
+        let mut mixed: Vec<usize> = Vec::new();
+        for (i, tb) in tables.iter().enumerate() {
+            if labels.get(i).map(|s| s.as_str()) != Some(lab) {
+                continue;
+            }
+            ts += 1;
+            w += tb.len();
+            b += per[i];
+            if per[i] == tb.len() {
+                whole_g += 1;
+            } else if per[i] != 0 {
+                mixed.push(i);
+            }
+        }
+        let verdict = if whole_g == ts { "ALL BASE-FIELD" } else if b == 0 { "extension everywhere" } else { "partly base-field" };
+        println!(
+            "PB-BFCENSUS slot {slot:02} | {lab:<48} | tables {ts:>3} | words {w:>12} | base-field {b:>12} ({:>5.1}%) | wholly base-field {whole_g:>3} | {verdict}{}",
+            pc(b, w),
+            if mixed.is_empty() { String::new() } else { format!(" | mixed tables {mixed:?}") }
+        );
+    }
+}
+
 /// Time one call that happens OUTSIDE a [`Phases`] recorder's scope — the wire
 /// encode on the prover's side and the wire decode on the verifier's — and
 /// print one line for it. Off: `f()` and nothing else.

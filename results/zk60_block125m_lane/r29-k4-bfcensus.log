@@ -1,0 +1,347 @@
+
+running 1 test
+test private_block::k4_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k4 ... S22 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.000 s |        12288 |
+PB-BFCENSUS slot 00 | 01 SS row sums norm_a (private) | tables   3 | wholly base-field   2 | words        12288 | base-field words         8192 ( 66.7%) | scan 0.000 s
+PB-BFCENSUS slot 00 | Eq (challenge-weighted) |point|=5 start=0        | tables   1 | words         4096 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 00 | Priv cm=A log=12 slices=1 fixed=0 ext_round=0    | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-BFCENSUS slot 00 | Pub (public table)                               | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.001 s |         4096 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.000 s |        12288 |
+PB-BFCENSUS slot 01 | 01m SS row sums norm_m (private) | tables   3 | wholly base-field   2 | words        12288 | base-field words         8192 ( 66.7%) | scan 0.000 s
+PB-BFCENSUS slot 01 | Eq (challenge-weighted) |point|=5 start=0        | tables   1 | words         4096 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 01 | Priv cm=A log=12 slices=1 fixed=0 ext_round=0    | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-BFCENSUS slot 01 | Pub (public table)                               | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.001 s |         4096 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |          832 |
+PB-BFCENSUS slot 02 | 02 norm squares zero-check (hosts 01, 01m) | tables  26 | wholly base-field  23 | words          832 | base-field words          736 ( 88.5%) | scan 0.001 s
+PB-BFCENSUS slot 02 | Eq (challenge-weighted) |point|=5 start=0        | tables   3 | words           96 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 02 | Priv cm=A log=5 slices=1 fixed=0 ext_round=0     | tables  22 | words          704 | base-field          704 (100.0%) | wholly base-field  22 | ALL BASE-FIELD
+PB-BFCENSUS slot 02 | Pub (public table)                               | tables   1 | words           32 | base-field           32 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |           32 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |           32 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.000 s |         5120 |
+PB-BFCENSUS slot 03 | 08 limb zero-check | tables   5 | wholly base-field   3 | words         5120 | base-field words         3072 ( 60.0%) | scan 0.000 s
+PB-BFCENSUS slot 03 | Eq (challenge-weighted) |point|=10 start=0       | tables   1 | words         1024 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 03 | Priv cm=A log=10 slices=1 fixed=0 ext_round=0    | tables   2 | words         2048 | base-field         2048 (100.0%) | wholly base-field   2 | ALL BASE-FIELD
+PB-BFCENSUS slot 03 | Priv cm=H log=10 slices=2 fixed=0 ext_round=0    | tables   1 | words         1024 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 03 | Pub (public table)                               | tables   1 | words         1024 | base-field         1024 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.001 s |         1024 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.000 s |        81920 |
+PB-BFCENSUS slot 04 | 07 masked row sums + selector (private) | tables   5 | wholly base-field   4 | words        81920 | base-field words        65536 ( 80.0%) | scan 0.000 s
+PB-BFCENSUS slot 04 | Eq (challenge-weighted) |point|=9 start=0        | tables   1 | words        16384 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 04 | Pub (public table)                               | tables   2 | words        32768 | base-field        32768 (100.0%) | wholly base-field   2 | ALL BASE-FIELD
+PB-BFCENSUS slot 04 | Priv cm=A log=14 slices=1 fixed=0 ext_round=0    | tables   2 | words        32768 | base-field        32768 (100.0%) | wholly base-field   2 | ALL BASE-FIELD
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |        16384 |
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.004 s |        16384 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.000 s |          256 |
+PB-BFCENSUS slot 05 | 09Q matmul (private) | tables   2 | wholly base-field   0 | words          256 | base-field words           64 ( 25.0%) | scan 0.000 s
+PB-BFCENSUS slot 05 | Priv cm=A log=12 slices=1 fixed=5 ext_round=0    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [0]
+PB-BFCENSUS slot 05 | Pub (public table)                               | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.000 s |          256 |
+PB-BFCENSUS slot 06 | 09K matmul (private) | tables   2 | wholly base-field   0 | words          256 | base-field words           64 ( 25.0%) | scan 0.000 s
+PB-BFCENSUS slot 06 | Priv cm=A log=12 slices=1 fixed=5 ext_round=0    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [0]
+PB-BFCENSUS slot 06 | Pub (public table)                               | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.000 s |          256 |
+PB-BFCENSUS slot 07 | 09V matmul (private) | tables   2 | wholly base-field   0 | words          256 | base-field words           64 ( 25.0%) | scan 0.000 s
+PB-BFCENSUS slot 07 | Priv cm=A log=12 slices=1 fixed=5 ext_round=0    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [0]
+PB-BFCENSUS slot 07 | Pub (public table)                               | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.000 s |           96 |
+PB-BFCENSUS slot 08 | 10 score matmul (private, bilinear) | tables   3 | wholly base-field   0 | words           96 | base-field words            0 (  0.0%) | scan 0.000 s
+PB-BFCENSUS slot 08 | Eq (challenge-weighted) |point|=2 start=0        | tables   1 | words           32 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 08 | Priv cm=A log=12 slices=1 fixed=7 ext_round=0    | tables   1 | words           32 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 08 | Priv cm=A log=10 slices=1 fixed=5 ext_round=1    | tables   1 | words           32 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |           32 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |           32 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.000 s |          384 |
+PB-BFCENSUS slot 09 | 11 PV matmul (private, bilinear) | tables   3 | wholly base-field   0 | words          384 | base-field words           64 ( 16.7%) | scan 0.000 s
+PB-BFCENSUS slot 09 | Eq (challenge-weighted) |point|=2 start=0        | tables   1 | words          128 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 09 | Priv cm=A log=14 slices=1 fixed=7 ext_round=0    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-BFCENSUS slot 09 | Priv cm=A log=10 slices=1 fixed=3 ext_round=1    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [2]
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.000 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.000 s |          256 |
+PB-BFCENSUS slot 10 | 12 Wo matmul (private) | tables   2 | wholly base-field   0 | words          256 | base-field words           64 ( 25.0%) | scan 0.000 s
+PB-BFCENSUS slot 10 | Priv cm=A log=12 slices=1 fixed=5 ext_round=0    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [0]
+PB-BFCENSUS slot 10 | Pub (public table)                               | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.000 s |          256 |
+PB-BFCENSUS slot 11 | 13G gate matmul (private) | tables   2 | wholly base-field   0 | words          256 | base-field words           64 ( 25.0%) | scan 0.000 s
+PB-BFCENSUS slot 11 | Priv cm=A log=12 slices=1 fixed=5 ext_round=0    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [0]
+PB-BFCENSUS slot 11 | Pub (public table)                               | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.000 s |          256 |
+PB-BFCENSUS slot 12 | 13U up matmul (private) | tables   2 | wholly base-field   0 | words          256 | base-field words           64 ( 25.0%) | scan 0.000 s
+PB-BFCENSUS slot 12 | Priv cm=A log=12 slices=1 fixed=5 ext_round=0    | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [0]
+PB-BFCENSUS slot 12 | Pub (public table)                               | tables   1 | words          128 | base-field           32 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.000 s |          512 |
+PB-BFCENSUS slot 13 | 13D down matmul (private) | tables   2 | wholly base-field   0 | words          512 | base-field words          128 ( 25.0%) | scan 0.000 s
+PB-BFCENSUS slot 13 | Priv cm=A log=13 slices=1 fixed=5 ext_round=0    | tables   1 | words          256 | base-field           64 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [0]
+PB-BFCENSUS slot 13 | Pub (public table)                               | tables   1 | words          256 | base-field           64 ( 25.0%) | wholly base-field   0 | partly base-field | mixed tables [1]
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.001 s |       253952 |
+PB-BFCENSUS slot 14 | 03 D zero-check (hosts 12, 13D) | tables  62 | wholly base-field  40 | words       253952 | base-field words       163840 ( 64.5%) | scan 0.001 s
+PB-BFCENSUS slot 14 | Eq (challenge-weighted) |point|=12 start=0       | tables   3 | words        12288 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 14 | Pub (public table)                               | tables   3 | words        12288 | base-field        12288 (100.0%) | wholly base-field   3 | ALL BASE-FIELD
+PB-BFCENSUS slot 14 | Priv cm=A log=12 slices=1 fixed=0 ext_round=0    | tables  35 | words       143360 | base-field       143360 (100.0%) | wholly base-field  35 | ALL BASE-FIELD
+PB-BFCENSUS slot 14 | Priv cm=A log=5 slices=1 fixed=0 ext_round=0     | tables   2 | words         8192 | base-field         8192 (100.0%) | wholly base-field   2 | ALL BASE-FIELD
+PB-BFCENSUS slot 14 | Priv cm=H log=12 slices=2 fixed=0 ext_round=0    | tables  19 | words        77824 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.166 s |         4096 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.001 s |        86016 |
+PB-BFCENSUS slot 15 | 04 Q zero-check (hosts 09Q, 11) | tables  21 | wholly base-field  11 | words        86016 | base-field words        45056 ( 52.4%) | scan 0.001 s
+PB-BFCENSUS slot 15 | Eq (challenge-weighted) |point|=12 start=0       | tables   3 | words        12288 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 15 | Pub (public table)                               | tables   3 | words        12288 | base-field        12288 (100.0%) | wholly base-field   3 | ALL BASE-FIELD
+PB-BFCENSUS slot 15 | Priv cm=A log=12 slices=1 fixed=0 ext_round=0    | tables   8 | words        32768 | base-field        32768 (100.0%) | wholly base-field   8 | ALL BASE-FIELD
+PB-BFCENSUS slot 15 | Priv cm=H log=12 slices=2 fixed=0 ext_round=0    | tables   7 | words        28672 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.012 s |         4096 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.000 s |        19456 |
+PB-BFCENSUS slot 16 | 05 KV zero-check (hosts 09K, 09V) | tables  19 | wholly base-field  10 | words        19456 | base-field words        10240 ( 52.6%) | scan 0.001 s
+PB-BFCENSUS slot 16 | Eq (challenge-weighted) |point|=10 start=0       | tables   3 | words         3072 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 16 | Pub (public table)                               | tables   3 | words         3072 | base-field         3072 (100.0%) | wholly base-field   3 | ALL BASE-FIELD
+PB-BFCENSUS slot 16 | Priv cm=A log=10 slices=1 fixed=0 ext_round=0    | tables   7 | words         7168 | base-field         7168 (100.0%) | wholly base-field   7 | ALL BASE-FIELD
+PB-BFCENSUS slot 16 | Priv cm=H log=10 slices=2 fixed=0 ext_round=0    | tables   6 | words         6144 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.003 s |         1024 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.008 s |       491520 |
+PB-BFCENSUS slot 17 | 06 softmax zero-check (hosts 07, 10) | tables  30 | wholly base-field  18 | words       491520 | base-field words       294912 ( 60.0%) | scan 0.001 s
+PB-BFCENSUS slot 17 | Eq (challenge-weighted) |point|=14 start=0       | tables   2 | words        32768 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 17 | Eq (challenge-weighted) |point|=9 start=0        | tables   1 | words        16384 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 17 | Pub (public table)                               | tables   3 | words        49152 | base-field        49152 (100.0%) | wholly base-field   3 | ALL BASE-FIELD
+PB-BFCENSUS slot 17 | Priv cm=A log=14 slices=1 fixed=0 ext_round=0    | tables  13 | words       212992 | base-field       212992 (100.0%) | wholly base-field  13 | ALL BASE-FIELD
+PB-BFCENSUS slot 17 | Priv cm=A log=9 slices=1 fixed=0 ext_round=0     | tables   2 | words        32768 | base-field        32768 (100.0%) | wholly base-field   2 | ALL BASE-FIELD
+PB-BFCENSUS slot 17 | Priv cm=H log=14 slices=2 fixed=0 ext_round=0    | tables   9 | words       147456 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.180 s |        16384 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.004 s |       172032 |
+PB-BFCENSUS slot 18 | 14 F zero-check (hosts 13G, 13U) | tables  21 | wholly base-field  12 | words       172032 | base-field words        98304 ( 57.1%) | scan 0.001 s
+PB-BFCENSUS slot 18 | Eq (challenge-weighted) |point|=13 start=0       | tables   3 | words        24576 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 18 | Priv cm=A log=13 slices=1 fixed=0 ext_round=0    | tables  11 | words        90112 | base-field        90112 (100.0%) | wholly base-field  11 | ALL BASE-FIELD
+PB-BFCENSUS slot 18 | Priv cm=H log=13 slices=2 fixed=0 ext_round=0    | tables   6 | words        49152 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 18 | Pub (public table)                               | tables   1 | words         8192 | base-field         8192 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |         8192 |
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.071 s |         8192 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.000 s |        11264 |
+PB-BFCENSUS slot 19 | TAB table helper zero-check | tables  11 | wholly base-field   4 | words        11264 | base-field words         6719 ( 59.7%) | scan 0.000 s
+PB-BFCENSUS slot 19 | Eq (challenge-weighted) |point|=10 start=0       | tables   1 | words         1024 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 19 | Priv cm=A log=10 slices=1 fixed=0 ext_round=0    | tables   3 | words         3072 | base-field         3072 (100.0%) | wholly base-field   3 | ALL BASE-FIELD
+PB-BFCENSUS slot 19 | Priv cm=H log=10 slices=2 fixed=0 ext_round=0    | tables   3 | words         3072 | base-field         2623 ( 85.4%) | wholly base-field   0 | partly base-field | mixed tables [2, 5, 8]
+PB-BFCENSUS slot 19 | Pub (public table)                               | tables   4 | words         4096 | base-field         1024 ( 25.0%) | wholly base-field   1 | partly base-field
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.001 s |         1024 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |         2048 |
+PB-BFCENSUS slot 20 | ZS zero-sum row | tables   2 | wholly base-field   1 | words         2048 | base-field words         1024 ( 50.0%) | scan 0.000 s
+PB-BFCENSUS slot 20 | Pub (public table)                               | tables   1 | words         1024 | base-field         1024 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-BFCENSUS slot 20 | Priv cm=H log=10 slices=2 fixed=0 ext_round=0    | tables   1 | words         1024 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.000 s |        12288 |
+PB-BFCENSUS slot 21 | IO-in endpoint equality | tables   3 | wholly base-field   2 | words        12288 | base-field words         8192 ( 66.7%) | scan 0.000 s
+PB-BFCENSUS slot 21 | Eq (challenge-weighted) |point|=12 start=0       | tables   1 | words         4096 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 21 | Priv cm=A log=12 slices=1 fixed=0 ext_round=0    | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-BFCENSUS slot 21 | Priv cm=In log=12 slices=1 fixed=0 ext_round=0   | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.000 s |        12288 |
+PB-BFCENSUS slot 22 | IO-out endpoint equality | tables   3 | wholly base-field   2 | words        12288 | base-field words         8192 ( 66.7%) | scan 0.000 s
+PB-BFCENSUS slot 22 | Eq (challenge-weighted) |point|=12 start=0       | tables   1 | words         4096 | base-field            0 (  0.0%) | wholly base-field   0 | extension everywhere
+PB-BFCENSUS slot 22 | Priv cm=A log=12 slices=1 fixed=0 ext_round=0    | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-BFCENSUS slot 22 | Priv cm=Out log=12 slices=1 fixed=0 ext_round=0  | tables   1 | words         4096 | base-field         4096 (100.0%) | wholly base-field   1 | ALL BASE-FIELD
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |         4096 |
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.000 s |         4096 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-TIMING prove [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)] 42 phases, wall 0.651 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING prove | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING prove | setup: layout, endpoint owners, OS randomness | setup        |    0.000 |   0.0% |  1447 A+H rows |        14 |        14 |
+PB-TIMING prove | setup: NTT tables                            | setup        |    0.000 |   0.0% |    4096 domain |        15 |        15 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.003 |   0.5% |   744448 words |        20 |        20 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.004 |   0.6% |   542720 words |        25 |        25 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.000 |   0.0% |    24576 words |        25 |        25 |
+PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.004 |   0.7% |   251904 words |        25 |        25 |
+PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.044 |   6.8% |       727 rows |        52 |        53 |
+PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.020 |   3.1% |        50 rows |        54 |        54 |
+PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    0.027 |   4.1% |   542720 words |        60 |        60 |
+PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.001 |   0.1% |    24576 words |        61 |        61 |
+PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.000 |   0.0% |            0 - |        59 |        60 |
+PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |     3072 words |        59 |        60 |
+PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.002 |   0.3% |   108544 words |        59 |        60 |
+PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.042 |   6.5% |       720 rows |        86 |        86 |
+PB-TIMING prove | slot 00 01 SS row sums norm_a (private)      | norm         |    0.001 |   0.2% |      8192 cube |        86 |        86 |
+PB-TIMING prove | slot 01 01m SS row sums norm_m (private)     | norm         |    0.001 |   0.2% |      8192 cube |        86 |        86 |
+PB-TIMING prove | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.001 |   0.1% |        64 cube |        86 |        86 |
+PB-TIMING prove | slot 03 08 limb zero-check                   | norm         |    0.001 |   0.1% |      2048 cube |        86 |        86 |
+PB-TIMING prove | slot 04 07 masked row sums + selector (private) | attention    |    0.005 |   0.8% |     32768 cube |        87 |        87 |
+PB-TIMING prove | slot 05 09Q matmul (private)                 | attention    |    0.000 |   0.0% |       256 cube |        87 |        87 |
+PB-TIMING prove | slot 06 09K matmul (private)                 | attention    |    0.000 |   0.0% |       256 cube |        87 |        87 |
+PB-TIMING prove | slot 07 09V matmul (private)                 | attention    |    0.000 |   0.0% |       256 cube |        87 |        87 |
+PB-TIMING prove | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |       128 cube |        87 |        87 |
+PB-TIMING prove | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.1% |       512 cube |        87 |        87 |
+PB-TIMING prove | slot 10 12 Wo matmul (private)               | attention    |    0.000 |   0.0% |       256 cube |        87 |        87 |
+PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.001 |   0.2% |       256 cube |        87 |        87 |
+PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.002 |   0.2% |       256 cube |        87 |        87 |
+PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.002 |   0.3% |       512 cube |        87 |        87 |
+PB-TIMING prove | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.169 |  26.0% |      8192 cube |        87 |        87 |
+PB-TIMING prove | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.014 |   2.1% |      8192 cube |        87 |        87 |
+PB-TIMING prove | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.004 |   0.6% |      2048 cube |        87 |        87 |
+PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.190 |  29.2% |     32768 cube |        90 |        90 |
+PB-TIMING prove | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.076 |  11.6% |     16384 cube |        90 |        90 |
+PB-TIMING prove | slot 19 TAB table helper zero-check          | lookup-table |    0.002 |   0.2% |      2048 cube |        90 |        90 |
+PB-TIMING prove | slot 20 ZS zero-sum row                      | lookup-table |    0.000 |   0.0% |      2048 cube |        90 |        90 |
+PB-TIMING prove | slot 21 IO-in endpoint equality              | endpoints    |    0.001 |   0.1% |      8192 cube |        90 |        90 |
+PB-TIMING prove | slot 22 IO-out endpoint equality             | endpoints    |    0.001 |   0.1% |      8192 cube |        90 |        90 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.7% |        50 rows |        88 |        88 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.010 |   1.5% |     122 claims |        58 |        88 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.011 |   1.7% |      53 claims |        29 |        88 |
+PB-TIMING prove | open endpoint IN (pcs::open_zk)              | openings     |    0.002 |   0.3% |         9 rows |        28 |        88 |
+PB-TIMING prove | open endpoint OUT (pcs::open_zk)             | openings     |    0.002 |   0.3% |         9 rows |        28 |        88 |
+PB-TIMING prove | SUM OF PHASES                                |              |    0.650 |  99.8% |
+PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |    0.651 | 100.0% |
+PB-TIMING prove | unaccounted (wall - sum)                     |              |    0.001 |   0.2% |
+PB-TIMING prove HALF setup             0.000 s    0.0%  (2 phases)
+PB-TIMING prove HALF commit            0.149 s   22.8%  (12 phases)
+PB-TIMING prove HALF norm              0.004 s    0.6%  (4 phases)
+PB-TIMING prove HALF attention         0.215 s   33.0%  (10 phases)
+PB-TIMING prove HALF feed-forward      0.081 s   12.4%  (4 phases)
+PB-TIMING prove HALF residual          0.169 s   26.0%  (1 phases)
+PB-TIMING prove HALF lookup-table      0.002 s    0.3%  (2 phases)
+PB-TIMING prove HALF endpoints         0.001 s    0.2%  (2 phases)
+PB-TIMING prove HALF openings          0.029 s    4.5%  (5 phases)
+PB-TIMING prove SPLIT attention 0.215 s (33.0%) | feed-forward 0.081 s (12.4%) | the rest 0.354 s (54.4%) — of the 0.651 s wall
+PB-TIMING prove NOTE slot 14 (D zero-check) is the one MIXED slot — 0.169 s (26.0%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.005 |        |  4743128 B     |        35 |        88 |
+PB-TIMING verify [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)] 31 phases, wall 0.130 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |  1447 A+H rows |        35 |        88 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |    4096 domain |        35 |        88 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.000 |   0.1% |        2 roots |        35 |        88 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.002 |   1.7% |      8192 cube |        35 |        88 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.003 |   1.9% |      8192 cube |        35 |        88 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.001 |   0.9% |        64 cube |        35 |        88 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   1.9% |      2048 cube |        35 |        88 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.015 |  11.8% |     32768 cube |        35 |        88 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.002 |   1.4% |       256 cube |        35 |        88 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   1.2% |       256 cube |        35 |        88 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   1.5% |       256 cube |        35 |        88 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |       128 cube |        35 |        88 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |       512 cube |        35 |        88 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   1.9% |       256 cube |        35 |        88 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.004 |   2.8% |       256 cube |        35 |        88 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.003 |   2.5% |       256 cube |        35 |        88 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.004 |   3.1% |       512 cube |        35 |        88 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.008 |   6.3% |      8192 cube |        35 |        88 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.007 |   5.7% |      8192 cube |        35 |        88 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.008 |   5.8% |      2048 cube |        35 |        88 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.028 |  21.2% |     32768 cube |        35 |        88 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.006 |   4.9% |     16384 cube |        35 |        88 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.008 |   5.8% |      2048 cube |        35 |        88 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   1.8% |      2048 cube |        35 |        88 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |      8192 cube |        35 |        88 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |      8192 cube |        35 |        88 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   3.1% |        50 rows |        36 |        88 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.008 |   6.2% |     122 claims |        36 |        88 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.005 |   3.7% |      53 claims |        36 |        88 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.001 |   1.0% |         9 rows |        36 |        88 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.001 |   0.9% |         9 rows |        36 |        88 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.129 |  99.3% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.130 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.7% |
+PB-TIMING verify HALF setup             0.000 s    0.1%  (3 phases)
+PB-TIMING verify HALF norm              0.008 s    6.4%  (4 phases)
+PB-TIMING verify HALF attention         0.066 s   50.6%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.017 s   13.3%  (4 phases)
+PB-TIMING verify HALF residual          0.008 s    6.3%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.010 s    7.6%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.019 s   14.9%  (5 phases)
+PB-TIMING verify SPLIT attention 0.066 s (50.6%) | feed-forward 0.017 s (13.3%) | the rest 0.046 s (35.4%) — of the 0.130 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.008 s (6.3%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.002 |        |  4743128 B     |        36 |        88 |
+PB-TIMING verify [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)] 31 phases, wall 0.121 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |  1447 A+H rows |        36 |        88 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |    4096 domain |        36 |        88 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.000 |   0.1% |        2 roots |        36 |        88 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.002 |   1.8% |      8192 cube |        36 |        88 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.002 |   1.5% |      8192 cube |        36 |        88 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.001 |   0.9% |        64 cube |        36 |        88 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.002 |   1.7% |      2048 cube |        36 |        88 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.015 |  12.8% |     32768 cube |        37 |        88 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.002 |   1.3% |       256 cube |        37 |        88 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.001 |   1.1% |       256 cube |        37 |        88 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.001 |   1.2% |       256 cube |        37 |        88 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |       128 cube |        37 |        88 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |       512 cube |        37 |        88 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.002 |   1.8% |       256 cube |        37 |        88 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   4.6% |       256 cube |        37 |        88 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   3.8% |       256 cube |        37 |        88 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.003 |   2.8% |       512 cube |        37 |        88 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.007 |   5.9% |      8192 cube |        37 |        88 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.008 |   6.7% |      8192 cube |        37 |        88 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.007 |   5.9% |      2048 cube |        37 |        88 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.021 |  17.3% |     32768 cube |        37 |        88 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.005 |   4.1% |     16384 cube |        37 |        88 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.009 |   7.2% |      2048 cube |        37 |        88 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.002 |   1.8% |      2048 cube |        37 |        88 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |      8192 cube |        37 |        88 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |      8192 cube |        37 |        88 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   3.4% |        50 rows |        38 |        88 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.007 |   5.9% |     122 claims |        38 |        88 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.003 |   2.9% |      53 claims |        38 |        88 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.002 |   1.3% |         9 rows |        38 |        88 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.002 |   1.6% |         9 rows |        38 |        88 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.120 |  99.3% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.121 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.7% |
+PB-TIMING verify HALF setup             0.000 s    0.1%  (3 phases)
+PB-TIMING verify HALF norm              0.007 s    5.9%  (4 phases)
+PB-TIMING verify HALF attention         0.058 s   48.1%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.018 s   15.3%  (4 phases)
+PB-TIMING verify HALF residual          0.007 s    5.9%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.011 s    9.1%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.018 s   15.0%  (5 phases)
+PB-TIMING verify SPLIT attention 0.058 s (48.1%) | feed-forward 0.018 s (15.3%) | the rest 0.043 s (35.9%) — of the 0.121 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.007 s (5.9%) counted under 'residual', hosting one attention and one feed-forward matmul
+rung-K4 DENSE one block: prove 0.69 s, verify from bytes 0.12 s, frame 4743128 B
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.000 |        |  4743127 B     |        38 |        88 |
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 406 filtered out; finished in 0.95s
+
