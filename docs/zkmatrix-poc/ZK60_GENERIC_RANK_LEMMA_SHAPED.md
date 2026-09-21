@@ -1144,9 +1144,13 @@ each of which is `table_values_*_at(Dom::Tab.len(), …)`
 (`layout.rs:48`) — i.e. **256, at every shape**, not `sh.size(Dom::Tab)`. So
 the term is `3 × 256 = 768` everywhere. [COUNTED,
 `..._check/refusal_recount.txt` §A, and verified in the code at `e6b612f`
-while editing. The draft's own `refusals_and_backstop.py` still carries the
-superseded 3,072 / 49,152 and has **not** been re-run; the corrected totals
-in the table above are the check's.] The per-block bit figures **do not
+while editing. The draft's own `refusals_and_backstop.py` carried the
+superseded 3,072 / 49,152 until **2026-09-21 09:34**, when the security owner
+corrected the one line (`tab = 256` at every shape, with the code lines cited
+against the lane at `79f0726`: `layout.rs:48`, `:194-199`,
+`protocol.rs:905-907`) and re-ran it: its raw counts are now 64,768 /
+436,992 / 103,842,560 and its totals reproduce the check's to the digit shown
+(`refusals_and_backstop.txt`).] The per-block bit figures **do not
 move** (`2^-112.02` / `2^-109.26` / `2^-101.37`); the twelve-block figure
 moves by 0.0007 bits, from `2^-97.78` to `2^-97.79` — the only *bit* figure
 on this page the recount moves. It also means the P-3 lift argument

@@ -45,7 +45,7 @@ rung_g: ONE BLOCK — challenge-only refusals (liveness, not privacy)
   challenge draws that enter this lemma: {'lambdas': 177, 'proximity': 1217, 'sumcheck': 242, 'extension': 25, 'cfs': 23, 'nu': 10, 'zeta': 8, 'tags': 3}  (total 1705)
 
   input-dependent refusal INSIDE the argument (zero LogUp denominator):
-    raw count of inversions 439,296  = u8 419,840 + exp 8,192 + act 8,192 + table rows 3,072
+    raw count of inversions 436,992  = u8 419,840 + exp 8,192 + act 8,192 + table rows 768
       -> 2^-109.26 per block   [the figure ruling R-6 carries]
     DISTINCT denominator ARGUMENTS, honest witness: at most 768 (3 tags x 256 table rows)
       -> 2^-118.42 per block   [the refinement]
@@ -73,7 +73,7 @@ m125: ONE BLOCK — challenge-only refusals (liveness, not privacy)
   challenge draws that enter this lemma: {'lambdas': 175, 'proximity': 12875, 'sumcheck': 361, 'extension': 25, 'cfs': 23, 'nu': 10, 'zeta': 5, 'tags': 3}  (total 13477)
 
   input-dependent refusal INSIDE the argument (zero LogUp denominator):
-    raw count of inversions 103,890,944  = u8 98,598,912 + exp 4,194,304 + act 1,048,576 + table rows 49,152
+    raw count of inversions 103,842,560  = u8 98,598,912 + exp 4,194,304 + act 1,048,576 + table rows 768
       -> 2^-101.37 per block   [the figure ruling R-6 carries]
     DISTINCT denominator ARGUMENTS, honest witness: at most 768 (3 tags x 256 table rows)
       -> 2^-118.42 per block   [the refinement]
@@ -99,7 +99,7 @@ A RUN OF L = 12 BLOCKS AT 125M
   TOTAL per run (liveness)                                          2^-58.79   [ruling R-6: 2^-58.8]
 
   input-dependent refusal inside the argument, 12 blocks with independent alpha:
-    raw      1,246,691,328  ->  2^-97.78    [ruling R-6: 2^-97.8]
+    raw      1,246,110,720  ->  2^-97.79    [ruling R-6: 2^-97.8]
     refined  9,216  ->  2^-114.83    [worth 17.0 bits]
 
   Schwartz-Zippel backstop over the whole run: 2^-52.24

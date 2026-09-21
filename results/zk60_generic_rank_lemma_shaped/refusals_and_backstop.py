@@ -97,7 +97,15 @@ def logup_terms(name):
     """
     m = load(name)
     lk = m["lookups"]
-    tab = m["domains"]["Tab"]["padded"]
+    # CORRECTED 2026-09-21 (ruling S-4, the check's B-5): the three table
+    # helpers are inverted over `table_values_*_at(Dom::Tab.len(), ...)`, and
+    # `Dom::Tab.len()` is `1 << domain_log_at(8, true, LOG_N)` with `LOG_N` the
+    # toy's 8 (`layout.rs:48`, `:194-199` on the lane at `79f0726`; the prover
+    # inverts those 256 values per table at `protocol.rs:905-907` and only then
+    # tiles them to the shape's width) -- 256 at EVERY shape, not the shape's
+    # padded table width.  The first version of this script used the padded
+    # width (3,072 at rung-G, 49,152 at 125M).
+    tab = U8_LEN
     raw = lk["u8_total"] + lk["exp_pairs"] + lk["act_pairs"] + 3 * tab
     distinct = 3 * U8_LEN
     return raw, distinct, dict(u8=lk["u8_total"], exp=lk["exp_pairs"],
