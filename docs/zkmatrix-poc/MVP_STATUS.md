@@ -74,8 +74,14 @@ unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 > gate has not yet been run on a non-degenerate input (in progress at the
 > development size), and **no privacy is claimed for any of this.**
 
-**The 125M-shape block now proves in 17.40 s instead of 27.71 s — same bytes,
-same refusals; independent review running (added 2026-09-21 10:00).** One
+**The 125M-shape block now proves in 17.4–19.4 s instead of 27.7 s — same
+bytes, same refusals; independently reviewed (added 2026-09-21 10:00; second
+sample and the range added 12:57).** *A second run of the same prover on the
+same shared laptop, with a counting diagnostic switched on, took 19.36 s
+(verify 1.34 s, same receipt length, peak 10,141 MiB); the parts of that run
+the diagnostic does not touch moved more than the prove did, so it reads as
+run-to-run spread, and the honest statement is a range from two runs, not
+17.40 s.* One
 block at the 125M shape, fully dense public weights, a generic hidden input:
 **prove 27.71 → 17.40 s (37% less), verify 1.28 → 1.15 s, receipt 40,783,352
 bytes in both, peak memory 10,232 → 10,156 MiB** [MEASURED, one run each,

@@ -147,6 +147,22 @@ interface (R1a) and the two commitments on the GPU (R2) come before it; R1b is
 worth designing only if, after those, the round loop is still the largest
 term. No time is attached to any of this: it is a count.
 
+**ADDED 12:57 — the census at the 125M shape, and a second prove-time sample
+(lane `c7210b2`; I read the log's result line).** [COUNTED on one 125M run]
+84 of 136 tables and 130,547,712 of 210,239,488 table words — **62.1%** — are
+base-field-valued at round 1 (slot 17: 60.0%, slot 14: 66.7%, slot 18: 55.0%,
+slot 15: 52.4%, slot 04: 80.0%), against 61.5% at rung-K4: the share is a
+property of the schedule, not of the shape. The recommendation above stands.
+**Second sample of the stage-28 prover [MEASURED, one run, shared box]: prove
+19.36 s** (the census's own scans are 0.05 s of it), verify 1.34 s, receipt
+40,783,352 B, peak 10,141 MiB, witness build 6.08 s against 5.24 s. The parts
+of the run that contain no census moved more than the prove did, so this is
+run-to-run spread on a shared laptop. **Ruling V-1 is amended accordingly: the
+figure to quote is "17.4–19.4 s, two runs", not 17.40 s.** The comparison
+with 27.71 s (one run) carries the same spread; the per-phase controls of
+stage 28 — shared-file phases that did not move while lane phases fell — are
+what show the gain is real, and its size is "roughly a third".
+
 ## 2. What this is not
 
 Not a privacy result: no gate reads a prover's speed. Not a statement about
