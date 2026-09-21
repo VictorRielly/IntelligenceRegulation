@@ -2433,8 +2433,8 @@ each:
 
 | | coupling | checked | verdict |
 |---|---|---|---|
-| **C1** | the internal boundary planes and the two endpoint planes: rows two commitments HOLD and a third claims about | every identified row pair, row by row, on both sides | **24 pairs at rung-G, 24 of 24 data rows on both sides, none touching a blinding row** |
-| **C2** | published CLAIM VALUES that more than one commitment carries | counted, not assumed to be zero | 531 claim values, 529 distinct, **1** carried by two commitments — and each part meets the number the CAPTURE carries, so it is met identically by both |
+| **C1** | the internal boundary planes and the two endpoint planes: rows two commitments HOLD and a third claims about | every identified row pair, row by row, on both sides | **24 pairs on every one of the four bundles, 24 of 24 data rows on both sides, none touching a blinding row** |
+| **C2** | published CLAIM VALUES that more than one commitment carries | counted, not assumed to be zero | 531 claim values, 529 distinct, **1** carried by two commitments (the same figure on all four) — and each part meets the number the CAPTURE carries, so it is met identically by both |
 | **C3** | the masking layer against the 23 slots | the declared order 34 of 34 by position, value and weights; all 34 values recomputed from the solved coefficients | **respected, and by ONE coefficient vector per stage** |
 | **C4** | the terminal identity `fin_s = c_s·mask_eval_s + poly_s(terminals)`, degree up to 4 | no linear model sees it | **respected only in a narrow sense**, stated below |
 
