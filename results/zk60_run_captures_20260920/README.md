@@ -1,16 +1,27 @@
 # ZK60 run capture bundles — which is which
 
-Eight bundles, all of them the VERIFIER'S VIEW of an honest three-block
-private run at the development rung (`Shape::rung_g`: 24 tokens, width 96,
+TEN bundles, all of them the VERIFIER'S VIEW of an honest three-block private
+run. Eight are at the development rung (`Shape::rung_g`: 24 tokens, width 96,
 hidden 192, 6 query heads over 2 key-value heads), run profile
-`hashline-zk-mr1/private-run-rung-g-t24-dev/1`. They are the INPUT to the
+`hashline-zk-mr1/private-run-rung-g-t24-dev/1`. **The two newest,
+`run-i-dense-k4` and `run-j-zero-k4`, are at a DIFFERENT shape**
+(`Shape::rung_k4`: the same 24 tokens, width 96 and hidden 192, with the
+heads recut as 12 query heads of 8 over FOUR key-value heads), run profile
+`hashline-zk-mr1/private-run-rung-k4-t24-dev/1`. They are the INPUT to the
 privacy gate of ruling M-8. **None of them is a privacy result**, and having
 them does not meet the ruling.
 
 Format, field by field: `docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md`.
 Writer: `hashline/src/private_block/run_capture.rs`.
 
-## READ `run-g-dense-s20` AND `run-h-zero-s20`. The other six are superseded.
+## READ `run-g-dense-s20`, `run-h-zero-s20`, `run-i-dense-k4` and `run-j-zero-k4`. The other six are superseded.
+
+**The `g`/`h` pair and the `i`/`j` pair are not versions of each other; they
+are two DIFFERENT SHAPES and both are current.** `g`/`h` are the profile the
+lane's runs are taken at, at ONE key-value group bit. `i`/`j` are the only
+bundles anywhere with TWO group bits, which is the case the repaired
+bilinear argument has and no tool has ever read (see the rung-K4 section
+below).
 
 | bundle | stage | hash rule | public tables' values | plane index | bilinear slots | witness | source commit | on disk |
 |---|---|---|---|---|---|---|---|---:|
@@ -22,6 +33,8 @@ Writer: `hashline/src/private_block/run_capture.rs`.
 | `run-f-zero-tagged` | 18 | `blake3-keyed/1` | yes | yes | **pre-repair** | all-zero | `facc057` | 41,249,809 B |
 | `run-g-dense-s20` | 21 | **`blake3-keyed/1`** | **yes** | yes | **REPAIRED** | **FULLY DENSE, generic** | `0426ad2` | 41,296,268 B |
 | `run-h-zero-s20` | 21 | **`blake3-keyed/1`** | **yes** | yes | **REPAIRED** | all-zero | `0426ad2` | 41,270,047 B |
+| `run-i-dense-k4` | 22 | **`blake3-keyed/1`** | **yes** | yes | **REPAIRED, `lkv = 2`** | **FULLY DENSE, generic** | `3247a89` | 46,444,960 B |
+| `run-j-zero-k4` | 22 | **`blake3-keyed/1`** | **yes** | yes | **REPAIRED, `lkv = 2`** | all-zero (degenerate) | `3247a89` | 46,418,960 B |
 
 (The byte figures are each bundle's own `manifest.json["total_bytes"]`.)
 
@@ -100,6 +113,94 @@ round.
   `run-e-tame-tagged` too, since the repair does not move it: the same
   canonical 22,397 bytes, SHA-256 prefix `d2361312…`.
 * 81 `eq` tables per bundle, of which the six above are the new group factor.
+
+## `run-i-dense-k4` and `run-j-zero-k4`: the only bundles with TWO group bits
+
+**The gap.** The repaired bilinear argument SUMS over `lkv =
+log2(kv_heads)` key-value group bits under a public `eq(r_g, ·)`. At every
+bundle before these two that is ONE bit: the sum has two terms and the eq's
+point has one entry. The only shape with two bits is 125M, whose runs are
+484 MB and which the Python gate cannot ingest. **So a reader of these
+bundles has never had to handle a group of more than one bit, and a port
+that quietly assumed one would have passed every check ever run.**
+
+`Shape::rung_k4` is that case at a size a gate can read. It is rung-G's
+geometry with the head axis recut:
+
+| | rung-G | **rung-K4** |
+|---|---|---|
+| tokens / width / hidden | 24 / 96 / 192 | 24 / 96 / 192 (the same) |
+| query heads × head_dim | 6 × 16 | **12 × 8** |
+| key-value heads, `lkv` | 2, `lkv = 1` | **4, `lkv = 2`** |
+| padded head slots | `{3, 7}` | **`{3, 7, 11, 15}`** (125M's own geometry) |
+| `t_pad, d_pad, h_pad, f_pad` | 32, 128, 8, 256 | 32, 128, **16**, 256 |
+| `Dom::S` | `2^13` | **`2^14`** (sixteen head slots, not eight) |
+| row width, rate, `F_E`, endpoint | 10, 4, 12, generalised (9 rows) | the same |
+| one block's receipt | 4,234,984 B | **4,743,128 B** |
+| block profile | `…/private-block-rung-g-t24-dev/1` | `…/private-block-rung-k4-t24-dev/1` |
+| run profile | `…/private-run-rung-g-t24-dev/1` | `…/private-run-rung-k4-t24-dev/1` |
+
+`head_dim = 8` is forced, not chosen: `d_pad = h_pad * head_dim` must hold
+and `width = q_heads * head_dim`, and a smaller head dimension would put
+`Dom::Kv` BELOW the row width, where the P-3 lift makes the bilinear
+coordinate lists unwritable and `Shape::new` refuses by name. At `head_dim =
+8`, `Dom::Kv = 32 * 4 * 8 = 2^10` sits EXACTLY at the row width, which is
+the toy's case and not a lift.
+
+### What is different in the bytes
+
+    arguments[8]["tables"][0] == {"kind":"eq","start":0,"point":[<TWO Fp2>]}
+    arguments[9]["tables"][0] == {"kind":"eq","start":0,"point":[<TWO Fp2>]}
+
+in all three stages of both bundles — a **two**-element point, so the group
+sum has FOUR terms. The same rule applies as at rung-G: `start` indexes the
+slot's own `rho`, so the factor is `eq(point, rho[start : start +
+len(point)])`, and `point` is the LEADING `lkv` entries of that slot's head
+challenge, which a reader draws for itself. **Checked on these files after
+the write: for all six occurrences, `point == definition_challenges[:2]`.**
+
+Slots 08 / 09 here: `(main, extension, degree)` = **(5, 2, 3)** and
+**(7, 2, 3)**, 7 and 9 round messages, **4 values per round**, 2 terminals
+each. (`SC_SCORE` is `lkv + log2(head_dim) = 2 + 3`, which is rung-G's
+`1 + 4` by coincidence; `SC_PV` is `lkv + log2(t_pad) = 2 + 5`, one more
+than rung-G's.)
+
+The PRIVATE tables did not move: `plane_index.slot_planes[8]` is
+`[A_QR8 (id 45), A_KR8 (id 54)]` and `[9]` is `[A_P (id 60), A_V8 (id 52)]`,
+exactly as at rung-G, so `len(slot_planes[s].planes) == len(terminals)`
+still holds.
+
+### The plane index at rung-K4 is a DIFFERENT table
+
+83 `A` planes tiling **481** rows and 52 `H` planes tiling **614** rows
+(against rung-G's 377 and 470): the head axis doubles `Dom::S`. Canonically
+re-serialised it is **22,419 bytes, SHA-256 prefix `89cd8a46…`**, and it is
+byte-identical across `i` and `j` — but it is NOT rung-G's `d2361312…`
+table and must never be compared with it.
+
+### Sanity, checked on the stage-22 files as committed
+
+* **every manifest entry** of both bundles — five files each — matches its
+  recorded byte length AND its recorded SHA-256. **0 mismatches.**
+* **93 public tables** per bundle across its three stages, **all 93 carrying
+  values**, and for all 93 the recorded SHA-256 is the SHA-256 of the
+  concatenated 16-byte little-endian `Fp2` encodings of exactly the values
+  included. **0 mismatches.**
+* `public_tables_included` is `true` and `hash_tag.rule` is
+  `"blake3-keyed/1"` in both; both name the rung-K4 run and block profiles.
+* the plane index is byte-identical across `i` and `j`.
+* 81 `eq` tables per bundle, of which the six above are the group factor.
+* `run-i-dense-k4`'s witness: twelve of twelve head slots live, all FOUR
+  key-value groups live and **pairwise different**, the upper hidden half of
+  the feed-forward planes live, in every one of the three blocks.
+  `run-j-zero-k4` is the all-zero input and is degenerate by construction.
+
+Segments (not written here) are 4,575,304 / 4,597,832 / 4,765,736 B =
+**13,938,872 B** per run, the counted lengths.
+
+Development grade (ruling P-7), one profile per shape (D17). **No byte of
+any earlier profile moves**, and none of the eight earlier bundles is
+touched.
 
 ## Why a–d are superseded for gate purposes
 
@@ -207,6 +308,13 @@ self-consistency. This parent file carries every note instead.
 
 ## How they were made
 
+The stage-22 rung-K4 pair (`run-i-dense-k4`, `run-j-zero-k4`):
+
+    HL_RUN_CAPTURE_DIR=<this directory> HL_RUN_CAPTURE_PUBLIC_TABLES=1 \
+      HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib \
+      private_block::run_capture_tests::write_the_k4_gate_bundles \
+      -- --ignored --nocapture
+
 The stage-21 repaired pair:
 
     HL_RUN_CAPTURE_DIR=<this directory> HL_RUN_CAPTURE_PUBLIC_TABLES=1 \
@@ -234,11 +342,11 @@ under `HL_RUN_CAPTURE_SEGMENTS=1` and are not here: every `stage-NN.json`
 carries its own segment's length and SHA-256, so each bundle is pinned to the
 exact bytes that were verified, and the gate's loader reads only JSON.
 
-## Nothing is deleted here, and the directory now holds 319 MB
+## Nothing is deleted here, and the directory now holds 412 MB
 
-The six older bundles stay byte for byte where they are and their own
+The eight older bundles stay byte for byte where they are and their own
 `README.md` files are NOT edited (each `manifest.json` pins its own README by
 length and SHA-256, so editing one would break that bundle's
-self-consistency). This parent file carries every note instead. 319,048,726
-bytes in eight bundles is the cost of keeping the record of what each stage
+self-consistency). This parent file carries every note instead. 411,912,646
+bytes in TEN bundles is the cost of keeping the record of what each stage
 produced.

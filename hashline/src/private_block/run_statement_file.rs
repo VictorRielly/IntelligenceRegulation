@@ -90,7 +90,7 @@ pub(super) struct WeightsRecipe {
 /// describes the PUBLIC WEIGHTS and only those.
 pub(super) const TAME_FIXTURE: WeightsRecipe = WeightsRecipe {
     name: "private_block::grow_tests::tame_case(<block profile's Shape>)'s NINE PUBLIC WORDS, the same public fixture for every block",
-    description: "deliberately public synthetic test weights, regenerated from the shape; no weight value is written into this file, every regenerated block is checked against the block_digests the run header absorbs, and this recipe regenerates the PUBLIC WEIGHTS ONLY — the witness the run was proved on is not a function of anything in this file",
+    description: "deliberately public synthetic test weights, regenerated from the shape; no weight value is written into this file, every regenerated block is checked against the block_digests the run header absorbs, and this recipe regenerates the PUBLIC WEIGHTS ONLY: the witness the run was proved on is not a function of anything in this file",
 };
 
 /// **THE STAGE-18 TAME NAME, KEPT FOR READING AND NEVER FOR WRITING (stage
@@ -106,7 +106,7 @@ pub(super) const LEGACY_TAME_RECIPE_NAME: &str = "private_block::grow_tests::tam
 /// weights — which is the whole contract of this field.
 pub(super) const DENSE_RUN_FIXTURE: WeightsRecipe = WeightsRecipe {
     name: super::dense_tests::DENSE_RUN_RECIPE_NAME,
-    description: "deliberately public synthetic test weights, FULLY DENSE (no zero entry in any of the nine words) and regenerated from the shape by the named deterministic stream; no weight value is written into this file, every regenerated block is checked against the block_digests the run header absorbs, and the named stream is exhausted by the nine public words — the witness this run was proved on is drawn from a separate stream that is not described here",
+    description: "deliberately public synthetic test weights, FULLY DENSE (no zero entry in any of the nine words) and regenerated from the shape by the named deterministic stream; no weight value is written into this file, every regenerated block is checked against the block_digests the run header absorbs, and the named stream is exhausted by the nine public words, so the witness this run was proved on is drawn from a separate stream that is not described here",
 };
 
 /// The ONE block a recipe produces at this shape. Kept separate from

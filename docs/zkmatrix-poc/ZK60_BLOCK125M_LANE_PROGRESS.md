@@ -6195,20 +6195,421 @@ prints NOTHING: every one of those trees is byte-identical to the tip the
 review merged.
 
 
-## Stage 22 — the run statement's recipe, and a four-key-value-head development shape (2026-09-20, 22:1x–)
+## Stage 22 — the run statement's recipe, and a four-key-value-head development shape (2026-09-20, 22:1x–23:0x)
 
-**Status: `IN PROGRESS` (skeleton).** Two items, both purely ADDITIVE on top
-of the hand-back tip `e6b612f`. Nothing an existing profile proves may move
-by a byte: the toy, the rung, rung-G, 125M and their runs keep every receipt
-length, every digest and every frozen gate.
+**Status: `LANDED`.** Two items, both purely ADDITIVE on top of the hand-back
+tip `e6b612f`. **No existing profile moved a byte**: the toy's 2,816,472, the
+rung's 4,218,600, rung-G's 4,234,984 and 125M's 40,783,352 are all in the
+pass list, the toy schedule digest and parameter line are frozen, and the
+forbidden-file trees are byte-identical to `e6b612f` (proof at the end).
+
+**No heavy run.** Nothing at 125M was proved; the only 125M work is a
+statement-file read and one public-weights regeneration, both seconds. No
+GPU. **No privacy or soundness acceptance is claimed**: the new profile is
+development grade (ruling P-7), and the two bundles it produces are the
+INPUT to the run privacy gate of ruling M-8, not evidence for it.
+
+Commits: the skeleton `beb0746`, the code `3247a89`, the bundles and the
+documents, and this ledger.
 
 | item | what | state |
 |---|---|---|
-| 1 | the public run statement's weights recipe describes PUBLIC WEIGHTS ONLY — today its string also says how the synthetic HIDDEN INPUT is drawn, and the one seeded stream ends in `x`, so the published seed regenerates the hidden input | `TODO` |
-| 2 | a development shape with FOUR key-value heads (`rung-K4`), proved, captured, and carried through the layout model — every proof and every capture so far has `lkv <= 1`, so the Python privacy gate's ports have never seen two group bits | `TODO` |
+| 1 | the public run statement's weights recipe describes PUBLIC WEIGHTS ONLY | **DONE**, failing-first recorded, public weights bit-identical |
+| 2 | `Shape::rung_k4`: a development shape with FOUR key-value heads, proved and captured | **DONE** — 7 new tests, 2 bundles, model and Rust agree to the byte |
 
-Sections to be filled as the work lands: the repaired recipe and what the
-statement now contains; which retained statements carry the old string; the
-K4 geometry as built with every dimension and every counted figure; the
-tests and their results; the two capture bundles; the model-vs-Rust
-comparison; the gate counts; the forbidden-files proof.
+---
+
+### Item 1 — the recipe field described the hidden input, and now does not
+
+**THE DEFECT, IN ONE PARAGRAPH.** A retained run statement carries
+`public_weights.recipe`, the one free-text field of the file, and a reader
+follows it as an instruction: draw this stream in this order with these
+bands and you have the weights. The stage-21 dense string ended its read
+order with `x` and stated the hidden input's distribution
+(`hidden input uniform on [-6000,-1] u [1,6000]`), and that was not a
+description error — the input really WAS the tenth read of the published
+stream, `dense_words_with` drawing `[Wq … Wd]` and then `x` from one
+`Rng(0xD15EED1900000001)`. **The published seed therefore regenerated the
+hidden input.** Harmless for a synthetic test whose "secret" is a fixture,
+and wrong as the model for a production statement writer, in which the
+weights are public and the input is the thing the proof exists to hide.
+
+**THE REPAIR, AS BUILT.** Two streams where there was one.
+
+* `dense_public_words_with(shape, bands…)` draws the nine PUBLIC words from
+  `DENSE_SEED` and returns the stream's state AFTERWARDS.
+* `dense_hidden_input(shape, mag)` draws the input from a new
+  `DENSE_INPUT_SEED`, which is in this test source and **in no retained
+  file** — not a statement, not a bundle, not a log.
+* `dense_words_with` is the two of them, so every caller is unchanged.
+
+**THE PUBLIC WEIGHTS DID NOT MOVE BY A BYTE, and that is measured against
+evidence written before stage 22.** The input was always drawn LAST, so
+taking it out of the stream leaves every weight draw exactly where it was.
+The test `the_retained_125m_statements_still_regenerate_their_public_weights`
+opens the two run statements this lane retained under `results/`, reads the
+recipe each one NAMES, regenerates the 125M public weights from it and
+compares against the twelve block digests that statement's run header
+absorbed — digests hashed before stage 22 existed. All twenty-four match.
+
+**What the statement now contains.** `public_weights.recipe` is
+
+> `private_block::dense_tests::dense_run_case(<block profile's Shape>)`'s
+> NINE PUBLIC WORDS, the same fully dense public words for every block:
+> SplitMix64 seeded `0xD15EED1900000001`, read in the fixed order
+> `[Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg, Wu, Wd]` and CONSUMED ENTIRELY by
+> them; … PUBLIC WEIGHTS ONLY: this recipe regenerates the nine public words
+> and nothing else, and the test witness's secret is drawn from a separate
+> stream whose seed is in no retained file
+
+and the tame recipe likewise names `tame_case`'s **nine public words** rather
+than the function. Nothing else about the file changed: same schema, same
+allow-list, same fields.
+
+**THE TWO CHECKS.**
+
+* **Textual.** `run_statement_file::hidden_input_token` is a deny-list of
+  the ways a hidden input can be described — by name, by distribution, by
+  magnitude, by its place in the read order, by its seed in hex or decimal.
+  The two strings the writer may emit pass it; the file's whole text is
+  searched for the input seed in both forms. (The deny-list is applied to
+  the recipe field and not to the whole file, because the file's own
+  negative declaration `not_in_this_file` legitimately contains the words
+  "hidden inputs" — the seed search is what covers the rest.)
+* **Structural.** `the_dense_recipes_public_stream_is_consumed_entirely_by_public_words`
+  asserts at the rung, rung-G and 125M that the state after the nine words
+  equals `DENSE_SEED` advanced by exactly one draw per public weight ENTRY.
+  SplitMix64's state is a counter `seed + n·GAMMA`, injective in `n` over a
+  `u64`, so that equality pins the draw count EXACTLY — a tenth read of any
+  length would move it, and the test checks that one further draw does move
+  it. It then asserts that the hidden input is **not** that stream continued:
+  what the published seed WOULD give a reader who guessed the input comes
+  next — which is what it did give until stage 22 — is a different vector.
+
+**FAILING FIRST** (`w1-s22-item1-failing-first.log`, exit 101): with
+`DENSE_RUN_FIXTURE.name` pointed back at the stage-21 string, the deny-list
+catches it and prints the token it is caught on, `"hidden input"`. The test
+keeps that as a permanent non-vacuity assertion: the stage-21 string is
+required to FAIL the same checker that the live strings pass.
+
+**WHICH RETAINED STATEMENTS CARRY THE OLD STRING** — nothing was rewritten:
+
+| file | string it carries |
+|---|---|
+| `results/zk60_block125m_lane/m125-run-l12-dense-run-statement.json` | the **stage-21 dense** string, which names the hidden input |
+| `results/zk60_block125m_lane/m125-run-l12-tagged-run-statement.json` | the **stage-18 tame** string (vague, not a leak) |
+| `/home/victor/zk60-artifacts/m125-run-l12-dense/statement/run-statement.json` and the `-tagged` one (outside the repository) | the same two |
+
+Both old strings are kept in the source as **READ-ONLY aliases**
+(`dense_tests::LEGACY_DENSE_RUN_RECIPE_NAME`,
+`run_statement_file::LEGACY_TAME_RECIPE_NAME`): `recipe_block` maps each to
+the same generator as its successor, so those four statements still
+regenerate their blocks and 484 MB of retained receipt is not orphaned. A
+test asserts the writer emits neither. **The capture bundles carry no recipe
+string at all** (checked: the substring does not occur in a `run.json`), so
+none of the ten is affected.
+
+**WHAT CHANGED THAT IS NOT THE PUBLIC WEIGHTS.** The dense tests' hidden
+input is a different vector from stage 21's — it comes from a different
+seed. That is stated rather than hidden: nothing in the repository pins a
+figure that depends on it (a receipt's length is a function of the shape
+alone), the three admissible bands were re-measured by the tests that
+already searched for them (rung-G's 47 is unchanged and still asserted), and
+**125M's band-1 pin was measured under the pre-stage-22 input**: its search
+is the `#[ignore]`d probe `the_first_admissible_fully_dense_run_band_at_125m`
+and it has NOT been re-run, which is a 707-second witness-builder job. Re-run
+it before the next 125M dense run. The committed bundles `run-g-dense-s20` /
+`run-h-zero-s20` were taken on the old input and are not rewritten; their
+public weights are still exactly what their statements would regenerate.
+
+---
+
+### Item 2 — `Shape::rung_k4`, the first small shape with TWO group bits
+
+**THE GAP.** Stage 20 made the key-value group `lkv = log2(kv_heads)`
+sumcheck variables under a public `eq(r_g, ·)`. Every proof and every
+capture since is at `lkv = 1` (the two rungs) or `lkv = 0` (the frozen toy,
+where the repair is a no-op). The only `lkv = 2` shape is 125M, whose runs
+are 484 MB and which the Python privacy gate cannot ingest. Two group bits
+had been exercised by ALGEBRA — `dense_tests`' Boolean-cube check on random
+planes and the stage-20 reviewer's `kv4` probe through `argument::define` —
+and by nothing that produces a receipt a tool can read.
+
+**THE SHAPE, AS BUILT.** rung-G's geometry with the head axis recut, and
+nothing else touched.
+
+| | rung-G | **rung-K4** |
+|---|---|---|
+| tokens / width / hidden | 24 / 96 / 192 | 24 / 96 / 192 |
+| query heads × head_dim | 6 × 16 | **12 × 8** |
+| key-value heads, `lkv` | 2, 1 | **4, 2** |
+| true heads per group | 3 | **3** (padded to 4 slots) |
+| `t_pad, d_pad, h_pad, f_pad` | 32, 128, 8, 256 | 32, 128, **16**, 256 |
+| padded head slots | `{3, 7}` | **`{3, 7, 11, 15}`** |
+| `log_cols`, `inv_rate`, `F_E` | 10, 4, 12 | the same |
+| endpoint | generalised, 9 rows, `log_n` 10, rate 4 | the same |
+| `norm_wrho`, `wrho_s` | 31, 17 | the same |
+| `Dom::Q` / `Dom::Kv` / `Dom::S` logs | 12 / 10 / 13 | 12 / 10 / **14** |
+| block profile | `hashline-zk-mr1/private-block-rung-g-t24-dev/1` | `hashline-zk-mr1/private-block-rung-k4-t24-dev/1` |
+| run profile | `hashline-zk-mr1/private-run-rung-g-t24-dev/1` | `hashline-zk-mr1/private-run-rung-k4-t24-dev/1` |
+
+**Every dimension is forced, not chosen.** `q_heads = 12` and `kv_heads = 4`
+give `lkv = 2`, groups of three true heads and `h_pad = 16`, so each group's
+own block of four slots ends in a pad: `{3, 7, 11, 15}`, which is 125M's head
+geometry exactly and the case a contiguous padded tail could never produce.
+`head_dim = 8` then follows from `d_pad = h_pad · head_dim = 128` and
+`width = q_heads · head_dim = 96`. **A smaller head dimension is refused**:
+the only `head_dim = 4` geometry that keeps width 96 and satisfies
+`d_pad = h_pad · head_dim` is 24 query heads over 32 padded slots, and its
+`Dom::Kv = 32 · 4 · 4 = 2^9` is BELOW the row width `2^10`, so P-3 lifts it
+(measured on the independent model) and stage 21's F-2 refusal fires by
+name — the bilinear arms write their coordinate lists at the NATURAL log.
+At `head_dim = 8`, `Dom::Kv = 2^10` sits
+EXACTLY at the row width — the toy's case, not a lift — and `Dom::Q` (2^12)
+and `Dom::S` (2^14) are above it. No other dimension moved, so the head axis
+is the only difference and `Dom::S` doubling (sixteen head slots, not eight)
+is where the extra cost is.
+
+**THE COUNTED LAYOUT, AND THE INDEPENDENT MODEL.** `MODEL_RUNG_K4` is
+`scripts/zk60_private_block_layout_model.py`'s own output at
+`SHAPES["rung_k4"]`, transcribed, and like rung-G **this shape carries NO
+Rust-side correction term** — its endpoint is priced from the block's own
+PCS parameters, which the model already models. Every figure agrees.
+
+| figure | rung-G | **rung-K4** |
+|---|---:|---:|
+| `SC_SCORE` (main, ext, deg, `L`) | (5, 2, 3, 23) | **(5, 2, 3, 23)** |
+| `SC_PV` (main, ext, deg, `L`) | (6, 2, 3, 26) | **(7, 2, 3, 29)** |
+| main rounds | 217 | **220** |
+| extension rounds | 25 | 25 |
+| published round values | 1,055 | **1,070** |
+| challenge draws per block | 242 | **245** |
+| largest `L` (slot) | 72 (`SC_FZC`/`SC_SZC`) | **77 (`SC_SZC`)**, `L + 256 = 333 ≤ 512` |
+| `A` planes / data rows / rows | 83 / 377 / 623 | 83 / **481** / **727** |
+| `H` planes / data rows / rows | 52 / 470 / 576 | 52 / **614** / **720** |
+| `A` / `H` claim sites, opening groups | 122 / 52, 36 / 9 | the same |
+| U8 lookups | 419,840 | **542,720** |
+| exp / act pairs | 8,192 / 8,192 | **16,384** / 8,192 |
+| **model receipt bytes** | 4,234,984 | **4,743,128** |
+| **Rust receipt bytes** | 4,234,984 | **4,743,128** |
+
+`SC_SCORE` is `lkv + log2(head_dim) = 2 + 3`, which is rung-G's `1 + 4` by
+coincidence; `SC_PV` is `lkv + log2(t_pad) = 2 + 5`, one more than rung-G's.
+
+**THE TESTS, AND WHAT EACH MEASURED.** All on the fully dense recipe with a
+generic hidden input, unless the name says otherwise.
+
+| test | result |
+|---|---|
+| `k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims` | every dimension, the head permutation `[0,1,2,4,5,6,8,9,10,12,13,14]`, the padded slots `{3,7,11,15}`, no P-3 lift on `Dom::Q`/`Dom::Kv`/`Dom::S`, its own profile and its own hash-tag key set, the counted 4,743,128 B. **Passed on the first run** |
+| `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_k4` | the INDEPENDENT `private-block-kernel-shaped` crate (read-only, unchanged) takes this geometry unaltered; every kernel-backed plane agrees element for element on the true support and the block output on all 2,304 words. The kernel's OWN `kr8` buffer is asserted pairwise different across the four groups first |
+| `dense_tests::the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_k4` | the stage-20 Boolean-cube check, on the real rung-K4 witnesses: **NEW == LHS** for both slots on the dense witness and on the tame fixture; **OLD ≠ LHS** on the dense one, **OLD == LHS** on the degenerate one |
+| `k4_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k4` | prove **0.67 s**, verify from bytes **0.12 s**, frame **4,743,128 B** (the counted length), a one-byte truncation refused |
+| `k4_tests::the_pinned_rung_k4_chain_band_is_the_first_admissible_one` | band **48 refused** (`fixed oracle range refusal: residual 2`), **band 47 admissible for three blocks** — so `band_down_run` gains a `(192, 4) => 47` arm and the pin is measured, not chosen |
+| `k4_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_k4` | prove **1.76 s**, verify from segments **0.38 s**, segments **4,575,304 / 4,597,832 / 4,765,736 = 13,938,872 B** (the counted lengths), boundary 10 rows; all three blocks censused |
+| `k4_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_k4` | verified, frame 4,743,128 B. **Named as degenerate**: every key-value group is identically zero, so it says nothing about the group bits |
+
+**THE CENSUS** (fractions and live-slot counts only, the capture rule): in
+the single dense block and in all three blocks of the run, **12 of 12 true
+head slots live, 4 of 4 key-value groups live and PAIRWISE different**, the
+upper hidden half of the gate and activation planes live, and every padded
+head slot's attention output identically zero. Pairwise is the point: with
+two group bits, a witness in which three groups coincided would leave most
+of the `eq(r_g, ·)` unexercised.
+
+**THE NEGATIVE CONTROLS — 7 of 7 REJECTED BY THE VERIFIER, 0 by the prover,
+0 accepted.** The honest control is asserted accepted first in each test.
+
+| control | who rejected it |
+|---|---|
+| `A_KR8`, the rotated key of the **THIRD** group | **VERIFIER**, slot 16 `05 KV zero-check` |
+| `A_V8`, the value of the **THIRD** group | **VERIFIER**, slot 15 `04 Q zero-check` |
+| `A_KR8`, the rotated key of the **FOURTH** group | **VERIFIER**, slot 16 |
+| `A_V8`, the value of the **FOURTH** group | **VERIFIER**, slot 15 |
+| `A_QR8` at head slot 14 — the third true head of the fourth group | **VERIFIER**, slot 15 |
+| `A_P` at a causally live position of head slot 14 | **VERIFIER**, slot 15 |
+| `A_P` at head slot **15**, the fourth group's PADDED slot | **VERIFIER**, slot 15 |
+| the whole KEY family (`A_K8`, `A_RKL`, `A_KR8`, `A_RKRL`) of groups **2 and 3** exchanged, 737 positions differing, values untouched | **VERIFIER**, slot 16 |
+
+Groups 2 and 3 are the deliberate choice for the swap: they share the HIGH
+group bit and differ in the LOW one, which is the substitution a
+construction that summed only the leading bit would be blind to and which
+rung-G's one-bit control cannot express.
+
+**THE TWO CAPTURE BUNDLES**,
+`results/zk60_run_captures_20260920/run-i-dense-k4` and `run-j-zero-k4`,
+three blocks each, tagged rule, `HL_RUN_CAPTURE_PUBLIC_TABLES=1`, source pin
+`3247a89` (`w4-s22-k4-bundles.log`, exit 0).
+
+| bundle | `run.json` | stage files | `manifest["total_bytes"]` | on disk |
+|---|---:|---:|---:|---:|
+| `run-i-dense-k4` (FULLY DENSE, generic) | 35,784 B | 46,405,345 B | **46,444,960 B** | 46,446,688 B |
+| `run-j-zero-k4` (all-zero, degenerate) | 35,781 B | 46,379,529 B | **46,418,960 B** | 46,420,688 B |
+
+**92.9 MB for the pair, 46.4 MB each — inside the 120 MB ceiling** (the
+writer asserts it). They are bigger than rung-G's 41.3 MB for the same
+reason the receipt is: `Dom::S` doubles.
+
+**SANITY, CHECKED ON THE FILES AS COMMITTED** (`w5-s22-k4-bundle-sanity.log`,
+0 mismatches):
+
+* every manifest entry of both bundles — five files each — matches its
+  recorded byte length AND its recorded SHA-256;
+* **93 public tables** per bundle across its three stages, **all 93 carrying
+  values**, and for all 93 the recorded SHA-256 is the SHA-256 of the
+  concatenated 16-byte little-endian `Fp2` encodings of exactly the values
+  included;
+* `"public_tables_included":true` and `"hash_tag":{"rule":"blake3-keyed/1"…}`
+  in both, and both name the rung-K4 run and block profiles;
+* **the plane index table is byte-identical across the pair**: 22,419
+  canonical bytes, SHA-256 prefix `89cd8a46…`, 83 `A` planes over 481 rows
+  and 52 `H` planes over 614 rows. It is **NOT** rung-G's `d2361312…` table
+  and must never be compared with it;
+* **slots 08 and 09 carry `{"kind":"eq","start":0,"point":[<2 Fp2>]}` in all
+  three stages of both bundles, and `point == definition_challenges[:2]` at
+  all SIX occurrences.** The writer asserts the schedule and the `start: 0`
+  eq in the bytes before it writes anything;
+* slots 08 / 09 read out of the bundles: `(5, 2, 3)` with 7 round messages of
+  4 values and `(7, 2, 3)` with 9, two terminals each, and
+  `slot_planes[8] = [A_QR8 (45), A_KR8 (54)]`, `slot_planes[9] = [A_P (60),
+  A_V8 (52)]` — the same two-plane lists as at rung-G.
+
+The parent `README.md` is rewritten: ten bundles now, the two pairs stated as
+two DIFFERENT SHAPES rather than versions of each other, the rung-K4
+geometry table, why `head_dim = 8` is forced, what a reader must not compare,
+and the sanity results. Nothing was deleted, moved or rewritten: the eight
+older bundles stay byte for byte and their own `README.md` files are not
+edited, because each `manifest.json` pins its own. The directory now holds
+**411,912,646 bytes in ten bundles** (the summed manifest totals).
+`ZK60_RUN_CAPTURE_FORMAT.md` gains the stage-22 note.
+
+**They are still not gate evidence** (ruling T-6): the Python run gate has to
+learn this profile's key set and this shape's plane index before a bundle is
+judged. They are the INPUT to that work, and the reason they exist is that
+the gate's ports have never had to handle a group of more than one bit.
+
+---
+
+### THE ONE THING THAT BROKE, AND WHY THAT IS A GUARD WORKING
+
+The first full-gate pass of this stage was **261 passed / 6 failed**
+(`w6-s22-private.log`), and all six failures were the same sentence:
+
+```
+run statement: the recipe description is not printable ASCII and would not
+be valid JSON: "... regenerates the PUBLIC WEIGHTS ONLY — the witness ..."
+```
+
+**One em dash**, in each of the two new recipe DESCRIPTIONS. `render`'s
+`ascii()` guard refuses a non-ASCII string rather than writing it, because
+Rust's `{:?}` escapes a non-ASCII character as `\u{..}`, which is not valid
+JSON — so the writer would otherwise have produced a file no reader could
+parse. The guard is fail-closed and it caught the mistake on the first
+write, which is exactly what it is for; what it did not do is name the
+STRING, so six unrelated-looking tests failed at once. Both dashes are now
+plain ASCII, and
+`the_recipe_strings_this_build_writes_describe_public_weights_only` asserts
+printable ASCII on all four writable strings beside the deny-list, so the
+next such mistake fails at the string and says so.
+
+No other test failed at any point in this stage.
+
+### Tests and commands of stage 22
+
+All through the shared build lock,
+`CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`, and **without `--nocapture`**
+except where noted — which is what keeps per-witness figures out of the
+retained logs.
+
+| command | log | result |
+|---|---|---|
+| item 1, **FAILING FIRST** (`DENSE_RUN_FIXTURE.name` pointed at the stage-21 string) | `w1-s22-item1-failing-first.log` | **1 failed**, exit 101, caught on `"hidden input"` — the intended result |
+| `--lib private_block::k4_tests::the_rung_k4_shape` (the first build of the new shape) | `w2-s22-k4-shape.log` | **1 passed**, exit 0, first try |
+| `--lib private_block::k4_tests` | `w3-s22-k4-all.log` | **7 passed / 0 failed**, 11.5 s, exit 0 |
+| the two capture bundles (`--ignored --nocapture`, source pin `3247a89`) | `w4-s22-k4-bundles.log` | 46.4 MB each, exit 0 |
+| the bundle sanity pass, `python3`, on the files as written | `w5-s22-k4-bundle-sanity.log` | **0 mismatches** |
+| the gate, first pass | `w6-s22-private.log` | 261 passed / **6 failed** / 11 ignored, 423.7 s — the em dash above |
+| **THE GATE**: `--lib private_` | `w7-s22-private.log` | **267 passed / 0 failed / 11 ignored**, 67 filtered out, **427.39 s**, exit 0, **13 warnings** |
+| the layout model and the inventory driver, `test_zk60_private_block_*` | run inline | **76 passed** (36 + 40), 49 s — from 72 |
+| the whole Python suite, `python3 -m unittest discover -s tests` | `w8-s22-python.log` | 1,164 tests, 68 skipped, **3 failures and 7 errors, every one of them pre-existing and outside this lane** (below) |
+
+**Against the hand-back baseline of 254 passed / 0 failed / 10 ignored and
+13 warnings**: **267 / 0 / 11**, 13 warnings. **Thirteen tests are new** and
+not one existing test was weakened or removed:
+
+| where | new tests |
+|---|---|
+| `k4_tests` (new file) | 7 — the geometry, the dense block, the degenerate all-zero block, the measured chain band, the three-block run, the third/fourth-group tamper sweep, the group-2/3 key swap |
+| `dense_tests` | 3 — the stream is consumed entirely by public words, the recipe strings describe public weights only, the identity check at rung-K4 |
+| `run_tests` | 2 — a retained statement names no hidden input and still rebuilds a verifier, the two retained 125M statements still regenerate their public weights |
+| `parity` | 1 — the rung-K4 witness equals the independent reference kernel |
+
+One new test is `#[ignore]`d (`write_the_k4_gate_bundles`), which is the
+10 → 11. Six existing tests gained a rung-K4 case without changing what they
+assert: `grow_tests`' two model comparisons, `hash_tag_tests`' two
+classification tests and `pad`'s two shape loops. The Python side goes from
+32 to **36** tests in the layout model's own file (72 → 76 across
+`test_zk60_private_block_*`), the new ones being the `RungK4` class.
+
+**The frozen gates are in the pass list**: the toy's **2,816,472 B**,
+`the_toy_schedule_digest_is_frozen`,
+`the_toy_parameter_line_is_the_frozen_literal` and
+`a_toy_receipt_made_before_the_lane_still_verifies` (the four pre-lane
+receipts). The stage-20 receipt sizes are unmoved: **4,218,600 /
+4,234,984 / 40,783,352**.
+
+### THE PYTHON SUITE OUTSIDE THIS LANE
+
+`python3 -m unittest discover -s tests` is **not** green on this worktree,
+and was not before stage 22. Ten results, none of which this stage can
+reach:
+
+* **six** are the same environment condition — `no complete local 125M
+  regression fixture; set M125_EXPORT_DIR` (`test_uagb1_pass` x2,
+  `test_uagb1_pass_agg`, `test_uagb1_tblind` x2,
+  `test_zkmatrix_native_backends::test_ring_freeze_check`). This box has no
+  125M export; that is a Mac-only rig.
+* **three** are pinned digests of `hashline/src/zk.rs`
+  (`test_zk60_mvp_security_probe` x2, `test_zk60_io_review_gate`), a file
+  this lane is FORBIDDEN to touch and has not touched: `git diff e6b612f --
+  hashline/src/zk.rs` prints nothing, so the mismatch against that external
+  round-22 manifest exists at the hand-back tip exactly as it does here.
+* **one** is `test_zk60_endpoint_view`'s "mandatory retained captures
+  absent" — the `/tmp` evidence-loss condition.
+
+The lane's own Python — `test_zk60_private_block_*`, the layout model and
+the inventory driver that PARSES the real `define` — is **76 passed, 0
+failed**, from 72.
+
+### FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat e6b612f -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs hashline/src/gpu private-block-kernel \
+  private-model-kernel private-block-kernel-shaped zkvm-block
+```
+
+prints NOTHING: every one of those trees is byte-identical to the hand-back
+tip `e6b612f`. The whole diff against `e6b612f` touches only
+`hashline/src/private_block{,/*}`, `scripts/zk60_private_block_layout_model.py`,
+`tests/test_zk60_private_block_layout_model.py`,
+`docs/zkmatrix-poc/ZK60_{BLOCK125M_LANE_PROGRESS,RUN_CAPTURE_FORMAT}.md` and
+`results/`.
+
+### WHAT THIS STAGE DOES NOT ESTABLISH
+
+* **No privacy property.** The two new bundles are the INPUT to the run
+  privacy gate of ruling M-8; no gate has read them, and the Python ports
+  still have to learn this profile's key set and this shape's plane index.
+* **Not a deliverable profile.** rung-K4 is development grade (ruling P-7),
+  like both rungs, and is barred from any privacy statement.
+* **The 125M dense-run band was not re-measured** after the stream split
+  (see item 1). Re-run
+  `run_tests::the_first_admissible_fully_dense_run_band_at_125m` before the
+  next 125M dense run.
+* **No completeness claim beyond the cases run.** The negative controls say
+  seven specific tampers in the third and fourth key-value group are
+  rejected by the verifier; they do not say every one would be.

@@ -693,6 +693,45 @@ two planes each, in the as-built push order (`[A_QR8, A_KR8]` and
 index at every slot of every stage, so the bundle could not be written if it
 had drifted. `len(slot_planes[s]) == len(terminals)` therefore still holds.
 
+**STAGE 22 (2026-09-20): two bundles at a shape with TWO GROUP BITS.**
+`run-i-dense-k4` and `run-j-zero-k4`, written by
+`private_block::run_capture_tests::write_the_k4_gate_bundles` (`#[ignore]`d;
+same two environment variables). They do NOT supersede `run-g-dense-s20` /
+`run-h-zero-s20` — they are a DIFFERENT SHAPE, and both pairs are current.
+
+**Why a reader needs them.** Everything above about the group `eq` is
+written at `lkv = 1`, because until stage 22 every bundle at every stage was
+at one key-value group bit (rung-G) or none (the toy). A port that read
+`point[0]` and stopped, or that assumed the group sum has two terms, would
+have passed every check ever run. `Shape::rung_k4` is rung-G's geometry with
+the heads recut as **12 query heads of 8 over FOUR key-value heads**, padded
+head slots `{3, 7, 11, 15}` — 125M's own head geometry — so `lkv = 2`, the
+group sum has FOUR terms and
+
+```
+arguments[8]["tables"][0] == {"kind":"eq","start":0,"point":[<TWO Fp2>]}
+arguments[9]["tables"][0] == {"kind":"eq","start":0,"point":[<TWO Fp2>]}
+```
+
+in all three stages of both bundles, with `point == definition_challenges[:2]`
+at all six occurrences (checked on the files after the write). Everything
+else in this format is unchanged; nothing was added for them.
+
+**What a tool must NOT do with them.** They are a different profile
+(`hashline-zk-mr1/private-block-rung-k4-t24-dev/1` for the block,
+`…/private-run-rung-k4-t24-dev/1` for the run), so they have their OWN
+hash-tag key set — re-derive it from the contexts and THIS block profile
+(§2a) — and their own plane index table: 83 `A` planes over **481** rows and
+52 `H` planes over **614** rows, 22,419 canonical bytes, SHA-256 prefix
+`89cd8a46…`, against rung-G's 377 / 470 and `d2361312…`. The two tables are
+equal across `i` and `j` and must never be compared with rung-G's. Slots 08
+/ 09 are `(5, 2, 3)` and `(7, 2, 3)` here, 7 and 9 round messages of 4
+values, 2 terminals each; `slot_planes[8]` / `[9]` are the same two-plane
+lists as at rung-G. One block's receipt is 4,743,128 B and a three-block
+run's segments are 4,575,304 / 4,597,832 / 4,765,736 B.
+
+Development grade (ruling P-7); no privacy claim, and no gate has read them.
+
 ## 11. A DIFFERENT artifact: the public run statement (stage 18)
 
 Not a capture and not in a bundle. A run leaves `L` segment files in its run

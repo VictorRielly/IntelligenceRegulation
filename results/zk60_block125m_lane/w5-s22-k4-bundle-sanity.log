@@ -1,0 +1,20 @@
+-- run-i-dense-k4: manifest total 46,444,960 B, 5 files
+   manifest entries: 5 checked, 0 mismatches
+   profile hashline-zk-mr1/private-run-rung-k4-t24-dev/1, block profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1, rule blake3-keyed/1
+   public tables: 93, with values 93, sha mismatches 0; eq tables 81
+   group eq at start 0 with a 2-element point == definition_challenges[:2]: 6 of 6
+   plane index: 22419 canonical bytes, sha256 89cd8a46...
+   on disk 46,446,688 B (46.4 MB)
+-- run-j-zero-k4: manifest total 46,418,960 B, 5 files
+   manifest entries: 5 checked, 0 mismatches
+   profile hashline-zk-mr1/private-run-rung-k4-t24-dev/1, block profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1, rule blake3-keyed/1
+   public tables: 93, with values 93, sha mismatches 0; eq tables 81
+   group eq at start 0 with a 2-element point == definition_challenges[:2]: 6 of 6
+   plane index: 22419 canonical bytes, sha256 89cd8a46...
+   on disk 46,420,688 B (46.4 MB)
+
+PLANE INDEX identical across 2 bundles: 89cd8a46...
+  run-i-dense-k4: manifest total 46,444,960 B, on disk 46,446,688 B
+  run-j-zero-k4: manifest total 46,418,960 B, on disk 46,420,688 B
+
+TOTAL MISMATCHES: 0

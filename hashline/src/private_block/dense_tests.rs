@@ -1119,6 +1119,14 @@ fn the_recipe_strings_this_build_writes_describe_public_weights_only() {
         ("the tame recipe description", TAME_FIXTURE.description),
     ] {
         assert_eq!(hidden_input_token(s), None, "{what} describes the hidden input: {s:?}");
+        // **AND IT MUST BE PRINTABLE ASCII.** `run_statement_file::ascii`
+        // refuses anything else at write time, because `{:?}`'s escaping of
+        // a non-ASCII character is `\u{..}`, which is not valid JSON. That
+        // guard is fail-closed and it worked — a single em dash in one of
+        // these descriptions made every statement-file test fail at once
+        // (stage 22, `w6`) — but it names the writer and not the string, so
+        // the string is checked here where the mistake is made.
+        assert!(s.bytes().all(|b| (0x20..0x7f).contains(&b)), "{what} is not printable ASCII, so no statement file can be written: {s:?}");
     }
     // THE CHECK HAS TEETH: the string stage 22 replaced is refused by it, by
     // name, and the token it is caught on is printed
