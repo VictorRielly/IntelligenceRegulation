@@ -1,0 +1,1762 @@
+{
+ "result": {
+  "toy": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "N": 10,
+    "degree": 3,
+    "L": 32,
+    "dim_C": 31,
+    "ranks": [
+     31,
+     31,
+     31
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "N": 10,
+    "degree": 3,
+    "L": 32,
+    "dim_C": 31,
+    "ranks": [
+     31,
+     31,
+     31
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "N": 6,
+    "degree": 3,
+    "L": 20,
+    "dim_C": 19,
+    "ranks": [
+     19,
+     19,
+     19
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "N": 10,
+    "degree": 4,
+    "L": 42,
+    "dim_C": 41,
+    "ranks": [
+     41,
+     41,
+     41
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "N": 12,
+    "degree": 3,
+    "L": 38,
+    "dim_C": 37,
+    "ranks": [
+     37,
+     37,
+     37
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "N": 7,
+    "degree": 2,
+    "L": 16,
+    "dim_C": 15,
+    "ranks": [
+     15,
+     15,
+     15
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "N": 5,
+    "degree": 2,
+    "L": 12,
+    "dim_C": 11,
+    "ranks": [
+     11,
+     11,
+     11
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "N": 10,
+    "degree": 4,
+    "L": 42,
+    "dim_C": 41,
+    "ranks": [
+     41,
+     41,
+     41
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "N": 10,
+    "degree": 4,
+    "L": 42,
+    "dim_C": 41,
+    "ranks": [
+     41,
+     41,
+     41
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "N": 9,
+    "degree": 4,
+    "L": 38,
+    "dim_C": 37,
+    "ranks": [
+     37,
+     37,
+     37
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "N": 12,
+    "degree": 4,
+    "L": 50,
+    "dim_C": 49,
+    "ranks": [
+     49,
+     49,
+     49
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "N": 10,
+    "degree": 4,
+    "L": 42,
+    "dim_C": 41,
+    "ranks": [
+     41,
+     41,
+     41
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "N": 9,
+    "degree": 3,
+    "L": 29,
+    "dim_C": 28,
+    "ranks": [
+     28,
+     28,
+     28
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "N": 9,
+    "degree": 2,
+    "L": 20,
+    "dim_C": 19,
+    "ranks": [
+     19,
+     19,
+     19
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "N": 10,
+    "degree": 2,
+    "L": 22,
+    "dim_C": 21,
+    "ranks": [
+     21,
+     21,
+     21
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "N": 10,
+    "degree": 2,
+    "L": 22,
+    "dim_C": 21,
+    "ranks": [
+     21,
+     21,
+     21
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   }
+  ],
+  "rung_g": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "N": 13,
+    "degree": 4,
+    "L": 54,
+    "dim_C": 53,
+    "ranks": [
+     53,
+     53,
+     53
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "N": 13,
+    "degree": 4,
+    "L": 54,
+    "dim_C": 53,
+    "ranks": [
+     53,
+     53,
+     53
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "N": 6,
+    "degree": 3,
+    "L": 20,
+    "dim_C": 19,
+    "ranks": [
+     19,
+     19,
+     19
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "N": 11,
+    "degree": 4,
+    "L": 46,
+    "dim_C": 45,
+    "ranks": [
+     45,
+     45,
+     45
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "N": 14,
+    "degree": 4,
+    "L": 58,
+    "dim_C": 57,
+    "ranks": [
+     57,
+     57,
+     57
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "N": 7,
+    "degree": 3,
+    "L": 23,
+    "dim_C": 22,
+    "ranks": [
+     22,
+     22,
+     22
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "N": 8,
+    "degree": 3,
+    "L": 26,
+    "dim_C": 25,
+    "ranks": [
+     25,
+     25,
+     25
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "N": 9,
+    "degree": 2,
+    "L": 20,
+    "dim_C": 19,
+    "ranks": [
+     19,
+     19,
+     19
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "N": 13,
+    "degree": 5,
+    "L": 67,
+    "dim_C": 66,
+    "ranks": [
+     66,
+     66,
+     66
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "N": 13,
+    "degree": 5,
+    "L": 67,
+    "dim_C": 66,
+    "ranks": [
+     66,
+     66,
+     66
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "N": 11,
+    "degree": 5,
+    "L": 57,
+    "dim_C": 56,
+    "ranks": [
+     56,
+     56,
+     56
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "N": 14,
+    "degree": 5,
+    "L": 72,
+    "dim_C": 71,
+    "ranks": [
+     71,
+     71,
+     71
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "N": 14,
+    "degree": 5,
+    "L": 72,
+    "dim_C": 71,
+    "ranks": [
+     71,
+     71,
+     71
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "N": 11,
+    "degree": 3,
+    "L": 35,
+    "dim_C": 34,
+    "ranks": [
+     34,
+     34,
+     34
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "N": 13,
+    "degree": 2,
+    "L": 28,
+    "dim_C": 27,
+    "ranks": [
+     27,
+     27,
+     27
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "N": 13,
+    "degree": 2,
+    "L": 28,
+    "dim_C": 27,
+    "ranks": [
+     27,
+     27,
+     27
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   }
+  ],
+  "rung_k4": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "N": 13,
+    "degree": 4,
+    "L": 54,
+    "dim_C": 53,
+    "ranks": [
+     53,
+     53,
+     53
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "N": 13,
+    "degree": 4,
+    "L": 54,
+    "dim_C": 53,
+    "ranks": [
+     53,
+     53,
+     53
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "N": 6,
+    "degree": 3,
+    "L": 20,
+    "dim_C": 19,
+    "ranks": [
+     19,
+     19,
+     19
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "N": 11,
+    "degree": 4,
+    "L": 46,
+    "dim_C": 45,
+    "ranks": [
+     45,
+     45,
+     45
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "N": 15,
+    "degree": 4,
+    "L": 62,
+    "dim_C": 61,
+    "ranks": [
+     61,
+     61,
+     61
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "N": 7,
+    "degree": 3,
+    "L": 23,
+    "dim_C": 22,
+    "ranks": [
+     22,
+     22,
+     22
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "N": 9,
+    "degree": 3,
+    "L": 29,
+    "dim_C": 28,
+    "ranks": [
+     28,
+     28,
+     28
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "N": 8,
+    "degree": 2,
+    "L": 18,
+    "dim_C": 17,
+    "ranks": [
+     17,
+     17,
+     17
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "N": 9,
+    "degree": 2,
+    "L": 20,
+    "dim_C": 19,
+    "ranks": [
+     19,
+     19,
+     19
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "N": 13,
+    "degree": 5,
+    "L": 67,
+    "dim_C": 66,
+    "ranks": [
+     66,
+     66,
+     66
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "N": 13,
+    "degree": 5,
+    "L": 67,
+    "dim_C": 66,
+    "ranks": [
+     66,
+     66,
+     66
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "N": 11,
+    "degree": 5,
+    "L": 57,
+    "dim_C": 56,
+    "ranks": [
+     56,
+     56,
+     56
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "N": 15,
+    "degree": 5,
+    "L": 77,
+    "dim_C": 76,
+    "ranks": [
+     76,
+     76,
+     76
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "N": 14,
+    "degree": 5,
+    "L": 72,
+    "dim_C": 71,
+    "ranks": [
+     71,
+     71,
+     71
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "N": 11,
+    "degree": 3,
+    "L": 35,
+    "dim_C": 34,
+    "ranks": [
+     34,
+     34,
+     34
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "N": 13,
+    "degree": 2,
+    "L": 28,
+    "dim_C": 27,
+    "ranks": [
+     27,
+     27,
+     27
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "N": 13,
+    "degree": 2,
+    "L": 28,
+    "dim_C": 27,
+    "ranks": [
+     27,
+     27,
+     27
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   }
+  ],
+  "m125": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "N": 20,
+    "degree": 4,
+    "L": 82,
+    "dim_C": 81,
+    "ranks": [
+     81,
+     81,
+     81
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "N": 20,
+    "degree": 4,
+    "L": 82,
+    "dim_C": 81,
+    "ranks": [
+     81,
+     81,
+     81
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "N": 10,
+    "degree": 3,
+    "L": 32,
+    "dim_C": 31,
+    "ranks": [
+     31,
+     31,
+     31
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "N": 15,
+    "degree": 4,
+    "L": 62,
+    "dim_C": 61,
+    "ranks": [
+     61,
+     61,
+     61
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "N": 23,
+    "degree": 4,
+    "L": 94,
+    "dim_C": 93,
+    "ranks": [
+     93,
+     93,
+     93
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "N": 10,
+    "degree": 3,
+    "L": 32,
+    "dim_C": 31,
+    "ranks": [
+     31,
+     31,
+     31
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "N": 13,
+    "degree": 3,
+    "L": 41,
+    "dim_C": 40,
+    "ranks": [
+     40,
+     40,
+     40
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "N": 11,
+    "degree": 2,
+    "L": 24,
+    "dim_C": 23,
+    "ranks": [
+     23,
+     23,
+     23
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "N": 12,
+    "degree": 2,
+    "L": 26,
+    "dim_C": 25,
+    "ranks": [
+     25,
+     25,
+     25
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "N": 20,
+    "degree": 5,
+    "L": 102,
+    "dim_C": 101,
+    "ranks": [
+     101,
+     101,
+     101
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "N": 20,
+    "degree": 5,
+    "L": 102,
+    "dim_C": 101,
+    "ranks": [
+     101,
+     101,
+     101
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "N": 18,
+    "degree": 4,
+    "L": 74,
+    "dim_C": 73,
+    "ranks": [
+     73,
+     73,
+     73
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "N": 23,
+    "degree": 5,
+    "L": 117,
+    "dim_C": 116,
+    "ranks": [
+     116,
+     116,
+     116
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "N": 21,
+    "degree": 4,
+    "L": 86,
+    "dim_C": 85,
+    "ranks": [
+     85,
+     85,
+     85
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "N": 15,
+    "degree": 3,
+    "L": 47,
+    "dim_C": 46,
+    "ranks": [
+     46,
+     46,
+     46
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "N": 15,
+    "degree": 2,
+    "L": 32,
+    "dim_C": 31,
+    "ranks": [
+     31,
+     31,
+     31
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "N": 20,
+    "degree": 2,
+    "L": 42,
+    "dim_C": 41,
+    "ranks": [
+     41,
+     41,
+     41
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "N": 20,
+    "degree": 2,
+    "L": 42,
+    "dim_C": 41,
+    "ranks": [
+     41,
+     41,
+     41
+    ],
+    "kernels": [
+     1,
+     1,
+     1
+    ],
+    "chain_all_rho": true
+   }
+  ]
+ },
+ "slots_passing": 92,
+ "slots_total": 92
+}

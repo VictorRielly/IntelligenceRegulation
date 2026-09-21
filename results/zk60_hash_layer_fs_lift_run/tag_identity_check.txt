@@ -1,0 +1,18 @@
+F-1 CHECK (read-only): is segment k's 32-byte END tag byte-equal to
+segment k+1's 32-byte START tag, in every run-capture bundle on the lane?
+Bundles read from /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
+Nothing was built, proved or run for this check.
+
+run-a-tame              stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-b-zero              stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-c-tame              stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-d-zero              stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-e-tame-tagged       stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-f-zero-tagged       stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-g-dense-s20         stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-h-zero-s20          stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-i-dense-k4          stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+run-j-zero-k4           stages=3  end(k)==start(k+1) for every k: True   tag FIELDS on the wire=6   DISTINCT tag values=4  (L+1=4)
+
+Every bundle: 2L tag fields carry L+1 distinct values.
+summary: [('run-a-tame', 3, True, 6, 4), ('run-b-zero', 3, True, 6, 4), ('run-c-tame', 3, True, 6, 4), ('run-d-zero', 3, True, 6, 4), ('run-e-tame-tagged', 3, True, 6, 4), ('run-f-zero-tagged', 3, True, 6, 4), ('run-g-dense-s20', 3, True, 6, 4), ('run-h-zero-s20', 3, True, 6, 4), ('run-i-dense-k4', 3, True, 6, 4), ('run-j-zero-k4', 3, True, 6, 4)]

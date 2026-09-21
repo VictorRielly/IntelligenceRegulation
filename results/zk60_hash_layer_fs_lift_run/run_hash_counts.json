@@ -1,0 +1,815 @@
+{
+ "controls": {
+  "C1 toy salts drawn": {
+   "got": 12288,
+   "want": 12288,
+   "ok": true
+  },
+  "C1 toy sum L_s": {
+   "got": 583,
+   "want": 583,
+   "ok": true
+  },
+  "C1 toy fp() draws": {
+   "got": 327052,
+   "want": 327052,
+   "ok": true,
+   "parts": {
+    "A": 178432,
+    "H": 124928,
+    "H_zero_sum": 510,
+    "M": 17038,
+    "total": 320908
+   },
+   "endpoints": 6144
+  },
+  "C1 toy sampler residual log2": {
+   "got": -77.68,
+   "want": -77.7
+  },
+  "C2 toy 2048-leaf tree": {
+   "got": [
+    240.7,
+    453.2,
+    212.5,
+    1200.6,
+    1654.8,
+    40.4
+   ],
+   "want": [
+    240.7,
+    453.2,
+    212.5,
+    1200.6,
+    1654.8,
+    40.4
+   ]
+  },
+  "C2 toy 4096-leaf M tree": {
+   "got": [
+    248.2,
+    481.4,
+    233.2,
+    1653.8,
+    2136.2,
+    26.1
+   ],
+   "want": [
+    248.2,
+    481.4,
+    233.2,
+    1653.8,
+    2136.2,
+    26.1
+   ]
+  },
+  "C3 rung-G per block / boundary / endpoint (pre-repair)": {
+   "got": [
+    686990,
+    8704,
+    7424
+   ],
+   "want": [
+    686990,
+    8704,
+    7424
+   ]
+  },
+  "C3 rung-G run L=3 total (pre-repair)": {
+   "got": 2093226,
+   "want": 2093226
+  },
+  "C3 125M per block / boundary / endpoint (pre-repair)": {
+   "got": [
+    9029742,
+    108032,
+    91392
+   ],
+   "want": [
+    9029742,
+    108032,
+    91392
+   ]
+  },
+  "C3 125M run L=12 total (pre-repair)": {
+   "got": 109728040,
+   "want": 109728040
+  },
+  "C3 125M sum L_s (pre-repair)": {
+   "got": 1208,
+   "want": 1208
+  },
+  "C3 125M residual log2 (pre-repair)": {
+   "got": -69.29,
+   "want": -69.3
+  },
+  "C4 125M L=12 salts drawn": {
+   "got": 2473984,
+   "want": 2473984
+  },
+  "C5 three-block run opened columns": {
+   "got": 3328,
+   "want": 3328
+  },
+  "C6 refusal per block log2": {
+   "got": -118.4,
+   "want": -118.4
+  },
+  "C6 refusal 125M L=12 log2": {
+   "got": -114.8,
+   "want": -114.8
+  },
+  "C7 run-e-tame-tagged (rung-G, pre-repair)": {
+   "measured_final_counter": 6918,
+   "model": 6918,
+   "ok": true
+  },
+  "C7 run-g-dense-s20 (rung-G)": {
+   "measured_final_counter": 6924,
+   "model": 6924,
+   "ok": true
+  },
+  "C7 run-h-zero-s20 (rung-G, all-zero)": {
+   "measured_final_counter": 6924,
+   "model": 6924,
+   "ok": true
+  },
+  "C7 run-i-dense-k4 (rung-K4)": {
+   "measured_final_counter": 7686,
+   "model": 7686,
+   "ok": true
+  },
+  "C7 run-j-zero-k4 (rung-K4, all-zero)": {
+   "measured_final_counter": 7686,
+   "model": 7686,
+   "ok": true
+  },
+  "C7 dense and all-zero give the same transcript figures": {
+   "rung_g": [
+    6092,
+    6924
+   ],
+   "rung_k4": [
+    6854,
+    7686
+   ],
+   "note": "MEASURED by the gate; the number of transcript operations does not move with the hidden input"
+  }
+ },
+ "configurations": {
+  "rung_g_L3": {
+   "shape": "rung_g",
+   "L": 3,
+   "profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+   "run_profile": "hashline-zk-mr1/private-run-rung-g-t24-dev/1",
+   "commitments": [
+    {
+     "kind": "A",
+     "count": 3,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "H",
+     "count": 3,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "M",
+     "count": 3,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "internal boundary",
+     "count": 2,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "external endpoint",
+     "count": 2,
+     "encoded_columns": 4096,
+     "depth": 12
+    }
+   ],
+   "commitment_total": 13,
+   "openings": 13,
+   "roots_published": {
+    "block_roots": 9,
+    "boundary_roots": 2,
+    "external_roots_in_the_statement": 2,
+    "total": 13
+   },
+   "salts_drawn": 53248,
+   "salt_slots_published": 3328,
+   "trees": {
+    "A": {
+     "count": 3,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "H": {
+     "count": 3,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "M": {
+     "count": 3,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "internal boundary": {
+     "count": 2,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "external endpoint": {
+     "count": 2,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    }
+   },
+   "leaves_total": 53248,
+   "distinct_opened_expected": 3226.5,
+   "unopened_leaves_expected": 50021.5,
+   "unopened_leaf_digests_published_expected": 3031.7,
+   "nodes_revealed_expected": 27770.3,
+   "path_digest_slots": 39936,
+   "prover_queries": {
+    "column_digest": 53248,
+    "salted_leaf": 53248,
+    "merkle_node": 53235,
+    "transcript_absorbs": 1129,
+    "transcript_squeezes_counted_here": 5946,
+    "transcript_squeezes_measured_by_the_gate": 6924,
+    "per_slot_definition_draws_implied": 978,
+    "transcript_squeezes_from_discarded_clones": 12
+   },
+   "position_tags": {
+    "fields_on_the_wire": 6,
+    "distinct_values": 4,
+    "note": "trailer of segment k == header tag of segment k+1"
+   },
+   "framing_bytes": 360,
+   "draws_at_8c5922b": {
+    "per_block": 687028,
+    "per_boundary": 8704,
+    "per_endpoint": 7424,
+    "total": 2093340
+   },
+   "draws_as_the_run_memo_counted": {
+    "per_block": 686990,
+    "per_boundary": 8704,
+    "per_endpoint": 7424,
+    "total": 2093226
+   },
+   "unkeyed_input_lengths": {
+    "calibration identity (private_block.rs:221-223)": 30,
+    "generalised-endpoint spec digest (endpoint_g.rs:157-\u2026)": 142,
+    "internal-boundary spec digest (boundary.rs:210-229)": 151,
+    "run public statement (run.rs:220-227)": 125,
+    "generator refill, key||counter (rng.rs:53-58)": 40,
+    "run schedule digest (run.rs:285-300), at least": 276,
+    "block schedule digest (layout.rs:1288-1296), at least": 41,
+    "block public-statement digest (private_block.rs:512-518), at least": 31
+   },
+   "transcript_function_input_lengths": {
+    "squeeze (transcript.rs:101-111)": 47,
+    "constructor, run profile (transcript.rs:40-45)": 56,
+    "constructor, block profile (a standalone block of this shape)": 58,
+    "absorb `run-shape` (56 B of data)": 113,
+    "absorb `expected-IO` (112 B of data)": 171,
+    "absorb `public-statement` (32 B of data)": 96,
+    "absorb `calibration` (32 B of data)": 91,
+    "absorb `schedule` (32 B of data)": 88,
+    "absorb `A` (32 B of data)": 81,
+    "absorb `H` (32 B of data)": 81,
+    "absorb `B` (32 B of data)": 81,
+    "absorb `M` (32 B of data)": 81,
+    "absorb `rows` (8 B of data)": 60,
+    "absorb `log-cols` (8 B of data)": 64,
+    "absorb `pb-run-stage` (8 B of data)": 68,
+    "absorb `pb-run-block` (32 B of data)": 92,
+    "absorb `pb-slot` (8 B of data)": 63,
+    "absorb `pb-scalar` (16 B of data)": 73,
+    "absorb `parameters`, the run's line": 295,
+    "absorb `parameters`, the block's line": 210,
+    "absorb `pcs-vec`/`pcs-prox`, block geometry": 20535,
+    "absorb `pcs-vec`/`pcs-prox`, endpoint geometry": 20535,
+    "absorb `mask-q`/`mask-prox`": 32822
+   },
+   "another_unkeyed_input_of_40_bytes": [],
+   "another_transcript_input_of_47_bytes": [],
+   "residuals_q2^128": {
+    "draws": 2093340,
+    "salts": 53248,
+    "absorbs": 1129,
+    "counted_squeezes": 5958,
+    "transcript_query_bound": 8065,
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -75.0026247777172,
+     "input-dependent refusal (S-4): L x 768 / |Fp2|": -116.83007499788589,
+     "salt guessing: q x N_leaf x 2^-256": -112.2995602818589,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -225.59914765785447,
+     "transcript pre-query: q x A x 2^-256": -115.022541181957,
+     "transcript-input collision: C(A,2) x 2^-256": -231.0452612584571,
+     "generator, in-model alternative: 6q x 2^-256": -125.41503749927884,
+     "key collision: the 4 tag keys against 3 generator keys": -252.41503749927884
+    },
+    "total_log2": -75.00262477770696,
+    "liveness_log2": -60.678071904776736
+   },
+   "residuals_q2^80": {
+    "draws": 2093340,
+    "salts": 53248,
+    "absorbs": 1129,
+    "counted_squeezes": 5958,
+    "transcript_query_bound": 8065,
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -75.0026247777172,
+     "input-dependent refusal (S-4): L x 768 / |Fp2|": -116.83007499788589,
+     "salt guessing: q x N_leaf x 2^-256": -160.2995602818589,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -225.59914765785447,
+     "transcript pre-query: q x A x 2^-256": -163.022541181957,
+     "transcript-input collision: C(A,2) x 2^-256": -231.0452612584571,
+     "generator, in-model alternative: 6q x 2^-256": -173.41503749927884,
+     "key collision: the 4 tag keys against 3 generator keys": -252.41503749927884
+    },
+    "total_log2": -75.00262477771679,
+    "liveness_log2": -60.678071904776736
+   }
+  },
+  "rung_k4_L3": {
+   "shape": "rung_k4",
+   "L": 3,
+   "profile": "hashline-zk-mr1/private-block-rung-k4-t24-dev/1",
+   "run_profile": "hashline-zk-mr1/private-run-rung-k4-t24-dev/1",
+   "commitments": [
+    {
+     "kind": "A",
+     "count": 3,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "H",
+     "count": 3,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "M",
+     "count": 3,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "internal boundary",
+     "count": 2,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "external endpoint",
+     "count": 2,
+     "encoded_columns": 4096,
+     "depth": 12
+    }
+   ],
+   "commitment_total": 13,
+   "openings": 13,
+   "roots_published": {
+    "block_roots": 9,
+    "boundary_roots": 2,
+    "external_roots_in_the_statement": 2,
+    "total": 13
+   },
+   "salts_drawn": 53248,
+   "salt_slots_published": 3328,
+   "trees": {
+    "A": {
+     "count": 3,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "H": {
+     "count": 3,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "M": {
+     "count": 3,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "internal boundary": {
+     "count": 2,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "external endpoint": {
+     "count": 2,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    }
+   },
+   "leaves_total": 53248,
+   "distinct_opened_expected": 3226.5,
+   "unopened_leaves_expected": 50021.5,
+   "unopened_leaf_digests_published_expected": 3031.7,
+   "nodes_revealed_expected": 27770.3,
+   "path_digest_slots": 39936,
+   "prover_queries": {
+    "column_digest": 53248,
+    "salted_leaf": 53248,
+    "merkle_node": 53235,
+    "transcript_absorbs": 1138,
+    "transcript_squeezes_counted_here": 6699,
+    "transcript_squeezes_measured_by_the_gate": 7686,
+    "per_slot_definition_draws_implied": 987,
+    "transcript_squeezes_from_discarded_clones": 12
+   },
+   "position_tags": {
+    "fields_on_the_wire": 6,
+    "distinct_values": 4,
+    "note": "trailer of segment k == header tag of segment k+1"
+   },
+   "framing_bytes": 360,
+   "draws_at_8c5922b": {
+    "per_block": 750540,
+    "per_boundary": 8704,
+    "per_endpoint": 7424,
+    "total": 2283876
+   },
+   "unkeyed_input_lengths": {
+    "calibration identity (private_block.rs:221-223)": 30,
+    "generalised-endpoint spec digest (endpoint_g.rs:157-\u2026)": 142,
+    "internal-boundary spec digest (boundary.rs:210-229)": 151,
+    "run public statement (run.rs:220-227)": 125,
+    "generator refill, key||counter (rng.rs:53-58)": 40,
+    "run schedule digest (run.rs:285-300), at least": 276,
+    "block schedule digest (layout.rs:1288-1296), at least": 41,
+    "block public-statement digest (private_block.rs:512-518), at least": 31
+   },
+   "transcript_function_input_lengths": {
+    "squeeze (transcript.rs:101-111)": 47,
+    "constructor, run profile (transcript.rs:40-45)": 57,
+    "constructor, block profile (a standalone block of this shape)": 59,
+    "absorb `run-shape` (56 B of data)": 113,
+    "absorb `expected-IO` (112 B of data)": 171,
+    "absorb `public-statement` (32 B of data)": 96,
+    "absorb `calibration` (32 B of data)": 91,
+    "absorb `schedule` (32 B of data)": 88,
+    "absorb `A` (32 B of data)": 81,
+    "absorb `H` (32 B of data)": 81,
+    "absorb `B` (32 B of data)": 81,
+    "absorb `M` (32 B of data)": 81,
+    "absorb `rows` (8 B of data)": 60,
+    "absorb `log-cols` (8 B of data)": 64,
+    "absorb `pb-run-stage` (8 B of data)": 68,
+    "absorb `pb-run-block` (32 B of data)": 92,
+    "absorb `pb-slot` (8 B of data)": 63,
+    "absorb `pb-scalar` (16 B of data)": 73,
+    "absorb `parameters`, the run's line": 295,
+    "absorb `parameters`, the block's line": 210,
+    "absorb `pcs-vec`/`pcs-prox`, block geometry": 20535,
+    "absorb `pcs-vec`/`pcs-prox`, endpoint geometry": 20535,
+    "absorb `mask-q`/`mask-prox`": 32822
+   },
+   "another_unkeyed_input_of_40_bytes": [],
+   "another_transcript_input_of_47_bytes": [],
+   "residuals_q2^128": {
+    "draws": 2283876,
+    "salts": 53248,
+    "absorbs": 1138,
+    "counted_squeezes": 6711,
+    "transcript_query_bound": 8836,
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -74.876947107051,
+     "input-dependent refusal (S-4): L x 768 / |Fp2|": -116.83007499788589,
+     "salt guessing: q x N_leaf x 2^-256": -112.2995602818589,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -225.59914765785447,
+     "transcript pre-query: q x A x 2^-256": -114.89082229664473,
+     "transcript-input collision: C(A,2) x 2^-256": -230.78180787720575,
+     "generator, in-model alternative: 6q x 2^-256": -125.41503749927884,
+     "key collision: the 4 tag keys against 3 generator keys": -252.41503749927884
+    },
+    "total_log2": -74.87694710704147,
+    "liveness_log2": -60.678071904776736
+   },
+   "residuals_q2^80": {
+    "draws": 2283876,
+    "salts": 53248,
+    "absorbs": 1138,
+    "counted_squeezes": 6711,
+    "transcript_query_bound": 8836,
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -74.876947107051,
+     "input-dependent refusal (S-4): L x 768 / |Fp2|": -116.83007499788589,
+     "salt guessing: q x N_leaf x 2^-256": -160.2995602818589,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -225.59914765785447,
+     "transcript pre-query: q x A x 2^-256": -162.89082229664473,
+     "transcript-input collision: C(A,2) x 2^-256": -230.78180787720575,
+     "generator, in-model alternative: 6q x 2^-256": -173.41503749927884,
+     "key collision: the 4 tag keys against 3 generator keys": -252.41503749927884
+    },
+    "total_log2": -74.87694710705063,
+    "liveness_log2": -60.678071904776736
+   }
+  },
+  "m125_L12": {
+   "shape": "m125",
+   "L": 12,
+   "profile": "hashline-zk-mr1/private-block-m125/1",
+   "run_profile": "hashline-zk-mr1/private-run-m125/1",
+   "commitments": [
+    {
+     "kind": "A",
+     "count": 12,
+     "encoded_columns": 65536,
+     "depth": 16
+    },
+    {
+     "kind": "H",
+     "count": 12,
+     "encoded_columns": 65536,
+     "depth": 16
+    },
+    {
+     "kind": "M",
+     "count": 12,
+     "encoded_columns": 4096,
+     "depth": 12
+    },
+    {
+     "kind": "internal boundary",
+     "count": 11,
+     "encoded_columns": 65536,
+     "depth": 16
+    },
+    {
+     "kind": "external endpoint",
+     "count": 2,
+     "encoded_columns": 65536,
+     "depth": 16
+    }
+   ],
+   "commitment_total": 49,
+   "openings": 49,
+   "roots_published": {
+    "block_roots": 36,
+    "boundary_roots": 11,
+    "external_roots_in_the_statement": 2,
+    "total": 49
+   },
+   "salts_drawn": 2473984,
+   "salt_slots_published": 12544,
+   "trees": {
+    "A": {
+     "count": 12,
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    },
+    "H": {
+     "count": 12,
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    },
+    "M": {
+     "count": 12,
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "internal boundary": {
+     "count": 11,
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    },
+    "external endpoint": {
+     "count": 2,
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    }
+   },
+   "leaves_total": 2473984,
+   "distinct_opened_expected": 12431.9,
+   "unopened_leaves_expected": 2461552.1,
+   "unopened_leaf_digests_published_expected": 12215.4,
+   "nodes_revealed_expected": 179359.1,
+   "path_digest_slots": 188416,
+   "prover_queries": {
+    "column_digest": 2473984,
+    "salted_leaf": 2473984,
+    "merkle_node": 2473935,
+    "transcript_absorbs": 5932,
+    "transcript_squeezes_counted_here": 164560,
+    "transcript_squeezes_measured_by_the_gate": null,
+    "per_slot_definition_draws_implied": null,
+    "transcript_squeezes_from_discarded_clones": 48
+   },
+   "position_tags": {
+    "fields_on_the_wire": 24,
+    "distinct_values": 13,
+    "note": "trailer of segment k == header tag of segment k+1"
+   },
+   "framing_bytes": 1440,
+   "draws_at_8c5922b": {
+    "per_block": 9029804,
+    "per_boundary": 108032,
+    "per_endpoint": 91392,
+    "total": 109728784
+   },
+   "draws_as_the_run_memo_counted": {
+    "per_block": 9029742,
+    "per_boundary": 108032,
+    "per_endpoint": 91392,
+    "total": 109728040
+   },
+   "unkeyed_input_lengths": {
+    "calibration identity (private_block.rs:221-223)": 30,
+    "generalised-endpoint spec digest (endpoint_g.rs:157-\u2026)": 142,
+    "internal-boundary spec digest (boundary.rs:210-229)": 151,
+    "run public statement (run.rs:220-227)": 413,
+    "generator refill, key||counter (rng.rs:53-58)": 40,
+    "run schedule digest (run.rs:285-300), at least": 283,
+    "block schedule digest (layout.rs:1288-1296), at least": 41,
+    "block public-statement digest (private_block.rs:512-518), at least": 31
+   },
+   "transcript_function_input_lengths": {
+    "squeeze (transcript.rs:101-111)": 47,
+    "constructor, run profile (transcript.rs:40-45)": 46,
+    "constructor, block profile (a standalone block of this shape)": 48,
+    "absorb `run-shape` (56 B of data)": 113,
+    "absorb `expected-IO` (112 B of data)": 171,
+    "absorb `public-statement` (32 B of data)": 96,
+    "absorb `calibration` (32 B of data)": 91,
+    "absorb `schedule` (32 B of data)": 88,
+    "absorb `A` (32 B of data)": 81,
+    "absorb `H` (32 B of data)": 81,
+    "absorb `B` (32 B of data)": 81,
+    "absorb `M` (32 B of data)": 81,
+    "absorb `rows` (8 B of data)": 60,
+    "absorb `log-cols` (8 B of data)": 64,
+    "absorb `pb-run-stage` (8 B of data)": 68,
+    "absorb `pb-run-block` (32 B of data)": 92,
+    "absorb `pb-slot` (8 B of data)": 63,
+    "absorb `pb-scalar` (16 B of data)": 73,
+    "absorb `parameters`, the run's line": 302,
+    "absorb `parameters`, the block's line": 215,
+    "absorb `pcs-vec`/`pcs-prox`, block geometry": 266295,
+    "absorb `pcs-vec`/`pcs-prox`, endpoint geometry": 266295,
+    "absorb `mask-q`/`mask-prox`": 32822
+   },
+   "another_unkeyed_input_of_40_bytes": [],
+   "another_transcript_input_of_47_bytes": [],
+   "residuals_q2^128": {
+    "draws": 109728784,
+    "salts": 2473984,
+    "absorbs": 5932,
+    "counted_squeezes": 164608,
+    "transcript_query_bound": 182828,
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -69.29063321846928,
+     "input-dependent refusal (S-4): L x 768 / |Fp2|": -114.83007499788589,
+     "salt guessing: q x N_leaf x 2^-256": -106.76159526067492,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -214.52319110449645,
+     "transcript pre-query: q x A x 2^-256": -110.51987249035476,
+     "transcript-input collision: C(A,2) x 2^-256": -222.03975287172722,
+     "generator, in-model alternative: 6q x 2^-256": -125.41503749927884,
+     "key collision: the 4 tag keys against 3 generator keys": -252.41503749927884
+    },
+    "total_log2": -69.2906332184611,
+    "liveness_log2": -58.790546634035145
+   },
+   "residuals_q2^80": {
+    "draws": 109728784,
+    "salts": 2473984,
+    "absorbs": 5932,
+    "counted_squeezes": 164608,
+    "transcript_query_bound": 182828,
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -69.29063321846928,
+     "input-dependent refusal (S-4): L x 768 / |Fp2|": -114.83007499788589,
+     "salt guessing: q x N_leaf x 2^-256": -154.7615952606749,
+     "leaf-input collision: C(N_leaf,2) x 2^-256": -214.52319110449645,
+     "transcript pre-query: q x A x 2^-256": -158.51987249035474,
+     "transcript-input collision: C(A,2) x 2^-256": -222.03975287172722,
+     "generator, in-model alternative: 6q x 2^-256": -173.41503749927884,
+     "key collision: the 4 tag keys against 3 generator keys": -252.41503749927884
+    },
+    "total_log2": -69.29063321846922,
+    "liveness_log2": -58.790546634035145
+   }
+  }
+ },
+ "many_runs_10^6": {
+  "rung_g_L3": {
+   "k": 1048576,
+   "sampler": -55.0026247777172,
+   "refusal": -96.83007499788589,
+   "leaf_collision": -185.59912056374367,
+   "salt_guessing": -92.2995602818589,
+   "total": -55.00262477770826
+  },
+  "m125_L12": {
+   "k": 1048576,
+   "sampler": -49.29063321846928,
+   "refusal": -94.83007499788587,
+   "leaf_collision": -174.5231905213504,
+   "salt_guessing": -86.76159526067492,
+   "total": -49.290633218461664
+  }
+ }
+}

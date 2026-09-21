@@ -125,7 +125,14 @@ about the run's soundness level is withdrawn.)*
 
 **R-7 (B-6, B-7, B-9, B-10, B-11): errata.** Corollary R.3 upgraded to proved,
 with all three travelling conditions named; "8 ζ challenges" corrected to at
-most 7; the two citations copied from the design re-read (`zkp-core/src/
+most 7 *(**this correction of mine was itself wrong — note of 2026-09-21
+00:43.** There are seven source lines, but one of them is the shared arm of
+the Q and KV zero-checks, which runs twice: a proof draws **8** at the two
+development shapes and **5** at the 125M shape. The draft was right. Two
+independent recounts agree — the shaped lemma's checker and the slot-closures
+draft. A second slip in the same section, found by the latter: only the `nu`
+and ζ challenges are refused on zero; `mu` is not. Both are bookkeeping at
+2^-128 and move no byte)*; the two citations copied from the design re-read (`zkp-core/src/
 pcs.rs:943` for the combination vectors); the "120-byte framing" difference
 withdrawn as already recorded; the helper commitment's zero-sum pair not
 double-counted. An errata pass on the draft follows.
