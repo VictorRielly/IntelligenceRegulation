@@ -43,6 +43,21 @@ unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 > feed-forward half held up under the same test: dense weights, generic data,
 > tampering at the wide hidden indices rejected. Found by the dense-weights
 > test added this afternoon (finding S19-F1, lane `zk60-private-block-125m`).
+>
+> **Repaired the same evening (19:30), review pending.** The two attention
+> steps now sum over the shared index. The honest input that was refused is
+> accepted; a generic input on **fully dense** weights proves and verifies at
+> the development size, as a three-block run too; tampering in the second
+> key-value group is rejected by the verifier; the small accepted test block's
+> bytes did not move. **At the 125M shape, one block on fully dense weights
+> with a generic hidden input: prove 27.67 s, verify 1.12 s, receipt
+> 40,783,352 bytes, peak 9.99 GiB; on the all-zero input: prove 26.98 s,
+> verify 1.23 s** [MEASURED by the security owner, one run each, laptop CPU,
+> shared box, 19:25]. Dense weights cost no measurable time. **These two are
+> the first 125M results on a non-degenerate input; the twelve-block figures
+> below have NOT been re-measured yet**, and an independent review of the
+> repair (soundness, masking budget, completeness) is running. Still no
+> privacy claim for anything but the small test block.
 
 **Latest on the fast line's private block (added 2026-09-20 07:10 by the
 security owner's session):** one **complete transformer block with hidden
