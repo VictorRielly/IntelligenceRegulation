@@ -9463,3 +9463,51 @@ SAME prover that gave 17.40 s and not a measurement of task 1's refactor.
 The census's own scan is timed and printed per slot (`scan x.xxx s`), so the
 prove figure can be read with it subtracted.
 
+### Task 5 — the gates, the commits, and the status of every review finding
+
+**The gates at the stage-29 tip.**
+
+| gate | result |
+|---|---|
+| `--lib private_` (the whole filter) | **336 passed / 0 failed / 13 ignored, 421.30 s, exit 0** (`r29-gate-private.log`) — the stage-28 tip's 327 plus this stage's nine, nothing lost and nothing newly ignored |
+| the new gates under `RAYON_NUM_THREADS=1`, `2` and `8` | **9 passed / 0 failed** each time (`r29-s29-threads.log`) |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `review_tests::a_toy_receipt_made_before_the_lane_still_verifies`, and the 2,816,472 B receipt-length family (`tests`, `zero_witness_tests`, `hash_domain_tests`, `review_tests`, `grow_tests`) — **all in the pass list** |
+| the rung, rung-G and rung-K4 receipt lengths | in the pass list (`rung_tests`, `dense_tests`, `k4_tests`, dense AND all-zero) |
+| the forbidden-files proof | `git diff --stat db28728 -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu private-block-kernel private-model-kernel private-block-kernel-shaped zkvm-block scripts tests` prints **nothing** |
+| the whole diff against `db28728` | seven sources and two evidence files: this ledger, `private_block.rs` (one `mod` line), `argument.rs`, `protocol.rs`, `timing.rs`, `s28_tests.rs` (two oracles made `pub(super)`), the new `s29_tests.rs`, and the two logs |
+
+**The commits of stage 29**, in order:
+
+| commit | what |
+|---|---|
+| `dc5f33f` | the ledger skeleton |
+| `b512b83` | **task 4's instrument**: `timing::base_field_census` and its call site, plus the rung-K4 evidence |
+| `33d44e2` | **task 1 part 1**: `protocol.rs`'s three thresholds become arguments |
+| `b6ff9d4` | **task 1 part 2 and task 2**: `argument.rs`'s two thresholds become arguments, and `eq_cube`'s precondition becomes a hard assertion |
+| `5f6be16` | **the gates**: `s29_tests.rs`, nine tests, and the 1/2/8-thread evidence |
+| `6717899` | **task 3**: the four ledger corrections, in place and dated |
+| `3ec0631` | the ledger: tasks 1, 2 and 3 |
+| `f1f6173` | the `private_` filter gate at the tip |
+| `b892b7f`, and this one | the ledger: task 4 and the close |
+
+**Every finding of the independent review, and where it stands now.**
+
+| finding | status at the stage-29 tip |
+|---|---|
+| **S28-R1** (`total` and three more without an oracle; the parallel branch reached only by an `#[ignore]`d run) | **CLOSED.** All five thresholds are arguments of inner functions; five gates in the ordinary filter drive BOTH branches on the SAME input and compare against the `79f0726` text; `the_five_thresholds_are_the_constants_the_production_path_passes` pins the constants |
+| **S28-R2** (S28-F1's second sentence over-reaches) | **CLOSED by ruling V-3**: the ledger now carries S28-F1a, the qualified form, with the reviewer's counterexample test named |
+| **S28-R3** (the `Err` arm of the out-of-table fallback) | closed by the reviewer's own test, merged at `db28728` |
+| **S28-R4** (the sub-step table's "baseline" column) | **CLOSED in the ledger**: the column is labelled as the 24.59 s post-task-1 tree, which is no commit |
+| **S28-R5** ("nine tests" for ten) | **CLOSED in the ledger**, together with the sentence about four computations that had no oracle |
+| **S28-R6** (the frozen toy crosses none of the five thresholds) | **CLOSED as ruled**: it is a fact and stays one; the ledger says which shape crosses which branch, and the thresholds now have their own gates |
+| **S28-R7** (`eq_cube` diverges on a violated precondition) | **CLOSED**: a hard `assert!` naming the precondition, the 560 admitted triples compared, and two `#[should_panic]` gates |
+| **S28-R8** (one unlisted refusal string) | **CLOSED in the ledger**, twice: under the stage rule that claimed none was added, and at task 1b |
+| **S28-F2** (no deterministic digest pin) | unchanged and unchallenged: ruling V-5 keeps it. Nothing in this stage touches randomness; no generator is read, drawn from or configured anywhere in the diff |
+
+**What this stage is not.** Not a privacy acceptance of anything: the lane's
+code stays experimental, for the integrator (ruling V-1). Not a change to
+what is sent, absorbed or drawn — the production call paths pass the same
+constants they passed at `db28728`, and the only new behaviour anywhere is a
+panic on a public-shape invariant that no frame and no witness can reach.
+Not a speed claim: nothing in this stage was written to make anything faster,
+and the base-field census is a COUNT with no time estimate attached to it.
