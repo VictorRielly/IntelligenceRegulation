@@ -183,7 +183,25 @@ fn claim_point(p: &Priv, rho: &[Fp2]) -> Vec<Fp2> {
 
 /// T(x) = plane~(point(x)) over the slot's boolean domain: multilinear in x
 /// because every challenge index occurs at most once among the coordinates.
-fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
+///
+/// **STAGE 28 (performance, no byte moves).** Three things changed and none of
+/// them is arithmetic:
+///
+/// * the `(x, z)` a plane index maps to is a BIT PERMUTATION of `idx` with the
+///   fixed coordinates split off, so it is precomputed for the low half and
+///   the high half of `idx` and read with two lookups instead of walked
+///   coordinate by coordinate (`p.log` iterations) per entry. `z` is still the
+///   fixed bits in coordinate order, which is why the high part is shifted by
+///   the NUMBER OF FIXED COORDINATES IN THE LOW PART and not by anything else;
+/// * with no fixed coordinate `eqf` is the one-element table `[1]`, and each
+///   `idx` then reaches its own `x`, so the write is the value itself — the
+///   same element `ZERO + 1 * v` was;
+/// * the broadcast pass is skipped when the plane depends on every variable
+///   (`used` is the full mask), where it copied each entry onto itself.
+///
+/// Every word this returns is the word the walked form returned; the equality
+/// is a test (`s28_tests`), not a claim.
+pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
     let mut used = 0usize;
@@ -193,40 +211,99 @@ fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
         }
     }
     let mut out = vec![Fp2::ZERO; 1usize << n_vars];
+    // the index maps, one per half of `idx`. Coordinate `j` reads bit
+    // `p.log - 1 - j` of `idx`, so coordinates `0 .. hi` are the high half.
+    let lo_len = p.log / 2;
+    let hi_len = p.log - lo_len;
+    let fixed_lo = p.coords[hi_len..].iter().filter(|c| matches!(c, Coord::Fixed(_))).count();
+    let map = |coords: &[Coord], bits: usize| -> Vec<(usize, usize)> {
+        (0..1usize << bits)
+            .map(|v| {
+                let (mut x, mut z) = (0usize, 0usize);
+                for (j, c) in coords.iter().enumerate() {
+                    let b = (v >> (bits - 1 - j)) & 1;
+                    match c {
+                        Coord::Rho(k) => x |= b << (n_vars - 1 - *k),
+                        Coord::Flip(k) => x |= (1 - b) << (n_vars - 1 - *k),
+                        Coord::Fixed(_) => z = (z << 1) | b,
+                    }
+                }
+                (x, z)
+            })
+            .collect()
+    };
+    let hi_map = map(&p.coords[..hi_len], hi_len);
+    let lo_map = map(&p.coords[hi_len..], lo_len);
+    let lo_mask = (1usize << lo_len) - 1;
+    // The write is a plain store only when NOTHING can land on the same `x`
+    // twice: no fixed coordinate (so `eqf` is the one-element table `[1]`)
+    // AND no challenge index used twice (which the construction promises and
+    // this counts rather than assumes — a duplicate index would make two
+    // `idx` share an `x`, where the old form ADDED them).
+    let moving = p.coords.iter().filter(|c| !matches!(c, Coord::Fixed(_))).count();
+    let simple = eqf.len() == 1 && eqf[0] == Fp2::ONE && used.count_ones() as usize == moving;
+    let one_slice = if p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE { Some(p.slices[0].0) } else { None };
     for idx in 0..1usize << p.log {
-        let (mut x, mut z) = (0usize, 0usize);
-        for (j, c) in p.coords.iter().enumerate() {
-            let b = (idx >> (p.log - 1 - j)) & 1;
-            match c {
-                Coord::Rho(k) => x |= b << (n_vars - 1 - *k),
-                Coord::Flip(k) => x |= (1 - b) << (n_vars - 1 - *k),
-                Coord::Fixed(_) => z = (z << 1) | b,
-            }
+        let (x_hi, z_hi) = hi_map[idx >> lo_len];
+        let (x_lo, z_lo) = lo_map[idx & lo_mask];
+        let (x, z) = (x_hi | x_lo, (z_hi << fixed_lo) | z_lo);
+        let v = match one_slice {
+            Some(off) => Fp2::from_base(data[off + idx]),
+            None => p.slices.iter().fold(Fp2::ZERO, |a, (off, coef)| a.add(coef.mul_base(data[*off + idx]))),
+        };
+        if simple {
+            out[x] = v;
+        } else {
+            out[x] = out[x].add(eqf[z].mul(v));
         }
-        let mut v = Fp2::ZERO;
-        for (off, coef) in &p.slices {
-            v = v.add(coef.mul_base(data[*off + idx]));
-        }
-        out[x] = out[x].add(eqf[z].mul(v));
     }
     // broadcast over the variables the plane does not depend on
-    for x in 0..out.len() {
-        if x & !used != 0 {
-            out[x] = out[x & used];
+    if used != (1usize << n_vars) - 1 {
+        for x in 0..out.len() {
+            if x & !used != 0 {
+                out[x] = out[x & used];
+            }
         }
     }
     out
 }
 
+/// **STAGE 28.** The `eq` table over the slot's cube: entry `x` is
+/// `e[(x >> shift) & (|e| - 1)]`, which is each entry of the small `eq` table
+/// repeated `2^shift` times and that block repeated `2^start` times. It is
+/// built by filling one block and doubling it, so the cube is memory traffic
+/// and not one index computation per entry. The words are the same words.
+pub(super) fn eq_cube(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
+    let len = 1usize << n_vars;
+    let shift = n_vars - start - e.len().trailing_zeros() as usize;
+    let mut out: Vec<Fp2> = Vec::with_capacity(len);
+    for v in e {
+        out.resize(out.len() + (1usize << shift), *v);
+    }
+    while out.len() < len {
+        out.extend_from_within(..);
+    }
+    out
+}
+
+/// **STAGE 28.** `take` is `Some` on the proving path, where the slot
+/// definition is owned and dead after the tables are built: a PUBLIC table is
+/// then MOVED into the table set instead of copied, which at the 125M shape
+/// saves a 134 MB copy per public table of the two big slots. Nothing reads a
+/// `Tab::Pub` payload again on that path (the length check above happens
+/// first, and every later use matches `Tab::Priv`).
 fn table_of(tab: &Tab, n_vars: usize, pd: &ProverData) -> Vec<Fp2> {
     match tab {
-        Tab::Eq { point, start } => {
-            let e = eq_table_msb(point);
-            let shift = n_vars - *start - point.len();
-            (0..1usize << n_vars).map(|x| e[(x >> shift) & (e.len() - 1)]).collect()
-        }
+        Tab::Eq { point, start } => eq_cube(&eq_table_msb(point), n_vars, *start),
         Tab::Pub(v) => v.clone(),
         Tab::Priv(p) => priv_table(p, pd.data[p.cm as usize], n_vars),
+    }
+}
+
+fn table_of_taking(tab: &mut Tab, n_vars: usize, pd: &ProverData) -> Vec<Fp2> {
+    match tab {
+        Tab::Pub(v) => std::mem::take(v),
+        other => table_of(other, n_vars, pd),
     }
 }
 
@@ -277,16 +354,37 @@ fn build_claim(sh: &Shape, p: &Priv, point: &[Fp2], cd: Fp2, cm: Fp2, value: Fp2
     ZClaim { parts, value }
 }
 
+/// The claimed sum over the slot's whole cube.
+///
+/// **STAGE 28 (performance, no byte moves).** The sum is over a FIELD: it is
+/// exact and has no rounding, so grouping the terms differently cannot change
+/// the element this returns — the same argument `zkp-core/src/sumcheck.rs`
+/// already makes for its own parallel round ("the field sums are
+/// order-independent: the values are identical"). Small cubes stay on one
+/// thread, where a rayon region costs more than the work, and that threshold
+/// is the only thing the parallel form decides.
 fn total(tables: &[Vec<Fp2>], poly: &Poly) -> Fp2 {
-    let mut row = vec![Fp2::ZERO; tables.len()];
-    let mut acc = Fp2::ZERO;
-    for x in 0..tables[0].len() {
-        for (r, t) in row.iter_mut().zip(tables.iter()) {
-            *r = t[x];
+    let len = tables[0].len();
+    let part = |lo: usize, hi: usize| -> Fp2 {
+        let mut row = vec![Fp2::ZERO; tables.len()];
+        let mut acc = Fp2::ZERO;
+        for x in lo..hi {
+            for (r, t) in row.iter_mut().zip(tables.iter()) {
+                *r = t[x];
+            }
+            acc = acc.add(poly(&row));
         }
-        acc = acc.add(poly(&row));
+        acc
+    };
+    if len <= 1 << 14 {
+        return part(0, len);
     }
-    acc
+    use rayon::prelude::*;
+    let chunk = 1024usize;
+    (0..len.div_ceil(chunk))
+        .into_par_iter()
+        .map(|ci| part(ci * chunk, ((ci + 1) * chunk).min(len)))
+        .reduce(|| Fp2::ZERO, |a, b| a.add(b))
 }
 
 fn sum_weights(sh: &Shape, slot: usize) -> Vec<Fp2> {
@@ -296,7 +394,11 @@ fn sum_weights(sh: &Shape, slot: usize) -> Vec<Fp2> {
 
 // ---------------------------------------------------------------- one slot
 
-pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
+// STAGE 28: `def` is `mut` because the proving path MOVES each public table
+// into the table set instead of copying it (`table_of_taking`). The
+// definition is owned, and nothing reads a `Tab::Pub` payload after the
+// tables are built.
+pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
     let s = def.slot;
     let sh = def.sh.clone();
     let (n, ext, degree) = sh.slots()[s];
@@ -334,36 +436,54 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, def: SlotDef, tr: &mut Tr
     }
     let (scalar, rho, es, terms, g_val) = match side {
         Side::Prove { pd, out } => {
-            let mut tables: Vec<Vec<Fp2>> = def.tabs.iter().map(|t| table_of(t, n, pd)).collect();
+            // **STAGE 28.** The four sub-steps, timed only when the phase clock
+            // is on (`timing::slot_step` is `f()` and nothing else otherwise).
+            // Two of them are this lane's code and two are `zk.rs`'s; the split
+            // is what says which.
+            // **STAGE 28.** The tables of one slot are independent of each
+            // other and are built in parallel above a threshold, in the
+            // crate's own rayon style. The iterator is INDEXED, so the table
+            // set is the same set in the same order whatever the thread count
+            // is; no randomness is drawn here, so no draw order can move.
+            let mut tables: Vec<Vec<Fp2>> = super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || {
+                if def.tabs.len() > 1 && (def.tabs.len() << n) >= 1 << 17 {
+                    use rayon::prelude::*;
+                    def.tabs.par_iter_mut().map(|t| table_of_taking(t, n, pd)).collect()
+                } else {
+                    def.tabs.iter_mut().map(|t| table_of_taking(t, n, pd)).collect()
+                }
+            });
             if tables.iter().any(|t| t.len() != 1usize << n) {
                 return Err(format!("private block: slot {s} table length"));
             }
             let mask = &pd.masks[s];
-            let scalar = match kind {
+            let scalar = super::timing::slot_step(s, "claimed sum: total (argument.rs)", 1u64 << n, || match kind {
                 SlotKind::Private => total(&tables, &def.poly).add(c.mul(mask.total())),
                 SlotKind::Standalone => c.mul(mask.total()),
                 SlotKind::Host => def.hosted.iter().fold(c.mul(mask.total()), |g, (hs, coef)| g.sub(coef.mul(acc.cs[*hs]).mul(pd.masks[*hs].total()))),
-            };
+            });
             tr.absorb_fp2(b"pb-scalar", &[scalar]);
             let poly = |v: &[Fp2]| (def.poly)(v);
-            let (mut rounds, rho, finals) = masked_prove(&mut tables, degree, &poly, mask, c, tr);
+            let (mut rounds, rho, finals) = super::timing::slot_step(s, "masked sumcheck (zk.rs, shared)", 1u64 << n, || masked_prove(&mut tables, degree, &poly, mask, c, tr));
             let mut cur = finals;
             let mut prev = rho.clone();
-            for m in 0..ext {
-                let exts: Vec<Fp2> = def
-                    .tabs
-                    .iter()
-                    .map(|t| match t {
-                        Tab::Priv(p) if p.ext_round == m => mask_eval(&sh, p, pd.data[p.cm as usize], &claim_point(p, &rho)),
-                        _ => Fp2::ZERO,
-                    })
-                    .collect();
-                let e = extension(&cur, &exts, degree, &poly, mask, c, &prev, &mut rounds, tr);
-                for (v, x) in cur.iter_mut().zip(exts.iter()) {
-                    *v = masked_terminal(*v, *x, e);
+            super::timing::slot_step(s, "extension rounds (mask_eval + zk.rs)", ext as u64, || {
+                for m in 0..ext {
+                    let exts: Vec<Fp2> = def
+                        .tabs
+                        .iter()
+                        .map(|t| match t {
+                            Tab::Priv(p) if p.ext_round == m => mask_eval(&sh, p, pd.data[p.cm as usize], &claim_point(p, &rho)),
+                            _ => Fp2::ZERO,
+                        })
+                        .collect();
+                    let e = extension(&cur, &exts, degree, &poly, mask, c, &prev, &mut rounds, tr);
+                    for (v, x) in cur.iter_mut().zip(exts.iter()) {
+                        *v = masked_terminal(*v, *x, e);
+                    }
+                    prev.push(e);
                 }
-                prev.push(e);
-            }
+            });
             let terms: Vec<Fp2> = def.tabs.iter().zip(cur.iter()).filter(|(t, _)| matches!(t, Tab::Priv(_))).map(|(_, v)| *v).collect();
             let g_val = mask.eval(&prev);
             let es = prev[n..].to_vec();

@@ -203,3 +203,247 @@ fn the_helper_column_is_the_same_vector_whatever_the_thread_count_is() {
     // and the words are the old path's
     assert_eq!(ambient, old_path(&col, alpha, g_u8).expect("the old path"), "the parallel path left the old words");
 }
+
+// ---------------------------------------------------------------------------
+// TASK 2 — the slot table builders
+// ---------------------------------------------------------------------------
+
+use super::argument::{eq_cube, priv_table, Cm, Coord, Priv};
+use crate::field::Fp;
+use crate::mle::eq_table_msb;
+
+/// **THE OLD `priv_table`**, copied verbatim from the tip this stage opened
+/// at (`79f0726`), as the oracle the new one is compared against.
+fn priv_table_walked(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
+    let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
+    let eqf = eq_table_msb(&fixed);
+    let mut used = 0usize;
+    for c in &p.coords {
+        if let Coord::Rho(k) | Coord::Flip(k) = c {
+            used |= 1usize << (n_vars - 1 - *k);
+        }
+    }
+    let mut out = vec![Fp2::ZERO; 1usize << n_vars];
+    for idx in 0..1usize << p.log {
+        let (mut x, mut z) = (0usize, 0usize);
+        for (j, c) in p.coords.iter().enumerate() {
+            let b = (idx >> (p.log - 1 - j)) & 1;
+            match c {
+                Coord::Rho(k) => x |= b << (n_vars - 1 - *k),
+                Coord::Flip(k) => x |= (1 - b) << (n_vars - 1 - *k),
+                Coord::Fixed(_) => z = (z << 1) | b,
+            }
+        }
+        let mut v = Fp2::ZERO;
+        for (off, coef) in &p.slices {
+            v = v.add(coef.mul_base(data[*off + idx]));
+        }
+        out[x] = out[x].add(eqf[z].mul(v));
+    }
+    for x in 0..out.len() {
+        if x & !used != 0 {
+            out[x] = out[x & used];
+        }
+    }
+    out
+}
+
+/// **THE OLD `eq` cube build**, likewise verbatim.
+fn eq_cube_gathered(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
+    let shift = n_vars - start - e.len().trailing_zeros() as usize;
+    (0..1usize << n_vars).map(|x| e[(x >> shift) & (e.len() - 1)]).collect()
+}
+
+fn base_data(len: usize, seed: u64) -> Vec<Fp> {
+    let mut r = xs(seed);
+    (0..len).map(|_| Fp::new(r() % crate::field::P)).collect()
+}
+
+/// Deterministic `Priv` descriptors that cover what the schedule builds: a
+/// plain plane, a plane with fixed coordinates, one with a flipped
+/// coordinate, one that does not depend on every variable (so the broadcast
+/// pass runs), an `H` plane with its two slices and the `u` coefficient, and
+/// coordinate orders that are not the identity.
+fn priv_cases(n_vars: usize, seed: u64) -> Vec<(&'static str, Priv)> {
+    let f = |i: u64| Fp2::new(Fp::new(i.wrapping_mul(2_654_435_761) % crate::field::P), Fp::new(i.wrapping_mul(97) % crate::field::P));
+    let mut out: Vec<(&'static str, Priv)> = Vec::new();
+    // (a) the identity map over every variable, one slice, coefficient one
+    out.push((
+        "identity, one slice",
+        Priv { cm: Cm::A, slices: vec![(0, Fp2::ONE)], log: n_vars, coords: (0..n_vars).map(Coord::Rho).collect(), mask_row: 0, ext_round: 0 },
+    ));
+    // (b) a permutation of the variables, two slices, the H pair's coefficients
+    out.push((
+        "permuted, two slices (H pair)",
+        Priv {
+            cm: Cm::H,
+            slices: vec![(0, Fp2::ONE), (1usize << n_vars, Fp2::U)],
+            log: n_vars,
+            coords: (0..n_vars).map(|k| Coord::Rho((k + 2) % n_vars)).collect(),
+            mask_row: 0,
+            ext_round: 0,
+        },
+    ));
+    // (c) two FIXED coordinates in the middle, so eqf has four entries
+    let mut c = Vec::new();
+    for k in 0..n_vars {
+        c.push(if k == 1 { Coord::Fixed(f(seed + 1)) } else if k == 3 { Coord::Fixed(f(seed + 2)) } else { Coord::Rho(k) });
+    }
+    out.push(("two fixed coordinates", Priv { cm: Cm::A, slices: vec![(3, Fp2::ONE)], log: n_vars, coords: c, mask_row: 0, ext_round: 0 }));
+    // (d) a FLIPPED coordinate (the RoPE partner half)
+    let mut c = Vec::new();
+    for k in 0..n_vars {
+        c.push(if k == n_vars - 2 { Coord::Flip(k) } else { Coord::Rho(k) });
+    }
+    out.push(("one flipped coordinate", Priv { cm: Cm::A, slices: vec![(0, f(seed + 3))], log: n_vars, coords: c, mask_row: 0, ext_round: 0 }));
+    // (e) a plane SHORTER than the cube: the broadcast pass has work to do
+    out.push((
+        "short plane, broadcast",
+        Priv { cm: Cm::A, slices: vec![(5, Fp2::ONE)], log: n_vars - 2, coords: (0..n_vars - 2).map(Coord::Rho).collect(), mask_row: 0, ext_round: 0 },
+    ));
+    // (f) short AND fixed AND flipped together, at an odd length
+    let mut c: Vec<Coord> = vec![Coord::Fixed(f(seed + 4)), Coord::Rho(n_vars - 1), Coord::Flip(0)];
+    for k in 1..n_vars - 1 {
+        c.push(Coord::Rho(k));
+    }
+    let log = c.len() - 1;
+    let coords: Vec<Coord> = c.drain(..log).collect();
+    out.push(("short, fixed and flipped", Priv { cm: Cm::A, slices: vec![(1, f(seed + 5)), (2, Fp2::ONE)], log, coords, mask_row: 0, ext_round: 0 }));
+    out
+}
+
+/// A descriptor that uses ONE challenge index TWICE: two `idx` values then
+/// land on the same `x` and the walked builder ADDS them. The construction
+/// promises this never happens, and the builder counts rather than assumes
+/// it, so the fallback is exercised here.
+fn duplicated_index_case(n_vars: usize) -> Priv {
+    let mut coords: Vec<Coord> = (0..n_vars).map(Coord::Rho).collect();
+    coords[n_vars - 1] = Coord::Rho(0);
+    Priv { cm: Cm::A, slices: vec![(2, Fp2::ONE)], log: n_vars, coords, mask_row: 0, ext_round: 0 }
+}
+
+/// **THE EQUALITY GATE for the slot's private tables.** The walked builder and
+/// the bit-permutation builder produce the same cube, entry for entry, at
+/// three widths and on six descriptor shapes.
+#[test]
+fn the_private_table_builder_is_the_walked_one_entry_for_entry() {
+    let mut checked = 0usize;
+    for n_vars in [4usize, 7, 12] {
+        let data = base_data(4 << n_vars, 0xC0FF_EE00 + n_vars as u64);
+        for (name, p) in priv_cases(n_vars, 11 * n_vars as u64) {
+            let old = priv_table_walked(&p, &data, n_vars);
+            let new = priv_table(&p, &data, n_vars);
+            assert_eq!(old.len(), new.len(), "{name} at 2^{n_vars}: the cube length moved");
+            for (x, (a, b)) in old.iter().zip(new.iter()).enumerate() {
+                assert_eq!(a, b, "{name} at 2^{n_vars}: entry {x} differs");
+            }
+            // non-vacuity: the cube is not all zero and not constant
+            assert!(old.iter().any(|v| !v.is_zero()), "{name}: the fixture cube is all zero");
+            checked += 1;
+        }
+        // and the case the fast path must NOT take
+        let p = duplicated_index_case(n_vars);
+        assert_eq!(priv_table(&p, &data, n_vars), priv_table_walked(&p, &data, n_vars), "a duplicated challenge index at 2^{n_vars} took the plain-store path");
+        checked += 1;
+    }
+    assert_eq!(checked, 21, "the gate compared {checked} cases");
+}
+
+/// **THE EQUALITY GATE for the `eq` cube.** The doubling build and the
+/// gathered build agree at every `(width, start, |point|)` the slots use.
+#[test]
+fn the_eq_cube_builder_is_the_gathered_one_entry_for_entry() {
+    let mut cases = 0usize;
+    for n_vars in [3usize, 6, 11] {
+        for plen in 0..=n_vars {
+            for start in 0..=(n_vars - plen) {
+                let point: Vec<Fp2> = (0..plen).map(|i| Fp2::from_i64((7 * i + 3) as i64)).collect();
+                let e = eq_table_msb(&point);
+                assert_eq!(eq_cube(&e, n_vars, start), eq_cube_gathered(&e, n_vars, start), "eq cube at 2^{n_vars}, start {start}, |point| {plen}");
+                cases += 1;
+            }
+        }
+    }
+    assert!(cases >= 60, "the eq gate ran only {cases} cases");
+}
+
+/// **THE EQUALITY GATE for the paired helper column.** The prover writes one
+/// helper per PAIR of looked columns; building the pair in one pass must give
+/// the vector the two separate inversions plus the element-wise add gave, and
+/// must refuse exactly where they refused.
+#[test]
+fn the_paired_helper_column_is_the_two_columns_inverted_and_added() {
+    let (alpha, g_u8) = (point(555), point(6_060));
+    for len in [1usize, 4_096, 40_000] {
+        let a = byte_column(len, 17);
+        let b = byte_column(len, 23);
+        let want: Vec<Fp2> = old_path(&a, alpha, g_u8)
+            .expect("column a")
+            .iter()
+            .zip(old_path(&b, alpha, g_u8).expect("column b").iter())
+            .map(|(x, y)| x.add(*y))
+            .collect();
+        let got = super::protocol::helper_pair_inverses_u8(&a, &b, alpha, g_u8, &u8_denominator_inverses(alpha, g_u8)).expect("the paired path");
+        assert_eq!(got, want, "len={len}: the paired helper column moved");
+    }
+    // the refusal: a zero denominator in EITHER column of the pair
+    let v0 = 77i64;
+    let alpha0 = Fp2::from_i64(v0).add(g_u8);
+    let tbl = u8_denominator_inverses(alpha0, g_u8);
+    for which in 0..2 {
+        let mut a = byte_column(4_096, 41);
+        let mut b = byte_column(4_096, 42);
+        for c in [&mut a, &mut b] {
+            c.iter_mut().for_each(|v| {
+                if *v == v0 {
+                    *v = 0
+                }
+            });
+        }
+        if which == 0 {
+            a[100] = v0;
+        } else {
+            b[100] = v0;
+        }
+        assert_eq!(
+            super::protocol::helper_pair_inverses_u8(&a, &b, alpha0, g_u8, &tbl),
+            Err(REFUSAL.to_string()),
+            "the paired path did not refuse a zero denominator in column {which}"
+        );
+        // and with v0 in neither column it is accepted, so the refusal is the
+        // value's and not the pair's
+        let (mut a2, mut b2) = (a.clone(), b.clone());
+        a2[100] = 0;
+        b2[100] = 0;
+        assert!(super::protocol::helper_pair_inverses_u8(&a2, &b2, alpha0, g_u8, &tbl).is_ok(), "the paired path refused a pair that carries no zero denominator");
+    }
+}
+
+/// **THE EQUALITY GATE for the looked columns.** `lookup_values` now builds
+/// the columns of a big domain in parallel; a column is a per-index map, so
+/// the words must be the serial map's words. The oracle here is that serial
+/// map, written out in the test, on real witnesses at two shapes.
+#[test]
+fn the_lookup_columns_are_the_serial_per_index_maps_they_were() {
+    use super::layout::Layout;
+    use super::shape::Shape;
+    use super::BlockPublic;
+    let mut domains = 0usize;
+    for sh in [Shape::toy(), Shape::rung_k4()] {
+        let (public, ff, x) = super::grow_tests::tame_case(&sh);
+        let blk = BlockPublic::new(public, ff);
+        let w = super::witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x).expect("an honest witness at this shape");
+        let lay = Layout::for_shape(&sh).expect("the layout of this shape");
+        for dom in lay.lookup_doms() {
+            let len = lay.shape().size(*dom);
+            let want: Vec<Vec<i64>> = lay
+                .lookups(*dom)
+                .iter()
+                .map(|l| (0..len).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(w.planes[*p][x])))).collect())
+                .collect();
+            assert_eq!(super::protocol::lookup_values(&lay, &w, *dom), want, "{}: the looked columns of {dom:?} moved", sh.name);
+            domains += 1;
+        }
+    }
+    assert!(domains >= 8, "the gate covered only {domains} domains");
+}

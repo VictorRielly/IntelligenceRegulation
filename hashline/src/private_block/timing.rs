@@ -282,6 +282,26 @@ impl Phases {
     }
 }
 
+/// **STAGE 28 — attribution INSIDE one slot.** The 42-row table gives a slot
+/// one line on purpose; this splits that line into the steps the prover
+/// actually takes (building the slot's tables, the claimed sum, the masked
+/// sumcheck body, the extension rounds), so a slot's seconds can be split
+/// between the code this lane owns and the code it does not.
+///
+/// It prints and records nothing else: a label, a duration, and a PUBLIC
+/// count (a cube, a table count) — the same rule as the rest of this module.
+/// With the clock off it is `f()` and nothing else: no clock read, no print.
+pub(crate) fn slot_step<T>(slot: usize, label: &str, size: u64, f: impl FnOnce() -> T) -> T {
+    if !enabled() {
+        return f();
+    }
+    let t = Instant::now();
+    let out = f();
+    let secs = t.elapsed().as_secs_f64();
+    println!("PB-SLOTSTEP slot {slot:02} | {label:<34} | {secs:>8.3} s | {size:>12} |");
+    out
+}
+
 /// Time one call that happens OUTSIDE a [`Phases`] recorder's scope — the wire
 /// encode on the prover's side and the wire decode on the verifier's — and
 /// print one line for it. Off: `f()` and nothing else.

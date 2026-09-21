@@ -374,10 +374,17 @@ pub(super) fn check_endpoint_opening(claims: &[ZClaim], sh: &Shape, tr: &Transcr
 /// extent at this layout's shape (`Dom::len()` is the toy's)
 pub(super) fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
     let len = lay.shape().size(dom);
-    lay.lookups(dom)
-        .iter()
-        .map(|l| (0..len).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])))).collect())
-        .collect()
+    let lks = lay.lookups(dom);
+    let col = |l: &Lk| -> Vec<i64> { (0..len).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])))).collect() };
+    // **STAGE 28.** Each column is an independent per-index map of wrapping
+    // integer arithmetic. The parallel iterator is INDEXED, so the columns
+    // come back in their own order with their own words; small domains stay
+    // on one thread.
+    if lks.len() > 1 && lks.len() * len >= 1 << 17 {
+        use rayon::prelude::*;
+        return lks.par_iter().map(&col).collect();
+    }
+    lks.iter().map(col).collect()
 }
 
 /// the activation lookup's index column `g8 + 128` over the `Dom::F` cube
@@ -481,6 +488,39 @@ pub(super) fn helper_inverses_u8(col: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Opti
     }
     use rayon::prelude::*;
     col.par_iter().map(one).collect()
+}
+
+/// **STAGE 28.** The helper column of a PAIR of looked columns:
+/// `1/(alpha - (a + g_u8)) + 1/(alpha - (b + g_u8))`, in one indexed pass.
+///
+/// It is exactly what the two separate columns plus the element-wise `add`
+/// produced — the inverses are the same words and the sum of two field
+/// elements does not depend on where they were stored. The refusal is
+/// [`helper_inverses_u8`]'s, unchanged: the first column is asked before the
+/// second at every index, and both must answer.
+pub(super) fn helper_pair_inverses_u8(a: &[i64], b: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<Vec<Fp2>, String> {
+    if a.len() != b.len() {
+        return Err("private block: paired lookup columns of different lengths".into());
+    }
+    let one = |v: &i64| -> Result<Fp2, String> {
+        match usize::try_from(*v) {
+            Ok(k) if k < U8_LEN => tbl[k].ok_or_else(|| ZERO_DENOMINATOR.to_string()),
+            _ => {
+                let d = alpha.sub(Fp2::from_i64(*v).add(g_u8));
+                if d.is_zero() {
+                    Err(ZERO_DENOMINATOR.to_string())
+                } else {
+                    Ok(d.inv())
+                }
+            }
+        }
+    };
+    let pair = |(x, y): (&i64, &i64)| -> Result<Fp2, String> { Ok(one(x)?.add(one(y)?)) };
+    if a.len() < 1 << 14 {
+        return a.iter().zip(b.iter()).map(pair).collect();
+    }
+    use rayon::prelude::*;
+    a.par_iter().zip(b.par_iter()).map(pair).collect()
 }
 
 // **FINDING F-4 OF THE INDEPENDENT REVIEW: THE ONE TEST-ONLY PROVER HOOK.**
@@ -698,10 +738,46 @@ pub(crate) fn prove_core(
     // a public count: how many lookup words the six lookup domains carry at
     // THIS shape. It is a function of the geometry and of nothing private.
     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
-    for (_, cols) in &looked {
-        for v in cols.iter().flatten() {
-            // a value outside the table counts into entry 0: only the LogUp identity can catch it
-            m_u8[if (0..U8_LEN as i64).contains(v) { *v as usize } else { 0 }] += 1;
+    // **STAGE 28.** The same counts, added up in chunks. A histogram is a sum
+    // of integers: partitioning the words changes no bin, and the bins are
+    // added back in a fixed order. The serial form stays for small domains.
+    // (A value outside the table counts into entry 0, exactly as before: only
+    // the LogUp identity can catch it.)
+    let bin = |v: &i64| -> usize {
+        if (0..U8_LEN as i64).contains(v) {
+            *v as usize
+        } else {
+            0
+        }
+    };
+    if lookup_words >= 1 << 17 {
+        use rayon::prelude::*;
+        let cols: Vec<&Vec<i64>> = looked.iter().flat_map(|(_, cols)| cols.iter()).collect();
+        let bins = cols
+            .par_iter()
+            .flat_map(|c| c.par_chunks(1 << 16))
+            .map(|chunk| {
+                let mut b = vec![0u64; U8_LEN];
+                for v in chunk {
+                    b[bin(v)] += 1;
+                }
+                b
+            })
+            .reduce(
+                || vec![0u64; U8_LEN],
+                |mut a, b| {
+                    for (x, y) in a.iter_mut().zip(b.iter()) {
+                        *x += *y;
+                    }
+                    a
+                },
+            );
+        m_u8 = bins;
+    } else {
+        for (_, cols) in &looked {
+            for v in cols.iter().flatten() {
+                m_u8[bin(v)] += 1;
+            }
         }
     }
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
@@ -781,11 +857,17 @@ pub(crate) fn prove_core(
     let u8_inv = u8_denominator_inverses(alpha, g_u8);
     for (dom, cols) in &looked {
         let (first, count) = lay.helpers(*dom);
-        let inv: Vec<Vec<Fp2>> = cols.iter().map(|c| helper_inverses_u8(c, alpha, g_u8, &u8_inv)).collect::<Result<_, _>>()?;
+        // **STAGE 28.** A helper column is the sum of the inverses of at most
+        // TWO looked columns, so it is built and written one helper at a time
+        // instead of inverting every column of the domain into its own vector
+        // first: the same words, in the same place, without the domain-wide
+        // intermediate (789 MB of looked words at the 125M shape had a second
+        // copy in `Fp2` beside them). Columns are still visited in index
+        // order, so a refusal is still the lowest-indexed column's.
         for k in 0..count {
-            let col: Vec<Fp2> = match inv.get(2 * k + 1) {
-                Some(second) => inv[2 * k].iter().zip(second.iter()).map(|(x, y)| x.add(*y)).collect(),
-                None => inv[2 * k].clone(),
+            let col = match cols.get(2 * k + 1) {
+                Some(second) => helper_pair_inverses_u8(&cols[2 * k], second, alpha, g_u8, &u8_inv)?,
+                None => helper_inverses_u8(&cols[2 * k], alpha, g_u8, &u8_inv)?,
             };
             write_h(&mut h_data, lay.h_off[first + k], &col);
         }
