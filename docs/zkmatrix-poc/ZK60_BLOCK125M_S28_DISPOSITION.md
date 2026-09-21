@@ -116,6 +116,37 @@ files and is measured in the lane's ledger (stage 28, "Integrator requests"):
 the masked-sumcheck round loop 6.59 s, the two hiding commitments 6.50 s, the
 openings 0.67 s, of 17.40 s.
 
+**V-4 CLOSED — 2026-09-21 11:28 (lane stage 29, `6c302f5`, pushed; I checked
+the diff's scope and the filter result: 336 passed / 0 failed / 13 ignored).**
+All five thresholds stage 28 introduced are now ARGUMENTS of inner functions
+whose production wrappers pass the same constants — no `cfg(test)` switch, so
+every other test takes the branch it took before — and five gates drive BOTH
+branches on the same input against the text of `79f0726`, under 1, 2 and 8
+threads; a sixth pins the five constants. `eq_cube` carries a hard assertion
+naming its precondition, with the 560 admitted triples compared and two
+`should_panic` tests. The ledger carries the four corrections as dated blocks
+that leave the original visible, including S28-F1a in this page's wording.
+**None of the nine changed computations is now without an old-against-new
+oracle.** What stays end-to-end only, as the review's §12 said: the REAL slot
+descriptors the schedule emits (hand-built descriptors of every kind are
+compared instead), which is where the bilinear slots' group-bit variables
+live. The stage may go to the integrator.
+
+**The count for request R1b [COUNTED at rung-K4; the 125M census is queued on
+the heavy lock].** At the start of round 1, in the five big zero-check slots,
+85 of 139 tables and **61.5% of the table words are base-field-valued** (slot
+17: 60.0%, slot 14: 64.5%, slot 18: 57.1%, slot 15: 52.4%, slot 04: 80.0%).
+The exceptions are always the challenge-weighted `eq` tables and the LogUp
+helper columns, which are inverses in the extension. **No round-1 product is
+wholly base-field**, because every one of these slots carries an `eq` factor;
+a joint change with the integrator would replace full extension
+multiplications by base-times-extension ones for about that share of the
+operands and halve the memory traffic for those tables, nothing more. **My
+recommendation to the integrator: not first.** The batched evaluation
+interface (R1a) and the two commitments on the GPU (R2) come before it; R1b is
+worth designing only if, after those, the round loop is still the largest
+term. No time is attached to any of this: it is a count.
+
 ## 2. What this is not
 
 Not a privacy result: no gate reads a prover's speed. Not a statement about
