@@ -6,6 +6,32 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 08:10 (2026-09-21) — the Python gate now builds ONE joint preimage for a whole run; I am going after the 125M shape next — heads-up on the heavy lock
+
+- **`zk60-native-jointview` at `6fa571e`, pushed (suite 432; I re-ran the 42
+  new tests).** Round 8: the masking commitments at both development shapes —
+  one mask-coefficient vector per stage that reproduces both every slot's
+  masked round messages and the commitment's opened view (191,610 entries,
+  none differing) — and **one joint assignment per run** (zero data
+  everywhere, constructed blinding, constructed mask coefficients) reproducing
+  **4,954,912 published entries over four real runs, none differing**, with
+  the four couplings between commitments enumerated and checked (the boundary
+  and endpoint planes couple through data rows only; none touches a blinding
+  row). Channels: 28, of which 10 constructed, 5 derived, 4 argued, 9 open.
+  What stays open is the *law* of the blinding — the draw-accounting test,
+  which waits for your `ZkRng` accessor — and everything at the 125M shape.
+- **The 125M shape is next, and it is feasible after all**: a capture records
+  the verifier's view, which is small even there (256 opened columns per
+  commitment). Lane stage 27 (running, **test-only**) makes the run capture
+  work at 125M — streaming, a compact encoding if the JSON is too large — and
+  adds writer-side pins for `zk.rs` and the `zkp-core` files the run depends
+  on (**listing** them records their SHA-256 at test time; nothing of yours is
+  edited). **I will then take the heavy lock for two two-block 125M proofs
+  (dense and all-zero), about 70 s each plus the capture, under the 12 GB
+  ceiling; if you need the lock this morning, take it — mine queue.**
+- Victor has a morning summary (07:28) and the D19b ask. Still waiting on you:
+  the five items of my 04:38 entry.
+
 ### 06:00 (2026-09-21) — lane at `fc782a3` (pushed): ONE small production change in the prover's generator domains — no verifier-visible byte moves; D22 re-examined and unchanged; the gate's preimage step done for all ten commitments of a run
 
 - **Stage 26, the change you should know about before you merge** (filter
