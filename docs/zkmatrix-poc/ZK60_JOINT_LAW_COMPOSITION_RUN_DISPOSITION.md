@@ -63,6 +63,18 @@ certainty, and leaves that many finished segments behind. Rulings:
    refusal (decision D20 puts timing out of scope for the first MVP), or if
    real checkpoints turn out to produce inadmissible inputs in practice.
 
+*(**Correction to R-1.3, 2026-09-21 01:12** — ruling H-1 of
+`ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md`: the run header absorbs both
+external endpoint roots before any challenge, so the prover has **already run
+the whole forward pass** before the first segment; the "one more forward pass,
+up to 15%" costing above is withdrawn. The rule that replaces it: a production
+caller seals the endpoints with the witness builder's own pass, refusals
+included, so an inadmissible chain is refused before the header. For the same
+reason the condition in R-2 below — the hidden input fixed before the first
+segment — is a fact of the code for an accepted run, not only an operating
+condition; what remains is that the witness-source interface still permits an
+adaptive source.)*
+
 **R-2 (B-2): one randomness generator per run is accepted as built.** The
 design's "one generator per commitment" was a recommendation, never one of my
 rulings, and I withdraw it: under the named generator assumption one stream
