@@ -73,6 +73,16 @@ shape prove and verify as one run: prove 393.59 s, verify by streaming
 16:39]. That is about 5% slower than the morning's untagged runs (370.61 s;
 26.54 s) — **not attributable to the tag**: the two hashing phases moved one
 up and one down, and a phase with no hashing in it moved more than either.
+**A caveat on every 125M figure on this page, found 2026-09-20 17:30:** the
+synthetic public weights used by all shaped tests are *diagonal* (64 on the
+diagonal, zero elsewhere). Where the hidden layer is wider than the model
+(2048 against 768), the upper part of the hidden layer therefore carries zeros
+in every proof run so far: the wide geometry has been exercised in its sizes,
+padding and checks, **not in its numbers**. No defect was found (the layout
+was read line by line and one public table re-derived by arithmetic), and
+proving time barely depends on the values (one phase skips zero weights; about
+a second per twelve-block run [MODEL]). A dense-weights test with a
+non-trivial hidden input is being added now, at the development size first.
 The run now leaves its **public statement** beside its segments (written only
 after the whole run verified), so a fresh process can check it. **Still no
 privacy claim for anything but the toy block**, and the integrator has not yet
