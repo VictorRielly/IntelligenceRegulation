@@ -189,6 +189,13 @@ mod s20_review_tests;
 // shape condition the privacy argument depends on that nothing checked.
 #[cfg(test)]
 mod s23_tests;
+// STAGE 24: the ENFORCEMENT BATCH of the security owner's dispositions of
+// 2026-09-21 on the run's hash layer (rulings H-1, H-4, H-5, H-8) and on the
+// slot closures at the shaped layouts (rulings C-2, C-3, C-4, C-7), plus
+// round 6 of the native run gate. Each item turns something that was true
+// into something that is CHECKED.
+#[cfg(test)]
+mod s24_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

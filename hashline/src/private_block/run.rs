@@ -427,6 +427,41 @@ pub(crate) fn peak_rss_mib() -> f64 {
 /// twelve-block run never holds twelve witnesses. The honest source builds
 /// block `k`'s witness from block `k - 1`'s output; a test source may lie
 /// about either, which is what the headline negative test needs.
+///
+/// **RULING H-1 (the security owner's disposition on the run's hash layer and
+/// Fiat–Shamir lift, 2026-09-21): WHAT A PRODUCTION CALLER OWES, and why this
+/// trait cannot be the thing that owes it.**
+///
+/// A run asks for block `k`'s witness inside stage `k`, so the trait PERMITS
+/// an adaptive source — one that chooses a witness after seeing the
+/// transcript. That looked like an operating condition a caller had to
+/// promise. It is not: `RunStatement::transcript` absorbs `expected-IO`
+/// before any challenge exists, and those bytes carry BOTH external endpoint
+/// commitment roots, which `protocol::check_endpoints` refuses unless the
+/// prover's own owners produce exactly them. **So the whole forward pass has
+/// already been run before the header** — there is no other way to seal the
+/// output root — and the hidden input and the final output are committed
+/// before the first message. A run is longer than a block, not harder.
+///
+/// Two consequences, and they are rules for the caller and not for this file:
+///
+/// 1. **The pass that seals the endpoints is the WITNESS BUILDER'S OWN, with
+///    its refusals.** A production caller runs `witness::build_shaped` (or
+///    whatever builds its witnesses) block by block to reach the output plane
+///    it seals, so an inadmissible chain is refused BEFORE the header and no
+///    partial run directory can arise from that cause. Ruling R-1.3's costing
+///    of a separate admissibility pre-pass is withdrawn: the pass is not an
+///    addition, it is the one the caller must already have run.
+/// 2. **A source must be a PURE FUNCTION of the committed input** — the same
+///    witnesses the sealing pass produced, in the same order, whatever the
+///    transcript says. Nothing here enforces that; the binding of the two
+///    endpoint commitments and the proved chain is what makes a source that
+///    departs from it unable to produce an accepted run. Tightening the
+///    interface is an item for when the production caller is written.
+///
+/// Rule M-9 — publish only after the whole run verifies — stays as the second
+/// line. `s24_tests::an_inadmissible_chain_is_refused_before_the_run_directory_exists`
+/// exercises rule 1 on a three-block rung-G chain.
 pub(crate) trait RunWitnessSource {
     /// block `k`'s integer witness, built just in time and consumed by the stage
     fn witness(&mut self, k: usize) -> Result<Witness, String>;

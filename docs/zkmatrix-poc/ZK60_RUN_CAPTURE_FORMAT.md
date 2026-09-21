@@ -568,6 +568,36 @@ From a read of the current loader (`zk60_native_jv_capture.py`,
    and `zk60_native_mask_commit.py` pin the toy's files; a run bundle carries
    its own pins in `manifest.json["source_pins"]` (this writer, `run.rs`,
    `boundary.rs`, `protocol.rs`, `argument.rs`, `layout.rs`).
+
+   **STAGE 24 (2026-09-21): `source_pins` grows from 8 entries to 15, and
+   nothing else about a bundle moves.** Round 6 of the native run gate
+   (`ZK60_NATIVE_RUN_GATE.md` §10.2, §10.8) found that its pin mechanism is
+   bundle-side — a gate can pin a file only if the WRITER pins it — and that
+   four files on the run's own path were in no bundle's `source_pins`:
+   `wire.rs`, `run_sink.rs`, `endpoint_g.rs` and `hash_domain.rs`. No port
+   depends on any of them today, which is exactly the fact that would stop
+   being true if a port grew. `run_capture.rs::SOURCE_FILES` now lists the
+   whole of the run's path, enumerated from the modules the run prover and
+   verifier reach: the eight it had, those four, and three the enumeration
+   itself turned up — `src/private_block.rs` (the PARENT module, where
+   `ExpectedIo::to_bytes`, `IoSpec` and `calibration_identity` live, so the
+   run header's own absorbed bytes come from it), `witness.rs` and `pad.rs`.
+   The one production module deliberately left out is `timing.rs`, named with
+   its reason in `NOT_ON_THE_RUNS_PATH` (the phase clock is write-only and
+   decides no byte), and
+   `s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on`
+   asserts that the two lists partition the module list parsed from
+   `private_block.rs`, so a module added later cannot slip through
+   undecided.
+
+   **THE SCHEMA NAME DOES NOT MOVE, because this is a PURE ADDITION.**
+   `manifest.json["source_pins"]` is a list of `{"file", "sha256"}` objects;
+   the change adds entries to that list and touches no field, no field order
+   and no existing entry, so a loader written for the eight-entry list reads
+   a fifteen-entry one unchanged. **The ten committed bundles are NOT
+   re-taken and are not edited**: each still carries, and its own
+   `manifest.json` still pins, the eight-entry list it was written with. Only
+   bundles taken after this change carry the longer list.
 8. **The slot port table is shape-dependent.** `BLOCK_PORTS` and the `_Layout`
    namespace in `zk60_native_terminal_polys.py` are the toy's `T=32, D=16,
    H=2, DH=8, F=16, LOG_N=8, N=256`. The slot COUNT, names, kinds and table

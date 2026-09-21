@@ -53,6 +53,12 @@ const COL_CHECKS: usize = 256;
 const MASK_VEC: usize = 1024;
 /// `log2(MASK_DOM = 4096)`
 const MASK_PATH: usize = 12;
+/// **RULING C-4's budget, from `zk.rs`'s own constants and not retyped.** One
+/// slot's masked sumcheck message lives in ONE row of the masking commitment:
+/// `2^MASK_LOG_MSG` positions, of which `MASK_Q` are the random pads that hide
+/// it. A slot whose message plus the pads exceeds the row cannot be masked.
+const MASK_MSG: usize = 1usize << crate::zk::MASK_LOG_MSG;
+const MASK_PADS: usize = crate::zk::MASK_Q;
 
 /// the structural degree of each slot, BEFORE any pad support indicator
 const BASE_DEGREE: [usize; N_SLOTS] = [3, 3, 3, 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 3, 2, 2, 2];
@@ -314,11 +320,66 @@ impl Shape {
         // any shape: its `A_V8` list always ends in the FIXED `r_i`, a
         // segment the existing T-8 refusal `head_dim >= 2` keeps non-empty,
         // while its `A_P` list ends in the shared source-token symbols.
+        //
+        // **STAGE 24, RULING C-2 (the slot-closure check's finding B-2): THIS
+        // REFUSAL PROTECTS THREE SLOTS, NOT ONE.** Slots `SC_QZC` and
+        // `SC_KVZC` raise TWO claims on the SAME plane — the RoPE partner
+        // half, `cf[log - log2(head_dim)] = Coord::Flip(..)` in their own arm
+        // (trap T-8) — at points differing in exactly that one coordinate. A
+        // column key is the LAST `log_cols` entries of a claim's point
+        // (`protocol::part_key_at`), so the flipped coordinate is inside the
+        // key exactly when `log2(head_dim) <= log_cols`, and the two claims
+        // fall into ONE opening group as soon as it is not. This refusal
+        // enforces the strictly stronger `head_dim < 2^log_cols`, so both the
+        // boundary case and everything above it are already refused, with two
+        // bits to spare at every shape in scope. (What it does NOT cover, and
+        // nothing does: a challenge at `rho_k = 1/2`, where the flipped and
+        // unflipped coordinates are equal AS FIELD ELEMENTS — a 2^-128
+        // liveness event on an honest run, not a structural collision.)
+        // `s24_tests::the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16`.
         if sh.head_dim >= 1usize << sh.log_cols {
             return Err(format!(
-                "private block shape: ruling S-3 — the head dimension {} reaches the row width 2^{}, so the two private factors of the score slot would share their whole tail and their column keys would collide on every run; every proof at this shape would be refused for its opening-group count",
+                "private block shape: ruling S-3 — the head dimension {} reaches the row width 2^{}, so the two private factors of the score slot would share their whole tail and their column keys would collide on every run (and so would the two rotary claims of slots 15 and 16, ruling C-2); every proof at this shape would be refused for its opening-group count",
                 sh.head_dim, sh.log_cols
             ));
+        }
+        // **STAGE 24, RULING C-4 (the slot-closure check's findings B-4 and
+        // B-5): THE MASK BUDGET, AS A NAMED CONSTRUCTION REFUSAL.**
+        //
+        // Every slot's masked sumcheck message is `L_s = (main + ext)·degree
+        // + 2` field elements, and it is carried in ONE row of the masking
+        // commitment: a `2^MASK_LOG_MSG = 512`-position message of which
+        // `MASK_Q = 256` are the random pads that hide it (`zk::mask_commit`,
+        // `zk.rs:442`). So `L_s + 256 <= 512` — `L_s <= 256` — is a condition
+        // on the SHAPE, and until this stage the only thing that enforced it
+        // was that same line: a prover-side `assert!`, a PANIC, deep inside a
+        // numeric helper, on a shape the caller had already been handed and
+        // after the witness had been built. Shape validation had ten refusals
+        // and none was this one.
+        //
+        // It is not a privacy or a soundness condition: a shape that broke it
+        // would produce no proof at all. It is the same kind of liveness
+        // cliff as ruling S-3's, and it is refused in the same place, by
+        // name, with the slot and the length in the message.
+        //
+        // **No shape this module builds is near it**: the worst is 125M's
+        // `SC_SZC` at 117 + 256 of 512. A violating shape was constructible
+        // before this commit — 2^20 − 1 tokens over 2,048 query heads of 8
+        // gives `Dom::S = 2^51`, a padding domain, so `SC_SZC` declares
+        // degree 5 and a 262-element message — and
+        // `s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name`
+        // records it, with the control one bit below at 252.
+        {
+            let lens = sh.slot_lengths();
+            let sl = sh.slots();
+            for s in 0..N_SLOTS {
+                if lens[s] + MASK_PADS > MASK_MSG {
+                    return Err(format!(
+                        "private block shape: ruling C-4 — slot {s}'s masked sumcheck message is {} field elements ({} main + {} extension rounds at degree {}, plus 2), and the masking commitment gives each slot ONE {MASK_MSG}-position row of which {MASK_PADS} are its random pads; {} + {MASK_PADS} > {MASK_MSG}, so the mask would not fit",
+                        lens[s], sl[s].0, sl[s].1, sl[s].2, lens[s]
+                    ));
+                }
+            }
         }
         Ok(sh)
     }

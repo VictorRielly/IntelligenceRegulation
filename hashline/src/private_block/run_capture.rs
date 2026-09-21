@@ -63,7 +63,26 @@ pub(super) const SCHEMA: &str = "hashline-native-capture/4-run";
 /// Every Rust file whose bytes decide what a bundle contains. Their SHA-256 at
 /// capture time is the bundle's source pin, so a bundle can be tied to the
 /// code that produced it without trusting a commit id.
-pub(super) const SOURCE_FILES: [&str; 8] = [
+///
+/// **STAGE 24, round 6 of the native run gate (`ZK60_NATIVE_RUN_GATE.md`
+/// §10.2, §10.8), 2026-09-21.** That round's mechanism is bundle-side: a
+/// gate can pin a file only if the WRITER pins it. Four files on the run's
+/// path were not here — `wire.rs`, `run_sink.rs`, `endpoint_g.rs` and
+/// `hash_domain.rs` — so no bundle could be tied to them however a port grew,
+/// and the round recorded that as a Rust-lane ask. This list is now the whole
+/// of the run's own path, enumerated from the modules the run prover and the
+/// run verifier reach (see [`NOT_ON_THE_RUNS_PATH`] for the two production
+/// modules that are deliberately NOT here, each with its reason, and
+/// `s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on`
+/// for the test that the two lists partition the module list).
+///
+/// **PURE ADDITION.** The schema name does not move: a bundle's
+/// `source_pins` is a list of `(file, sha256)` objects, and adding entries
+/// changes no field, no order of anything a loader reads by name, and no
+/// existing entry. The bundles already committed are NOT re-taken; they carry
+/// the eight-entry list they were written with, which is what their own
+/// manifests pin.
+pub(super) const SOURCE_FILES: [&str; 15] = [
     "src/private_block/run_capture.rs",
     "src/private_block/run.rs",
     "src/private_block/boundary.rs",
@@ -75,7 +94,40 @@ pub(super) const SOURCE_FILES: [&str; 8] = [
     // STAGE 17: `Shape::hash_tag` decides which hash rule made every byte of
     // the run, and the `hash_tag` member of the run file names it.
     "src/private_block/shape.rs",
+    // STAGE 24 (round 6's ask), the four the round named:
+    // the segment frame — its lengths, its two position tags, and the header
+    // a stage file's `segment_bytes` / `segment_sha256` are taken over
+    "src/private_block/wire.rs",
+    // where a finished segment goes and what a run directory may hold: the
+    // bytes a stage file pins are the bytes this module wrote
+    "src/private_block/run_sink.rs",
+    // the generalised endpoint's mask rows and commitment construction, which
+    // fix the external endpoints' row roles in every bundle
+    "src/private_block/endpoint_g.rs",
+    // the T-3 / T-4 hash-input-length and path-depth guards a run must pass
+    // before any of it is captured
+    "src/private_block/hash_domain.rs",
+    // STAGE 24, found by the enumeration: the PARENT module. `ExpectedIo`,
+    // `IoSpec` and `calibration_identity` live here, and `expected.to_bytes()`
+    // is absorbed by the run header — the very bytes ruling H-1 rests on, and
+    // a leaf of every `run.json`.
+    "src/private_block.rs",
+    // and the witness type and builder, which decide every value a verifier
+    // then observes
+    "src/private_block/witness.rs",
+    // the pad rule's support indicators and pad-zero plane groups, which
+    // `argument.rs` reads into the slot definitions a bundle records
+    "src/private_block/pad.rs",
 ];
+
+/// **The production modules of `private_block` that are NOT source pins, with
+/// the reason** (stage 24). `SOURCE_FILES` plus this list is the whole module
+/// list, and a test asserts that partition, so a new production module cannot
+/// be added without a decision about it being recorded here.
+pub(super) const NOT_ON_THE_RUNS_PATH: [(&str, &str); 1] = [(
+    "src/private_block/timing.rs",
+    "the phase clock: WRITE-ONLY on the run's path (`protocol.rs:13-16` says so of `ph`), every call returns on its first line unless HL_PB_TIMING is set, and it decides no byte of a receipt or of a bundle",
+)];
 
 // ---------------------------------------------------------------- the public words of a run
 
