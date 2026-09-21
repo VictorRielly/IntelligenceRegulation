@@ -71,14 +71,17 @@ test-only and against the toy's constants. A mismatch would be a **soundness**
 defect, not a privacy one — a hosted claim consumed twice or never. **A test,
 generic over every shape, on the lane; the integrator is told.**
 
-**C-4 (B-4, B-5) — the mask budget becomes a named shape refusal.** Today it
+**C-4 (B-4) — the mask budget becomes a named shape refusal.** Today it
 is a prover-side assertion inside the masking commitment; shape validation has
 ten refusals and none is `L + 256 ≤ 512`. Every shape in scope passes with
 room (the worst is 117 + 256). **Named refusal and test on the lane.** The
 draft's word "panic" is qualified with the finding above, so that nobody reads
 it as a denial of service on the verifier.
 
-**C-5 (B-6) — errata.** The joint-law sentence is wrong as written for the six
+**C-5 (B-5) — errata.** *(Labels corrected 2026-09-21 01:39: I had numbered
+two findings from the checker's summary instead of its file; in the file the
+joint-law sentence is B-5 and B-6 is its three confirmations. The errata
+editor caught it.)* The joint-law sentence is wrong as written for the six
 *host* slots (their scalar carries other slots' mask totals); it is still
 uniform marginally, by the toy's Lemma 2.2, which is cited explicitly. The
 draft's degree-rise cost rows are corrected with C-1's split.
