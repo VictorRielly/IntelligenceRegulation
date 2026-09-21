@@ -22,6 +22,36 @@ D21").
 > stands unchanged for the tree it was argued on (main before `4751b93`). The
 > re-read is queued behind the run gate's current round.
 
+> **The suspension is lifted — note of 2026-09-20 22:06.** The re-read is done
+> (`ZK60_NATIVE_D22_REPIN_4751B93.md` on `zk60-native-jointview`, `8a3b3f1`,
+> pushed). **No hunk of `4751b93` changes behaviour on this profile's path, and
+> none touches the order of randomness draws or a pooled buffer on it.**
+> `hashline/src/zk.rs` gained 380 lines and lost 15, every hunk at or below
+> line 2277, in the feed-forward layer prover; lines 1–2276 — where the masking
+> commitment, its opening and verification, the claim audit and the refusal
+> rules live — are untouched (I checked the hunk positions and the line counts
+> myself; the function-by-function reading of the eighteen items this profile
+> reaches or the gates port is the delegated agent's). The new buffer pool was
+> read as a privacy question: it does hand a caller a buffer still holding the
+> previous holder's numbers, **but all its sites are inside the feed-forward
+> layer prover, and no file of the private block, the private attention or the
+> frozen seam names any of them.** One pin of fourteen moved
+> (`hashline/src/zk.rs`, both digests kept, a third still refused); the gates
+> were re-run on the four captures and every figure of record is unchanged
+> (11 constructed, 2 derived, 8 argued, 7 open; ten controls firing).
+> **D22 therefore covers main at `4751b93`.**
+> **Two corrections to my 21:28 note, and one gap.** `hashline/src/pcs.rs` is
+> *not* pinned — the pinned `pcs.rs` is `zkp-core`'s, which `4751b93` does not
+> touch; the hashline file's change is 47 added lines, none removed, one new
+> function with no caller on this path. **The gap:** `hashline/src/pcs.rs`,
+> `private_block.rs`, and the hashline-side `merkle`, `transcript`, `field` and
+> `ntt` files are on this profile's path and pinned by nothing, so condition 7
+> was narrower in practice than in words. **Ruling: the pin set is extended to
+> every file on the path**, re-exports included (owed on the joint-view
+> branch). **What the re-run does not establish:** that the gates replay a
+> receipt the new binaries made — the integrator proved this profile on the
+> new tree, but no bundle from it exists in the gate's schema.
+
 **Changes since the 05:32 draft** (nothing in the argument changed): D19–D21
 are decisions, no longer proposals; the gate's record of record was found
 stale in one file and is being refreshed (its numbers were right); the run
