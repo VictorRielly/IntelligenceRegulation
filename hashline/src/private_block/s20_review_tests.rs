@@ -610,7 +610,12 @@ fn no_honest_case_is_rejected_by_the_verifier_at_the_rung_g() {
 #[test]
 fn mass_in_a_padded_head_slot_or_across_a_key_value_group_is_rejected() {
     let sh = Shape::rung_g();
-    let (public, ff, input) = super::dense_tests::dense_ff_case(&sh);
+    // the FULLY dense case: the two key-value groups must genuinely carry
+    // different keys and values, or the cross-group substitution below is a
+    // no-op and says nothing (measured: on the tame-attention fixture the two
+    // groups' rotated keys are identical, so the "swap" changed no word and
+    // the receipt was correctly accepted)
+    let (public, ff, input) = super::dense_tests::dense_case(&sh);
     let base = witness::build_shaped(&sh, &public, &ff, &input).expect("the honest witness");
     let blk = BlockPublic::new(public, ff);
     let ids = Ids::new(&sh).expect("plane map");
@@ -633,14 +638,20 @@ fn mass_in_a_padded_head_slot_or_across_a_key_value_group_is_rejected() {
     // 0's rotated key words over group 1's, which the old construction's
     // shared fixed coordinate could not tell apart from the truth
     let mut swapped = super::review_tests::clone_witness(&base);
+    let mut moved = 0usize;
     {
         let p = ids.at(A_KR8);
         for j in 0..tp {
             for c in 0..dh {
-                swapped.planes[p][j * kvw + dh + c] = swapped.planes[p][j * kvw + c];
+                let (from, to) = (j * kvw + c, j * kvw + dh + c);
+                if swapped.planes[p][to] != swapped.planes[p][from] {
+                    moved += 1;
+                }
+                swapped.planes[p][to] = swapped.planes[p][from];
             }
         }
     }
+    assert!(moved > 0, "the two key-value groups already carry the same keys, so the substitution says nothing");
     let mut accepted: Vec<String> = Vec::new();
     for (what, plane, at) in cases {
         let mut w = super::review_tests::clone_witness(&base);
