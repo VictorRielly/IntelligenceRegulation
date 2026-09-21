@@ -5797,19 +5797,398 @@ file of this lane (`va-s20-norun.log`, exit 0). **Re-read its mtime before
 launching anything**: the target directory is shared with another worktree.
 
 
-## Stage 21 — the owed items before the hand-back (2026-09-20, 19:5x–)
+## Stage 21 — the owed items before the hand-back (2026-09-20, 19:5x–21:0x)
 
-**Status: `IN PROGRESS` (skeleton).** Five items, all of them owed by the
-independent stage-20 review (`ZK60_BLOCK125M_S20_FIX_REVIEW.md`, findings
-F-1 … F-6) or by ruling R-5 of
-`ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md`. No shared or frozen file
-changes; the toy stays byte-frozen.
+**Status: `LANDED`.** Five items, all of them owed by the independent
+stage-20 review (`ZK60_BLOCK125M_S20_FIX_REVIEW.md`, findings F-1 … F-6) or
+by ruling R-5 of `ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md`.
+
+**No shared or frozen file changed** (proof below) and the toy stays
+byte-frozen: 2,816,472 B, the schedule digest, the parameter line and the
+four pre-lane receipts, all green. **No proof byte of any profile moved at
+this stage** — item 3 is measured against that, byte for byte.
+
+**No heavy PROVING run.** Two witness-builder-only 125M runs were made
+(item 4), both under the heavy lock inside a 12 GB ceiling; nothing proved
+at 125M, no GPU, no timing. **No privacy or soundness acceptance** is
+claimed or implied; the rung profiles are development grade (ruling P-7)
+and the run privacy gate of ruling M-8 is still unmet.
+
+Commits: the skeleton `2d4da2a`, items 1–3 `71c6509`, items 4–5 code
+`0426ad2`, and this ledger with the evidence.
 
 | item | what | state |
 |---|---|---|
-| 1 | F-1: the Python layout model derives the repaired bilinear schedule ITSELF, its own totals re-pinned from its own arithmetic, and the Rust-side `s20_bilinear_delta` adjustment removed so the model is an oracle again | PENDING |
-| 2 | F-2: a NAMED refusal for a shape whose bilinear domains are P-3 lifted | PENDING |
-| 3 | R-5: interior boundary scales are constants of the approved calibration — a run REFUSES any other pair, with NO absorb and NO proof byte moved | PENDING |
-| 4 | a fully dense, admissible TWELVE-block run recipe at 125M, witness-builder only | PENDING |
-| 5 | the capture bundles re-taken for the repaired argument (`run-g-dense-s20`, `run-h-zero-s20`) | PENDING |
+| 1 | F-1: the layout model derives the repaired schedule ITSELF; the Rust-side delta adjustment removed | **DONE — and the model and the Rust AGREE everywhere** |
+| 2 | F-2: a NAMED refusal for a shape whose bilinear domains are P-3 lifted | **DONE**, failing-first recorded |
+| 3 | R-5: interior boundary scales pinned to the approved calibration | **DONE**, byte-identity measured |
+| 4 | a fully dense admissible TWELVE-block run recipe at 125M | **DONE — down band 1, all twelve blocks non-trivial** |
+| 5 | the bundles re-taken for the repaired argument | **DONE — `run-g-dense-s20`, `run-h-zero-s20`, 41.3 MB each** |
 
+### Item 1 — review finding F-1: the layout model is an independent oracle again
+
+**What F-1 said.** `scripts/zk60_private_block_layout_model.py` still
+declared the PRE-repair bilinear schedule; its own tests pinned its own
+stale totals; and `grow_tests::check_against_model` had started ADJUSTING
+the model's expectation by a Rust-computed `s20_bilinear_delta`, so both
+sides of the one model-to-Rust comparison were this module's own arithmetic.
+The rung and 125M receipt figures had lost their independent witness.
+
+**What the model now DERIVES.** A new `group_sumcheck_bits(sh) =
+clog2(kv_heads)` states the algebra from the shape — that a bilinear slot
+must claim the multilinear extension of a POINTWISE PRODUCT whose key-value
+group is a coordinate of both factors, that fixing it computes the product
+of the extensions instead, that this is quadratic in each shared group bit
+and therefore a different polynomial (finding S19-F1), and that the group
+must therefore be SUMMED under a public `eq(r_g, ·)`. `slots()` then gives
+`SC_SCORE` and `SC_PV` those `lkv` main rounds and, when `lkv > 0`, one more
+degree. The derivation is written from the construction, not copied from
+`shape.rs`.
+
+Three further things the model gained, because F-1's real complaint is
+coverage: the shape **`RUNG_G`** (the profile the lane actually proves at,
+which had no independent model at all), and the two summary figures nobody
+was checking — `published_round_values` = `Σ (main+ext)(degree+1)` and
+`sumcheck_challenge_draws` = `Σ (main+ext)` — plus the per-slot `slot_lengths`.
+
+**EVERY FIGURE COMPARED WITH RUST, AND EVERY ONE AGREES.** No disagreement
+anywhere, which is the headline this item could have had and does not.
+
+| figure | toy | rung | rung-G | 125M |
+|---|---:|---:|---:|---:|
+| `lkv` | 0 | 1 | 1 | 2 |
+| `SC_SCORE` (main, ext, deg, L) | (3,2,2,12) | (5,2,3,23) | (5,2,3,23) | (8,2,3,32) |
+| `SC_PV` (main, ext, deg, L) | (5,2,2,16) | (6,2,3,26) | (6,2,3,26) | (11,2,3,41) |
+| main rounds | 159 | 217 | 217 | 336 |
+| extension rounds | 25 | 25 | 25 | 25 |
+| published round values | 721 | 1,055 | 1,055 | 1,554 |
+| challenge draws per block | 184 | 242 | 242 | 361 |
+| largest `L` (and it is not a bilinear slot) | 50 | 72 | 72 | 117 |
+| **model** receipt bytes | 2,816,472 | 4,173,544 | **4,234,984** | 40,750,584 |
+| named Rust-side term | — | +45,056 (S11-F4, the frozen seam's endpoint) | **NONE** | +32,768 (S11b-F1, the padded `Dom::D` cube) |
+| **Rust** receipt bytes | 2,816,472 | 4,218,600 | **4,234,984** | 40,783,352 |
+
+**Rung-G is the sharpest of the four.** The rung's comparison carries a
+45,056-byte correction and 125M's a 32,768-byte one, both named and both
+about the ENDPOINT; the generalised endpoint is priced from the block's own
+PCS parameters, which the model already models, so at rung-G the model's
+4,234,984 B and the Rust's agree **with nothing in between**. That number
+had no independent witness of any kind before this stage.
+
+**The re-pins, all from the model's own arithmetic.** Rung 4,173,208 →
+**4,173,544**, and its one diagnosed difference against the memo grows from
+176 B to **512 B** (the `SC_KVZC` indicator's 176 plus the repair's 336).
+125M 40,750,024 → **40,750,584**, and it now differs from the memo by
+**560 B** where it agreed to the byte — the memo predates the repair, which
+is recorded in `KNOWN_MEMO_DIFFERENCES` so the difference is diagnosed and
+not undiagnosed. The toy does not move: `lkv = 0`, no `eq`, 2,816,472 B.
+
+`check_against_model` no longer applies any delta. `s20_bilinear_delta`
+survives only where a pin is honestly stated as a MEASURED pre-repair length
+plus a counted delta (the 125M frame, the run segments), which is a
+different kind of statement and is not a model comparison.
+
+**Python: 32 tests, OK** (from 25), and the whole
+`test_zk60_private_block_*` suite **72 tests, OK** in 46 s — the inventory
+driver's 40 included, which PARSE the real `define` and are the toy's own
+gate.
+
+### Item 2 — review finding F-2: the P-3 lift is refused by name
+
+The bilinear arms build their coordinate lists AXIS BY AXIS — `A_QR8` as
+`(t | group | head-in-group | c)`, `A_KR8` as `(j | group | c)`, `A_P` as
+`(group | head-in-group | t | s)`, `A_V8` as `(s | group | i)` — so each
+list is exactly the NATURAL log of its domain long. `B::a_at` measures a
+list against `Shape::log`, which is the P-3 LIFTED log. A shape whose
+`Dom::Q`, `Dom::Kv` or `Dom::S` sits below the row width therefore could
+only ever get `run_slot`'s generic `slot s table shape`, from inside the
+argument. `Shape::new` now says why, at construction:
+
+```
+private block shape: the bilinear attention slots cannot serve a shape whose
+Q domain is lifted by P-3 (natural log 6, lifted to the row width 8)
+```
+
+**FAILING FIRST** (`u2-s21-f2-failing-first.log`, exit 101): with the loop
+disabled, `T8/H4/dh2/KV4` at `log_cols = 8` — the geometry the stage-20
+reviewer actually met, which forced him to `head_dim = 8` — CONSTRUCTS. The
+test also asserts the reviewer's own workaround (`dh = 8` lifts nothing) and
+that `Dom::Kv` exactly AT the row width, which is the toy's case, is not a
+lift. No shape this module builds is affected.
+
+### Item 3 — ruling R-5: the interior boundary scales
+
+**The ruling, in the security owner's words:** the external scales are bound
+through the absorbed expected-IO bytes, the interior ones by nothing — not
+the parameter line, not a stage line, and `BoundarySpec::digest()` is never
+absorbed. No equation is at risk, but a receipt does not attest to them and
+a scale chosen from the hidden input would publish a hidden intermediate's
+dynamic range. So a run refuses any block scale pair but the approved
+calibration's, as `IoSpec::new` already does for the endpoints.
+
+`RunStatement::new` now does exactly that, against `ENDPOINT_SCALES`. The
+check sits **after** M-4's boundary-agreement check on purpose, so a
+boundary whose two sides disagree keeps its own refusal and
+`a_boundary_scale_disagreement_does_not_construct_…` stays a test of M-4.
+
+**FAILING FIRST:** `&[(0,1),(1,1),(1,0)]` — an interior scale of 1,
+self-consistent across both boundaries and with the approved external pair
+at both ends — constructed before and is refused now, by a message that
+names the block and the pair.
+
+**NO ABSORB ADDED, NO PROOF BYTE MOVED — MEASURED.**
+`the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5`
+pins, as literals **captured before the refusal existed and re-asserted
+after it**, everything the rung-G `L = 3` header binds:
+
+| object | value |
+|---|---|
+| run binding (transcript state after the header) | `a1077992 c7a6570f 8b7a63e1 d869c184 ec28b127 6908a3a0 b46d96e4 789e1b69` |
+| boundary 0 digest | `9e339c12 71f88cc6 ee430f8d 2d05ee99 9f7197d5 54afa856 f05de6db 600b3dd1` |
+| boundary 1 digest | `08089731 2754880c fff0b273 e16b1c0c 210eb830 c8a8d346 0755512f 7f9b6851` |
+| parameter line | `T24/d96/f192/H6/KV2/dh16/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows9/L3/boundary-log_n10-rate4-pad256-rows10-sites2/external-rows9/one-run-one-transcript` |
+
+The statement is built with FIXED synthetic endpoint roots
+(`ExpectedIo::from_roots`) because the real ones come from an
+OS-seeded-RNG commitment and are not reproducible across processes; every
+other word of the header is a deterministic function of the public
+statement, so the binding is too. Nothing else about the run changed: the
+segments are the counted lengths, and the boundary digest is still not
+absorbed anywhere — R-5 binds the scales by REFUSING them, not by hashing
+them.
+
+### Item 4 — a fully dense, admissible TWELVE-block run at the 125M shape
+
+**The answer is down band 1, and it is measured twice.**
+
+**The search** (`u4-s21-m125-band.log`, **707 s**, witness builder only,
+under the heavy lock inside `MemoryMax=12G`): `first_admissible_dense_run_band`
+walks the down-projection band DOWN from the recipe's own 14, leaving every
+other band — attention, gate, the two gains, the hidden input — at the
+recipe's. **Every band from 14 to 2 is refused, always at the same site and
+always by the SECOND block of the chain:**
+
+```
+fixed oracle range refusal: residual 2
+```
+
+and **band 1 is admissible for all twelve blocks.** At band 1 every entry of
+`Wd` is `+1` or `-1` — still nonzero, so the recipe remains literally dense:
+no zero entry in any of the nine words. Why a chain needs so much less than
+a block: block `k+1`'s hidden input IS block `k`'s `xres2 = xres1 + z16`, so
+`z16`'s spread compounds, and 125M's hidden axis is 2,048 wide against the
+rung's 192, so `z16` accumulates over ten times as many terms before being
+added to an `int16` residual. Band 1 is what twelve compositions cost in
+THIS calibration; it is not a property of the argument.
+
+**The census** (`u7-s21-m125-census.log`, **63.2 s for twelve witnesses
+built and dropped, peak RSS 0.70 GiB**). `Chain::from_parts_censused`
+censuses each witness AS IT IS BUILT, so no witness is built twice and only
+one is ever resident. **All twelve blocks, identical to a tenth of a per
+cent:**
+
+| block | upper hidden half `[768, 2048)`: gate / activation nonzero | head slots live | key-value groups live | groups differ |
+|---|---|---|---|---|
+| 00, 01, 03, 04, 06–11 | **98.0% / 98.0%** | 12 / 12 | 4 / 4 | yes |
+| 02, 05 | **97.9% / 97.9%** | 12 / 12 | 4 / 4 | yes |
+
+Against the diagonal tame fixture, where that half is **identically zero in
+every block at every shape with `f > d`**, and where every head sees the
+same data so the four key-value groups are identical. Only fractions and
+live-slot counts are computed, printed or retained (the capture rule); no
+witness value, position or word count leaves the process.
+
+**The recipe, publicly.** `dense_tests::dense_run_case`, named in full by
+`DENSE_RUN_RECIPE_NAME`, which a run statement file carries so a fresh
+verifier regenerates exactly these public weights and checks them against
+the block digests the run header absorbs:
+
+> SplitMix64 seeded `0xD15EED1900000001`, read in the fixed order
+> `[Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg, Wu, Wd, x]`; `Wq`/`Wk`/`Wv`/`Wo`
+> uniform on `[-56,-1] ∪ [1,56]`; `gamma_a`/`gamma_m` uniform on `[40,127]`;
+> `Wg`/`Wu` uniform on `[-96,-1] ∪ [1,96]`; `Wd` uniform on `[-B,-1] ∪ [1,B]`
+> with `B = band_down_run(shape)` (**47** at the rungs, **1** at 125M);
+> hidden input uniform on `[-6000,-1] ∪ [1,6000]`.
+
+The pinned band is tied to the search by assertion at both shapes:
+`an_honest_three_block_fully_dense_run_verifies_from_its_segments` asserts
+it at rung-G (47, `u8-s21-rungg-band.log`) and the `#[ignore]`d 125M probe
+asserts it at 125M.
+
+**`private_run_125m_twelve_blocks` now takes `HL_PB_WEIGHTS`**: `tame` (the
+DEFAULT, and every figure ever published for this test is at it) or `dense`.
+Every log line of the run and the retained public statement name the recipe.
+`run_statement_file::DENSE_RUN_FIXTURE` makes `recipe_block` regenerate it.
+
+#### THE LAUNCH COMMAND, PREPARED AND NOT LAUNCHED (stage-18 command-A form)
+
+The directory must exist and be EMPTY; the test refuses otherwise. **Re-read
+the binary's mtime before launching**: the target directory is shared with
+another worktree.
+
+```
+mkdir -p /home/victor/zk60-artifacts/m125-run-l12-dense
+```
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_RUN_DIR=/home/victor/zk60-artifacts/m125-run-l12-dense HL_PB_WEIGHTS=dense HL_PB_TIMING=0 HL_TEST_SOURCE_COMMIT=0426ad2 /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::run_tests::private_run_125m_twelve_blocks >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12-dense.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-run-l12-dense.done' >/dev/null 2>&1 &
+```
+
+What to expect: the chain build is the 63 s the census measured, then about
+twelve proving stages; the receipt is the counted `484,100,736 + 12 × 560 =
+484,107,456 B` in twelve files under `/home/victor/zk60-artifacts/`, outside
+the repository; the public statement lands at
+`<run dir>/statement/run-statement.json` only if the run verifies. The run
+STOPS by itself if a segment is not the counted length or if the high-water
+mark passes 11.5 GiB.
+
+### Item 5 — the capture bundles re-taken for the repaired argument
+
+`results/zk60_run_captures_20260920/run-g-dense-s20` and `run-h-zero-s20`,
+written in one pass (`u9-s21-bundles.log`, exit 0, source pin `0426ad2`),
+at the generalised rung, under the D19 tag, with
+`HL_RUN_CAPTURE_PUBLIC_TABLES=1`.
+
+| bundle | `run.json` | stage files | `manifest["total_bytes"]` | on disk |
+|---|---:|---:|---:|---:|
+| `run-g-dense-s20` (FULLY DENSE, generic) | 35,756 B | 13,488,146 / 13,547,671 / 14,221,085 | **41,296,268 B** | 41,297,995 B |
+| `run-h-zero-s20` (the all-zero input) | 35,794 B | 13,475,957 / 13,540,990 / 14,213,928 | **41,270,047 B** | 41,271,774 B |
+
+**82.6 MB for the pair, 41.3 MB each — well inside the 120 MB ceiling.**
+
+**`run-g-dense-s20` is the one that matters.** Every capture this project
+has ever taken was on the diagonal tame fixture or on the all-zero input,
+and both are degenerate in exactly the way that hid S19-F1 for nineteen
+stages: the upper hidden half is identically zero, the hidden state is the
+same in every head so the key-value groups carry identical data, and
+`A_RQL` is identically zero. **The privacy gate has never seen a
+non-degenerate witness; `run-g-dense-s20` is it.**
+
+**How the new public factor is recorded, and how a tool re-derives it.**
+Nothing new was needed in the format: `Tab::Eq` already serialises as
+`{"kind":"eq","start":int,"point":[Fp2]}`. Verified on the committed files:
+in BOTH bundles and in ALL THREE stages, `arguments[8]["tables"][0]` and
+`arguments[9]["tables"][0]` are `{"kind":"eq","start":0,"point":[<1 Fp2>]}`
+— `lkv = log2(2) = 1` at rung-G. `start` indexes the slot's own `rho`, so
+the factor's value is `eq(point, rho[start : start+len(point)])`; and
+`point` is the LEADING `lkv` entries of that slot's head challenge `r_h`,
+which a reader draws for itself — **checked on the files: for all six
+occurrences, `point == definition_challenges[:1]`.** Re-derive and compare,
+never consume (ruling T-7's rule, applied to a public table). Documented in
+`ZK60_RUN_CAPTURE_FORMAT.md` §10 with the date.
+
+The writer asserts both facts IN THE BYTES before it writes anything, so a
+bundle cannot be produced that says otherwise.
+
+**SANITY, CHECKED ON THE FILES AS COMMITTED (`python3`, after the write):**
+
+* **every manifest entry** of both bundles — five files each — matches its
+  recorded byte length AND its recorded SHA-256. **0 mismatches.**
+* **93 public tables** per bundle across its three stages, **all 93 carrying
+  values**, and for all 93 the recorded SHA-256 is the SHA-256 of the
+  concatenated 16-byte little-endian `Fp2` encodings of exactly the values
+  included. **0 mismatches.**
+* `"public_tables_included":true` and `"hash_tag":{"rule":"blake3-keyed/1"…}`
+  in both.
+* **the plane index table is byte-identical across `g` and `h`** — and
+  across `run-e-tame-tagged`, since the repair does not move it: the same
+  canonical 22,397 bytes, SHA-256 prefix `d2361312…`. `slot_planes[8]` is
+  `[A_QR8 (45), A_KR8 (54)]` and `[9]` is `[A_P (60), A_V8 (52)]`, the
+  as-built push order, which the recorder's replay enforces at every slot of
+  every stage.
+* the repaired schedule, read out of the bundles: slot 08 `(5, 2, 3)` with
+  7 round messages of 4 values, slot 09 `(6, 2, 3)` with 8 — against the
+  pre-repair `(4, 2, 2)` / `(5, 2, 2)` with 3 values a round.
+
+The parent `README.md` is rewritten: eight bundles now, `a`–`f` superseded
+for gate purposes with the reason (`a`–`d` legacy-rule and no public tables;
+`e`–`f` pre-repair bilinear slots AND a degenerate witness), the group-`eq`
+convention, the sanity results and the launch command. **Nothing was
+deleted, moved or rewritten**: the six older bundles stay byte for byte and
+their own per-bundle `README.md` files are not edited, because each
+`manifest.json` pins its own README. The directory now holds 309 MB.
+
+**They are still not gate evidence** (ruling T-6): the Python run gate has
+to learn the D19 rule and the repaired schedule before a bundle is judged.
+These two are the INPUT to that work.
+
+### Tests and commands of stage 21
+
+All through the shared build lock,
+`CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`.
+
+| command | log | result |
+|---|---|---|
+| `--lib private_block::grow_tests` (item 1) | `u1-s21-grow.log` | **32 passed / 0 failed**, exit 0 |
+| item 2 FAILING FIRST | `u2-s21-f2-failing-first.log` | **1 failed**, exit 101, the intended result |
+| items 2 and 3, with the three run tests | `u3-s21-r5-f2.log` | **35 passed / 0 failed**, exit 0 |
+| the 125M dense-run band search (heavy lock, witness builder only) | `u4-s21-m125-band.log` | **band 1**, 707 s, exit 0 |
+| `--lib --no-run` | `u5-s21-compile.log`, `u6-s21-build.log` | exit 0, **13 warnings** |
+| the 125M twelve-block census (heavy lock, witness builder only) | `u7-s21-m125-census.log` | 12/12 non-trivial, 63.2 s, peak 0.70 GiB, exit 0 |
+| the rung-G pinned band | `u8-s21-rungg-band.log` | 1 passed, exit 0 |
+| the two bundles | `u9-s21-bundles.log` | 41.3 MB each, exit 0 |
+| the adjusted shape probe (see the finding below) | `uc-s21-shape-probe.log` | 1 passed, exit 0 |
+| **THE GATE**: `--lib private_` | `ua-s21-private.log` | **254 passed / 0 failed / 10 ignored**, 67 filtered out, **381.04 s**, exit 0, **13 warnings** |
+| the Python layout model and inventory | `ub-s21-python.log` | **72 passed** (32 + 40), 46 s |
+
+**Against the review's merged baseline of 251 / 0 / 8 and 13 warnings**:
+**254 / 0 / 10**, 13 warnings. Five tests are new — the repaired schedule
+against the independent model, R-5's refusal, R-5's byte-identity pin, and
+two `#[ignore]`d ones (the 125M twelve-block census and the stage-21 bundle
+writer) — and **not one existing test was weakened or removed.** Three
+existing tests were EDITED, each with the ruling in a comment: the two
+Python receipt pins (F-1) and the shape probe below.
+
+The frozen toy gates are in the pass list: the 2,816,472-byte receipt,
+`the_toy_schedule_digest_is_frozen`,
+`the_toy_parameter_line_is_the_frozen_literal` and
+`a_toy_receipt_made_before_the_lane_still_verifies` (the four pre-lane
+receipts). The stage-20 receipt sizes are unmoved: 4,218,600 / 4,234,984 /
+40,783,352.
+
+### THE ONE THING THAT BROKE, AND WHY THAT IS THE REFUSAL WORKING
+
+Item 2's refusal caught an existing test on its first full-gate run
+(`253 passed / 1 failed`):
+`review_tests::a_receipt_does_not_verify_under_another_shape_at_the_rung`
+built its "different head layout" probe as **5 query heads over 1 key-value
+head** at the rung's row width. That shape's `Dom::Kv` is
+`32 x 1 x 16 = 2^9`, BELOW the `2^10` row width, so P-3 lifts it — and it
+is therefore a shape the bilinear slots could never have served. It had
+been constructing, and `run_slot` would have refused it from inside the
+argument with the generic "slot 8 table shape"; the test never reached that
+point because the frame was rejected earlier, for an unrelated reason.
+
+The probe is now **8 query heads over 2 key-value heads**, which has the
+rung's four padded sizes exactly (`t_pad 32, d_pad 128, h_pad 8, f_pad 256`)
+and lifts nothing, so the statement this test is about — a rung receipt does
+not verify under a different head LAYOUT of the same padded geometry — is
+made as it always was (`Err("private block wire: expected statement
+mismatch")`). The 5/1 shape STAYS in the test, as an assertion that it is
+refused by name at construction, with the exact message. The test is
+stronger than it was, not weaker.
+
+### THE PREBUILT TEST BINARY
+
+```
+/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5
+```
+
+**mtime 2026-09-20 20:43:34 -0700**, 12,874,736 B, newer than every source
+file of this lane (`ud-s21-norun.log`, exit 0, 13 warnings). **Re-read its
+mtime before launching anything**: the target directory is shared with
+another worktree.
+
+### FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 901557e -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs hashline/src/gpu private-block-kernel \
+  private-model-kernel private-block-kernel-shaped zkvm-block
+```
+
+prints NOTHING: every one of those trees is byte-identical to the tip the
+review merged.

@@ -617,28 +617,44 @@ fn a_receipt_does_not_verify_under_another_shape_at_the_rung() {
     let (sh, blk, w) = honest_rung();
     let (expected, bytes) = prove_rung(&sh, &blk, w).expect("the honest rung prover");
     // (i) the same padded geometry, a different head count, the SAME profile id
-    let other = Shape::new(
-        "the rung's padded geometry with a different head layout",
-        "hashline-zk-mr1/private-block-rung-t24-dev/1",
-        24,
-        96,
-        192,
-        5,
-        16,
-        1,
-        10,
-        4,
-        12,
-        21,
-        Some(8),
-        Some(8),
-        None,
-        None,
-    )
-    .expect("well formed");
+    //
+    // **STAGE 21, review finding F-2.** This probe used to be 5 query heads
+    // over 1 key-value head. That shape's `Dom::Kv` is `32 * 1 * 16 = 2^9`,
+    // BELOW the rung's `2^10` row width, so the P-3 rule lifts it — and the
+    // bilinear slots write their coordinate lists at the NATURAL log, so
+    // `Shape::new` now refuses it BY NAME at construction (asserted below).
+    // It was never a shape this construction could serve; `run_slot` would
+    // have refused it from inside the argument with "slot 8 table shape".
+    // The probe is now 8 query heads over 2 key-value heads, which has the
+    // rung's four padded sizes exactly and lifts nothing, so the statement
+    // this test is about — a rung receipt does not verify under a different
+    // head LAYOUT of the same padded geometry — is made as it always was.
+    let head_layout = |q_heads, kv_heads| {
+        Shape::new(
+            "the rung's padded geometry with a different head layout",
+            "hashline-zk-mr1/private-block-rung-t24-dev/1",
+            24,
+            96,
+            192,
+            q_heads,
+            16,
+            kv_heads,
+            10,
+            4,
+            12,
+            21,
+            Some(8),
+            Some(8),
+            None,
+            None,
+        )
+    };
+    let err = head_layout(5, 1).expect_err("a shape whose Dom::Kv is P-3 lifted must be refused at construction");
+    assert_eq!(err, "private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 9, lifted to the row width 10)");
+    let other = head_layout(8, 2).expect("well formed");
     assert_eq!((other.t_pad, other.d_pad, other.h_pad, other.f_pad), (sh.t_pad, sh.d_pad, sh.h_pad, sh.f_pad), "the two shapes must share every padded size");
     let r = verify_bytes_at(&other, &blk, &expected, &bytes);
-    eprintln!("SHAPE: the rung frame under a 5-head / 1-KV verifier of the same padded sizes: {r:?}");
+    eprintln!("SHAPE: the rung frame under an 8-head / 2-KV verifier of the same padded sizes: {r:?}");
     assert!(r.is_err(), "a rung receipt verified under a different head layout");
     // (ii) the rung frame under the frozen toy verifier, and the toy's own
     // frame under the rung verifier

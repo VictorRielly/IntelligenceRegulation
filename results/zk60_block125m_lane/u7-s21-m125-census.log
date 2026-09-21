@@ -1,0 +1,20 @@
+Running scope as unit: run-r3a791f2313614ef3a13222098322883a.scope
+
+running 1 test
+test private_block::run_tests::the_fully_dense_twelve_block_recipe_is_admissible_and_non_trivial_at_125m ... 125M DENSE L=12 RECIPE: twelve witnesses built and dropped in 63.23 s, peak RSS 0.70 GiB, down band 1
+125M DENSE L=12 RECIPE: block 00 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 01 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 02 upper hidden half gate 97.9% / activation 97.9% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 03 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 04 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 05 upper hidden half gate 97.9% / activation 97.9% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 06 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 07 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 08 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 09 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 10 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M DENSE L=12 RECIPE: block 11 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 330 filtered out; finished in 63.23s
+
