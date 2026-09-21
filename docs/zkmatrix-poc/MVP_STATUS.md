@@ -74,6 +74,33 @@ unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 > gate has not yet been run on a non-degenerate input (in progress at the
 > development size), and **no privacy is claimed for any of this.**
 
+**The 125M-shape block now proves in 17.40 s instead of 27.71 s — same bytes,
+same refusals; independent review running (added 2026-09-21 10:00).** One
+block at the 125M shape, fully dense public weights, a generic hidden input:
+**prove 27.71 → 17.40 s (37% less), verify 1.28 → 1.15 s, receipt 40,783,352
+bytes in both, peak memory 10,232 → 10,156 MiB** [MEASURED, one run each,
+laptop CPU, shared box; lane `zk60-private-block-125m` at `309d238`, log
+`q28-m125-final-dense.log`, re-read by the security owner]. Nothing the prover
+sends changed: the work was in how the same numbers are computed — the
+lookup inverses come from a 256-entry table instead of 98.6 million
+inversions (4.06 → 1.08 s), and the tables each of the 23 sub-arguments
+starts from are built once and faster (6.01 → 0.59 s), with the slowest
+sub-arguments roughly halved. The small accepted test block's bytes did not
+move; the test filter is 319 passed, 0 failed. Because receipts are not
+reproducible (fresh randomness every attempt, by an accepted privacy
+condition), "same bytes" rests on ten old-against-new equality tests, the
+size pins and honest proofs verifying — **an independent reviewer is now
+trying to break that, including by checking receipts written by the OLD
+prover with the NEW verifier; until it reports, read 17.40 s as a measurement
+of code under review.** **What this does and does not mean for the target:**
+about 79% of the remaining 17.40 s (13.8 s: the shared masked-sumcheck loop
+6.6 s, the two commitments 6.5 s, the openings 0.7 s) sits in code the
+integrator owns, and the commitments are exactly what a GPU takes — but the
+hash rule this profile uses does not run on the GPU path yet. This is a CPU
+result at a 125M-shape block; the 5-second target is defined on the 8B
+model's pass, where the best measured figure is still 58.4 s on public
+inputs. It does not move that figure.
+
 **Where the privacy of the 125M-shape block and of a twelve-block run stands
 (added 2026-09-21 00:06).** Privacy is **accepted for one artifact only**, the
 small test block (register D22); it was re-confirmed last night against the
