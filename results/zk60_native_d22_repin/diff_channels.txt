@@ -1,0 +1,27 @@
+committed: /home/victor/wt-zk60-jointview/results/zk60_native_d22_repin/before_channels.json
+current  : /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json
+differing paths: 26
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/zk.rs/captured_against
+          committed: <absent>
+          current  : 'sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/zk.rs/items_reread
+          committed: <absent>
+          current  : ['MASK_LOG_MSG / MASK_LOG_DOM / MASK_Q: byte-identical (zk.rs:373-375)', 'MaskCommit / MaskFunctional / MaskOpening: byt
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/zk.rs/repinned_at
+          committed: <absent>
+          current  : 'sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/zk.rs/repinned_by
+          committed: <absent>
+          current  : "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve h
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/zk.rs/repinned_commit
+          committed: <absent>
+          current  : "4751b93 (perf/zk-batch-optimizations), 'Integrate validated direct-plane uploads and private host reuse'"
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/zk.rs/repinned_on
+          committed: <absent>
+          current  : '2026-09-20'
+  [  1x] /seconds
+          committed: 267.7
+          current  : 222.9
+  [  1x] /tool_sha256/zk60_native_mask_commit.py
+          committed: '3312a925126fc632f6d5968056ddbac4ff21dccdf42e80bd36bfa5db0ae9e67c'
+          current  : 'a42639a6c7d85c422f1974feda31f1c71ab681325389c41b81f62ad1a63a4dda'

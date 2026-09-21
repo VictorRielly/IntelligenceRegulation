@@ -1329,8 +1329,28 @@
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
      },
      "hashline/src/zk.rs": {
+      "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
       "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "items_reread": [
+       "MASK_LOG_MSG / MASK_LOG_DOM / MASK_Q: byte-identical (zk.rs:373-375)",
+       "MaskCommit / MaskFunctional / MaskOpening: byte-identical",
+       "encode_coeffs_coset: byte-identical; this port's coset encoding",
+       "mask_commit: byte-identical, and with it the ORDER of every draw: per mask row CfsMask::random, then MASK_Q pads, then b_re, b_im, u_re, u_im, then one 32-byte salt per column",
+       "combined_weights: byte-identical; the theta combination this port solves",
+       "weight_polys / poly_mul_512: byte-identical",
+       "mask_open: byte-identical; q, the proximity vector, the opened columns",
+       "mask_verify: byte-identical; the replay the gate follows",
+       "pcs_hash_column: byte-identical; the unsalted column digest",
+       "mask_challenge / masked_prove / extension: byte-identical",
+       "zkhostbuf (NEW), fsp_i8fold / fold_block_i8 (NEW): a host staging pool and a fused int8 fold, reached only from prepare_layer_zk_v3_inner / PendingV3::finish; no private-block or private-attention entry point calls either, so no pooled buffer is on this profile's path",
+       "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
+       "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
+      ],
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
+      "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
+      "repinned_commit": "4751b93 (perf/zk-batch-optimizations), 'Integrate validated direct-plane uploads and private host reuse'",
+      "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
      "zkp-core/src/ntt.rs": {
@@ -2780,8 +2800,28 @@
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
      },
      "hashline/src/zk.rs": {
+      "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
       "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "items_reread": [
+       "MASK_LOG_MSG / MASK_LOG_DOM / MASK_Q: byte-identical (zk.rs:373-375)",
+       "MaskCommit / MaskFunctional / MaskOpening: byte-identical",
+       "encode_coeffs_coset: byte-identical; this port's coset encoding",
+       "mask_commit: byte-identical, and with it the ORDER of every draw: per mask row CfsMask::random, then MASK_Q pads, then b_re, b_im, u_re, u_im, then one 32-byte salt per column",
+       "combined_weights: byte-identical; the theta combination this port solves",
+       "weight_polys / poly_mul_512: byte-identical",
+       "mask_open: byte-identical; q, the proximity vector, the opened columns",
+       "mask_verify: byte-identical; the replay the gate follows",
+       "pcs_hash_column: byte-identical; the unsalted column digest",
+       "mask_challenge / masked_prove / extension: byte-identical",
+       "zkhostbuf (NEW), fsp_i8fold / fold_block_i8 (NEW): a host staging pool and a fused int8 fold, reached only from prepare_layer_zk_v3_inner / PendingV3::finish; no private-block or private-attention entry point calls either, so no pooled buffer is on this profile's path",
+       "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
+       "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
+      ],
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
+      "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
+      "repinned_commit": "4751b93 (perf/zk-batch-optimizations), 'Integrate validated direct-plane uploads and private host reuse'",
+      "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
      "zkp-core/src/ntt.rs": {
@@ -4165,8 +4205,28 @@
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
      },
      "hashline/src/zk.rs": {
+      "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
       "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "items_reread": [
+       "MASK_LOG_MSG / MASK_LOG_DOM / MASK_Q: byte-identical (zk.rs:373-375)",
+       "MaskCommit / MaskFunctional / MaskOpening: byte-identical",
+       "encode_coeffs_coset: byte-identical; this port's coset encoding",
+       "mask_commit: byte-identical, and with it the ORDER of every draw: per mask row CfsMask::random, then MASK_Q pads, then b_re, b_im, u_re, u_im, then one 32-byte salt per column",
+       "combined_weights: byte-identical; the theta combination this port solves",
+       "weight_polys / poly_mul_512: byte-identical",
+       "mask_open: byte-identical; q, the proximity vector, the opened columns",
+       "mask_verify: byte-identical; the replay the gate follows",
+       "pcs_hash_column: byte-identical; the unsalted column digest",
+       "mask_challenge / masked_prove / extension: byte-identical",
+       "zkhostbuf (NEW), fsp_i8fold / fold_block_i8 (NEW): a host staging pool and a fused int8 fold, reached only from prepare_layer_zk_v3_inner / PendingV3::finish; no private-block or private-attention entry point calls either, so no pooled buffer is on this profile's path",
+       "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
+       "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
+      ],
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
+      "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
+      "repinned_commit": "4751b93 (perf/zk-batch-optimizations), 'Integrate validated direct-plane uploads and private host reuse'",
+      "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
      "zkp-core/src/ntt.rs": {
@@ -5550,8 +5610,28 @@
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
      },
      "hashline/src/zk.rs": {
+      "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
       "git_blob": "28f32f184751d14188a45b830c42fde8811ca155",
+      "items_reread": [
+       "MASK_LOG_MSG / MASK_LOG_DOM / MASK_Q: byte-identical (zk.rs:373-375)",
+       "MaskCommit / MaskFunctional / MaskOpening: byte-identical",
+       "encode_coeffs_coset: byte-identical; this port's coset encoding",
+       "mask_commit: byte-identical, and with it the ORDER of every draw: per mask row CfsMask::random, then MASK_Q pads, then b_re, b_im, u_re, u_im, then one 32-byte salt per column",
+       "combined_weights: byte-identical; the theta combination this port solves",
+       "weight_polys / poly_mul_512: byte-identical",
+       "mask_open: byte-identical; q, the proximity vector, the opened columns",
+       "mask_verify: byte-identical; the replay the gate follows",
+       "pcs_hash_column: byte-identical; the unsalted column digest",
+       "mask_challenge / masked_prove / extension: byte-identical",
+       "zkhostbuf (NEW), fsp_i8fold / fold_block_i8 (NEW): a host staging pool and a fused int8 fold, reached only from prepare_layer_zk_v3_inner / PendingV3::finish; no private-block or private-attention entry point calls either, so no pooled buffer is on this profile's path",
+       "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
+       "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
+      ],
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
+      "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
+      "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
+      "repinned_commit": "4751b93 (perf/zk-batch-optimizations), 'Integrate validated direct-plane uploads and private host reuse'",
+      "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
      "zkp-core/src/ntt.rs": {
@@ -5700,14 +5780,14 @@
    2816472
   ]
  },
- "seconds": 267.7,
+ "seconds": 222.9,
  "tool_sha256": {
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
   "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
-  "zk60_native_mask_commit.py": "3312a925126fc632f6d5968056ddbac4ff21dccdf42e80bd36bfa5db0ae9e67c",
+  "zk60_native_mask_commit.py": "a42639a6c7d85c422f1974feda31f1c71ab681325389c41b81f62ad1a63a4dda",
   "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
   "zk60_native_privacy_gate.py": "c33a27fbcc9aefe82c2661efa5daeb6270d4057bcbbaa0e8cdd9f38e0fc3e345"
