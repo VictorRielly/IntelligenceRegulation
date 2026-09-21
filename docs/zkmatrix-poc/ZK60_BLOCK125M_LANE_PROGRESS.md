@@ -8245,26 +8245,469 @@ and a test reads that function's body to check the arithmetic it assumes.
 
 ---
 
-## Stage 27 — a RUN CAPTURE made possible at the 125M shape (2026-09-21, 08:1x–)
+## Stage 27 — a RUN CAPTURE made possible at the 125M shape (2026-09-21, 08:1x–09:0x)
 
-**Status: `OPEN` (skeleton).** TEST-ONLY. **No production code path changes
-and nothing an existing profile proves may move**; the security owner
-launches the heavy 125M run himself, this lane launches nothing at 125M.
+**Status: `LANDED`, and the heavy run is NOT launched from here.** TEST-ONLY:
+the whole diff against `fc782a3` under `hashline/src` is four modules that
+`private_block.rs` declares `#[cfg(test)]`, so **no production code path
+changes and nothing an existing profile proves moves** (proof at the end).
+The security owner launches the 125M capture himself; the two commands are
+in item 5.
 
-**The problem in one line.** The Python privacy gate has checked every
-linear channel of a private run on real bytes at two DEVELOPMENT shapes;
-its standing limit is that nothing has been measured at the 125M shape,
-which was assumed out of reach because a 125M receipt is 40 MB per block.
-A capture records the VERIFIER'S VIEW, which is a different and much
-smaller object — but only if the writer stops rendering multi-million
-element field arrays as decimal JSON.
+**No privacy or soundness acceptance is claimed or implied.** A capture is
+the INPUT to the privacy gate of ruling M-8. Writing one — at any shape —
+does not meet it, and no gate has read a 125M bundle because none exists yet.
+
+### The problem, in one paragraph
+
+The Python privacy gate has replayed every challenge of a private run,
+re-hashed every opened column, closed every per-slot terminal identity and
+constructed a per-commitment and a joint preimage — on real bytes, at two
+DEVELOPMENT shapes, 4.95 million published values reproduced from all-zero
+data. Its standing limit is one sentence: **nothing has been measured at the
+125M shape.** That was assumed out of reach because a 125M receipt is 40 MB
+a block. But a capture is not the receipt, it is the VERIFIER'S VIEW, and the
+gate's per-commitment work scales with the message length `2^14` and not with
+the 45 KB columns. The thing actually in the way was the writer's own
+encoding: rendered as decimal JSON a uniformly random `Fp` costs **21.4
+bytes** and an `Fp2` **44.8** (MEASURED on the committed rung bundles), so a
+two-block 125M bundle would have been **653 MB of text**.
 
 | item | what | state |
 |---|---|---|
-| 1 | the size and memory model at 125M, per member, [COUNTED] | OPEN |
-| 2 | the heavy `#[ignore]` capture test, written and not run | OPEN |
-| 3 | writer-side source pins for the shared files the run depends on | OPEN |
-| 4 | a development-shape dress rehearsal, run here | OPEN |
-| 5 | the prebuilt binary and the two launch commands | OPEN |
+| 1 | the size and memory model at 125M, per member, [COUNTED] and validated to the byte at a development shape | **DONE** |
+| 2 | the heavy `#[ignore]` capture test, written and NOT run | **DONE** |
+| 3 | writer-side source pins for the shared files the run depends on: 15 -> 38 | **DONE** |
+| 4 | a development-shape dress rehearsal, run here | **DONE** |
+| 5 | the prebuilt binary and the two launch commands | **DONE** |
 
-Evidence and commands land in this section as each item closes.
+Commits: the skeleton `d86c374`, the code and the format note, and this ledger.
+
+---
+
+### Item 1 — the size and memory model at 125M
+
+#### The per-element costs, MEASURED on the committed bundles
+
+Read off `run-g-dense-s20` and `run-i-dense-k4` by byte-span decomposition
+(every member's exact span in the file), not estimated:
+
+| datum | as `/4-run` JSON | little-endian |
+|---|---:|---:|
+| a uniformly random `Fp` | **21.41 B** | 8 |
+| a uniformly random `Fp2` | **44.8 B** | 16 |
+| a 0/1 public-table entry (`Fp2`) | **8.01 B** | 16 |
+| a 32-byte salt / path node | 153.4 / 148.8 B | 32 |
+
+Note the third row: an INDICATOR table is *cheaper* as JSON than as bytes.
+It is content addressing, not the binary width, that pays for the public
+tables — see below.
+
+#### The 125M counts the model is evaluated at
+
+`A` 5,681 rows and 36 opening groups; `H` 7,120 rows and 9 groups; the
+masking commitment `M` 50 rows with `q` and `prox` of 1,024 entries each; an
+external endpoint 37 rows and 1 group; an internal boundary 38 rows and 2
+groups; 256 opened columns and a 16-node Merkle path per commitment; every
+opening vector `2^14 + 256 = 16,640` `Fp2`. (Rows and groups from
+`results/zk60_block125m_lane/model_m125.json`, the independent Python layout
+model that agrees with Rust to the byte on the receipt.)
+
+#### What `arrays.bin` retains, per member, per stage
+
+| member | count | bytes |
+|---|---|---:|
+| `A` opened column values | 256 x 5,681 `Fp` | 11,634,688 |
+| `A` opening group vectors | 36 x 16,640 `Fp2` | 9,584,640 |
+| `A` proximity vector | 16,640 `Fp2` | 266,240 |
+| `A` proximity coefficients | 5,681 `Fp2` | 90,896 |
+| `H` opened column values | 256 x 7,120 `Fp` | 14,581,760 |
+| `H` opening group vectors | 9 x 16,640 `Fp2` | 2,396,160 |
+| `H` proximity vector | 16,640 `Fp2` | 266,240 |
+| `H` proximity coefficients | 7,120 `Fp2` | 113,920 |
+| an external endpoint's group + proximity vectors | 2 x 16,640 `Fp2` | 532,480 |
+| an internal boundary's | 3 x 16,640 `Fp2` | 798,720 |
+| the `M` opening's `q` and `prox` | 2 x 1,024 `Fp2` | 32,768 |
+| an endpoint's / boundary's / `M`'s column values (37 / 38 / 50 rows) | below `ARRAY_MIN` | inline JSON |
+
+giving **39,499,792 B** for stage 0 (`A`, `H`, the external input endpoint,
+`M`), **39,766,032 B** for a middle stage (the incoming boundary instead),
+**40,298,512 B** for the last stage (both), and **40,032,272 B** for an
+`L = 1` run, which is admissible: `RunShape::new` refuses only `l == 0`, and
+a one-block run has no internal boundary and opens both external endpoints
+in its single stage.
+
+#### The public tables, and why they are the whole problem
+
+A slot's public table has exactly `2^main` entries (`argument.rs:317` refuses
+anything else), and the 125M inventory follows from the `define` arms plus
+which domains pad:
+
+| class | slots | per stage |
+|---|---|---:|
+| `2^22` | 04 (causal mask, `supp(S)`), 17 (causal mask, `supp(Ht)`, `supp(S)`) | 5 |
+| `2^19` | 00, 01 (`supp(D)`), 14 (gamma_a, gamma_m, `supp(D)`), 15 (rotary cos, sin, `supp(Q)`) | 8 |
+| `2^17` | 16 (rotary cos, sin) | 2 |
+| `2^14` | 03 (`supp(L)`), 19 (u8, exp, act, `supp(Tab)`), 20 (the all-ones cube) | 6 |
+| `2^11`, `2^10` | 13; 05, 06, 07, 10, 11, 12 (folded public weights) | 1, 6 |
+
+**28 instances and 25,534,464 `Fp2` a stage** — 409 MB raw, 213 MB as JSON.
+Three tables that exist at both rungs are absent at 125M because their
+domains do not pad there (`supp(T)` in slot 02, `supp(Kv)` in slot 16,
+`supp(F)` in slot 18), which is why 125M has 28 where the rungs have 31.
+
+**But they deduplicate almost completely.** The causal mask, the pad
+indicators, the norm gains and the rotary pair are functions of the SHAPE
+alone: byte-identical between slots and between stages. MEASURED at rung-G:
+93 public-table instances over three stages, **47 distinct** — and the
+derivation above reproduces that 47 exactly, class by class, which is what
+licenses using it at 125M. The distinct set at 125M is
+
+* shape-only, ONCE for the whole bundle: `3 x 2^22 + 6 x 2^19 + 2 x 2^17 + 3 x 2^14` = **16,039,936** entries = 256.6 MB;
+* per stage: `3 x 2^14` (the three challenge-dependent table helpers) `+ 2^11 + 6 x 2^10` = **57,344** entries = 0.92 MB.
+
+#### The totals
+
+| `L` | `arrays.bin`, public tables ON | + stage JSON | **bundle** | without the public tables' values |
+|---:|---:|---:|---:|---:|
+| 1 | 297.6 MB | ~5 MB | **~303 MB** | ~46 MB |
+| 2 | 338.3 MB | ~10 MB | **~349 MB** | ~90 MB |
+| 3 | 379.0 MB | ~16 MB | **~395 MB** | ~136 MB |
+
+A third block costs about 46 MB, not another 175: the shape-only tables are
+already there. The same `L = 2` bundle under the classic `/4-run` encoding
+would be **~653 MB** (213 MB of public tables and 112 MB of random arrays a
+stage), which is over the 400 MB the brief allows and is why the encoding
+changed.
+
+The per-stage JSON that remains is about 4.6–5.5 MB: the Merkle paths
+(609 KB a commitment) and salts (39 KB), `row_roles` (278 / 349 KB), the
+claims with their evaluation points (~350 / 225 KB), the `M` opening (859 KB),
+the twenty-three slots' definitions and masked rounds (247 KB) and the
+transcript site index (13 KB). `run.json` is about 36 KB, of which 22 KB is
+the plane index table.
+
+#### THE MODEL IS VALIDATED TO THE BYTE, not asserted
+
+`the_array_store_and_the_classic_encoding_carry_the_same_values` prints the
+same per-member table at rung-K4, `L = 2`, public tables on
+(`n4-s27-breakdown.log:114-119`):
+
+| member | references | distinct | bytes | the formula |
+|---|---:|---:|---:|---|
+| `vector` | 94 | 94 | 1,925,120 | `(36+9+1) + (36+9+2+1) = 94`, `x 1280 x 16` — **exact** |
+| `proximity_vector` | 7 | 7 | 143,360 | `3 + 4`, `x 1280 x 16` — **exact** |
+| `proximity_rhos` | 4 | 4 | 46,304 | `A` and `H` only (an endpoint's 9 rows are below `ARRAY_MIN`): `2 x (727+720) x 16` — **exact** |
+| `q`, `prox` | 2, 2 | 2, 2 | 32,768, 32,768 | `1024 x 16` each — **exact** |
+| `values` | 1,072 | 1,015 | 7,251,568 | `2 x 256 x 2` columns `+ 24 x 2` public tables `= 1,072` — **exact** |
+
+The one place the model needed a correction is the `values` DISTINCT count,
+and the correction is a real effect worth writing down: **`challenge_indices`
+samples the opened columns WITH REPLACEMENT**, so a commitment occasionally
+opens the same column index twice and the two arrays are byte-identical. At
+rung-K4's `4,096`-column encoded domain the birthday expectation is
+`256^2 / (2 x 4096) ~ 8` a commitment and 33 of the 1,024 column references
+duplicated (14 in `A`, 19 in `H`, recovered exactly from the byte total). At
+125M the encoded domain is `65,536` columns and the expectation is **0.5 a
+commitment**, so the model above ignores it and is conservative by about
+46 KB a stage.
+
+#### The memory model, and why NO streaming writer was built
+
+The writer holds, during the VERIFY phase: `arrays.bin` (338 MB at `L = 2`
+with the public tables, 80 MB without), the per-stage JSON (10 MB), and one
+transient 67 MB byte image while a `2^22` public table is hashed and stored —
+a peak of about **415 MB**. The heavy test additionally holds the `L`
+segments in memory (2 x 40.54 MB) so that the run can be verified.
+
+Against that: the prover's measured peak is **10.05 GiB** with
+`MALLOC_MMAP_THRESHOLD_` pinned (`m125-run-l2-mmapthreshold.log`), and it
+happens during PROVING, before a byte of the capture exists; `MemoryMax=12G`
+is a cgroup limit on CONCURRENT usage, not on the high-water mark, and by
+verify time the witness and the commitment buffers are freed. So the
+capture's 0.4 GiB is not added to 10.05 GiB in any way the ceiling sees.
+
+**Therefore the smallest honest change was the ENCODING alone.** Streaming
+each stage to disk as it closed would have bought 10 MB and cost ruling D21
+its exact form — a bundle written only after the run has verified — because
+a streaming writer must put bytes on disk during a verification that may
+still fail. The store is held in memory and handed to `write_bundle` with
+everything else, so **nothing reaches the disk before `take` has succeeded**
+and a rejected run still leaves nothing at all.
+
+---
+
+### Item 2 — the heavy capture test, written and not run
+
+`private_block::run_capture_tests::capture_a_125m_run`, `#[ignore]`d.
+
+It builds the chain, PROVES the run with the production prover, VERIFIES it
+with the production verifier through the capture's verifier-side hooks
+exactly as every development capture does, and writes the bundle **only
+after the run has verified** (ruling D21 / M-9: `take` refuses unless `L`
+stages closed, the recorder's independent replay never failed and the run's
+closing check passed). It then reads the bundle back and checks it against
+itself: every file in the manifest with its own length and SHA-256 and the
+manifest's own total; the plane index table present once in `run.json` and in
+no stage file; the `hash_tag` naming the keyed rule and no bundle claiming
+`legacy`; the run binding the statement computed; each stage's
+`segment_bytes` / `segment_sha256` against the bytes that were verified;
+twenty-three slot transcripts a stage; **every key of every JSON file on the
+allow-list**; and every `arrays.bin` reference resolved, re-hashed against
+the digest that names it and checked for `bytes == len x width`.
+
+The environment it reads:
+
+| variable | what | default |
+|---|---|---|
+| `HL_PB_CAPTURE_DIR` | where the bundle goes | **required**; must be absolute and is REFUSED inside the repository |
+| `HL_PB_CAPTURE_BLOCKS` | `L` | 2 |
+| `HL_PB_INPUT` | `dense` (the generic witness) or `zero` (the degenerate partner) | `dense` |
+| `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values, `0` their length and digest only | **required**, no default |
+| `HL_TEST_SOURCE_COMMIT` | the commit the bundle records | `uncommitted-test` |
+
+`HL_PB_WEIGHTS` is deliberately NOT read: at 125M the acceptance rule is the
+GENERIC witness, so the recipe is `dense_tests::dense_run_case` (fully dense
+public words, down band 1 at this shape, a non-constant hidden input from its
+own unpublished stream) and `HL_PB_INPUT=zero` is the named degenerate
+partner on the tame fixture. The array store is always on in this test.
+
+**The capture rule is met by construction.** Nothing new is written: the
+store moves arrays the classic encoding already printed, the allow-list
+gained two keys (`array`, `elem`) and both are public book-keeping, and the
+allow-list test runs over the bundle this very test writes. No witness value,
+no pad, no hidden plane, no unopened column, no unpublished salt, no unmasked
+round, no prover log and no timing of a witness-dependent step. The only
+timings printed are the wall clock of prove+verify+record and the process
+high-water mark, both to the log and neither to a bundle.
+
+---
+
+### Item 3 — the SHARED source pins (the Python gate's open item)
+
+`source_pins` was `private_block`'s own path and nothing else, so a bundle
+said nothing about the code that actually builds its transcript, its
+commitments and its openings. **15 pins -> 38.** The 23 added are the `use`
+graph of the run's prover and verifier, read off the sources:
+
+* hashline's own shared modules: `src/zk.rs` (the masking commitment,
+  `ZkRng`, `CfsMask`), `src/tables_attn.rs`, `src/causal_oracle.rs`,
+  `src/private_seam.rs` (reached by `endpoint_g.rs`), `src/export_v3.rs`;
+* the seven one-line re-export adapters `src/{field,merkle,mle,ntt,pcs,sumcheck,transcript}.rs`;
+* and the canonical implementations behind them:
+  `../zkp-core/src/{lib,field,hashtag,merkle,mle,ntt,pcs,pcs/backend,rng,sumcheck,transcript}.rs`.
+
+**LISTING A FILE IS NOT EDITING IT.** A pin reads the file at capture time
+and records its SHA-256; every one of those files is byte-identical to
+`fc782a3`. **Pure addition**: `source_pins` is a list of `(file, sha256)`
+objects, new entries are appended, nothing is renamed, reordered or removed,
+and **the schema string does not move for it**. Bundles committed before this
+stage keep the shorter list their own manifests pin. Future bundles only.
+
+`s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on`
+still passes unchanged in substance: its partition is over `private_block`'s
+own production modules, which are unaffected, and its no-duplicates and
+every-pin-resolves clauses now cover all 38.
+
+---
+
+### Item 4 — the dress rehearsal, RUN HERE
+
+The heavy test's own body (`capture_a_run_into`) at `Shape::rung_k4` with
+three blocks, the fully dense recipe and the public tables' values, into a
+scratch directory outside the repository that is removed when the test ends
+(`n3-s27-capture.log:125-129`):
+
+```
+CAPTURE rehearsal rung-K4: L=3, witness=dense (generic), public tables=values,
+  prove+verify+record 2.27 s, high-water mark 0.14 GiB
+CAPTURE rehearsal rung-K4: run.json 35,796 B, stage files [3,154,975 / 3,161,239 / 3,716,193] B
+CAPTURE rehearsal rung-K4: arrays.bin 13,453,016 B over 1,681 distinct arrays;
+  1,771 references (90 deduplicated), 1,817 small arrays inline
+CAPTURE rehearsal rung-K4: 23,523,639 B on disk, self-consistent, every key on
+  the allow-list, every array reference resolved
+```
+
+Compare the same three-block geometry written the classic way: a rung-K4
+bundle is 46.4 MB (`run-i-dense-k4`, stage files 15.2 / 15.3 / 15.9 MB).
+**23.5 MB against 46.4 MB, with the SAME content.**
+
+And the equality gate, which is what says "the same content" is not a hope
+(`n4-s27-breakdown.log:113`): one run at rung-K4, `L = 2`, captured TWICE in
+one process — once with the classic inline lists, once with the store — and
+the store bundle with every array reference expanded back into text is
+**byte for byte** the classic bundle, `run.json` and both stage files. Stage
+JSON 31,147,111 B classic against 6,877,082 B + 9,431,888 B of arrays =
+16,308,970 B, a factor **1.91**.
+
+Three tests run here, all in the standard filter, none `#[ignore]`d:
+
+| test | what it establishes |
+|---|---|
+| `the_array_store_and_the_classic_encoding_carry_the_same_values` | the byte-for-byte equality above, the per-member store table, and that the set of externalised members is exactly `{values, vector, proximity_vector, proximity_rhos, q, prox}` |
+| `the_heavy_captures_code_path_works_at_a_development_shape` | the 125M test's whole body — prove, verify with the recorder, write only after acceptance, read back, self-consistency, allow-list, array resolution — at a shape that takes 2.3 s |
+| `a_capture_directory_inside_the_repository_is_refused` | the one guard the heavy run cannot exercise: a path inside the tree and a relative path are both refused BY NAME, a path outside it is accepted although it does not exist yet |
+
+No rehearsal bundle is committed.
+
+---
+
+### Item 5 — the two launch commands
+
+**Prebuilt binary**, `--no-run` at the end of the stage
+(`n8-s27-prebuild.log`, exit 0):
+
+```
+/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5
+14,067,568 B, mtime 2026-09-21T08:44:37
+```
+
+That is the build the green gate above ran, and
+`--list --ignored | grep capture_a_125m_run` resolves the test name in it.
+
+**(A) the dense two-block capture — the GENERIC witness, the one that matters**
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_CAPTURE_DIR=/home/victor/zk60-artifacts/m125-capture-dense-l2 HL_PB_INPUT=dense HL_PB_CAPTURE_BLOCKS=2 HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=$(git --no-pager -C /home/victor/wt-zk60-block125m rev-parse HEAD) /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::run_capture_tests::capture_a_125m_run >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-capture-dense-l2.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-capture-dense-l2.done' >/dev/null 2>&1 &
+```
+
+**(B) the all-zero-input two-block capture — the named degenerate partner**
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_CAPTURE_DIR=/home/victor/zk60-artifacts/m125-capture-zero-l2 HL_PB_INPUT=zero HL_PB_CAPTURE_BLOCKS=2 HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=$(git --no-pager -C /home/victor/wt-zk60-block125m rev-parse HEAD) /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::run_capture_tests::capture_a_125m_run >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-capture-zero-l2.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-capture-zero-l2.done' >/dev/null 2>&1 &
+```
+
+**Enqueue B immediately**: it blocks on `/tmp/zk-heavy.lock` and self-starts
+when A frees it, session or no session. Each takes about 2.5 minutes of wall
+clock (four 125M witness builds at ~4.7 s, two stages of ~31 s of proving,
+~2 s of verifying, and the capture's own writing) and about 350 MB of disk.
+Neither directory may exist beforehand: `write_bundle` creates every file
+with `create_new` and refuses rather than overwrite.
+
+**What to read in the log, in order.**
+
+1. `CAPTURE 125M: MALLOC_MMAP_THRESHOLD_ is pinned` — if it says NOT SET, the
+   launcher lost the variable and the high-water mark will climb.
+2. `prove+verify+record N s, high-water mark X GiB` — **X should be about
+   10.1 GiB and must stay under 11.5**; the run is inside a 12 GiB scope and
+   a breach is an OOM kill, not a slow run.
+3. `arrays.bin B over D distinct arrays; R references (E deduplicated)` —
+   **`B` should be about 338 MB**. If it is near 410 MB the shape-only public
+   tables did not deduplicate and the model is wrong; if it is about 80 MB
+   the public tables were not included.
+4. `N B on disk (350.x MB) … self-consistent, every key on the allow-list,
+   every array reference resolved` — the acceptance line. Anything short of
+   it is a failed assertion and the exit code in the `.done` marker says so.
+5. On failure: `no bundle is written for a run the verifier did not accept`
+   means the run itself did not verify, which would be a correctness finding
+   and not a capture one. `replay: …` means the recorder's independent
+   rebuild diverged from the verifier, which is the capture's own gate.
+
+**Ranked, what could make the 125M capture fail.**
+
+| # | risk | why, and what it would look like |
+|---|---|---|
+| 1 | **the high-water mark** | the two-block run measured 10.05 GiB flat WITH the allocator pinned and 10.82 GiB rising without it; the capture adds ~0.4 GiB during the verify. Losing `MALLOC_MMAP_THRESHOLD_` in the launcher is the realistic way to breach 12 GiB. Symptom: the scope is killed and the `.done` marker holds 137 or 1. |
+| 2 | **the public tables are bigger than any shape ever captured** | a single `2^22` table is 67 MB of `Fp2` and five of them are built per stage BY THE VERIFIER, which is true with or without a capture; the writer adds one 67 MB transient while hashing each. If the dedup assumption is wrong the bundle is 410 MB instead of 338 and nothing fails, it is just bigger. |
+| 3 | **the dense chain band at 125M was measured under a different hidden input** | stage 22 moved the dense recipe's input to its own seed and 125M's band-1 pin has NOT been re-measured since (it is the 707-second `#[ignore]`d probe `the_first_admissible_fully_dense_run_band_at_125m`). If band 1 is no longer admissible at the new input the CHAIN BUILD fails before any proving, with a witness-builder refusal naming the block. Run B (all-zero) is unaffected. |
+| 4 | **wall clock under the lock** | `flock /tmp/zk-heavy.lock` with no `-w` waits forever, which is the intent; if another lane holds it the run simply starts later. |
+| 5 | **the directory already exists** | `create_new` refuses; nothing is overwritten and nothing is lost. Choose a fresh name. |
+| 6 | **disk** | 744 GB free against ~700 MB for both bundles. Not a risk; listed so it is not a surprise. |
+
+---
+
+### The gate, and the only-test-code proof
+
+| command | log | result |
+|---|---|---|
+| `--lib private_block::run_capture --no-run` (first build of the store) | `n1-s27-compile.log` | exit 0, **no error on the first build**, 13 warnings |
+| `--lib private_block::run_capture --no-run` (the tests) | `n2-s27-compile.log` | exit 0, 13 warnings |
+| `--lib private_block::run_capture -- --nocapture` | `n3-s27-capture.log:144` | **15 passed / 0 failed / 5 ignored**, 19.23 s |
+| `--lib private_block::run_capture_tests::the_array_store -- --nocapture` | `n4-s27-breakdown.log:122` | 1 passed, with the per-member table |
+| the gate, FIRST attempt: `--lib private_` | `n5-s27-private.log:448` | **308 passed / 1 failed / 12 ignored**, 405 s — finding S27-F6 below |
+| `--lib private_block::s25_tests` after the fix | `n6-s27-s25fix.log` | 13 passed / 0 failed, 0.49 s |
+| **the gate**: `--lib private_` | `n7-s27-private2.log` | ****309 passed / 0 failed / 12 ignored**, 406.17 s, exit 0** |
+
+Baseline 306 passed / 0 failed / 11 ignored: **+3 tests** (the equality gate,
+the dress rehearsal, the directory guard) and **+1 ignored** (the 125M
+capture). No existing test was changed, weakened or removed; the one line
+edited outside this stage's own modules is a COUNT in stage 25's call-kind
+table (finding S27-F6). The toy's frozen parameter line, its schedule digest
+and the four counted receipt lengths — toy 2,816,472, rung 4,218,600, rung-G
+4,234,984, 125M 40,783,352 — are all in the pass list. **13 warnings, the
+baseline's 13.**
+
+**THE ONLY-TEST-CODE PROOF.** `git diff --stat fc782a3 -- hashline/src`
+prints exactly four files:
+
+```
+hashline/src/private_block/run_capture.rs       | 341 ++++++++++++++--
+hashline/src/private_block/run_capture_tests.rs | 519 +++++++++++++++++++++++-
+hashline/src/private_block/s24_tests.rs         |   2 +-
+hashline/src/private_block/s25_tests.rs         |   7 +-
+```
+
+and `private_block.rs` declares all four under `#[cfg(test)]`
+(`private_block.rs:155-158` for `run_capture` and `run_capture_tests`, and
+the `#[cfg(test)]` immediately above `mod s24_tests` and `mod s25_tests`).
+**The proof is therefore per FILE and no per-hunk analysis is needed**: not
+one line of the diff is compiled into a non-test build, and no file that
+also holds production code is touched at all. The last two are one-line
+changes: `s24_tests` follows the pin list to `source_files()`, and
+`s25_tests` carries finding S27-F6's classification. `git diff --stat
+fc782a3` over the whole tree prints those four plus three documents
+(`ZK60_BLOCK125M_LANE_PROGRESS.md`, `ZK60_RUN_CAPTURE_FORMAT.md`, and the
+capture bundles' parent `README.md`).
+
+`git diff --stat fc782a3 -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs
+hashline/src/layer.rs hashline/src/wcache.rs hashline/src/native_capture.rs
+hashline/src/private_seam.rs hashline/src/gpu private-block-kernel
+private-model-kernel private-block-kernel-shaped zkvm-block scripts tests`
+prints **nothing**: every forbidden tree is byte-identical to `fc782a3`,
+including all eighteen files this stage newly PINS.
+
+### Findings
+
+* **S27-F1 — the public tables, not the columns, are what a 125M capture
+  costs.** The intuition going in (and in the brief) was that a bundle is its
+  opened columns. It is not: at 125M the columns and the opening vectors are
+  40 MB a stage and the twenty-three slots' public tables are 409 MB. They
+  are also the cheapest thing to fix, because five of the largest are
+  `2^22`-entry 0/1 indicators and causal masks that are functions of the
+  SHAPE alone and identical in every slot and every stage.
+* **S27-F2 — an indicator table is cheaper as decimal JSON than as bytes**
+  (8.01 B an entry against 16). Content addressing, not the binary width, is
+  what pays for the public tables; the binary width is what pays for the
+  opened columns and the opening vectors (2.66x).
+* **S27-F3 — the opened columns are sampled WITH REPLACEMENT.**
+  `challenge_indices` draws `q` indices independently, so a commitment
+  sometimes opens one column twice: 33 of 1,024 references at rung-K4's
+  4,096-column encoded domain. Nothing is wrong with it — the verifier checks
+  the same column twice — but a gate counting DISTINCT opened columns must
+  not assume `q` of them, and the effective number of independent column
+  checks is slightly under 256. At 125M the expectation is 0.5 a commitment.
+* **S27-F4 — an `L = 1` run is admissible and is nearly as expensive as
+  `L = 2`.** `RunShape::new` refuses only `l == 0`; a one-block run has no
+  internal boundary and opens both external endpoints in its one stage. Its
+  bundle is ~303 MB against ~349 MB, because the shape-only public tables
+  dominate both. There is therefore no size argument for capturing one block
+  instead of two, and `L = 2` is the first `L` that exercises an internal
+  boundary — which is the whole reason a RUN gate exists.
+* **S27-F6 — the stage-25 hash-call-site guard fired, and it was right to.**
+  The first run of the gate failed ONE test:
+  `s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified`
+  counted six `sha256_hex(` call sites in `run_capture.rs` where its
+  call-kind table declares five. The sixth is `ArrayStore::put`'s CONTENT
+  digest, which both names an array in `arrays.bin` and is the key the store
+  deduplicates on. It is classified now, in the table, with its kind (C1:
+  SHA-256 over bytes the bundle publishes anyway, sharing no oracle with any
+  BLAKE3 call on the path, deciding no proof byte and no challenge) — a
+  one-element change to a count and a comment, and the only line this stage
+  touched outside its own two modules. **This is what that guard is for**: a
+  new hash in a writer that produces retained evidence does not get to appear
+  unnoticed.
+* **S27-F5 — the format note's §9 change list for the Python agent grew by
+  one item and it is small**: resolve `{"array":…}` against `arrays.bin`
+  (§12 has the eight-line Python). Everything else a `/4-run` loader does is
+  unchanged, including refusing a schema it does not know — which is what a
+  `/4-run` loader will correctly do to a `/5-run` bundle until it is taught.

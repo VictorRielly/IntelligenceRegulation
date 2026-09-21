@@ -1371,7 +1371,12 @@ const CALL_SITES: [(&str, &str, usize, &str); 11] = [
     ("src/private_block/boundary.rs", "blake3::Hasher::new(", 1, "D7 — the internal boundary's spec digest, unkeyed, 151 bytes"),
     ("src/private_seam.rs", "blake3::Hasher::new(", 1, "D8 — the frozen seam's spec digest, unkeyed, 128 bytes"),
     ("src/private_block/run_sink.rs", "sha256_hex(", 1, "C1 — a segment file's digest. SHA-256 (`sha2`), NOT BLAKE3: it shares no oracle with anything above"),
-    ("src/private_block/run_capture.rs", "sha256_hex(", 5, "C1 — the capture writer's file and public-word digests, SHA-256"),
+    // STAGE 27 added the sixth: `ArrayStore::put`'s CONTENT digest, which
+    // both names an array in `arrays.bin` and is the key the store
+    // deduplicates on. Same kind as the other five — SHA-256 (`sha2`) over
+    // bytes the bundle publishes anyway, sharing no oracle with any BLAKE3
+    // call above, and deciding no proof byte and no challenge.
+    ("src/private_block/run_capture.rs", "sha256_hex(", 6, "C1 — the capture writer's file, public-word and array-store content digests, SHA-256"),
     ("src/private_block/run_statement_file.rs", "sha256_hex(", 5, "C1 — the retained run statement's file digests, SHA-256"),
     ("src/private_block/plane_index.rs", "sha256_hex(", 0, "no hash of its own: the plane index table is public layout data the capture writer digests"),
 ];
