@@ -1,0 +1,194 @@
+{
+ "changed": [
+  {
+   "new": 18.8,
+   "old": 16.5,
+   "path": "seconds"
+  },
+  {
+   "new": "GQ-3.08.0",
+   "old": "GQ-3",
+   "path": "stage10_bilinear_group_factor/controls/controls/[2]/control"
+  },
+  {
+   "new": "stage 1, slot 8 [SC_SCORE], group coordinate 0 of 1: the DECLARED eq point's entry 0 changed by +1",
+   "old": "stage 1, slot 8: the DECLARED eq point changed by +1",
+   "path": "stage10_bilinear_group_factor/controls/controls/[2]/what"
+  },
+  {
+   "new": "GQ-4.08.0",
+   "old": "GQ-4",
+   "path": "stage10_bilinear_group_factor/controls/controls/[3]/control"
+  },
+  {
+   "new": "stage 1, slot 8 [SC_SCORE], group coordinate 0 of 1: the point this tool DERIVED perturbed by +1, the bundle untouched",
+   "old": "stage 1, slot 8: the point this tool DERIVED perturbed by +1, the bundle untouched",
+   "path": "stage10_bilinear_group_factor/controls/controls/[3]/what"
+  },
+  {
+   "new": "GQ-3.09.0",
+   "old": "GQ-5",
+   "path": "stage10_bilinear_group_factor/controls/controls/[4]/control"
+  },
+  {
+   "new": "the derive-and-compare, refused by name",
+   "old": "the derived dimensions and the presence of the group table, both refused by name before any arithmetic runs",
+   "path": "stage10_bilinear_group_factor/controls/controls/[4]/mechanism"
+  },
+  {
+   "new": 68,
+   "old": 63,
+   "path": "stage10_bilinear_group_factor/controls/controls/[4]/slot_checks_equal"
+  },
+  {
+   "new": "stage 2, slot 9 [SC_PV], group coordinate 0 of 1: the DECLARED eq point's entry 0 changed by +1",
+   "old": "the pre-repair definition of slots 08 and 09 FORCED on bytes made under the repaired one",
+   "path": "stage10_bilinear_group_factor/controls/controls/[4]/what"
+  },
+  {
+   "new": "GQ-4.09.0",
+   "old": "GQ-6",
+   "path": "stage10_bilinear_group_factor/controls/controls/[5]/control"
+  },
+  {
+   "new": "the same comparison, from the other side",
+   "old": "a measurement, not a perturbation",
+   "path": "stage10_bilinear_group_factor/controls/controls/[5]/mechanism"
+  },
+  {
+   "new": "stage 2, slot 9 [SC_PV], group coordinate 0 of 1: the point this tool DERIVED perturbed by +1, the bundle untouched",
+   "old": "the PRE-REPAIR polynomial X*Y evaluated on this bundle's own terminals, beside the repaired eq(r_g,.)*X*Y",
+   "path": "stage10_bilinear_group_factor/controls/controls/[5]/what"
+  },
+  {
+   "new": 8,
+   "old": 6,
+   "path": "stage10_bilinear_group_factor/controls/controls_that_fire"
+  },
+  {
+   "new": 9,
+   "old": 6,
+   "path": "stage10_bilinear_group_factor/controls/controls_total"
+  },
+  {
+   "new": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
+   "old": "c03f50ce2a09013a6a7421c1219bb8c52777687f4ca7afcc79eef8006e2c84af",
+   "path": "tool_sha256/zk60_native_rg_gcontrols.py"
+  },
+  {
+   "new": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
+   "old": "89d9c1f39921d9cf218f972079a35909e44812bbe91ef45a04653df3a8b3582d",
+   "path": "tool_sha256/zk60_native_rg_gqa.py"
+  },
+  {
+   "new": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
+   "old": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
+   "path": "tool_sha256/zk60_native_rg_hcontrols.py"
+  },
+  {
+   "new": "9edad3ee03ae8c1e3fe7a46adcc68004a81e96d411f400325a4b2c70ed426f6f",
+   "old": "dc51ed03944ef0d9cde8b623fc87a8d68bfc36c686bc02a091c8f8b91c10d792",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  },
+  {
+   "new": "a58dd83d1967ff3b689d04ef84886d508e5179017914dc4d66862aa4fd9cf877",
+   "old": "a9155cf114c1770843cdbee7bf90261d5207ae7687a22f66f05fa688366e506e",
+   "path": "tool_sha256/zk60_native_run_gate.py"
+  }
+ ],
+ "identical_leaves": 3855,
+ "leaves_new": 3948,
+ "leaves_old": 3888,
+ "only_in_the_new_record": [
+  "stage10_bilinear_group_factor/controls/controls/[2]/group_coordinate",
+  "stage10_bilinear_group_factor/controls/controls/[2]/of_group_coordinates",
+  "stage10_bilinear_group_factor/controls/controls/[2]/slot",
+  "stage10_bilinear_group_factor/controls/controls/[3]/group_coordinate",
+  "stage10_bilinear_group_factor/controls/controls/[3]/of_group_coordinates",
+  "stage10_bilinear_group_factor/controls/controls/[3]/slot",
+  "stage10_bilinear_group_factor/controls/controls/[4]/group_coordinate",
+  "stage10_bilinear_group_factor/controls/controls/[4]/of",
+  "stage10_bilinear_group_factor/controls/controls/[4]/of_group_coordinates",
+  "stage10_bilinear_group_factor/controls/controls/[4]/refusal",
+  "stage10_bilinear_group_factor/controls/controls/[4]/slot",
+  "stage10_bilinear_group_factor/controls/controls/[4]/slots_with_a_derived_group_point",
+  "stage10_bilinear_group_factor/controls/controls/[4]/the_slot_is_not_evaluated",
+  "stage10_bilinear_group_factor/controls/controls/[4]/why_the_slot_is_not_evaluated",
+  "stage10_bilinear_group_factor/controls/controls/[5]/group_coordinate",
+  "stage10_bilinear_group_factor/controls/controls/[5]/group_factor_ok",
+  "stage10_bilinear_group_factor/controls/controls/[5]/of_expected",
+  "stage10_bilinear_group_factor/controls/controls/[5]/of_group_coordinates",
+  "stage10_bilinear_group_factor/controls/controls/[5]/refusal",
+  "stage10_bilinear_group_factor/controls/controls/[5]/slot",
+  "stage10_bilinear_group_factor/controls/controls/[5]/slot_checks_equal",
+  "stage10_bilinear_group_factor/controls/controls/[5]/the_slot_is_not_evaluated",
+  "stage10_bilinear_group_factor/controls/controls/[5]/why_the_slot_is_not_evaluated",
+  "stage10_bilinear_group_factor/controls/controls/[6]/control",
+  "stage10_bilinear_group_factor/controls/controls/[6]/fires",
+  "stage10_bilinear_group_factor/controls/controls/[6]/mechanism",
+  "stage10_bilinear_group_factor/controls/controls/[6]/skipped",
+  "stage10_bilinear_group_factor/controls/controls/[6]/slot",
+  "stage10_bilinear_group_factor/controls/controls/[6]/what",
+  "stage10_bilinear_group_factor/controls/controls/[7]/both_slots_refused_in_every_stage",
+  "stage10_bilinear_group_factor/controls/controls/[7]/control",
+  "stage10_bilinear_group_factor/controls/controls/[7]/fires",
+  "stage10_bilinear_group_factor/controls/controls/[7]/group_factor_ok",
+  "stage10_bilinear_group_factor/controls/controls/[7]/mechanism",
+  "stage10_bilinear_group_factor/controls/controls/[7]/of_expected",
+  "stage10_bilinear_group_factor/controls/controls/[7]/refusal_count",
+  "stage10_bilinear_group_factor/controls/controls/[7]/refusals/[0]",
+  "stage10_bilinear_group_factor/controls/controls/[7]/refusals/[1]",
+  "stage10_bilinear_group_factor/controls/controls/[7]/refusals/[2]",
+  "stage10_bilinear_group_factor/controls/controls/[7]/refusals/[3]",
+  "stage10_bilinear_group_factor/controls/controls/[7]/slot_checks_equal",
+  "stage10_bilinear_group_factor/controls/controls/[7]/the_other_21_slots_are_unaffected",
+  "stage10_bilinear_group_factor/controls/controls/[7]/what",
+  "stage10_bilinear_group_factor/controls/controls/[8]/control",
+  "stage10_bilinear_group_factor/controls/controls/[8]/fires",
+  "stage10_bilinear_group_factor/controls/controls/[8]/group_factors_equal_to_one",
+  "stage10_bilinear_group_factor/controls/controls/[8]/mechanism",
+  "stage10_bilinear_group_factor/controls/controls/[8]/of",
+  "stage10_bilinear_group_factor/controls/controls/[8]/reading",
+  "stage10_bilinear_group_factor/controls/controls/[8]/terminal_products_that_are_zero",
+  "stage10_bilinear_group_factor/controls/controls/[8]/the_bundle_carries_a_group_table",
+  "stage10_bilinear_group_factor/controls/controls/[8]/the_pre_repair_definition_holds",
+  "stage10_bilinear_group_factor/controls/controls/[8]/the_repaired_definition_holds",
+  "stage10_bilinear_group_factor/controls/controls/[8]/what",
+  "stage10_bilinear_group_factor/controls/controls_live",
+  "stage10_bilinear_group_factor/controls/controls_skipped/[0]",
+  "stage9_hash_layer/controls/controls/[6]/a_under_bs_keys",
+  "stage9_hash_layer/controls/controls/[6]/a_under_its_own_keys",
+  "stage9_hash_layer/controls/controls/[6]/b_under_as_keys",
+  "stage9_hash_layer/controls/controls/[6]/b_under_its_own_keys",
+  "stage9_hash_layer/controls/controls/[6]/bundle_a",
+  "stage9_hash_layer/controls/controls/[6]/bundle_b",
+  "stage9_hash_layer/controls/controls/[6]/control",
+  "stage9_hash_layer/controls/controls/[6]/fires",
+  "stage9_hash_layer/controls/controls/[6]/mechanism",
+  "stage9_hash_layer/controls/controls/[6]/of_columns_a",
+  "stage9_hash_layer/controls/controls/[6]/of_columns_b",
+  "stage9_hash_layer/controls/controls/[6]/profile_a",
+  "stage9_hash_layer/controls/controls/[6]/profile_b",
+  "stage9_hash_layer/controls/controls/[6]/the_two_key_sets_differ_in_every_role/column",
+  "stage9_hash_layer/controls/controls/[6]/the_two_key_sets_differ_in_every_role/leaf",
+  "stage9_hash_layer/controls/controls/[6]/the_two_key_sets_differ_in_every_role/node",
+  "stage9_hash_layer/controls/controls/[6]/the_two_key_sets_differ_in_every_role/transcript",
+  "stage9_hash_layer/controls/controls/[6]/what"
+ ],
+ "only_in_the_old_record": [
+  "stage10_bilinear_group_factor/controls/controls/[4]/both_slots_refused_in_every_stage",
+  "stage10_bilinear_group_factor/controls/controls/[4]/refusal_count",
+  "stage10_bilinear_group_factor/controls/controls/[4]/refusals/[0]",
+  "stage10_bilinear_group_factor/controls/controls/[4]/refusals/[1]",
+  "stage10_bilinear_group_factor/controls/controls/[4]/refusals/[2]",
+  "stage10_bilinear_group_factor/controls/controls/[4]/refusals/[3]",
+  "stage10_bilinear_group_factor/controls/controls/[4]/the_other_21_slots_are_unaffected",
+  "stage10_bilinear_group_factor/controls/controls/[5]/group_factors_equal_to_one",
+  "stage10_bilinear_group_factor/controls/controls/[5]/of",
+  "stage10_bilinear_group_factor/controls/controls/[5]/reading",
+  "stage10_bilinear_group_factor/controls/controls/[5]/terminal_products_that_are_zero",
+  "stage10_bilinear_group_factor/controls/controls/[5]/the_bundle_carries_a_group_table",
+  "stage10_bilinear_group_factor/controls/controls/[5]/the_pre_repair_definition_holds",
+  "stage10_bilinear_group_factor/controls/controls/[5]/the_repaired_definition_holds"
+ ]
+}

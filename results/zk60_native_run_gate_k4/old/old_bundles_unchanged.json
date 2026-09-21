@@ -1,0 +1,111 @@
+{
+ "no_measured_figure_moved": true,
+ "note": "every difference is one of: a wall clock, a tool SHA-256, the two NEW record blocks (hash_rule and stage 9), the replay naming its rule, the new fields about captured public tables (empty on a bundle that carries none), the reworded OPEN reason of the eleven slots, or the insertion of ONE channel entry, which shifts every later entry's index.  No rank, disclosed dimension, challenge count, slot check or control figure differs.  Round 4 adds four classes: the new stage 10 block, ruling R-3's correction note beside every joint figure, the terminal port naming which definition of the two bilinear slots is in force, and the one channel entry whose reason gained R-3's sentence.",
+ "per_bundle": [
+  {
+   "bundle": "run-a-tame",
+   "by_class": {
+    "the new stage 9 block": 6,
+    "tool hashes": 5,
+    "wall clock": 3
+   },
+   "changed": 8,
+   "identical_leaves": 2739,
+   "only_in_the_new_record": 6,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-b-zero",
+   "by_class": {
+    "the new stage 9 block": 6,
+    "tool hashes": 5,
+    "wall clock": 3
+   },
+   "changed": 8,
+   "identical_leaves": 2739,
+   "only_in_the_new_record": 6,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-c-tame",
+   "by_class": {
+    "the new stage 10 block (the bilinear slots' group factor)": 1,
+    "the new stage 9 block": 6,
+    "tool hashes": 5,
+    "wall clock": 3
+   },
+   "changed": 8,
+   "identical_leaves": 3518,
+   "only_in_the_new_record": 7,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-d-zero",
+   "by_class": {
+    "the new fields about captured public tables": 1,
+    "the new stage 10 block (the bilinear slots' group factor)": 1,
+    "the new stage 9 block": 7,
+    "tool hashes": 5,
+    "wall clock": 1
+   },
+   "changed": 8,
+   "identical_leaves": 3518,
+   "only_in_the_new_record": 7,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-e-tame-tagged",
+   "by_class": {
+    "the new stage 10 block (the bilinear slots' group factor)": 1,
+    "the new stage 9 block": 18,
+    "tool hashes": 5,
+    "wall clock": 2
+   },
+   "changed": 7,
+   "identical_leaves": 3839,
+   "only_in_the_new_record": 19,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-f-zero-tagged",
+   "by_class": {
+    "the new stage 10 block (the bilinear slots' group factor)": 1,
+    "the new stage 9 block": 18,
+    "tool hashes": 5,
+    "wall clock": 3
+   },
+   "changed": 8,
+   "identical_leaves": 3838,
+   "only_in_the_new_record": 19,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-g-dense-s20",
+   "by_class": {
+    "the new stage 10 block (the bilinear slots' group factor)": 83,
+    "the new stage 9 block": 18,
+    "tool hashes": 5,
+    "wall clock": 1
+   },
+   "changed": 19,
+   "identical_leaves": 3855,
+   "only_in_the_new_record": 74,
+   "only_in_the_old_record": 14
+  },
+  {
+   "bundle": "run-h-zero-s20",
+   "by_class": {
+    "the new stage 10 block (the bilinear slots' group factor)": 83,
+    "the new stage 9 block": 18,
+    "tool hashes": 5,
+    "wall clock": 3
+   },
+   "changed": 21,
+   "identical_leaves": 3853,
+   "only_in_the_new_record": 74,
+   "only_in_the_old_record": 14
+  }
+ ],
+ "unclassified": [],
+ "what": "the superseded bundles re-run under the current tools and diffed leaf by leaf against their previous round's records"
+}

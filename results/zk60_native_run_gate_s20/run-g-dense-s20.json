@@ -50,7 +50,7 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 16.5,
+ "seconds": 18.8,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -85,30 +85,76 @@
      "what": "stage 2, slot 9 [SC_PV], terminal 1 changed by +1"
     },
     {
-     "control": "GQ-3",
+     "control": "GQ-3.08.0",
      "fires": true,
+     "group_coordinate": 0,
      "group_factor_ok": false,
      "mechanism": "the derive-and-compare, refused by name",
      "of": 6,
      "of_expected": 69,
+     "of_group_coordinates": 1,
      "refusal": "stage 1 slot 8 [SC_SCORE]: the declared eq point is not r_g = r_h[..lkv] re-derived from the transcript (entries [0] differ)",
+     "slot": 8,
      "slot_checks_equal": 68,
      "slots_with_a_derived_group_point": 5,
      "the_slot_is_not_evaluated": true,
-     "what": "stage 1, slot 8: the DECLARED eq point changed by +1",
+     "what": "stage 1, slot 8 [SC_SCORE], group coordinate 0 of 1: the DECLARED eq point's entry 0 changed by +1",
      "why_the_slot_is_not_evaluated": "slot 8: no group point was DERIVED for this slot (its derivation refused, or the comparison with the bundle's failed), and the port will not fall back to the point the capture names"
     },
     {
-     "control": "GQ-4",
+     "control": "GQ-4.08.0",
      "fires": true,
+     "group_coordinate": 0,
      "group_factor_ok": false,
      "mechanism": "the same comparison, from the other side",
      "of_expected": 69,
+     "of_group_coordinates": 1,
      "refusal": "stage 1 slot 8 [SC_SCORE]: the declared eq point is not r_g = r_h[..lkv] re-derived from the transcript (entries [0] differ)",
+     "slot": 8,
      "slot_checks_equal": 68,
      "the_slot_is_not_evaluated": true,
-     "what": "stage 1, slot 8: the point this tool DERIVED perturbed by +1, the bundle untouched",
+     "what": "stage 1, slot 8 [SC_SCORE], group coordinate 0 of 1: the point this tool DERIVED perturbed by +1, the bundle untouched",
      "why_the_slot_is_not_evaluated": "slot 8: no group point was DERIVED for this slot (its derivation refused, or the comparison with the bundle's failed), and the port will not fall back to the point the capture names"
+    },
+    {
+     "control": "GQ-3.09.0",
+     "fires": true,
+     "group_coordinate": 0,
+     "group_factor_ok": false,
+     "mechanism": "the derive-and-compare, refused by name",
+     "of": 6,
+     "of_expected": 69,
+     "of_group_coordinates": 1,
+     "refusal": "stage 2 slot 9 [SC_PV]: the declared eq point is not r_g = r_h[..lkv] re-derived from the transcript (entries [0] differ)",
+     "slot": 9,
+     "slot_checks_equal": 68,
+     "slots_with_a_derived_group_point": 5,
+     "the_slot_is_not_evaluated": true,
+     "what": "stage 2, slot 9 [SC_PV], group coordinate 0 of 1: the DECLARED eq point's entry 0 changed by +1",
+     "why_the_slot_is_not_evaluated": "slot 9: no group point was DERIVED for this slot (its derivation refused, or the comparison with the bundle's failed), and the port will not fall back to the point the capture names"
+    },
+    {
+     "control": "GQ-4.09.0",
+     "fires": true,
+     "group_coordinate": 0,
+     "group_factor_ok": false,
+     "mechanism": "the same comparison, from the other side",
+     "of_expected": 69,
+     "of_group_coordinates": 1,
+     "refusal": "stage 2 slot 9 [SC_PV]: the declared eq point is not r_g = r_h[..lkv] re-derived from the transcript (entries [0] differ)",
+     "slot": 9,
+     "slot_checks_equal": 68,
+     "the_slot_is_not_evaluated": true,
+     "what": "stage 2, slot 9 [SC_PV], group coordinate 0 of 1: the point this tool DERIVED perturbed by +1, the bundle untouched",
+     "why_the_slot_is_not_evaluated": "slot 9: no group point was DERIVED for this slot (its derivation refused, or the comparison with the bundle's failed), and the port will not fall back to the point the capture names"
+    },
+    {
+     "control": "GQ-7",
+     "fires": false,
+     "mechanism": "the entry-by-entry comparison, which is ordered",
+     "skipped": "this shape has lkv = 1: a point of one entry cannot be reordered, so the control does not exist here",
+     "slot": 8,
+     "what": "the DECLARED eq point's two group coordinates SWAPPED, every value kept"
     },
     {
      "both_slots_refused_in_every_stage": true,
@@ -142,8 +188,12 @@
      "what": "the PRE-REPAIR polynomial X*Y evaluated on this bundle's own terminals, beside the repaired eq(r_g,.)*X*Y"
     }
    ],
-   "controls_that_fire": 6,
-   "controls_total": 6,
+   "controls_live": 8,
+   "controls_skipped": [
+    "GQ-7"
+   ],
+   "controls_that_fire": 8,
+   "controls_total": 9,
    "definition_in_force": "repaired",
    "honest": {
     "derived_group_points_used_and_compared": 6,
@@ -5147,6 +5197,28 @@
      "mechanism": "the column, leaf and node keys, on real captured bytes",
      "of_columns": 3328,
      "what": "a LEGACY-rule bundle's columns checked under the rung-G tag"
+    },
+    {
+     "a_under_bs_keys": 0,
+     "a_under_its_own_keys": 3328,
+     "b_under_as_keys": 0,
+     "b_under_its_own_keys": 3328,
+     "bundle_a": "run-g-dense-s20",
+     "bundle_b": "run-i-dense-k4",
+     "control": "CH-7",
+     "fires": true,
+     "mechanism": "the column, leaf and node keys, derived here from each profile string, on real captured bytes",
+     "of_columns_a": 3328,
+     "of_columns_b": 3328,
+     "profile_a": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+     "profile_b": "hashline-zk-mr1/private-block-rung-k4-t24-dev/1",
+     "the_two_key_sets_differ_in_every_role": {
+      "column": true,
+      "leaf": true,
+      "node": true,
+      "transcript": true
+     },
+     "what": "two TAGGED profiles: each bundle's real captured columns re-hashed under the key set derived for the OTHER profile"
     }
    ],
    "controls_skipped": [],
@@ -5342,19 +5414,19 @@
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_rg_bundle.py": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
   "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
-  "zk60_native_rg_gcontrols.py": "c03f50ce2a09013a6a7421c1219bb8c52777687f4ca7afcc79eef8006e2c84af",
-  "zk60_native_rg_gqa.py": "89d9c1f39921d9cf218f972079a35909e44812bbe91ef45a04653df3a8b3582d",
+  "zk60_native_rg_gcontrols.py": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
+  "zk60_native_rg_gqa.py": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
-  "zk60_native_rg_hcontrols.py": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
+  "zk60_native_rg_hcontrols.py": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
   "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
-  "zk60_native_rg_terminals.py": "dc51ed03944ef0d9cde8b623fc87a8d68bfc36c686bc02a091c8f8b91c10d792",
-  "zk60_native_run_gate.py": "a9155cf114c1770843cdbee7bf90261d5207ae7687a22f66f05fa688366e506e"
+  "zk60_native_rg_terminals.py": "9edad3ee03ae8c1e3fe7a46adcc68004a81e96d411f400325a4b2c70ed426f6f",
+  "zk60_native_run_gate.py": "a58dd83d1967ff3b689d04ef84886d508e5179017914dc4d66862aa4fd9cf877"
  },
  "version": 1,
  "what_it_does_not_show": [

@@ -1,0 +1,56 @@
+{
+ "changed": [
+  {
+   "new": 9.6,
+   "old": 9.3,
+   "path": "seconds"
+  },
+  {
+   "new": 3.7,
+   "old": 3.4,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.2,
+   "old": 1.1,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
+   "old": "c03f50ce2a09013a6a7421c1219bb8c52777687f4ca7afcc79eef8006e2c84af",
+   "path": "tool_sha256/zk60_native_rg_gcontrols.py"
+  },
+  {
+   "new": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
+   "old": "89d9c1f39921d9cf218f972079a35909e44812bbe91ef45a04653df3a8b3582d",
+   "path": "tool_sha256/zk60_native_rg_gqa.py"
+  },
+  {
+   "new": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
+   "old": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
+   "path": "tool_sha256/zk60_native_rg_hcontrols.py"
+  },
+  {
+   "new": "9edad3ee03ae8c1e3fe7a46adcc68004a81e96d411f400325a4b2c70ed426f6f",
+   "old": "dc51ed03944ef0d9cde8b623fc87a8d68bfc36c686bc02a091c8f8b91c10d792",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  },
+  {
+   "new": "a58dd83d1967ff3b689d04ef84886d508e5179017914dc4d66862aa4fd9cf877",
+   "old": "a9155cf114c1770843cdbee7bf90261d5207ae7687a22f66f05fa688366e506e",
+   "path": "tool_sha256/zk60_native_run_gate.py"
+  }
+ ],
+ "identical_leaves": 2739,
+ "leaves_new": 2753,
+ "leaves_old": 2747,
+ "only_in_the_new_record": [
+  "stage9_hash_layer/controls/controls/[2]/control",
+  "stage9_hash_layer/controls/controls/[2]/fires",
+  "stage9_hash_layer/controls/controls/[2]/skipped",
+  "stage9_hash_layer/controls/controls/[2]/what",
+  "stage9_hash_layer/controls/controls_skipped/[1]/control",
+  "stage9_hash_layer/controls/controls_skipped/[1]/why"
+ ],
+ "only_in_the_old_record": []
+}
