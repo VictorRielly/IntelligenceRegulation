@@ -9557,11 +9557,11 @@ ordinary filter.
 
 | task | what | state |
 |---|---|---|
-| 1 | the shape: T, Kv and F unpadded, Ht / L / D / Q / S / Tab padded, `lkv = 2` | **OPEN** |
-| 2 | the tests in the ordinary filter (gap census, honest dense, all-zero, draw census, tampers, a run) | **OPEN** |
-| 3 | what is STILL reached only by ignored heavy tests after this stage (the S19-F1 lesson) | **OPEN** |
-| 4 | two capture bundles of the new shape for the Python gate's M-F1 regression | **OPEN** |
-| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof | **OPEN** |
+| 1 | the shape: T, Kv and F unpadded, Ht / L / D / Q / S / Tab padded, `lkv = 2` | **DONE** — `Shape::rung_p2`, receipt 4,742,728 B counted and measured |
+| 2 | the tests in the ordinary filter (gap census, honest dense, all-zero, draw census, tampers, a run) | **DONE** — 11 new tests in `p2_tests.rs` + 1 in `parity.rs`, all non-ignored |
+| 3 | what is STILL reached only by ignored heavy tests after this stage (the S19-F1 lesson) | **DONE** — five items below, one of them (C-6) reachable at a small shape |
+| 4 | two capture bundles of the new shape for the Python gate's M-F1 regression | **DONE** — `run-k-dense-p2` / `run-l-zero-p2`, 16.0 + 15.9 MB |
+| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof | **DONE** — see the gate table |
 
 **The rules this stage works under** are the lane's: one writer, the build
 recipe above, no 125M run (the heavy lock carries the stage-29 census), new
@@ -9571,3 +9571,288 @@ without a GENERIC honest witness — dense public weights, a non-constant
 hidden input, key-value groups that differ — checked against the
 independent reference kernel.
 
+### Task 1 — `Shape::rung_p2`, and why every number of it is forced
+
+**The idea in one line: take rung-K4's PADDED layout and move two true sizes
+onto their pads.** Nothing else changes, which is what makes everything that
+follows a measurement of the pad rule and of nothing else.
+
+| | rung-K4 | **rung-P2** |
+|---|---|---|
+| tokens / width / hidden | 24 / 96 / 192 | **32 / 96 / 256** |
+| query heads × head_dim, key-value heads | 12 × 8, 4 (`lkv = 2`) | the same |
+| `t_pad, d_pad, h_pad, f_pad` | 32, 128, 16, 256 | **the same** |
+| the nine domain logs | 5, 9, 10, 12, 12, 10, 14, 13, 10 | **the same** |
+| helper counts per lookup domain | — | **the same** |
+| `log_cols`, `inv_rate`, `F_E`, `norm_wrho`, `wrho_s` | 10, 4, 12, 31, 17 | **the same** |
+| endpoint | generalised, 9 rows, `log_n` 10, rate 4 | **the same** |
+| padded head slots | `{3, 7, 11, 15}` | **the same** |
+| **domains that PAD** | **all nine** | **Ht, L, D, Q, S, Tab** |
+| **domains that do NOT** | none | **T, Kv, F** |
+| block profile | `…/private-block-rung-k4-t24-dev/1` | `hashline-zk-mr1/private-block-rung-p2-t32-dev/1` |
+| run profile | `…/private-run-rung-k4-t24-dev/1` | `hashline-zk-mr1/private-run-rung-p2-t32-dev/1` |
+| counted receipt | 4,743,128 B | **4,742,728 B** |
+
+**Every dimension is forced.** `tokens = 32` is the only value at or near 24
+that makes `Dom::T = t_pad` (a power of two) without moving `t_pad` and with
+it every other domain's log; it drags `Dom::Kv = tokens · kv_heads ·
+head_dim = 2^10` with it, which is the row width exactly — the toy's case,
+not a P-3 lift, so stage 21's F-2 refusal is satisfied and not weakened.
+`hidden = 256` is the only value at or near 192 that makes `Dom::F = tokens ·
+hidden = 2^13` without moving `f_pad`. The head axis is rung-K4's unchanged,
+because it is what keeps `Dom::Ht`, `Dom::D`, `Dom::Q` and `Dom::S` padded
+(twelve true heads in sixteen slots, width 96 in 128) — **both arms in one
+shape**, and `lkv = 2` with a padded slot inside every group's block, which
+is 125M's head geometry.
+
+**THE PER-DOMAIN TABLE**, printed by
+`p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move`
+(`t30-p2-run2.log`) and reproduced by the independent Python model
+(`model_rung_p2.json`):
+
+| domain | host slot | rung-P2 true → padded (log) | `pad_on` / `n_pad` | rung-K4 | 125M | 125M `pad_on` |
+|---|---|---|---|---|---|---|
+| `T` | **02** | **32 → 32** (5) | **false / 0** | 24 → 32 | 512 → 512 | **false** |
+| `Ht` | 17 | 384 → 512 (9) | true / 1 | 288 → 512 | 6,144 → 8,192 | true |
+| `L` | 03 | 288 → 1,024 (10, P-3 lifted) | true / 1 | 216 → 1,024 | 4,608 → 16,384 | true |
+| `D` | 14 | 3,072 → 4,096 (12) | true / 1 | 2,304 → 4,096 | 393,216 → 524,288 | true |
+| `Q` | 15 | 3,072 → 4,096 (12) | true / 1 | 2,304 → 4,096 | 393,216 → 524,288 | true |
+| `Kv` | **16** | **1,024 → 1,024** (10) | **false / 0** | 768 → 1,024 | 131,072 → 131,072 | **false** |
+| `S` | 17 | 12,288 → 16,384 (14) | true / 1 | 6,912 → 16,384 | 3,145,728 → 4,194,304 | true |
+| `F` | **18** | **8,192 → 8,192** (13) | **false / 0** | 4,608 → 8,192 | 1,048,576 → 1,048,576 | **false** |
+| `Tab` | 19 | 256 → 1,024 (10, P-3 lifted) | true / 1 | 256 → 1,024 | 256 → 16,384 | true |
+
+The unpadded set is 125M's, domain for domain and therefore slot for slot:
+**02, 16, 18**, which are the three the independent Python gate names.
+
+**Which refusal constrained which choice.** Every named shape refusal was
+checked at construction and none was weakened — the shape is built by the
+same `Shape::new` every other shape is:
+
+| refusal | what it would have blocked | how rung-P2 satisfies it |
+|---|---|---|
+| **T-8** (`head_dim` a power of two ≥ 2) | a head dimension chosen to make `Dom::Kv` land on a power of two by itself | `head_dim = 8` |
+| **T-2** (padded widths powers of two) | any non-power-of-two `t_pad` / `d_pad` / `f_pad` | 32 / 128 / 256 |
+| `d_pad == h_pad · head_dim` | widening the width without moving the head axis | 128 = 16 · 8 |
+| **F-2** (stage 21: no P-3 lift on `Dom::Q`, `Dom::Kv`, `Dom::S`) | **the obvious small shape**: fewer tokens or a smaller head dimension puts `Dom::Kv` BELOW the row width and the bilinear arms cannot write their coordinate lists | `Dom::Kv = 2^10` sits EXACTLY at the row width; `Q` (2^12) and `S` (2^14) are above |
+| **S-1** (`Dom::Tab` exactly at the row width) | lowering `log_cols` to shrink the shape | `log_cols = 10`, `log(Dom::Tab) = 10` |
+| **S-3 / C-2** (`head_dim < 2^log_cols`) | a larger head dimension | 8 against 1,024 |
+| **C-4** (the mask budget) | a shape whose worst slot leaves no room for the pads | worst is `SC_SZC` at `77 + 256 ≤ 512` |
+| **P-3 / ruling S-1's lift** | — | `Dom::L` and `Dom::Tab` are lifted, exactly as at rung-K4, and neither is a bilinear domain |
+
+No candidate had to be abandoned: the first geometry that satisfies "T, Kv
+and F unpadded, at least two others padded, `lkv ≥ 1` with more than one
+key-value head" while clearing all eight refusals is the one built. The
+narrow one is **F-2**: it is why `head_dim` cannot go below 8 and therefore
+why the tokens had to move instead.
+
+### Task 2 — the tests, and what each MEASURED
+
+All in the ordinary filter, none `#[ignore]`d. `p2_tests.rs` is 11 tests,
+11 passed / 0 failed in 11.67 s (`t30-p2-run2.log`); `parity.rs` gains one
+(`t30-parity.log`, 12 passed / 0 failed).
+
+| test | result |
+|---|---|
+| `only_the_125m_shape_and_the_new_one_reach_the_unpadded_arm_of_the_pad_rule` | **the gap, asserted**: the toy carries no pad machinery at all; rung, rung-G and rung-K4 pad all nine domains so **8 of 8** host slots are on the padded arm; 125M and rung-P2 are **5 of 8**, with the same three slots (02, 16, 18) off for the same three domains. Also asserts `pad_on == Shape::pads(dom)` domain by domain at both |
+| `the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move` | the nine logs and six helper counts equal rung-K4's; the schedules differ in **exactly** slots 16 and 18, by **exactly one degree** each; 125M's two are the same degree 4; the per-domain table above is printed |
+| `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_p2` | the INDEPENDENT `private-block-kernel-shaped` crate takes this geometry unchanged; every kernel-backed plane agrees element for element and the block output on all 3,072 words. The kernel's own buffers are asserted live on the upper hidden half and its four key-value groups pairwise different FIRST, so it is not an agreement of zeros. **This is the generic-witness check the acceptance rule asks for** |
+| `an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_p2` | prove **0.58 s**, verify from bytes **0.11 s**, frame **4,742,728 B** — the COUNTED length, from the Python model — and a one-byte truncation refused |
+| `the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_p2` | verified, frame 4,742,728 B. Named degenerate: every key-value group is identically zero |
+| `the_draw_census_is_the_rules_count_and_differs_from_rung_k4_only_where_the_pad_rule_does` | see the census below |
+| `the_verifiers_own_draw_census_at_the_rung_p2_is_the_provers` | a real two-block run, proved and verified under the capture recorder whose replay rebuilds the verifier's transcript independently: `definition_challenges` agrees with the definition walk on **all 23 slots in both stages** |
+| `a_tamper_inside_an_unpadded_domain_is_rejected_at_that_domains_zero_check_at_the_rung_p2` | **6 of 6 rejected by the VERIFIER, 0 by the prover, 0 accepted** — see the tamper table |
+| `a_tampered_round_message_of_an_unpadded_zero_check_is_rejected_at_the_rung_p2` | slots 16 and 18, each rejected at its own slot |
+| `a_padded_style_round_message_at_an_unpadded_slot_is_refused_by_the_frame_check_at_the_rung_p2` | see below |
+| `the_pinned_rung_p2_chain_band_is_the_first_admissible_one` | band **41 and 40 refused** by the second block (`fixed oracle range refusal: residual 2`), **39 admissible** for three blocks, so `dense_tests::band_down_run` gains a MEASURED `(256, 4) => 39` arm |
+| `an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_p2` | prove **1.81 s**, verify from segments **0.35 s**, segments **4,574,904 / 4,597,432 / 4,765,336 = 13,937,672 B** (the counted lengths), boundary 10 rows, all three blocks censused |
+
+**THE DRAW CENSUS.** The number of challenges each host slot's definition
+draws, MEASURED by cloning the transcript before `argument::define` and
+replaying it one `challenge_fp2` at a time until it catches up — the same
+technique `run_capture` uses on the verifier's side — and compared with the
+rule TRANSCRIBED arm by arm out of `argument.rs` (`<base> + n_pad` `mu`
+entries, and a `zeta` if and only if `pad_on`). Because the two shapes'
+padded layouts are identical, every base is identical and the census can
+differ only where the pad rule does:
+
+| slot | name | rung-P2 | rung-K4 | the rule at rung-P2 |
+|---|---|---:|---:|---|
+| **02** | `02 norm squares zero-check` | **13** | 15 | `log(T) 5 + (6 + 0) + 2` |
+| 03 | `08 limb zero-check` | 12 | 12 | `log(L) 10 + 1 + 1` |
+| 14 | `03 D zero-check` | 46 | 46 | `log(D) 12 + (11 + 19 + 1) + 2 + 1` |
+| 15 | `04 Q zero-check` | 24 | 24 | `log(Q) 12 + (1 + 7 + 1) + 2 + 1` |
+| **16** | `05 KV zero-check` | **19** | 21 | `log(Kv) 10 + (1 + 6 + 0) + 2` |
+| 17 | `06 softmax zero-check` | 32 | 32 | `log(S) 14 + (5 + 8 + 1 + 1) + 2 + 1` |
+| **18** | `14 F zero-check` | **24** | 26 | `log(F) 13 + (4 + 5 + 0) + 2` |
+| 19 | `TAB table helper zero-check` | 15 | 15 | `log(Tab) 10 + (3 + 1) + 1` |
+
+Over all **twenty-three** slots the two shapes differ at 02, 16 and 18 and
+nowhere else, and at those three by exactly two — the one `mu` and the one
+`zeta`. That is the branch, measured on both sides of the protocol.
+
+**THE TAMPERS.** Two per unpadded domain: at the **LAST index of the
+domain** — the position that at every other development shape is a PAD ROW,
+where ruling P-1's term forces a zero and the gate switches the
+inhomogeneous clauses off — and at index 0. The plane in each domain is
+chosen so that the first slot whose relation breaks is that domain's OWN
+zero-check, and the rejection message is asserted to name it, so a rejection
+by an earlier check cannot pass for one.
+
+| tamper | rejected by | at |
+|---|---|---|
+| `A_DSQ` at index 31 (the last `Dom::T` position) | **VERIFIER** | slot 02 `02 norm squares zero-check` |
+| `A_DSQ` at index 0 | **VERIFIER** | slot 02 |
+| `A_K8` at index 1,023 (the last `Dom::Kv` position) | **VERIFIER** | slot 16 `05 KV zero-check` |
+| `A_K8` at index 0 | **VERIFIER** | slot 16 |
+| `A_G8` at index 8,191 (the last `Dom::F` position) | **VERIFIER** | slot 18 `14 F zero-check` |
+| `A_G8` at index 0 | **VERIFIER** | slot 18 |
+| one value of a round message of slot 16 / slot 18 | **VERIFIER** | that slot, `sumcheck round 0: s(0) + s(1) != claim` |
+
+All seven name the slot under test in the message; the honest control is
+asserted accepted first in each test.
+
+**THE PADDED-STYLE PROOF, and what the test actually says (a finding of
+its own, T30-F1).** The task asked for a verifier fed a proof produced as if
+the domain were padded, with the fallback of a schedule-level refusal if it
+is not constructible test-side. It is not: the production prover derives the
+degree from the shape, and making it lie would be a production edit. So the
+statement is made on the FRAME, and what it shows is:
+
+* a receipt whose slot 16 (or 18) carries **padded-style round messages**
+  (one more evaluation per round, the shape a degree-5 slot publishes) is
+  refused by `wire::validate` — the per-slot schedule check `verify_inner_at`
+  runs BEFORE it absorbs or draws anything — with
+  `"private block wire: argument shape"`;
+* the honest receipt passes that same check, and the only difference between
+  the two objects is that slot's round messages, so the refusal is caused by
+  the edit;
+* the encoder refuses it too, so it cannot be re-encoded into a frame of the
+  honest length.
+
+**T30-F1: that refusal does NOT name the slot.** `wire::validate` returns
+one string for every slot and every field of the frame, so a caller sees
+"argument shape" and nothing else. It is fail-closed and it arrives before
+any transcript operation, which is what matters for soundness, but it is
+weaker than the sumcheck-level refusals, which do name the slot and the
+declared degree (`slot 16 [05 KV zero-check]: sumcheck round 0: expected
+degree 4, got 6 values`). Making the frame check name the slot is a
+one-line change in a SHARED file (`wire.rs` is this lane's, but the refusal
+string is part of the wire contract), so it is left to the integrator as a
+suggestion and not taken here.
+
+### Task 3 — what is STILL reached only by an `#[ignore]`d heavy test
+
+Read off `shape.rs` and `layout.rs`, branch by branch, after this stage.
+**`pad_on` per domain is now covered** — that is what the stage did — and so
+is every branch that follows from it (the support indicator, the extra `mu`
+and `zeta`, the degree of the eight `INDICATOR_SLOT_DOMAIN` slots). What
+remains:
+
+| # | branch | why no shape in the filter reaches it | can a small shape? |
+|---|---|---|---|
+| 1 | **`Shape::norm_top_is_full_byte` — correction C-6** (`layout::lookups_at`: the four `scaled` norm lookups are DROPPED, `Dom::D` carries 17 helpers instead of 19 and the `H` plane list is 50 planes instead of 51) | it is true only when `norm_wrho == 8 · limbs_norm`, i.e. 32 bits, and `norm_wrho = NORM_TN + 1 + bit_length(d_max)` with `d_max ≈ sqrt(width) · 32767`. Every development shape has width 96 → 31 bits | **YES, and cheaply.** `width ≥ 272` gives 32. A shape of 32 tokens, **12 query heads of 32 over 4 key-value heads** (width 384, `d_pad = 512 = h_pad(16) · 32`) reaches it with `lkv = 2` intact — checked against the Python model. **This is the one this lane would build next** |
+| 2 | **the row width `log_cols = 14`** and everything keyed to it: the PCS column geometry, `rows_of` for every domain, the `Dom::Tab` lift distance (8 → 14 rather than 8 → 10), the NTT log, and `hash_domain`'s length set at that width | every development shape is at `log_cols` 8 or 10 | yes in principle (a shape may declare `log_cols = 14` at a small geometry), but then every domain is lifted and F-2 refuses the bilinear slots — so **only with a geometry large enough to keep `Dom::Kv ≥ 2^14`**, which is no longer small |
+| 3 | **`head_dim = 64`** — the S-3 / C-2 margin, the RoPE partner bit at `log − 6` | the filter has 8 and 16 | yes: `head_dim = 64` with few heads is admissible, but it drags `d_pad` up with it (item 1's shape is the cheap way to move both) |
+| 4 | **the 125M endpoint geometry**: `endpoint_log_n = 14`, 32 data rows, 37 commitment rows | the filter has 2, 16 and 4 data rows | yes, by declaring the endpoint parameters — nothing else in the shape has to move |
+| 5 | **long runs and the memory path**: `L = 12`, a 484 MB run receipt, the >10 GiB proving peak, the mmap threshold crossings | size alone | no — this one is inherently heavy, and it is the one item on this list that a small shape cannot stand in for |
+
+Stage 29 already unit-gated the five size thresholds it introduced, so the
+parallel branches themselves are covered in the filter; what item 5 leaves
+uncovered is the memory behaviour, not a branch.
+
+### Task 4 — the two capture bundles
+
+`results/zk60_run_captures_20260920/run-k-dense-p2` and `run-l-zero-p2`,
+**two blocks each**, schema `hashline-native-capture/5-run` (the array
+store), public tables' VALUES included, tagged, source pin `4ccbad1` over 38
+files (`t30-bundles.log`, exit 0).
+
+| bundle | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|
+| `run-k-dense-p2` (FULLY DENSE, generic) | 34,950 B | 3,151,494 / 3,713,252 B | 9,097,448 B | **16,001,981 B** |
+| `run-l-zero-p2` (all-zero, degenerate) | 34,947 B | 3,148,521 / 3,709,513 B | 9,014,520 B | **15,912,181 B** |
+
+**31.9 MB for the pair, and the size was chosen, not accepted.** The task's
+ceiling was about 15 MB a bundle; three blocks in the classic `/4-run`
+encoding would have been about 46 MB each (that is what `run-i-dense-k4`
+is), so this pair takes the two levers the task named — the `/5-run` store
+and fewer blocks — and lands just above the hoped-for figure at 16.0 and
+15.9 MB. Two blocks is enough: there is one internal boundary, every slot of
+every stage is present, and the two stages are asserted to carry the same
+schedule and the same draw counts.
+
+**What a gate sees in them** (`t30-bundle-check.log`, read off the committed
+files, 0 mismatches), against the rung-K4 pair, stage 0 against stage 0:
+**20 of 23 slots identical** in both schedule and `definition_challenges`
+length, and the three that differ are 02 (13 draws against 15), 16 (19
+against 21, degree 4 against 5) and 18 (24 against 26, degree 4 against 5).
+A port that models the pad rule as "always on" fails on these bundles in
+seconds, which is exactly finding M-F1 and exactly why they exist. Each
+manifest's five files match their recorded length and SHA-256, and the
+parent `README.md` gains a stage-30 section with this table; no older bundle
+is touched and none of their own READMEs is edited.
+
+They are **not gate evidence** (ruling T-6) and not a privacy result.
+
+### Task 5 — the gates, the registries this stage tripped, and the commits
+
+**THE GATES AT THE STAGE-30 TIP.**
+
+| gate | result |
+|---|---|
+| `--lib private_` (the whole filter) | **348 passed / 0 failed / 14 ignored, 429.11 s, exit 0** (`t30-gate-private2.log`) — the stage-29 tip's 336 plus this stage's twelve, nothing lost; the one new ignored test is the bundle writer |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen` (`:205`), `grow_tests::the_toy_parameter_line_is_the_frozen_literal` (`:204`), `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` (`:285`), and the 2,816,472 B receipt-length family (`tests`, `zero_witness_tests`, `hash_domain_tests`, `review_tests`, `grow_tests`) — **all in the pass list** |
+| the rung, rung-G and rung-K4 receipt lengths | in the pass list (`rung_tests`, `dense_tests`, `k4_tests`, dense AND all-zero). `k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims` (`:231`) still asserts 4,743,128 B, and `p2_tests` asserts the same number again as the 400 B partner of its own |
+| the new shape's own tests | `p2_tests` (11, `:241`–`:251`) and `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_p2` (`:270`), all non-ignored |
+| the Python model's test file | `python3 -m unittest discover -s tests -p 'test_zk60_private_block_layout_model.py'` — **42 tests, OK**, and not edited by this stage |
+| the forbidden-files proof | `git diff --stat 6c302f5 -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/field hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu zkvm-block private-block-kernel private-model-kernel private-block-kernel-shaped tests` prints **nothing** |
+| the whole diff against `6c302f5` | ten sources — `shape.rs`, `run.rs`, `private_block.rs` (one `mod` line), the new `p2_tests.rs`, `parity.rs`, `dense_tests.rs`, `run_capture_tests.rs`, `run_statement_file.rs`, `s24_tests.rs`, `s25_tests.rs` — plus the shape-model script, this ledger, the two bundles with their parent README, and the evidence logs. Nothing else |
+
+**THE REGISTRY GUARDS A NEW PROFILE TRIPS, and what each wanted.** The first
+whole-filter run was **346 passed / 2 failed** (`t30-gate-private.log`) and
+both failures were profile registries — the lane's habit of reading the
+profile list OUT OF THE SOURCE rather than keeping a hand list, working
+exactly as intended. Four guards in three files had to learn the new
+profile, and three literals became registry-derived so the next shape does
+not have to edit them:
+
+| guard | what it wanted | how it is satisfied |
+|---|---|---|
+| `s24_tests::every_registered_profile_is_covered_…` | the two new strings in `every_shape` / the run list | added; `all.len()` is now `4·(shapes − legacy) + 4·runs` instead of the literal 24 |
+| `s25_tests::every_hash_input_kind_of_every_registered_profile_…` | a hash-input table for the new block and run profiles | `s25_tests::every_shape` / `every_run` extended, with the run-shape constructor arm |
+| `s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile` | `(legacy, tagged) == (2, 3)`, twelve keys, eight source profiles | `legacy == 2` stays pinned (it is the fact worth pinning); the other two are derived |
+| `s25_tests::the_memos_length_table_…` and `…terminal_absorb_lengths_…` | a per-shape and a per-run row, and "the two development runs" | a rung-P2 row in each, and `every_run().len() − 1` |
+
+**The rung-P2 row of the length table is worth reading**: its profile string
+is exactly as long as rung-K4's and its padded layout IS rung-K4's, so every
+hash-input length is rung-K4's to the byte — constructor 59, A column 5,816,
+H column 5,760, endpoint 72, block seed 117, `pcs-vec` 20,535, run
+constructor 57, public statement 125 at `L = 3`. **Nothing about the pad
+rule reaches a hash input LENGTH**, and that is now checked rather than
+assumed.
+
+**THE COMMITS OF STAGE 30**, in order:
+
+| commit | what |
+|---|---|
+| `ecd3118` | the ledger skeleton: the gap, the five tasks, the rules |
+| `baea9b2` | **task 1**: `Shape::rung_p2`, the run profile, and the four registry lists in `s24_tests` / `run_statement_file` |
+| `5295de9` | **task 1**: the shape in the independent Python model, the regenerated report and `model_rung_p2.json` (4,742,728 B) |
+| `1415dd2` | **task 2**: `p2_tests.rs` (11 tests), the `mod` line, and the MEASURED `(256, 4) => 39` chain band |
+| `4ccbad1` | **task 2**: the generic witness against the independent reference kernel at the new shape |
+| `695822f` | **task 4**: `run-k-dense-p2` and `run-l-zero-p2`, the writer, the bundle check and the parent README |
+| `6d5c77c` | the four registry guards, extended and partly derived; the whole filter green |
+| this one | the ledger: tasks 1–5 and the close |
+
+**WHAT THIS STAGE IS NOT.** Not a privacy result and not an acceptance of
+anything: the lane's code stays experimental, for the integrator (ruling
+V-1), and the two bundles are the INPUT to the Python gate, not its verdict
+(ruling T-6). Not a claim about 125M: **no 125M run was launched** — the
+heavy lock carries the stage-29 census, and nothing here touched an `r29-*`
+file. Not a change to what any existing profile sends, absorbs or draws: the
+toy is byte-frozen and green, and the three older development profiles'
+receipt lengths are unmoved. What it IS: the `pad_on == false` arm of ruling
+P-1, which until today only an `#[ignore]`d 10 GiB test could reach, is now
+proved, verified, censused on both sides of the protocol, tampered with and
+captured by tests that run in twelve seconds.
