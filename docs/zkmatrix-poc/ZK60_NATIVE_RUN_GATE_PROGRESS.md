@@ -1614,3 +1614,61 @@ about the record's SHAPE: `s20`, `planeindex`, `tagged`, `k4` and
    is R6.8 item 2 (the attention profile's path pins).
 7. Nothing in this round moves D8/D11 or ruling M-8's decision, and nothing
    in it is a privacy acceptance.
+
+---
+
+# Round 9 — the gate at the **125M shape**, the first time anything is measured there (R8.9 item 5)
+
+**Opened 2026-09-21 09:00 PDT** on lane `zk60-native-jointview`, same sole
+writer, Python only. Nothing here is a privacy acceptance and no statement
+here establishes a privacy property.
+
+## R9.0 Why there is a round 9
+
+Every round so far ends with the same line, in the report's own words:
+**"Nothing at the 125M shape."** §5 says "It says nothing about the 125M
+shape"; §9.11 says the exact-rank computation over thousands of rows per
+commitment "is still untried, and a 484 MB run is still more than this gate
+ingests"; §11.8 says "anything at the 125M shape, where `A` has thousands of
+rows"; §12.8 says "Nothing here was measured there". R8.9 item 5 is the ask.
+
+Two things the Rust lane shipped make the round possible: stage 27's binary
+array store (schema `hashline-native-capture/5-run`), which turns a ~653 MB
+text bundle into ~280 MB with one memory-mappable `arrays.bin`, and two
+two-block captures at the 125M shape.
+
+## R9.1 Input (READ-ONLY, never copied into this repository)
+
+| bundle | witness | bytes | source commit |
+|---|---|---|---|
+| `m125-capture-dense-l2` | fully dense public weights, generic hidden input | 281,106,431 | `f4697f9` |
+| `m125-capture-zero-l2` | the all-zero hidden input | 272,660,458 | the same |
+
+Both at `/home/victor/zk60-artifacts/`, OUTSIDE the repository. Only records,
+logs, manifest hashes and small evidence are committed.
+
+## R9.2 Status
+
+| # | item | state |
+|---|---|---|
+| N0 | ledger skeleton, round 9 opened | done |
+| N1 | a `/5-run` loader: lazy array resolution with length, digest and element-type checks; refuse by name, never crash; equivalence proved against a `/4-run` development bundle re-encoded by this lane's own encoder | open |
+| N2 | the source pins at `f4697f9` read and the pin tables extended; the newly pinned shared files classified | open |
+| N3 | the gate at 125M, stage by stage, with time and peak RSS: (a) replay, (b) hash layer, (c) terminals, (d) disclosure and ranks, (e) the preimages | open |
+| N4 | the comparison table against the development shapes, predicted BEFORE the record is read | open |
+| N5 | controls at 125M | open |
+| N6 | records, report section, dated corrections to every "nothing at 125M" sentence, tests, whole native suite | open |
+
+## R9.3 Commands and logs (round 9)
+
+| what | command | log |
+|---|---|---|
+| *(filled in as each lands)* | | |
+
+## R9.4 Results
+
+*(filled in as each item lands)*
+
+## R9.5 NEXT after round 9
+
+*(filled in at the close)*
