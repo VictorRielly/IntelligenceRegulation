@@ -1,0 +1,893 @@
+Running scope as unit: run-r0ea9fc21fc604257b15737afcab65094.scope
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:680:13
+    |
+680 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 14 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 391 tests
+test private_attention::capture::native_capture_roundtrip_and_refusals ... ok
+test private_attention::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_attention::layout::tests::declared_counts_are_self_consistent ... ok
+test private_attention::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_attention::tests::cached_u8_inverses_equal_reference_for_real_lookups_and_invalid_values ... ok
+test private_attention::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+test private_attention::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_attention::tests::no_published_word_is_a_small_integer ... ok
+test private_attention::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_attention::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+test private_attention::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_attention::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_attention::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_attention::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test private_block::boundary::tests::a_boundary_opening_on_a_shared_pair_is_refused ... ok
+test private_block::boundary::tests::a_node_shaped_boundary_column_is_refused ... ok
+test private_block::boundary::tests::a_prepared_boundary_commits_the_words_and_declares_its_reserved_rows ... ok
+test private_block::boundary::tests::a_prepared_boundary_refuses_a_different_statement ... ok
+test private_block::boundary::tests::every_row_count_but_the_derived_one_is_refused_by_name ... ok
+test private_block::boundary::tests::one_opening_carries_two_claims_at_two_points_and_verifies ... ok
+test private_block::boundary::tests::the_declared_geometry_is_what_the_spec_derives ... ok
+test private_block::boundary::tests::the_digest_is_its_own_and_moves_with_every_parameter ... ok
+test private_block::boundary::tests::the_malformed_statements_are_refused_by_name ... ok
+test private_block::boundary::tests::the_prepare_refusals_fire ... ok
+test private_block::boundary::tests::two_boundary_claims_at_one_point_trip_the_declared_group_count ... ok
+test private_block::c6_tests::a_frame_with_the_dropped_helper_claims_is_refused_before_any_draw_at_the_rung_c6 ... ok
+test private_block::c6_tests::a_norm_top_limb_outside_its_byte_range_is_rejected_at_the_rung_c6 ... ok
+test private_block::c6_tests::a_tampered_round_message_of_slot_14_is_rejected_at_the_rung_c6 ... ok
+test private_block::c6_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_c6 ... ok
+test private_block::c6_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_c6 ... ok
+test private_block::c6_tests::only_the_125m_shape_and_the_new_one_reach_correction_c_6 ... ok
+test private_block::c6_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_c6 ... ok
+test private_block::c6_tests::the_lookup_c6_drops_is_a_duplicate_of_one_that_stays ... ok
+test private_block::c6_tests::the_named_tampers_are_rejected_at_their_own_slots_at_the_rung_c6 ... ok
+test private_block::c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved ... ok
+test private_block::c6_tests::the_norm_range_tamper_rejects_at_the_same_slot_on_both_arms ... ok
+test private_block::c6_tests::the_pinned_rung_c6_chain_band_is_the_first_admissible_one ... ok
+test private_block::c6_tests::the_rows_and_lookups_c6_drops_are_absent_here_and_present_at_rung_k4 ... ok
+test private_block::capture::native_capture_roundtrip_and_refusals ... ok
+test private_block::capture::native_capture_saved_receipt ... ignored, requires explicit saved public-fixture receipt and expected policy paths
+test private_block::dense_tests::a_perturbation_in_the_second_key_value_group_of_the_dense_witness_is_rejected_at_the_rung_g ... ok
+test private_block::dense_tests::a_shared_kv_head_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g ... ok
+test private_block::dense_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g ... ok
+test private_block::dense_tests::an_honest_dense_feed_forward_block_proves_and_verifies_from_bytes_at_the_rung_g ... ok
+test private_block::dense_tests::every_upper_hidden_half_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g ... ok
+test private_block::dense_tests::exchanging_the_two_key_value_groups_keys_is_rejected_at_the_rung_g ... ok
+test private_block::dense_tests::s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_accepted ... ok
+test private_block::dense_tests::stage19_bisect_the_dense_failure ... ok
+test private_block::dense_tests::stage19_bisect_the_head_axis ... ok
+test private_block::dense_tests::stage19_bisect_the_hidden_input ... ok
+test private_block::dense_tests::the_dense_feed_forward_witness_is_admissible_and_non_trivial_at_the_rung_g ... ok
+test private_block::dense_tests::the_dense_public_statements_construct_at_125m ... ok
+test private_block::dense_tests::the_dense_recipe_is_dense_deterministic_and_reaches_the_upper_hidden_half ... ok
+test private_block::dense_tests::the_dense_recipes_are_admissible_and_non_trivial_at_125m ... ok
+test private_block::dense_tests::the_dense_recipes_public_stream_is_consumed_entirely_by_public_words ... ok
+test private_block::dense_tests::the_dense_witness_is_admissible_and_non_trivial_at_the_rung_g ... ok
+test private_block::dense_tests::the_recipe_strings_this_build_writes_describe_public_weights_only ... ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_at_a_synthetic_four_key_value_head_geometry ... ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_g ... ok
+test private_block::dense_tests::the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_k4 ... ok
+test private_block::endpoint_g::tests::a_node_shaped_endpoint_column_is_unreachable_and_still_refused ... ok
+test private_block::endpoint_g::tests::a_prepared_plane_commits_the_words_and_declares_the_frozen_mask_rows ... ok
+test private_block::endpoint_g::tests::a_prepared_plane_refuses_a_different_statement ... ok
+test private_block::endpoint_g::tests::one_changed_word_changes_the_root ... ok
+test private_block::endpoint_g::tests::the_declared_geometry_is_what_the_spec_derives ... ok
+test private_block::endpoint_g::tests::the_digest_is_its_own_and_moves_with_every_parameter ... ok
+test private_block::endpoint_g::tests::the_frozen_seam_refuses_a_plane_past_its_ceiling_and_this_module_does_not ... ok
+test private_block::endpoint_g::tests::the_malformed_statements_are_refused_by_name ... ok
+test private_block::endpoint_g::tests::the_prepare_refusals_fire ... ok
+test private_block::grow_tests::a_shape_wider_than_the_ntt_tables_is_refused_by_name ... ok
+test private_block::grow_tests::an_inexpressible_shape_is_refused_at_construction_by_name ... ok
+test private_block::grow_tests::an_out_of_class_lookup_value_falls_into_bucket_zero ... ok
+test private_block::grow_tests::every_opened_column_of_an_honest_receipt_carries_its_own_salt ... ok
+test private_block::grow_tests::every_shape_has_its_own_profile_id ... ok
+test private_block::grow_tests::no_commitment_column_and_no_domain_label_can_be_confused_with_a_hash_input ... ok
+test private_block::grow_tests::the_125m_receipt_is_reproduced_part_by_part ... ok
+test private_block::grow_tests::the_125m_shape_constructs_and_what_still_refuses_says_so_by_name ... ok
+test private_block::grow_tests::the_byte_table_length_is_split_from_the_row_width ... ok
+test private_block::grow_tests::the_codec_length_is_the_models_at_every_shape ... ok
+test private_block::grow_tests::the_h_plane_ids_are_the_toys_at_the_toy_and_each_shapes_elsewhere ... ok
+test private_block::grow_tests::the_integer_windows_come_from_the_shape ... ok
+test private_block::grow_tests::the_layout_is_built_from_a_shape_and_the_toy_is_one_instance ... ok
+test private_block::grow_tests::the_lift_is_a_no_op_at_the_toy ... ok
+test private_block::grow_tests::the_lifted_u8_table_proves_exactly_256_values ... ok
+test private_block::grow_tests::the_logup_sum_claim_has_one_column_weight_key_at_the_rung ... ok
+test private_block::grow_tests::the_norm_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::grow_tests::the_pad_count_is_at_least_the_number_of_opened_columns ... ok
+test private_block::grow_tests::the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_columns ... ok
+test private_block::grow_tests::the_plane_id_map_expresses_a_third_sigma_s_limb ... ok
+test private_block::grow_tests::the_reconstructed_sum_claim_equals_the_modules_own_at_the_toy ... ok
+test private_block::grow_tests::the_repaired_bilinear_schedule_agrees_with_the_independent_model_at_every_shape ... ok
+test private_block::grow_tests::the_rung_at_its_own_calibration_has_an_honest_witness ... ok
+test private_block::grow_tests::the_rung_g_profile_is_the_rung_with_a_different_endpoint ... ok
+test private_block::grow_tests::the_shape_driven_layout_matches_the_python_model_at_the_rung_and_at_125m ... ok
+test private_block::grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly ... ok
+test private_block::grow_tests::the_shape_driven_lookup_list_matches_the_counted_one ... ok
+test private_block::grow_tests::the_slot_definitions_are_built_from_the_shape ... ok
+test private_block::grow_tests::the_softmax_window_of_the_toy_refuses_an_honest_rung_witness ... ok
+test private_block::grow_tests::the_toy_parameter_line_is_the_frozen_literal ... ok
+test private_block::grow_tests::the_toy_schedule_digest_is_frozen ... ok
+test private_block::grow_tests::the_unlifted_rung_sum_claim_raises_three_keys_and_is_refused ... ok
+test private_block::hash_domain::tests::a_frame_one_path_entry_short_is_refused_at_decode ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name ... ok
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::hash_domain::tests::every_dangerous_row_count_is_refused_by_name_at_every_shape ... ok
+test private_block::hash_domain::tests::no_commitment_of_any_shape_collides_and_the_toy_is_clear ... ok
+test private_block::hash_domain::tests::the_completed_guard_refuses_geometries_the_constructions_can_actually_reach ... ok
+test private_block::hash_domain::tests::the_computed_length_set_is_pinned_at_every_shape ... ok
+test private_block::hash_domain::tests::the_constructors_guard_is_unchanged_under_the_legacy_rule ... ok
+test private_block::hash_domain::tests::the_constructors_guard_refuses_every_shape_free_dangerous_count ... ok
+test private_block::hash_domain::tests::the_length_formulas_are_still_the_ones_zkp_core_hashes ... ok
+test private_block::hash_domain::tests::the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors ... ok
+test private_block::hash_domain::tests::the_runs_own_parameter_line_enters_the_length_set ... ok
+test private_block::hash_domain::tests::the_shape_free_dangerous_row_counts_are_the_memos_eight ... ok
+test private_block::hash_domain::tests::the_tree_depth_is_the_wire_formats_own_number ... ok
+test private_block::hash_tag_tests::a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions ... ok
+test private_block::hash_tag_tests::the_test_hook_can_only_force_the_legacy_rule ... ok
+test private_block::hash_tag_tests::the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged ... ok
+test private_block::k4_tests::a_perturbation_in_the_third_or_fourth_key_value_group_is_rejected_at_the_rung_k4 ... ok
+test private_block::k4_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k4 ... ok
+test private_block::k4_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_k4 ... ok
+test private_block::k4_tests::exchanging_the_keys_of_key_value_groups_two_and_three_is_rejected_at_the_rung_k4 ... ok
+test private_block::k4_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_k4 ... ok
+test private_block::k4_tests::the_pinned_rung_k4_chain_band_is_the_first_admissible_one ... ok
+test private_block::k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims ... ok
+test private_block::layout::tests::declared_counts_are_self_consistent ... ok
+test private_block::layout::tests::planes_are_row_aligned_and_contiguous_per_domain ... ok
+test private_block::norm_alias::the_alias_satisfies_every_norm_relation_in_the_field ... ok
+test private_block::norm_alias::the_alias_still_breaks_exactly_r2_on_a_rung_witness ... ok
+test private_block::norm_alias::the_denominator_range_fact_excludes_the_alias_at_every_expressible_width ... ok
+test private_block::norm_alias::the_half_p_isqrt_alias_is_refused_by_the_byte_limb_pin_on_the_denominator ... ok
+test private_block::norm_alias::the_half_p_isqrt_alias_with_reconstructing_limbs_is_refused_by_the_u8_table ... ok
+test private_block::norm_alias::the_limb_count_the_widened_geometry_needs ... ok
+test private_block::norm_alias::the_widened_norm_window_does_not_re_open_the_alias ... ok
+test private_block::p2_tests::a_padded_style_round_message_at_an_unpadded_slot_is_refused_by_the_frame_check_at_the_rung_p2 ... ok
+test private_block::p2_tests::a_tamper_inside_an_unpadded_domain_is_rejected_at_that_domains_zero_check_at_the_rung_p2 ... ok
+test private_block::p2_tests::a_tampered_round_message_of_an_unpadded_zero_check_is_rejected_at_the_rung_p2 ... ok
+test private_block::p2_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_p2 ... ok
+test private_block::p2_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_p2 ... ok
+test private_block::p2_tests::only_the_125m_shape_and_the_new_one_reach_the_unpadded_arm_of_the_pad_rule ... ok
+test private_block::p2_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_p2 ... ok
+test private_block::p2_tests::the_draw_census_is_the_rules_count_and_differs_from_rung_k4_only_where_the_pad_rule_does ... ok
+test private_block::p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move ... ok
+test private_block::p2_tests::the_pinned_rung_p2_chain_band_is_the_first_admissible_one ... ok
+test private_block::p2_tests::the_verifiers_own_draw_census_at_the_rung_p2_is_the_provers ... ok
+test private_block::pad::tests::a_weight_nonzero_off_its_support_is_refused_at_construction ... ok
+test private_block::pad::tests::every_slot_fits_the_mask_budget_with_the_indicator ... ok
+test private_block::pad::tests::every_support_indicator_has_the_true_sizes_weight ... ok
+test private_block::pad::tests::pz1_a_lone_nonzero_pad_value_is_rejected ... ok
+test private_block::pad::tests::pz2_a_consistently_adjusted_pad_is_rejected ... ok
+test private_block::pad::tests::the_builders_head_layout_is_the_memos ... ok
+test private_block::pad::tests::the_closed_forms_equal_the_tables ... ok
+test private_block::pad::tests::the_declared_degrees_are_inside_the_declared_range ... ok
+test private_block::pad::tests::the_folded_weight_vectors_vanish_off_support ... ok
+test private_block::pad::tests::the_honest_rung_witness_passes_every_checkable_relation ... ok
+test private_block::pad::tests::the_pad_rule_table_reproduces_the_memos_counts ... ok
+test private_block::pad::tests::the_padded_head_slots_are_one_per_key_value_group ... ok
+test private_block::pad::tests::the_toy_already_pads_one_domain_and_must_not_gain_the_term ... ok
+test private_block::pad::tests::the_toy_profiles_padded_planes_and_what_constrains_them ... ok
+test private_block::parity::a_witness_query_head_reads_only_its_own_key_value_head_at_the_rung ... ok
+test private_block::parity::the_case_generator_is_deterministic_and_covers_its_grid ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_c6 ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_g ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_k4 ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_p2 ... ok
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_w14 ... ok
+test private_block::parity::the_key_value_rope_table_is_laid_out_over_the_key_value_heads ... ok
+test private_block::parity::the_memo_section_three_bounds_hold_at_the_rung ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_calibration_exactly ... ok
+test private_block::parity::the_shaped_crate_copies_the_frozen_primitives_exactly ... ok
+test private_block::parity::the_shaped_kernel_equals_the_frozen_kernel_at_the_toy ... ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel ... ok
+test private_block::parity::the_whole_block_witness_equals_the_reference_kernel_at_the_rung ... ok
+test private_block::refusals::every_reachable_refusal_site_is_forced_and_matches_the_kernel ... ok
+test private_block::refusals::the_softmax_weights_of_a_row_sum_to_at_most_one ... ok
+test private_block::refusals::the_unreachable_refusal_sites_have_their_premises ... ok
+test private_block::review_tests::a_corrupted_rung_frame_is_refused_and_never_panics ... ok
+test private_block::review_tests::a_query_head_reading_the_other_key_value_head_is_rejected_at_the_rung ... ok
+test private_block::review_tests::a_receipt_does_not_verify_under_another_shape_at_the_rung ... ok
+test private_block::review_tests::a_remainder_above_its_window_is_rejected_at_the_rung ... ok
+test private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies ... ok
+test private_block::review_tests::an_endpoint_with_a_nonzero_pad_is_rejected_at_the_rung ... ok
+test private_block::review_tests::every_committed_plane_is_constrained_on_its_true_support_at_the_rung ... ok
+test private_block::review_tests::every_zero_rule_plane_has_its_pad_proved_zero_at_the_rung ... ok
+test private_block::review_tests::pz2_at_the_second_norm_and_as_a_free_field_element_is_rejected_at_the_rung ... ok
+test private_block::review_tests::the_exempt_pads_entries_are_outside_the_softmax_row_sum_at_the_rung ... ok
+test private_block::review_tests::the_exempt_planes_pad_is_still_pinned_to_its_table_row_at_the_rung ... ok
+test private_block::review_tests::the_key_value_group_is_the_high_bits_of_the_head_slot_at_every_shape ... ok
+test private_block::review_tests::the_mask_schedule_audit_still_refuses_every_case_at_the_rungs_row_width ... ok
+test private_block::review_tests::the_pad_terms_unstated_invariants_hold_at_every_shape ... ok
+test private_block::review_tests::the_tame_rung_fixture_cannot_tell_the_two_key_value_heads_apart ... ok
+test private_block::rulings_tests::a_multiplicity_moved_into_the_padded_copy_of_its_row_is_rejected_at_the_rung ... ok
+test private_block::rulings_tests::a_non_tiling_indicator_is_refused_and_not_merely_debug_asserted ... ok
+test private_block::rulings_tests::every_new_profile_states_its_endpoint_parameters_in_the_parameter_line ... ok
+test private_block::rulings_tests::private_block_125m_one_block ... ignored, the 125M run: about 11 GiB peak resident and minutes of wall clock. Launch it detached under ruling P-6's conditions with the command line in ZK60_BLOCK125M_LANE_PROGRESS.md; never from a session that is also building.
+test private_block::rulings_tests::sc_tabs_pad_zero_group_is_checked_against_the_declared_lists ... ok
+test private_block::rulings_tests::the_125m_layout_constructs_and_its_indicators_agree_with_the_definition ... ok
+test private_block::rulings_tests::the_endpoint_binds_the_padded_cube_at_both_rung_profiles ... ok
+test private_block::rulings_tests::two_query_heads_of_different_key_value_groups_exchanged_is_rejected_at_the_rung ... ok
+test private_block::run_capture_tests::a_capture_directory_inside_the_repository_is_refused ... ok
+test private_block::run_capture_tests::a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::run_capture_tests::a_tampered_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::run_capture_tests::a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent ... ok
+test private_block::run_capture_tests::capture_a_125m_run ... ignored, captures a 125M run; heavy. set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::run_capture_tests::each_slots_terminal_vector_is_as_long_as_its_plane_list ... ok
+test private_block::run_capture_tests::every_key_of_a_bundle_is_on_the_allow_list ... ok
+test private_block::run_capture_tests::every_plane_a_slot_references_is_in_the_plane_index ... ok
+test private_block::run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values ... ok
+test private_block::run_capture_tests::the_bundle_pins_every_source_file_that_decides_its_contents ... ok
+test private_block::run_capture_tests::the_heavy_captures_code_path_works_at_a_development_shape ... ok
+test private_block::run_capture_tests::the_plane_index_is_the_same_in_two_independent_bundles ... ok
+test private_block::run_capture_tests::the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout ... ok
+test private_block::run_capture_tests::the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn ... ok
+test private_block::run_capture_tests::the_replay_refuses_a_header_that_is_not_the_verifiers ... ok
+test private_block::run_capture_tests::the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it ... ok
+test private_block::run_capture_tests::write_the_c6_gate_bundles ... ignored, writes the stage-31 rung-C6 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_gate_bundles ... ignored, writes the gate bundles; set HL_RUN_CAPTURE_DIR
+test private_block::run_capture_tests::write_the_k4_gate_bundles ... ignored, writes the stage-22 rung-K4 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_p2_gate_bundles ... ignored, writes the stage-30 rung-P2 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_s20_gate_bundles ... ignored, writes the stage-21 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_tagged_gate_bundles ... ignored, writes the tagged gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_w14_gate_bundles ... ignored, writes the stage-32 rung-W14 gate bundles (about 130 MB each, so OUTSIDE the repository); set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_tests::a_boundary_scale_disagreement_does_not_construct_and_a_foreign_calibration_is_rejected ... ok
+test private_block::run_tests::a_dropped_reordered_duplicated_or_foreign_segment_is_rejected ... ok
+test private_block::run_tests::a_failed_run_leaves_no_statement_file ... ok
+test private_block::run_tests::a_missing_truncated_swapped_duplicated_or_foreign_segment_file_is_rejected ... ok
+test private_block::run_tests::a_retained_run_statement_regenerates_the_public_weights_and_names_no_hidden_input ... ok
+test private_block::run_tests::a_run_is_rebuilt_from_its_statement_file_alone_and_verifies_in_a_fresh_verifier ... ok
+test private_block::run_tests::a_run_verified_with_the_wrong_l_is_rejected ... ok
+test private_block::run_tests::a_statement_file_with_one_byte_changed_is_refused ... ok
+test private_block::run_tests::a_tagged_run_is_refused_by_a_legacy_rule_run_verifier ... ok
+test private_block::run_tests::a_three_block_run_proves_and_verifies_under_the_tag ... ok
+test private_block::run_tests::a_twelve_block_run_written_to_a_directory_verifies_by_streaming ... ok
+test private_block::run_tests::an_honest_three_block_dense_run_verifies_from_its_segments ... ok
+test private_block::run_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments ... ok
+test private_block::run_tests::an_honest_two_block_run_verifies_from_its_segments ... ok
+test private_block::run_tests::an_interior_boundary_scale_other_than_the_approved_calibrations_is_refused ... ok
+test private_block::run_tests::every_key_of_a_run_statement_is_on_the_allow_list ... ok
+test private_block::run_tests::every_single_block_tamper_family_is_still_rejected_inside_a_run ... ok
+test private_block::run_tests::private_run_125m_twelve_blocks ... ignored
+test private_block::run_tests::private_run_125m_two_blocks ... ignored
+test private_block::run_tests::the_all_zero_hidden_input_proves_and_verifies_as_a_run ... ok
+test private_block::run_tests::the_boundary_derives_its_row_count_and_refuses_the_37_row_geometry_by_name ... ok
+test private_block::run_tests::the_claim_audit_accepts_two_boundary_claims_on_disjoint_pairs ... ok
+test private_block::run_tests::the_claim_audit_is_not_what_enforces_the_hiding_geometry ... ok
+test private_block::run_tests::the_claim_audit_refusals_fire_at_the_boundary_geometry ... ok
+test private_block::run_tests::the_claim_audit_refuses_two_boundary_claims_that_share_a_pair ... ok
+test private_block::run_tests::the_directory_sink_refuses_a_directory_that_is_missing_or_not_empty ... ok
+test private_block::run_tests::the_first_admissible_fully_dense_run_band_at_125m ... ignored, builds up to twelve 125M witnesses (about 11 s and 725 MiB each); it proves nothing and is not a gate
+test private_block::run_tests::the_fully_dense_twelve_block_recipe_is_admissible_and_non_trivial_at_125m ... ignored, builds twelve 125M witnesses (about 11 s and 725 MiB each); it proves nothing
+test private_block::run_tests::the_headline_negative_test_a_second_block_on_another_input_is_rejected_by_the_verifier ... ok
+test private_block::run_tests::the_retained_125m_statements_still_regenerate_their_public_weights ... ok
+test private_block::run_tests::the_run_directory_allows_the_statement_directory_and_nothing_else ... ok
+test private_block::run_tests::the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5 ... ok
+test private_block::run_tests::the_run_ladder_at_the_rung_three_blocks_then_twelve ... ok
+test private_block::run_tests::the_statement_files_json_reader_is_strict ... ok
+test private_block::run_tests::the_twelve_block_125m_receipt_is_the_counted_figure ... ok
+test private_block::rung_tests::a_proof_made_with_the_phase_clock_on_verifies_with_it_off ... ok
+test private_block::rung_tests::an_endpoint_that_seals_a_different_plane_is_rejected ... ok
+test private_block::rung_tests::every_rung_lookup_is_a_genuine_table_row ... ok
+test private_block::rung_tests::every_toy_tamper_family_is_rejected_at_the_rung ... ok
+test private_block::rung_tests::every_toy_tamper_family_is_rejected_at_the_rung_g_profile ... ok
+test private_block::rung_tests::pz1_end_to_end_a_lone_nonzero_pad_value_is_rejected_by_the_verifier ... ok
+test private_block::rung_tests::pz1_end_to_end_at_the_rung_g_profile ... ok
+test private_block::rung_tests::pz2_end_to_end_a_consistently_adjusted_pad_is_rejected_by_the_verifier ... ok
+test private_block::rung_tests::pz2_end_to_end_at_the_rung_g_profile ... ok
+test private_block::rung_tests::the_all_zero_hidden_input_proves_and_verifies_at_the_rung ... ok
+test private_block::rung_tests::the_all_zero_hidden_input_proves_and_verifies_at_the_rung_g ... ok
+test private_block::rung_tests::the_honest_rung_g_proof_verifies_from_bytes ... ok
+test private_block::rung_tests::the_honest_rung_proof_verifies_from_bytes ... ok
+test private_block::rung_tests::the_norm_range_alias_is_rejected_end_to_end_at_the_rung ... ok
+test private_block::rung_tests::the_norm_range_alias_is_rejected_end_to_end_at_the_rung_g ... ok
+test private_block::s20_review_tests::mass_in_a_padded_head_slot_or_across_a_key_value_group_is_rejected ... ok
+test private_block::s20_review_tests::no_honest_case_is_rejected_by_the_verifier_at_the_rung_g ... ok
+test private_block::s20_review_tests::the_bilinear_schedule_and_the_mask_budget_are_what_the_axes_say ... ok
+test private_block::s20_review_tests::the_bilinear_slot_definitions_sum_to_the_hosts_extension ... ok
+test private_block::s20_review_tests::the_group_eq_carries_the_head_challenges_own_group_bits ... ok
+test private_block::s20_review_tests::the_pre_stage_20_formula_disagrees_exactly_where_the_defect_was ... ok
+test private_block::s23_tests::a_head_dimension_at_or_above_the_row_width_is_refused_by_name ... ok
+test private_block::s23_tests::a_row_width_below_the_lookup_tables_natural_size_is_refused_by_name ... ok
+test private_block::s23_tests::check_openings_three_checks_fire_in_the_audit_count_challenges_order ... ok
+test private_block::s23_tests::the_head_dimension_is_below_the_row_width_at_every_shape ... ok
+test private_block::s23_tests::the_lookup_table_domain_sits_at_exactly_the_row_width_at_every_shape ... ok
+test private_block::s23_tests::the_lookup_table_refusal_is_exactly_the_row_widths_below_the_tables_log ... ok
+test private_block::s23_tests::the_source_token_axis_and_the_feed_forward_slots_carry_no_such_trap ... ok
+test private_block::s24_tests::a_segments_end_tag_is_the_next_segments_start_tag_in_a_rung_k4_run ... ok
+test private_block::s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name ... ok
+test private_block::s24_tests::an_inadmissible_chain_is_refused_before_the_run_directory_exists ... ok
+test private_block::s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct ... ok
+test private_block::s24_tests::every_slot_hosts_exactly_what_the_host_table_says_at_every_shape ... ok
+test private_block::s24_tests::no_registered_profiles_constructor_input_has_the_squeeze_length ... ok
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... ok
+test private_block::s24_tests::the_closure_vanishes_on_every_extension_round_vector_at_every_shape ... ok
+test private_block::s24_tests::the_mask_budget_holds_at_every_shape ... ok
+test private_block::s24_tests::the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16 ... ok
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... FAILED
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... ok
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... ok
+test private_block::s26_tests::every_production_generator_is_seeded_from_a_domain_builder ... ok
+test private_block::s26_tests::every_seed_derivation_input_length_is_printed_and_clear_of_the_node_refill_and_squeeze ... ok
+test private_block::s26_tests::no_two_generators_of_one_proof_share_a_derivation_input ... ok
+test private_block::s26_tests::the_domains_are_built_from_public_fields_and_nothing_else ... ok
+test private_block::s26_tests::the_four_honest_generic_proofs_this_stage_must_not_break_are_where_the_ledger_says ... ok
+test private_block::s26_tests::the_legacy_length_guards_refused_row_counts_are_unmoved ... ok
+test private_block::s26_tests::the_two_endpoint_generators_of_one_statement_derive_their_keys_from_different_inputs ... ok
+test private_block::s26_tests::the_two_frozen_profiles_keep_the_domains_they_have ... ok
+test private_block::s28_review_tests::a_run_directory_written_before_stage_28_verifies_under_the_stage_28_verifier ... ignored, S28 review: needs HL_PB_S28_REVIEW_RUN_DIR and about 10 minutes
+test private_block::s28_review_tests::an_out_of_table_value_whose_denominator_is_zero_is_refused_by_both_paths ... ok
+test private_block::s28_review_tests::every_helper_path_gives_the_same_words_and_the_same_refusal_under_one_two_and_eight_threads ... ok
+test private_block::s28_review_tests::field_addition_is_associative_commutative_and_canonical_so_a_chunked_sum_is_the_same_word ... ok
+test private_block::s28_review_tests::the_census_of_which_shape_crosses_which_stage_28_parallel_threshold ... ok
+test private_block::s28_review_tests::the_eq_cube_agrees_with_79f0726_at_every_width_including_the_degenerate_ones ... ok
+test private_block::s28_review_tests::the_looked_columns_are_the_serial_maps_under_every_thread_count ... ok
+test private_block::s28_review_tests::the_private_table_builder_agrees_with_79f0726_on_randomised_descriptors ... ok
+test private_block::s28_review_tests::whether_an_attempt_is_refused_still_depends_on_the_hidden_input_for_off_table_values ... ok
+test private_block::s28_tests::a_zero_denominator_at_a_value_no_column_carries_is_refused_by_neither_path ... ok
+test private_block::s28_tests::a_zero_denominator_at_a_value_the_column_carries_is_refused_by_both_paths ... ok
+test private_block::s28_tests::a_zero_u8_denominator_refuses_through_the_table_helpers_even_when_no_column_carries_that_value ... ok
+test private_block::s28_tests::the_eq_cube_builder_is_the_gathered_one_entry_for_entry ... ok
+test private_block::s28_tests::the_helper_column_is_the_same_vector_whatever_the_thread_count_is ... ok
+test private_block::s28_tests::the_lookup_columns_are_the_serial_per_index_maps_they_were ... ok
+test private_block::s28_tests::the_paired_helper_column_is_the_two_columns_inverted_and_added ... ok
+test private_block::s28_tests::the_private_table_builder_is_the_walked_one_entry_for_entry ... ok
+test private_block::s28_tests::the_table_path_agrees_on_columns_that_carry_values_outside_the_byte_table ... ok
+test private_block::s28_tests::the_table_path_and_the_batch_inversion_agree_word_for_word_on_byte_columns ... ok
+test private_block::s29_tests::a_violated_eq_cube_precondition_panics_by_name - should panic ... ok
+test private_block::s29_tests::an_eq_point_wider_than_the_cube_panics_by_name - should panic ... ok
+test private_block::s29_tests::the_byte_histogram_is_the_79f0726_serial_count_through_both_branches ... ok
+test private_block::s29_tests::the_claimed_sum_is_the_79f0726_fold_through_both_branches_of_its_threshold ... ok
+test private_block::s29_tests::the_eq_cube_agrees_with_the_79f0726_gather_on_every_admitted_triple ... ok
+test private_block::s29_tests::the_five_thresholds_are_the_constants_the_production_path_passes ... ok
+test private_block::s29_tests::the_helper_columns_are_the_same_words_through_both_branches_of_their_threshold ... ok
+test private_block::s29_tests::the_looked_columns_are_the_79f0726_serial_maps_through_both_branches ... ok
+test private_block::s29_tests::the_slot_table_set_is_the_79f0726_one_through_both_branches_of_its_threshold ... ok
+test private_block::tamper::a_gate_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::a_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim ... ok
+test private_block::tamper::a_norm_m_limb_outside_its_byte_range_is_rejected_by_the_lookups ... ok
+test private_block::tamper::a_norm_m_output_not_derived_from_xres1_is_rejected ... ok
+test private_block::tamper::a_product_output_not_equal_to_a16_times_u16_is_rejected ... ok
+test private_block::tamper::a_z16_outside_int16_cannot_reach_the_output_endpoint ... ok
+test private_block::tamper::an_activation_value_at_a_zero_up_output_is_rejected_by_the_pair_lookup ... ok
+test private_block::tamper::an_activation_value_off_its_table_row_is_rejected ... ok
+test private_block::tamper::an_output_endpoint_committing_xres1_is_refused ... ok
+test private_block::tamper::an_up_output_not_derived_from_nm_is_rejected ... ok
+test private_block::tamper::block_output_cannot_be_chosen ... ok
+test private_block::tamper::every_biased_remainder_is_pinned_by_its_requantization_identity ... ok
+test private_block::tamper::the_norm_m_denominator_is_pinned_by_its_isqrt_witness ... ok
+test private_block::tamper::the_norm_m_quotient_is_pinned_by_its_remainder_windows ... ok
+test private_block::tests::an_endpoint_committed_to_other_values_is_refused ... ok
+test private_block::tests::every_relation_family_rejects_an_inconsistent_witness ... ok
+test private_block::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_block::tests::no_published_word_is_a_small_integer ... ok
+test private_block::tests::opening_refusals_are_functions_of_the_challenges_only ... ok
+test private_block::tests::receipt_field_tampers_and_statement_mismatches_are_refused ... ok
+test private_block::tests::requant_is_the_identity_at_shift_zero_and_the_kernels_rounding_above_it ... ok
+test private_block::tests::the_declared_schedule_is_stable_and_bound ... ok
+test private_block::tests::the_endpoint_scales_and_calibration_are_the_approved_ones ... ok
+test private_block::tests::the_real_claim_list_is_refused_when_a_reserved_pair_is_shared_or_unconsumed ... ok
+test private_block::tests::the_schedule_audit_refuses_shared_missing_and_foreign_mask_rows ... ok
+test private_block::tests::wire_frames_are_exact_canonical_and_bounded ... ok
+test private_block::tests::witness_equals_the_independent_fixed_causal_oracle ... ok
+test private_block::w14_tests::a_moved_score_word_in_the_fourth_group_is_rejected_at_its_host_slot_at_the_rung_w14 ... ok
+test private_block::w14_tests::a_multiplicity_moved_into_a_far_lifted_table_row_is_rejected_at_the_rung_w14 ... ok
+test private_block::w14_tests::a_tamper_in_the_last_column_block_of_a_row_is_rejected_at_its_own_slot_at_the_rung_w14 ... ok
+test private_block::w14_tests::a_verifier_statement_with_one_moved_endpoint_word_is_refused_at_the_rung_w14 ... ok
+test private_block::w14_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14 ... ok
+test private_block::w14_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_w14 ... ok
+test private_block::w14_tests::exchanging_the_keys_of_key_value_groups_two_and_three_is_rejected_at_the_rung_w14 ... ok
+test private_block::w14_tests::only_the_125m_shape_and_the_new_one_reach_the_125m_row_width ... ok
+test private_block::w14_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_w14 ... ok
+test private_block::w14_tests::the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count ... ok
+test private_block::w14_tests::the_pinned_rung_w14_chain_band_is_the_first_admissible_one ... ok
+test private_block::w14_tests::the_row_geometry_is_125ms_and_every_derived_quantity_follows_it ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_is_admitted_at_the_toy_and_both_rungs ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_is_admitted_by_the_witness_builder_at_125m ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_proves_and_its_receipt_verifies_from_bytes ... ok
+test private_block::zero_witness_tests::the_zero_witness_pins_the_two_constants_and_the_two_range_boundaries ... ok
+test private_block::zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length ... ok
+test private_block::zero_witness_tests::two_zero_witness_proofs_differ_in_their_bytes_and_both_verify ... ok
+
+failures:
+
+---- private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length stdout ----
+--- hashline-zk-mr1/private-block-t32-poc/1 (toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)), 45 kinds, rule legacy ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           47 B  F_U  a transcript squeeze
+           50 B  R1   the generator's seed derivation at the frozen seam (private_seam.rs:196)
+           51 B  F_U  the transcript constructor at `hashline-zk-mr1/private-block-t32-poc/1`
+           56 B  F_U  an external endpoint's column digest
+           60 B  F_U  the transcript absorb of `rows` with 8 bytes of data
+           61 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-t32-poc/1` (protocol.rs)
+           63 B  F_U  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_U  a Merkle inner node
+           64 B  F_U  a salted Merkle leaf
+           64 B  F_U  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_U  the transcript absorb of `pb-term` with 16 bytes of data
+           73 B  F_U  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_U  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_U  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_U  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_U  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_U  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_U  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_U  the transcript absorb of `sc-round` with 48 bytes of data
+          120 B  F_U  the transcript absorb of `sc-round` with 64 bytes of data
+          128 B  F_U  the frozen seam's spec digest (D8)
+          136 B  F_U  the transcript absorb of `sc-round` with 80 bytes of data
+          151 B  F_U  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_U  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_U  the transcript absorb of `expected-IO` with 112 bytes of data
+          171 B  F_U  the transcript absorb of `parameters` with 113 bytes of data
+          263 B  F_U  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_U  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_U  the transcript absorb of `pb-term` with 272 bytes of data
+          391 B  F_U  the transcript absorb of `pb-term` with 336 bytes of data
+          400 B  F_U  the M commitment's column digest
+          407 B  F_U  the transcript absorb of `pb-term` with 352 bytes of data
+          951 B  F_U  the transcript absorb of `pb-term` with 896 bytes of data
+         3072 B  F_U  the H commitment's column digest
+         3205 B  F_U  the block's schedule digest (D3)
+         3640 B  F_U  the A commitment's column digest
+         6311 B  F_U  the block's public/weights digest (D2)
+         8247 B  F_U  the transcript absorb of `pcs-vec` with 8192 bytes of data
+         8248 B  F_U  the transcript absorb of `pcs-prox` with 8192 bytes of data
+        16438 B  F_U  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_U  the transcript absorb of `mask-prox` with 16384 bytes of data
+--- hashline-zk-mr1/private-block-rung-t24-dev/1 (development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)), 47 kinds, rule legacy ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           47 B  F_U  a transcript squeeze
+           50 B  R1   the generator's seed derivation at the frozen seam (private_seam.rs:196)
+           56 B  F_U  the transcript constructor at `hashline-zk-mr1/private-block-rung-t24-dev/1`
+           60 B  F_U  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_U  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_U  a Merkle inner node
+           64 B  F_U  a salted Merkle leaf
+           64 B  F_U  the transcript absorb of `log-cols` with 8 bytes of data
+           66 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-t24-dev/1` (protocol.rs)
+           71 B  F_U  the transcript absorb of `pb-term` with 16 bytes of data
+           73 B  F_U  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_U  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_U  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_U  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_U  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_U  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_U  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_U  the transcript absorb of `sc-round` with 48 bytes of data
+          120 B  F_U  the transcript absorb of `sc-round` with 64 bytes of data
+          128 B  F_U  the frozen seam's spec digest (D8)
+          136 B  F_U  the transcript absorb of `sc-round` with 80 bytes of data
+          151 B  F_U  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_U  the transcript absorb of `sc-round` with 96 bytes of data
+          168 B  F_U  an external endpoint's column digest
+          171 B  F_U  the transcript absorb of `expected-IO` with 112 bytes of data
+          210 B  F_U  the transcript absorb of `parameters` with 152 bytes of data
+          263 B  F_U  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_U  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_U  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_U  the M commitment's column digest
+          407 B  F_U  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_U  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_U  the transcript absorb of `pb-term` with 896 bytes of data
+         3246 B  F_U  the block's schedule digest (D3)
+         4608 B  F_U  the H commitment's column digest
+         4984 B  F_U  the A commitment's column digest
+         8247 B  F_U  the transcript absorb of `pcs-vec` with 8192 bytes of data
+         8248 B  F_U  the transcript absorb of `pcs-prox` with 8192 bytes of data
+        16438 B  F_U  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_U  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_U  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_U  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       145287 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-rung-g-t24-dev/1 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           58 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-rung-g-t24-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+           99 B  R1   the generator's seed derivation at the generalised endpoint, either role (endpoint_g.rs)
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          116 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-g-t24-dev/1` (protocol.rs)
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          210 B  F_T  the transcript absorb of `parameters` with 152 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_T  the transcript absorb of `pb-term` with 896 bytes of data
+         3248 B  F_U  the block's schedule digest (D3)
+         4608 B  F_C  the H commitment's column digest
+         4984 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       145287 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-rung-k4-t24-dev/1 (development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           59 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-rung-k4-t24-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+           99 B  R1   the generator's seed derivation at the generalised endpoint, either role (endpoint_g.rs)
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          117 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-k4-t24-dev/1` (protocol.rs)
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          210 B  F_T  the transcript absorb of `parameters` with 152 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_T  the transcript absorb of `pb-term` with 896 bytes of data
+         3249 B  F_U  the block's schedule digest (D3)
+         5760 B  F_C  the H commitment's column digest
+         5816 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       143751 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-rung-p2-t32-dev/1 (development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           59 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-rung-p2-t32-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+           99 B  R1   the generator's seed derivation at the generalised endpoint, either role (endpoint_g.rs)
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          117 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-p2-t32-dev/1` (protocol.rs)
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          210 B  F_T  the transcript absorb of `parameters` with 152 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_T  the transcript absorb of `pb-term` with 896 bytes of data
+         3249 B  F_U  the block's schedule digest (D3)
+         5760 B  F_C  the H commitment's column digest
+         5816 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       144263 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-rung-c6-t32-dev/1 (development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           59 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-rung-c6-t32-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+           99 B  R1   the generator's seed derivation at the generalised endpoint, either role (endpoint_g.rs)
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          117 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-c6-t32-dev/1` (protocol.rs)
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          168 B  F_C  an external endpoint's column digest
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          213 B  F_T  the transcript absorb of `parameters` with 155 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          919 B  F_T  the transcript absorb of `pb-term` with 864 bytes of data
+         3261 B  F_U  the block's schedule digest (D3)
+        10696 B  F_C  the A commitment's column digest
+        11264 B  F_C  the H commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+      1453703 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-rung-w14-t64-dev/1 (development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           60 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-rung-w14-t64-dev/1`
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+           99 B  R1   the generator's seed derivation at the generalised endpoint, either role (endpoint_g.rs)
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          118 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-w14-t64-dev/1` (protocol.rs)
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          213 B  F_T  the transcript absorb of `parameters` with 155 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          919 B  F_T  the transcript absorb of `pb-term` with 864 bytes of data
+         3262 B  F_U  the block's schedule digest (D3)
+         3488 B  F_C  the H commitment's column digest
+         4216 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+       266295 B  F_T  the transcript absorb of `pcs-vec` with 266240 bytes of data
+       266296 B  F_T  the transcript absorb of `pcs-prox` with 266240 bytes of data
+      5804679 B  F_U  the block's public/weights digest (D2)
+
+thread 'private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length' (663127) panicked at src/private_block/s25_tests.rs:433:25:
+hashline-zk-mr1/private-block-rung-w14-t64-dev/1: F_T hashes two DIFFERENT kinds at 60 bytes and the memo's table does not record the pair: `the transcript constructor at `hashline-zk-mr1/private-block-rung-w14-t64-dev/1`` and `the transcript absorb of `rows` with 8 bytes of data`
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length
+
+test result: FAILED. 374 passed; 1 failed; 16 ignored; 0 measured; 67 filtered out; finished in 550.72s
+
+error: test failed, to rerun pass `--lib`
+Command exited with non-zero status 101
+	Command being timed: "env CARGO_TARGET_DIR=/home/victor/wt-zk60-attention-compile/hashline/target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8 /home/victor/.cargo/bin/cargo test --release --offline -j 2 --manifest-path /home/victor/wt-zk60-block125m/hashline/Cargo.toml --lib private_ -- --test-threads=1"
+	User time (seconds): 1475.54
+	System time (seconds): 1270.62
+	Percent of CPU this job got: 498%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:10.79
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1032088
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 4359323
+	Voluntary context switches: 58017210
+	Involuntary context switches: 5824486
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 607440
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 101

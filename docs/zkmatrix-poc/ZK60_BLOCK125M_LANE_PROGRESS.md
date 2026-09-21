@@ -10311,11 +10311,11 @@ filter proves in seconds, by exactly stages 30 and 31's method.
 
 | task | what | state |
 |---|---|---|
-| 1 | the shape: `log_cols = 14`, `head_dim = 64`, `endpoint_log_n = 14`, `lkv = 2`, every named refusal unweakened; the side-by-side table with rung-C6 and 125M | **OPEN** |
-| 2 | the tests in the ORDINARY filter (or a documented medium tier): the gap census FIRST, the generic honest witness, the all-zero input, what is keyed to the row width, the tampers only this width reaches, a run | **OPEN** |
-| 3 | capture bundles for the independent Python gate — in the repository only if ≤ ~40 MB, otherwise outside it with their manifests committed | **OPEN** |
-| 4 | the refreshed "still heavy-only" list | **OPEN** |
-| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof, the Python model's tests | **OPEN** |
+| 1 | the shape: `log_cols = 14`, `head_dim = 64`, `endpoint_log_n = 14`, `lkv = 2`, every named refusal unweakened; the side-by-side table with rung-C6 and 125M | **DONE** — `Shape::rung_w14` (64 tokens, width 768, hidden 1,024, 12 heads of 64 over 4), receipt 16,421,048 B counted and measured; one proof is 3.87 s at 757 MB, so the ORDINARY filter and no medium tier |
+| 2 | the tests in the ORDINARY filter: the gap census FIRST, the generic honest witness, the all-zero input, what is keyed to the row width, the tampers only this width reaches, a run | **DONE** — 12 tests in `w14_tests.rs` + 1 in `parity.rs`, all non-ignored. **No soundness finding** |
+| 3 | capture bundles for the independent Python gate — in the repository only if ≤ ~40 MB, otherwise outside it with their manifests committed | **DONE** — `run-o-dense-w14` / `run-p-zero-w14`, 50.6 + 49.5 MB, so OUTSIDE the repository; manifests, notes and the self-check committed |
+| 4 | the refreshed "still heavy-only" list | **DONE** — stage 31's items 2 and 3 closed, item 4 half closed, and the token-count ladder priced rung by rung |
+| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof, the Python model's tests | **DONE** — see the gate table |
 
 **The rules this stage works under** are the lane's and stages 30/31's: one
 writer, the build recipe in this file's header, **no 125M run**, a NEW
@@ -10562,3 +10562,91 @@ was 5 against 2^10. It needs `t_pad ≥ 2^log_cols`, and
 `Dom::S = h_pad · t_pad²` grows quadratically in the tokens, so the cheapest
 such shape is still a 39,380,616-byte receipt. It is a dead arm rather than
 a heavy one, and no test exercises it.
+
+### Task 5 — the gates, the sixth registry guard, and the commits
+
+**THE GATES AT THE STAGE-32 TIP.**
+
+| gate | result |
+|---|---|
+| `--lib private_` (the whole filter), FIRST run | **374 passed / 1 failed / 16 ignored, 550.72 s** (`v32-gate-private.log`). The one failure is a SIXTH registry guard, and the coincidence it found is real and is recorded rather than dodged: see below. The log is kept as evidence |
+| `--lib private_` (the whole filter), SECOND run, after the declared pair | **375 passed / 0 failed / 16 ignored, 548.93 s, exit 0**, peak RSS **1.33 GB** under the 6 GiB cap (`v32-gate-private2.log`) — the stage-31 tip's 362 plus this stage's thirteen, nothing lost; the one new ignored test is the bundle writer. **The filter grew by 83 seconds**, inside the two minutes this stage was given |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` and the 2,816,472 B receipt-length family — **all in the pass list of both runs** |
+| the rung, rung-G, rung-K4, rung-P2 and rung-C6 pins, BY NAME | in the pass list: `rung_tests`, `dense_tests`, `k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims` (4,743,128 B), `p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move` (4,742,728 B) and `c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved` (7,452,040 B). `w14_tests` asserts the last three again beside its own 16,421,048 B |
+| the new shape's own tests | `w14_tests` (12) and `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_w14` (1), all non-`#[ignore]`d; the only ignored addition is the bundle writer |
+| the Python model's test file | `python3 -m unittest discover -s tests -p 'test_zk60_private_block_layout_model.py'` — **52 tests, OK** (47 before this stage), `v32-pytests.log` |
+| the forbidden-files proof | `git diff --stat d282dd6 HEAD -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/field hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu zkvm-block private-block-kernel private-model-kernel private-block-kernel-shaped` prints **nothing**. With `tests` and `scripts` added it prints exactly two paths, the lane's own layout model and its acceptance test |
+| the whole diff against `d282dd6` | ten sources — `shape.rs`, `run.rs`, `private_block.rs` (one `mod` line), the new `w14_tests.rs`, `parity.rs`, `dense_tests.rs`, `run_capture_tests.rs`, `run_statement_file.rs`, `s24_tests.rs`, `s25_tests.rs` — plus the shape model and its test, the two bundles' manifests with the parent captures README, this ledger and the evidence logs. Stage 31's two quarantined `u31-c6-run1.*` files are untracked and untouched |
+| **no medium tier** | none was created and none is needed: one proof is 3.99 s at this shape, so every test is in the ordinary filter. There is therefore no medium-tier command to document |
+
+**THE SIXTH REGISTRY GUARD, AND WHY THE PAIR IS RECORDED RATHER THAN
+DODGED.** Stage 30 tripped four guards, stage 31 a fifth, and this stage a
+sixth:
+`s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length`
+refuses any two DIFFERENT hash-input kinds of equal length inside one hash
+function unless the pair is DECLARED with what separates them. At rung-W14
+the profile string is **48 bytes**, so `Transcript::new`'s input —
+`b"hashline-v1/" ‖ profile` — is **60 bytes**, and an absorb of the
+four-byte label `rows` with eight bytes of data is `32 + 8 + 4 + 8 + 8` =
+**60 bytes** too. Both are hashed by the transcript function, so the guard
+fired, correctly.
+
+Making the collision go away by lengthening the profile string was
+available and was NOT taken: ruling J-7's discipline is to record a
+within-function coincidence and state what separates it. Here the
+separation is **structural and exact** rather than probabilistic: at offset
+32 the absorb carries `le64(4)` — eight bytes of which **six are NUL** —
+where the constructor carries the profile string's own bytes 20..28
+(`ate-bloc` at this profile), and a profile string is ASCII and has no NUL
+at any offset. The two inputs therefore cannot be equal at ANY 48-byte
+profile, which is stronger than the pair being unlikely. The row is in the
+table with that reason, and the whole filter is green with it.
+
+**THE COMMITS OF STAGE 32**, in order:
+
+| commit | what |
+|---|---|
+| `a0723f4` | the ledger skeleton: the gap, the five tasks, the rules, the measure-before-placing rule |
+| `f663a79` | **task 1**: `Shape::rung_w14`, the run profile, the five registry guards a new profile trips (the fifth made fully derived), and the measurement that places the shape in the ordinary filter |
+| `aa8e7b7` | **task 1**: the shape in the independent Python model, with what it shares with 125M and what it does not; 52 model tests |
+| `fe3bb44` | **task 2**: `w14_tests.rs` (12 tests) and the parity test — the census, the generic witness, the row-width census, the tampers, the run, and the measured `(1024, 4) => 20` chain band |
+| `11703c9` | **task 3**: the bundle writer, `#[ignore]`d, documented as writing OUTSIDE the repository |
+| `757e182` | **task 3**: the two bundles written and checked; their manifests, notes, `WHERE.md`, the self-check log and its script, and the parent captures README |
+| `62c4077` | the ledger: tasks 1–4 |
+| this one | the sixth registry guard's declared pair, and the ledger's task 5 and close |
+
+**WHAT THIS STAGE IS NOT.** Not a privacy result and not an acceptance: the
+lane's code stays experimental, for the integrator (ruling V-1), and the two
+bundles are the INPUT to the Python gate, not its verdict (ruling T-6). Not
+a claim about 125M: **no 125M proof was run by this stage**, and no `r29-*`
+file was touched. Not a change to what any existing profile sends, absorbs
+or draws: the toy is byte-frozen and green and the five older development
+profiles' receipt lengths are unmoved.
+
+**WHAT IT IS.** The 125M ROW WIDTH — a 2^14-word message encoded to 2^16, a
+sixteen-deep Merkle tree, an NTT table of 2^16, a lookup table lifted by a
+factor of sixty-four, a `pcs-vec` hash input of 266,295 bytes — together
+with the 125M HEAD SIZE of 64 and the 125M ENDPOINT LOG of 14, which until
+today only an `#[ignore]`d 10 GiB test could reach, is now proved, verified
+from bytes, checked element for element against an independent reference
+kernel on a GENERIC witness, censused figure by figure against 125M,
+tampered with in the half of a row no narrower shape has, run over two
+blocks with an internal boundary, and captured for the gate — **by tests
+that add eighty-three seconds to the ordinary filter**.
+
+**TWO NOTES FOR THE INTEGRATOR, neither a defect in the code.**
+
+* `protocol::ntt_log_at`'s doc comment still says "Only 125M gets a
+  different table". Since this stage rung-W14 gets the same 2^16 table; the
+  VALUE is asserted by
+  `w14_tests::the_row_geometry_is_125ms_and_every_derived_quantity_follows_it`,
+  so the comment is stale rather than wrong, and rewording it is left to
+  the integrator's own commit.
+* The brief asked for a tamper on "an endpoint row beyond the old 9/21-row
+  geometries". **That case does not exist at this shape**: rung-W14's
+  endpoint has NINE commitment rows, the same as rung-G, rung-K4 and
+  rung-P2 — what is new is the endpoint's row WIDTH (2^14) and its LOG, not
+  its row count. The tamper taken instead is the one this shape does add: a
+  verifier statement whose input endpoint differs by one word at **column
+  16,383**, a column no older endpoint geometry has. The 32-data-row
+  endpoint is item 4a/4b of the heavy-only list.

@@ -361,7 +361,25 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     // function, each with what separates them. Anything else fails.
     // `(length, a, b, the separating literal)` — `a` and `b` are substrings
     // of the kinds' plain-words names.
-    const DECLARED: [(usize, &str, &str, &str); 7] = [
+    const DECLARED: [(usize, &str, &str, &str); 8] = [
+        // **STAGE 32, at the rung-W14 profile.** Its profile string is 48
+        // bytes, so `Transcript::new`'s input — `b"hashline-v1/" ‖ profile`
+        // — is 60 bytes, which is exactly what an absorb of the 4-byte
+        // label `rows` with 8 bytes of data costs (`32 + 8 + 4 + 8 + 8`).
+        // Both are hashed by the transcript function, so the pair has to be
+        // declared. What separates them is a FIXED, CHECKABLE difference at
+        // offset 32: the absorb has `le64(4)` there — eight bytes of which
+        // SIX ARE NUL — while the constructor has the profile's own bytes
+        // 20..28 (`ate-bloc` at this profile), and a profile string is
+        // ASCII and contains no NUL at any offset. The two inputs can
+        // therefore never be equal at ANY profile of this length, which is
+        // a stronger statement than the coincidence being unlikely.
+        (
+            60,
+            "the transcript constructor at",
+            "the transcript absorb of `rows`",
+            "le64(4) ‖ \"rows\" at offset 32 — six NUL bytes inside an otherwise ASCII input, where the constructor carries the profile string's own ASCII bytes (stage 32, the 48-byte rung-W14 profile; recorded under ruling J-7)",
+        ),
         (
             49,
             "the transcript key's derive_key context",
