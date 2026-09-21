@@ -1067,8 +1067,28 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
             assert!(!sh.hashes_under_the_legacy_rule(), "{name}: a legacy profile has an internal boundary, and then 151 WOULD be a live pair");
         }
     }
-    // THE 295-BYTE WITHIN-FUNCTION COINCIDENCE, at every development run
-    let mut recorded = 0usize;
+    // THE 295-BYTE WITHIN-FUNCTION COINCIDENCE, at every development run.
+    //
+    // **STAGE 31 made this a two-case record instead of one.** The run's
+    // `parameters` line carries the shape's axes IN DECIMAL
+    // (`protocol::parameter_line`) plus `L`, the boundary row count and the
+    // external row count (`run::parameter_line`), so its LENGTH is a
+    // property of the shape. Three quantities move with `L` and nothing
+    // else does: the boundary row count is `0` at `L = 1` and two digits
+    // above it, and `L` itself gains a digit at 10. So every run profile's
+    // absorb is `base` at `L = 1`, `base + 1` at `2 <= L <= 9` and
+    // `base + 2` at `10 <= L <= 12` — asserted here as a curve rather than
+    // as three literals.
+    //
+    // `base` is **294** at the three 96-wide development runs, so their
+    // `base + 1` is exactly the 295 that a fifteen-terminal `pb-term`
+    // absorb also produces: the coincidence this block records. `base` is
+    // **298** at rung-C6, whose width (384), head dimension (32) and
+    // endpoint rows (21) are each one decimal digit longer — so the
+    // coincidence DOES NOT ARISE there at all, at any `L`. That is a
+    // record, not a regression: the pair 295 / 295 is what ruling J-7 wants
+    // separated, and this shape separates it by construction.
+    let (mut narrow, mut wide) = (0usize, 0usize);
     for (p, sh, _) in every_run() {
         if p == RUN_PROFILE_M125 {
             continue;
@@ -1077,6 +1097,7 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
         assert!(terms.contains(&15), "{p}: no slot carries fifteen terminals, so 295 has no partner");
         assert_eq!(absorb("pb-term", 16 * 15), 295, "a fifteen-terminal absorb is not 295 bytes");
         let mut hits: Vec<usize> = Vec::new();
+        let mut lens: Vec<usize> = Vec::new();
         for l in 1..=12usize {
             let st = run_statement(&sh, p, l);
             let line = st.capture_header().expect("the run's header").parameter_line;
@@ -1084,24 +1105,32 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
             if len == 295 {
                 hits.push(l);
             }
-            if l == 1 {
-                assert_eq!(len, 294, "{p}: the one-block run's parameters absorb");
-            }
-            if l == 12 {
-                assert_eq!(len, 296, "{p}: the twelve-block run's parameters absorb");
-            }
+            lens.push(len);
         }
-        assert_eq!(hits, (2..=9).collect::<Vec<usize>>(), "{p}: the 295-byte parameters absorb is not exactly at 2 <= L <= 9");
-        recorded += 1;
+        let base = lens[0];
+        let want: Vec<usize> = (1..=12usize).map(|l| base + if l == 1 { 0 } else if l <= 9 { 1 } else { 2 }).collect();
+        assert_eq!(lens, want, "{p}: the parameters absorb is not base / base + 1 / base + 2 across L = 1 / 2..9 / 10..12");
+        if base == 294 {
+            assert_eq!(hits, (2..=9).collect::<Vec<usize>>(), "{p}: the 295-byte parameters absorb is not exactly at 2 <= L <= 9");
+            assert_eq!((lens[0], lens[11]), (294, 296), "{p}: the one- and twelve-block absorbs");
+            narrow += 1;
+        } else {
+            assert_eq!(base, 298, "{p}: an unrecorded parameter-line length; this test knows 294 (the 96-wide runs) and 298 (rung-C6)");
+            assert!(hits.is_empty(), "{p}: a 295-byte parameters absorb appeared at a shape whose base is {base}: {hits:?}");
+            wide += 1;
+        }
+        eprintln!("    {p}: parameters absorb {base} / {} / {} at L = 1 / 2..9 / 10..12; 295 collisions at L = {hits:?}", base + 1, base + 2);
     }
-    // every registered run but 125M's (stage 30: three of them)
-    assert_eq!(recorded, every_run().len() - 1, "the 295-byte coincidence was checked at fewer than every development run");
+    // every registered run but 125M's (stage 31: four of them, three narrow
+    // and one wide), derived from the registry and never a literal
+    assert_eq!(narrow + wide, every_run().len() - 1, "the 295-byte coincidence was checked at fewer than every development run");
+    assert_eq!((narrow, wide), (3, 1), "the split between the runs that CAN collide at 295 and the one that cannot moved");
     // and what separates them, at a fixed offset inside the input
     let a = [&(10u64).to_le_bytes()[..], b"parameters"].concat();
     let b = [&(7u64).to_le_bytes()[..], b"pb-term"].concat();
     assert_ne!(a[..8], b[..8], "the two labels' length prefixes are equal");
     assert_ne!(a, b, "the two label literals do not differ");
-    eprintln!("S25 W-6: slot 19 carries six terminals at every shape (151 B, = the boundary spec digest's input, never in one function inside one profile); the 295-byte `parameters`/`pb-term`(15) pair is live at the two development runs for 2 <= L <= 9");
+    eprintln!("S25 W-6: slot 19 carries six terminals at every shape (151 B, = the boundary spec digest's input, never in one function inside one profile); the 295-byte `parameters`/`pb-term`(15) pair is live at {narrow} of the {} development runs for 2 <= L <= 9 and cannot arise at the other {wide} (rung-C6's parameter line is four bytes longer)", narrow + wide);
 }
 
 // ---------------------------------------------------------------------------

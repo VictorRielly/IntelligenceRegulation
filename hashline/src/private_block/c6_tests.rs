@@ -585,14 +585,24 @@ fn a_norm_top_limb_outside_its_byte_range_is_rejected_at_the_rung_c6() {
         let mut w = clone_witness(&base);
         let before = recomposed(&w, &planes, at);
         let (top, below) = move_a_carry(&mut w, planes[ln - 2], planes[ln - 1], at);
-        assert_eq!(recomposed(&w, &planes, at), before, "{what}: the carry move changed the recomposed remainder, so this is not a RANGE-only tamper");
-        assert!(!(0..256).contains(&top), "{what}: the top limb {top} is still inside its byte range");
-        assert!(!(0..256).contains(&below), "{what}: the limb below, {below}, is still inside its byte range");
+        let unchanged = recomposed(&w, &planes, at) == before;
+        assert!(unchanged, "{what}: the carry move changed the recomposed remainder, so this is not a RANGE-only tamper");
+        assert!(top < 0, "{what}: the top limb is still inside its byte range");
+        assert!(below >= 256, "{what}: the limb below is still inside its byte range");
         assert!(!super::pad::every_checkable_relation_holds(&sh, &ids, &w), "{what}: the witness-level byte-range clause does not see the out-of-range limb");
         let o = outcome(&sh, &blk, w);
-        eprintln!("C6 NORM RANGE TAMPER {what}: top limb {top}, limb below {below}, remainder unchanged at {before} — {}", o.short());
+        // THE CAPTURE RULE: the limbs and the remainder are values of the
+        // fixture's hidden witness, so what is printed is the RANGE FACT and
+        // never the value.
+        eprintln!(
+            "C6 NORM RANGE TAMPER {what}: top limb now negative {}, limb below now at or above 256 {}, recomposed remainder unchanged {} — {}",
+            top < 0,
+            below >= 256,
+            unchanged,
+            o.short()
+        );
         match o {
-            Outcome::Accepted => panic!("{what}: a norm top limb of {top} was ACCEPTED at rung-C6, where C-6 drops the scaled lookup — THIS IS A SOUNDNESS FINDING"),
+            Outcome::Accepted => panic!("{what}: an out-of-range norm top limb was ACCEPTED at rung-C6, where C-6 drops the scaled lookup — THIS IS A SOUNDNESS FINDING"),
             Outcome::ProverRefused(e) => panic!("{what} was refused by the PROVER, which is not a soundness statement: {e}"),
             Outcome::VerifierRejected(e) => {
                 // THE RELATION, NAMED: the LogUp sum claim's own opening
