@@ -5460,3 +5460,28 @@ diagnostics (each proves several rung-G blocks; they are diagnostics, not
 gates). **The diagnostics' own runs are NOT retained under `results/`**: they
 print counts and plane values' provenance, and the capture rule keeps them
 out. Re-run them with `--ignored --nocapture` to see them.
+
+## Stage 20 — FIXING S19-F1: the key-value group bits become sumcheck variables (2026-09-20, 18:4x–)
+
+**Status: `OPEN` (skeleton).** The security owner's ruling on finding S19-F1
+is implemented here: in the two bilinear attention slots `SC_SCORE` and
+`SC_PV`, the key-value GROUP bits stop being FIXED coordinates of both
+private factors and become SUMCHECK VARIABLES carrying a public
+`eq(r_g, ·)` factor. This is the first PRODUCTION change this lane has made
+since `caa9b9a`.
+
+### The plan, item by item
+
+| # | item | state |
+|---|---|---|
+| 0 | this skeleton | |
+| 1 | the two slot definitions in `argument.rs`, and the schedule in `shape.rs` | |
+| 2 | the toy must not move: 2,816,472 B, the schedule digest, the parameter line, the four pre-lane receipts | |
+| 3 | the acceptance tests of stage 19 un-ignored (reproducer, fully dense block, the grouped-query control, the three diagnostics) | |
+| 4 | the fully dense THREE-BLOCK run at `rung_g` | |
+| 5 | the INDEPENDENT identity check that does not go through `define` | |
+| 6 | the negative controls on the fully dense witness | |
+| 7 | the re-pinned shaped receipt sizes, from a counted derivation | |
+| 8 | the Python layout / inventory model | |
+| 9 | the 125M launch commands, prepared and NOT run | |
+
