@@ -1,0 +1,22 @@
+============================================================================
+A. ABSORB COUNT  (the draft's sec 7.3 item 5, 'validated by nothing')
+============================================================================
+config       L  this script   the draft  agree
+rung-G       3        1,129       1,129  YES
+rung-K4      3        1,138       1,138  YES
+125M        12        5,932       5,932  YES
+
+verdict: the draft's absorb count is REPRODUCED by an independent route
+
+============================================================================
+B. LIVE SQUEEZES: the modelled channels against the gate's measurement
+============================================================================
+rung-G     modelled channels    5,949 (without the 3 LogUp draws    5,940); gate measured    6,924;  unmodelled slot-definition draws =    975 over 3 stages =  325.0 per stage
+rung-K4    modelled channels    6,702 (without the 3 LogUp draws    6,693); gate measured    7,686;  unmodelled slot-definition draws =    984 over 3 stages =  328.0 per stage
+125M       modelled channels  164,572 (without the 3 LogUp draws  164,536); the draft quotes 164,560 -> differs by -24
+
+C. IS THE 125M ALLOWANCE OF 1,024 DEFINITION DRAWS PER STAGE GENEROUS?
+  measured at rung-G: 325.0 definition draws per stage
+  the slot variable count grows by 1.49x from rung-G to 125M
+  a linear extrapolation gives about 485 per stage at 125M,
+  against the draft's allowance of 1,024 -> the allowance is about 2.1x generous.

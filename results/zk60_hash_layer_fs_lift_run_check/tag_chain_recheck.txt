@@ -1,0 +1,40 @@
+=== F-1a/b/c: the position-tag chain, per bundle ===
+bundle             L  fields distinct  L+1  chain  non-constant
+run-a-tame         3       6        4    4  OK     OK
+run-b-zero         3       6        4    4  OK     OK
+run-c-tame         3       6        4    4  OK     OK
+run-d-zero         3       6        4    4  OK     OK
+run-e-tame-tagged  3       6        4    4  OK     OK
+run-f-zero-tagged  3       6        4    4  OK     OK
+run-g-dense-s20    3       6        4    4  OK     OK
+run-h-zero-s20     3       6        4    4  OK     OK
+run-i-dense-k4     3       6        4    4  OK     OK
+run-j-zero-k4      3       6        4    4  OK     OK
+
+F-1 verdict: CONFIRMED on 10 bundles
+
+=== F-1d: is the FIRST tag a function of the PUBLIC prefix only? ===
+(two runs of the same profile and L that differ only in the hidden input
+ must share start_tag(0) -- nothing hidden is absorbed before it -- and
+ must differ at every later tag, because roots are absorbed in between)
+  private-run-rung-g-t24-dev   L=3  run-a-tame vs run-b-zero: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+  private-run-rung-g-t24-dev   L=3  run-a-tame vs run-c-tame: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+  private-run-rung-g-t24-dev   L=3  run-a-tame vs run-d-zero: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+  private-run-rung-g-t24-dev   L=3  run-a-tame vs run-e-tame-tagged: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+  private-run-rung-g-t24-dev   L=3  run-a-tame vs run-f-zero-tagged: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+  private-run-rung-g-t24-dev   L=3  run-a-tame vs run-g-dense-s20: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+  private-run-rung-g-t24-dev   L=3  run-a-tame vs run-h-zero-s20: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+  private-run-rung-k4-t24-dev  L=3  run-i-dense-k4 vs run-j-zero-k4: start_tag(0) DIFFERENT; stages whose start_tag differs: [0, 1, 2]
+
+=== L-1: transcript constructor input lengths (F-2's table) ===
+  |domain| = 36  constructor = 48  <-- one byte from 47   hashline-zk-mr1/private-block-m125/1
+  |domain| = 46  constructor = 58   hashline-zk-mr1/private-block-rung-g-t24-dev/1
+  |domain| = 47  constructor = 59   hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+  |domain| = 39  constructor = 51   hashline-zk-mr1/private-block-t32-poc/1
+  |domain| = 34  constructor = 46  <-- one byte from 47   hashline-zk-mr1/private-run-m125/1
+  |domain| = 44  constructor = 56   hashline-zk-mr1/private-run-rung-g-t24-dev/1
+  |domain| = 45  constructor = 57   hashline-zk-mr1/private-run-rung-k4-t24-dev/1
+  squeeze input is always 47 bytes; the shortest absorb is 48
+  47 in the constructor class needs |domain| = 35
+  any profile at 47?  False
+  constructor lengths that also land in the ABSORB class (>= 48): [48, 51, 56, 57, 58, 59]

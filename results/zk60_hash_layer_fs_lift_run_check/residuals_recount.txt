@@ -1,0 +1,60 @@
+==============================================================================
+A. SAMPLER DRAW COUNTS  (fp() draws; salts are raw bytes and do not count)
+==============================================================================
+config      sum L_s    per block  boundary  endpoint     run total   log2 term
+rung-G          859      687,028     8,704     7,424     2,093,340    -75.0026
+rung-K4         871      750,540     8,704     7,424     2,283,876    -74.8769
+125M           1239    9,029,804   108,032    91,392   109,728,784    -69.2906
+
+  control (PRE-repair sum L_s, i.e. what the run memo counted):
+    rung-G   sum L_s=  840  per block    686,990  run    2,093,226   (memo: 686,990 / 2,093,226 and 9,029,742 / 109,728,040)
+    125M     sum L_s= 1208  per block  9,029,742  run  109,728,040   (memo: 686,990 / 2,093,226 and 9,029,742 / 109,728,040)
+
+==============================================================================
+B. LEAVES, SALTS, OPENED COLUMNS
+==============================================================================
+config      roots      N_leaf  salt slots  E[distinct opened]   E[unopened]
+rung-G         13      53,248       3,328             3,226.5      50,021.5
+rung-K4        13      53,248       3,328             3,226.5      50,021.5
+125M           49   2,473,984      12,544            12,431.9   2,461,552.1
+
+==============================================================================
+C. THE RESIDUAL TABLE  (log2; q = 2^128 where q appears)
+==============================================================================
+term                                                rung-G     rung-K4        125M
+sampler bias (D9)                                 -75.0026    -74.8769    -69.2906
+refusal inside the argument (S-4), L*768/|Fp2|   -116.8301   -116.8301   -114.8301
+  the same doubled, as sec 5.2 discharges it     -115.8301   -115.8301   -113.8301
+salt guessing  q*N_leaf*2^-256                   -112.2996   -112.2996   -106.7616
+leaf-input collision  C(N_leaf,2)*2^-256         -225.5991   -225.5991   -214.5232
+challenge pre-query (B5)  q*A*2^-256             -115.0225   -114.8908   -110.5199
+absorb-input collision (B6)  C(A,2)*2^-256       -231.0453   -230.7818   -222.0398
+key collision  3*4*2^-256                        -252.4150   -252.4150   -252.4150
+generator, in-model alternative  6q*2^-256       -125.4150   -125.4150   -125.4150
+
+TOTAL eps(q) at q = 2^128                         -75.0026    -74.8769    -69.2906
+TOTAL eps(q) at q = 2^80                          -75.0026    -74.8769    -69.2906
+
+challenge-only refusal (3L+1)/p [LIVENESS]        -60.6781    -60.6781    -58.7905
+
+  gap from the sampler term to the NEXT LARGEST distance term (bits):
+    rung-G     sampler -75.0026, next -112.2996, gap 37.30 bits
+    rung-K4    sampler -74.8769, next -112.2996, gap 37.42 bits
+    125M       sampler -69.2906, next -106.7616, gap 37.47 bits
+
+==============================================================================
+D. MANY RUNS (k = 10^6)
+==============================================================================
+  rung-G     sampler  -55.0711  refusal  -96.8985  leaf-coll(quadratic) -185.7360  salt  -92.3680  total  -55.0711
+  rung-K4    sampler  -54.9454  refusal  -96.8985  leaf-coll(quadratic) -185.7360  salt  -92.3680  total  -54.9454
+  125M       sampler  -49.3591  refusal  -94.8985  leaf-coll(quadratic) -174.6601  salt  -86.8300  total  -49.3591
+
+==============================================================================
+E. TREE OCCUPANCY (expectations over the 256 index draws)
+==============================================================================
+tree                                 leaves  depth  E[distinct opened]  % of leaves
+rung-G/K4: every tree                 4,096     12               248.2         6.1%
+125M: A, H, boundary, endpoint       65,536     16               255.5         0.4%
+125M: M                               4,096     12               248.2         6.1%
+
+wrote residuals_recount.json

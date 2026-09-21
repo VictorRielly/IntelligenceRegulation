@@ -1,0 +1,62 @@
+{
+ "rung-G": {
+  "L": 3,
+  "sum_ls": 859,
+  "per_block": {
+   "A": 411392,
+   "H": 256000,
+   "H_zero": 2046,
+   "M": 17590,
+   "total": 687028
+  },
+  "boundary": 8704,
+  "endpoint": 7424,
+  "run_draws": 2093340,
+  "sampler_log2": -75.0026247777172,
+  "N_leaf": 53248,
+  "roots": 13,
+  "salt_slots": 3328,
+  "distinct_opened": 3226.514928535212,
+  "unopened": 50021.48507146479
+ },
+ "rung-K4": {
+  "L": 3,
+  "sum_ls": 871,
+  "per_block": {
+   "A": 438016,
+   "H": 292864,
+   "H_zero": 2046,
+   "M": 17614,
+   "total": 750540
+  },
+  "boundary": 8704,
+  "endpoint": 7424,
+  "run_draws": 2283876,
+  "sampler_log2": -74.876947107051,
+  "N_leaf": 53248,
+  "roots": 13,
+  "salt_slots": 3328,
+  "distinct_opened": 3226.514928535212,
+  "unopened": 50021.48507146479
+ },
+ "125M": {
+  "L": 12,
+  "sum_ls": 1239,
+  "per_block": {
+   "A": 5484800,
+   "H": 3493888,
+   "H_zero": 32766,
+   "M": 18350,
+   "total": 9029804
+  },
+  "boundary": 108032,
+  "endpoint": 91392,
+  "run_draws": 109728784,
+  "sampler_log2": -69.29063321846928,
+  "N_leaf": 2473984,
+  "roots": 49,
+  "salt_slots": 12544,
+  "distinct_opened": 12431.917522149331,
+  "unopened": 2461552.082477851
+ }
+}

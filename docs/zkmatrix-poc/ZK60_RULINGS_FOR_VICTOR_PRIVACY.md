@@ -134,6 +134,37 @@ them coming than meet them in a status line.
   first MVP**, and keep "a small outer proof about the big one" (as the slow
   line does with Groth16) as the recorded route to a small receipt.
 
+## One more, added 2026-09-21 01:12 — proposed D19b, not urgent
+
+**What it is.** When you accepted D19 you accepted that BLAKE3 behaves like a
+random function, and that new shapes get a separating hash tag. I built the
+tag as BLAKE3's *keyed* mode with four **published** keys per shape (one each
+for the transcript, column digests, Merkle leaves and Merkle nodes). An
+independent check last night pointed out that this quietly assumes more than
+D19 said: that keyed BLAKE3 behaves like a **separate, independent** random
+function for each published key. That is not what BLAKE3's designers claim
+(their claim is about its three modes, not about different keys of one mode).
+The usual way to justify it is to assume BLAKE3's internal compression step is
+ideal even when an attacker knows and chooses where it starts — which is the
+same assumption under which BLAKE3 is shown to behave like a random function
+in the first place, but it is a stronger sentence than the one you accepted,
+and I had mislabelled it in the register. My error, now corrected there.
+
+**What changes if you say yes: nothing measurable.** The tag removes two error
+terms of about 2^-241 and 2^-485 and adds one of about 2^-251 (in fact zero
+for the keys that exist: a test pins them distinct), against a proof whose
+dominant privacy term is about 2^-69. **Nothing already accepted depends on
+it**: the small test block (D22) uses the untagged rule and D19 exactly as you
+accepted it.
+
+**Recommendation: accept.** The alternative — a one-byte prefix per hash
+domain under plain BLAKE3 — stays inside D19 to the letter, costs about half a
+percent of hashing, and means redoing the tag stage and re-measuring. I would
+rather carry the stronger, standard assumption in the open than redo the work
+for a purer sentence.
+
+**One line is enough:** "D19b yes", or "D19b no, use prefixes".
+
 ## If you answer in one line
 
 "D19 yes, D20 yes, D21 yes" is enough. If you want the tag added to the toy

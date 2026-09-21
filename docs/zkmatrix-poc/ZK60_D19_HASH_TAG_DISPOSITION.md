@@ -128,7 +128,17 @@ as a *family* of independent random functions indexed by BLAKE3's mode and
 key — the four keyed functions of a profile, the generator's keyed function
 under its secret key, and the unkeyed function the legacy rule uses. That is
 BLAKE3's own design claim for its modes; it is an idealisation like the rest
-of D19, and it is what "separating hash tag" means in that model. "No extra
+of D19, and it is what "separating hash tag" means in that model.
+*(**Two errors in this paragraph, corrected 2026-09-21 01:12** by ruling H-3
+and H-4 of `ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md`. First: the
+generator is **not** keyed — only its key derivation is; its stream is unkeyed
+BLAKE3 over key and counter, so a tagged profile uses five BLAKE3 functions
+and the 40-byte input class still matters in the unkeyed one. Second: this is
+**not** BLAKE3's design claim, which separates the three modes; the leaf and
+node functions are one mode under two published keys. The honest model is an
+ideal compression function at a chaining value the adversary knows and
+chooses — stronger than D19 as it was put to the project owner, and now
+proposed to him as D19b. Nothing accepted rests on it.)* "No extra
 compression" is a count, not a timing: the run time is re-measured.
 
 **T-2, changed: no mixtures, so the frozen-seam rung stays entirely on the

@@ -1,0 +1,9 @@
+gate dir                         file                      final_counter  challenges    diff  64(4L+1), L=3  match
+zk60_native_run_gate_tagged      run-e-tame-tagged.json             6918        6086     832            832  OK
+zk60_native_run_gate_tagged      run-f-zero-tagged.json             6918        6086     832            832  OK
+zk60_native_run_gate_s20         run-g-dense-s20.json               6924        6092     832            832  OK
+zk60_native_run_gate_s20         run-h-zero-s20.json                6924        6092     832            832  OK
+zk60_native_run_gate_k4          run-i-dense-k4.json                7686        6854     832            832  OK
+zk60_native_run_gate_k4          run-j-zero-k4.json                 7686        6854     832            832  OK
+
+C7 verdict: the identity holds on every gate bundle found
