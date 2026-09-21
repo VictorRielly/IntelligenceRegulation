@@ -367,18 +367,31 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
         // — is 60 bytes, which is exactly what an absorb of the 4-byte
         // label `rows` with 8 bytes of data costs (`32 + 8 + 4 + 8 + 8`).
         // Both are hashed by the transcript function, so the pair has to be
-        // declared. What separates them is a FIXED, CHECKABLE difference at
-        // offset 32: the absorb has `le64(4)` there — eight bytes of which
-        // SIX ARE NUL — while the constructor has the profile's own bytes
-        // 20..28 (`ate-bloc` at this profile), and a profile string is
-        // ASCII and contains no NUL at any offset. The two inputs can
-        // therefore never be equal at ANY profile of this length, which is
-        // a stronger statement than the coincidence being unlikely.
+        // declared. What separates them is a FIXED, CHECKABLE difference
+        // inside the two `le64` LENGTH FIELDS: at offset 32 the absorb has
+        // `le64(4)` — one value byte and SEVEN NULs, at offsets 33..39 —
+        // and at offset 44 `le64(8)`, seven more at 45..51, while the
+        // constructor carries the profile string's own ASCII bytes at all
+        // fourteen positions, and a profile string is ASCII with no NUL at
+        // any offset. The two inputs can therefore never be equal at ANY
+        // profile of this length, which is a stronger statement than the
+        // coincidence being unlikely.
+        //
+        // **STAGE 33, ruling J-7a — this row is now CHECKED and not
+        // declared on trust.** `s33_tests` asserts the premise over the
+        // whole registry (every profile, every `derive_key` context and
+        // every absorb label is printable ASCII with no NUL), proves the
+        // separation as a LEMMA over every registered profile length and
+        // EVERY absorb layout of that length with the positions computed
+        // rather than written down, and demonstrates this pair on real
+        // bytes. **Finding S33-F1**: the sentence below said "six NUL
+        // bytes" until stage 33; the count is seven in that field and
+        // fourteen over the two.
         (
             60,
             "the transcript constructor at",
             "the transcript absorb of `rows`",
-            "le64(4) ‖ \"rows\" at offset 32 — six NUL bytes inside an otherwise ASCII input, where the constructor carries the profile string's own ASCII bytes (stage 32, the 48-byte rung-W14 profile; recorded under ruling J-7)",
+            "le64(4) ‖ \"rows\" ‖ le64(8) — fourteen positions forced to NUL inside the two length fields (33..39 and 45..51), where the constructor carries the profile string's own ASCII bytes (stage 32, a 48-byte profile; CHECKED as a lemma over every profile length and every layout by stage 33's s33_tests, ruling J-7a)",
         ),
         (
             49,
