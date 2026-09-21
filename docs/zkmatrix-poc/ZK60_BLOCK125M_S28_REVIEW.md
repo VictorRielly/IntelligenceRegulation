@@ -315,7 +315,12 @@ SHA-256, and verifies the whole run in a fresh `RunVerifier`. This review added
 an `#[ignore]`d test that calls it on a directory named by
 `HL_PB_S28_REVIEW_RUN_DIR`.
 
-**RESULT: see §9.3.**
+The statement carries the STAGE-21 recipe string, which `dense_tests` keeps as
+a read-only alias (`LEGACY_DENSE_RUN_RECIPE_NAME`) precisely so that
+statements retained before stage 22 still regenerate their blocks — so the
+read is a real test of the verifier and not of the parser's tolerance.
+
+**RESULT: the run VERIFIES under the stage-28 verifier.** See §9.3.
 
 ### 7.3 At the development shapes — what the committed captures can and cannot do
 
@@ -418,9 +423,32 @@ verify from bytes 1.14 s, receipt 40,783,352 B (the same length as the dense
 run and as the baseline), peak RSS 10,146 MiB**. A later session should fold
 it into the ledger, as the ledger asks.
 
-### 9.3 Cross-version, 125M
+### 9.3 Cross-version, 125M — **the strongest single result of this review**
 
-*(filled in below)*
+`crossver-nolock-m125-l12-dense.log` / `.done` = **0**.
+
+```
+S28-REVIEW cross-version: /home/victor/zk60-artifacts/m125-run-l12-dense
+VERIFIES under the stage-28 verifier in 15.20 s
+test result: ok. 1 passed; 0 failed
+Maximum resident set size (kbytes): 487804        (476 MiB)
+Elapsed (wall clock) time: 0:15.20
+```
+
+**A complete twelve-block 125M dense private run, proved by the PRE-stage-28
+prover at `0426ad2` (484,107,456 B of segments), is accepted by the stage-28
+verifier**: every segment's length and SHA-256 matched, the public weights
+regenerated from the retained recipe matched the block digests the run header
+absorbs, and all twelve blocks plus the eleven internal boundaries and the two
+external endpoints verified in a fresh `RunVerifier`.
+
+**How it was run.** Verify-only streaming read, so — on the orchestrator's
+ruling, the heavy lock being held for hours by another lane — it ran OUTSIDE
+the heavy lock in its own scope with `MemoryMax=4G, MemorySwapMax=0`, detached,
+with log and `.done` marker. It used 476 MiB, an eighth of its ceiling. A copy
+is still queued on the heavy lock and will run a second time harmlessly.
+**This review ran no 125M PROVE**, so it spent none of the three-run budget on
+one.
 
 ---
 
@@ -450,7 +478,7 @@ decision, or writes a different word from the code at `79f0726`.
 |---|---|
 | **bytes unchanged** (same messages, same transcript) | **upheld as far as it can be tested.** Six of the ten changes have real old-against-new oracles, and this review widened three of them by orders of magnitude without finding a difference; four have only end-to-end evidence (S28-R1). No receipt digest exists to pin (S28-F2, which this review re-derived and agrees with: `s25_tests`' generator scan is the accepted toy statement's condition 6 in code). Receipt LENGTH is identical at the toy, both rungs, rung-K4 and 125M, and every honest proof verifies from its own bytes at all five |
 | **refusals unchanged** | **upheld, with one exception to the wording.** Same predicate, same column set, same single string, no absorb or draw between the two refusal points, none removed. Checked on the real functions including the branch the stage never tested. The exception: `helper_pair_inverses_u8` adds one new (unreachable) length-mismatch refusal with a new string, which the ledger does not mention |
-| **verifier semantics unchanged** | **upheld, structurally.** No changed computation has a caller on the verifying path; the `Side::Verify` arm is untouched in the diff; and four archived pre-lane toy receipts plus (see §9.3) a pre-stage-28 12-block 125M run still verify |
+| **verifier semantics unchanged** | **upheld, structurally AND empirically.** No changed computation has a caller on the verifying path and the `Side::Verify` arm is untouched in the diff; four archived pre-lane toy receipts still verify, and a complete twelve-block 125M run proved before stage 28 is accepted by the stage-28 verifier in 15.20 s at 476 MiB (§9.3) |
 | **S28-F1** | **PARTLY TRUE.** First half (a zero denominator at a TABLE value refuses the attempt whatever the hidden input carries, with the same string): **true**, re-derived. Second half ("refusal is a function of the public challenges and the public table alone"): **false** for off-table witness values; **true** for every honest witness. See S28-R2 |
 | **37% faster (27.71 -> 17.40 s), receipt identical, high-water down 0.7%** | **supported by the logs**, one run each on a shared box, same test, same witness, same environment, both exit 0. One label is wrong (S28-R4) |
 
