@@ -8730,6 +8730,305 @@ Ledger sections of this stage, filled as the work lands:
 * **Task 3 — the 125M re-measurement**, before/after, high-water mark.
 * **Task 4 — the gates**, and the integrator requests.
 
-### Task 0 — the baseline, at the tip `79f0726` [MEASURED, one run, shared box]
+### The byte pins this stage is accepted against, and the one it could not add
 
-TO BE FILLED.
+**Read this first: at every profile of this path a receipt is NOT
+reproducible, by design.** Every proving attempt draws its own
+`ZkRng::from_os` stream (`protocol.rs`, `endpoint_g.rs` twice), so two honest
+proofs of one statement differ in their bytes — stage 11 said so when it
+added the phase clock, and stage 26 re-derived the three reads. So "byte
+identity" here cannot mean "the receipt digest does not move", and the brief's
+fallback — add a deterministic byte pin at rung-G / rung-K4 — **cannot be
+built without breaking a load-bearing guard**:
+
+* **S28-F2.** `s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system`
+  asserts that every `ZkRng::` constructor in the PRODUCTION TEXT of every
+  production module of this path is `from_os`, and that `ZkRng::new` (the
+  seeded fixture constructor) and `ZkConfig` appear nowhere on it. That test
+  is the accepted toy statement's **condition 6** ("fresh operating-system
+  randomness per proof; no seeded configuration on this profile's path") in
+  code. A `#[cfg(test)]` seed hook inside `prove_inner_at` would either trip
+  that scan or have to be hidden from it, and the privacy statement is worth
+  more than the convenience. **No seeded prover hook was added.** The
+  alternative — a test that drives `prove_core` with a seeded generator from
+  a test module — needs seeded ENDPOINT owners as well (the two endpoint
+  generators feed the slot-21/22 tables and therefore the transcript), i.e. a
+  second copy of `endpoint_g::prepare` in test code; it is written up here as
+  an option for the integrator and was not built.
+
+What the stage is accepted against instead, all of it pre-existing and all of
+it green at every commit below:
+
+| pin | where | what it fixes |
+|---|---|---|
+| toy frame **2,816,472 B** | `tests.rs:108`, `zero_witness_tests.rs:172`, `hash_domain_tests.rs:560`, `review_tests.rs:712`, `grow_tests.rs:307/727/1466` | the byte-frozen toy's receipt length |
+| the frozen toy SCHEDULE DIGEST | `grow_tests::the_toy_schedule_digest_is_frozen` | the toy's slot schedule, structurally |
+| the frozen toy PARAMETER LINE | `grow_tests::the_toy_parameter_line_is_the_frozen_literal` | the toy's public parameter text |
+| frozen-seam rung **4,218,600 B**, rung-G **4,234,984 B** | `grow_tests.rs:351/390/1447-1449`, `rung_tests.rs:41/45`, `dense_tests.rs:618` | both development rungs' receipt lengths |
+| rung-K4 `K4_FRAME_BYTES` | `k4_tests.rs:231/252` (dense AND all-zero) | the four-key-value-head shape's receipt length |
+| 125M **40,783,352 B** | `grow_tests.rs:468/1702`, `rulings_tests.rs:284/457` | the 125M receipt length |
+| every honest proof VERIFIES FROM BYTES | toy, rung, rung-G, rung-K4 (dense and all-zero), and the `#[ignore]`d 125M | a moved byte that the verifier would reject |
+| the independent Python layout model | `grow_tests`'s `Expected` tables | every counted total, derived outside Rust |
+
+**And the gate this stage adds, which is stronger than a digest for the parts
+it touches**: for every computation changed, the OLD form and the NEW form are
+run on the same inputs IN THE SAME TEST and compared word for word, with the
+old form re-derived in `s28_tests.rs` from `crate::field` / `crate::mle` (or
+copied verbatim from the tip `79f0726`) so that it is an oracle and not a
+second name for the code under test. Nine such tests, listed with each item
+below. A digest pin would say "something moved"; these say which word.
+
+**Nothing in this stage touches randomness.** No line added or changed draws
+from a generator, so the number of draws, their order and the stream they come
+from are untouched; the only new parallelism is over INDEXED iterators whose
+output is the same whatever the thread count is (checked:
+`the_helper_column_is_the_same_vector_whatever_the_thread_count_is`).
+
+### Task 0 — the baseline at the tip `79f0726` [MEASURED, one run, shared box]
+
+`results/zk60_block125m_lane/q28-baseline-dense.log`, exit 0, 2026-09-21
+09:05. One dense one-block 125M proof
+(`HL_PB_WEIGHTS=dense HL_PB_TIMING=1`, the env of `m125-one-block-dense.log`),
+detached under the heavy lock inside a 12 GiB scope with
+`MALLOC_MMAP_THRESHOLD_=131072`.
+
+| figure | pre-repair dense (`m125-one-block-dense.log`, 2026-09-20 19:27) | **this baseline** |
+|---|---|---|
+| prove, s | 27.67 | **27.71** |
+| verify from bytes, s | 1.12 | **1.28** |
+| receipt, B | 40,783,352 (the run FAILED on the pre-repair literal) | **40,783,352, and the test passes** |
+| peak RSS, GiB | 9.99 | **9.99** |
+| witness build, s | 5.48 | **5.04** |
+
+**What the stage-20 group-bit repair moved, at 125M.** The two bilinear slots
+gained the key-value group as a sumcheck variable (`kv_heads = 4`, so
+`lkv = 2`) and a degree:
+
+| slot | cube before | cube now | s before | s now |
+|---|---|---|---|---|
+| 08 `SC_SCORE` | 256 | **1,024** | 0.027 | **0.024** |
+| 09 `SC_PV` | 2,048 | **8,192** | 0.114 | **0.113** |
+
+Two extra sumcheck variables each and degree 2 -> 3, and **no measurable
+time**: both slots are far below the shape's big cubes. The receipt grew by
+the counted 560 B (40,782,792 -> 40,783,352), which is `s20_frame_bytes`'s own
+derivation and not a measurement. (The `s` columns are not strictly
+comparable — the older run is the same dense recipe at the pre-repair code —
+but the conclusion, that the repair costs nothing measurable at this shape,
+does not turn on the third decimal.)
+
+The prover's halves at the baseline: **commit 12.034 s (43.4%)**, attention
+9.698 s (35.0%), residual (slot 14) 3.007 s (10.9%), feed-forward 1.709 s
+(6.2%), openings 0.704 s (2.5%), norm 0.228 s, endpoints 0.243 s,
+lookup-table 0.089 s, setup 0.000 s. The five phases above 5%: slot 17
+**7.204 s**, `H: LogUp helper inverses` **4.061 s**, `H: commit` 3.499 s,
+`A: commit` 3.076 s, slot 14 **3.007 s**, slot 18 1.635 s.
+
+### Task 1 — the LogUp helper inverses by table, commit `d2c2733`
+
+**What it was.** For every one of the six lookup domains and every looked
+column of each, `protocol.rs` built the whole column of denominators
+`alpha - (v + g_u8)` and handed it to `field::batch_inverse2_checked`. At the
+125M shape that is **98,598,912 words**, single-threaded, each paying
+Montgomery's trick (a prefix product, one inversion, two multiplications per
+element on the way back) — and the batch inversion allocates a prefix vector
+as long as the column on top of the column itself.
+
+**What it is.** Every looked value is looked up in the SAME 256-entry byte
+table, so there are at most `U8_LEN` distinct denominators in the whole of
+`H`. `u8_denominator_inverses` builds the 256 and inverts the nonzero ones
+ONCE per proof; `helper_inverses_u8` turns each word into one indexed lookup.
+A value outside `0..U8_LEN` — only a dishonest or tampered witness has one —
+takes the old arithmetic, one `Fp2::inv` at a time; the field inverse is
+unique and this field's representation is canonical everywhere
+(`zkp-core/src/field.rs:1-9`), so the word is the batch inversion's word.
+Above 2^14 words the map runs on rayon's indexed parallel iterator, the
+crate's own style (`pcs.rs`, `zk.rs`, `sumcheck.rs`).
+
+**Indexing a table by a witness byte is not a new class of memory access on
+this path.** The byte histogram three phases earlier already does exactly
+that, on the same values:
+`m_u8[if (0..U8_LEN as i64).contains(v) { *v as usize } else { 0 }] += 1`
+(`protocol.rs`, the `A: lookup values + the byte histogram` phase). Nothing
+about the cache behaviour of this prover changes class here.
+
+**THE REFUSAL, and finding S28-F1 — the answer the brief asked for
+prominently.**
+
+* At the helper line itself the refusal is **PRESENT-VALUE-ONLY**, before and
+  after: the checked batch inversion refused iff a zero denominator sat at an
+  entry OF THE COLUMN, and the table path refuses iff a column asks for a
+  table entry that is `None`. Same rule, tested both ways
+  (`a_zero_denominator_at_a_value_the_column_carries_is_refused_by_both_paths`,
+  `a_zero_denominator_at_a_value_no_column_carries_is_refused_by_neither_path`).
+* **S28-F1: but the attempt is refused either way, a few lines later.** The
+  three table helpers invert the denominator of EVERY table value
+  (`inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?`), and
+  `table_values_u8_at` carries all `U8_LEN` byte values (its padded entries
+  repeat `i % U8_LEN`). So a zero `U8` denominator refuses the attempt
+  whatever the hidden input carries, with the SAME string
+  ("zero LogUp denominator; discard attempt"). **Whether an attempt is
+  refused is therefore a function of the public challenges and the public
+  table alone; what the hidden input decides is only which of the two lines
+  refuses first.** Test:
+  `a_zero_u8_denominator_refuses_through_the_table_helpers_even_when_no_column_carries_that_value`.
+  This is RECORDED, not changed: the security owner rules on it. (For the
+  record, the probability is the 2^-96-class figure of one challenge hitting
+  one of 256 public points; it is not new to this stage and no line of it
+  moved.)
+
+**MEASURED at 125M [one run, shared box]**, `q28-m125-task1-attrib.log`
+against `q28-baseline-dense.log`:
+
+| phase | baseline | after task 1 |
+|---|---|---|
+| `H: LogUp helper inverses (six lookup domains)` | **4.061 s** | **2.010 s** |
+| prove, total | 27.71 s | **24.59 s** |
+
+The phase did not fall as far as the arithmetic did because what is left is
+memory, not inversion: the phase still materialises every helper column
+(1.58 GB of `Fp2` at this shape) and writes it into `H`. That is what the
+follow-up below takes on.
+
+### Task 1b — the helper columns written pair by pair, commit `a9f2211` (with task 2)
+
+A helper column is the sum of the inverses of at most TWO looked columns. The
+prover inverted EVERY column of a domain into its own vector first and then
+added pairs; it now builds one helper at a time
+(`helper_pair_inverses_u8`), which removes the domain-wide intermediate and
+one pass over it. Columns are still visited in index order, so a refusal is
+still the lowest-indexed column's, and the words are the same words
+(`the_paired_helper_column_is_the_two_columns_inverted_and_added`, which
+compares against the two separate inversions plus the element-wise add).
+
+### Task 2 — where the big zero-check slots' seconds actually go
+
+**The instrument.** `timing::slot_step` (new, lane-owned) splits a slot's one
+phase line into the four things the prover does in it, printed as
+`PB-SLOTSTEP` lines when `HL_PB_TIMING=1` and absent otherwise (with the
+clock off it is `f()` and nothing else: no clock read, no print, no
+allocation). The 42-row phase table is unchanged — this prints beside it.
+
+**MEASURED at 125M [one run, shared box]**, `q28-m125-task1-attrib.log`,
+summed over all twenty-three slots of one dense block:
+
+| step | file | s | % of the 24.59 s prove |
+|---|---|---|---|
+| tables: build | **`argument.rs` (this lane)** | **6.011** | 24.4% |
+| masked sumcheck | `zk.rs` -> `zkp-core/src/sumcheck.rs` (**shared**) | 6.907 | 28.1% |
+| extension rounds | `mask_eval` (lane) inside `zk::extension` (shared) | 0.747 | 3.0% |
+| claimed sum (`total`) | **`argument.rs` (this lane)** | 0.140 | 0.6% |
+
+and slot by slot, for the five the brief names:
+
+| slot | cube | tables (lane) | sumcheck (shared) | ext | `total` (lane) |
+|---|---|---|---|---|---|
+| 17 `SC_SZC` | 2^23 | **3.419** | 3.118 | 0.118 | 0.000 |
+| 14 `SC_DZC` | 2^20 | **0.859** | 1.754 | 0.248 | 0.000 |
+| 18 `SC_FZC` | 2^21 | **0.620** | 0.778 | 0.096 | 0.000 |
+| 15 `SC_QZC` | 2^20 | **0.302** | 0.502 | 0.077 | 0.000 |
+| 04 `SC_RS` | 2^23 | **0.364** | 0.253 | 0.010 | **0.116** |
+
+**So the answer to "how much of a big slot is mine" is: about half of slot
+17, a third of slot 14, and two-fifths of slot 18 — the table build — and the
+rest is the shared masked sumcheck.** At rung-K4 the same instrument gives a
+different shape (`q28-k4-attrib-before.log`: slot 17 is 0.021 s of tables
+against 0.178 s of sumcheck), which is exactly why the 125M run was spent on
+this: the table build is a single pass over the cube and the sumcheck is a
+parallel one, so their ratio moves with the shape. **Neither figure is a
+forecast for any other shape or box.**
+
+**What the per-point machinery is, and who owns it.** The brief asks whether
+the per-point boxed closure, the gather, the fold, the masking polynomial or
+the allocation dominate. The instrument answers it at one level up and the
+code says the rest: `zkp-core/src/sumcheck.rs`'s round loop ALREADY gathers
+into a reused `cur`/`dif` pair, ALREADY evaluates at `t = 0, 1, 2, ...` by
+adding a per-point delta rather than re-gathering, and ALREADY runs its
+rounds on rayon in 1,024-point chunks with a small-round cut-off. The
+per-point `Box<dyn Fn>` call and the mask polynomial live there and in
+`zk.rs`. **The lane cannot improve any of that without editing a shared file,
+and this stage does not.** The integrator requests below say what would be
+worth measuring there.
+
+### Task 2, the code — the table build, commit `a9f2211`
+
+Five changes, all in `argument.rs`, all inside the prover's slot, none of them
+arithmetic that a verifier can see:
+
+| # | change | why it is the same words |
+|---|---|---|
+| 1 | **the tables of one slot are built in parallel** (rayon, above `tabs * 2^n >= 2^17` words) | they are independent of each other and the iterator is INDEXED: the same set, in the same order, whatever the thread count. No randomness is drawn here |
+| 2 | **`priv_table`'s per-entry coordinate walk became a bit permutation with two precomputed half-maps** | `(x, z)` is a fixed function of `idx`'s bits: the high half of `idx` and the low half are mapped separately and combined, `z`'s high part shifted by the NUMBER OF FIXED COORDINATES IN THE LOW PART. Same `(x, z)`, `p.log` index operations per entry replaced by two lookups |
+| 3 | **the write is a plain store when nothing can collide** | with no fixed coordinate `eqf` is `[1]`, and `1 * v` added to `ZERO` is `v`. The no-collision condition is COUNTED (`used.count_ones() == the number of non-fixed coordinates`), not assumed, so a duplicated challenge index falls back to the add — tested |
+| 4 | **the `eq` cube is filled by doubling** (`extend_from_within`) instead of one index computation per entry | the cube IS each `eq` entry repeated `2^shift` times, that block repeated `2^start` times |
+| 5 | **a public table is MOVED into the table set, not copied**, on the proving path | the slot definition is owned and dead after the build; the `Tab::Pub` length check happens before it, and every later use matches `Tab::Priv`. At 125M this is a 134 MB copy per public table of the two big slots |
+
+and one more in the same commit, the claimed sum:
+
+| 6 | **`total` sums the cube in parallel chunks** | the sum is over a FIELD — exact, no rounding — so grouping cannot move it; `zkp-core/src/sumcheck.rs` makes the same argument for its own parallel round. Small cubes stay on one thread |
+
+**Equality gates** (old form vs new form, same inputs, same test):
+`the_private_table_builder_is_the_walked_one_entry_for_entry` (21 cases: three
+widths x seven descriptor shapes — identity, a permutation, two fixed
+coordinates, a flipped coordinate, a short plane that needs the broadcast, a
+short-fixed-flipped mixture, and a DUPLICATED index) against the walked
+builder copied verbatim from `79f0726`;
+`the_eq_cube_builder_is_the_gathered_one_entry_for_entry` (every
+`(width, start, |point|)` triple at three widths).
+
+### Task 2b — the two serial passes over the looked words, same commit
+
+`lookup_values` builds each looked column as a per-index map of wrapping
+integer arithmetic (parallel, indexed, above 2^17 words), and the byte
+histogram is summed in chunks of 2^16 and reduced bin by bin — a histogram is
+a sum of integers, so a partition changes no bin. Gate:
+`the_lookup_columns_are_the_serial_per_index_maps_they_were`, on real
+witnesses at the toy and rung-K4, against the serial map written out in the
+test. The histogram has no separate gate and needs none: a wrong count breaks
+the value-0 LogUp identity and every honest proof at five shapes would be
+rejected by its own verifier.
+
+### Task 3 — the 125M re-measurement
+
+TO BE FILLED (the run is queued on the heavy lock behind another lane's
+Python job).
+
+### What was tried and dropped, each with why
+
+| # | item | why it is not in this stage |
+|---|---|---|
+| 1 | **a deterministic receipt-byte digest pin at rung-G / rung-K4** | finding **S28-F2** above: it needs a seeded generator on the proving path, which `s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system` forbids and which the accepted toy statement's condition 6 forbids. The nine old-vs-new equality tests are the replacement, and they are narrower AND sharper |
+| 2 | **anything that changes what is SENT** | out of bounds by the brief and by D17: no eq-factoring that lowers a round polynomial's degree, no reordered absorb, no changed draw count or order. Nothing in this stage touches a transcript line or a generator |
+| 3 | **the exp / activation helper inverses** | their denominators are `alpha - (d + beta*e + g_exp)` over a PAIR of witness values, so there is no 256-entry table to index: the brief's "only if it is as simple" is not met. MEASURED worth at 125M: 0.186 s, 0.8% of the baseline prove |
+| 4 | **the masked sumcheck's per-point machinery** | `zkp-core/src/sumcheck.rs` and `hashline/src/zk.rs` are shared files this lane may not edit. It is MEASURED (6.907 s, 28.1% of the prove at 125M) and handed over as request R1 below, together with what the code already does so that nobody re-invents it |
+| 5 | **the two PCS commitments** | `pcs::commit_zk_owned` is shared. MEASURED: 3.076 s + 3.499 s = 6.575 s, 23.7% of the baseline prove. Request R2 |
+
+### Integrator requests, with MEASURED attribution
+
+All figures are [MEASURED, one run, shared box] at the 125M shape, dense
+weights, one block, and are the SHARE OF A PROVE THAT THIS LANE CANNOT TOUCH.
+
+**R1 — `zkp-core/src/sumcheck.rs`, `prove`'s round loop (and `zk::extension`).
+6.907 s, 28.1% of the 24.59 s prove.** What it already does, so that the
+obvious suggestions are not re-made: it reuses one `cur`/`dif` pair per chunk
+instead of re-gathering, it walks `t = 0, 1, 2, ...` by adding a per-point
+delta, and it runs the round on rayon in 1,024-point chunks above a
+`half * k <= 2^16` cut-off. What is left to try, in the order this lane would
+try it: (a) the per-point `Box<dyn Fn(&[Fp2]) -> Fp2>` is an indirect call
+made `degree + 1` times per point — a batched interface (`poly` over a slice
+of rows, returning a slice) would amortise it and open the door to SIMD;
+(b) a ROUND-1 specialisation over the base field when every table entry is a
+base-field element — at this block that would need `argument::priv_table`
+(lane) to hand out `Fp` tables and the slot closures to accept them, so it is
+a JOINT change, not a shared-file one, and it should not be attempted without
+one measurement of how many of a big slot's tables are base-field-valued;
+(c) the chunk size is a constant 1,024 at every cube from 2^10 to 2^23.
+
+**R2 — `hashline/src/pcs.rs`, `commit_zk_owned` for `A` and `H`. 6.575 s,
+23.7%** (A 3.076 s over 5,681 rows, H 3.499 s over 7,120 rows). This is the
+encode + Merkle pass and is the natural GPU target; it is also the phase a
+two-prover split would have to pay twice or divide (the P5 question).
+
+**R3 — nothing else in a shared file is above 1.5% at this shape.**
+`zk::mask_commit` 0.022 s, `zk::mask_open` 0.005 s, `pcs::open_zk` (A, H and
+the two endpoints) 0.698 s total.
