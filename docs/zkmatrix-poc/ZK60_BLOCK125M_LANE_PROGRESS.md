@@ -9163,3 +9163,29 @@ equality test in `s28_tests.rs` whose oracle is not the code under test.
 it, and it is the security owner's to rule on. (4) Finding S28-F2 says why
 there is no deterministic receipt digest to pin on this path and what it
 would cost to build one.
+
+## Stage 29 — closing the independent review's gaps, and one count for the integrator (2026-09-21, 10:4x–)
+
+**What this stage is.** The security owner's disposition of stage 28 and of
+its independent review (`ZK60_BLOCK125M_S28_DISPOSITION.md`, 2026-09-21 10:43)
+accepts stage 28 as experimental lane code and asks, in ruling **V-4**, for
+the review's gaps to be closed before the integrator takes the stage. This
+stage is that work and nothing else, plus the ONE measurement request the
+disposition's V-6 line and the stage-28 integrator request **R1(b)** turn on:
+how much of a big zero-check slot's table data is BASE-FIELD-valued when
+round 1 starts.
+
+Nothing here may change what is sent, absorbed or drawn. The production call
+path is unchanged in BEHAVIOUR by construction: every threshold stage 28
+introduced becomes an ARGUMENT of an inner function, and the production
+wrapper passes the same constant it passed before, so no other test in the
+filter takes a different branch than it did at `db28728`.
+
+| task | what | state |
+|---|---|---|
+| 1 | **S28-R1 / S28-R6** — both branches of every stage-28 size threshold crossed in the ORDINARY filter, each against an old-against-new oracle | (below) |
+| 2 | **S28-R7** — `eq_cube`'s precondition a hard `assert!`, with the agreement test and the panic test | (below) |
+| 3 | **S28-R8, S28-R4, S28-R5, ruling V-3** — the ledger corrections, dated, in place | (below) |
+| 4 | **integrator request R1(b)** — the base-field census at the 125M shape and at rung-K4, and the second 125M prove-time sample | (below) |
+| 5 | the gates | (below) |
+
