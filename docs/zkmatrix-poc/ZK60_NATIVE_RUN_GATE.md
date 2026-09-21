@@ -3265,3 +3265,409 @@ Nothing above is rewritten; each correction is dated.
   about the Rust lane's test, read from each capture's README; §8.6 and
   §9.9 stand in full.
 * **Nothing here moves D8/D11 or ruling M-8's decision.**
+
+# 14. 2026-09-21, round 9b: `rung-P2`, the development shape that takes BOTH arms of the pad rule — and the control for finding M-F1 that had never fired
+
+**Written 2026-09-21 on the same lane.** New evidence:
+`results/zk60_native_run_gate_p2/`. New tests:
+`tests/test_zk60_native_run_gate_p2.py` (33). Tools moved:
+`zk60_native_rg_predict` (the pad rule DERIVED), `zk60_native_rg_tcontrols`
+(control CT-9), `zk60_native_rg_m125controls` (M9-3 repaired),
+`zk60_native_rg_terminals`, `zk60_native_rg_gqa`, `zk60_native_rg_runpins`
+and `zk60_native_rg_mask` (the pin tables at `4ccbad1`).
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** Two more
+> captured runs of two blocks at a development shape are two more captured
+> runs of two blocks at a development shape. Both bundles carry
+> `privacy_review_complete: false` and so does every record.
+
+## 14.1 The headline, in one line each
+
+1. **The three unpadded host slots pass, at a shape the suite can run.**
+   `rung-P2` — 32 tokens / width 96 / hidden 256, 12 query heads of 8 over
+   4 key-value heads — is rung-K4's PADDED layout with `Dom::T` (2^5),
+   `Dom::Kv` (2^10) and `Dom::F` (2^13) moved exactly onto their pads, which
+   is **125M's own padded-domain set**. The whole gate, both arms, on both
+   bundles: **46 of 46 slot checks, twice**, with slots 02, 16 and 18 taking
+   the `pad_on == false` arm under the DERIVED `pad_on`. 253 s and 540 MB
+   per bundle, against 179 s and 1,459 MB for the (a)–(d) pass at 125M and
+   an hour and a half for its full arm.
+2. **FINDING P-F2, and it is the round's real result: M9-3 — finding
+   M-F1's own control — had never fired, at any shape.** It read
+   `index.geom`, and a `PlaneIndex` has no `geom`; the `except` around it
+   turned every domain's pad state into `None`, so the control found no
+   unpadded domain and reported *"every domain pads at this shape, so the
+   control does not exist here"* — **at the one shape where it did** — with
+   `ok: true`. §13.7's M9-3 row is corrected in §14.10. A control that
+   excuses itself is finding K4-F1's family: **a control that does not fire
+   is not a control.**
+3. **CT-9, the twin, in the ORDINARY gate at every shape.** The pad rule's
+   draw arithmetic is flipped for one hosted domain at a time —
+   `SlotCtx.pad_on`, the method M-F1 was a hardcoded `True` in — and the
+   host slot must refuse BY NAME with both draw counts. At rung-P2 it fires
+   in **four** directions (T, Kv, F made to consume the padded arithmetic,
+   and the mirror on L); at every shape where all nine domains pad it fires
+   in the mirror direction alone. It is in the suite and it costs about a
+   second. **It would have caught M-F1 at rung-K4**: the mirror makes a
+   padded slot consume the unpadded arithmetic, which is the same slicing
+   of the same `definition_challenges` array the finding was about, and
+   before the repair that slicing was an `IndexError` and not a refusal —
+   at any shape.
+4. **The prediction was written, VALIDATED on three earlier shapes and
+   COMMITTED before the gate was run here** (commit `dfecca3`). It derives
+   what it used to read: the pad rule per domain and the definition draw
+   count of all eight zero-check slots. It said slots 02, 16 and 18 consume
+   **13, 19 and 24** draws against rung-K4's 15, 21 and 26; the capture
+   declares 13, 19 and 24. **180 figures classified against the two
+   development shapes: 55 invariant and all 55 identical, 61 block count,
+   64 scaling, 5 predicted by name and 5 of 5 held, ZERO unexplained.**
+5. **The receipt is shorter by an amount the prediction derives.** Slots 16
+   and 18 lose one degree each with the pad factor, so their 11 + 14 = **25
+   sumcheck rounds each send one `Fp2` less**: a rung-P2 stage is exactly
+   **400 bytes** shorter than the rung-K4 stage of the same role
+   (4,574,904 against 4,575,304; 4,765,336 against 4,765,736), and the
+   masking layer recomputes exactly **25 fewer entries per stage**. The same
+   25 rounds, counted twice on two different sides of the proof.
+6. **Every control family fires at rung-P2**: C1–C6, CT-1 … CT-9, GQ-1 …
+   GQ-7 (thirteen entries with the two group bits), P-1 … P-6 and round 8's
+   masking controls — **and the channel table is the full 28 at 10 / 5 / 4 /
+   9**, the same table rung-K4 reads.
+7. **Dense against zero at rung-P2: 136 figures, 120 identical**, and all
+   16 that differ are a distinct-sampled-column count, the pad margin that
+   derives from it, or the pad block's rank, which IS that count. The same
+   classes rounds 4, 5 and 9 found.
+8. **FINDING P-F1**: `pad.rs` — the file the whole pad rule is transcribed
+   from, and therefore the file M-F1 is about — was recorded as one digest
+   under a header saying no bundle pins it. A bundle has pinned it since
+   stage 27 and it had moved twice. Now pinned with all three digests read:
+   **not one production line of `pad.rs` has moved since round 1**.
+
+## 14.2 The pins at `4ccbad1`, and FINDING P-F1
+
+The two rung-P2 bundles pin **38** source files, the same 38 the 125M
+bundles pin. All 38 were recomputed from the committed blob at `4ccbad1`
+and every one matches; **33 are byte-identical to what the 125M bundles
+pin at `f4697f9`**. Five moved, and stages 28, 29 and 30 claim that nothing
+sent, absorbed or drawn changed:
+
+| file | numstat | what it is | does it reach a port? |
+|---|---|---|---|
+| `argument.rs` | **230 / 48**, five hunks | stage 28's table build: `priv_table` reads `(x, z)` from two precomputed bit-permutation maps, `eq_cube` fills one block and doubles it (with its precondition now asserted), a public table is MOVED not copied, a slot's tables are built on an INDEXED parallel iterator above `TABLES_PAR_MIN`, the claimed sum is chunked above `TOTAL_PAR_MIN`; plus `timing::slot_step` and stage 29's env-gated base-field census | **no.** Every slot closure, the push order of every private table, `n_pad` / `pad_on` and the `mu`, `nu`, `zeta` draws at `argument.rs:936`, `lg`, `lk_tables`, `table_values_u8_at`, `B::supp`, `B::group_eq` and the single `tr.absorb_fp2(b"pb-scalar", …)` are byte-identical. The five hunks are HOW a table is filled, never WHICH polynomial a slot is |
+| `protocol.rs` | **213 / 15**, four hunks | `lookup_values_at`, `byte_histogram_at`, and the LogUp helper inverses taken from a 256-entry table of byte denominators through `helper_one` | **no.** All of it is the prover's witness-building path; the `(beta, gamma, alpha)` draw at `protocol.rs:660-662` that `Geometry.set_logup` transcribes is unchanged |
+| `shape.rs` | **63 / 0**, ONE hunk, ADDITIONS ONLY | `Shape::rung_p2()` delegating to the unchanged `Shape::new` | the new shape is the round's subject; not one geometry function moved |
+| `run.rs` | **7 / 0**, ADDITIONS ONLY | `RUN_PROFILE_RUNG_P2` (one profile per shape, D17) and `RunShape::rung_p2` | the header's six absorbs, the seven-word shape, `position_tag`, the stage loop, `BOUNDARY_SITES` and the opening order are byte-identical |
+| `private_block.rs` | 27 / 0 | four `#[cfg(test)] mod` declarations | the module root; nothing is transcribed |
+
+`run_capture.rs`, `boundary.rs`, `plane_index.rs`, `layout.rs`, `pad.rs`,
+`witness.rs` and all 23 shared files are **byte-identical at `4ccbad1`**, so
+the loader, the plane index, the row model and the hash layer are reading
+the bytes round 9 read. **The lane's claim is upheld for everything these
+ports model**, and the gate's own confirmation is that the replay re-derives
+every one of the 4,560 challenges of a bundle written under a profile string
+it had never seen.
+
+> **FINDING P-F1 — a transcribed file that no pin checked.** `pad.rs` is
+> where `PadGeometry` gets `BitForm`, `closed_form_indicator`,
+> `zero_rule_a_planes` and `pad_zero_host` — the whole pad rule, and
+> therefore the whole of finding M-F1. It sat in
+> `zk60_native_rg_terminals.ALSO_READ` as ONE digest, under a header saying
+> "not pinned by a bundle", and (a) that has been false since stage 27 and
+> (b) the file had moved twice, at `0426ad2` and `3247a89`, with nothing
+> comparing. That is finding K4-F2 again, on the one file this round is
+> about. It is now in `PINNED_IF_PRESENT` with all three digests and a
+> reading beside each: `facc057 → 0426ad2` is **94 / 26, every changed line
+> inside `#[cfg(test)] mod tests` except one `pub(super)` on a test-only
+> function**, and `0426ad2 → 3247a89` is **2 / 2, both inside `mod tests`**
+> (`Shape::rung_k4()` added to two test loops). **Not one production line of
+> `pad.rs` has moved since round 1** — which is what makes M-F1 a defect of
+> the PORT alone and not of a moved Rust file.
+
+## 14.3 The prediction, written and committed before the record
+
+`zk60_native_rg_predict` now DERIVES the pad rule instead of reading it.
+For each domain it computes `Shape::true_size` from `run.json["shape"]`
+(restated in the prediction module rather than imported, so a disagreement
+with the port shows up as a mismatch), compares it with the padded size the
+capture's plane index declares, and for each of the **eight** zero-check
+slots computes
+
+```
+draws = tau(log dom) + mu(base + n_pad) + nu + zeta(n_pad),
+        n_pad = pad_on = any(Shape::pads(d)) over the domains the slot hosts
+```
+
+| domain | true size | log | pads | host slot | draws predicted | the capture declares |
+|---|---:|---:|---|---|---:|---:|
+| `T` | 32 | 5 | **no** | 02 `SC_TZC` | **13** | **13** |
+| `L` | 288 | 10 | yes | 03 `SC_LZC` | 12 | 12 |
+| `D` | 3,072 | 12 | yes | 14 `SC_DZC` | 46 | 46 |
+| `Q` | 3,072 | 12 | yes | 15 `SC_QZC` | 24 | 24 |
+| `Kv` | 1,024 | 10 | **no** | 16 `SC_KVZC` | **19** | **19** |
+| `Ht` / `S` | 384 / 12,288 | 9 / 14 | yes | 17 `SC_SZC` | 32 | 32 |
+| `F` | 8,192 | 13 | **no** | 18 `SC_FZC` | **24** | **24** |
+| `Tab` | 256 | 10 | yes | 19 `SC_TAB` | 15 | 15 |
+
+Two of the twenty-three slots (08, 09) were already derived; thirteen are
+still read from the capture and the record says which. The module is
+VALIDATED by reproducing three committed records to the unit — rung-G,
+rung-K4 and **the 125M record, the shape where three domains do not pad** —
+and it reproduces every figure it names on all three.
+
+**The prediction's other figures, all before the run:** 251 transcript
+positions, 4,560 challenges, 9 openings / 2,304 columns / 6,189,056 bytes /
+tree depth 12, 46 slot checks, `M` 50 rows and 34 functionals with largest
+`L_s` 77 at slot 17 and ruling C-4 headroom **179**, 16 identified row pairs
+with whole-run joint 4 = sum 4 and 206 generators, `A` 727 rows / 36 groups
+/ 122 claims, `H` 720 / 9 / 53, the endpoints 9 rows and the boundary 10.
+**Every one is what the record says.**
+
+## 14.4 `rung-P2` beside `rung-K4`, in one table
+
+`comparison_table_p2.json`: **180 figures — 55 INVARIANT and all 55
+identical at all three shapes, 61 BLOCK COUNT, 64 SCALES, 0 UNEXPLAINED, 0
+BROKEN INVARIANTS**, 5 predictions checked and 5 held.
+
+| figure | rung-K4 (3 blocks) | rung-P2 (2 blocks) | reading |
+|---|---:|---:|---|
+| slot checks | 69 of 69 | **46 of 46** | 23 a stage; **block count** |
+| transcript positions / challenges | 375 / 6,854 | 251 / **4,560** | block count |
+| openings / columns / bytes | 13 / 3,328 / 9,275,392 | 9 / 2,304 / 6,189,056 | block count |
+| `A@k` rows / groups / claims / disclosed | 727 / 36 / 122 / **0** | 727 / 36 / 122 / **0** | **identical — the same PADDED layout** |
+| `H@k` rows / groups / claims / disclosed | 720 / 9 / 53 / **2** | 720 / 9 / 53 / **2** | identical, and the 2 is the public lookup identity |
+| endpoints, boundary | 9 rows, 10 rows, disclosed 0 | the same | identical |
+| `M` rows / functionals / disclosed | 50 / 34 / 0 | 50 / 34 / 0 | identical |
+| whole run: identified rows, sum, joint, generators | 24 / 6 / 6 / 308 | 16 / **4 = 4** / 206 | block count (8, 2 and 102 a block) |
+| full preimage | 1,282,025 entries, 0 differing, 2,560 leaves | **862,980, 0 differing, 1,792 leaves** | block count |
+| masking layer | 47,925 entries, 768 leaves | **31,900, 512 leaves** | block count **and 25 fewer a stage** — the pad rule |
+| joint run-wide preimage | 1,329,950, 0 differing, 3,328 leaves | **894,880, 0 differing, 2,304 leaves** | the sum of the two arms |
+| channel table | 28 at 10 / 5 / 4 / 9 | **28 at 10 / 5 / 4 / 9** | identical |
+| slots 16 and 18: declared degree | 5, 5 | **4, 4** | **the pad rule: no pad factor, one degree less** |
+| definition draws, slots 02 / 16 / 18 | 15 / 21 / 26 | **13 / 19 / 24** | **the pad rule** |
+| a stage's segment | 4,575,304 / 4,765,736 | **4,574,904 / 4,765,336** | **exactly 400 bytes less: 25 rounds × 16** |
+
+The two shapes declare the **same nine domain logs** — that is what "the
+same padded layout" means, and it is checked rather than asserted — so
+every figure above that differs is either the block count or the pad rule,
+and there is no third class.
+
+## 14.5 The headline, in the terms round 9 left it in
+
+§13.3 ends: *"Both development shapes are unchanged at 69 of 69, which is
+what the repair had to leave alone."* That was the most one could say then:
+the repair was exercised at 125M and the development shapes proved only
+that it broke nothing. At rung-P2 the repair is **exercised** at a
+development shape —
+
+* `Ctx.pad_on` returns **false** at slots 02, 16 and 18 and **true** at the
+  other five zero-check slots, derived from `Shape::pads` and not from a
+  constant;
+* `Ctx.pad_draws` consumes 13, 19 and 24 draws there and the capture
+  declares 13, 19 and 24;
+* `Ctx.zero_planes` returns `[]` on those three domains, so no pad term is
+  built that the prover never built, and `B::supp` returns no public table
+  for them — which is why slot 18 carries **0** public tables at rung-P2
+  where rung-K4's carries 1;
+* and the identity holds: **46 of 46, on both bundles, with 0 findings.**
+
+## 14.6 FINDING P-F2: the control that had never fired, and CT-9
+
+**What M9-3 did.** `m9_3_the_unpadded_domains(bundle, index, replay)` asked
+`index.geom.pads(dom)` inside a bare `except`, and `index` is a
+`PlaneIndex`, which has no `geom` attribute at any shape — the port's
+`PadGeometry` is built *inside* `check_terminals`, on
+`zk60_native_rg_terminals.Geometry`. So every domain's pad state came back
+`None`, `unpadded` came out empty, and the control returned
+
+> `skipped: "every domain pads at this shape, so the control does not exist
+> here -- which is exactly why rounds 1-8 could not run it"`, `fires: false`,
+> **`ok: true`**
+
+— a sentence that is true at rung-G and false at 125M, reported at both.
+And in neither 125M pass that requested it (`dense-controls` 09:58,
+`dense-controls2` 12:30) did the run-control stage reach it at all: both
+raised first. **There is no record in which M9-3 fired.**
+
+**Two things follow and both are repaired here.** The pad state now comes
+from a `PadGeometry` built the way the port builds it, and the perturbation
+patches `PadGeometry.pads` (M9-3) or `SlotCtx.pad_on` (CT-9) on the class
+for the length of one `check_terminals`, restored in a `finally`.
+
+**And the message round 9 claimed would not have appeared either.** Flipping
+the whole pad STATE of a domain also changes how many public tables the slot
+declares, and that check runs first, so the refusal is *"slot 18: the port
+declares 1 public tables, the capture has 0"* — by name, slot-local, and not
+the draw count. **CT-9 therefore flips the draw arithmetic ALONE**
+(`SlotCtx.pad_on`), leaving the public-table geometry untouched, so what it
+tests is exactly the number M-F1 was wrong about:
+
+> `slot 18: this slot consumes 26 definition draws (tau 13 + mu 9+1 + nu 2 +
+> zeta 1) and the capture declares 24`
+>
+> `slot 2: this slot consumes 15 definition draws (tau 5 + mu 6+1 + nu 2 +
+> zeta 1) and the capture declares 13`
+>
+> `slot 3: this slot consumes 10 definition draws (tau 10 + mu 0+0 + nu 0 +
+> no zeta, the domains ['L'] do not pad) and the capture declares 12`
+
+| | rung-P2 | rung-K4, rung-G, the toy | 125M |
+|---|---|---|---|
+| the M-F1 direction (unpadded made to consume the padded arithmetic) | **T, Kv, F — three, all firing** | does not exist: every domain pads | exists; not run here (no new 125M computation) |
+| the mirror (padded made to consume the unpadded arithmetic) | **L, firing** | **L, firing** | exists |
+| cost | ~1 s of a 253 s pass | ~1 s | one `check_terminals` a direction |
+
+CT-9 runs in the ORDINARY gate, so it is fired by every development record
+this gate keeps and by the suite, and `only_this_slot_stopped_being_checked`
+is asserted in every direction: 44 of 46 at rung-P2, 66 of 69 at rung-K4 —
+one slot of each stage and no other.
+
+## 14.7 The controls at rung-P2
+
+Everything fires, on both bundles, and the honest case is shown first in
+every family:
+
+| family | count | result |
+|---|---:|---|
+| C1 … C6 (round 1, repaired for `L = 2` in round 9) | 6 | all fire, including C5's stage swap between two `/5-run` bundles |
+| CT-1 … CT-8 (rounds 2 and 3) | 8 | all fire |
+| **CT-9** *(new)* | 1, in **4** directions | all fire, each naming both draw counts |
+| GQ-1 … GQ-7 (round 5, two group bits) | 13 entries | all fire |
+| P-1 … P-6 (round 7) | 6 | all fire, on a 2-block run at this shape |
+| the masking controls (round 8) | on | stage 12 closes with 31,900 entries, 0 differing |
+| CH-1 … CH-7 (rounds 3, 5) | fired with `--cross-profile run-i-dense-k4`, a different tagged profile | pass |
+
+## 14.8 Dense against zero at rung-P2
+
+`witness_comparison_p2_dense_vs_zero.json`: **136 figures compared, 120
+identical, 16 differ** — eight `distinct opened columns`, seven pad margins
+and the pad block's exact rank, which IS the distinct count. Not one
+disclosed dimension, rank, boundary figure, joint figure, terminal check,
+mask figure or channel count differs between the two. **And the gate still
+cannot see the witness**: "dense" and "zero" are claims about the Rust
+lane's test, read from each capture's README.
+
+## 14.9 Task B: the 125M jobs of R9.10, verified against the committed records
+
+Round 9 closed with eight detached jobs. Six landed and were integrated by
+the round-9 agent before it stopped; this round **verified** each figure
+against the committed record rather than taking the report's word, and
+adds what the verification found.
+
+| job | marker | exit | verified |
+|---|---|---:|---|
+| `dense-full` | `…/m125/dense-full.done` | **0** | all seven commitments exhibited; per-commitment entry counts **A@0 2,070,138, H@0 1,989,171, E-Input 42,753, A@1 2,070,138, H@1 1,989,171, B0 59,612, E-Output 42,753 — summing to exactly the arm's 8,263,736**, 0 differing, `first_mismatch` null, 7 × 256 = **1,792** salted leaves; P-1 … P-6 all `fires: true`; the masking layer 32,918 / 0 / 512 |
+| `zero-full` | `…/m125/zero-full.done` | **1** | the exit code is **finding M-F4 and nothing else**: the pass was run without `--controls`, so stage 12's `ok` is false although its 32,918 entries all match, and stage 13 inherits it. The figures verify: per-commitment sum **8,256,579**, 0 differing, 1,792 leaves. **Dense minus zero is 7,157, and it is two commitments: `H@0` 7,120 (one distinct opened column of a 7,120-row commitment) and `E-Input` 37** |
+| `dense-controls2` | `…/m125/dense-controls2.done` | **1** | **it did NOT deliver the control set at 125M, and its log says why**: `[terminals] RAISED IndexError` after 806 s and `[runcontrols] RAISED AttributeError: '_ShadowBundle' object has no attribute 'name'` after 11 s. Those are M-F3's second repair and M9-2's shadow bundle, both repaired by the round-9 agent afterwards and both re-queued (`dense-controls3`), so **the control families at 125M still rest on a pass that has not landed**. The record the working tree carries for this name is that crashed pass, and its stage 6 says `the_stage_raised` |
+| `dense-final`, `zero-final` | `.done` | **0**, **0** | the two (a)–(d) records of record, re-taken; the channel table is **28 at 2 / 5 / 4 / 17** in both, which is what §13.8 says |
+| `refresh` (+ `refresh2`) | `.done` | **0**, **0** | the ten development records re-run and leaf-diffed, 0 unclassified |
+| `tests_native_all`, `tests_run_gate_all`, `tests_final` | `.done` | 1, 1, 1 | the exact-set assertions round 9 and round 9b widened; §14.11 |
+| `dense-everything` | `…/m125/dense-everything.done` | **not landed** | still queued on `/tmp/zk-heavy.lock`; it is the only pass that can read **28 at 10 / 5 / 4 / 9** at 125M, and until it lands no 125M record carries the whole table |
+| `retake78` | `…/m125/retake78.done` | **not landed** | rounds 7 and 8's own evidence, re-taken |
+
+**The `joint` stage at 125M takes 0.0 s, and here is why — it builds
+nothing.** `joint_run_preimage` does not construct or verify a third
+assignment: it enumerates the four couplings and checks them (C1 row pair by
+row pair against the per-commitment views, C2 by counting shared published
+values, C3 out of stage 12's own declared-order and functional-value
+checks, C4 a stated narrow sense), and then **adds the two arms up**. The
+figure "8,296,654 entries recomputed and compared" is exactly
+`8,263,736 (stage 11) + 32,918 (stage 12)`, and "2,304 salted leaves" is
+`1,792 + 512`; the zero bundle's 8,289,497 is `8,256,579 + 32,918` the same
+way. Every one of those entries **was** recomputed and compared — once,
+in its own arm. The joint STATEMENT is still earned, and C1 is what earns
+it: 128 identified row pairs, all data rows on both sides, none touching a
+blinding row, so the two assignments are compatible and their union
+reproduces the whole run's published view. **But the number must not be
+read as a third verification**, and §13.8 is corrected below to say so.
+
+## 14.10 Corrections in place, dated 2026-09-21 (round 9b)
+
+| where | said | says now |
+|---|---|---|
+| §13.7, the M9-3 row | "each domain that does NOT pad at 125M, made to look padded to the port, one at a time → its host slot refuses **by name**, with the draws it consumes and the draws the capture declares in the message" | **WITHDRAWN, finding P-F2.** M9-3 never fired: it read `index.geom`, which a `PlaneIndex` does not have, and reported itself inapplicable; and in both 125M passes the run-control stage raised before reaching it. The control is repaired here and verified at rung-P2, where the same three domains are unpadded; it has not been re-run at 125M and this round runs no new 125M computation. The quoted message is what CT-9 produces at rung-P2 |
+| §13.7, "Every control of rounds 1–8 that the shape admits is fired at 125M unchanged" | — | **true only of the families that a pass carried through**: round 7's P-1 … P-6 fired in `m125-dense-full`, round 8's in `m125-dense-controls`'s stage 12. The terminal family and the run-control family RAISED in both control passes at 125M (`dense-controls`, `dense-controls2`), which is finding M-F3's story and is why round 9 kept re-running them |
+| §13.8, "stage 13 joins them into ONE assignment … 8,296,654 entries recomputed and compared" | — | the couplings are checked and the count is the **sum of the two arms**, not a third recomputation (§14.9). The joint statement stands on C1; the entries were each recomputed once, in their own arm |
+| §10.2 / `ALSO_READ`'s "not pinned by a bundle" for `pad.rs` | — | false since stage 27, and finding **P-F1**: `pad.rs` is pinned and is now checked, at all three digests it has had |
+
+## 14.11 The records re-taken, the leaf diff, and the suite
+
+Round 9b moved seven tool files, so **every committed record was re-run
+under the final tools** and diffed leaf by leaf against the committed bytes,
+exactly as §13.8b did.
+
+**Eighteen records, not ten.** Rounds 7 and 8 keep their own evidence with
+both arms on, and their `test_the_evidence_came_from_the_tool_bytes_now_in_
+the_tree` is what says they must be re-taken; round 9 paid that cost and
+round 9b pays it again.
+
+| | the ten default records | round 7's four | round 8's four |
+|---|---:|---:|---:|
+| identical leaves | 2,870–4,155 | 6,479–6,566 | 8,699–8,791 |
+| changed | **8–9** | 76–80 | 78–86 |
+| new | **0 or 26** | 39 | 39 |
+| only in the OLD record | **0** | **0** | **0** |
+| **UNCLASSIFIED** | **0** | **0** | **0** |
+
+Across the eighteen: **520 new leaves and 586 changed, every one in a named
+class.** The new leaves are **384 CT-9's own** (24 or 25 a record;
+`run-a-tame` and `run-b-zero` predate the plane index table, so they run no
+terminal controls and gain none), **32** the new `argument.rs` digest in
+`argument_definitions_this_port_implements`, and **96** round 9's
+`array_store` and `shared_files` blocks on the eight round-7/8 records,
+which were last taken before round 9. The changed leaves are **132 tool
+hashes** and the rest wall clocks. **Not one rank, disclosed dimension,
+challenge count, slot check, preimage figure, mask figure, control figure
+or channel count differs on any of the eighteen**, at any shape — which is
+the statement CT-9 had to be added without disturbing.
+
+> **One labelling imprecision, stated rather than fixed** (as §13.8b stated
+> its own). The classifier tests round 3's class — anything under
+> `stage8_plane_index_and_terminals` — before round 9b's, so CT-9's leaves
+> are counted under round 3's label. They are classified and counted; only
+> the name beside them is the older one. The composition above is computed
+> from the paths directly.
+
+**Six tool files moved and one was added to the hashed list.** The six are
+`zk60_native_rg_terminals`, `_gqa`, `_runpins`, `_mask`, `_tcontrols` and
+`_gcontrols` (the last from round 9's own second M-F3 repair, which landed
+between the committed records and this refresh). `zk60_native_rg_predict`,
+`_m125controls` and `_recclass` also moved and are deliberately NOT in the
+hashed list: a prediction, a 125M-only control driver and a diff classifier
+are not the gate.
+
+**The two 125M records of record are enqueued, not landed.**
+`m125-dense.json` and `m125-zero.json` pin tool digests this round moved;
+both are re-taken by the jobs named in ledger §R9b.3
+(`results/zk60_native_run_gate_p2/m125-{dense,zero}-9b.done`), queued behind
+`dense-everything` on `/tmp/zk-heavy.lock`. Until they land those two
+records carry the pre-9b tool bytes; **no figure in them is in question**,
+because what moved is the pin tables, CT-9 and one accepted digest.
+
+**The suite.** `-p 'test_zk60_native*.py'`: **507 tests, exit 0**, one
+skip and one recorded expected failure (round 9: 474; the 33 new ones are
+`test_zk60_native_run_gate_p2.py`). As in rounds 5, 8 and 9, the first
+whole-suite pass after the tool changes failed, and **every failure was an
+earlier round asserting an exact set that this round widened on purpose.
+Not one was a measured figure.**
+
+| assertion | was | is | why |
+|---|---|---|---|
+| `test_both_argument_digests_are_definitions_this_port_has_read` | 2 digests | **3** | `argument.rs` at `4ccbad1`. There are still exactly TWO definitions and now three digests that select one of them, which is what the test now says |
+| `test_every_pinned_digest_has_a_written_reading` | 12 (file, digest) pairs | **13** | only `run.rs` moved at `4ccbad1`; `run_capture.rs` and `boundary.rs` are byte-identical there and their entries gained the commit and the two bundles instead |
+| `test_every_pinned_digest_is_the_blob_at_every_commit_it_names` | 18 | **21** | three files at SEVEN capture commits: the two that did not move are checked at the new commit against the digest they already had, which IS the statement that they did not move |
+| `test_the_recorded_controls_all_fire` (plane index) | `CT-1 … CT-5` | **+ CT-9** | a `/4-run` bundle with no captured tables runs five terminal controls and now six |
+| `test_the_eight_terminal_controls_all_fire` (tagged) | 8 | **9** | the same, on a bundle that carries its public tables |
+| the six `test_the_evidence_…_tool_bytes_now_in_the_tree` | the old digests | re-taken | the refresh above |
+
+## 14.12 What this round is NOT
+
+* **Not a privacy claim and not a privacy acceptance.** A shape that
+  exercises a pad rule is a shape that exercises a pad rule.
+* **Not a statement about 125M.** Nothing was re-measured there: the
+  repaired M9-3 is verified at rung-P2, and `dense-everything` and
+  `retake78` had not landed when this was written.
+* **Two runs of TWO blocks at a development shape.** `L = 2` exercises one
+  internal boundary.
+* **The gate still cannot see the witness**, the hash layer's HIDING is
+  still ARGUED (M-2, M-3), the joint LAW is still O-R2 / G-R4, and ruling
+  R-3 travels with every joint figure here.
+* **Nothing here moves D8/D11 or ruling M-8's decision.**

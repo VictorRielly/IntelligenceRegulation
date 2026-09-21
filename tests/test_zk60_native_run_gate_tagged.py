@@ -336,7 +336,12 @@ class TestRecordedEvidence(unittest.TestCase):
             ctl = rec["stage8_plane_index_and_terminals"]["controls"]
             self.assertTrue(ctl["ok"], name)
             got = {c["control"]: c for c in ctl["controls"]}
-            self.assertEqual(len(got), 8, name)
+            # [ROUND 9b, DELIBERATE] eight became NINE: CT-9, the pad
+            # rule's draw arithmetic (M9-3's twin), which runs at every
+            # shape and here -- where all nine domains pad -- fires in its
+            # mirror direction alone.
+            self.assertEqual(len(got), 9, name)
+            self.assertEqual(got["CT-9"]["mirror_domain"], "L", name)
             for k, c in got.items():
                 self.assertTrue(c["fires"], f"{name} {k}")
             self.assertTrue(got["CT-6"]["the_slot_is_not_reported_checked"], name)

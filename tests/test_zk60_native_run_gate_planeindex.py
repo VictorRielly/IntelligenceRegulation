@@ -177,7 +177,17 @@ class TestRecordedEvidence(unittest.TestCase):
             self.assertTrue(ctl["ok"], f"{name}: {ctl.get('controls_that_did_not_fire')}")
             self.assertEqual(ctl["controls_that_did_not_fire"], [], name)
             got = {c["control"]: c for c in ctl["controls"]}
-            self.assertEqual(sorted(got), ["CT-1", "CT-2", "CT-3", "CT-4", "CT-5"])
+            # [ROUND 9b, DELIBERATE] five became SIX.  CT-9 -- the pad
+            # rule's draw arithmetic, M9-3's twin -- is fired at every
+            # shape, and at this one (where every domain pads) it runs its
+            # mirror direction alone: `Dom::L`'s slot made to consume the
+            # unpadded arithmetic must refuse by name with both counts.
+            self.assertEqual(sorted(got),
+                             ["CT-1", "CT-2", "CT-3", "CT-4", "CT-5", "CT-9"])
+            self.assertEqual(
+                got["CT-9"]["domains_that_do_not_pad_at_this_shape"], [], name)
+            self.assertEqual(got["CT-9"]["mirror_domain"], "L", name)
+            self.assertTrue(got["CT-9"]["fires"], name)
             self.assertTrue(got["CT-1"]["fails_at_exactly_the_perturbed_slot"], name)
             self.assertTrue(
                 got["CT-1"]["the_transcript_replay_refuses_the_same_bundle"], name)

@@ -1950,54 +1950,203 @@ round writes over them.
 
 | bundle | witness | bytes | source commit |
 |---|---|---|---|
-| `run-k-dense-p2` | dense generic input at `rung-P2` | pending | `4ccbad1` |
-| `run-l-zero-p2` | the all-zero input at `rung-P2` | pending | `4ccbad1` |
+| `run-k-dense-p2` | dense generic input at `rung-P2` | 16,001,981 (`arrays.bin` 9,097,448) | `4ccbad1` |
+| `run-l-zero-p2` | the all-zero input at `rung-P2` | 15,912,181 (`arrays.bin` 9,014,520) | `4ccbad1` |
 
 Both in the LANE's worktree at
 `/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/`, the
 same directory every development bundle of rounds 1–8 is read from and the
-same way the tests reach them.
+same way the tests reach them. Schema `hashline-native-capture/5-run`,
+two blocks, public tables' values included, `privacy_review_complete:
+false`.
 
 ## R9b.2 Status
 
 | # | item | state |
 |---|---|---|
-| P0 | ledger skeleton, round 9b opened | done |
-| P1 | the pins between `f4697f9` (round 9's accepted commit) and `4ccbad1`, hunk by hunk, with a verdict on the lane's "nothing sent, absorbed or drawn changed" | pending |
-| P2 | `rung-P2` added to the prediction module and the figures written BEFORE the gate is run there | pending |
-| P3 | the whole gate on both bundles, every arm, against rung-K4 | pending |
-| P4 | M9-3's development-shape twin, in the ordinary suite | pending |
-| P5 | the landed 125M jobs of R9.10 read, leaf-diffed and integrated | pending |
-| P6 | report section "Round 9b", the suite | pending |
+| P0 | ledger skeleton, round 9b opened | done — `46be333` |
+| P1 | the pins between `f4697f9` and `4ccbad1`, hunk by hunk, with a verdict on the lane's "nothing sent, absorbed or drawn changed" | done — `dfecca3`, §R9b.4, report §14.2; **finding P-F1** |
+| P2 | `rung-P2` added to the prediction module and the figures written BEFORE the gate is run there | done — `dfecca3` (committed before the run), §R9b.5, report §14.3 |
+| P3 | the whole gate on both bundles, every arm, against rung-K4 | done — `3ae2569`, §R9b.6, report §14.4–14.5 |
+| P4 | M9-3's development-shape twin, in the ordinary suite | done — `3ae2569`, §R9b.7, report §14.6; **finding P-F2** |
+| P5 | the landed 125M jobs of R9.10 read and verified | done — §R9b.8, report §14.9 |
+| P6 | report section "Round 9b", the records re-taken, the suite | done — §R9b.9, report §14 and its four dated corrections; suite 507, exit 0 |
 
 ## R9b.3 Commands and logs (round 9b)
 
-pending
+Development-shape work is light and was run directly, detached with a log
+and a `.done` marker, inside `systemd-run --user --scope -p MemoryMax=4G
+-p MemorySwapMax=0`. **No new 125M computation was started for task A**;
+the two 125M records of record are re-taken once each under
+`flock /tmp/zk-heavy.lock` at 8G, enqueued and named below.
+
+| what | command | log / marker |
+|---|---|---|
+| the prediction, validated on three committed records | `python3 scripts/zk60_native_rg_predict.py --bundle <run-k> --validate <run-g>:<rec> --validate <run-i>:<rec> --validate <m125-dense>:<rec>` | `…/p2/predict.log`, `.done`, `prediction_p2.json` |
+| the whole gate, both bundles, both arms | `results/zk60_native_run_gate_p2/run.sh` (`--full-preimage --mask-cfs --old run-a-tame --cross-profile run-i-dense-k4`) | `…/p2/run.log`, `.done`, `run-{k,l}-*.json`, `time-*.log` |
+| dense against zero | `zk60_native_rg_witcmp.py` | `…/p2/witness_comparison_p2_dense_vs_zero.json` |
+| rung-P2 against both development shapes, classified | `zk60_native_rg_m125table.py` | `…/p2/comparison_table_p2.json` |
+| the eighteen records of record re-taken under this round's tools | `…/p2/before.sh`, `refresh.sh`, `diff.sh` | `…/p2/refresh.log`, `.done`, `diffs/`, `all_eighteen_records_unchanged.json` |
+| the two 125M records of record, ONCE each | `zk60_native_rg_m125.py --stages load,replay,hash,terminals,commitments,boundary,preimage,channels`, under the heavy lock | `…/p2/m125-{dense,zero}-9b.log`, `.done` |
+| the suite | `python3 -m unittest discover -s tests -p 'test_zk60_native*.py'` | `…/p2/tests_native_all.log`, `.done` |
 
 ## R9b.4 Results — P1, the pins at `4ccbad1`
 
-pending
+Report §14.2 has the table. Three things belong here.
+
+1. **All 38 pins recomputed from the committed blobs**; 33 byte-identical
+   to what the 125M bundles pin. The five that moved are `argument.rs`,
+   `protocol.rs`, `shape.rs`, `run.rs` and `private_block.rs`, and the
+   verdict on the lane's claim — nothing sent, absorbed or drawn changed —
+   is UPHELD for everything these ports model. The gate's own confirmation
+   is that the replay re-derives all 4,560 challenges of a bundle written
+   under a profile string it had never seen.
+2. **`argument.rs` is the one to read twice**, because it is the file that
+   decides what a slot's polynomial IS. Five hunks, all table BUILD:
+   `priv_table`'s two bit-permutation maps with a plain store when nothing
+   can collide, `eq_cube`, `table_of_taking`, `build_tables_at` and the
+   chunked claimed sum. The slot closures, the push order, `pad_on`, the
+   `mu`/`nu`/`zeta` draws at `argument.rs:936` and the single
+   `absorb_fp2(b"pb-scalar")` are byte-identical, so the pin selects stage
+   20's repaired bilinear definition, unchanged.
+3. **FINDING P-F1.** `pad.rs` — where the pad rule is transcribed from —
+   was one recorded digest under a header saying no bundle pins it. False
+   since stage 27, and it had moved twice. Now checked at all three
+   digests, with the reading that **not one production line of `pad.rs`
+   has moved since round 1**: both moves are inside `#[cfg(test)] mod
+   tests` apart from one `pub(super)` on a test-only function.
 
 ## R9b.5 Results — P2, the prediction
 
-pending
+Report §14.3 has the table. The module now DERIVES the pad rule and the
+definition draw count of all eight zero-check slots instead of reading
+them, and it is validated on **three** committed records — rung-G,
+rung-K4 and **the 125M record**, the shape where three domains do not pad
+— reproducing every figure it names on each. It was committed in
+`dfecca3`, before the gate had been run at rung-P2.
+
+The one figure worth naming twice: the predicted receipt. Slots 16 and 18
+lose one degree each with the pad factor, their 11 + 14 = 25 sumcheck
+rounds each send one `Fp2` less, so a stage is exactly **400 bytes**
+shorter than the rung-K4 stage of the same role. The capture declares
+4,574,904 and 4,765,336 against rung-K4's 4,575,304 and 4,765,736. The
+same 25 rounds show up a second time on the masking side: **25 fewer
+entries recomputed per stage** (15,950 against 15,975).
 
 ## R9b.6 Results — P3, the gate at `rung-P2`
 
-pending
+Report §14.4 has the comparison and §14.5 the headline. In one line: **46
+of 46 slot checks on both bundles**, every stage `ok`, every control family
+firing, the channel table the full **28 at 10 / 5 / 4 / 9**, 253 s and 540
+MB a bundle, and **0 unexplained figures** out of 180 classified.
+
+What the round was for, in the port's own terms: `Ctx.pad_on` is **false**
+at slots 02, 16 and 18 and true at the other five zero-check slots, derived
+from `Shape::pads`; `Ctx.pad_draws` consumes 13, 19 and 24 draws where the
+capture declares 13, 19 and 24; `Ctx.zero_planes` returns `[]` on those
+three domains and `B::supp` gives them no public table, which is why slot
+18 carries **0** public tables here and 1 at rung-K4.
 
 ## R9b.7 Results — P4, the controls and M9-3's twin
 
-pending
+Report §14.6. **FINDING P-F2: M9-3 had never fired.** `index.geom` does
+not exist on a `PlaneIndex` at any shape, the bare `except` turned the pad
+state into `None`, and the control reported itself inapplicable with
+`ok: true`; and both 125M control passes raised before reaching it anyway.
+
+Repaired, and given a twin that runs everywhere: **CT-9** flips
+`SlotCtx.pad_on` for one hosted domain at a time — the draw arithmetic
+alone — and demands a refusal naming both counts. Two facts came out of
+building it that are worth keeping:
+
+* flipping the whole pad STATE is caught one step earlier, by the
+  public-table count (`slot 18: the port declares 1 public tables, the
+  capture has 0`), so the message round 9's report attributed to M9-3
+  would not have appeared even with the object bug fixed. CT-9 flips the
+  arithmetic alone, which is exactly what M-F1 was about;
+* the mirror direction — a PADDED domain made to consume the unpadded
+  arithmetic — exists at **every** shape, so the regression is not
+  conditional on having a rung-P2 bundle on the box.
 
 ## R9b.8 Results — P5, the 125M jobs that landed
 
-pending
+Report §14.9 has the table. Six of round 9's eight landed and were
+integrated by the round-9 agent before it was stopped; this round
+re-verified every figure against the committed records rather than the
+report's word. Three things the verification added:
 
-## R9b.9 The suite
+1. **The per-commitment entry counts sum to the arm's total** on both
+   bundles (dense 2,070,138 + 1,989,171 + 42,753 + 2,070,138 + 1,989,171 +
+   59,612 + 42,753 = 8,263,736; zero 8,256,579), 0 differing, 1,792 salted
+   leaves each, P-1 … P-6 all firing on the dense pass.
+2. **Dense minus zero is 7,157 and it is exactly two commitments**: `H@0`
+   7,120 (one distinct opened column of a 7,120-row commitment) and
+   `E-Input` 37.
+3. **The `joint` stage builds nothing** — which is why it takes 0.0 s. It
+   checks the four couplings and ADDS THE TWO ARMS UP: 8,296,654 is
+   8,263,736 + 32,918 and 2,304 leaves is 1,792 + 512. The joint statement
+   stands on C1 (128 identified row pairs, all data rows, none touching a
+   blinding row), and the entry count must not be read as a third
+   verification. Report §13.8 is corrected in place.
 
-pending
+`zero-full`'s exit 1 is finding M-F4 and nothing else: the pass was run
+without `--controls`, so stage 12's `ok` is false although all 32,918 of
+its entries match. Still not landed when this was written:
+`dense-everything` (`results/zk60_native_run_gate_m125/dense-everything.done`)
+and `retake78` (`…/retake78.done`), plus two re-runs a second session
+enqueued at 12:31 (`dense-controls3`, `dense-everything2`) whose output is
+scratch, not a record of record.
+
+## R9b.9 The suite, and the records re-taken
+
+`python3 -m unittest discover -s tests -p 'test_zk60_native*.py'`: **507
+tests, exit 0**, one skip and one recorded expected failure (round 9:
+474). Report §14.11 has the table of the five exact-set assertions this
+round widened on purpose and the six evidence-digest tests the refresh
+re-took; **not one measured figure moved.**
+
+The eighteen records of record were re-run under this round's tool bytes
+and diffed leaf by leaf against the committed ones: **0 UNCLASSIFIED on
+all eighteen**, 520 new leaves (384 of them CT-9's own) and 586 changed
+(132 tool hashes, the rest wall clocks), and not one rank, disclosed
+dimension, challenge count, slot check, preimage figure, mask figure,
+control figure or channel count differs at any shape.
+
+One operational note worth keeping, because it cost an hour of confusion:
+round 9's own detached jobs were still running when this round began
+editing tools, so four of the ten development records the `refresh2` job
+wrote at 12:35-12:38 straddle two tool versions. They were never
+committed; the refresh above took its baseline from `git show HEAD:`
+rather than from the working tree, which is the only reason the leaf diff
+means anything. **A detached job that runs a tool from the worktree pins
+the bytes it finds when it STARTS, not when it was enqueued.**
 
 ## R9b.10 NEXT after round 9b
 
-pending
+0. **The two 125M records of record are ENQUEUED, not landed.** Round 9b
+   moved seven tool files, so `m125-dense.json` and `m125-zero.json` pin
+   tool digests that have moved; both are re-taken by the jobs named in
+   §R9b.3 (`…/p2/m125-{dense,zero}-9b.done`), queued behind
+   `dense-everything` and three other heavy jobs. Until they land, those
+   two records carry the pre-9b tool bytes and **no figure in them is in
+   question** — what moved is the pin tables, CT-9 and one accepted digest.
+   Read the markers first.
+1. **Fire M9-3 and CT-9 at 125M.** The repair is verified at rung-P2,
+   where the same three domains are unpadded; it has not been re-run at
+   125M because this round started no new 125M computation for task A. The
+   next 125M control pass will carry both.
+2. **`dense-everything` and `retake78`** are still the two round-9 jobs
+   that have not landed. `dense-everything` is the only pass that can read
+   **28 at 10 / 5 / 4 / 9** at the 125M shape.
+3. **A second session's re-runs.** `dense-controls3` and
+   `dense-everything2` were enqueued at 12:31 by the round-9 agent before
+   it was stopped. Their output is scratch: they straddle this round's tool
+   edits and are not records of record. Do not commit them; re-take
+   anything they claim.
+4. **More than two blocks, at either shape.** `L = 2` exercises one
+   internal boundary; rung-P2 could carry three as cheaply as two.
+5. **The joint LAW** (O-R2 / G-R4) and **the hash layer's HIDING** (M-2,
+   M-3) are exactly where rounds 7-9 left them, and they remain the two
+   largest things between this gate and a privacy argument.
+6. Nothing in this round moves D8/D11 or ruling M-8's decision, and
+   nothing in it is a privacy acceptance.
