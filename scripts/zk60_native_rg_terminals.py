@@ -23,11 +23,31 @@ public WEIGHTS, the norm gains, the RoPE tables or the exp / activation
 tables cannot be rebuilt, because a bundle carries none of those.  Every
 slot in the second class stays OPEN, per slot, with that reason.
 
-COVERED AT THIS SHAPE — 12 of the 23 slots:
+ROUND 3 (2026-09-20, the TAGGED bundles).  `public_tables_included` is TRUE
+in `run-e-tame-tagged` / `run-f-zero-tagged`, so the eleven slots below that
+were OPEN for want of a public table's VALUES are ported and evaluated, and
+**all 23 slots are covered at this shape**.  A captured public table is not
+taken on trust: every one of them is checked against the capture's OWN
+length and SHA-256 before use (93 per bundle), every table that is a
+function of the shape is still REBUILT here and compared, and every captured
+table is additionally checked for the STRUCTURE its builder gives it — a
+weight fold vanishing off the width's support (ruling P-2), a norm gain
+periodic in the padded width, the RoPE pair's zero set and its
+`(cos, -sin | +sin)` partner symmetry, a lookup table periodic in the byte
+class after the P-3 lift.  What CANNOT be established from a bundle alone is
+that a weight fold is the fold of the weight matrix the statement names: no
+bundle carries a weight.  That is stated per slot in `TAKEN_FROM_CAPTURE`
+and in the report, and it is a soundness-side reading, not a privacy one.
+
+COVERED AT THIS SHAPE — 12 of the 23 slots on a stage-15 bundle, and all 23
+on a stage-18 one:
 
     00 SC_SS     01 SC_SSM    02 SC_TZC    03 SC_LZC    04 SC_RS
     08 SC_SCORE  09 SC_PV     17 SC_SZC    18 SC_FZC    20 SC_ZS
     21 SC_IO_IN  22 SC_IO_OUT
+    05 SC_QMM    06 SC_KMM    07 SC_VMM    10 SC_WO     11 SC_GMM
+    12 SC_UMM    13 SC_DMM    14 SC_DZC    15 SC_QZC    16 SC_KVZC
+    19 SC_TAB                                     (round 3, captured tables)
 
 They include everything the rung adds that the toy does not have, except the
 weight-folding slots: the PAD-ZERO term `mu_pad * (1 - supp) * sum zeta^j *
@@ -39,8 +59,9 @@ SITES (slots 21 and 22, whose IO table is an internal boundary in every
 stage but the first / last), and the third `sigma_s` limb (`A_SR2` /
 `A_SG2`, slot 17).
 
-NOT COVERED, all for one reason, stated per slot below: the slot's public
-table is not a function of the shape.
+NOT COVERED on a bundle whose public tables carry no values, all for one
+reason, stated per slot below: the slot's public table is not a function of
+the shape.  The same eleven slots stay OPEN on `run-a-tame` … `run-d-zero`.
 
     05 SC_QMM  06 SC_KMM  07 SC_VMM  10 SC_WO   11 SC_GMM  12 SC_UMM
     13 SC_DMM      -- fold_rows_i8 / fold_cols_i8 of the public weights
@@ -81,8 +102,10 @@ from zk60_native_jv_field import (  # noqa: E402
     eq_table_msb,
     f2_add,
     f2_from_list,
+    f2_inv,
     f2_mul,
     f2_mul_base,
+    f2_neg,
     f2_sub,
 )
 
@@ -105,6 +128,38 @@ PORTED_FROM = {
     "src/private_block/plane_index.rs":
         "9de8320a84770560d2b998c514b0e9745a8f6c9f0c1d0cdefda8164137107611",
 }
+# **ROUND 3: two of those four pins MOVED, and one file joined the set.**
+# The stage-18 bundles were written at `facc057`, where stage 16, 17 and 18
+# landed.  `argument.rs` and `plane_index.rs` -- the two files that decide
+# what a slot's polynomial IS and which plane each terminal belongs to -- are
+# byte-identical at both commits, so no ported polynomial is in question.
+# `layout.rs` and `protocol.rs` moved, and both diffs were read line by line
+# (`git diff aff891d facc057 --`): they are the D19 hash-tag plumbing and the
+# T-3 / T-4 path-length checks -- `no_commitment_has_a_node_shaped_column_
+# under`, `tagged_transcript`, `endpoint_pcs_params`, and the `verify_zk` /
+# `mask_commit` call sites taking a tag.  Nothing this port reads from either
+# file moved: not `lookups_at`, not a plane order or row count, not a
+# calibration constant, not the `(beta, gamma, alpha)` draw.  `shape.rs` is
+# newly pinned BY THE BUNDLE, and its diff is additions only
+# (`hashes_under_the_legacy_rule`, `hash_tag`, `degree_range`, a test hook),
+# so the digest it now pins is simply recorded here as an accepted second
+# value.  A pin that moves for any OTHER reason still makes every slot NOT
+# CHECKED.
+ALSO_ACCEPTED = {
+    "src/private_block/layout.rs": {
+        "b765bdcbe5762cce3402dac9fb44b5359d53cb492f67c62dbee18f3b559b0d05":
+            "stage 16/17/18: the shape-free half of the C-H4 row-count set "
+            "moved into `hash_domain` and takes a HashTag; nothing this port "
+            "reads changed",
+    },
+    "src/private_block/protocol.rs": {
+        "e012450bdc4d7eb933e1d034960a87388385f0daa18ff631da395172e1201dda":
+            "stage 16/17/18: `tagged_transcript`, `endpoint_pcs_params` and "
+            "the tagged verify / commit call sites; the slot loop, the "
+            "(beta, gamma, alpha) draw and the row counts are unchanged",
+    },
+}
+
 # Not pinned by a bundle, and read for the pad rule and the domain geometry.
 # Their digests are recorded so that a later reader can see what was read.
 ALSO_READ = {
@@ -116,23 +171,55 @@ ALSO_READ = {
         "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad",
 }
 
+# A file this port READ that a bundle did not pin until stage 18.  It is
+# checked only when the bundle pins it, so a stage-14 or stage-15 bundle is
+# unaffected; both digests are accepted, and the stage-18 one is the first
+# with the D19 additions (`hashes_under_the_legacy_rule`, `hash_tag`,
+# `degree_range`, the test hook) and nothing else.
+PINNED_IF_PRESENT = {
+    "src/private_block/shape.rs": {
+        "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0":
+            "the digest this port was read at (stage 15)",
+        "9ac32109b176ffe10601b3412961204ac00c3a8feafd23226a9cc568f5104999":
+            "stage 17/18: the D19 hash-tag selector and a degree_range helper, "
+            "additions only; every geometry function this port reads is "
+            "unchanged",
+    },
+}
+
 
 def check_source_pins(bundle) -> dict:
     """The bundle's own `source_pins` against the digests this port was
     written from.  A moved pin is a refusal, never a silent re-read."""
     pins = {p["file"]: p["sha256"] for p in bundle.manifest.get("source_pins", [])}
-    moved, missing = [], []
+    moved, missing, accepted = [], [], []
     for f, want in PORTED_FROM.items():
         got = pins.get(f)
+        second = ALSO_ACCEPTED.get(f, {})
         if got is None:
             missing.append(f)
-        elif got != want:
+        elif got == want:
+            continue
+        elif got in second:
+            accepted.append(f"{f}: {got[:12]} -- {second[got]}")
+        else:
             moved.append(f"{f}: the bundle pins {got[:12]}, the port was read at {want[:12]}")
+    for f, ok_digests in PINNED_IF_PRESENT.items():
+        got = pins.get(f)
+        if got is None:
+            continue
+        if got in ok_digests:
+            accepted.append(f"{f}: {got[:12]} -- {ok_digests[got]}")
+        else:
+            moved.append(
+                f"{f}: the bundle pins {got[:12]}, which is not one this port has read"
+            )
     return {
         "ported_from": PORTED_FROM,
         "also_read_not_pinned_by_a_bundle": ALSO_READ,
         "pins_missing_from_the_bundle": missing,
         "pins_that_moved": moved,
+        "pins_at_an_accepted_second_digest": accepted,
         "ok": not moved and not missing,
     }
 
@@ -147,6 +234,14 @@ MASK_SCORE = -127    # layout.rs, the masked-out score
 SH_S = 6             # layout.rs:68
 SH_G = 7             # layout.rs (the gate's requantisation shift)
 SH_H_PROD = 14       # layout.rs (the hidden product's shift)
+# round 3: the constants the eleven newly ported slots read
+NORM_TN = 11         # layout.rs:62
+NORM_CN = 1024       # layout.rs:63
+SH_QKV = 7           # layout.rs:66
+SH_ROPE = 7          # layout.rs:67
+SH_O = 9             # layout.rs:69
+SH_AO = 7            # layout.rs:70
+SH_Z = 6             # layout.rs:80
 LIMBS_ISQRT = 3      # shape.rs:28; `N_LIMBS = 3 * LIMBS_ISQRT = 9`
 U8_LEN = 256         # layout.rs:59
 # `gamma.mul_base(Fp::new(TAG))`, tables_attn.rs
@@ -350,11 +445,16 @@ class PadGeometry:
 def table_digest(values) -> str:
     """The SHA-256 the capture records for a public table: each `Fp2` as
     `c0` then `c1`, little-endian u64 (`run_capture.rs:788`,
-    `field.rs:193`).  `values` here are BASE-field integers (`c1 = 0`),
-    which is what every rebuildable table is."""
+    `field.rs:193`).  An entry may be a BASE-field integer (`c1 = 0`), which
+    is what every rebuildable table is, or an `Fp2` pair, which is what a
+    captured one is."""
     b = bytearray()
     for x in values:
-        b += (x % P).to_bytes(8, "little") + b"\x00" * 8
+        if isinstance(x, int):
+            c0, c1 = x % P, 0
+        else:
+            c0, c1 = x[0] % P, x[1] % P
+        b += c0.to_bytes(8, "little") + c1.to_bytes(8, "little")
     return hashlib.sha256(bytes(b)).hexdigest()
 
 
@@ -508,6 +608,18 @@ def gate_at(i, v):
     return ONE if i is None else v[i]
 
 
+def _runs(idx: list) -> list:
+    """A sorted index list as inclusive runs, for reporting a table's
+    support without printing the table."""
+    out = []
+    for i in idx:
+        if out and i == out[-1][1] + 1:
+            out[-1][1] = i
+        else:
+            out.append([i, i])
+    return [tuple(r) for r in out]
+
+
 # =====================================================================
 #  one slot's context: the resolution of a plane NAME to a table index
 # =====================================================================
@@ -552,6 +664,10 @@ class SlotCtx:
             self.by_name.setdefault(nm, []).append(self.priv_idx[j])
         self.pub_of: dict[tuple, int] = {}
         self.public_values: dict[int, list] = {}
+        # which public tables are 0/1 base-field indicators (the fast path in
+        # `vals`) and which are Fp2-valued (every captured one, and the byte
+        # table, which carries the LogUp tag `g_u8`)
+        self.public_is_base: dict[int, bool] = {}
         self.rho_full: list = []
 
     # -------------------------------------------------------------- lookups
@@ -578,6 +694,21 @@ class SlotCtx:
         """The table index of the public table `(kind, dom)`, or None when
         this shape pushes none (a domain that does not pad has no `supp`)."""
         return self.pub_of.get((kind, dom))
+
+    def c(self, label: str) -> int:
+        """The table index of the CAPTURED public table called `label` --
+        one this tool cannot rebuild, taken from the bundle after its length,
+        its SHA-256 and its structure were checked.  Absent (a bundle with no
+        public table values) raises, so the slot stays OPEN and is never
+        reported checked."""
+        i = self.pub_of.get(("captured", label))
+        if i is None:
+            raise ValueError(
+                f"slot {self.slot}: the public table {label!r} is not in this "
+                "bundle (`public_tables_included` is false), so the slot's "
+                "polynomial cannot be evaluated"
+            )
+        return i
 
     def eq(self, i: int) -> int:
         return self.eq_idx[i]
@@ -840,6 +971,239 @@ def sc_io_out(v, cx):
     return _io(v, cx, "A_X2", "IO_OUT")
 
 
+# =====================================================================
+#  ROUND 3: the eleven slots that needed a captured public table
+# =====================================================================
+def _matmul(v, cx, plane, label):
+    """The seven MATMUL slots (argument.rs:1028-1118): one private `A` plane
+    and one FOLDED public weight table, and nothing else.
+    `|v| v[0].mul(v[1])`
+
+    `SC_QMM` / `SC_KMM` / `SC_VMM` / `SC_WO` fold the weight matrix over its
+    OUTPUT index (`fold_rows_i8`, w is `(output j, input i)`); `SC_GMM` /
+    `SC_UMM` / `SC_DMM` fold over the second index (`fold_cols_i8`, w is
+    `(input i, output j)`).  Which one it is changes the table, never the
+    polynomial, and the table is the capture's.
+    """
+    cx.expect([plane])
+    return mul(v[cx.t(plane)], v[cx.c(label)])
+
+
+def sc_qmm(v, cx):
+    return _matmul(v, cx, "A_Y", "fold(w_q)")
+
+
+def sc_kmm(v, cx):
+    return _matmul(v, cx, "A_Y", "fold(w_k)")
+
+
+def sc_vmm(v, cx):
+    return _matmul(v, cx, "A_Y", "fold(w_v)")
+
+
+def sc_wo(v, cx):
+    return _matmul(v, cx, "A_O8", "fold(w_o)")
+
+
+def sc_gmm(v, cx):
+    return _matmul(v, cx, "A_YM", "fold(w_g)")
+
+
+def sc_umm(v, cx):
+    return _matmul(v, cx, "A_YM", "fold(w_u)")
+
+
+def sc_dmm(v, cx):
+    return _matmul(v, cx, "A_H16", "fold(w_d)")
+
+
+def sc_dzc(v, cx):
+    """`SC_DZC` (argument.rs:1119-1188).  Draws tau(log D),
+    mu(11 + n_help + n_pad), nu(2), zeta(1).  Push order: eq(tau) eq(p_a)
+    eq(p_z), the two GAIN tables, `A_X .. A_RDL`, the `A_D` and `A_DM`
+    `Dom::T` slices, `H_D0 .. H_D{n-1}`, then supp(Dom::D).
+
+    The eleven clauses are the two norm relations (`norm_a` on `x`, `norm_m`
+    on `x1`), their int16 decompositions, residual 1, residual 2 and
+    `z16`'s class; it hosts `SC_WO` and `SC_DMM`.  The two GAIN vectors are
+    the only reason this slot could not be evaluated in round 2: they are
+    the padded `gamma_a` / `gamma_m` of ruling P-2, public constants of the
+    statement that no bundle carried until stage 18."""
+    ln = cx.g.counts["ln"]
+    n_help = cx.g.n_helpers("D")
+    cx.expect(["A_X", "A_XL0", "A_XL1", "A_Y"]
+              + [f"A_NR{j}" for j in range(ln)]
+              + [f"A_NS{j}" for j in range(ln)]
+              + ["A_AO", "A_AL0", "A_AL1", "A_RAL", "A_X1", "A_X1L0", "A_X1L1", "A_YM"]
+              + [f"A_MR{j}" for j in range(ln)]
+              + [f"A_MS{j}" for j in range(ln)]
+              + ["A_Z16", "A_X2", "A_X2L0", "A_X2L1", "A_ZL0", "A_ZL1", "A_RDL"]
+              + ["A_D", "A_DM"]
+              + [f"H_D{j}" for j in range(n_help)])
+    lt = cx.g.log("D")
+    n_mu = 11 + n_help + 1
+    mu = cx.dc[lt:lt + n_mu]
+    nu = cx.dc[lt + n_mu:lt + n_mu + 2]
+    zeta = cx.dc[lt + n_mu + 2]
+    gi = cx.p("supp", "D")
+    ig, igm = cx.c("gamma_a"), cx.c("gamma_m")
+
+    def at(nm):
+        return v[cx.t(nm)]
+
+    def l2(a, b):
+        return add(v[cx.t(a)], mul(v[cx.t(b)], POW256[1]))
+
+    x, y, ao, x1, d = at("A_X"), at("A_Y"), at("A_AO"), at("A_X1"), at("A_D")
+    nmm, x2, z16, dm = at("A_YM"), at("A_X2"), at("A_Z16"), at("A_DM")
+    nr = limbs(v, [cx.t(f"A_NR{j}") for j in range(ln)])
+    ns = limbs(v, [cx.t(f"A_NS{j}") for j in range(ln)])
+    mr = limbs(v, [cx.t(f"A_MR{j}") for j in range(ln)])
+    ms = limbs(v, [cx.t(f"A_MS{j}") for j in range(ln)])
+    k_num, k_dv, k_den = k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1))
+    c0 = sub(sub(add(mul(mul(k_num, v[ig]), x), mul(k_dv, d)),
+                 mul(mul(k_den, y), d)), nr)
+    c1 = sub(add(add(ns, nr), ONE), mul(k_den, d))
+    c2 = sub(add(x, k(32768)), l2("A_XL0", "A_XL1"))
+    c3 = sub(add(ao, k(32768)), l2("A_AL0", "A_AL1"))
+    c4 = sub(add(x1, k(32768)), l2("A_X1L0", "A_X1L1"))
+    c5 = sub(sub(x1, x), ao)
+    c6 = sub(sub(add(mul(mul(k_num, v[igm]), x1), mul(k_dv, dm)),
+                 mul(mul(k_den, nmm), dm)), mr)
+    c7 = sub(add(add(ms, mr), ONE), mul(k_den, dm))
+    c8 = sub(add(x2, k(32768)), l2("A_X2L0", "A_X2L1"))
+    c9 = sub(sub(x2, x1), z16)
+    c10 = sub(add(z16, k(32768)), l2("A_ZL0", "A_ZL1"))
+    pz = PadTerm()
+    if gi is not None:
+        pz.mu = mu[11 + n_help]
+        pz.add(gi, cx.zero_planes("D"), zeta)
+    lks = cx.g.lk_tables(cx, "D")
+    g = gate_at(gi, v)
+    zc = add(helper_sum(v, lks, cx.t("H_D0"), cx.alpha, mu[11:]), pz.eval(v))
+    for m, c in zip(mu, [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]):
+        zc = add(zc, mul(mul(m, g), c))
+    host_wo = sub(add(mul(k(1 << SH_AO), ao), at("A_RAL")), k(1 << (SH_AO - 1)))
+    host_dmm = sub(add(mul(k(1 << SH_Z), z16), at("A_RDL")), k(1 << (SH_Z - 1)))
+    return add(add(mul(v[cx.eq(0)], zc),
+                   mul(mul(mul(nu[0], v[cx.eq(1)]), g), host_wo)),
+               mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_dmm))
+
+
+def _zc_rope(v, cx, q):
+    """`SC_QZC` / `SC_KVZC` (argument.rs:1244-1303).  Draws tau(log dom),
+    mu(1 + n_help + n_pad), nu(2), zeta(1).  Push order: eq(tau), the two
+    claim points, the RoPE `cos` and `sin` tables, the domain's `A` range,
+    the PARTNER slice (the same source plane at the flipped coordinate), the
+    `H` helpers, then supp(dom).
+
+    The one clause is the RoPE relation `cos*src + sin*partner = 2^SH_ROPE *
+    rot + rem - 2^(SH_ROPE-1)`; the partner is the same committed plane read
+    with the bit at `log - log2(head_dim)` flipped (trap T-8), which is why
+    the plane list names the source twice and the port reads occurrence 0
+    and occurrence 1.  The `(cos, sin)` pair is the only reason this slot
+    could not be evaluated in round 2."""
+    dom = "Q" if q else "Kv"
+    n_help = cx.g.n_helpers(dom)
+    if q:
+        rng = ["A_Q8", "A_RQL", "A_QR8", "A_RQRL", "A_O8", "A_RO0", "A_RO1"]
+        src, rot, rem, hp = "A_Q8", "A_QR8", "A_RQRL", "H_Q"
+    else:
+        rng = ["A_K8", "A_RKL", "A_V8", "A_RVL", "A_KR8", "A_RKRL"]
+        src, rot, rem, hp = "A_K8", "A_KR8", "A_RKRL", "H_KV"
+    cx.expect(rng + [src] + [f"{hp}{j}" for j in range(n_help)])
+    lt = cx.g.log(dom)
+    n_mu = 1 + n_help + 1
+    mu = cx.dc[lt:lt + n_mu]
+    nu = cx.dc[lt + n_mu:lt + n_mu + 2]
+    zeta = cx.dc[lt + n_mu + 2]
+    gi = cx.p("supp", dom)
+    ic, isin = cx.c("rope_cos"), cx.c("rope_sin")
+    i_src, iflip = cx.t(src, 0), cx.t(src, 1)
+
+    def at(nm):
+        return v[cx.t(nm)]
+
+    rope = add(sub(sub(add(mul(v[ic], v[i_src]), mul(v[isin], v[iflip])),
+                       mul(k(1 << SH_ROPE), v[cx.t(rot)])),
+                   v[cx.t(rem)]),
+               k(1 << (SH_ROPE - 1)))
+    pz = PadTerm()
+    if gi is not None:
+        pz.mu = mu[1 + n_help]
+        pz.add(gi, cx.zero_planes(dom), zeta)
+    lks = cx.g.lk_tables(cx, dom)
+    g = gate_at(gi, v)
+    zc = add(add(mul(mul(mu[0], g), rope),
+                 helper_sum(v, lks, cx.t(f"{hp}0"), cx.alpha, mu[1:])),
+             pz.eval(v))
+    half = k(1 << (SH_QKV - 1))
+    if q:
+        host1 = sub(add(mul(k(1 << SH_QKV), at("A_Q8")), at("A_RQL")), half)
+        host2 = sub(add(add(mul(k(1 << SH_O), at("A_O8")), at("A_RO0")),
+                        mul(at("A_RO1"), POW256[1])), k(1 << (SH_O - 1)))
+    else:
+        host1 = sub(add(mul(k(1 << SH_QKV), at("A_K8")), at("A_RKL")), half)
+        host2 = sub(add(mul(k(1 << SH_QKV), at("A_V8")), at("A_RVL")), half)
+    return add(add(mul(v[cx.eq(0)], zc),
+                   mul(mul(mul(nu[0], v[cx.eq(1)]), g), host1)),
+               mul(mul(mul(nu[1], v[cx.eq(2)]), g), host2))
+
+
+def sc_qzc(v, cx):
+    return _zc_rope(v, cx, True)
+
+
+def sc_kvzc(v, cx):
+    return _zc_rope(v, cx, False)
+
+
+def sc_tab(v, cx):
+    """`SC_TAB` (argument.rs:1381-1426).  Draws tau(log Tab), mu(3 + n_pad),
+    zeta(1).  Push order: eq(tau), then three times (multiplicity `A`
+    plane, table helper `H` plane, the table's public VALUES), then
+    supp(Dom::Tab).
+
+    The three relations are the LogUp table arms: `helper * (alpha - value)
+    = multiplicity`, one per lookup table.  Two of the three value tables --
+    exp and activation -- are functions of the public statement's quantised
+    tables and are the capture's; the byte table is rebuilt here from
+    `table_values_u8_at` and digest-compared.
+
+    **Finding F-2's literal indices.**  The Rust addresses this slot's ten
+    tables by LITERAL position because they are its own push order.  The
+    port addresses them by NAME and then asserts the two agree, so a
+    re-ordered plane list is caught by the same check that catches it
+    everywhere else."""
+    cx.expect(["A_MU8", "H_GU8", "A_MEXP", "H_GEXP", "A_MACT", "H_GACT"])
+    lt = cx.g.log("Tab")
+    mu, zeta = cx.dc[lt:lt + 4], cx.dc[lt + 4]
+    i_u8 = cx.p("u8", None)
+    triples = [
+        (cx.t("A_MU8"), cx.t("H_GU8"), i_u8),
+        (cx.t("A_MEXP"), cx.t("H_GEXP"), cx.c("exp_values")),
+        (cx.t("A_MACT"), cx.t("H_GACT"), cx.c("act_values")),
+    ]
+    want = [(1, 2, 3), (4, 5, 6), (7, 8, 9)]
+    if cx.structural and [tuple(t) for t in triples] != want:
+        raise ValueError(
+            f"slot 19: the (multiplicity, helper, values) table indices are "
+            f"{[tuple(t) for t in triples]}, not this slot's own push order {want}"
+        )
+    rel = []
+    for i_m, i_h, i_v in triples:
+        rel.append(sub(mul(v[i_h], sub(cx.alpha, v[i_v])), v[i_m]))
+    pz = PadTerm()
+    si = cx.p("supp", "Tab")
+    if si is not None:
+        pz.mu = mu[3]
+        pz.add(si, [t[0] for t in triples], zeta)
+        pz.add(si, [t[1] for t in triples], zeta)
+    inner = add(add(add(mul(mu[0], rel[0]), mul(mu[1], rel[1])),
+                    mul(mu[2], rel[2])), pz.eval(v))
+    return mul(v[cx.eq(0)], inner)
+
+
 # --------------------------------------------------------- the slot table
 _WEIGHTS = (
     "the slot's public table is `fold_rows_i8` / `fold_cols_i8` of a public "
@@ -856,66 +1220,149 @@ _WEIGHTS = (
 # `("supp", dom)` entry is absent from the capture when the domain does not
 # pad; the loader below skips it and the closure's `cx.p(...)` is then None,
 # which is `Gate(None)` -- exactly `B::supp`'s `Ok(None)` (argument.rs:556).
+#
+# ROUND 3.  A `("captured", label, structure)` entry is a table this tool
+# CANNOT rebuild -- it is a function of the public STATEMENT (a weight
+# matrix, a norm gain, the RoPE constants, a quantised lookup table) and no
+# bundle carries the statement.  Such a table is taken from the capture's
+# own `values`, after its length and its SHA-256 are checked against the
+# capture's own `len` and `sha256`, and after the STRUCTURE check `structure`
+# names.  A bundle without `values` leaves every slot that has such an entry
+# OPEN, exactly as in round 2.
 PUBLIC_SPEC = {
     0: [("supp", "D")],
     1: [("supp", "D")],
     2: [("supp", "T")],
     3: [("supp", "L")],
     4: [("causal", None), ("supp", "S")],
+    5: [("captured", "fold(w_q)", "weight_fold@width")],
+    6: [("captured", "fold(w_k)", "weight_fold@width")],
+    7: [("captured", "fold(w_v)", "weight_fold@width")],
     8: [],
     9: [],
+    10: [("captured", "fold(w_o)", "weight_fold@heads")],
+    11: [("captured", "fold(w_g)", "weight_fold@width")],
+    12: [("captured", "fold(w_u)", "weight_fold@width")],
+    13: [("captured", "fold(w_d)", "weight_fold@hidden")],
+    14: [("captured", "gamma_a", "gain"),
+         ("captured", "gamma_m", "gain"),
+         ("supp", "D")],
+    15: [("captured", "rope_cos", "rope_cos@Q"),
+         ("captured", "rope_sin", "rope_sin@Q"),
+         ("supp", "Q")],
+    16: [("captured", "rope_cos", "rope_cos@Kv"),
+         ("captured", "rope_sin", "rope_sin@Kv"),
+         ("supp", "Kv")],
     17: [("causal", None), ("supp", "Ht"), ("supp", "S")],
     18: [("supp", "F")],
+    19: [("u8", None),
+         ("captured", "exp_values", "lookup_values"),
+         ("captured", "act_values", "lookup_values"),
+         ("supp", "Tab")],
     20: [("ones", "Tab")],
     21: [],
     22: [],
 }
 
+# The slots whose port needs a table no tool can rebuild from a bundle, and
+# the plain-words reason -- reported per slot whenever a bundle carries no
+# values, and reported as TAKEN FROM THE CAPTURE when it does.
+PUBLIC_WHAT = {
+    "fold(w_q)": "fold_rows_i8 of the public query weight matrix at the round's point "
+                 "(argument.rs:1048)",
+    "fold(w_k)": "fold_rows_i8 of the public key weight matrix (argument.rs:1048)",
+    "fold(w_v)": "fold_rows_i8 of the public value weight matrix (argument.rs:1048)",
+    "fold(w_o)": "fold_rows_i8 of the public output-projection matrix (argument.rs:1048)",
+    "fold(w_g)": "fold_cols_i8 of the public gate weight matrix (argument.rs:1110)",
+    "fold(w_u)": "fold_cols_i8 of the public up weight matrix (argument.rs:1110)",
+    "fold(w_d)": "fold_cols_i8 of the public down weight matrix (argument.rs:1110)",
+    "gamma_a": "the padded attention norm gain vector (argument.rs:1132)",
+    "gamma_m": "the padded feed-forward norm gain vector (argument.rs:1133)",
+    "rope_cos": "the RoPE cos table at this domain (rope_tables_at, argument.rs:790)",
+    "rope_sin": "the RoPE sin table at this domain (rope_tables_at, argument.rs:790)",
+    "exp_values": "the exp lookup table's public rows i + beta*exp[i] + g_exp "
+                  "(table_values_exp_at, argument.rs:843)",
+    "act_values": "the activation lookup table's public rows i + beta*act[i] + g_act "
+                  "(table_values_act_at, argument.rs:854)",
+}
+
+TAKEN_FROM_CAPTURE = {
+    5: "a fold of the public query weight matrix",
+    6: "a fold of the public key weight matrix",
+    7: "a fold of the public value weight matrix",
+    10: "a fold of the public output-projection weight matrix",
+    11: "a fold of the public gate weight matrix",
+    12: "a fold of the public up weight matrix",
+    13: "a fold of the public down weight matrix",
+    14: "the two padded norm gain vectors",
+    15: "the RoPE (cos, sin) pair on Dom::Q",
+    16: "the RoPE (cos, sin) pair on Dom::Kv",
+    19: "the exp and activation lookup tables' values",
+}
+
+# `(slot, name, the ported polynomial, the reason it can be OPEN)`.  A slot
+# whose reason is not None is evaluated only when the bundle carries the
+# public table VALUES its port needs; on a bundle without them the reason is
+# what the record reports, exactly as in round 2.
 PORTS = (
     (0, "SC_SS", sc_ss, None),
     (1, "SC_SSM", sc_ssm, None),
     (2, "SC_TZC", sc_tzc, None),
     (3, "SC_LZC", sc_lzc, None),
     (4, "SC_RS", sc_rs, None),
-    (5, "SC_QMM", None, _WEIGHTS),
-    (6, "SC_KMM", None, _WEIGHTS),
-    (7, "SC_VMM", None, _WEIGHTS),
+    (5, "SC_QMM", sc_qmm, _WEIGHTS),
+    (6, "SC_KMM", sc_kmm, _WEIGHTS),
+    (7, "SC_VMM", sc_vmm, _WEIGHTS),
     (8, "SC_SCORE", sc_score, None),
     (9, "SC_PV", sc_pv, None),
-    (10, "SC_WO", None, _WEIGHTS),
-    (11, "SC_GMM", None, _WEIGHTS),
-    (12, "SC_UMM", None, _WEIGHTS),
-    (13, "SC_DMM", None, _WEIGHTS),
-    (14, "SC_DZC", None,
+    (10, "SC_WO", sc_wo, _WEIGHTS),
+    (11, "SC_GMM", sc_gmm, _WEIGHTS),
+    (12, "SC_UMM", sc_umm, _WEIGHTS),
+    (13, "SC_DMM", sc_dmm, _WEIGHTS),
+    (14, "SC_DZC", sc_dzc,
      "two of the slot's three public tables are the padded norm GAIN vectors "
-     "`ctx.public.gamma_a` and `ctx.ff.gamma_m` (argument.rs:1128-1129).  They "
-     "are public constants of the statement, but a run bundle carries neither "
-     "them nor the tables they build, so the polynomial cannot be evaluated.  "
-     "The third table, `supp(Dom::D)`, IS rebuildable and its digest matches "
-     "where slots 0 and 1 use it"),
-    (15, "SC_QZC", None,
+     "`ctx.public.gamma_a` and `ctx.ff.gamma_m` (argument.rs:1132-1133).  They "
+     "are public constants of the statement, but a bundle without "
+     "`public_tables_included` carries neither them nor the tables they build, "
+     "so the polynomial cannot be evaluated.  The third table, `supp(Dom::D)`, "
+     "IS rebuildable and its digest matches where slots 0 and 1 use it"),
+    (15, "SC_QZC", sc_qzc,
      "two of the slot's three public tables are the RoPE `(cos, sin)` pair "
      "`rope_tables_at(sh, ctx.public, dom)` (argument.rs:1258), a function of "
-     "the public statement's RoPE constants, which a bundle does not carry"),
-    (16, "SC_KVZC", None,
-     "as slot 15, on `Dom::Kv`: the RoPE `(cos, sin)` pair is not in the "
-     "bundle"),
+     "the public statement's RoPE constants, which a bundle without "
+     "`public_tables_included` does not carry"),
+    (16, "SC_KVZC", sc_kvzc,
+     "as slot 15, on `Dom::Kv`: the RoPE `(cos, sin)` pair is not in a bundle "
+     "without `public_tables_included`"),
     (17, "SC_SZC", sc_szc, None),
     (18, "SC_FZC", sc_fzc, None),
-    (19, "SC_TAB", None,
+    (19, "SC_TAB", sc_tab,
      "two of the slot's four public tables are `table_values_exp_at(..., "
      "ctx.public, beta, g_exp)` and `table_values_act_at(..., ctx.ff, beta, "
      "g_act)` (argument.rs:1391, :1394) -- the exp and activation LOOKUP "
      "table values, functions of the public statement's quantised tables, "
-     "which a bundle does not carry.  The other two, `table_values_u8_at` "
-     "and `supp(Dom::Tab)`, are rebuildable; two of four are not, so the "
-     "slot is not evaluated"),
+     "which a bundle without `public_tables_included` does not carry.  The "
+     "other two, `table_values_u8_at` and `supp(Dom::Tab)`, are rebuildable; "
+     "two of four are not, so the slot is not evaluated"),
     (20, "SC_ZS", sc_zs, None),
     (21, "SC_IO_IN", sc_io_in, None),
     (22, "SC_IO_OUT", sc_io_out, None),
 )
 
+# The twelve that need nothing but the shape, and the eleven that need the
+# captured public tables as well.
+COVERED_WITHOUT_TABLES = tuple(s for s, _n, fn, r in PORTS if fn is not None and r is None)
+COVERED_WITH_TABLES = tuple(s for s, _n, fn, r in PORTS if fn is not None and r is not None)
 COVERED = tuple(s for s, _n, fn, _r in PORTS if fn is not None)
+
+
+def covered_at(bundle) -> tuple:
+    """Which slots this port can evaluate for THIS bundle: the twelve
+    shape-only ones always, and the other eleven only when the bundle
+    carries its public tables' values."""
+    if getattr(bundle, "public_tables_included", False):
+        return COVERED
+    return COVERED_WITHOUT_TABLES
 
 
 # =====================================================================
@@ -933,6 +1380,12 @@ class TerminalGate:
         self.g_u8 = self.g_exp = self.g_act = None
         self.public_tables: dict[tuple, str] = {}
         self.public_digest_failures: list[str] = []
+        # round 3: the tables that are TAKEN from the capture, and the
+        # structure checks they pass before the port will use one
+        self.captured_tables: dict[tuple, str] = {}
+        self.public_structure_failures: list[str] = []
+        self.structure_checks = 0
+        self.structure_detail: dict[str, list] = {}
         # the plane names of each domain, in PLANE ORDER: the name-space form
         # of `pad::zero_rule_a_planes`' iteration
         self.a_plane_names_by_domain: dict[str, list[str]] = {}
@@ -979,44 +1432,101 @@ class TerminalGate:
         return [([(cx.t(nm), c) for (nm, c) in terms], add(k(cst), self.g_u8))
                 for (terms, cst) in lks]
 
-    # ---------------------------------- the rebuildable public tables
-    def build_public(self, cx) -> None:
-        """Rebuild every public table the slot's port declares, compare each
-        with the CAPTURE'S OWN SHA-256 of the real one, and place it at its
-        table index.  A digest that differs is a refusal: the port would
-        otherwise evaluate a polynomial the verifier never evaluated."""
+    # ---------------------------------- the public tables, rebuilt or taken
+    def build_public(self, cx, check_digests=True) -> None:
+        """Place every public table the slot's port declares at its table
+        index.
+
+        A table that is a function of the SHAPE is REBUILT here and compared
+        with the capture's own SHA-256; a digest that differs is a refusal,
+        because the port would otherwise evaluate a polynomial the verifier
+        never evaluated.  A table that is a function of the public STATEMENT
+        is TAKEN from the capture's `values`, after three checks of its own:
+        the length against the capture's `len`, the SHA-256 against the
+        capture's `sha256`, and the STRUCTURE its builder gives it.
+
+        `check_digests=False` is for ONE control, which shows that a
+        perturbed table value is caught by the arithmetic and not only by
+        the digest; nothing else may call it that way.
+        """
         spec = PUBLIC_SPEC[cx.slot]
         built = []
-        for kind, dom in spec:
+        for entry in spec:
+            kind, dom = entry[0], entry[1]
+            label = entry[1] if kind == "captured" else None
+            structure = entry[2] if kind == "captured" else None
             if kind == "supp":
                 vals = self.geom.supp(dom, cx.cube)
                 what = f"supp({dom})"
             elif kind == "causal":
                 vals = self.geom.causal_mask()
                 what = "causal_mask_at"
-            else:
+            elif kind == "ones":
                 vals = self.geom.ones_tab()
                 what = "the all-ones Dom::Tab vector"
-            if vals is None:          # the domain does not pad: no table
+            elif kind == "u8":
+                # `table_values_u8_at(len, g_u8)` (argument.rs:834): the byte
+                # class lifted by repetition, the P-3 lift's first condition
+                vals = [add(k(i % U8_LEN), self.g_u8) for i in range(cx.cube)]
+                what = "table_values_u8_at"
+            else:
+                vals = None                      # taken below, never rebuilt
+                what = PUBLIC_WHAT[label]
+            if kind != "captured" and vals is None:   # the domain does not pad
                 continue
-            built.append((kind, dom, what, vals))
+            built.append((kind, dom, label, structure, what, vals))
         if len(built) != len(cx.pub_idx):
             raise ValueError(
                 f"slot {cx.slot}: the port declares {len(built)} public tables, "
                 f"the capture has {len(cx.pub_idx)}"
             )
-        for (kind, dom, what, vals), i in zip(built, cx.pub_idx):
+        for (kind, dom, label, structure, what, vals), i in zip(built, cx.pub_idx):
             tab = cx.arg["tables"][i]
+            if kind == "captured":
+                got = tab.get("values")
+                if got is None:
+                    raise ValueError(
+                        f"slot {cx.slot} public table {i} ({what}): the capture "
+                        "carries no values for it"
+                    )
+                vals = [f2_from_list(x) for x in got]
+                if tab["len"] != len(vals):
+                    raise ValueError(
+                        f"slot {cx.slot} public table {i} ({what}): the capture "
+                        f"declares {tab['len']} entries and carries {len(vals)}"
+                    )
+                if check_digests:
+                    d = table_digest(vals)
+                    if d != tab["sha256"]:
+                        self.public_digest_failures.append(
+                            f"slot {cx.slot} public table {i} ({what}): the values "
+                            f"hash to {d[:12]}, the capture declares {tab['sha256'][:12]}"
+                        )
+                        raise ValueError(
+                            f"slot {cx.slot} public table {i} ({what}): the carried "
+                            "values are not the ones the capture's digest names"
+                        )
+                bad = self.check_structure(structure, label, vals)
+                if bad:
+                    self.public_structure_failures += bad
+                    raise ValueError(
+                        f"slot {cx.slot} public table {i} ({what}): {bad[0]}"
+                    )
+                self.captured_tables[(cx.slot, i)] = what
+                cx.pub_of[("captured", label)] = i
+                cx.public_values[i] = vals
+                cx.public_is_base[i] = False
+                continue
             if tab["len"] != len(vals):
                 raise ValueError(
                     f"slot {cx.slot} public table {i} ({what}): the capture has "
                     f"{tab['len']} entries, the rebuilt one {len(vals)}"
                 )
-            got = table_digest(vals)
-            if got != tab["sha256"]:
+            d = table_digest(vals)
+            if check_digests and d != tab["sha256"]:
                 self.public_digest_failures.append(
                     f"slot {cx.slot} public table {i} ({what}): the rebuilt digest "
-                    f"{got[:12]} is not the capture's {tab['sha256'][:12]}"
+                    f"{d[:12]} is not the capture's {tab['sha256'][:12]}"
                 )
                 raise ValueError(
                     f"slot {cx.slot} public table {i} ({what}): the rebuilt table "
@@ -1025,6 +1535,156 @@ class TerminalGate:
             self.public_tables[(cx.slot, i)] = what
             cx.pub_of[(kind, dom)] = i
             cx.public_values[i] = vals
+            cx.public_is_base[i] = kind != "u8"
+
+    # ------------------------------- the structure of a CAPTURED table
+    def check_structure(self, structure: str, label: str, vals) -> list:
+        """**A captured table is not a blob.**  Each one has a shape its
+        builder gives it, and every one of those shapes is a function of the
+        PUBLIC statement's geometry, so it can be checked without the
+        statement itself.  A failure is returned as a named string; the
+        caller refuses.
+
+        What this does NOT establish: that a fold is the fold of the weight
+        matrix the statement names.  No bundle carries a weight, so that
+        stays a reading of the capture, and it is said so per slot.
+        """
+        s = self.shape_raw
+        out = []
+        self.structure_checks += 1
+        if structure.startswith("weight_fold@"):
+            # ruling P-2: a public weight matrix vanishes off ITS OWN input
+            # index's support, so its fold does too, at every point.  Which
+            # support that is depends on the matrix: the three attention
+            # projections and the two feed-forward inputs are indexed by the
+            # residual WIDTH, the output projection by the PADDED HEAD SLOTS
+            # (a dead head slot is not an index above the width), and the
+            # down projection by the HIDDEN dimension.
+            kind = structure.split("@")[1]
+            n, dh = len(vals), s["head_dim"]
+            want_len = s["f_pad"] if kind == "hidden" else s["d_pad"]
+            if n != want_len:
+                out.append(f"{label}: a fold of {n} entries, not {want_len}")
+            else:
+                if kind == "width":
+                    live = set(range(s["width"]))
+                elif kind == "hidden":
+                    live = set(range(s["hidden"]))
+                else:
+                    slots = {self.geom.head_slot(h) for h in range(s["q_heads"])}
+                    live = {sl * dh + i for sl in slots for i in range(dh)}
+                bad = [i for i in range(n) if i not in live and vals[i] != ZERO]
+                if bad:
+                    out.append(
+                        f"{label}: the fold is nonzero at {len(bad)} positions "
+                        f"outside the {kind} support (first {bad[0]}), and ruling "
+                        "P-2 says a public weight vanishes off the support"
+                    )
+                self.structure_detail.setdefault(label, []).append(
+                    {"support": kind, "live_positions": len(live),
+                     "nonzero_positions": sum(1 for x in vals if x != ZERO),
+                     "runs": _runs([i for i, x in enumerate(vals) if x != ZERO])}
+                )
+        elif structure == "gain":
+            dp, w = s["d_pad"], s["width"]
+            if len(vals) != self.geom.size("D"):
+                out.append(f"{label}: {len(vals)} entries, not |Dom::D|")
+            else:
+                per = [i for i in range(len(vals)) if vals[i] != vals[i % dp]]
+                if per:
+                    out.append(
+                        f"{label}: not periodic in the padded width "
+                        f"({len(per)} positions differ, first {per[0]})"
+                    )
+                bad = [i for i in range(dp) if i >= w and vals[i] != ZERO]
+                if bad:
+                    out.append(
+                        f"{label}: nonzero at {len(bad)} padded columns of the "
+                        f"first period (first {bad[0]}), against ruling P-2"
+                    )
+        elif structure.startswith("rope_"):
+            kind, dom = structure.split("@")
+            out += self._rope_structure(kind, dom, label, vals)
+        elif structure == "lookup_values":
+            out += self._lookup_structure(label, vals)
+        else:
+            out.append(f"{label}: no structure check is declared for it")
+        if out:
+            self.structure_checks -= 1
+        return out
+
+    def _rope_structure(self, structure: str, dom: str, label: str, vals) -> list:
+        """`rope_tables_at` (argument.rs:790): zero off the live set, and
+        within a head `cos` repeats at the partner coordinate while `sin`
+        NEGATES there -- `-sin[at]` on the low half and `+sin[at]` on the
+        high half of one head."""
+        s = self.shape_raw
+        dh, heads = s["head_dim"], (s["h_pad"] if dom == "Q" else s["kv_heads"])
+        half, n = dh // 2, self.geom.size(dom)
+        out = []
+        if len(vals) != n:
+            return [f"{label}: {len(vals)} entries, not |Dom::{dom}| = {n}"]
+        true_slots = ({self.geom.head_slot(h) for h in range(s["q_heads"])}
+                      if dom == "Q" else set(range(s["kv_heads"])))
+        dead, sym = 0, 0
+        for x in range(n):
+            i, slot, t = x % dh, (x // dh) % heads, x // (dh * heads)
+            live = (t < s["tokens"] and (dom != "Q" or slot in true_slots)
+                    and x < s["t_pad"] * heads * dh)
+            if not live:
+                if vals[x] != ZERO:
+                    out.append(f"{label}: nonzero at the dead position {x}")
+                    break
+                dead += 1
+            elif i < half:
+                want = vals[x] if structure == "rope_cos" else f2_neg(vals[x])
+                if vals[x + half] != want:
+                    out.append(
+                        f"{label}: the partner at {x + half} is not the "
+                        f"{'repeat' if structure == 'rope_cos' else 'negation'} "
+                        f"of {x}"
+                    )
+                    break
+                sym += 1
+        self.structure_detail.setdefault(label, []).append(
+            {"dead_positions": dead, "partner_pairs": sym}
+        )
+        return out
+
+    def _lookup_structure(self, label: str, vals) -> list:
+        """`table_values_exp_at` / `table_values_act_at` (argument.rs:843,
+        :854): `value[x] = (x % 256) + beta * T[x % 256] + g`.  The port
+        recovers `T` and checks it is a BASE-field element and a small
+        integer -- which is what a quantised lookup table's entries are, and
+        what a random 16-byte blob is not."""
+        out = []
+        n = self.geom.size("Tab")
+        if len(vals) != n:
+            return [f"{label}: {len(vals)} entries, not |Dom::Tab| = {n}"]
+        g = self.g_exp if label == "exp_values" else self.g_act
+        per = [x for x in range(n) if vals[x] != vals[x % U8_LEN]]
+        if per:
+            return [
+                f"{label}: not periodic in the byte class after the P-3 lift "
+                f"({len(per)} positions differ, first {per[0]})"
+            ]
+        binv = f2_inv(self.beta)
+        big = []
+        for i in range(U8_LEN):
+            t = mul(sub(sub(vals[i], k(i)), g), binv)
+            if t[1] != 0:
+                out.append(f"{label}: entry {i} does not recover a base-field value")
+                break
+            signed = t[0] if t[0] < P // 2 else t[0] - P
+            if abs(signed) >= 1 << 32:
+                big.append(i)
+        if big:
+            out.append(
+                f"{label}: {len(big)} recovered entries are not small integers "
+                f"(first {big[0]})"
+            )
+        self.structure_detail.setdefault(label, []).append({"recovered_entries": U8_LEN})
+        return out
 
     # --------------------------------------------------------- the vals list
     def vals(self, cx):
@@ -1052,9 +1712,16 @@ class TerminalGate:
                 if eq_msb is None:
                     eq_msb = eq_table_msb(rho_main)
                 acc = ZERO
-                for x, e in zip(values, eq_msb):
-                    if x:
-                        acc = add(acc, mulb(e, x % P))
+                if cx.public_is_base.get(i, True):
+                    for x, e in zip(values, eq_msb):
+                        if x:
+                            acc = add(acc, mulb(e, x % P))
+                else:
+                    # an Fp2-valued public table: `eval_mle_ext` over the
+                    # captured (or tagged) values, not the 0/1 fast path
+                    for x, e in zip(values, eq_msb):
+                        if x != ZERO:
+                            acc = add(acc, mul(e, x))
                 out.append(mul(sel, acc))
             else:
                 out.append(f2_from_list(terminals[kt]))
@@ -1071,7 +1738,7 @@ def lam_z_of(stage_doc):
 
 
 def check_terminals(bundle, index, replay=None, structural=True,
-                    stage_docs=None, slot_planes=None) -> dict:
+                    stage_docs=None, slot_planes=None, check_digests=True) -> dict:
     """The per-slot terminal identity over every stage of the run.
 
     `stage_docs` / `slot_planes` override the bundle's own, which is how a
@@ -1080,6 +1747,7 @@ def check_terminals(bundle, index, replay=None, structural=True,
     control can show the ARITHMETIC failing and not merely the label.
     """
     gate = TerminalGate(bundle, index)
+    covered = covered_at(bundle)
     out = {
         "what": "fin_s == c_s * mask_eval_s + poly_s(vals_s), the verifier's own "
         "final check (argument.rs:381), recomputed from the published terminals "
@@ -1087,17 +1755,25 @@ def check_terminals(bundle, index, replay=None, structural=True,
         "bundle": bundle.name,
         "source_pins": check_source_pins(bundle),
         "structural_push_order_check": structural,
+        "public_table_digest_check": check_digests,
         "challenges_from": "transcript replay" if replay is not None else "the capture",
+        "public_tables_included": bool(getattr(bundle, "public_tables_included", False)),
         "slots_per_stage": bundle.shape.n_slots,
         "stages": bundle.blocks,
-        "covered_slots": list(COVERED),
+        "covered_slots": list(covered),
+        "covered_without_captured_tables": list(COVERED_WITHOUT_TABLES),
+        "covered_only_with_captured_tables": [s for s in covered
+                                              if s in COVERED_WITH_TABLES],
         "slot_checks_attempted": 0,
         "slot_checks_equal": 0,
         "slot_checks_matching_the_stored_terminal_polynomial": 0,
         "public_tables_rebuilt_and_digest_matched": 0,
+        "public_tables_taken_from_the_capture": 0,
         "public_table_digest_failures": [],
+        "public_table_structure_checks": 0,
+        "public_table_structure_failures": [],
         "open_slots": [{"slot": s, "name": n, "reason": r}
-                       for s, n, fn, r in PORTS if fn is None],
+                       for s, n, fn, r in PORTS if s not in covered],
         "per_stage": [],
         "findings": [],
     }
@@ -1121,7 +1797,7 @@ def check_terminals(bundle, index, replay=None, structural=True,
         row = {"stage": st.index, "checked": [], "equal": [], "not_checked": []}
         for s, nm, fn, _reason in PORTS:
             arg = doc["arguments"][s]
-            if fn is None:
+            if s not in covered:
                 row["not_checked"].append({"slot": s, "name": nm, "why": "OPEN"})
                 continue
             try:
@@ -1133,7 +1809,7 @@ def check_terminals(bundle, index, replay=None, structural=True,
                 else:
                     cx.rho_full = [f2_from_list(x) for x in arg["rho"]]
                     c = f2_from_list(arg["c"])
-                gate.build_public(cx)
+                gate.build_public(cx, check_digests=check_digests)
                 poly = fn(gate.vals(cx), cx)
             except (ValueError, IndexError, KeyError) as exc:
                 row["not_checked"].append({"slot": s, "name": nm, "why": str(exc)})
@@ -1168,14 +1844,93 @@ def check_terminals(bundle, index, replay=None, structural=True,
     out["public_tables_rebuilt_and_digest_matched"] = len(gate.public_tables)
     out["public_table_digest_failures"] = gate.public_digest_failures
     out["rebuilt_public_tables"] = sorted(set(gate.public_tables.values()))
-    want = len(COVERED) * bundle.blocks
+    out["public_tables_taken_from_the_capture"] = len(gate.captured_tables)
+    out["captured_public_tables"] = sorted(set(gate.captured_tables.values()))
+    out["public_table_structure_checks"] = gate.structure_checks
+    out["public_table_structure_failures"] = gate.public_structure_failures
+    out["public_table_structure_detail"] = gate.structure_detail
+    out["what_a_captured_table_does_not_establish"] = (
+        "that a folded weight table is the fold of the weight matrix the "
+        "statement names.  No bundle carries a weight, so the port checks the "
+        "capture's own length and SHA-256, the structure ruling P-2 gives the "
+        "fold, and the identity at the run's real challenges -- and no more.  "
+        "The tables that ARE functions of the shape are rebuilt here instead "
+        "and never taken"
+    )
+    want = len(covered) * bundle.blocks
     out["slot_checks_expected"] = want
-    out["slots_open_per_stage"] = bundle.shape.n_slots - len(COVERED)
+    out["slots_open_per_stage"] = bundle.shape.n_slots - len(covered)
     out["ok"] = (
         not out["findings"]
         and not gate.public_digest_failures
+        and not gate.public_structure_failures
         and out["slot_checks_attempted"] == want
         and out["slot_checks_equal"] == want
         and out["slot_checks_matching_the_stored_terminal_polynomial"] == want
+    )
+    return out
+
+
+def verify_captured_public_tables(bundle) -> dict:
+    """**Every public table the bundle carries, against the capture's own
+    `len` and `sha256`** -- all 23 slots of all L stages, independently of
+    whether any port reads them.
+
+    The digest is over the concatenated 16-byte little-endian `Fp2`
+    encodings of exactly those values (`run_capture.rs:788`), so this is the
+    check the format document says a reader can make offline.  It is a
+    SELF-CONSISTENCY check of the capture: it catches a truncated or
+    corrupted table, not a capture that lies about its own statement.
+    """
+    out = {
+        "what": "each carried public table's values against the capture's own len "
+        "and SHA-256 (the 16-byte little-endian Fp2 encoding, run_capture.rs:788)",
+        "bundle": bundle.name,
+        "public_tables_included": bool(getattr(bundle, "public_tables_included", False)),
+        "public_tables": 0,
+        "with_values": 0,
+        "length_checked": 0,
+        "digest_checked": 0,
+        "per_stage": [],
+        "findings": [],
+    }
+    for st in bundle.stages:
+        n, wv, ln, dg = 0, 0, 0, 0
+        for arg in st.doc["arguments"]:
+            for i, tab in enumerate(arg["tables"]):
+                if tab["kind"] != "public":
+                    continue
+                n += 1
+                vals = tab.get("values")
+                if vals is None:
+                    continue
+                wv += 1
+                if len(vals) == tab["len"]:
+                    ln += 1
+                else:
+                    out["findings"].append(
+                        f"stage {st.index} slot {arg['slot']} table {i}: "
+                        f"{len(vals)} values for a declared len of {tab['len']}"
+                    )
+                    continue
+                if table_digest([f2_from_list(x) for x in vals]) == tab["sha256"]:
+                    dg += 1
+                else:
+                    out["findings"].append(
+                        f"stage {st.index} slot {arg['slot']} table {i}: the values "
+                        "do not hash to the capture's own sha256"
+                    )
+        out["per_stage"].append(
+            {"stage": st.index, "public_tables": n, "with_values": wv,
+             "length_checked": ln, "digest_checked": dg}
+        )
+        out["public_tables"] += n
+        out["with_values"] += wv
+        out["length_checked"] += ln
+        out["digest_checked"] += dg
+    out["ok"] = (
+        not out["findings"]
+        and (out["with_values"] == out["public_tables"]
+             if out["public_tables_included"] else out["with_values"] == 0)
     )
     return out

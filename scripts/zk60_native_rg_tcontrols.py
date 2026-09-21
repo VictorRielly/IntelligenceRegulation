@@ -30,6 +30,20 @@ such and never dressed up as an arithmetic catch.
         the capture carries refuses it, so the port never evaluates a
         polynomial the verifier did not evaluate.
 
+ROUND 3, on a bundle that carries its public tables' VALUES:
+
+  CT-6  one value of a CAPTURED public table is changed by +1 -> the
+        capture's own SHA-256 for that table refuses it, and the slot is not
+        reported checked.
+  CT-7  the same perturbation with the digest check DROPPED   -> the
+        identity itself fails, at exactly the slot that reads that table and
+        in exactly the stage that was perturbed.  A captured table is read
+        by ONE slot of ONE stage, so "the slots that read it" is that one.
+  CT-8  one terminal of a NEWLY checked slot (14, SC_DZC) is perturbed ->
+        the identity fails at exactly that slot and stage, which is the
+        statement that the eleven new ports are load-bearing and not
+        decoration.
+
 NOTHING HERE IS A PRIVACY STATEMENT.
 """
 
@@ -290,8 +304,105 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
         "fires": table_digest(real) == captured and table_digest(flipped) != captured,
     })
 
+    # ============== round 3: the CAPTURED public tables and a new slot
+    if getattr(bundle, "public_tables_included", False):
+        out["controls"] += _captured_table_controls(bundle, index, replay)
+
     out["ok"] = all(c.get("fires") for c in out["controls"])
     out["controls_that_did_not_fire"] = [
         c["control"] for c in out["controls"] if not c.get("fires")
     ]
+    return out
+
+
+def _docs_with_public_value_perturbed(bundle, stage: int, slot: int, tab: int,
+                                      at: int):
+    """The stage documents with ONE value of ONE captured public table
+    changed by +1.  Only the dictionaries on the path are copied."""
+    docs = [st.doc for st in bundle.stages]
+    doc = dict(docs[stage])
+    args = list(doc["arguments"])
+    arg = dict(args[slot])
+    tabs = list(arg["tables"])
+    t = dict(tabs[tab])
+    vals = list(t["values"])
+    old = f2_from_list(vals[at])
+    new = f2_add(old, F2_ONE)
+    vals[at] = [new[0], new[1]]
+    t["values"] = vals
+    tabs[tab] = t
+    arg["tables"] = tabs
+    args[slot] = arg
+    doc["arguments"] = args
+    docs = list(docs)
+    docs[stage] = doc
+    return docs, old, new
+
+
+def _captured_table_controls(bundle, index, replay) -> list:
+    """CT-6, CT-7 and CT-8 -- the three that only a bundle carrying its
+    public tables' values can have."""
+    out = []
+    # slot 5's single public table is the fold of the public query weight
+    # matrix, and position 0 is inside the width's live support, so the
+    # perturbation is a value the verifier really reads.
+    stage, slot, at = 0, 5, 0
+    tab = next(i for i, t in enumerate(bundle.stages[stage].doc["arguments"][slot]
+                                       ["tables"]) if t["kind"] == "public")
+    docs, old, new = _docs_with_public_value_perturbed(bundle, stage, slot, tab, at)
+    caught = check_terminals(bundle, index, replay=replay, stage_docs=docs)
+    why = [e["why"] for r in caught["per_stage"] for e in r["not_checked"]
+           if e["slot"] == slot and e["why"] != "OPEN"]
+    out.append({
+        "control": "CT-6",
+        "what": f"stage {stage}, slot {slot} [SC_QMM]: value {at} of the captured "
+                "public weight fold changed by +1",
+        "mechanism": "the capture's own SHA-256 for that public table",
+        "the_slot_is_not_reported_checked": all(
+            slot not in r["checked"] for r in caught["per_stage"]
+            if r["stage"] == stage),
+        "refusal": (why or [""])[0][:200],
+        "digest_failures": len(caught["public_table_digest_failures"]),
+        "slot_checks_equal": caught["slot_checks_equal"],
+        "of": caught["slot_checks_expected"],
+        "the_other_stages_are_untouched": caught["slot_checks_equal"]
+        == caught["slot_checks_expected"] - 1,
+        "fires": bool(why) and bool(caught["public_table_digest_failures"]),
+    })
+
+    # the same perturbation with the digest check DROPPED: the arithmetic,
+    # not the label, must catch it -- and at exactly one slot of one stage.
+    loose = check_terminals(bundle, index, replay=replay, stage_docs=docs,
+                            check_digests=False)
+    failed = sorted({(r["stage"], s) for r in loose["per_stage"]
+                     for s in r["checked"] if s not in r["equal"]})
+    out.append({
+        "control": "CT-7",
+        "what": "the same perturbed value, with the public-table digest check "
+                "dropped (in this control only)",
+        "mechanism": "the identity's own arithmetic",
+        "slots_that_failed": [list(x) for x in failed],
+        "fails_at_exactly_the_slot_that_reads_that_table": failed == [(stage, slot)],
+        "slot_checks_equal": loose["slot_checks_equal"],
+        "of": loose["slot_checks_expected"],
+        "fires": failed == [(stage, slot)],
+    })
+
+    # CT-8: a terminal of one of the ELEVEN newly covered slots
+    stage2, slot2, term2 = 2, 14, 5
+    docs2, _o, _n = _docs_with_terminal_perturbed(bundle, stage2, slot2, term2)
+    got = check_terminals(bundle, index, replay=replay, stage_docs=docs2)
+    failed2 = sorted({(r["stage"], s) for r in got["per_stage"]
+                      for s in r["checked"] if s not in r["equal"]})
+    out.append({
+        "control": "CT-8",
+        "what": f"stage {stage2}, slot {slot2} [SC_DZC], terminal {term2} changed "
+                "by +1 -- a slot that was OPEN until this round",
+        "mechanism": "the identity's own arithmetic",
+        "slots_that_failed": [list(x) for x in failed2],
+        "fails_at_exactly_the_perturbed_slot": failed2 == [(stage2, slot2)],
+        "slot_checks_equal": got["slot_checks_equal"],
+        "of": got["slot_checks_expected"],
+        "fires": failed2 == [(stage2, slot2)],
+    })
     return out

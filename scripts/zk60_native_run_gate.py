@@ -72,8 +72,15 @@ from zk60_native_rg_pcs import RunRoleView  # noqa: E402
 from zk60_native_rg_planes import NO_TABLE, plane_index_of  # noqa: E402
 from zk60_native_rg_preimage import preimages  # noqa: E402
 from zk60_native_rg_replay import RunReplay  # noqa: E402
+from zk60_native_rg_hashlayer import check_hash_layer  # noqa: E402
+from zk60_native_rg_hcontrols import hash_rule_controls  # noqa: E402
 from zk60_native_rg_tcontrols import terminal_controls  # noqa: E402
-from zk60_native_rg_terminals import COVERED, PORTS, check_terminals  # noqa: E402
+from zk60_native_rg_terminals import (  # noqa: E402
+    PORTS,
+    check_terminals,
+    covered_at,
+    verify_captured_public_tables,
+)
 from zk60_native_jv_joint import JointSystem  # noqa: E402
 
 TOOLS = [
@@ -87,6 +94,9 @@ TOOLS = [
     "zk60_native_rg_planes.py",
     "zk60_native_rg_terminals.py",
     "zk60_native_rg_tcontrols.py",
+    "zk60_native_rg_hashrule.py",
+    "zk60_native_rg_hashlayer.py",
+    "zk60_native_rg_hcontrols.py",
     "zk60_native_jv_field.py",
     "zk60_native_jv_pcs.py",
     "zk60_native_jv_joint.py",
@@ -256,19 +266,22 @@ def stage8(bundle, replay, old=None, do_controls=True):
             "changed and nothing is claimed for it",
         }, None
     pi = index.summary()
+    tables = verify_captured_public_tables(bundle)
     terms = check_terminals(bundle, index, replay=replay)
     ctl = (terminal_controls(bundle, index, replay=replay, old_bundle=old)
            if do_controls else {"skipped": "controls not requested", "ok": False})
+    covered = covered_at(bundle)
     covered_ok = (
         terms["ok"]
         and terms["slot_checks_equal"] == terms["slot_checks_expected"]
     )
     return {
         "plane_index": pi,
+        "carried_public_tables": tables,
         "terminal_identity": {
             "checked": True,
-            "covered_slots": list(COVERED),
-            "covered_slot_names": [n for s, n, fn, _r in PORTS if fn is not None],
+            "covered_slots": list(covered),
+            "covered_slot_names": [n for s, n, fn, _r in PORTS if s in covered],
             "open_slots": terms["open_slots"],
             "slot_checks_attempted": terms["slot_checks_attempted"],
             "slot_checks_equal": terms["slot_checks_equal"],
@@ -278,6 +291,15 @@ def stage8(bundle, replay, old=None, do_controls=True):
             "public_tables_rebuilt_and_digest_matched":
                 terms["public_tables_rebuilt_and_digest_matched"],
             "rebuilt_public_tables": terms["rebuilt_public_tables"],
+            "public_tables_taken_from_the_capture":
+                terms["public_tables_taken_from_the_capture"],
+            "captured_public_tables": terms["captured_public_tables"],
+            "public_table_structure_checks": terms["public_table_structure_checks"],
+            "public_table_structure_failures":
+                terms["public_table_structure_failures"],
+            "public_table_structure_detail": terms["public_table_structure_detail"],
+            "what_a_captured_table_does_not_establish":
+                terms["what_a_captured_table_does_not_establish"],
             "public_table_digest_failures": terms["public_table_digest_failures"],
             "source_pins": terms["source_pins"],
             "per_stage": terms["per_stage"],
@@ -287,7 +309,8 @@ def stage8(bundle, replay, old=None, do_controls=True):
         },
         "controls": ctl,
         "channel_status": "derived" if covered_ok else "open",
-        "ok": pi["ok"] and covered_ok and (ctl.get("ok") if do_controls else True),
+        "ok": pi["ok"] and covered_ok and tables["ok"]
+        and (ctl.get("ok") if do_controls else True),
     }, index
 
 
@@ -353,6 +376,17 @@ def channels(bundle, record):
     s3 = record["stage3_per_commitment"]
     s5 = record["stage5_zero_data_preimage"]
     s8 = record["stage8_plane_index_and_terminals"]
+    s9 = record.get("stage9_hash_layer")
+    hash_rule_derived = bool(
+        s9 is not None
+        and s9.get("columns_checked")
+        and s9["columns_authenticated"] == s9["columns_checked"]
+        and not s9["findings"]
+        and not record["hash_rule"]["refusals"]
+    )
+    _ti = s8["terminal_identity"]
+    open_slots = ([e["slot"] for e in _ti["open_slots"]] if _ti.get("checked")
+                  else [s for s, _n, _fn, r in PORTS if r is not None])
     pre = {p["commitment"]: p for p in s5["per_commitment"]}
     constructed = [c for c, p in pre.items() if p.get("preimage_exhibited")]
     ver_ok = all(
@@ -503,19 +537,66 @@ def channels(bundle, record):
             "channel": "the derived mask evaluation per slot (the terminal identity) "
             "-- the slots whose public tables the bundle does not carry",
             "section": "run 2.1 (NEW)",
-            "status": "open",
+            "status": "derived" if open_slots == [] and s8["plane_index"].get("present")
+            else "open",
             "assumption": None,
             "preimage_exhibited": False,
-            "slots": [s for s, _n, fn, _r in PORTS if fn is None],
+            "slots": open_slots,
             "reason": (
-                PUBLIC_TABLES_OPEN
+                None
+                if open_slots == [] and s8["plane_index"].get("present")
+                else PUBLIC_TABLES_OPEN
                 if s8["plane_index"].get("present")
                 else s8["terminal_identity"].get("reason", NO_TABLE)
             ),
-            "is_it_public": "yes -- every missing table is a function of the PUBLIC "
+            "derivation": (
+                "this bundle carries `public_tables_included: true`, so the eleven "
+                "slots that read a fold of the public weights, the norm gains, the "
+                "RoPE pair or a lookup table's values ARE evaluated: each table is "
+                "checked against the capture's own length and SHA-256 and against "
+                "the structure its builder gives it, and the identity holds at the "
+                "run's real challenges in every stage"
+                if open_slots == [] and s8["plane_index"].get("present")
+                else None
+            ),
+            "is_it_public": "yes -- every such table is a function of the PUBLIC "
             "statement (the weights, the norm gains, the RoPE constants, the exp and "
-            "activation tables), so a re-capture closes it without publishing "
-            "anything new",
+            "activation tables), so carrying it publishes nothing new",
+        },
+        # ------------------------------------------ NEW FOR A TAGGED RUN (D19)
+        {
+            "channel": "the hash RULE of the run: which BLAKE3 made every byte, "
+            "and the four keys of a tagged profile",
+            "section": "run 2.3 (NEW)",
+            "status": "derived" if hash_rule_derived else "open",
+            "assumption": None,
+            "preimage_exhibited": False,
+            "reason": None if hash_rule_derived else (
+                (s9 or {}).get("findings") or ["no hash layer was computed"]
+            )[0],
+            "caveat": (
+                "this bundle predates the tag (no `hash_tag` member), so the rule "
+                "was DERIVED as the legacy one from the schema era and not compared "
+                "against a declared one; the profile itself is tagged, so the bundle "
+                "is SUPERSEDED and nothing measured on it is a statement about what "
+                "the profile produces now"
+                if record["hash_rule"]["superseded"] else None
+            ),
+            "rule": None if s9 is None else s9.get("hash_rule"),
+            "derivation": "the four context strings and the list of legacy profiles "
+            "are pinned in the gate's own source, the key set is DERIVED from the "
+            "profile the bundle's shape names (the port of Shape::hash_tag) and "
+            "compared with the bundle's declared hash_tag member by member -- "
+            "re-derive, never consume (ruling T-7).  The bytes are then shown to be "
+            "under that rule: the whole transcript replays, and every opened column "
+            "re-hashes and re-authenticates, only under it",
+            "columns_authenticated": None if s9 is None else s9.get(
+                "columns_authenticated"
+            ),
+            "of": None if s9 is None else s9.get("columns_checked"),
+            "keys_are_public": "yes -- each key is blake3.derive_key(<public "
+            "context>, <public profile>), so publishing them discloses nothing; "
+            "they are never an INPUT",
         },
         {
             "channel": "the Merkle roots (A, H, M per stage, the L-1 boundary roots, "
@@ -528,6 +609,11 @@ def channels(bundle, record):
             "D18) and indistinguishability rests on M-2, the hiding of unopened salted "
             "leaves in the random-oracle model.  A boundary root is an observed "
             "commitment and NOT part of the run statement",
+            "what_stage_9_adds_and_what_it_does_not": "stage 9 re-hashes every OPENED "
+            "column and folds its path to the root under the rule, so the root is "
+            "COMPUTED from the opened data rather than read -- a soundness-side "
+            "check.  The channel stays ARGUED because what it is about is HIDING: "
+            "what an unopened leaf reveals is M-2's assumption either way",
             "roots_this_run": record["stage1_integrity"]["distinct_roots_opened"] + len(
                 bundle.stages
             ),
@@ -553,7 +639,10 @@ def channels(bundle, record):
             "assumption": "M-2",
             "preimage_exhibited": None,
             "model_assumption": "the paths are genuine hashes of the same world's own "
-            "columns; hiding of the unopened leaf digests rests on M-2",
+            "columns; hiding of the unopened leaf digests rests on M-2.  That they "
+            "ARE genuine hashes of this run's own columns is now computed, not "
+            "assumed (stage 9), including each path's LENGTH against the tree depth "
+            "-- the check that stops an inner node being presented as a salted leaf",
             "levels": {
                 "pcs": bundle.shape.log_cols + bundle.shape.inv_rate.bit_length() - 1,
                 "mask": bundle.shape.mask_log_dom,
@@ -735,6 +824,8 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         "tool_sha256": tool_hashes(),
     }
     record["stage1_integrity"] = integrity(bundle)
+    record["hash_rule"] = bundle.hash_rule_record.copy()
+    record["hash_rule"].pop("rule", None)
     replay = RunReplay(bundle).run()
     record["stage2_transcript_replay"] = replay.summary()
     other = RunBundle(other_dir) if other_dir else None
@@ -759,25 +850,39 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
             "skipped": "the controls need a second bundle (--other) for the "
             "swapped-stage control",
         }
+    # stage 9 (round 3): the hash layer under the rule the loader derived,
+    # and the controls of the rule itself
+    hl = check_hash_layer(bundle)
+    hl["controls"] = (hash_rule_controls(bundle, legacy_bundle=old)
+                      if do_controls else {"skipped": "controls not requested",
+                                           "ok": False})
+    hl["ok"] = hl["ok"] and (hl["controls"].get("ok") if do_controls else True)
+    record["stage9_hash_layer"] = hl
     record["stage7_channels"] = channels(bundle, record)
     record["seconds"] = round(time.time() - t0, 1)
     stages = [k for k in record if k.startswith("stage")]
     record["ok"] = all(record[k]["ok"] for k in stages)
+    n_cov = len(covered_at(bundle))
     record["what_it_does_not_show"] = [
         "linear channels of ONE captured three-block run at ONE development shape",
         "nothing about the 125M shape, where exact rank over thousands of rows per "
         "commitment is a different computation",
-        "the hash layer is ARGUED, not computed",
+        "the hash layer's HIDING is still ARGUED, not computed: stage 9 "
+        "authenticates every OPENED column under the rule, which says nothing "
+        "about what an unopened leaf hides (M-2, M-3)",
         "the joint-law composition for a run is unwritten",
         (
             "the per-slot terminal identity is checked for "
-            f"{len(COVERED)} of {bundle.shape.n_slots} slots and OPEN for the other "
-            f"{bundle.shape.n_slots - len(COVERED)}, whose public tables a bundle "
+            f"{n_cov} of {bundle.shape.n_slots} slots and OPEN for the other "
+            f"{bundle.shape.n_slots - n_cov}, whose public tables this bundle "
             "does not carry"
             if record["stage8_plane_index_and_terminals"]["plane_index"].get("present")
             else "the per-slot terminal identity is not checked at this shape: this "
             "bundle carries no plane index table"
         ),
+        "a captured public table is checked against the capture's own length, "
+        "SHA-256 and the structure its builder gives it -- NOT against the "
+        "weight matrix the statement names, which no bundle carries",
         "NOT a privacy acceptance and NOT a privacy property",
     ]
     return record
