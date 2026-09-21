@@ -781,6 +781,41 @@ the 143 base-field tables out as `Fp` cubes halves their bytes: the resident
 table set of the biggest slot at 125M drops from **1,920 MiB to 1,344 MiB**,
 and the sum over all 23 slots from **3.27 GiB to 2.25 GiB** [COUNTED].
 
+### 3.5 What the cost model does not count, and what is not verified
+
+Said plainly, because the numbers above are large and a reader should know
+their edges.
+
+* **The unit is a base-field multiplication, which is a proxy and not a
+  cycle.** Additions, the non-residue multiply (which could be a shift-add
+  for 7 rather than a general multiply), Montgomery/Barrett reduction, the
+  indirect call through `Box<dyn Fn>`, the branch predictor, the instruction
+  cache and the compiler are all outside it. A 58% reduction in
+  multiplications is not a 58% reduction in anything else, and section 8.2
+  argues the interpreter could give it all back.
+* **The token-plus-adjustment identity is a definition, not an independent
+  check.** The `.mul(` token count is extracted; the adjustments (a named
+  local closure's trip count, a loop body's, `helper_sum`, `limbs`,
+  `PadTerm::eval`) are hand-declared. A wrong adjustment gives a wrong
+  BASELINE, and nothing here would catch it. Every adjustment is printed per
+  slot in `slot_ir_counts.md` so a reader can re-derive it against the
+  source; the census and the layout-model cross-checks constrain the table
+  counts and the degrees but not the multiplication counts.
+* **The IR has not been run against the closure.** Nothing here was compiled.
+  The equality the whole design rests on is asserted from reading and is
+  exactly the first test of section 7. Until it exists, the counts describe a
+  form that has not been shown to compute the same field element.
+* **One small thing the counting found by reading.** `limbs(v, ix)` folds
+  `v[i].mul(pow256(k))` from `k = 0`, and `pow256(0)` is `Fp2::from_u64(1)` —
+  a runtime `Fp2::ONE`, not a literal the compiler can fold away inside the
+  fold. So each byte-limb decomposition pays one full five-multiplication
+  `Fp2::mul` by one: four such per evaluation at slot 14 (`nr`, `ns`, `mr`,
+  `ms`) and three at slot 17 (`sr`, `sg`, `pl`). The IR grammar can type that
+  coefficient `Coef::One` and pay nothing for it, but the counting script
+  conservatively types every limb coefficient `kbase`, so the counted saving
+  is if anything slightly understated. It is a small number; it is reported
+  because it is the kind of thing only writing the polynomial down reveals.
+
 ---
 
 ## 4. The shared-file interface
