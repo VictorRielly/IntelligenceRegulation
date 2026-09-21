@@ -1,0 +1,152 @@
+==============================================================================
+A1/A3  the path identity and Theorem S-H at TWO and THREE challenge rounds
+       (the memo's own evidence never leaves ONE round)
+  masked-2round-(1, 1, 1) rounds=2 omegas=256   slots=20  schedules=4101   path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  masked-2round-(1, 0, 1) rounds=2 omegas=256   slots=20  schedules=4101   path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  masked-3round          rounds=3 omegas=16    slots=34  schedules=4101   path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  VERDICT: the path identity survives 2 and 3 rounds, every completion of a
+           truncated rho, and every adversarial schedule tried.  S-H holds.
+
+==============================================================================
+A2  the identity and the lemma with EARLY ABORTS, Game-perp and Game-prefix
+  abort-2round: per-rho TV=0  mismatches=0  adaptive TV (Game prefix)=0  (Game perp)=0
+  VERDICT: the identity is insensitive to the completion of rho past an abort,
+           and both abort games inherit the conclusion.  No defect found.
+
+==============================================================================
+B1  necessity of hypothesis (i) CAUSALITY -- a prover that reads the
+    challenge that FOLLOWS its own message (fixed-point semantics)
+    chi(m_0) = m_0 ;  per-rho TV = 0  (hypothesis (iv) HOLDS)
+    adaptive TV = 1/2   ->  the conclusion FAILS without (i)
+  VERDICT: (i) is NECESSARY.  [the memo never tests this]
+
+==============================================================================
+B2  necessity of hypothesis (ii) 'the witness is fixed before m_0'
+    An ADAPTIVE WITNESS SOURCE: the stage-1 secret is chosen AFTER r_0,
+    as a function of r_0 and of the source's own seed.  This is exactly
+    the memo's GAP S-4 (RunWitnessSource inside the stage loop).
+    across the two adaptive sources: max per-rho TV = 0, max adaptive TV = 0
+  VERDICT: (ii) is NOT necessary for the CONCLUSION.  Whenever (iv) holds for
+           the adaptive sources themselves, the adaptive laws still agree: an
+           adaptive witness source folds into the message maps and (i) is
+           untouched.  (ii) is a WELL-POSEDNESS condition that fixes what the
+           quantifier in (iv) ranges over -- so GAP S-4 is a gap in (iv), not
+           in (ii), and the memo's 'COMPUTATIONAL / through binding' label is
+           a category error.
+
+==============================================================================
+B3  necessity of hypothesis (iii) chi-source independent of omega
+    (the memo's C7 only tests TOTAL coincidence of one query point;
+     here: partial correlation, and a multi-round version)
+    leak=none     per-rho TV=0   adaptive TV with a correlated source = 0
+    leak=one-bit  per-rho TV=0   adaptive TV with a correlated source = 1
+    leak=full     per-rho TV=0   adaptive TV with a correlated source = 1
+  VERDICT: (iii) is NECESSARY, and it is not an all-or-nothing hypothesis:
+           leaking ONE BIT of the prover's randomness into the challenge
+           source already breaks the conclusion (TV 1 at |C|=4).
+
+==============================================================================
+B4  necessity of (iv): the marginal-only hypothesis (already project lore)
+    per-rho (JOINT) TV=1 ; adaptive TV=1  -- (iv) fails and so does the conclusion
+
+B5  necessity of the hypothesis the memo does NOT number: chi must read
+    only the PUBLIC prefix (smuggled into Definition 1.4, tracked in the
+    section-4 table only as code row (iii-d), 'spot-checked here')
+    per-rho TV=0 (hypothesis (iv) HOLDS) ; adaptive TV with a chi that reads one hidden absorbed word = 1
+  VERDICT: PUBLICNESS OF EVERY ABSORBED WORD IS A HYPOTHESIS OF THE LEMMA,
+           not a convenience.  It is not in the list (i)-(iv).
+
+==============================================================================
+C1  the naive approximate form at TWO rounds: the blow-up is |C|^2,
+    not |C|.  The memo measured |C| because every instance it built has
+    one round; its prose says 'the number of reachable challenge vectors'.
+    |C|=2  per-rho TV=1/4        adaptive TV=1    blow-up=x4       sum over reachable rho of TV_rho = 1 (a VALID bound: True)
+    |C|=3  per-rho TV=1/9        adaptive TV=1    blow-up=x9       sum over reachable rho of TV_rho = 1 (a VALID bound: True)
+    |C|=4  per-rho TV=1/16       adaptive TV=1    blow-up=x16      sum over reachable rho of TV_rho = 1 (a VALID bound: True)
+  C2  the memo states no correct approximate form.  One exists and is free
+      from the same identity:  d_adaptive <= SUM over reachable rho of TV_rho
+      (<= (#reachable rho) * delta).  Verified above, tight in every row.
+
+==============================================================================
+C3  Theorem S-H' with a NON-ADAPTED flag B (B reads a challenge the run
+    never draws).  Does the bound survive every completion convention?
+    (iv') holds under the non-adapted flag: True
+    bound checked 256 times over every schedule x every completion: 0 violations
+      completion rho_missing := (0, 0) -> worst (TV, bound) seen = ('1/2', '1/2')
+      completion rho_missing := (0, 1) -> worst (TV, bound) seen = ('1/2', '1')
+      completion rho_missing := (1, 0) -> worst (TV, bound) seen = ('1/2', '1/2')
+      completion rho_missing := (1, 1) -> worst (TV, bound) seen = ('1/2', '1')
+  VERDICT: no soundness hole -- quantifying (iv') over the FULL rho in C^N is
+           what rescues a non-adapted flag.  But the VALUE of Pr^xi[B] depends
+           on the completion (1/2 vs 1 here), so 'the probability of the flag
+           in the adaptive run' is NOT WELL DEFINED as the memo words it: the
+           run stopped before that challenge was ever drawn.  A convention
+           must be fixed, or B must be required ADAPTED.
+
+C4  S-H' with the memo's PAIR-DEPENDENT flag  B = B_w union B_w'  (this is
+    where the memo's factor 2 on the LogUp term comes from)
+    union flag B = B_w u B_w' :  max (TV - bound) = 0   bound HOLDS
+    single-world flag B = B_w :  max (TV - bound) = 3/8   bound VIOLATED
+  VERDICT: the union definition is REQUIRED -- a single-world flag does not
+           satisfy (iv') and its bound is violated.  So the memo's factor 2
+           on B_logup (2^-117.42 vs ruling S-4's 2^-118.4) is CORRECT and is
+           not a one-bit arithmetic error; but the memo never says why the 2
+           is there, and attributes the figure to ruling S-4, which has no 2.
+
+==============================================================================
+D1  claim S-6: Game-perp makes (iv') trivial at a challenge-refused rho,
+    Game-prefix does not.  Built explicitly.
+    masked prefix     per-rho view TV: prefix=0 perp=0 | adaptive TV: prefix=0 perp=0
+    leaky prefix      per-rho view TV: prefix=1 perp=0 | adaptive TV: prefix=1 perp=0
+  VERDICT: claim S-6 CONFIRMED and made exact -- for the SAME protocol,
+           hypothesis (iv') holds at every rho under Game perp and FAILS at the
+           challenge-refused rho under Game prefix, and the adaptive
+           conclusion follows the hypothesis.  Game perp is load-bearing,
+           so GAP S-3 (M-9 has no production code) is a real obligation.
+
+    Does the ABORT PROBABILITY itself leak under Game-perp?  A protocol whose
+    prefix is perfectly masked but whose refusal probability is
+    witness-dependent:
+      prefix perfectly masked, refusal rate w/4.  Game-perp adaptive TV = 1/2
+      = exactly the gap in refusal rate.  The abort INDICATOR is inside the
+      Game-perp view; nothing in the lemma hides it.  So the memo's 'liveness,
+      not distance' line for the challenge-driven class is valid ONLY because
+      that class is a function of rho ALONE -- if any of the four
+      challenge-driven refusals also reads omega or w, it becomes a DISTANCE
+      and must join B.  The memo asserts 'functions of rho alone' without a
+      line-by-line code check.
+
+==============================================================================
+D2  Corollary S-H'' with ADAPTIVE oracle queries (the memo's C8 fixes the
+    query set in advance and says 'which for one leaf is without loss')
+    |S|=2 q=0  exact OPTIMAL ADAPTIVE advantage = 0         memo bound q*N/|S| = 0       OK
+    |S|=2 q=1  exact OPTIMAL ADAPTIVE advantage = 1/4       memo bound q*N/|S| = 1       OK
+    |S|=2 q=2  exact OPTIMAL ADAPTIVE advantage = 1/4       memo bound q*N/|S| = 2       OK
+    |S|=4 q=0  exact OPTIMAL ADAPTIVE advantage = 0         memo bound q*N/|S| = 0       OK
+    |S|=4 q=1  exact OPTIMAL ADAPTIVE advantage = 1/8       memo bound q*N/|S| = 1/2     OK
+    |S|=4 q=2  exact OPTIMAL ADAPTIVE advantage = 1/8       memo bound q*N/|S| = 1       OK
+  VERDICT: the augmentation bound survives optimal ADAPTIVE querying on these
+           instances.  It is also very loose (the memo's C8 bound q*N/|S|
+           exceeds 1 already at q=1), so C8 is weak evidence either way.
+
+==============================================================================
+E1  every number in the memo's section 5.3, recomputed
+    B_samp toy   327,052 * 2^-96                   recomputed 2^-77.681    memo 2^-77.7      OK   
+    B_samp run   109,728,784 * 2^-96               recomputed 2^-69.291    memo 2^-69.29     OK   
+    B_salt toy   C(12288,2) * 2^-256               recomputed 2^-229.830   memo 2^-229.83    OK   
+    B_salt run   C(2473984,2) * 2^-256             recomputed 2^-214.523   memo 2^-214.52    OK   
+    eps_hit toy  2^128 * 12288 * 2^-256            recomputed 2^-114.415   memo 2^-114.42    OK   
+    eps_hit run  2^128 * 2473984 * 2^-256          recomputed 2^-106.762   memo 2^-106.76    OK   
+    eps_gen      6 * 2^128 * 2^-256                recomputed 2^-125.415   memo 2^-125.42    OK   
+    B_logup toy  2*768/|Fp2|  (memo)               recomputed 2^-117.415   memo 2^-117.42    OK   factor 2 = the union over both worlds
+    B_logup run  2*12*768/|Fp2| (memo)             recomputed 2^-113.830   memo 2^-113.83    OK   factor 2 = the union over both worlds
+    ruling S-4   768/|Fp2| per block               recomputed 2^-118.415   memo 2^-118.42    OK   the memo's figure is exactly 1 bit worse
+    ruling S-4   12*768/|Fp2| per run              recomputed 2^-114.830   memo 2^-114.83    OK   the memo's figure is exactly 1 bit worse
+    challenge-only refusal toy 4/p                 recomputed 2^-62.000    memo 2^-62.0      OK   liveness
+    challenge-only refusal run (3L+1)/p, L=12      recomputed 2^-58.791    memo 2^-58.79     OK   liveness
+    dropped B3 toy  2^128*4000*2^-256              recomputed 2^-116.034   memo 2^-116.03    OK   
+    dropped B4 toy  absorb collision               NOT RECOMPUTABLE      memo 2^-233.07    ---- the memo never states the absorb count A
+    toy total  = 2^-77.6808  (memo: 2^-77.70)
+    run total  = 2^-69.2906  (memo: 2^-69.29)
+  VERDICT: every figure reproduces.  The totals are dominated by B_samp to
+           more than 30 bits, so nothing in this page can move a total.
