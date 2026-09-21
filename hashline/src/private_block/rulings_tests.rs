@@ -449,7 +449,12 @@ fn private_block_125m_one_block() {
         // above (the difference is the recorder's own `/proc` reads)
         println!("125M PHASE TABLES ABOVE: prover wall {prove_s:.2} s, verifier wall {verify_s:.2} s, witness build {build_s:.2} s (NOT inside the prover's table), peak RSS {:.2} GiB", peak / 1024.0);
     }
-    assert_eq!(bytes.len(), 40_782_792, "the 125M frame is not the counted length");
+    // Orchestrator, 2026-09-20 19:29: this pin was the one stage 20 missed (the
+    // test is `#[ignore]`d, so that stage could not run it). The first runs
+    // after the repair proved and VERIFIED from bytes at 40,783,352 B and then
+    // stopped here on the pre-repair literal. It now uses the same counted
+    // derivation as the non-ignored pins (`s20_frame_bytes`).
+    assert_eq!(bytes.len(), super::grow_tests::s20_frame_bytes(&sh, 40_782_792), "the 125M frame is not the counted length");
     // a truncated frame is refused before anything is parsed
     assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short 125M frame was accepted");
 }
