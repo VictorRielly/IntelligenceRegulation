@@ -7871,3 +7871,29 @@ plus the logs under `results/zk60_block125m_lane/`.
 * **The source scans pin TEXT, not behaviour** — the same weak link stage 16
   named for T-3. A hash call reached through a helper in an unscanned file,
   or a `ZkRng` obtained through a fourth crate, is invisible to them.
+
+---
+
+## Stage 26 — the generators' seed derivations, structurally separated at every UNFROZEN profile (2026-09-21, 05:1x–)
+
+**Status: `OPEN` (skeleton).** Opened 2026-09-21 05:15 PDT on the lane tip
+`fd45a67`. One ruling, from `ZK60_TOY_ROUTE_A_REEXAMINATION.md` finding
+**B-1** and `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` §9 item 6:
+
+> At every UNFROZEN profile a randomness generator's domain carries WHAT IT
+> IS FOR — a versioned use literal, a fixed-width role or index, and a
+> public spec digest or the profile string — so that the independence
+> assumption behind two generators of one proof has a STRUCTURAL backstop
+> and not only two `/dev/urandom` reads.
+
+**The frozen toy and the frozen-seam rung are untouched**: their generator
+call sites and domains stay byte for byte what they are, and so does
+`zkp-core/src/rng.rs`, whose `from_os` signature and body this stage only
+CALLS. **No verifier-visible byte moves**: a generator is prover-side and the
+verifier never sees one.
+
+Planned sections, in order: the inventory of every `ZkRng::from_os` on the
+path; the four new domain layouts and their lengths; the failing-first
+evidence; the pairwise-distinctness test; the updated stage-25 length table;
+the gate; the forbidden-files proof; what this stage does NOT establish.
+
