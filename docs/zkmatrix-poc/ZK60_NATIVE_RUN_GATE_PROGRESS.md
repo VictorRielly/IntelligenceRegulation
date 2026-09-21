@@ -1879,7 +1879,7 @@ should do is `ls *.done`, read the exit codes, and integrate.
 | `dense-everything` | ONE 125M record carrying every stage | the only record that can read **28 at 10 / 5 / 4 / 9**; report §13.8 says explicitly that no record does until it lands |
 | `dense-controls2` | the CT / GQ / C1–C6 / CH families after the M-F3 repair | the count of controls that fire at 125M, which §13.7 currently gives only for M9-1..3 and round 8's M1–M6 |
 | `dense-final`, `zero-final` | the two (a)–(d) records re-taken on FROZEN bytes | these supersede the committed `m125-dense.json` / `m125-zero.json` for their tool pins; every figure must be identical |
-| `refresh`, `refresh2` + `diff.sh` | the ten development records re-run and leaf-diffed | `all_ten_bundles_unchanged.json` must read **0 unclassified leaves**; three round-9 classes are already in `rg_recclass` |
+| `refresh` + `diff.sh` | **LANDED**: the ten development records re-run and leaf-diffed — **0 UNCLASSIFIED on all ten**, 2,855–4,140 identical leaves each, every difference one of nine tool hashes, one to three wall clocks, the seven `array_store` leaves or the five `shared_files` leaves. Not one rank, disclosed dimension, challenge count, slot check, control figure or channel count moved | integrated in report §13.8b. `refresh2` is a redundant second pass on the same frozen bytes |
 | `tests_final`, `tests_native_all`, `tests_run_gate_all` | the two suites on frozen bytes | the round's suite counts, which §13 does not yet state |
 
 The ledger names them rather than predicting their outcomes, which is the

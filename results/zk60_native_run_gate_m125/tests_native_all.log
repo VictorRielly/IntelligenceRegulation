@@ -1,0 +1,88 @@
+Running scope as unit: run-rcbca11593c7c4007be7dcfdb96cb00b6.scope
+test_all_retained_profiles_close_public_slot_equations (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_bad_receipt_and_policy_digests (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_bilinear_extension_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_duplicate_keys_floats_and_booleans_are_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_false_privacy_acceptance_is_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_fresh_native_process_and_tampered_telemetry (test_zk60_native_capture.NativeCaptureTests) ... skipped 'set HL_NATIVE_CAPTURE_TEST_BINARY for real-process controls'
+test_m_functional_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_packed_subrow_alias (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_sumcheck_round (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_transcript_join (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_wrong_binary_pin_does_not_execute (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_wrong_source_and_ffn_relabel_are_refused (test_zk60_native_capture.NativeCaptureTests) ... ok
+test_zero_tests_or_failed_process_cannot_count_as_verification (test_zk60_native_capture.NativeCaptureTests) ... ok
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_every_record_agrees_with_its_own_grade (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_carries_the_counts_of_record (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_is_the_reports_channel_table (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_names_the_records_it_pins (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_records_are_ok_and_claim_no_privacy_property (test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_a_changed_byte_in_any_newly_pinned_file_is_refused_by_name (test_zk60_native_gate_record.ThePathPinsCoverThePath)
+One byte flipped in EVERY path-pinned file, one at a time, in a ... ok
+test_an_unchanged_tree_with_the_path_pins_still_passes (test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The control for the test above: the same throwaway tree with ... ok
+test_every_pin_is_at_the_bytes_in_this_tree (test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The whole widened table passes on the tree as it stands. ... ok
+test_the_fixture_path_is_named_and_not_pinned (test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The three files reached only by the public fixtures are recorded ... ok
+test_the_pin_table_covers_exactly_the_established_path (test_zk60_native_gate_record.ThePathPinsCoverThePath)
+Neither direction is allowed to drift: a file added to the path ... ok
+test_the_two_pin_tables_agree_where_they_overlap (test_zk60_native_gate_record.ThePathPinsCoverThePath)
+Four files are pinned by BOTH this tool and ... ok
+test_every_capture_pins_the_same_source_commit (test_zk60_native_joint_view.Captures) ... ok
+test_four_source_pinned_captures_are_present_and_manifested (test_zk60_native_joint_view.Captures) ... ok
+test_a_singular_index_set_fails_the_verification (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_every_role_emits_a_nonsingular_g_by_g_minor (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_the_determinant_recomputes_independently_from_the_emitted_indices (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_the_distinct_opened_columns_fit_in_the_pad_count (test_zk60_native_joint_view.CertifyingMinor) ... ok
+test_a_perturbed_terminal_also_breaks_the_transcript_replay (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_every_terminal_is_republished_as_a_pcs_claim_value (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_perturbing_a_published_field_breaks_the_identity (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_the_identity_holds_on_every_slot_of_every_capture (test_zk60_native_joint_view.DerivedMaskEvaluation) ... ok
+test_the_strong_form_is_not_claimed (test_zk60_native_joint_view.DerivedMaskEvaluation)
+The capture stores terminal_polynomial as fin - c*mask_eval and not ... ok
+test_fp2_inverse (test_zk60_native_joint_view.FieldLayer) ... ok
+test_ntt_roundtrip_and_convention (test_zk60_native_joint_view.FieldLayer) ... ok
+test_rank_is_exact (test_zk60_native_joint_view.FieldLayer) ... ok
+test_transcript_matches_the_rust_construction (test_zk60_native_joint_view.FieldLayer) ... ok
+test_two_adic_root_orders (test_zk60_native_joint_view.FieldLayer) ... ok
+test_the_retained_record_matches_a_fresh_run_of_the_stages (test_zk60_native_joint_view.GateRecord) ... ok
+test_the_group_vectors_consume_no_pad_freedom (test_zk60_native_joint_view.PadBudgetBoundary) ... ok
+test_the_real_pad_block_is_full_rank_with_zero_margin (test_zk60_native_joint_view.PadBudgetBoundary)
+256 pads against 256 DISTINCT opened positions, at the receipts' ... ok
+test_the_three_boundary_cases_match_their_predictions (test_zk60_native_joint_view.PadBudgetBoundary) ... ok
+test_altered_capture_bytes_break_the_replay (test_zk60_native_joint_view.Stage1Replay) ... ok
+test_counts_are_the_recorded_ones (test_zk60_native_joint_view.Stage1Replay) ... ok
+test_every_checkpoint_and_challenge_is_reproduced (test_zk60_native_joint_view.Stage1Replay) ... ok
+test_disclosed_dimensions_are_zero_except_the_public_logup_identity (test_zk60_native_joint_view.Stage2CommitmentSide) ... ok
+test_the_pad_block_has_exactly_full_rank (test_zk60_native_joint_view.Stage2CommitmentSide) ... ok
+test_the_pad_budget_is_met_with_a_positive_margin (test_zk60_native_joint_view.Stage2CommitmentSide) ... ok
+test_the_a_row_pad_block_has_full_rank (test_zk60_native_joint_view.Stage3MaskingCommitment) ... ok
+test_the_mask_opening_checks_hold (test_zk60_native_joint_view.Stage3MaskingCommitment) ... ok
+test_the_masks_cover_every_consistency_direction (test_zk60_native_joint_view.Stage3MaskingCommitment) ... ok
+test_the_published_functionals_lie_in_the_round_span (test_zk60_native_joint_view.Stage3MaskingCommitment)
+The finding of this lane: every M functional is determined by the ... ok
+test_the_joint_is_computed_and_equals_the_sum_at_every_capture (test_zk60_native_joint_view.Stage4JointComputation) ... ok
+test_the_joint_reduction_matches_a_dense_joint_rank_in_the_small_model (test_zk60_native_joint_view.Stage4JointComputation)
+The receipt's joint rank is a reduction; here the dense rank over ... ok
+test_the_parts_recomputed_through_the_joint_path_match_stage2 (test_zk60_native_joint_view.Stage4JointComputation) ... ok
+test_the_shared_coordinates_are_the_endpoint_planes_and_nothing_else (test_zk60_native_joint_view.Stage4JointComputation) ... ok
+test_a_claim_weight_outside_its_reserved_pair_makes_the_stage_refuse (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_a_shared_blinding_source_makes_the_joint_exceed_the_sum (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_all_four_controls_fire (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_one_pad_fewer_than_the_distinct_columns_makes_the_stage_refuse (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_removing_one_mask_row_makes_a_part_exceed_its_expected_value (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_the_honest_capture_passes (test_zk60_native_joint_view.Stage4NegativeControls) ... ok
+test_where_the_model_can_and_cannot_see_a_shared_blinding_row (test_zk60_native_joint_view.Stage4NegativeControls)
+The honest limitation, recorded as a test rather than a sentence. ... ok
+test_a_zero_data_preimage_exists_in_the_model_on_every_channel (test_zk60_native_joint_view.Stage5ZeroWitness) ... 

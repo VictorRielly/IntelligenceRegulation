@@ -132,10 +132,17 @@
   ],
   "pins_missing_from_the_bundle": [],
   "pins_that_moved": [],
+  "shared_files": {
+   "files_pinned": 0,
+   "of": 23,
+   "ok": true,
+   "pinned": false,
+   "what": "this bundle's writer pins no shared file; the eight the mask port transcribes are checked by reading only (zk60_native_rg_mask.NOT_PINNABLE_FROM_A_BUNDLE), which is where rounds 1-8 left them"
+  },
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 18.1,
+ "seconds": 20.6,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -717,6 +724,17 @@
  },
  "stage1_integrity": {
   "any_root_opened_twice": false,
+  "array_store": {
+   "file": null,
+   "ok": true,
+   "references_resolved_in_run_json": 0,
+   "references_resolved_per_stage": {
+    "stage-00.json": 0,
+    "stage-01.json": 0,
+    "stage-02.json": 0
+   },
+   "what": "schema hashline-native-capture/4-run keeps every array inline; there is no binary store to resolve"
+  },
   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
   "blocks": 3,
   "boundaries": 2,
@@ -1047,7 +1065,7 @@
    "exact_rank_of_the_pad_block": 248,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.4,
+   "seconds": 3.9,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -5573,25 +5591,26 @@
   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
   "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
-  "zk60_native_rg_bundle.py": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
-  "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
-  "zk60_native_rg_gcontrols.py": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
+  "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
+  "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
+  "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
+  "zk60_native_rg_gcontrols.py": "3406eeb396492a3a67ece6547ced1edeeb9eb9a31ab759952db2f944f621a655",
   "zk60_native_rg_gqa.py": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
   "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
-  "zk60_native_rg_mask.py": "aeaf3499b8431eff8090e672b7ed2c52991b66a0ce4746066f385dfa6a348ae8",
+  "zk60_native_rg_mask.py": "a273c7c03fc10b19a5beaccb19058c704d8bea4809cabcc9f56a018aa29f392e",
   "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
   "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
-  "zk60_native_rg_runpins.py": "24e3c391275b792b0f91d53450e459820d3a9214dcd16268149add299aee2dda",
-  "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
-  "zk60_native_rg_terminals.py": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
-  "zk60_native_run_gate.py": "344ae2b359a96531d22af772cab4da257f15f2a8acc4211c75299fade88cf542"
+  "zk60_native_rg_runpins.py": "1e94fd1b830261057c32c8fc70c4d566cf3302c9dd645e8bd40aa6069a2f34ea",
+  "zk60_native_rg_tcontrols.py": "12985bfc5ccc1725b69e65b1a8c160462926c1042c5699d2499ccce73c514de9",
+  "zk60_native_rg_terminals.py": "acb5166d3678bf4cdad469c40b9705d3bc4c6c216865dc9fb2742bb83e9a4352",
+  "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"
  },
  "version": 1,
  "what_it_does_not_show": [

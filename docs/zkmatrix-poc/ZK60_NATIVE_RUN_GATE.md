@@ -3148,6 +3148,45 @@ stage would read 10 / 5 / 4 / 9; it is enqueued as `m125-dense-everything`
 and named with its log and marker, and **until it lands no 125M record
 carries the whole table and this section does not claim one does.**
 
+## 13.8b The ten development records, re-run and leaf-diffed
+
+Round 9 moved five tool files — the loader, the array store, the terminal
+port, the run-layer pins and the mask port — plus the gate itself, and
+added one file to the pinned list. So every committed record was re-run
+under the current tools, into the same evidence directory each lives in,
+and diffed **leaf by leaf** against the committed bytes taken with
+`git show HEAD:…` into `before/` first.
+
+| | a–d | e–j |
+|---|---:|---:|
+| identical leaves | 2,855–3,637 | 3,973–4,140 |
+| changed leaves | **9–11** | **10–11** |
+| new leaves | **13** | **13** |
+| leaves only in the OLD record | **0** | **0** |
+| **UNCLASSIFIED differing leaves** | **0** | **0** |
+
+Every difference on every one of the ten is in one of four classes: **nine
+tool hashes** (the five that moved plus the one added to `TOOLS`, and their
+knock-ons), **one to three wall clocks**, the **seven leaves of the new
+`array_store` block** — on a `/4-run` bundle it says there is no binary
+store to resolve — and the **five leaves of the new `shared_files` block**,
+which on a bundle written before `f4697f9` says `pinned: false`. **Not one
+rank, disclosed dimension, challenge count, slot check, control figure,
+receipt size or channel count differs on any of the ten.**
+
+In particular **finding M-F1's repair moved a tool hash and NOT ONE SLOT
+CHECK at a development shape** — 69 of 69 before and after, on all ten —
+because every domain pads there, which is the whole reason the finding
+waited for 125M.
+
+> One labelling imprecision, stated rather than fixed: the classifier
+> tests round 6's class before round 9's, and both match the
+> `run_layer_source_pins/` prefix, so the five `shared_files` leaves are
+> reported under round 6's label. They are classified and counted; only the
+> name beside them is the older one. The bytes are frozen while
+> `m125-dense-everything` runs against them, so this is recorded here
+> rather than repaired.
+
 ## 13.9 Every sentence that said "nothing at 125M", corrected in place
 
 Nothing above is rewritten; each correction is dated.

@@ -1,0 +1,73 @@
+{
+ "changed": [
+  {
+   "new": 12.5,
+   "old": 12.3,
+   "path": "seconds"
+  },
+  {
+   "new": 3.5,
+   "old": 3.6,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
+   "old": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
+   "path": "tool_sha256/zk60_native_rg_bundle.py"
+  },
+  {
+   "new": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
+   "old": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
+   "path": "tool_sha256/zk60_native_rg_controls.py"
+  },
+  {
+   "new": "3406eeb396492a3a67ece6547ced1edeeb9eb9a31ab759952db2f944f621a655",
+   "old": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
+   "path": "tool_sha256/zk60_native_rg_gcontrols.py"
+  },
+  {
+   "new": "a273c7c03fc10b19a5beaccb19058c704d8bea4809cabcc9f56a018aa29f392e",
+   "old": "aeaf3499b8431eff8090e672b7ed2c52991b66a0ce4746066f385dfa6a348ae8",
+   "path": "tool_sha256/zk60_native_rg_mask.py"
+  },
+  {
+   "new": "1e94fd1b830261057c32c8fc70c4d566cf3302c9dd645e8bd40aa6069a2f34ea",
+   "old": "24e3c391275b792b0f91d53450e459820d3a9214dcd16268149add299aee2dda",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  },
+  {
+   "new": "12985bfc5ccc1725b69e65b1a8c160462926c1042c5699d2499ccce73c514de9",
+   "old": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
+   "path": "tool_sha256/zk60_native_rg_tcontrols.py"
+  },
+  {
+   "new": "acb5166d3678bf4cdad469c40b9705d3bc4c6c216865dc9fb2742bb83e9a4352",
+   "old": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  },
+  {
+   "new": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad",
+   "old": "344ae2b359a96531d22af772cab4da257f15f2a8acc4211c75299fade88cf542",
+   "path": "tool_sha256/zk60_native_run_gate.py"
+  }
+ ],
+ "identical_leaves": 3636,
+ "leaves_new": 3659,
+ "leaves_old": 3646,
+ "only_in_the_new_record": [
+  "run_layer_source_pins/shared_files/files_pinned",
+  "run_layer_source_pins/shared_files/of",
+  "run_layer_source_pins/shared_files/ok",
+  "run_layer_source_pins/shared_files/pinned",
+  "run_layer_source_pins/shared_files/what",
+  "stage1_integrity/array_store/file",
+  "stage1_integrity/array_store/ok",
+  "stage1_integrity/array_store/references_resolved_in_run_json",
+  "stage1_integrity/array_store/references_resolved_per_stage/stage-00.json",
+  "stage1_integrity/array_store/references_resolved_per_stage/stage-01.json",
+  "stage1_integrity/array_store/references_resolved_per_stage/stage-02.json",
+  "stage1_integrity/array_store/what",
+  "tool_sha256/zk60_native_rg_arrays.py"
+ ],
+ "only_in_the_old_record": []
+}
