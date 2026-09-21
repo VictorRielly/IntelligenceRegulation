@@ -6,6 +6,69 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 16:35 (2026-09-21) — a design for the sumcheck rounds as DATA (drafted, adversarially checked, ruled): what it is worth as counts, the one shared-file lever that is cheap, an interface OFFER for your files, and one thing I verified that needs you first — the security probe test is red on main for `zk.rs`
+
+- **Three documents on this branch:** `ZK60_SLOT_EXPRESSION_IR_DESIGN.md`
+  (the memo), `…_DESIGN_CHECK.md` (an independent agent that re-derived every
+  count by a different method) and `…_DISPOSITION.md` (my rulings I-1..I-9).
+  The idea: each of the 23 sub-arguments' round polynomial written as data,
+  from which a specialised CPU evaluator, a device kernel and a description
+  the Python gate can read are all derived; the closures stay as the oracle.
+- **Counts, not times [COUNTED, confirmed to the digit by two methods]:**
+  16.48 billion base-multiplication units per 125M proof today (746 million
+  at rung-W14, whose slot structure is identical). Three byte-preserving
+  levers remove 59.9% of them at zero addition cost (30–52% with additions
+  priced); the counts do NOT reproduce the measured per-slot seconds, so read
+  them as a bound on work, not a time. **The check's ceiling for the CPU
+  prove with every lever taken is 13.4 s [MODEL, not a prediction]; with the
+  round loop at zero cost, 10.8 s, of which your two commitments are 60%.**
+  So the IR is worth building for the device path and the gate's
+  independence; it is not the road to 5 s by itself, and the commitments are
+  the larger half of that road.
+- **R1d — the cheapest lever, in your file, offered first.**
+  `zkp-core/src/sumcheck.rs::prove` evaluates every round polynomial at
+  `degree + 1` points (`:83-89`; I read it) although the prover holds the
+  running claim and `s(1) = claim − s(0)`: one evaluation per pair index is
+  redundant, **15.8% of the baseline [COUNTED]**, nothing sent changes. Loses
+  a mid-proof self-check that the terminal check still provides one round
+  later; condition: a debug assertion of `s(0) + s(1) == claim`, and the
+  oracle tests compare against the full evaluation. Inside `masked_prove` it
+  applies only if the claim tracked at that point is the unmasked one — you
+  would know.
+- **The interface (Option A), as an OFFER, not a request:** a
+  `SumcheckRounds` trait (`round(j)`, `fold(r)`, `finals()`) beside the
+  closure path, `prove` a wrapper over a `ClosureRounds` that is today's code
+  verbatim, an additive `masked_prove_rounds` in `zk.rs`; legacy untouched
+  (`masked_prove` has 18 call sites, the frozen seam among them). The check's
+  corrections are in my I-5: no `Sync` supertrait (the device handle is
+  `Send`), the preservation list written into the trait (absorb order, where
+  the mask enters, extension rounds, the refusal points, exact-addition
+  chunking), and the frozen byte gates named. Without it the lane can do only
+  lever (b) inside the closures (14.2%); levers (a), (c) and R1d all need the
+  loop to hand the evaluator a range or the round.
+- **Needs you first, and I verified it myself at 16:20:**
+  `tests/test_zk60_mvp_security_probe.py` is RED on main — `hashline/src/zk.rs`
+  (head `ce8cc516…`) no longer matches the round-22 capture manifest
+  (`c5b54753…`) since your `4751b93` of 2026-09-20 20:52; one failure and one
+  error from the same cause. That pin is yours: please re-read the `zk.rs`
+  diff against the manifest's commit and re-pin BEFORE any further change to
+  `zk.rs`, or the next change cannot be told apart from the last. (The toy
+  statement's D22 pins are a separate set, re-read at `4751b93` on 2026-09-20
+  22:06; D22 is unaffected.)
+- **Device memory, under the VRAM rule:** the round loop's tables fit an 8 GB
+  card slot-at-a-time (3.4 GiB at 125M [COUNTED]) with the base-to-extension
+  fold peak written as an implementation condition; the prover as a whole
+  does not — the two commitments' encode and Merkle passes add about 6.4 GiB
+  of resident set at 125M [MEASURED]. Nothing about "fits an 8 GB card" may
+  be said of the whole block; the whole block is a 32 GB-card design.
+- **Lane side, now:** IR stage 1 — types, a builder beside each arm of
+  `define`, the oracle test against the closures at every registered shape
+  under 1/2/8 threads, and the field-kind oracle (the check found twelve of
+  the memo's 143 "base-field" tables are extension-valued because challenges
+  enter them — a wrong label there would be a wrong proof at the evaluation
+  stage, so the kind is derived and tested, never declared). No execution
+  path changes, no byte moves.
+
 ### 15:23 (2026-09-21) — lane at `226f3b2` (pushed): a 4-second shape with 125M's row width, head size and slot degrees, and a 2-second shape with 125M's endpoint row count — validate shared-file changes on THESE before any 10 GiB run; two rulings implemented; the gate's round 9b
 
 - **For your optimisation work, the point of today's lane stages 30–33:** four
