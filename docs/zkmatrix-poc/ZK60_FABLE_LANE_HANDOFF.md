@@ -6,6 +6,59 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 00:04 (2026-09-21) — end-of-day state for you: lane at `8c5922b` (pushed), Python gate at `6667aba` (pushed); what is yours to pick up, what is mine next
+
+**The lane since the tip I named at 21:03 (`e6b612f`): additions and two
+refusals, nothing an existing profile proves moved.** Receipts 2,816,472 /
+4,218,600 / 4,234,984 / 4,743,128 / 40,783,352 B; toy freeze gates green;
+filter `private_` 275 passed, none failing; shared and frozen files untouched
+since the two tag commits `d2e5988` and `7de6ea1`.
+- Stage 22: `Shape::rung_k4` (the 125M head geometry at development size) and
+  a run statement that describes public weights only (23:06 entry).
+- Stage 23 (`8c5922b`): **two named `Shape::new` refusals.** (1) Ruling S-1:
+  the lookup-table domain must sit at exactly the row width — a violating
+  shape (the toy's axes at `log_cols = 7`) *was constructible* before tonight.
+  It protects an **argument, not a proof**: such a shape would still produce
+  verifying receipts; what would stop holding is the reading of what they
+  disclose. (2) Ruling S-3: `head_dim` below the row width — a violating shape
+  (one head of 256 at `log_cols = 8`) was constructible too, and every proof
+  at it would have been refused. A dependency nobody had connected: what keeps
+  `SC_PV` out of the same trap is the unrelated refusal `head_dim ≥ 2`, written
+  for the rotary partner bit; it is now asserted as such. Also: the
+  independent layout model derives every shape's endpoint geometry itself and
+  **equals the Rust to the byte at all five shapes with no correction term
+  left**; and a test pins the refusal order inside an opening (each group
+  position tested for zero in order and short-circuiting; the determinant
+  reading exactly the two proximity rows; audit → group count → challenges,
+  the transcript untouched until the first two pass) on a real two-block dense
+  capture, through existing hooks only. **One hook is named and not built**,
+  because it needs a production file: a `#[cfg(test)]` observer inside
+  `protocol::check_opening_challenges` to see the live order in
+  `prove_core` / `verify_core`. Say if you would take that.
+- The Python gate (23:57, `6667aba`): the four-group shape went through with
+  nothing failing to scale; the toy gates now pin all 29 files on the toy's
+  path at your `4751b93` (20 were pinned by nothing until tonight; none
+  refused). One gap it found in itself: `run_capture.rs`, `run.rs` and
+  `boundary.rs` are pinned by no run-gate tool — recorded, owed.
+
+**Yours to pick up, in the order I would take them:** (1) integrate the two
+tag commits and the lane (the merge with `4751b93` needs a third accepted
+`zk.rs` digest in the Python pins — tell me when you start); (2) the three
+Python source pins of S17-F1; (3) one schema-3 toy capture from the
+`4751b93` binaries, so D22's re-read becomes a replay; (4) the legacy
+verifiers' path-length check; (5) the run wrapper with rule M-9, the
+refusal-reason rule and a statement that describes public data only; (6) your
+three speed levers, measured on `HL_PB_WEIGHTS=dense`, with the three
+boundary refusals, the claim audit and the table-domain invariant left alone;
+(7) your word on a `#[cfg(test)]` draw-position hook in `zkp-core/src/rng.rs`
+(for the blinding-independence test) and on the observer hook above.
+
+**Mine next:** the run gate's own run-layer pins; the blinding-independence
+draw accounting once you answer (7); the slot closures as a reading at the
+shaped layouts and the sequential lift for a run (the two paper gaps left on
+a run's privacy path); the non-degenerate-witness rule applied retroactively
+to anything of mine that still reports on the old fixture.
+
 ### 23:30 (2026-09-20) — the per-commitment lemma at the shaped layouts is checked and ruled (`ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md`); three things in it touch you
 
 - **The figure I asked you not to quote is now confirmed and ruled (S-4):**
