@@ -1,12 +1,23 @@
-"""Loader for a RUN CAPTURE bundle, schema `hashline-native-capture/4-run`.
+"""Loader for a RUN CAPTURE bundle, schema `hashline-native-capture/4-run`
+or `/5-run`.
 
 Format: `docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md` on lane
 `zk60-private-block-125m`; writer `hashline/src/private_block/run_capture.rs`.
 
 A bundle is a DIRECTORY -- `run.json`, `stage-00.json` ... `stage-{L-1}.json`,
-`manifest.json`, `README.md` -- and it is the VERIFIER'S VIEW of one private
-run of L blocks under one transcript.  It carries no witness value, no pad,
-no mask coefficient, no unopened column and no unmasked sumcheck round.
+`manifest.json`, `README.md`, and under `/5-run` one `arrays.bin` -- and it
+is the VERIFIER'S VIEW of one private run of L blocks under one transcript.
+It carries no witness value, no pad, no mask coefficient, no unopened column
+and no unmasked sumcheck round.
+
+**`/5-run` (stage 27 of the Rust lane, ROUND 9).**  The only difference is
+where a field-element array of at least 256 entries lives: in `/4-run` it is
+a JSON list, in `/5-run` a reference `{"array", "elem", "len", "offset",
+"bytes"}` into one `arrays.bin`.  `zk60_native_rg_arrays` resolves them into
+objects that index, iterate and measure exactly like the lists they replace,
+so nothing downstream of this loader knows which schema it is reading.  Every
+resolution is checked (length, byte range, SHA-256 of the range, element
+type, reduced values) and a failure is a named finding, never an exception.
 
 TWO RULES THIS MODULE KEEPS.
 
@@ -33,9 +44,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
+from zk60_native_rg_arrays import (  # noqa: E402
+    ARRAY_STORE_FILE,
+    SCHEMA_4,
+    SCHEMA_5,
+    SCHEMAS,
+    ArrayRefused,
+    ArrayStore,
+    resolve_document,
+)
 from zk60_native_rg_hashrule import rule_for_bundle  # noqa: E402
 
-SCHEMA = "hashline-native-capture/4-run"
+SCHEMA = SCHEMA_4
 RUN_KIND = "zk60-run-verifier-observations"
 STAGE_KIND = "zk60-run-stage-observations"
 MANIFEST_KIND = "zk60-run-capture-manifest"
@@ -77,7 +97,8 @@ class Stage:
     """One `stage-NN.json`: the per-proof content of the single-block schema
     plus the run's own locality words and commitment-kind fields."""
 
-    def __init__(self, path: str, index: int, blocks: int):
+    def __init__(self, path: str, index: int, blocks: int,
+                 schema: str = SCHEMA_4, store=None, refusals=None):
         with open(path, "rb") as fh:
             raw = fh.read()
         self.path = path
@@ -86,8 +107,16 @@ class Stage:
         self.bytes = len(raw)
         self.doc = json.loads(raw)
         d = self.doc
-        if d.get("schema") != SCHEMA:
-            raise ValueError(f"{self.name}: schema {d.get('schema')!r} is not {SCHEMA!r}")
+        if d.get("schema") != schema:
+            raise ValueError(f"{self.name}: schema {d.get('schema')!r} is not {schema!r}")
+        # [ROUND 9] `/5-run`: every array reference in this stage, resolved
+        # into a checked zero-copy view.  A reference the store will not
+        # resolve is a named finding on the bundle, not an exception here.
+        self.arrays_resolved = 0
+        if store is not None:
+            self.arrays_resolved = resolve_document(
+                d, store, self.name, refusals if refusals is not None else []
+            )
         if d.get("kind") != STAGE_KIND:
             raise ValueError(f"{self.name}: kind {d.get('kind')!r} is not {STAGE_KIND!r}")
         if d.get("stage") != index:
@@ -191,12 +220,13 @@ class RunBundle:
         self.run_bytes = len(raw)
         self.run = json.loads(raw)
         d = self.run
-        if d.get("schema") != SCHEMA:
+        if d.get("schema") not in SCHEMAS:
             raise ValueError(
-                f"run.json: schema {d.get('schema')!r} is not {SCHEMA!r} "
+                f"run.json: schema {d.get('schema')!r} is not one of {list(SCHEMAS)} "
                 "(a schema-3 single-block capture must be read by "
                 "zk60_native_jv_capture, not by this loader)"
             )
+        self.schema = d["schema"]
         if d.get("kind") != RUN_KIND:
             raise ValueError(f"run.json: kind {d.get('kind')!r} is not {RUN_KIND!r}")
         if d.get("coverage") != COVERAGE:
@@ -213,13 +243,48 @@ class RunBundle:
                 f"run.json: {self.boundaries} boundaries for {self.blocks} blocks"
             )
         self.shape = Shape(d["shape"], d["mask_domain"])
-        self.stages = []
-        for k, fn in enumerate(d["stage_files"]):
-            self.stages.append(Stage(os.path.join(self.dir, fn), k, self.blocks))
-        if len(self.stages) != self.blocks:
-            raise ValueError(f"run.json: {len(self.stages)} stage files for {self.blocks} blocks")
         with open(os.path.join(self.dir, "manifest.json"), "rb") as fh:
             self.manifest = json.loads(fh.read())
+        # [ROUND 9] the binary array store, opened before any stage is read.
+        # A `/4-run` bundle has none and must not have one; a `/5-run`
+        # bundle must, and its length is checked against the manifest here
+        # so that a truncated store is refused before a byte is resolved.
+        self.array_refusals: list[str] = []
+        self.store = None
+        listed = {e["file"]: e for e in self.manifest.get("files", [])}
+        if self.schema == SCHEMA_5:
+            e = listed.get(ARRAY_STORE_FILE, {})
+            try:
+                self.store = ArrayStore(
+                    os.path.join(self.dir, ARRAY_STORE_FILE),
+                    declared_bytes=e.get("bytes"),
+                    declared_sha256=e.get("sha256"),
+                )
+            except ArrayRefused as exc:
+                self.array_refusals.append(str(exc))
+        elif os.path.exists(os.path.join(self.dir, ARRAY_STORE_FILE)):
+            self.array_refusals.append(
+                f"{ARRAY_STORE_FILE}: present in a {SCHEMA_4} bundle, which "
+                "never externalises an array"
+            )
+        self.stages = []
+        for k, fn in enumerate(d["stage_files"]):
+            self.stages.append(
+                Stage(os.path.join(self.dir, fn), k, self.blocks,
+                      schema=self.schema, store=self.store,
+                      refusals=self.array_refusals)
+            )
+        if len(self.stages) != self.blocks:
+            raise ValueError(f"run.json: {len(self.stages)} stage files for {self.blocks} blocks")
+        # run.json itself carries no array of 256 entries today; the walk is
+        # run over it all the same, so that a member that grew past the
+        # threshold in a later writer is resolved rather than mis-read.
+        if self.store is not None:
+            self.run_arrays_resolved = resolve_document(
+                self.run, self.store, "run.json", self.array_refusals
+            )
+        else:
+            self.run_arrays_resolved = 0
         # STAGE 17 / decision D19: which BLAKE3 made these bytes.  The rule is
         # DERIVED from the block profile this bundle's shape names and then
         # compared with the declared `hash_tag`; it is never taken from it
@@ -251,11 +316,15 @@ def integrity(bundle: RunBundle) -> dict:
     """
     f: list[str] = []
     man = bundle.manifest
-    if man.get("schema") != SCHEMA or man.get("kind") != MANIFEST_KIND:
+    if man.get("schema") != bundle.schema or man.get("kind") != MANIFEST_KIND:
         f.append(
             f"manifest.json: schema/kind {man.get('schema')!r}/{man.get('kind')!r} "
-            f"is not {SCHEMA!r}/{MANIFEST_KIND!r}"
+            f"is not {bundle.schema!r}/{MANIFEST_KIND!r}"
         )
+    # [ROUND 9] every refusal the array store raised while the stages were
+    # being read, by name.  A bundle with one of these is reported, not
+    # crashed on.
+    f.extend(bundle.array_refusals)
     if man.get("profile") != bundle.profile:
         f.append("manifest.json: profile differs from run.json's")
     if man.get("blocks") != bundle.blocks:
@@ -435,10 +504,25 @@ def integrity(bundle: RunBundle) -> dict:
     for r in hr["refusals"]:
         f.append(r)
 
+    store = (
+        bundle.store.summary()
+        if bundle.store is not None
+        else {
+            "file": None,
+            "what": f"schema {bundle.schema} keeps every array inline; there is "
+            "no binary store to resolve",
+            "ok": True,
+        }
+    )
+    store["references_resolved_per_stage"] = {
+        st.name: st.arrays_resolved for st in bundle.stages
+    }
+    store["references_resolved_in_run_json"] = bundle.run_arrays_resolved
     return {
         "bundle": bundle.name,
         "dir": bundle.dir,
         "schema": bundle.run["schema"],
+        "array_store": store,
         "kind": bundle.run["kind"],
         "coverage": bundle.run["coverage"],
         "profile": bundle.profile,

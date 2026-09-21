@@ -1,0 +1,117 @@
+{
+ "changed": [
+  {
+   "new": "run-g-5run",
+   "old": "run-g-dense-s20",
+   "path": "bundle"
+  },
+  {
+   "new": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/reenc/run-g-5run",
+   "old": "/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-g-dense-s20",
+   "path": "bundle_dir"
+  },
+  {
+   "new": 18.2,
+   "old": 21.0,
+   "path": "seconds"
+  },
+  {
+   "new": "run-g-5run",
+   "old": "run-g-dense-s20",
+   "path": "stage10_bilinear_group_factor/group_factor/bundle"
+  },
+  {
+   "new": "arrays.bin",
+   "old": null,
+   "path": "stage1_integrity/array_store/file"
+  },
+  {
+   "new": 589,
+   "old": 0,
+   "path": "stage1_integrity/array_store/references_resolved_per_stage/stage-00.json"
+  },
+  {
+   "new": 590,
+   "old": 0,
+   "path": "stage1_integrity/array_store/references_resolved_per_stage/stage-01.json"
+  },
+  {
+   "new": 592,
+   "old": 0,
+   "path": "stage1_integrity/array_store/references_resolved_per_stage/stage-02.json"
+  },
+  {
+   "new": "run-g-5run",
+   "old": "run-g-dense-s20",
+   "path": "stage1_integrity/bundle"
+  },
+  {
+   "new": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/reenc/run-g-5run",
+   "old": "/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-g-dense-s20",
+   "path": "stage1_integrity/dir"
+  },
+  {
+   "new": 6,
+   "old": 5,
+   "path": "stage1_integrity/manifest_files_checked"
+  },
+  {
+   "new": 21722185,
+   "old": 41296268,
+   "path": "stage1_integrity/manifest_total_bytes"
+  },
+  {
+   "new": "hashline-native-capture/5-run",
+   "old": "hashline-native-capture/4-run",
+   "path": "stage1_integrity/schema"
+  },
+  {
+   "new": "run-g-5run",
+   "old": "run-g-dense-s20",
+   "path": "stage2_transcript_replay/bundle"
+  },
+  {
+   "new": 3.4,
+   "old": 3.6,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.0,
+   "old": 1.1,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "stage 1 of run-g-5run replaced by stage 1 of run-h-zero-s20 (same schema, same shape, another run)",
+   "old": "stage 1 of run-g-dense-s20 replaced by stage 1 of run-h-zero-s20 (same schema, same shape, another run)",
+   "path": "stage6_negative_controls/C5_a_stage_file_swapped_between_the_two_bundles/what"
+  },
+  {
+   "new": "run-g-5run",
+   "old": "run-g-dense-s20",
+   "path": "stage8_plane_index_and_terminals/carried_public_tables/bundle"
+  },
+  {
+   "new": "run-g-5run",
+   "old": "run-g-dense-s20",
+   "path": "stage9_hash_layer/bundle"
+  },
+  {
+   "new": "run-g-5run",
+   "old": "run-g-dense-s20",
+   "path": "stage9_hash_layer/controls/bundle"
+  }
+ ],
+ "identical_leaves": 4041,
+ "leaves_new": 4066,
+ "leaves_old": 4062,
+ "only_in_the_new_record": [
+  "stage1_integrity/array_store/bytes",
+  "stage1_integrity/array_store/bytes_verified_by_sha256",
+  "stage1_integrity/array_store/distinct_arrays_verified_by_sha256",
+  "stage1_integrity/array_store/references_resolved",
+  "stage1_integrity/array_store/what_is_checked"
+ ],
+ "only_in_the_old_record": [
+  "stage1_integrity/array_store/what"
+ ]
+}

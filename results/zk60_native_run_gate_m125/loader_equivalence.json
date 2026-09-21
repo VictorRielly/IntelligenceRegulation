@@ -1,0 +1,43 @@
+{
+ "array_store": {
+  "bytes": 11581400,
+  "bytes_verified_by_sha256": 11581400,
+  "distinct_arrays_verified_by_sha256": 1683,
+  "file": "arrays.bin",
+  "ok": true,
+  "references_resolved": 1771,
+  "refusals": [],
+  "what_is_checked": "per reference: exactly the five defined keys, elem in {fp, fp2}, bytes == len * width, the range inside the file, the sha256 of exactly those bytes, and every decoded u64 reduced mod the Goldilocks prime"
+ },
+ "differences": [],
+ "differences_total": 0,
+ "encoder": {
+  "arrays_bin_bytes": 11581400,
+  "distinct_arrays": 1683,
+  "members_externalised": 1771,
+  "total_bytes": 21722185
+ },
+ "externalised_members_by_kind": {
+  "group_vectors": 141,
+  "mask_prox": 3,
+  "mask_q": 3,
+  "opened_column_values": 2560,
+  "proximity_rhos": 10,
+  "proximity_vectors": 10
+ },
+ "field_elements_behind_the_references": 1133619,
+ "json_leaves_compared": 3430417,
+ "list_entries_walked": 3967936,
+ "ok": true,
+ "reencoded_schema": "hashline-native-capture/5-run",
+ "schema_strings_as_expected": true,
+ "seconds": {
+  "compare": 3.8,
+  "load_both": 1.3,
+  "reencode": 0.9
+ },
+ "source_bundle": "run-g-dense-s20",
+ "source_schema": "hashline-native-capture/4-run",
+ "what": "the DECODER of zk60_native_rg_arrays against the format document, on a whole development-shape run",
+ "what_this_is_not": "a test of the Rust encoder.  The Rust lane's own run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values captures one run twice in one process and asserts byte-for-byte equality of the expanded /5-run bundle with the /4-run one; that is the writer's test.  This is the reader's, built the other way round because no /5-run bundle at a development shape exists in any repository"
+}
