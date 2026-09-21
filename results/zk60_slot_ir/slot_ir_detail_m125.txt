@@ -1,0 +1,544 @@
+# per-slot detail at m125 — 125M (T512 / d768 / f2048, 12 heads of 64 over 4 KV)
+
+## slot 00 SC_SS (private) — cube 2^19, 1 extension round(s), declared degree 4, IR max product degree 4
+
+  tables (3), in push order:
+    t0           eq        ext  eq(r_t)
+    t1           A         base A_X
+    t2           supp      base supp(Dom::D)
+
+  the polynomial, as a sum of products:
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t2[supp] * t0[eq] * t1[A] * t1[A]   -- row sum of x^2
+
+## slot 01 SC_SSM (private) — cube 2^19, 1 extension round(s), declared degree 4, IR max product degree 4
+
+  tables (3), in push order:
+    t0           eq        ext  eq(r_t2)
+    t1           A         base A_X1
+    t2           supp      base supp(Dom::D)
+
+  the polynomial, as a sum of products:
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t2[supp] * t0[eq] * t1[A] * t1[A]   -- row sum of x^2
+
+## slot 02 SC_TZC (host) — cube 2^9, 1 extension round(s), declared degree 3, IR max product degree 3
+
+  tables (25), in push order:
+    t0           eq        ext  eq(tau)
+    t1           eq        ext  eq(r_t)
+    t2           eq        ext  eq(r_t2)
+    t3           A         base A_D
+    t4           A         base A_DSQ
+    t5..t13      A         base A_LIMB[0] .. A_LIMB[8]
+    t14          A         base A_DM
+    t15          A         base A_DSQM
+    t16..t24     A         base A_LIMBM[0] .. A_LIMBM[8]
+
+  the polynomial, as a sum of products:
+      node (dsq - d^2) [deg 2] = t4[A] + -1 * t3[A] * t3[A]
+      form <d - dl> = t3 + t5 + k*t6 + k*t7
+      form <2d - a1 - a2> = t3 + t8 + k*t9 + k*t10 + t11 + k*t12 + k*t13
+      node (dsqm - dm^2) [deg 2] = t15[A] + -1 * t14[A] * t14[A]
+      form <dm - dlm> = t14 + t16 + k*t17 + k*t18
+      form <2dm - a1m - a2m> = t14 + t19 + k*t20 + k*t21 + t22 + k*t23 + k*t24
+      node (zc(TZC)) [deg 2] = mu0 * (dsq - d^2) + mu1 * <d - dl> + mu2 * <2d - a1 - a2> + mu3 * (dsqm - dm^2) + mu4 * <dm - dlm> + mu5 * <2dm - a1m - a2m>
+      form <dsq + a1 - ceps> = const + t4 + t8 + k*t9 + k*t10
+      form <dsqm + a1m - ceps> = const + t15 + t19 + k*t20 + k*t21
+      TERM [deg 3] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(TZC))   -- the zero-check arm
+      TERM [deg 2] coef nu0 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t1[eq] * <dsq + a1 - ceps>   -- host SC_SS
+      TERM [deg 2] coef nu1 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t2[eq] * <dsqm + a1m - ceps>   -- host SC_SSM
+
+## slot 03 SC_LZC (standalone) — cube 2^14, 1 extension round(s), declared degree 4, IR max product degree 4
+
+  tables (5), in push order:
+    t0           eq        ext  eq(tau)
+    t1           A         base A_LIMB
+    t2           A         base A_LIMBM
+    t3           H         ext  H_L0
+    t4           supp      base supp(Dom::L)
+
+  the polynomial, as a sum of products:
+      form <den_L_0> = const + k*t1
+      form <den_L_1> = const + k*t2
+      node (logup_L_0) [deg 3] = t3[H] * <den_L_0> * <den_L_1> + -1 * <den_L_0> + -1 * <den_L_1>
+      form <1 - supp[4]> = const + t4
+      form <sum zeta^j plane_j> = z*t1 + z*t2
+      node (pad-zero) [deg 2] = <1 - supp[4]> * <sum zeta^j plane_j>
+      node (zc(LZC)) [deg 3] = mu_L * (logup_L_0) + mu_pad * (pad-zero)
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(LZC))   -- LogUp + pad
+
+## slot 04 SC_RS (private) — cube 2^22, 1 extension round(s), declared degree 4, IR max product degree 4
+
+  tables (5), in push order:
+    t0           eq        ext  eq(p_ht)
+    t1           pub       base causal mask
+    t2           A         base A_E
+    t3           A         base A_ZSEL
+    t4           supp      base supp(Dom::S)
+
+  the polynomial, as a sum of products:
+      node (mask*e + lam_z*zsel) [deg 2] = t1[pub] * t2[A] + lam_z * t3[A]
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t4[supp] * t0[eq] * (mask*e + lam_z*zsel)   -- row sum
+
+## slot 05 SC_QMM (private) — cube 2^10, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           A         base A_Y
+    t1           pub       ext  fold(Wq, r_j)
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[A] * t1[pub]   -- plane * folded weight
+
+## slot 06 SC_KMM (private) — cube 2^10, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           A         base A_Y
+    t1           pub       ext  fold(Wk, r_j)
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[A] * t1[pub]   -- plane * folded weight
+
+## slot 07 SC_VMM (private) — cube 2^10, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           A         base A_Y
+    t1           pub       ext  fold(Wv, r_j)
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[A] * t1[pub]   -- plane * folded weight
+
+## slot 08 SC_SCORE (private) — cube 2^8, 2 extension round(s), declared degree 3, IR max product degree 3
+
+  tables (3), in push order:
+    t0           group_eq  ext  eq(r_g) group gate
+    t1           A         base A_QR8
+    t2           A         base A_KR8
+
+  the polynomial, as a sum of products:
+      TERM [deg 3] coef 1 (none (coefficient 1 or -1)) : t0[group_eq] * t1[A] * t2[A]   -- the bilinear product
+
+## slot 09 SC_PV (private) — cube 2^11, 2 extension round(s), declared degree 3, IR max product degree 3
+
+  tables (3), in push order:
+    t0           group_eq  ext  eq(r_g) group gate
+    t1           A         base A_P
+    t2           A         base A_V8
+
+  the polynomial, as a sum of products:
+      TERM [deg 3] coef 1 (none (coefficient 1 or -1)) : t0[group_eq] * t1[A] * t2[A]   -- the bilinear product
+
+## slot 10 SC_WO (private) — cube 2^10, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           A         base A_O8
+    t1           pub       ext  fold(Wo, r_j)
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[A] * t1[pub]   -- plane * folded weight
+
+## slot 11 SC_GMM (private) — cube 2^10, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           A         base A_YM
+    t1           pub       ext  fold(Wg, r_j)
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[A] * t1[pub]   -- plane * folded weight
+
+## slot 12 SC_UMM (private) — cube 2^10, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           A         base A_YM
+    t1           pub       ext  fold(Wu, r_j)
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[A] * t1[pub]   -- plane * folded weight
+
+## slot 13 SC_DMM (private) — cube 2^11, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           A         base A_H16
+    t1           pub       ext  fold(Wd, r_j)
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[A] * t1[pub]   -- plane * folded weight
+
+## slot 14 SC_DZC (host) — cube 2^19, 1 extension round(s), declared degree 5, IR max product degree 4
+
+  tables (60), in push order:
+    t0           eq        ext  eq(tau)
+    t1           eq        ext  eq(p_a)
+    t2           eq        ext  eq(p_z)
+    t3           pub       base gamma_a (padded)
+    t4           pub       base gamma_m (padded)
+    t5           A         base A_X
+    t6..t7       A         base A_XL0 .. A_XL1
+    t8           A         base A_Y
+    t9..t12      A         base A_NR0 .. A_NR3
+    t13..t16     A         base A_NS0 .. A_NS3
+    t17          A         base A_AO
+    t18..t19     A         base A_AL0 .. A_AL1
+    t20          A         base A_RAL
+    t21          A         base A_X1
+    t22..t23     A         base A_X1L0 .. A_X1L1
+    t24          A         base A_YM
+    t25..t28     A         base A_MR0 .. A_MR3
+    t29..t32     A         base A_MS0 .. A_MS3
+    t33          A         base A_X2
+    t34..t35     A         base A_X2L0 .. A_X2L1
+    t36          A         base A_Z16
+    t37..t38     A         base A_ZL0 .. A_ZL1
+    t39          A         base A_RDL
+    t40          A         base A_D (Dom::T slice)
+    t41          A         base A_DM (Dom::T slice)
+    t42..t58     H         ext  H_D0 .. H_D16
+    t59          supp      base supp(Dom::D)
+
+  the polynomial, as a sum of products:
+      form <2^tn d - nr> = k*t40 + k*t9 + k*t10 + k*t11 + k*t12
+      node (c0) [deg 2] = 2 Cn * t3[pub] * t5[A] + -2^(tn+1) * t8[A] * t40[A] + <2^tn d - nr>
+      form <c1: ns + nr + 1 - 2^(tn+1) d> = const + k*t13 + k*t14 + k*t15 + k*t16 + k*t9 + k*t10 + k*t11 + k*t12 + k*t40
+      form <c2: x + 2^15 - l2(xl)> = const + t5 + t6 + k*t7
+      form <c3: ao + 2^15 - l2(al)> = const + t17 + t18 + k*t19
+      form <c4: x1 + 2^15 - l2(x1l)> = const + t21 + t22 + k*t23
+      form <c5: x1 - x - ao> = t21 + t5 + t17
+      form <2^tn dm - mr> = k*t41 + k*t25 + k*t26 + k*t27 + k*t28
+      node (c6) [deg 2] = 2 Cn * t4[pub] * t21[A] + -2^(tn+1) * t24[A] * t41[A] + <2^tn dm - mr>
+      form <c7: ms + mr + 1 - 2^(tn+1) dm> = const + k*t29 + k*t30 + k*t31 + k*t32 + k*t25 + k*t26 + k*t27 + k*t28 + k*t41
+      form <c8: x2 + 2^15 - l2(x2l)> = const + t33 + t34 + k*t35
+      form <c9: x2 - x1 - z16> = t33 + t21 + t36
+      form <c10: z16 + 2^15 - l2(zl)> = const + t36 + t37 + k*t38
+      node (the 11 clauses) [deg 2] = mu0 * (c0) + mu1 * <c1: ns + nr + 1 - 2^(tn+1) d> + mu2 * <c2: x + 2^15 - l2(xl)> + mu3 * <c3: ao + 2^15 - l2(al)> + mu4 * <c4: x1 + 2^15 - l2(x1l)> + mu5 * <c5: x1 - x - ao> + mu6 * (c6) + mu7 * <c7: ms + mr + 1 - 2^(tn+1) dm> + mu8 * <c8: x2 + 2^15 - l2(x2l)> + mu9 * <c9: x2 - x1 - z16> + mu10 * <c10: z16 + 2^15 - l2(zl)>
+      form <den_D_0> = const + k*t6
+      form <den_D_1> = const + k*t7
+      node (logup_D_0) [deg 3] = t42[H] * <den_D_0> * <den_D_1> + -1 * <den_D_0> + -1 * <den_D_1>
+      form <den_D_2> = const + k*t8
+      form <den_D_3> = const + k*t8
+      node (logup_D_1) [deg 3] = t43[H] * <den_D_2> * <den_D_3> + -1 * <den_D_2> + -1 * <den_D_3>
+      form <den_D_4> = const + k*t9
+      form <den_D_5> = const + k*t10
+      node (logup_D_2) [deg 3] = t44[H] * <den_D_4> * <den_D_5> + -1 * <den_D_4> + -1 * <den_D_5>
+      form <den_D_6> = const + k*t11
+      form <den_D_7> = const + k*t12
+      node (logup_D_3) [deg 3] = t45[H] * <den_D_6> * <den_D_7> + -1 * <den_D_6> + -1 * <den_D_7>
+      form <den_D_8> = const + k*t13
+      form <den_D_9> = const + k*t14
+      node (logup_D_4) [deg 3] = t46[H] * <den_D_8> * <den_D_9> + -1 * <den_D_8> + -1 * <den_D_9>
+      form <den_D_10> = const + k*t15
+      form <den_D_11> = const + k*t16
+      node (logup_D_5) [deg 3] = t47[H] * <den_D_10> * <den_D_11> + -1 * <den_D_10> + -1 * <den_D_11>
+      form <den_D_12> = const + k*t18
+      form <den_D_13> = const + k*t19
+      node (logup_D_6) [deg 3] = t48[H] * <den_D_12> * <den_D_13> + -1 * <den_D_12> + -1 * <den_D_13>
+      form <den_D_14> = const + k*t20
+      form <den_D_15> = const + k*t20
+      node (logup_D_7) [deg 3] = t49[H] * <den_D_14> * <den_D_15> + -1 * <den_D_14> + -1 * <den_D_15>
+      form <den_D_16> = const + k*t22
+      form <den_D_17> = const + k*t23
+      node (logup_D_8) [deg 3] = t50[H] * <den_D_16> * <den_D_17> + -1 * <den_D_16> + -1 * <den_D_17>
+      form <den_D_18> = const + k*t24
+      form <den_D_19> = const + k*t24
+      node (logup_D_9) [deg 3] = t51[H] * <den_D_18> * <den_D_19> + -1 * <den_D_18> + -1 * <den_D_19>
+      form <den_D_20> = const + k*t25
+      form <den_D_21> = const + k*t26
+      node (logup_D_10) [deg 3] = t52[H] * <den_D_20> * <den_D_21> + -1 * <den_D_20> + -1 * <den_D_21>
+      form <den_D_22> = const + k*t27
+      form <den_D_23> = const + k*t28
+      node (logup_D_11) [deg 3] = t53[H] * <den_D_22> * <den_D_23> + -1 * <den_D_22> + -1 * <den_D_23>
+      form <den_D_24> = const + k*t29
+      form <den_D_25> = const + k*t30
+      node (logup_D_12) [deg 3] = t54[H] * <den_D_24> * <den_D_25> + -1 * <den_D_24> + -1 * <den_D_25>
+      form <den_D_26> = const + k*t31
+      form <den_D_27> = const + k*t32
+      node (logup_D_13) [deg 3] = t55[H] * <den_D_26> * <den_D_27> + -1 * <den_D_26> + -1 * <den_D_27>
+      form <den_D_28> = const + k*t34
+      form <den_D_29> = const + k*t35
+      node (logup_D_14) [deg 3] = t56[H] * <den_D_28> * <den_D_29> + -1 * <den_D_28> + -1 * <den_D_29>
+      form <den_D_30> = const + k*t37
+      form <den_D_31> = const + k*t38
+      node (logup_D_15) [deg 3] = t57[H] * <den_D_30> * <den_D_31> + -1 * <den_D_30> + -1 * <den_D_31>
+      form <den_D_32> = const + k*t39
+      form <den_D_33> = const + k*t39
+      node (logup_D_16) [deg 3] = t58[H] * <den_D_32> * <den_D_33> + -1 * <den_D_32> + -1 * <den_D_33>
+      form <1 - supp[59]> = const + t59
+      form <sum zeta^j plane_j> = z*t5 + z*t6 + z*t7 + z*t8 + z*t9 + z*t10 + z*t11 + z*t12 + z*t13 + z*t14 + z*t15 + z*t16 + z*t17 + z*t18 + z*t19 + z*t20 + z*t21 + z*t22 + z*t23 + z*t24 + z*t25 + z*t26 + z*t27 + z*t28 + z*t29 + z*t30 + z*t31 + z*t32 + z*t33 + z*t34 + z*t35 + z*t36 + z*t37 + z*t38 + z*t39
+      node (pad-zero) [deg 2] = <1 - supp[59]> * <sum zeta^j plane_j>
+      node (zc(DZC)) [deg 3] = t59[supp] * (the 11 clauses) + mu_D * (logup_D_0) + mu_D * (logup_D_1) + mu_D * (logup_D_2) + mu_D * (logup_D_3) + mu_D * (logup_D_4) + mu_D * (logup_D_5) + mu_D * (logup_D_6) + mu_D * (logup_D_7) + mu_D * (logup_D_8) + mu_D * (logup_D_9) + mu_D * (logup_D_10) + mu_D * (logup_D_11) + mu_D * (logup_D_12) + mu_D * (logup_D_13) + mu_D * (logup_D_14) + mu_D * (logup_D_15) + mu_D * (logup_D_16) + mu_pad * (pad-zero)
+      form <host_wo: 2^7 ao + ral - 2^6> = const + k*t17 + t20
+      form <host_dmm: 2^6 z16 + rdl - 2^5> = const + k*t36 + t39
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(DZC))   -- clauses + LogUp + pad
+      TERM [deg 3] coef nu0 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t1[eq] * t59[supp] * <host_wo: 2^7 ao + ral - 2^6>   -- host SC_WO
+      TERM [deg 3] coef nu1 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t2[eq] * t59[supp] * <host_dmm: 2^6 z16 + rdl - 2^5>   -- host SC_DMM
+
+## slot 15 SC_QZC (host) — cube 2^19, 1 extension round(s), declared degree 5, IR max product degree 4
+
+  tables (21), in push order:
+    t0           eq        ext  eq(tau)
+    t1           eq        ext  eq(pq)
+    t2           eq        ext  eq(p_o)
+    t3           pub       base rope cos
+    t4           pub       base rope sin
+    t5           A         base A_Q8
+    t6           A         base A_RQL
+    t7           A         base A_QR8
+    t8           A         base A_RQRL
+    t9           A         base A_O8
+    t10..t11     A         base A_RO0 .. A_RO1
+    t12          A         base A_Q8 at the flipped RoPE partner bit
+    t13..t19     H         ext  H_Q0 .. H_Q6
+    t20          supp      base supp(Dom::Q)
+
+  the polynomial, as a sum of products:
+      form <-2^7 rot - rot_rem + 2^6> = const + k*t7 + t8
+      node (rope) [deg 2] = t3[pub] * t5[A] + t4[pub] * t12[A] + <-2^7 rot - rot_rem + 2^6>
+      form <den_Q_0> = const + k*t5
+      form <den_Q_1> = const + k*t5
+      node (logup_Q_0) [deg 3] = t13[H] * <den_Q_0> * <den_Q_1> + -1 * <den_Q_0> + -1 * <den_Q_1>
+      form <den_Q_2> = const + k*t6
+      form <den_Q_3> = const + k*t6
+      node (logup_Q_1) [deg 3] = t14[H] * <den_Q_2> * <den_Q_3> + -1 * <den_Q_2> + -1 * <den_Q_3>
+      form <den_Q_4> = const + k*t7
+      form <den_Q_5> = const + k*t7
+      node (logup_Q_2) [deg 3] = t15[H] * <den_Q_4> * <den_Q_5> + -1 * <den_Q_4> + -1 * <den_Q_5>
+      form <den_Q_6> = const + k*t8
+      form <den_Q_7> = const + k*t8
+      node (logup_Q_3) [deg 3] = t16[H] * <den_Q_6> * <den_Q_7> + -1 * <den_Q_6> + -1 * <den_Q_7>
+      form <den_Q_8> = const + k*t9
+      form <den_Q_9> = const + k*t9
+      node (logup_Q_4) [deg 3] = t17[H] * <den_Q_8> * <den_Q_9> + -1 * <den_Q_8> + -1 * <den_Q_9>
+      form <den_Q_10> = const + k*t10
+      form <den_Q_11> = const + k*t11
+      node (logup_Q_5) [deg 3] = t18[H] * <den_Q_10> * <den_Q_11> + -1 * <den_Q_10> + -1 * <den_Q_11>
+      form <den_Q_12> = const + k*t11
+      node (logup_Q_6) [deg 2] = t19[H] * <den_Q_12> + -1 * 1
+      form <1 - supp[20]> = const + t20
+      form <sum zeta^j plane_j> = z*t5 + z*t6 + z*t7 + z*t8 + z*t9 + z*t10 + z*t11
+      node (pad-zero) [deg 2] = <1 - supp[20]> * <sum zeta^j plane_j>
+      node (zc(Q)) [deg 3] = mu0 * t20[supp] * (rope) + mu_Q * (logup_Q_0) + mu_Q * (logup_Q_1) + mu_Q * (logup_Q_2) + mu_Q * (logup_Q_3) + mu_Q * (logup_Q_4) + mu_Q * (logup_Q_5) + mu_Q * (logup_Q_6) + mu_pad * (pad-zero)
+      form <host1: 2^7 q8 + rql - 2^6> = const + k*t5 + t6
+      form <host2: 2^9 o8 + ro0 + 256 ro1 - 2^8> = const + k*t9 + t10 + k*t11
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(Q))   -- rope + LogUp + pad
+      TERM [deg 3] coef nu0 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t1[eq] * t20[supp] * <host1: 2^7 q8 + rql - 2^6>   -- host 1
+      TERM [deg 3] coef nu1 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t2[eq] * t20[supp] * <host2: 2^9 o8 + ro0 + 256 ro1 - 2^8>   -- host 2
+
+## slot 16 SC_KVZC (host) — cube 2^17, 1 extension round(s), declared degree 4, IR max product degree 4
+
+  tables (18), in push order:
+    t0           eq        ext  eq(tau)
+    t1           eq        ext  eq(pk)
+    t2           eq        ext  eq(pv)
+    t3           pub       base rope cos
+    t4           pub       base rope sin
+    t5           A         base A_K8
+    t6           A         base A_RKL
+    t7           A         base A_V8
+    t8           A         base A_RVL
+    t9           A         base A_KR8
+    t10          A         base A_RKRL
+    t11          A         base A_K8 at the flipped RoPE partner bit
+    t12..t17     H         ext  H_Kv0 .. H_Kv5
+
+  the polynomial, as a sum of products:
+      form <-2^7 rot - rot_rem + 2^6> = const + k*t9 + t10
+      node (rope) [deg 2] = t3[pub] * t5[A] + t4[pub] * t11[A] + <-2^7 rot - rot_rem + 2^6>
+      form <den_Kv_0> = const + k*t5
+      form <den_Kv_1> = const + k*t5
+      node (logup_Kv_0) [deg 3] = t12[H] * <den_Kv_0> * <den_Kv_1> + -1 * <den_Kv_0> + -1 * <den_Kv_1>
+      form <den_Kv_2> = const + k*t6
+      form <den_Kv_3> = const + k*t6
+      node (logup_Kv_1) [deg 3] = t13[H] * <den_Kv_2> * <den_Kv_3> + -1 * <den_Kv_2> + -1 * <den_Kv_3>
+      form <den_Kv_4> = const + k*t7
+      form <den_Kv_5> = const + k*t7
+      node (logup_Kv_2) [deg 3] = t14[H] * <den_Kv_4> * <den_Kv_5> + -1 * <den_Kv_4> + -1 * <den_Kv_5>
+      form <den_Kv_6> = const + k*t8
+      form <den_Kv_7> = const + k*t8
+      node (logup_Kv_3) [deg 3] = t15[H] * <den_Kv_6> * <den_Kv_7> + -1 * <den_Kv_6> + -1 * <den_Kv_7>
+      form <den_Kv_8> = const + k*t9
+      form <den_Kv_9> = const + k*t9
+      node (logup_Kv_4) [deg 3] = t16[H] * <den_Kv_8> * <den_Kv_9> + -1 * <den_Kv_8> + -1 * <den_Kv_9>
+      form <den_Kv_10> = const + k*t10
+      form <den_Kv_11> = const + k*t10
+      node (logup_Kv_5) [deg 3] = t17[H] * <den_Kv_10> * <den_Kv_11> + -1 * <den_Kv_10> + -1 * <den_Kv_11>
+      node (zc(Kv)) [deg 3] = mu0 * (rope) + mu_Kv * (logup_Kv_0) + mu_Kv * (logup_Kv_1) + mu_Kv * (logup_Kv_2) + mu_Kv * (logup_Kv_3) + mu_Kv * (logup_Kv_4) + mu_Kv * (logup_Kv_5)
+      form <host1: 2^7 k8 + rkl - 2^6> = const + k*t5 + t6
+      form <host2: 2^7 v8 + rvl - 2^6> = const + k*t7 + t8
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(Kv))   -- rope + LogUp + pad
+      TERM [deg 2] coef nu0 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t1[eq] * <host1: 2^7 k8 + rkl - 2^6>   -- host 1
+      TERM [deg 2] coef nu1 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t2[eq] * <host2: 2^7 v8 + rvl - 2^6>   -- host 2
+
+## slot 17 SC_SZC (host) — cube 2^22, 1 extension round(s), declared degree 5, IR max product degree 5
+
+  tables (30), in push order:
+    t0           eq        ext  eq(tau)
+    t1           eq        ext  eq(p_ht)
+    t2           eq        ext  eq(p_s)
+    t3           pub       base causal mask
+    t4           A         base A_S8
+    t5           A         base A_RSL
+    t6           A         base A_ZSEL
+    t7           A         base A_E
+    t8           A         base A_P
+    t9..t10      A         base A_PL0 .. A_PL1
+    t11..t13     A         base A_SR0 .. A_SR2
+    t14..t16     A         base A_SG0 .. A_SG2
+    t17          A         base A_MX (Dom::Ht slice)
+    t18          A         base A_SUM (Dom::Ht slice)
+    t19..t26     H         ext  H_S0 .. H_S7
+    t27          H         ext  H_SEXP
+    t28          supp      base supp(Dom::Ht), lifted
+    t29          supp      base supp(Dom::S)
+
+  the polynomial, as a sum of products:
+      node (c0: zsel^2 - zsel) [deg 2] = t6[A] * t6[A] + -1 * t6[A]
+      form <mx + 127> = const + t17
+      form <s8 + 127> = const + t4
+      node (delta = max - masked score) [deg 2] = <mx + 127> + -1 * t3[pub] * <s8 + 127>
+      node (c1: zsel * delta) [deg 3] = t6[A] * (delta = max - masked score)
+      form <sr> = k*t11 + k*t12 + k*t13
+      node (c2: 2^F_P mask e - p sum - sr) [deg 2] = 2^F_P * t3[pub] * t7[A] + -1 * t8[A] * t18[A] + -1 * <sr>
+      form <c3: sg + sr + 1 - sum> = const + k*t14 + k*t15 + k*t16 + k*t11 + k*t12 + k*t13 + t18
+      form <c4: p - pl> = t8 + k*t9 + k*t10
+      node (the 5 clauses) [deg 3] = mu0 * (c0: zsel^2 - zsel) + mu1 * (c1: zsel * delta) + mu2 * (c2: 2^F_P mask e - p sum - sr) + mu3 * <c3: sg + sr + 1 - sum> + mu4 * <c4: p - pl>
+      node (alpha - delta - beta e - g_exp) [deg 2] = -1 * (delta = max - masked score) + -beta * t7[A] + 1
+      node (cx: the exp pair (never gated)) [deg 3] = t27[H] * (alpha - delta - beta e - g_exp) + -1 * 1
+      form <den_S_0> = const + k*t4
+      form <den_S_1> = const + k*t4
+      node (logup_S_0) [deg 3] = t19[H] * <den_S_0> * <den_S_1> + -1 * <den_S_0> + -1 * <den_S_1>
+      form <den_S_2> = const + k*t5
+      form <den_S_3> = const + k*t5
+      node (logup_S_1) [deg 3] = t20[H] * <den_S_2> * <den_S_3> + -1 * <den_S_2> + -1 * <den_S_3>
+      form <den_S_4> = const + k*t9
+      form <den_S_5> = const + k*t10
+      node (logup_S_2) [deg 3] = t21[H] * <den_S_4> * <den_S_5> + -1 * <den_S_4> + -1 * <den_S_5>
+      form <den_S_6> = const + k*t10
+      form <den_S_7> = const + k*t11
+      node (logup_S_3) [deg 3] = t22[H] * <den_S_6> * <den_S_7> + -1 * <den_S_6> + -1 * <den_S_7>
+      form <den_S_8> = const + k*t12
+      form <den_S_9> = const + k*t13
+      node (logup_S_4) [deg 3] = t23[H] * <den_S_8> * <den_S_9> + -1 * <den_S_8> + -1 * <den_S_9>
+      form <den_S_10> = const + k*t13
+      form <den_S_11> = const + k*t14
+      node (logup_S_5) [deg 3] = t24[H] * <den_S_10> * <den_S_11> + -1 * <den_S_10> + -1 * <den_S_11>
+      form <den_S_12> = const + k*t15
+      form <den_S_13> = const + k*t16
+      node (logup_S_6) [deg 3] = t25[H] * <den_S_12> * <den_S_13> + -1 * <den_S_12> + -1 * <den_S_13>
+      form <den_S_14> = const + k*t16
+      node (logup_S_7) [deg 2] = t26[H] * <den_S_14> + -1 * 1
+      form <1 - supp[28]> = const + t28
+      form <sum zeta^j plane_j> = z*t17 + z*t18
+      form <1 - supp[29]> = const + t29
+      form <sum zeta^j plane_j> = z*t4 + z*t5 + z*t6 + z*t8 + z*t9 + z*t10 + z*t11 + z*t12 + z*t13 + z*t14 + z*t15 + z*t16
+      node (pad-zero) [deg 2] = <1 - supp[28]> * <sum zeta^j plane_j> + <1 - supp[29]> * <sum zeta^j plane_j>
+      node (zc(SZC)) [deg 4] = t29[supp] * (the 5 clauses) + mu_cx * (cx: the exp pair (never gated)) + mu_S * (logup_S_0) + mu_S * (logup_S_1) + mu_S * (logup_S_2) + mu_S * (logup_S_3) + mu_S * (logup_S_4) + mu_S * (logup_S_5) + mu_S * (logup_S_6) + mu_S * (logup_S_7) + mu_pad * (pad-zero)
+      form <host_rs: sum + lam_z> = const + t18
+      form <host_s: 2^6 s8 + rsl - 2^5> = const + k*t4 + t5
+      TERM [deg 5] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(SZC))   -- clauses + exp pair + LogUp + pad
+      TERM [deg 3] coef nu0 * per_row (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t1[eq] * t28[supp] * <host_rs: sum + lam_z>   -- host SC_RS
+      TERM [deg 3] coef nu1 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t2[eq] * t29[supp] * <host_s: 2^6 s8 + rsl - 2^5>   -- host SC_SCORE
+
+## slot 18 SC_FZC (host) — cube 2^20, 1 extension round(s), declared degree 4, IR max product degree 4
+
+  tables (20), in push order:
+    t0           eq        ext  eq(tau)
+    t1           eq        ext  eq(p_g)
+    t2           eq        ext  eq(p_u)
+    t3           A         base A_G8
+    t4           A         base A_RGL
+    t5           A         base A_A16
+    t6           A         base A_U16
+    t7..t8       A         base A_UL0 .. A_UL1
+    t9           A         base A_H16
+    t10..t11     A         base A_HL0 .. A_HL1
+    t12..t13     A         base A_RH0 .. A_RH1
+    t14..t18     H         ext  H_F0 .. H_F4
+    t19          H         ext  H_FACT
+
+  the polynomial, as a sum of products:
+      form <-2^14 h16 - rh0 - 256 rh1 + 2^13> = const + k*t9 + t12 + k*t13
+      node (f0: a16 u16 - 2^14 h16 - l2(rh) + 2^13) [deg 2] = t5[A] * t6[A] + <-2^14 h16 - rh0 - 256 rh1 + 2^13>
+      form <f1: u16 + 2^15 - l2(ul)> = const + t6 + t7 + k*t8
+      form <f2: h16 + 2^15 - l2(hl)> = const + t9 + t10 + k*t11
+      node (the 3 clauses) [deg 2] = mu0 * (f0: a16 u16 - 2^14 h16 - l2(rh) + 2^13) + mu1 * <f1: u16 + 2^15 - l2(ul)> + mu2 * <f2: h16 + 2^15 - l2(hl)>
+      form <alpha - g8 - 128 - beta a16 - g_act> = const + t3 + z*t5
+      node (the activation pair (never gated)) [deg 2] = t19[H] * <alpha - g8 - 128 - beta a16 - g_act> + -1 * 1
+      form <den_F_0> = const + k*t4
+      form <den_F_1> = const + k*t4
+      node (logup_F_0) [deg 3] = t14[H] * <den_F_0> * <den_F_1> + -1 * <den_F_0> + -1 * <den_F_1>
+      form <den_F_2> = const + k*t7
+      form <den_F_3> = const + k*t8
+      node (logup_F_1) [deg 3] = t15[H] * <den_F_2> * <den_F_3> + -1 * <den_F_2> + -1 * <den_F_3>
+      form <den_F_4> = const + k*t10
+      form <den_F_5> = const + k*t11
+      node (logup_F_2) [deg 3] = t16[H] * <den_F_4> * <den_F_5> + -1 * <den_F_4> + -1 * <den_F_5>
+      form <den_F_6> = const + k*t12
+      form <den_F_7> = const + k*t13
+      node (logup_F_3) [deg 3] = t17[H] * <den_F_6> * <den_F_7> + -1 * <den_F_6> + -1 * <den_F_7>
+      form <den_F_8> = const + k*t13
+      node (logup_F_4) [deg 2] = t18[H] * <den_F_8> + -1 * 1
+      node (zc(FZC)) [deg 3] = (the 3 clauses) + mu3 * (the activation pair (never gated)) + mu_F * (logup_F_0) + mu_F * (logup_F_1) + mu_F * (logup_F_2) + mu_F * (logup_F_3) + mu_F * (logup_F_4)
+      form <host_g: 2^7 g8 + rgl - 2^6> = const + k*t3 + t4
+      TERM [deg 4] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(FZC))   -- clauses + activation pair + LogUp + pad
+      TERM [deg 2] coef nu0 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t1[eq] * <host_g: 2^7 g8 + rgl - 2^6>   -- host SC_GMM
+      TERM [deg 2] coef nu1 (challenge or a product of challenges (mu, nu, zeta^j, lam_z, beta, a batching power)) : t2[eq] * t6[A]   -- host SC_UMM (SH_U = 0: no coefficient)
+
+## slot 19 SC_TAB (standalone) — cube 2^14, 1 extension round(s), declared degree 3, IR max product degree 3
+
+  tables (11), in push order:
+    t0           eq        ext  eq(tau)
+    t1           A         base A_MU8
+    t2           H         ext  H_TU8
+    t3           pub       base table values U8
+    t4           A         base A_MEXP
+    t5           H         ext  H_TEXP
+    t6           pub       ext  table values EXP
+    t7           A         base A_MACT
+    t8           H         ext  H_TACT
+    t9           pub       ext  table values ACT
+    t10          supp      base supp(Dom::Tab)
+
+  the polynomial, as a sum of products:
+      form <alpha - values0> = const + t3
+      node (r0: h (alpha - values) - multiplicity) [deg 2] = t2[H] * <alpha - values0> + -1 * t1[A]
+      form <alpha - values1> = const + t6
+      node (r1: h (alpha - values) - multiplicity) [deg 2] = t5[H] * <alpha - values1> + -1 * t4[A]
+      form <alpha - values2> = const + t9
+      node (r2: h (alpha - values) - multiplicity) [deg 2] = t8[H] * <alpha - values2> + -1 * t7[A]
+      form <1 - supp[10]> = const + t10
+      form <sum zeta^j plane_j> = z*t1 + z*t4 + z*t7
+      form <1 - supp[10]> = const + t10
+      form <sum zeta^j plane_j> = z*t2 + z*t5 + z*t8
+      node (pad-zero) [deg 2] = <1 - supp[10]> * <sum zeta^j plane_j> + <1 - supp[10]> * <sum zeta^j plane_j>
+      node (zc(TAB)) [deg 2] = mu0 * (r0: h (alpha - values) - multiplicity) + mu1 * (r1: h (alpha - values) - multiplicity) + mu2 * (r2: h (alpha - values) - multiplicity) + mu_pad * (pad-zero)
+      TERM [deg 3] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (zc(TAB))   -- three table relations + pad
+
+## slot 20 SC_ZS (standalone) — cube 2^14, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (2), in push order:
+    t0           pub       base all-ones over Dom::Tab
+    t1           H         ext  H_U
+
+  the polynomial, as a sum of products:
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : 1 * t0[pub] * t1[H]   -- the zero-sum row
+
+## slot 21 SC_IO_IN (standalone) — cube 2^19, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (3), in push order:
+    t0           eq        ext  eq(tau)
+    t1           A         base A_X
+    t2           EP        base endpoint In
+
+  the polynomial, as a sum of products:
+      node (plane - endpoint) [deg 1] = t1[A] + -1 * t2[EP]
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (plane - endpoint)   -- endpoint equality
+
+## slot 22 SC_IO_OUT (standalone) — cube 2^19, 1 extension round(s), declared degree 2, IR max product degree 2
+
+  tables (3), in push order:
+    t0           eq        ext  eq(tau)
+    t1           A         base A_X2
+    t2           EP        base endpoint Out
+
+  the polynomial, as a sum of products:
+      node (plane - endpoint) [deg 1] = t1[A] + -1 * t2[EP]
+      TERM [deg 2] coef 1 (none (coefficient 1 or -1)) : t0[eq] * (plane - endpoint)   -- endpoint equality
+
+# IR json written to results/zk60_slot_ir/slot_ir_m125.json

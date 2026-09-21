@@ -1,0 +1,7818 @@
+{
+ "schema": "zk60-slot-ir/0 (a DESIGN sketch, not a produced format)",
+ "shape": "m125",
+ "shape_name": "125M (T512 / d768 / f2048, 12 heads of 64 over 4 KV)",
+ "slots": [
+  {
+   "slot": 0,
+   "name": "SC_SS",
+   "kind": "private",
+   "main_rounds": 19,
+   "extension_rounds": 1,
+   "declared_degree": 4,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(r_t)"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X"
+    },
+    {
+     "index": 2,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::D)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      2,
+      0
+     ],
+     "factors": [
+      {
+       "table": 1
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 4,
+     "note": "row sum of x^2"
+    }
+   ]
+  },
+  {
+   "slot": 1,
+   "name": "SC_SSM",
+   "kind": "private",
+   "main_rounds": 19,
+   "extension_rounds": 1,
+   "declared_degree": 4,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(r_t2)"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X1"
+    },
+    {
+     "index": 2,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::D)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      2,
+      0
+     ],
+     "factors": [
+      {
+       "table": 1
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 4,
+     "note": "row sum of x^2"
+    }
+   ]
+  },
+  {
+   "slot": 2,
+   "name": "SC_TZC",
+   "kind": "host",
+   "main_rounds": 9,
+   "extension_rounds": 1,
+   "declared_degree": 3,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(r_t)"
+    },
+    {
+     "index": 2,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(r_t2)"
+    },
+    {
+     "index": 3,
+     "kind": "A",
+     "field": "base",
+     "label": "A_D"
+    },
+    {
+     "index": 4,
+     "kind": "A",
+     "field": "base",
+     "label": "A_DSQ"
+    },
+    {
+     "index": 5,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[0]"
+    },
+    {
+     "index": 6,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[1]"
+    },
+    {
+     "index": 7,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[2]"
+    },
+    {
+     "index": 8,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[3]"
+    },
+    {
+     "index": 9,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[4]"
+    },
+    {
+     "index": 10,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[5]"
+    },
+    {
+     "index": 11,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[6]"
+    },
+    {
+     "index": 12,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[7]"
+    },
+    {
+     "index": 13,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB[8]"
+    },
+    {
+     "index": 14,
+     "kind": "A",
+     "field": "base",
+     "label": "A_DM"
+    },
+    {
+     "index": 15,
+     "kind": "A",
+     "field": "base",
+     "label": "A_DSQM"
+    },
+    {
+     "index": 16,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[0]"
+    },
+    {
+     "index": 17,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[1]"
+    },
+    {
+     "index": 18,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[2]"
+    },
+    {
+     "index": 19,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[3]"
+    },
+    {
+     "index": 20,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[4]"
+    },
+    {
+     "index": 21,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[5]"
+    },
+    {
+     "index": 22,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[6]"
+    },
+    {
+     "index": 23,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[7]"
+    },
+    {
+     "index": 24,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM[8]"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "dsq - d^2",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 3
+        },
+        {
+         "table": 3
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "d - dl",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 3
+      },
+      {
+       "provenance": "one",
+       "table": 5
+      },
+      {
+       "provenance": "kbase",
+       "table": 6
+      },
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "2d - a1 - a2",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 3
+      },
+      {
+       "provenance": "one",
+       "table": 8
+      },
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "kbase",
+       "table": 10
+      },
+      {
+       "provenance": "one",
+       "table": 11
+      },
+      {
+       "provenance": "kbase",
+       "table": 12
+      },
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "dsqm - dm^2",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 15
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 14
+        },
+        {
+         "table": 14
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "dm - dlm",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 14
+      },
+      {
+       "provenance": "one",
+       "table": 16
+      },
+      {
+       "provenance": "kbase",
+       "table": 17
+      },
+      {
+       "provenance": "kbase",
+       "table": 18
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "2dm - a1m - a2m",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 14
+      },
+      {
+       "provenance": "one",
+       "table": 19
+      },
+      {
+       "provenance": "kbase",
+       "table": 20
+      },
+      {
+       "provenance": "kbase",
+       "table": 21
+      },
+      {
+       "provenance": "one",
+       "table": 22
+      },
+      {
+       "provenance": "kbase",
+       "table": 23
+      },
+      {
+       "provenance": "kbase",
+       "table": 24
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "zc(TZC)",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu0",
+       "factors": [
+        {
+         "node": 0
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu1",
+       "factors": [
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu2",
+       "factors": [
+        {
+         "node": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu3",
+       "factors": [
+        {
+         "node": 3
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu4",
+       "factors": [
+        {
+         "node": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu5",
+       "factors": [
+        {
+         "node": 5
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "label": "dsq + a1 - ceps",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 4
+      },
+      {
+       "provenance": "one",
+       "table": 8
+      },
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "label": "dsqm + a1m - ceps",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 15
+      },
+      {
+       "provenance": "one",
+       "table": 19
+      },
+      {
+       "provenance": "kbase",
+       "table": 20
+      },
+      {
+       "provenance": "kbase",
+       "table": 21
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 6
+      }
+     ],
+     "degree": 3,
+     "note": "the zero-check arm"
+    },
+    {
+     "coef": "nu0",
+     "coef_provenance": "chal",
+     "wrapper": [
+      1
+     ],
+     "factors": [
+      {
+       "node": 7
+      }
+     ],
+     "degree": 2,
+     "note": "host SC_SS"
+    },
+    {
+     "coef": "nu1",
+     "coef_provenance": "chal",
+     "wrapper": [
+      2
+     ],
+     "factors": [
+      {
+       "node": 8
+      }
+     ],
+     "degree": 2,
+     "note": "host SC_SSM"
+    }
+   ]
+  },
+  {
+   "slot": 3,
+   "name": "SC_LZC",
+   "kind": "standalone",
+   "main_rounds": 14,
+   "extension_rounds": 1,
+   "declared_degree": 4,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMB"
+    },
+    {
+     "index": 2,
+     "kind": "A",
+     "field": "base",
+     "label": "A_LIMBM"
+    },
+    {
+     "index": 3,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_L0"
+    },
+    {
+     "index": 4,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::L)"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "den_L_0",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 1
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "den_L_1",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 2
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "logup_L_0",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 3
+        },
+        {
+         "node": 0
+        },
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 0
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "1 - supp[4]",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 4
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "sum zeta^j plane_j",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "chal",
+       "table": 1
+      },
+      {
+       "provenance": "chal",
+       "table": 2
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "pad-zero",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 3
+        },
+        {
+         "node": 4
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "zc(LZC)",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_L",
+       "factors": [
+        {
+         "node": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_pad",
+       "factors": [
+        {
+         "node": 5
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 6
+      }
+     ],
+     "degree": 4,
+     "note": "LogUp + pad"
+    }
+   ]
+  },
+  {
+   "slot": 4,
+   "name": "SC_RS",
+   "kind": "private",
+   "main_rounds": 22,
+   "extension_rounds": 1,
+   "declared_degree": 4,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_ht)"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "base",
+     "label": "causal mask"
+    },
+    {
+     "index": 2,
+     "kind": "A",
+     "field": "base",
+     "label": "A_E"
+    },
+    {
+     "index": 3,
+     "kind": "A",
+     "field": "base",
+     "label": "A_ZSEL"
+    },
+    {
+     "index": 4,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::S)"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "mask*e + lam_z*zsel",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 1
+        },
+        {
+         "table": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "lam_z",
+       "factors": [
+        {
+         "table": 3
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      4,
+      0
+     ],
+     "factors": [
+      {
+       "node": 0
+      }
+     ],
+     "degree": 4,
+     "note": "row sum"
+    }
+   ]
+  },
+  {
+   "slot": 5,
+   "name": "SC_QMM",
+   "kind": "private",
+   "main_rounds": 10,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "A",
+     "field": "base",
+     "label": "A_Y"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "ext",
+     "label": "fold(Wq, r_j)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "plane * folded weight"
+    }
+   ]
+  },
+  {
+   "slot": 6,
+   "name": "SC_KMM",
+   "kind": "private",
+   "main_rounds": 10,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "A",
+     "field": "base",
+     "label": "A_Y"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "ext",
+     "label": "fold(Wk, r_j)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "plane * folded weight"
+    }
+   ]
+  },
+  {
+   "slot": 7,
+   "name": "SC_VMM",
+   "kind": "private",
+   "main_rounds": 10,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "A",
+     "field": "base",
+     "label": "A_Y"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "ext",
+     "label": "fold(Wv, r_j)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "plane * folded weight"
+    }
+   ]
+  },
+  {
+   "slot": 8,
+   "name": "SC_SCORE",
+   "kind": "private",
+   "main_rounds": 8,
+   "extension_rounds": 2,
+   "declared_degree": 3,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "group_eq",
+     "field": "ext",
+     "label": "eq(r_g) group gate"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_QR8"
+    },
+    {
+     "index": 2,
+     "kind": "A",
+     "field": "base",
+     "label": "A_KR8"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "table": 1
+      },
+      {
+       "table": 2
+      }
+     ],
+     "degree": 3,
+     "note": "the bilinear product"
+    }
+   ]
+  },
+  {
+   "slot": 9,
+   "name": "SC_PV",
+   "kind": "private",
+   "main_rounds": 11,
+   "extension_rounds": 2,
+   "declared_degree": 3,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "group_eq",
+     "field": "ext",
+     "label": "eq(r_g) group gate"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_P"
+    },
+    {
+     "index": 2,
+     "kind": "A",
+     "field": "base",
+     "label": "A_V8"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "table": 1
+      },
+      {
+       "table": 2
+      }
+     ],
+     "degree": 3,
+     "note": "the bilinear product"
+    }
+   ]
+  },
+  {
+   "slot": 10,
+   "name": "SC_WO",
+   "kind": "private",
+   "main_rounds": 10,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "A",
+     "field": "base",
+     "label": "A_O8"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "ext",
+     "label": "fold(Wo, r_j)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "plane * folded weight"
+    }
+   ]
+  },
+  {
+   "slot": 11,
+   "name": "SC_GMM",
+   "kind": "private",
+   "main_rounds": 10,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "A",
+     "field": "base",
+     "label": "A_YM"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "ext",
+     "label": "fold(Wg, r_j)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "plane * folded weight"
+    }
+   ]
+  },
+  {
+   "slot": 12,
+   "name": "SC_UMM",
+   "kind": "private",
+   "main_rounds": 10,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "A",
+     "field": "base",
+     "label": "A_YM"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "ext",
+     "label": "fold(Wu, r_j)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "plane * folded weight"
+    }
+   ]
+  },
+  {
+   "slot": 13,
+   "name": "SC_DMM",
+   "kind": "private",
+   "main_rounds": 11,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "A",
+     "field": "base",
+     "label": "A_H16"
+    },
+    {
+     "index": 1,
+     "kind": "pub",
+     "field": "ext",
+     "label": "fold(Wd, r_j)"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "plane * folded weight"
+    }
+   ]
+  },
+  {
+   "slot": 14,
+   "name": "SC_DZC",
+   "kind": "host",
+   "main_rounds": 19,
+   "extension_rounds": 1,
+   "declared_degree": 5,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_a)"
+    },
+    {
+     "index": 2,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_z)"
+    },
+    {
+     "index": 3,
+     "kind": "pub",
+     "field": "base",
+     "label": "gamma_a (padded)"
+    },
+    {
+     "index": 4,
+     "kind": "pub",
+     "field": "base",
+     "label": "gamma_m (padded)"
+    },
+    {
+     "index": 5,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X"
+    },
+    {
+     "index": 6,
+     "kind": "A",
+     "field": "base",
+     "label": "A_XL0"
+    },
+    {
+     "index": 7,
+     "kind": "A",
+     "field": "base",
+     "label": "A_XL1"
+    },
+    {
+     "index": 8,
+     "kind": "A",
+     "field": "base",
+     "label": "A_Y"
+    },
+    {
+     "index": 9,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NR0"
+    },
+    {
+     "index": 10,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NR1"
+    },
+    {
+     "index": 11,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NR2"
+    },
+    {
+     "index": 12,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NR3"
+    },
+    {
+     "index": 13,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NS0"
+    },
+    {
+     "index": 14,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NS1"
+    },
+    {
+     "index": 15,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NS2"
+    },
+    {
+     "index": 16,
+     "kind": "A",
+     "field": "base",
+     "label": "A_NS3"
+    },
+    {
+     "index": 17,
+     "kind": "A",
+     "field": "base",
+     "label": "A_AO"
+    },
+    {
+     "index": 18,
+     "kind": "A",
+     "field": "base",
+     "label": "A_AL0"
+    },
+    {
+     "index": 19,
+     "kind": "A",
+     "field": "base",
+     "label": "A_AL1"
+    },
+    {
+     "index": 20,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RAL"
+    },
+    {
+     "index": 21,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X1"
+    },
+    {
+     "index": 22,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X1L0"
+    },
+    {
+     "index": 23,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X1L1"
+    },
+    {
+     "index": 24,
+     "kind": "A",
+     "field": "base",
+     "label": "A_YM"
+    },
+    {
+     "index": 25,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MR0"
+    },
+    {
+     "index": 26,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MR1"
+    },
+    {
+     "index": 27,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MR2"
+    },
+    {
+     "index": 28,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MR3"
+    },
+    {
+     "index": 29,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MS0"
+    },
+    {
+     "index": 30,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MS1"
+    },
+    {
+     "index": 31,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MS2"
+    },
+    {
+     "index": 32,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MS3"
+    },
+    {
+     "index": 33,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X2"
+    },
+    {
+     "index": 34,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X2L0"
+    },
+    {
+     "index": 35,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X2L1"
+    },
+    {
+     "index": 36,
+     "kind": "A",
+     "field": "base",
+     "label": "A_Z16"
+    },
+    {
+     "index": 37,
+     "kind": "A",
+     "field": "base",
+     "label": "A_ZL0"
+    },
+    {
+     "index": 38,
+     "kind": "A",
+     "field": "base",
+     "label": "A_ZL1"
+    },
+    {
+     "index": 39,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RDL"
+    },
+    {
+     "index": 40,
+     "kind": "A",
+     "field": "base",
+     "label": "A_D (Dom::T slice)"
+    },
+    {
+     "index": 41,
+     "kind": "A",
+     "field": "base",
+     "label": "A_DM (Dom::T slice)"
+    },
+    {
+     "index": 42,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D0"
+    },
+    {
+     "index": 43,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D1"
+    },
+    {
+     "index": 44,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D2"
+    },
+    {
+     "index": 45,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D3"
+    },
+    {
+     "index": 46,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D4"
+    },
+    {
+     "index": 47,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D5"
+    },
+    {
+     "index": 48,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D6"
+    },
+    {
+     "index": 49,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D7"
+    },
+    {
+     "index": 50,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D8"
+    },
+    {
+     "index": 51,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D9"
+    },
+    {
+     "index": 52,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D10"
+    },
+    {
+     "index": 53,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D11"
+    },
+    {
+     "index": 54,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D12"
+    },
+    {
+     "index": 55,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D13"
+    },
+    {
+     "index": 56,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D14"
+    },
+    {
+     "index": 57,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D15"
+    },
+    {
+     "index": 58,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_D16"
+    },
+    {
+     "index": 59,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::D)"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "2^tn d - nr",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 40
+      },
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "kbase",
+       "table": 10
+      },
+      {
+       "provenance": "kbase",
+       "table": 11
+      },
+      {
+       "provenance": "kbase",
+       "table": 12
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "c0",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "kbase",
+       "coef": "2 Cn",
+       "factors": [
+        {
+         "table": 3
+        },
+        {
+         "table": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "kbase",
+       "coef": "-2^(tn+1)",
+       "factors": [
+        {
+         "table": 8
+        },
+        {
+         "table": 40
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 0
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "c1: ns + nr + 1 - 2^(tn+1) d",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 13
+      },
+      {
+       "provenance": "kbase",
+       "table": 14
+      },
+      {
+       "provenance": "kbase",
+       "table": 15
+      },
+      {
+       "provenance": "kbase",
+       "table": 16
+      },
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "kbase",
+       "table": 10
+      },
+      {
+       "provenance": "kbase",
+       "table": 11
+      },
+      {
+       "provenance": "kbase",
+       "table": 12
+      },
+      {
+       "provenance": "kbase",
+       "table": 40
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "c2: x + 2^15 - l2(xl)",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 5
+      },
+      {
+       "provenance": "one",
+       "table": 6
+      },
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "c3: ao + 2^15 - l2(al)",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 17
+      },
+      {
+       "provenance": "one",
+       "table": 18
+      },
+      {
+       "provenance": "kbase",
+       "table": 19
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "c4: x1 + 2^15 - l2(x1l)",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 21
+      },
+      {
+       "provenance": "one",
+       "table": 22
+      },
+      {
+       "provenance": "kbase",
+       "table": 23
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "c5: x1 - x - ao",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 21
+      },
+      {
+       "provenance": "one",
+       "table": 5
+      },
+      {
+       "provenance": "one",
+       "table": 17
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "label": "2^tn dm - mr",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 41
+      },
+      {
+       "provenance": "kbase",
+       "table": 25
+      },
+      {
+       "provenance": "kbase",
+       "table": 26
+      },
+      {
+       "provenance": "kbase",
+       "table": 27
+      },
+      {
+       "provenance": "kbase",
+       "table": 28
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "label": "c6",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "kbase",
+       "coef": "2 Cn",
+       "factors": [
+        {
+         "table": 4
+        },
+        {
+         "table": 21
+        }
+       ]
+      },
+      {
+       "coef_provenance": "kbase",
+       "coef": "-2^(tn+1)",
+       "factors": [
+        {
+         "table": 24
+        },
+        {
+         "table": 41
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 7
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "label": "c7: ms + mr + 1 - 2^(tn+1) dm",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 29
+      },
+      {
+       "provenance": "kbase",
+       "table": 30
+      },
+      {
+       "provenance": "kbase",
+       "table": 31
+      },
+      {
+       "provenance": "kbase",
+       "table": 32
+      },
+      {
+       "provenance": "kbase",
+       "table": 25
+      },
+      {
+       "provenance": "kbase",
+       "table": 26
+      },
+      {
+       "provenance": "kbase",
+       "table": 27
+      },
+      {
+       "provenance": "kbase",
+       "table": 28
+      },
+      {
+       "provenance": "kbase",
+       "table": 41
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "label": "c8: x2 + 2^15 - l2(x2l)",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 33
+      },
+      {
+       "provenance": "one",
+       "table": 34
+      },
+      {
+       "provenance": "kbase",
+       "table": 35
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "label": "c9: x2 - x1 - z16",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 33
+      },
+      {
+       "provenance": "one",
+       "table": 21
+      },
+      {
+       "provenance": "one",
+       "table": 36
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "label": "c10: z16 + 2^15 - l2(zl)",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 36
+      },
+      {
+       "provenance": "one",
+       "table": 37
+      },
+      {
+       "provenance": "kbase",
+       "table": 38
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "label": "the 11 clauses",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu0",
+       "factors": [
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu1",
+       "factors": [
+        {
+         "node": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu2",
+       "factors": [
+        {
+         "node": 3
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu3",
+       "factors": [
+        {
+         "node": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu4",
+       "factors": [
+        {
+         "node": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu5",
+       "factors": [
+        {
+         "node": 6
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu6",
+       "factors": [
+        {
+         "node": 8
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu7",
+       "factors": [
+        {
+         "node": 9
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu8",
+       "factors": [
+        {
+         "node": 10
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu9",
+       "factors": [
+        {
+         "node": 11
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu10",
+       "factors": [
+        {
+         "node": 12
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "label": "den_D_0",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "label": "den_D_1",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "label": "logup_D_0",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 42
+        },
+        {
+         "node": 14
+        },
+        {
+         "node": 15
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 14
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 15
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "label": "den_D_2",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "label": "den_D_3",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "label": "logup_D_1",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 43
+        },
+        {
+         "node": 17
+        },
+        {
+         "node": 18
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 17
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 18
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "label": "den_D_4",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "label": "den_D_5",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "label": "logup_D_2",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 44
+        },
+        {
+         "node": 20
+        },
+        {
+         "node": 21
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 20
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 21
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 23,
+     "label": "den_D_6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 11
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "label": "den_D_7",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 12
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "label": "logup_D_3",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 45
+        },
+        {
+         "node": 23
+        },
+        {
+         "node": 24
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 23
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 24
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 26,
+     "label": "den_D_8",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "label": "den_D_9",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 14
+      }
+     ]
+    },
+    {
+     "id": 28,
+     "label": "logup_D_4",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 46
+        },
+        {
+         "node": 26
+        },
+        {
+         "node": 27
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 26
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 27
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "label": "den_D_10",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 15
+      }
+     ]
+    },
+    {
+     "id": 30,
+     "label": "den_D_11",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 16
+      }
+     ]
+    },
+    {
+     "id": 31,
+     "label": "logup_D_5",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 47
+        },
+        {
+         "node": 29
+        },
+        {
+         "node": 30
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 29
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 30
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 32,
+     "label": "den_D_12",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 18
+      }
+     ]
+    },
+    {
+     "id": 33,
+     "label": "den_D_13",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 19
+      }
+     ]
+    },
+    {
+     "id": 34,
+     "label": "logup_D_6",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 48
+        },
+        {
+         "node": 32
+        },
+        {
+         "node": 33
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 32
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 33
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 35,
+     "label": "den_D_14",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 20
+      }
+     ]
+    },
+    {
+     "id": 36,
+     "label": "den_D_15",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 20
+      }
+     ]
+    },
+    {
+     "id": 37,
+     "label": "logup_D_7",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 49
+        },
+        {
+         "node": 35
+        },
+        {
+         "node": 36
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 35
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 36
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 38,
+     "label": "den_D_16",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 22
+      }
+     ]
+    },
+    {
+     "id": 39,
+     "label": "den_D_17",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 23
+      }
+     ]
+    },
+    {
+     "id": 40,
+     "label": "logup_D_8",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 50
+        },
+        {
+         "node": 38
+        },
+        {
+         "node": 39
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 38
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 39
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 41,
+     "label": "den_D_18",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 24
+      }
+     ]
+    },
+    {
+     "id": 42,
+     "label": "den_D_19",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 24
+      }
+     ]
+    },
+    {
+     "id": 43,
+     "label": "logup_D_9",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 51
+        },
+        {
+         "node": 41
+        },
+        {
+         "node": 42
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 41
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 42
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 44,
+     "label": "den_D_20",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 25
+      }
+     ]
+    },
+    {
+     "id": 45,
+     "label": "den_D_21",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 26
+      }
+     ]
+    },
+    {
+     "id": 46,
+     "label": "logup_D_10",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 52
+        },
+        {
+         "node": 44
+        },
+        {
+         "node": 45
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 44
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 45
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 47,
+     "label": "den_D_22",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 27
+      }
+     ]
+    },
+    {
+     "id": 48,
+     "label": "den_D_23",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 28
+      }
+     ]
+    },
+    {
+     "id": 49,
+     "label": "logup_D_11",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 53
+        },
+        {
+         "node": 47
+        },
+        {
+         "node": 48
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 47
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 48
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 50,
+     "label": "den_D_24",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 29
+      }
+     ]
+    },
+    {
+     "id": 51,
+     "label": "den_D_25",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 30
+      }
+     ]
+    },
+    {
+     "id": 52,
+     "label": "logup_D_12",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 54
+        },
+        {
+         "node": 50
+        },
+        {
+         "node": 51
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 50
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 51
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "label": "den_D_26",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 31
+      }
+     ]
+    },
+    {
+     "id": 54,
+     "label": "den_D_27",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 32
+      }
+     ]
+    },
+    {
+     "id": 55,
+     "label": "logup_D_13",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 55
+        },
+        {
+         "node": 53
+        },
+        {
+         "node": 54
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 53
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 54
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 56,
+     "label": "den_D_28",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 34
+      }
+     ]
+    },
+    {
+     "id": 57,
+     "label": "den_D_29",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 35
+      }
+     ]
+    },
+    {
+     "id": 58,
+     "label": "logup_D_14",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 56
+        },
+        {
+         "node": 56
+        },
+        {
+         "node": 57
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 56
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 57
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 59,
+     "label": "den_D_30",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 37
+      }
+     ]
+    },
+    {
+     "id": 60,
+     "label": "den_D_31",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 38
+      }
+     ]
+    },
+    {
+     "id": 61,
+     "label": "logup_D_15",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 57
+        },
+        {
+         "node": 59
+        },
+        {
+         "node": 60
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 59
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 60
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 62,
+     "label": "den_D_32",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 39
+      }
+     ]
+    },
+    {
+     "id": 63,
+     "label": "den_D_33",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 39
+      }
+     ]
+    },
+    {
+     "id": 64,
+     "label": "logup_D_16",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 58
+        },
+        {
+         "node": 62
+        },
+        {
+         "node": 63
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 62
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 63
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 65,
+     "label": "1 - supp[59]",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 59
+      }
+     ]
+    },
+    {
+     "id": 66,
+     "label": "sum zeta^j plane_j",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "chal",
+       "table": 5
+      },
+      {
+       "provenance": "chal",
+       "table": 6
+      },
+      {
+       "provenance": "chal",
+       "table": 7
+      },
+      {
+       "provenance": "chal",
+       "table": 8
+      },
+      {
+       "provenance": "chal",
+       "table": 9
+      },
+      {
+       "provenance": "chal",
+       "table": 10
+      },
+      {
+       "provenance": "chal",
+       "table": 11
+      },
+      {
+       "provenance": "chal",
+       "table": 12
+      },
+      {
+       "provenance": "chal",
+       "table": 13
+      },
+      {
+       "provenance": "chal",
+       "table": 14
+      },
+      {
+       "provenance": "chal",
+       "table": 15
+      },
+      {
+       "provenance": "chal",
+       "table": 16
+      },
+      {
+       "provenance": "chal",
+       "table": 17
+      },
+      {
+       "provenance": "chal",
+       "table": 18
+      },
+      {
+       "provenance": "chal",
+       "table": 19
+      },
+      {
+       "provenance": "chal",
+       "table": 20
+      },
+      {
+       "provenance": "chal",
+       "table": 21
+      },
+      {
+       "provenance": "chal",
+       "table": 22
+      },
+      {
+       "provenance": "chal",
+       "table": 23
+      },
+      {
+       "provenance": "chal",
+       "table": 24
+      },
+      {
+       "provenance": "chal",
+       "table": 25
+      },
+      {
+       "provenance": "chal",
+       "table": 26
+      },
+      {
+       "provenance": "chal",
+       "table": 27
+      },
+      {
+       "provenance": "chal",
+       "table": 28
+      },
+      {
+       "provenance": "chal",
+       "table": 29
+      },
+      {
+       "provenance": "chal",
+       "table": 30
+      },
+      {
+       "provenance": "chal",
+       "table": 31
+      },
+      {
+       "provenance": "chal",
+       "table": 32
+      },
+      {
+       "provenance": "chal",
+       "table": 33
+      },
+      {
+       "provenance": "chal",
+       "table": 34
+      },
+      {
+       "provenance": "chal",
+       "table": 35
+      },
+      {
+       "provenance": "chal",
+       "table": 36
+      },
+      {
+       "provenance": "chal",
+       "table": 37
+      },
+      {
+       "provenance": "chal",
+       "table": 38
+      },
+      {
+       "provenance": "chal",
+       "table": 39
+      }
+     ]
+    },
+    {
+     "id": 67,
+     "label": "pad-zero",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 65
+        },
+        {
+         "node": 66
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 68,
+     "label": "zc(DZC)",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 59
+        },
+        {
+         "node": 13
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 16
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 19
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 22
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 25
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 28
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 31
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 34
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 37
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 40
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 43
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 46
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 49
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 52
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 55
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 58
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 61
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_D",
+       "factors": [
+        {
+         "node": 64
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_pad",
+       "factors": [
+        {
+         "node": 67
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 69,
+     "label": "host_wo: 2^7 ao + ral - 2^6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 17
+      },
+      {
+       "provenance": "one",
+       "table": 20
+      }
+     ]
+    },
+    {
+     "id": 70,
+     "label": "host_dmm: 2^6 z16 + rdl - 2^5",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 36
+      },
+      {
+       "provenance": "one",
+       "table": 39
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 68
+      }
+     ],
+     "degree": 4,
+     "note": "clauses + LogUp + pad"
+    },
+    {
+     "coef": "nu0",
+     "coef_provenance": "chal",
+     "wrapper": [
+      1,
+      59
+     ],
+     "factors": [
+      {
+       "node": 69
+      }
+     ],
+     "degree": 3,
+     "note": "host SC_WO"
+    },
+    {
+     "coef": "nu1",
+     "coef_provenance": "chal",
+     "wrapper": [
+      2,
+      59
+     ],
+     "factors": [
+      {
+       "node": 70
+      }
+     ],
+     "degree": 3,
+     "note": "host SC_DMM"
+    }
+   ]
+  },
+  {
+   "slot": 15,
+   "name": "SC_QZC",
+   "kind": "host",
+   "main_rounds": 19,
+   "extension_rounds": 1,
+   "declared_degree": 5,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(pq)"
+    },
+    {
+     "index": 2,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_o)"
+    },
+    {
+     "index": 3,
+     "kind": "pub",
+     "field": "base",
+     "label": "rope cos"
+    },
+    {
+     "index": 4,
+     "kind": "pub",
+     "field": "base",
+     "label": "rope sin"
+    },
+    {
+     "index": 5,
+     "kind": "A",
+     "field": "base",
+     "label": "A_Q8"
+    },
+    {
+     "index": 6,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RQL"
+    },
+    {
+     "index": 7,
+     "kind": "A",
+     "field": "base",
+     "label": "A_QR8"
+    },
+    {
+     "index": 8,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RQRL"
+    },
+    {
+     "index": 9,
+     "kind": "A",
+     "field": "base",
+     "label": "A_O8"
+    },
+    {
+     "index": 10,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RO0"
+    },
+    {
+     "index": 11,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RO1"
+    },
+    {
+     "index": 12,
+     "kind": "A",
+     "field": "base",
+     "label": "A_Q8 at the flipped RoPE partner bit"
+    },
+    {
+     "index": 13,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Q0"
+    },
+    {
+     "index": 14,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Q1"
+    },
+    {
+     "index": 15,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Q2"
+    },
+    {
+     "index": 16,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Q3"
+    },
+    {
+     "index": 17,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Q4"
+    },
+    {
+     "index": 18,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Q5"
+    },
+    {
+     "index": 19,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Q6"
+    },
+    {
+     "index": 20,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::Q)"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "-2^7 rot - rot_rem + 2^6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      },
+      {
+       "provenance": "one",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "rope",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 3
+        },
+        {
+         "table": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 4
+        },
+        {
+         "table": 12
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 0
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "den_Q_0",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "den_Q_1",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "logup_Q_0",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 13
+        },
+        {
+         "node": 2
+        },
+        {
+         "node": 3
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 3
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "den_Q_2",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "den_Q_3",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "label": "logup_Q_1",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 14
+        },
+        {
+         "node": 5
+        },
+        {
+         "node": 6
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "label": "den_Q_4",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "label": "den_Q_5",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "label": "logup_Q_2",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 15
+        },
+        {
+         "node": 8
+        },
+        {
+         "node": 9
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 8
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 9
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "label": "den_Q_6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "label": "den_Q_7",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "label": "logup_Q_3",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 16
+        },
+        {
+         "node": 11
+        },
+        {
+         "node": 12
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 11
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 12
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "label": "den_Q_8",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "label": "den_Q_9",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "label": "logup_Q_4",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 17
+        },
+        {
+         "node": 14
+        },
+        {
+         "node": 15
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 14
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 15
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "label": "den_Q_10",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "label": "den_Q_11",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 11
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "label": "logup_Q_5",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 18
+        },
+        {
+         "node": 17
+        },
+        {
+         "node": 18
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 17
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 18
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "label": "den_Q_12",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 11
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "label": "logup_Q_6",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 19
+        },
+        {
+         "node": 20
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": []
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "label": "1 - supp[20]",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 20
+      }
+     ]
+    },
+    {
+     "id": 23,
+     "label": "sum zeta^j plane_j",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "chal",
+       "table": 5
+      },
+      {
+       "provenance": "chal",
+       "table": 6
+      },
+      {
+       "provenance": "chal",
+       "table": 7
+      },
+      {
+       "provenance": "chal",
+       "table": 8
+      },
+      {
+       "provenance": "chal",
+       "table": 9
+      },
+      {
+       "provenance": "chal",
+       "table": 10
+      },
+      {
+       "provenance": "chal",
+       "table": 11
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "label": "pad-zero",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 22
+        },
+        {
+         "node": 23
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "label": "zc(Q)",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu0",
+       "factors": [
+        {
+         "table": 20
+        },
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Q",
+       "factors": [
+        {
+         "node": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Q",
+       "factors": [
+        {
+         "node": 7
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Q",
+       "factors": [
+        {
+         "node": 10
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Q",
+       "factors": [
+        {
+         "node": 13
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Q",
+       "factors": [
+        {
+         "node": 16
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Q",
+       "factors": [
+        {
+         "node": 19
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Q",
+       "factors": [
+        {
+         "node": 21
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_pad",
+       "factors": [
+        {
+         "node": 24
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 26,
+     "label": "host1: 2^7 q8 + rql - 2^6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      },
+      {
+       "provenance": "one",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "label": "host2: 2^9 o8 + ro0 + 256 ro1 - 2^8",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "one",
+       "table": 10
+      },
+      {
+       "provenance": "kbase",
+       "table": 11
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 25
+      }
+     ],
+     "degree": 4,
+     "note": "rope + LogUp + pad"
+    },
+    {
+     "coef": "nu0",
+     "coef_provenance": "chal",
+     "wrapper": [
+      1,
+      20
+     ],
+     "factors": [
+      {
+       "node": 26
+      }
+     ],
+     "degree": 3,
+     "note": "host 1"
+    },
+    {
+     "coef": "nu1",
+     "coef_provenance": "chal",
+     "wrapper": [
+      2,
+      20
+     ],
+     "factors": [
+      {
+       "node": 27
+      }
+     ],
+     "degree": 3,
+     "note": "host 2"
+    }
+   ]
+  },
+  {
+   "slot": 16,
+   "name": "SC_KVZC",
+   "kind": "host",
+   "main_rounds": 17,
+   "extension_rounds": 1,
+   "declared_degree": 4,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(pk)"
+    },
+    {
+     "index": 2,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(pv)"
+    },
+    {
+     "index": 3,
+     "kind": "pub",
+     "field": "base",
+     "label": "rope cos"
+    },
+    {
+     "index": 4,
+     "kind": "pub",
+     "field": "base",
+     "label": "rope sin"
+    },
+    {
+     "index": 5,
+     "kind": "A",
+     "field": "base",
+     "label": "A_K8"
+    },
+    {
+     "index": 6,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RKL"
+    },
+    {
+     "index": 7,
+     "kind": "A",
+     "field": "base",
+     "label": "A_V8"
+    },
+    {
+     "index": 8,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RVL"
+    },
+    {
+     "index": 9,
+     "kind": "A",
+     "field": "base",
+     "label": "A_KR8"
+    },
+    {
+     "index": 10,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RKRL"
+    },
+    {
+     "index": 11,
+     "kind": "A",
+     "field": "base",
+     "label": "A_K8 at the flipped RoPE partner bit"
+    },
+    {
+     "index": 12,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Kv0"
+    },
+    {
+     "index": 13,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Kv1"
+    },
+    {
+     "index": 14,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Kv2"
+    },
+    {
+     "index": 15,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Kv3"
+    },
+    {
+     "index": 16,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Kv4"
+    },
+    {
+     "index": 17,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_Kv5"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "-2^7 rot - rot_rem + 2^6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "one",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "rope",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 3
+        },
+        {
+         "table": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 4
+        },
+        {
+         "table": 11
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 0
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "den_Kv_0",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "den_Kv_1",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "logup_Kv_0",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 12
+        },
+        {
+         "node": 2
+        },
+        {
+         "node": 3
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 3
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "den_Kv_2",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "den_Kv_3",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "label": "logup_Kv_1",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 13
+        },
+        {
+         "node": 5
+        },
+        {
+         "node": 6
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "label": "den_Kv_4",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "label": "den_Kv_5",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "label": "logup_Kv_2",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 14
+        },
+        {
+         "node": 8
+        },
+        {
+         "node": 9
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 8
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 9
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "label": "den_Kv_6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "label": "den_Kv_7",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "label": "logup_Kv_3",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 15
+        },
+        {
+         "node": 11
+        },
+        {
+         "node": 12
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 11
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 12
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "label": "den_Kv_8",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "label": "den_Kv_9",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "label": "logup_Kv_4",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 16
+        },
+        {
+         "node": 14
+        },
+        {
+         "node": 15
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 14
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 15
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "label": "den_Kv_10",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "label": "den_Kv_11",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "label": "logup_Kv_5",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 17
+        },
+        {
+         "node": 17
+        },
+        {
+         "node": 18
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 17
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 18
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "label": "zc(Kv)",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu0",
+       "factors": [
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Kv",
+       "factors": [
+        {
+         "node": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Kv",
+       "factors": [
+        {
+         "node": 7
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Kv",
+       "factors": [
+        {
+         "node": 10
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Kv",
+       "factors": [
+        {
+         "node": 13
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Kv",
+       "factors": [
+        {
+         "node": 16
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_Kv",
+       "factors": [
+        {
+         "node": 19
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "label": "host1: 2^7 k8 + rkl - 2^6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      },
+      {
+       "provenance": "one",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "label": "host2: 2^7 v8 + rvl - 2^6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      },
+      {
+       "provenance": "one",
+       "table": 8
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 20
+      }
+     ],
+     "degree": 4,
+     "note": "rope + LogUp + pad"
+    },
+    {
+     "coef": "nu0",
+     "coef_provenance": "chal",
+     "wrapper": [
+      1
+     ],
+     "factors": [
+      {
+       "node": 21
+      }
+     ],
+     "degree": 2,
+     "note": "host 1"
+    },
+    {
+     "coef": "nu1",
+     "coef_provenance": "chal",
+     "wrapper": [
+      2
+     ],
+     "factors": [
+      {
+       "node": 22
+      }
+     ],
+     "degree": 2,
+     "note": "host 2"
+    }
+   ]
+  },
+  {
+   "slot": 17,
+   "name": "SC_SZC",
+   "kind": "host",
+   "main_rounds": 22,
+   "extension_rounds": 1,
+   "declared_degree": 5,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_ht)"
+    },
+    {
+     "index": 2,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_s)"
+    },
+    {
+     "index": 3,
+     "kind": "pub",
+     "field": "base",
+     "label": "causal mask"
+    },
+    {
+     "index": 4,
+     "kind": "A",
+     "field": "base",
+     "label": "A_S8"
+    },
+    {
+     "index": 5,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RSL"
+    },
+    {
+     "index": 6,
+     "kind": "A",
+     "field": "base",
+     "label": "A_ZSEL"
+    },
+    {
+     "index": 7,
+     "kind": "A",
+     "field": "base",
+     "label": "A_E"
+    },
+    {
+     "index": 8,
+     "kind": "A",
+     "field": "base",
+     "label": "A_P"
+    },
+    {
+     "index": 9,
+     "kind": "A",
+     "field": "base",
+     "label": "A_PL0"
+    },
+    {
+     "index": 10,
+     "kind": "A",
+     "field": "base",
+     "label": "A_PL1"
+    },
+    {
+     "index": 11,
+     "kind": "A",
+     "field": "base",
+     "label": "A_SR0"
+    },
+    {
+     "index": 12,
+     "kind": "A",
+     "field": "base",
+     "label": "A_SR1"
+    },
+    {
+     "index": 13,
+     "kind": "A",
+     "field": "base",
+     "label": "A_SR2"
+    },
+    {
+     "index": 14,
+     "kind": "A",
+     "field": "base",
+     "label": "A_SG0"
+    },
+    {
+     "index": 15,
+     "kind": "A",
+     "field": "base",
+     "label": "A_SG1"
+    },
+    {
+     "index": 16,
+     "kind": "A",
+     "field": "base",
+     "label": "A_SG2"
+    },
+    {
+     "index": 17,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MX (Dom::Ht slice)"
+    },
+    {
+     "index": 18,
+     "kind": "A",
+     "field": "base",
+     "label": "A_SUM (Dom::Ht slice)"
+    },
+    {
+     "index": 19,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S0"
+    },
+    {
+     "index": 20,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S1"
+    },
+    {
+     "index": 21,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S2"
+    },
+    {
+     "index": 22,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S3"
+    },
+    {
+     "index": 23,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S4"
+    },
+    {
+     "index": 24,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S5"
+    },
+    {
+     "index": 25,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S6"
+    },
+    {
+     "index": 26,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_S7"
+    },
+    {
+     "index": 27,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_SEXP"
+    },
+    {
+     "index": 28,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::Ht), lifted"
+    },
+    {
+     "index": 29,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::S)"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "c0: zsel^2 - zsel",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 6
+        },
+        {
+         "table": 6
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 6
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "mx + 127",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 17
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "s8 + 127",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 4
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "delta = max - masked score",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 3
+        },
+        {
+         "node": 2
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "c1: zsel * delta",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 6
+        },
+        {
+         "node": 3
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "sr",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 11
+      },
+      {
+       "provenance": "kbase",
+       "table": 12
+      },
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "c2: 2^F_P mask e - p sum - sr",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "kbase",
+       "coef": "2^F_P",
+       "factors": [
+        {
+         "table": 3
+        },
+        {
+         "table": 7
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 8
+        },
+        {
+         "table": 18
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 5
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "label": "c3: sg + sr + 1 - sum",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 14
+      },
+      {
+       "provenance": "kbase",
+       "table": 15
+      },
+      {
+       "provenance": "kbase",
+       "table": 16
+      },
+      {
+       "provenance": "kbase",
+       "table": 11
+      },
+      {
+       "provenance": "kbase",
+       "table": 12
+      },
+      {
+       "provenance": "kbase",
+       "table": 13
+      },
+      {
+       "provenance": "one",
+       "table": 18
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "label": "c4: p - pl",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 8
+      },
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "label": "the 5 clauses",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu0",
+       "factors": [
+        {
+         "node": 0
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu1",
+       "factors": [
+        {
+         "node": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu2",
+       "factors": [
+        {
+         "node": 6
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu3",
+       "factors": [
+        {
+         "node": 7
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu4",
+       "factors": [
+        {
+         "node": 8
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "label": "alpha - delta - beta e - g_exp",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 3
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "-beta",
+       "factors": [
+        {
+         "table": 7
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": []
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "label": "cx: the exp pair (never gated)",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 27
+        },
+        {
+         "node": 10
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": []
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "label": "den_S_0",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 4
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "label": "den_S_1",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 4
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "label": "logup_S_0",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 19
+        },
+        {
+         "node": 12
+        },
+        {
+         "node": 13
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 12
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 13
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "label": "den_S_2",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "label": "den_S_3",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 5
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "label": "logup_S_1",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 20
+        },
+        {
+         "node": 15
+        },
+        {
+         "node": 16
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 15
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 16
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "label": "den_S_4",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "label": "den_S_5",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "label": "logup_S_2",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 21
+        },
+        {
+         "node": 18
+        },
+        {
+         "node": 19
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 18
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 19
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "label": "den_S_6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "label": "den_S_7",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 11
+      }
+     ]
+    },
+    {
+     "id": 23,
+     "label": "logup_S_3",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 22
+        },
+        {
+         "node": 21
+        },
+        {
+         "node": 22
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 21
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 22
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 24,
+     "label": "den_S_8",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 12
+      }
+     ]
+    },
+    {
+     "id": 25,
+     "label": "den_S_9",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 26,
+     "label": "logup_S_4",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 23
+        },
+        {
+         "node": 24
+        },
+        {
+         "node": 25
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 24
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 25
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 27,
+     "label": "den_S_10",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 28,
+     "label": "den_S_11",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 14
+      }
+     ]
+    },
+    {
+     "id": 29,
+     "label": "logup_S_5",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 24
+        },
+        {
+         "node": 27
+        },
+        {
+         "node": 28
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 27
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 28
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 30,
+     "label": "den_S_12",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 15
+      }
+     ]
+    },
+    {
+     "id": 31,
+     "label": "den_S_13",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 16
+      }
+     ]
+    },
+    {
+     "id": 32,
+     "label": "logup_S_6",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 25
+        },
+        {
+         "node": 30
+        },
+        {
+         "node": 31
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 30
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 31
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 33,
+     "label": "den_S_14",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 16
+      }
+     ]
+    },
+    {
+     "id": 34,
+     "label": "logup_S_7",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 26
+        },
+        {
+         "node": 33
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": []
+      }
+     ]
+    },
+    {
+     "id": 35,
+     "label": "1 - supp[28]",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 28
+      }
+     ]
+    },
+    {
+     "id": 36,
+     "label": "sum zeta^j plane_j",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "chal",
+       "table": 17
+      },
+      {
+       "provenance": "chal",
+       "table": 18
+      }
+     ]
+    },
+    {
+     "id": 37,
+     "label": "1 - supp[29]",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 29
+      }
+     ]
+    },
+    {
+     "id": 38,
+     "label": "sum zeta^j plane_j",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "chal",
+       "table": 4
+      },
+      {
+       "provenance": "chal",
+       "table": 5
+      },
+      {
+       "provenance": "chal",
+       "table": 6
+      },
+      {
+       "provenance": "chal",
+       "table": 8
+      },
+      {
+       "provenance": "chal",
+       "table": 9
+      },
+      {
+       "provenance": "chal",
+       "table": 10
+      },
+      {
+       "provenance": "chal",
+       "table": 11
+      },
+      {
+       "provenance": "chal",
+       "table": 12
+      },
+      {
+       "provenance": "chal",
+       "table": 13
+      },
+      {
+       "provenance": "chal",
+       "table": 14
+      },
+      {
+       "provenance": "chal",
+       "table": 15
+      },
+      {
+       "provenance": "chal",
+       "table": 16
+      }
+     ]
+    },
+    {
+     "id": 39,
+     "label": "pad-zero",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 35
+        },
+        {
+         "node": 36
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 37
+        },
+        {
+         "node": 38
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 40,
+     "label": "zc(SZC)",
+     "kind": "sum",
+     "degree": 4,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 29
+        },
+        {
+         "node": 9
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_cx",
+       "factors": [
+        {
+         "node": 11
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 14
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 17
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 20
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 23
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 26
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 29
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 32
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_S",
+       "factors": [
+        {
+         "node": 34
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_pad",
+       "factors": [
+        {
+         "node": 39
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 41,
+     "label": "host_rs: sum + lam_z",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 18
+      }
+     ]
+    },
+    {
+     "id": 42,
+     "label": "host_s: 2^6 s8 + rsl - 2^5",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 4
+      },
+      {
+       "provenance": "one",
+       "table": 5
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 40
+      }
+     ],
+     "degree": 5,
+     "note": "clauses + exp pair + LogUp + pad"
+    },
+    {
+     "coef": "nu0 * per_row",
+     "coef_provenance": "chal",
+     "wrapper": [
+      1,
+      28
+     ],
+     "factors": [
+      {
+       "node": 41
+      }
+     ],
+     "degree": 3,
+     "note": "host SC_RS"
+    },
+    {
+     "coef": "nu1",
+     "coef_provenance": "chal",
+     "wrapper": [
+      2,
+      29
+     ],
+     "factors": [
+      {
+       "node": 42
+      }
+     ],
+     "degree": 3,
+     "note": "host SC_SCORE"
+    }
+   ]
+  },
+  {
+   "slot": 18,
+   "name": "SC_FZC",
+   "kind": "host",
+   "main_rounds": 20,
+   "extension_rounds": 1,
+   "declared_degree": 4,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_g)"
+    },
+    {
+     "index": 2,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(p_u)"
+    },
+    {
+     "index": 3,
+     "kind": "A",
+     "field": "base",
+     "label": "A_G8"
+    },
+    {
+     "index": 4,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RGL"
+    },
+    {
+     "index": 5,
+     "kind": "A",
+     "field": "base",
+     "label": "A_A16"
+    },
+    {
+     "index": 6,
+     "kind": "A",
+     "field": "base",
+     "label": "A_U16"
+    },
+    {
+     "index": 7,
+     "kind": "A",
+     "field": "base",
+     "label": "A_UL0"
+    },
+    {
+     "index": 8,
+     "kind": "A",
+     "field": "base",
+     "label": "A_UL1"
+    },
+    {
+     "index": 9,
+     "kind": "A",
+     "field": "base",
+     "label": "A_H16"
+    },
+    {
+     "index": 10,
+     "kind": "A",
+     "field": "base",
+     "label": "A_HL0"
+    },
+    {
+     "index": 11,
+     "kind": "A",
+     "field": "base",
+     "label": "A_HL1"
+    },
+    {
+     "index": 12,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RH0"
+    },
+    {
+     "index": 13,
+     "kind": "A",
+     "field": "base",
+     "label": "A_RH1"
+    },
+    {
+     "index": 14,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_F0"
+    },
+    {
+     "index": 15,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_F1"
+    },
+    {
+     "index": 16,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_F2"
+    },
+    {
+     "index": 17,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_F3"
+    },
+    {
+     "index": 18,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_F4"
+    },
+    {
+     "index": 19,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_FACT"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "-2^14 h16 - rh0 - 256 rh1 + 2^13",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 9
+      },
+      {
+       "provenance": "one",
+       "table": 12
+      },
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "f0: a16 u16 - 2^14 h16 - l2(rh) + 2^13",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 5
+        },
+        {
+         "table": 6
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 0
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "f1: u16 + 2^15 - l2(ul)",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 6
+      },
+      {
+       "provenance": "one",
+       "table": 7
+      },
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "f2: h16 + 2^15 - l2(hl)",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 9
+      },
+      {
+       "provenance": "one",
+       "table": 10
+      },
+      {
+       "provenance": "kbase",
+       "table": 11
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "the 3 clauses",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu0",
+       "factors": [
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu1",
+       "factors": [
+        {
+         "node": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu2",
+       "factors": [
+        {
+         "node": 3
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "alpha - g8 - 128 - beta a16 - g_act",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 3
+      },
+      {
+       "provenance": "chal",
+       "table": 5
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "the activation pair (never gated)",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 19
+        },
+        {
+         "node": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": []
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "label": "den_F_0",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 4
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "label": "den_F_1",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 4
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "label": "logup_F_0",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 14
+        },
+        {
+         "node": 7
+        },
+        {
+         "node": 8
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 7
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 8
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "label": "den_F_2",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "label": "den_F_3",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "label": "logup_F_1",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 15
+        },
+        {
+         "node": 10
+        },
+        {
+         "node": 11
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 10
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 11
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "label": "den_F_4",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 14,
+     "label": "den_F_5",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 11
+      }
+     ]
+    },
+    {
+     "id": 15,
+     "label": "logup_F_2",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 16
+        },
+        {
+         "node": 13
+        },
+        {
+         "node": 14
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 13
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 14
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 16,
+     "label": "den_F_6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 12
+      }
+     ]
+    },
+    {
+     "id": 17,
+     "label": "den_F_7",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 18,
+     "label": "logup_F_3",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 17
+        },
+        {
+         "node": 16
+        },
+        {
+         "node": 17
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 16
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "node": 17
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 19,
+     "label": "den_F_8",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 13
+      }
+     ]
+    },
+    {
+     "id": 20,
+     "label": "logup_F_4",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 18
+        },
+        {
+         "node": 19
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": []
+      }
+     ]
+    },
+    {
+     "id": 21,
+     "label": "zc(FZC)",
+     "kind": "sum",
+     "degree": 3,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu3",
+       "factors": [
+        {
+         "node": 6
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_F",
+       "factors": [
+        {
+         "node": 9
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_F",
+       "factors": [
+        {
+         "node": 12
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_F",
+       "factors": [
+        {
+         "node": 15
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_F",
+       "factors": [
+        {
+         "node": 18
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_F",
+       "factors": [
+        {
+         "node": 20
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 22,
+     "label": "host_g: 2^7 g8 + rgl - 2^6",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "kbase",
+       "table": 3
+      },
+      {
+       "provenance": "one",
+       "table": 4
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 21
+      }
+     ],
+     "degree": 4,
+     "note": "clauses + activation pair + LogUp + pad"
+    },
+    {
+     "coef": "nu0",
+     "coef_provenance": "chal",
+     "wrapper": [
+      1
+     ],
+     "factors": [
+      {
+       "node": 22
+      }
+     ],
+     "degree": 2,
+     "note": "host SC_GMM"
+    },
+    {
+     "coef": "nu1",
+     "coef_provenance": "chal",
+     "wrapper": [
+      2
+     ],
+     "factors": [
+      {
+       "table": 6
+      }
+     ],
+     "degree": 2,
+     "note": "host SC_UMM (SH_U = 0: no coefficient)"
+    }
+   ]
+  },
+  {
+   "slot": 19,
+   "name": "SC_TAB",
+   "kind": "standalone",
+   "main_rounds": 14,
+   "extension_rounds": 1,
+   "declared_degree": 3,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MU8"
+    },
+    {
+     "index": 2,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_TU8"
+    },
+    {
+     "index": 3,
+     "kind": "pub",
+     "field": "base",
+     "label": "table values U8"
+    },
+    {
+     "index": 4,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MEXP"
+    },
+    {
+     "index": 5,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_TEXP"
+    },
+    {
+     "index": 6,
+     "kind": "pub",
+     "field": "ext",
+     "label": "table values EXP"
+    },
+    {
+     "index": 7,
+     "kind": "A",
+     "field": "base",
+     "label": "A_MACT"
+    },
+    {
+     "index": 8,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_TACT"
+    },
+    {
+     "index": 9,
+     "kind": "pub",
+     "field": "ext",
+     "label": "table values ACT"
+    },
+    {
+     "index": 10,
+     "kind": "supp",
+     "field": "base",
+     "label": "supp(Dom::Tab)"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "alpha - values0",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 3
+      }
+     ]
+    },
+    {
+     "id": 1,
+     "label": "r0: h (alpha - values) - multiplicity",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 2
+        },
+        {
+         "node": 0
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "label": "alpha - values1",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 6
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "label": "r1: h (alpha - values) - multiplicity",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 5
+        },
+        {
+         "node": 2
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 4
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "label": "alpha - values2",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 9
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "label": "r2: h (alpha - values) - multiplicity",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 8
+        },
+        {
+         "node": 4
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 7
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "label": "1 - supp[10]",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "label": "sum zeta^j plane_j",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "chal",
+       "table": 1
+      },
+      {
+       "provenance": "chal",
+       "table": 4
+      },
+      {
+       "provenance": "chal",
+       "table": 7
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "label": "1 - supp[10]",
+     "kind": "affine",
+     "has_const": true,
+     "coefs": [
+      {
+       "provenance": "one",
+       "table": 10
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "label": "sum zeta^j plane_j",
+     "kind": "affine",
+     "has_const": false,
+     "coefs": [
+      {
+       "provenance": "chal",
+       "table": 2
+      },
+      {
+       "provenance": "chal",
+       "table": 5
+      },
+      {
+       "provenance": "chal",
+       "table": 8
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "label": "pad-zero",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 6
+        },
+        {
+         "node": 7
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "node": 8
+        },
+        {
+         "node": 9
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "label": "zc(TAB)",
+     "kind": "sum",
+     "degree": 2,
+     "subterms": [
+      {
+       "coef_provenance": "chal",
+       "coef": "mu0",
+       "factors": [
+        {
+         "node": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu1",
+       "factors": [
+        {
+         "node": 3
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu2",
+       "factors": [
+        {
+         "node": 5
+        }
+       ]
+      },
+      {
+       "coef_provenance": "chal",
+       "coef": "mu_pad",
+       "factors": [
+        {
+         "node": 10
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 11
+      }
+     ],
+     "degree": 3,
+     "note": "three table relations + pad"
+    }
+   ]
+  },
+  {
+   "slot": 20,
+   "name": "SC_ZS",
+   "kind": "standalone",
+   "main_rounds": 14,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "pub",
+     "field": "base",
+     "label": "all-ones over Dom::Tab"
+    },
+    {
+     "index": 1,
+     "kind": "H",
+     "field": "ext",
+     "label": "H_U"
+    }
+   ],
+   "nodes": [],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [],
+     "factors": [
+      {
+       "table": 0
+      },
+      {
+       "table": 1
+      }
+     ],
+     "degree": 2,
+     "note": "the zero-sum row"
+    }
+   ]
+  },
+  {
+   "slot": 21,
+   "name": "SC_IO_IN",
+   "kind": "standalone",
+   "main_rounds": 19,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X"
+    },
+    {
+     "index": 2,
+     "kind": "EP",
+     "field": "base",
+     "label": "endpoint In"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "plane - endpoint",
+     "kind": "sum",
+     "degree": 1,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 2
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 0
+      }
+     ],
+     "degree": 2,
+     "note": "endpoint equality"
+    }
+   ]
+  },
+  {
+   "slot": 22,
+   "name": "SC_IO_OUT",
+   "kind": "standalone",
+   "main_rounds": 19,
+   "extension_rounds": 1,
+   "declared_degree": 2,
+   "tables": [
+    {
+     "index": 0,
+     "kind": "eq",
+     "field": "ext",
+     "label": "eq(tau)"
+    },
+    {
+     "index": 1,
+     "kind": "A",
+     "field": "base",
+     "label": "A_X2"
+    },
+    {
+     "index": 2,
+     "kind": "EP",
+     "field": "base",
+     "label": "endpoint Out"
+    }
+   ],
+   "nodes": [
+    {
+     "id": 0,
+     "label": "plane - endpoint",
+     "kind": "sum",
+     "degree": 1,
+     "subterms": [
+      {
+       "coef_provenance": "one",
+       "coef": "1",
+       "factors": [
+        {
+         "table": 1
+        }
+       ]
+      },
+      {
+       "coef_provenance": "one",
+       "coef": "-1",
+       "factors": [
+        {
+         "table": 2
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "terms": [
+    {
+     "coef": "1",
+     "coef_provenance": "one",
+     "wrapper": [
+      0
+     ],
+     "factors": [
+      {
+       "node": 0
+      }
+     ],
+     "degree": 2,
+     "note": "endpoint equality"
+    }
+   ]
+  }
+ ]
+}
