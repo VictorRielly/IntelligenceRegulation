@@ -1,0 +1,7 @@
+Running scope as unit: run-r5d982ee15a9345f88628ff90fbeeb1f8.scope
+
+running 1 test
+test private_block::run_tests::the_fully_dense_twelve_block_recipe_is_admissible_and_non_trivial_at_125m ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 344 filtered out; finished in 61.62s
+
