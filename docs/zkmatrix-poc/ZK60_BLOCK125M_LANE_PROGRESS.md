@@ -4976,3 +4976,54 @@ default-profile (`lto = "fat"`, one codegen unit) build.
    values, and closes the eleven per-slot terminal checks it could not.
 3. **The integrator reviews** stage 17's two shared commits and takes the
    keyed CUDA path and the `pcs::verify_zk` path-length fix.
+
+## Stage 19 — TEST-ONLY: dense public weights and a numerically non-trivial witness at the shaped geometries (2026-09-20, 17:4x–)
+
+**SKELETON, being filled.** `IN PROGRESS`.
+
+**The production source is FINAL from this lane's side** (handed to the
+integrator at `caa9b9a`). This stage changes **no non-test code path**: only
+`#[cfg(test)]` modules under `hashline/src/private_block/`, the one
+`#[cfg(test)] mod` registration line a new test module needs, this ledger and
+`results/zk60_block125m_lane/`. The forbidden-files proof is at the end.
+
+**No heavy run from here**: nothing proves at the 125M shape, no `--ignored`
+125M test, no GPU.
+
+**No privacy or soundness acceptance is claimed or implied by any of it.**
+
+### Why this stage exists
+
+placeholder
+
+### Item 1 — the survey
+
+placeholder
+
+### Item 2 — the one-sided fold check, tightened
+
+placeholder
+
+### Item 3 — the dense recipe
+
+placeholder
+
+### Item 4 — reference agreement
+
+placeholder
+
+### Item 5 — prove and verify, dense
+
+placeholder
+
+### Item 6 — negative controls on the dense witness
+
+placeholder
+
+### Item 7 — the dense option for the heavy 125M test
+
+placeholder
+
+### Tests, commands and the forbidden-files proof
+
+placeholder
