@@ -1,10 +1,43 @@
 # The generic-rank lemma at a SHAPED layout and at a RUN (gap G-R1)
 
+> **REVISED after an independent check and the security owner's disposition,
+> 2026-09-20 23:37 PDT: not a privacy claim; the lemma HOLDS WITH CHANGES;
+> Fact 1 restated under the hypothesis `log(Dom::Tab) == log_cols`; finding
+> N-2 and gap GS-10 STRUCK.**
+>
+> The check is `ZK60_GENERIC_RANK_LEMMA_SHAPED_CHECK.md` (a second delegated
+> agent, its own field library and four scripts in
+> `results/zk60_generic_rank_lemma_shaped_check/`, findings B-1 … B-12); the
+> rulings are `ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md` (S-1 … S-5).
+> Where the check's suggested repair and a ruling differ, the ruling is what
+> this page now says. Every numerical verdict of the draft was reproduced
+> independently at both shaped layouts; nothing that survived has been
+> softened, and no gap has been deleted — struck gaps keep their number and
+> carry a STRUCK paragraph.
+
+**Changes in this revision**
+
+| Ruling (check finding) | What changed | Sections |
+|---|---|---|
+| **S-1** (B-2) | Fact 1 is **false as stated** and is replaced by **Fact 1′** in two clauses; clause (ii) rests on the shape hypothesis `log(Dom::Tab) == log_cols`, which is added to the lemma's hypotheses, joins ruling G-3's invariant list, and is owed a named, tested `Shape::new` refusal | header, §0, §1.4, §2.1, §2.2 T2, §3.1, §6.1 S2, §6.2 |
+| **S-2** (B-1) | **Finding N-2 and gap GS-10 are STRUCK** — the group-count check is not a privacy check; what a boundary's hiding rests on is restated on N-1 | §3.6, §6.1 S16, §6.2, §7 GS-10 |
+| **S-3** (B-3) | a latent **structural** key collision (`head_dim ≥ row width`) named as a liveness trap outside every shape in scope; a named `Shape::new` refusal owed | §3.1 |
+| **S-4** (B-5, B-6) | table-helper raw counts corrected to **768 at every shape** (bit figures unmoved); the refinement **CONFIRMED** by independent recount; N-3 conditioned on **any witness the constructors admit**; GS-12 narrowed | §0, §5.3, §6.1 S23, §7 GS-12 |
+| **S-5** (B-4, B-7, B-8, B-9, B-10, B-11, B-12) | `SC_GMM`/`SC_UMM` and rung-K4 added to the shared-coordinate inventory; **GS-15 CLOSED** (largest group 35, 17 singletons); two measured figures re-cited; the *why* of `H`'s 2, computed; the boundary's determinant identity; GS-7 confirmed as sized; the layout model's second stale endpoint | §1.5, §3.1, §3.5, §3.6, §4.B, §4.D, §5.4, §6.1, §7 |
+| — | the `k0` definitional note, and one citation erratum found by the check (`inverses` call sites) | §4.B, §5.3 |
+| — | a new closing section, **§9 "What the check changed"**, one line per B-1 … B-12 | §9 |
+
 **Drafted by a delegated Opus agent for the security owner.**
 2026-09-20, 22:08–23:10 PDT (`date`). Code read, read-only, at the lane
 worktree `/home/victor/wt-zk60-block125m`, commit **`e6b612f`**. Evidence:
 `results/zk60_generic_rank_lemma_shaped/` (five scripts, exact integer
 arithmetic over Goldilocks, nothing built, no prover run, no capture read).
+
+**Revised by a third delegated Opus agent (errata editor)** on the security
+owner's disposition, 2026-09-20 23:37–23:55 PDT. It edited this file only —
+no code, no build, no git write — and re-read at `e6b612f` every code
+citation it touched. Where it could not verify something it says so in
+place.
 
 **This is not a privacy acceptance and nothing here establishes a privacy
 property.** It is one step of one argument, at two layouts, on the linear
@@ -16,7 +49,10 @@ Every claim below is labelled: **PROVED HERE**, **REDUCED to** (document,
 section), **COUNTED**, **COMPUTED** (script, instances), **ARGUED**, or
 **GAP**. The gaps are numbered `GS-1 … GS-15` and listed together in §7, and four
 new findings `N-1 … N-4` are marked where they occur (and are NOT the same
-namespace as the label table's rows `S1 … S31` in §6.1).
+namespace as the label table's rows `S1 … S31` in §6.1). **After this
+revision, N-1, N-3 and N-4 stand (N-3 with a stronger conditioning and N-4
+with a corrected count); N-2 is STRUCK. GS-10 is STRUCK, GS-15 CLOSED,
+GS-12 and GS-3 NARROWED; the numbering does not move.**
 
 ---
 
@@ -44,9 +80,15 @@ Three things came out of it that were not known before.
 1. **Today's repair to the two bilinear attention slots is invisible to this
    argument.** The repair made two claims share some of their evaluation
    coordinates, which sounds alarming. It is not, and the reason is
-   structural: a claim's evaluation point reaches only the *data* rows and
-   the *column* key; it never reaches the random rows whose rank is the whole
-   question. Computed on a faithful miniature with two group bits, at ten
+   structural: on the activation box, a claim's evaluation point reaches only
+   the *data* rows and the *column* key; it never reaches the random rows
+   whose rank is the whole question. (The draft said that of *every* box. The
+   independent check found one exception — on the LogUp-helper box two claims
+   do land on rows this page counts as random — and it is harmless only
+   because one lookup table happens to be exactly as wide as a row. That
+   condition is now written down as a hypothesis, §1.4. The verdict about the
+   repair is unaffected: its four claims are all on the activation box.)
+   Computed on a faithful miniature with two group bits, at ten
    seeds and nine challenge regimes: the answer is the same before and
    after the repair (§3.1, §4.A). What the repair *does* do is put each of
    its four claims alone in its own opening group, which makes the
@@ -63,8 +105,12 @@ Three things came out of it that were not known before.
    one refusal that depends on the hidden input — a zero denominator in the
    lookup argument — was priced by counting *positions* (about 104 million
    per 125M block). It should be priced by counting *distinct values*, and
-   an honest witness only ever produces 768 of them per block whatever the
-   shape. That moves a twelve-block run from `2^-97.8` to `2^-114.8` (§5.3).
+   **any witness the constructors admit** produces at most 768 of them per
+   block whatever the shape — the byte ranges are refusals of the witness
+   builder, not a property of honesty, which is the independent check's
+   strengthening of the conditioning. That moves a twelve-block run from
+   `2^-97.8` to `2^-114.8` (§5.3). Both figures were recounted independently
+   and agree to the digit.
 
 And one number changes against the project's own records: the 125M receipt.
 The layout model still prices a 29-row endpoint where the code declares 37;
@@ -178,37 +224,94 @@ construction** — `a_off.push(row * n)` with `row += sh.rows_of(d)` and
 
 `zpart_weights` (`pcs.rs:860-900`) splits a part's point in exactly one
 place: with `lr = ls − log_cols`, the **leading** `lr` coordinates become an
-equality tensor over the part's *data rows*, and the **trailing**
+equality tensor over the rows of the part's *own slice*, and the **trailing**
 `log_cols` coordinates become the *column key*. Nothing about the point
-reaches any other row.
+reaches any row outside that slice.
 
-> **Fact 1 (shape-free).** A claim's evaluation point influences the
-> verifier's linear view in exactly two ways: through the data-row weights
-> of its own data part(s), and through its column-weight key (hence which
-> opening group it joins). It never appears in the commitment's non-data
-> block. **PROVED HERE** from `build_claim:264-278` and
-> `zpart_weights:860-900`, **given** the four assertions
-> `zkp-core/src/pcs.rs:867, 876, 883, 894` that make `part_rows`
-> (`protocol.rs:215-218`) exact (ruling G-3's invariant, re-cited here at
-> this tree's line numbers).
+**The draft's Fact 1 was false as stated, and ruling S-1 replaces it.** The
+draft asserted that a claim's point never appears in the commitment's
+non-data block. On `H` it does: two claims' **data parts lie on rows this
+memo's own §1.2 model counts as non-data**. `SC_ZS` raises an ordinary
+evaluation claim on the hidden plane `H_U` (`b.h(hids.u())`,
+`argument.rs:1537`, whose `Priv` carries `coords: rho(0..log)`,
+`argument.rs:540-546`), and the pairless LogUp sum claim covers the same two
+rows (`protocol.rs:167-178`); those rows **are** the two zero-sum `u` rows
+(`protocol.rs:760-768` fills them, `layout::h_u_rows` at `layout.rs:1203`
+names them), which §1.2 counts under "other non-data". And `audit_claims`
+does **not** forbid it: its only row-placement checks are "no part reaches
+the proximity pair" (`protocol.rs:241-243`) and site-row exclusivity
+(`protocol.rs:244-249, 259-272`); the `u` rows are neither. [Verified at
+`e6b612f` while editing.]
 
-Fact 1 is the whole answer to the brief's question (a), and §3.1 spells that
+> **Fact 1′ (two clauses; clause (ii) is a SHAPE condition).**
+>
+> **(i)** `audit_claims` (`protocol.rs:241-249, 259-272`) keeps every claim's
+> parts off every reserved-pair row but its own and off the proximity pair,
+> so on those rows the weights are exactly `(cm, cm·U)` and the evaluation
+> point does not enter. On `A`, on the endpoints and on the boundaries this
+> is the whole story, and the draft's statement holds there verbatim.
+>
+> **(ii)** On the only other non-data rows a claim's data part may occupy —
+> `H`'s two zero-sum `u` rows — the weight is point-**independent**, but for
+> a reason Fact 1 did not give: `Dom::Tab` is lifted by ruling P-3 to
+> *exactly* the row width (`domain_log_at`, `layout.rs:136-142`, with
+> `Dom::Tab`'s natural log fixed at 8, `layout.rs:151`), so for both claims
+> `ls == log_cols`, hence `lr = 0`, `eq_table_msb(&point[..0]) = [1]`
+> (`pcs.rs:882-890`), and each `u` row's weight is the point-independent
+> coefficient (`cd`, `cd·U`, or `1`, `U` for the sum claim). **The point
+> reaches the non-data block and contributes nothing to it.**
+>
+> **PROVED HERE** from `build_claim:264-278` and `zpart_weights:860-900`,
+> **given** the four assertions `zkp-core/src/pcs.rs:867, 876, 883, 894` that
+> make `part_rows` (`protocol.rs:215-218`) exact (ruling G-3's invariant,
+> re-cited here at this tree's line numbers), and **given** clause (ii)'s
+> hypothesis.
+
+> **Hypothesis S-1 (new, and now an invariant).**
+> **`log(Dom::Tab) == log_cols`.** It holds at every shape in scope
+> [COUNTED: row widths `2^8` / `2^10` / `2^10` / `2^14` at toy / rung-G /
+> rung-K4 / 125M, and `domain_log_at` lifts a helper domain *up* to the row
+> width and never down, so the equality holds exactly when
+> `log_cols ≥ 8`]. It holds today **by construction rather than by check**:
+> nothing refuses a shape that put `log(Dom::Tab)` above the row width, and
+> at such a shape the two `u` rows would carry an eq-tensor in the claim's
+> point, the non-data block of `H` would become point-dependent, and §3.1's
+> corollary would have to be re-derived. **Ruling S-1: this condition joins
+> the invariants that must not be weakened (ruling G-3's list), and is owed a
+> named, tested shape refusal on the lane — owed, not yet built.**
+
+Fact 1′ is the whole answer to the brief's question (a), and §3.1 spells that
 out.
 
 ### 1.5 One number this changes: the 125M endpoint and the receipt
 
 `Shape::m125` declares `endpoint_rows = 37` and `endpoint_g.rs`'s own test
 asserts `(len 524_288, data_rows 32, commitment_rows 37, enc_log 16)`; the
-rung-G endpoint is `(4_096, 4, 9, 12)`. The pure-Python layout model still
-carries the memo's superseded **29**
-(`model_m125.json["shape"]["endpoint_rows"]`), which is finding S11b-F3's
-old figure. Consequences [COUNTED, `shaped_counts.txt`]:
+rung-G endpoint is `(4_096, 4, 9, 12)`. When this memo was drafted the
+pure-Python layout model still carried the superseded **29**
+(`model_m125.json["shape"]["endpoint_rows"]`,
+`scripts/zk60_private_block_layout_model.py:603`), which is finding
+S11b-F3's old figure. Consequences [COUNTED, `shaped_counts.txt`]:
 
 * the model's 125M receipt of **40,750,584 B** becomes **40,783,352 B** —
   `2 × 256 × (37 − 29) × 8 = 32,768` more bytes in the two endpoint
   openings — **which is exactly the figure measured after the S19-F1 repair**
-  (`ZK60_BLOCK125M_S19F1_DISPOSITION.md` §6). Two independent counts now
-  agree on it;
+  (`ZK60_BLOCK125M_S19F1_DISPOSITION.md` §6, where the 40,783,352 is the
+  MEASURED figure; the check re-cited it there and reproduced the correction
+  `40,750,584 + 2·256·8·8 = 40,783,352`). Two independent counts now agree
+  on it;
+* **the model is stale in a second place, not one** (ruling S-5, the check's
+  B-12). `scripts/zk60_private_block_layout_model.py:582` declared
+  `endpoint_rows=14` for the **frozen-seam rung**, where `Shape::rung`
+  declares **21** (`shape.rs:295` at `e6b612f`, whose own comment says "the
+  declared 14 / 4 were the TRUE shape's and matched nothing"); the 125M
+  `endpoint_rows=29` sat at `:603`. Neither touches a figure in this memo
+  (rung-G's 9 and the toy's 7 are right), but a model that is wrong about
+  two of four endpoints should not be the source of a receipt figure without
+  saying so. **Ruling: fixed in the model, on the lane** — the lane's working
+  copy now derives the endpoint geometry from the shape rather than
+  declaring it (`ENDPOINT_MASK_ROWS = 5`, header note "lane stage 23, the
+  check's finding B-12"; uncommitted when this revision was written);
 * the toy check's §8 item 3 and the toy lemma's §4 item 6(v) say
   "`ENDPOINT_ROWS` 7 → 29 and `ENDPOINT_PROX` 4 → 26 at 125M (9 / 14 at the
   rung)". As built the figures are **37 and 34** at 125M and **9 and 6** at
@@ -233,8 +336,13 @@ old figure. Consequences [COUNTED, `shaped_counts.txt`]:
 > of the two shaped profiles — `hashline-zk-mr1/private-block-rung-g-t24-dev/1`
 > or `hashline-zk-mr1/private-block-m125/1` — or a run over one of them. Run
 > the prover on any witness the constructors admit, with the challenges drawn
-> as the protocol draws them. Then **on every run that is not discarded by
-> one of the prover's own refusals**, for each PCS commitment separately:
+> as the protocol draws them. Assume the **shape hypothesis S-1**,
+> **`log(Dom::Tab) == log_cols`** — true of both profiles [COUNTED, §1.4] and
+> of every shape in scope, but checked by no code path; without it clause
+> (ii) of Fact 1′ fails, `H`'s non-data block becomes point-dependent, and
+> items 2, 3 and 5 for `H` are not established. Then **on every run that is
+> not discarded by one of the prover's own refusals**, for each PCS
+> commitment separately:
 >
 > 1. the three hypotheses of the disclosure tool's reduction hold —
 >    **H-pad** (the `d ≤ Q = 256` distinct opened columns have a pad block of
@@ -267,6 +375,10 @@ old figure. Consequences [COUNTED, `shaped_counts.txt`]:
 
 **Status of Lemma S, part by part.**
 
+* **the shape hypothesis S-1** (`log(Dom::Tab) == log_cols`): COUNTED true at
+  every shape in scope, held by construction and by no check; ruling S-1 puts
+  it in ruling G-3's invariant list and owes it a named `Shape::new` refusal
+  with a test (§1.4). Until that refusal exists it is a **RELIES ON**.
 * **item 1, H-pad**: PROVED HERE at both shapes, by exact determinant, for
   every admissible column set (§4.C).
 * **item 1, H-pair**: RELIES ON `audit_claims` (`protocol.rs:230-274`) for
@@ -290,7 +402,7 @@ old figure. Consequences [COUNTED, `shaped_counts.txt`]:
 | # | Toy lemma's step | At a shaped layout |
 |---|---|---|
 | T1 | full row rank of the non-data block ⇒ `k0 = 0` (§1.3) | **verbatim.** The implication is an inequality about restricting coordinates; no shape constant enters. REDUCED to `ZK60_GENERIC_RANK_LEMMA.md` §1.3 |
-| T2 | the eq-tensors never reach the non-data rows; pair weights are `(cm, cm·U)` (§2.2) | **verbatim, with one new case**: planes below the row width take `zpart_weights`' second branch. Pair weights unchanged. §1.3, §1.4 above. PROVED HERE |
+| T2 | the eq-tensors never reach the non-data rows; pair weights are `(cm, cm·U)` (§2.2) | **NOT verbatim — restated as Fact 1′ (ruling S-1).** Clause (i) holds verbatim on `A`, the endpoints and the boundaries; on `H` two claims' data parts do sit on the two zero-sum `u` rows, where the weight is point-independent only because `log(Dom::Tab) == log_cols`. One new case either way: planes below the row width take `zpart_weights`' second branch. Pair weights unchanged. §1.3, §1.4 above. PROVED HERE, under hypothesis S-1 |
 | T3 | `wedge(x, xU) = Norm(x)`; `wedge(λa, λb) = Norm(λ)·wedge(a,b)` (§3.2 step 4) | **verbatim** — field identities |
 | T4 | the maximal minor factorises as `∏ Norm(λ·cm) · wedge(prox pair)` (§3.2 step 5) | **same form, changed counts**: `G` is 36 / 9 / 1 / 2 instead of 35 / 9 / 1 / —. COMPUTED exactly on the bilinear miniature (10 seeds, direct determinant equals the product every time) and at the shaped counts in `boundary_endpoint.txt` |
 | T5 | claim supports disjoint, one pair each, prox untouched | **RELIES ON** `audit_claims` (`protocol.rs:230-274`), unchanged code, now called with shaped arguments at `:795, :799` (prover) and `:887, :917` (verifier), and from `boundary::check_opening` (`boundary.rs:281-283`). Not called for the external endpoints, which use the explicit three-part check instead (`protocol.rs:355-367`) |
@@ -334,15 +446,25 @@ So `SC_SCORE`'s two claims share the `lkv` group coordinates `ρ_g`, and
 `SC_PV`'s two share `ρ_g` **and** the `lt` source-token coordinates. Both
 pairs are on planes of the **same** commitment `A`.
 
-**The answer, and it is a theorem rather than a measurement.** By Fact 1
-(§1.4) a claim's point reaches only (i) its own data-row equality tensor and
-(ii) its column key. The non-data block — the object whose rank is the good
-event — contains, for claim `j` in group `g`, only the two entries
-`λ_{g,j}·cm_j` and `λ_{g,j}·cm_j·U` at rows `(r_j, r_j+1)`, and zero
-everywhere else among the non-data rows. `cm` depends on the slot's
+**The answer, and it is a theorem rather than a measurement.** By **Fact 1′
+clause (i)** (§1.4) a claim's point reaches only (i) its own data-row
+equality tensor and (ii) its column key. The non-data block — the object
+whose rank is the good event — contains, for claim `j` in group `g`, only the
+two entries `λ_{g,j}·cm_j` and `λ_{g,j}·cm_j·U` at rows `(r_j, r_j+1)`, and
+zero everywhere else among the non-data rows. `cm` depends on the slot's
 extension challenges, not on `ρ`. **Therefore shared evaluation coordinates
 cannot change the non-data block at all**, and the factorisation, the good
 event and the bad set are exactly what they were. **PROVED HERE.**
+
+**Which clause carries this, and what it depends on.** All four claims of the
+two repaired slots are on `A` (`A_QR8`, `A_KR8`, `A_P`, `A_V8`), where
+clause (i) is the whole story and no shape condition enters; the independent
+check confirmed that reading. The *headline* nonetheless carries hypothesis
+S-1 (`log(Dom::Tab) == log_cols`, §1.4), because §3.1 is stated as a
+corollary of Fact 1 for every commitment of the block: at a shape that
+lifted `Dom::Tab` above the row width, `H`'s non-data block would become
+point-dependent and this section would have to be re-derived there. Ruling
+S-1 makes that condition an invariant for exactly this reason.
 
 Shared coordinates can do exactly two things, and both are accounted for:
 
@@ -362,7 +484,50 @@ Shared coordinates can do exactly two things, and both are accounted for:
    number that must coincide by accident is **6 of 10** (rung-G `SC_SCORE`),
    **10 of 10** (rung-G `SC_PV`), **8 of 14** (125M `SC_SCORE`) and
    **14 of 14** (125M `SC_PV`) — collision probabilities `2^-768`,
-   `2^-1280`, `2^-1024`, `2^-1792`.
+   `2^-1280`, `2^-1024`, `2^-1792`. All four **REPRODUCED EXACTLY** by the
+   independent check with its own key model, together with **zero numeric
+   collisions over eight seeds of generic field elements** at every shape
+   [COMPUTED, `..._check/keys_bilinear.txt`].
+
+**The shape built after this draft (`Shape::rung_k4`, two group bits at rung
+size).** It did not exist at `e6b612f` and is not in scope above; the check
+computed its keys symbolically anyway, because it is the cheapest route to
+`lkv = 2` on real bytes (GS-3). [COMPUTED, `..._check/keys_bilinear.txt`]:
+**7 of 10** must coincide by accident for `SC_SCORE` (`2^-896`) and **10 of
+10** for `SC_PV` (`2^-1280`); no structural collision; 0 numeric collisions
+over eight seeds. A model, not a capture.
+
+**Two more claims share a coordinate by construction, and the draft's
+inventory missed them (ruling S-5, the check's B-4).** `SC_GMM` and `SC_UMM`
+raise their claims on the **same plane `A_YM`** and share the **fixed** row
+point `r_tf`, which is drawn once, in `SC_GMM`, and reused
+(`argument.rs:1194-1208`; verified at `e6b612f`). [COMPUTED,
+`..._check/keys_bilinear.txt`] their tails agree by construction at **3 of
+10** positions at rung-G and **4 of 14** at 125M, so a collision needs
+`2^-896` / `2^-1280`; there is none, and §5.1's union over `C(claims, 2)`
+pairs at `p^-2` already dominates it. **No figure moves.** It is recorded
+because the list above reads as an exhaustive inventory of claims that share
+coordinates by construction and was not one.
+
+> **A latent structural collision, outside every shape in scope (ruling S-3,
+> the check's B-3).** `A_QR8`'s coordinate list ends with
+> `rho(lkv..lkv+ldh)` and `A_KR8`'s ends with the **same symbols**
+> (`argument.rs:1141-1158`: `tq` and `tk` are two copies of one segment).
+> If `ldh ≥ log_cols` — that is, **`head_dim ≥ row width`** — both tails are
+> the last `log_cols` entries of that one shared segment, the two column keys
+> are **equal by construction on every run**, `opening_groups_at` returns
+> `a_groups − 1`, and `check_opening` refuses **every** proof at that shape.
+> That is a **liveness cliff, not a leak** (a merge discloses strictly less;
+> see the STRUCK N-2 in §3.6, where the merge computes to `k0 = 0`). No shape
+> is near it [COUNTED: head dimension 8 / 16 / 8 / 64 against row widths
+> 256 / 1,024 / 1,024 / 16,384 at toy / rung-G / rung-K4 / 125M], and
+> **nothing refuses it**: `shape.rs:252-260` guards only the opposite
+> direction, a bilinear domain *below* the row width that P-3 lifts (read at
+> `e6b612f`). `SC_PV` can never collide structurally — `A_V8`'s tail always
+> ends in the fixed `r_i` and `A_P`'s in `ρ_s`. **Ruling S-3: a named
+> `Shape::new` refusal, with a test — owed, not yet built.** The collision
+> counted in point 2 above is therefore accidental *at these shapes*, not by
+> construction at every shape.
 
 **Verdict on the brief's question:** the two claims' functionals **are**
 linearly independent of each other and of every other claim on `A` for
@@ -518,6 +683,30 @@ equality* with the public LogUp identity is MEASURED at rung-G by the run
 gate on two captures (`equals_public_logup_identity: true`, 234 nonzero
 weights) and is **not** measured at 125M (**GS-1**).
 
+**Why `H` discloses 2 at all — written in, and now computed** (ruling S-5,
+the check's B-9). The draft reduced the `u`-row term to the toy's §3.3 and
+never said what makes it nonzero. The mechanism is one line of the prover:
+`protocol.rs:760-768` fills each `u` row with `n − 1` random words and sets
+the last to their negation, so **the all-ones functional on a `u` row is
+publicly zero**. The LogUp sum claim's column weights are exactly all-ones
+on `[0, n)` — its key is `([], 0, n)` and `zkey_weights` fills that range
+with `ONE` (`pcs.rs:872, 902-914`) — so the `u` rows give the sum claim **no
+blinding at all**, and its public value `0` becomes a constraint on the
+hidden data. The disclosure is therefore a property of the zero-sum
+construction, not a corollary of anything. [Verified by reading at
+`e6b612f`.]
+
+[COMPUTED, `..._check/brute_view.txt` §2, 3 seeds, on an `H`-like model with
+groups of 3 and 1, `SC_ZS`'s group also touching the two `u` rows, and the
+pairless sum claim alone in its group with coefficients `(1, U)`]: disclosed
+**2**, disclosed span dimension 2, public-identity span dimension 2, **spans
+EQUAL on every seed**; run *without* the zero-sum constraint the same model
+returns disclosed **0**. **What that closes of GS-1:** the *identity* (not
+just the dimension) is now computed at a shaped layout, which the draft had
+deferred to GS-1 and had only MEASURED at rung-G. **What it does not close:**
+GS-1 as written asks for a measurement on real 125M receipt bytes, and none
+exists; this is a model at the shaped counts, not a capture.
+
 **(e) The endpoint's spare row.** An endpoint commitment has five mask rows
 (`endpoint_g.rs:52`): the terminal pair at `(data, data+1)`, the proximity
 row at `data+2`, and two more random rows. The refusal tests
@@ -555,6 +744,23 @@ rows `2·2 + 2 = 6`. **Slack zero, at every shape.** The chosen minor is the
 *whole* non-data block, and its determinant is
 `Norm(λ_1 cm_1)·Norm(λ_2 cm_2)·wedge(ρ_prox[prox], ρ_prox[prox+1])`.
 
+**And that is an identity, which makes the backstop moot here** (ruling S-5,
+the check's B-10). [COMPUTED, `..._check/nondata_rank.txt`, 6 seeds] the
+boundary's **whole** 6 × 6 non-data determinant equals that product
+**exactly**, on every seed, as an integer in `Fp`. A product of norm forms
+vanishes iff one factor does, and each factor vanishing is a **named
+refusal**: `protocol.rs:246` for `cm = 0`, `:284-286` for `λ = 0`,
+`:289-290` for the proximity pair (all three verified at `e6b612f`). So at a
+boundary **"bad set ⊆ refusal set" is an identity, not a Schwartz–Zippel
+estimate**, conditional only on `audit_claims` giving each group a member
+with a pair of its own (`protocol.rs:259-272`). The same block-triangular
+argument goes through on `H` with the pairless sum claim, whose diagonal
+factor is `Norm(λ_sum · 1)`, even though `SC_ZS`'s group also touches the
+`u` rows: ordering the `u` columns after that group's own pair makes the
+extra entries upper-triangular. §5.4's figures stay on the page as what they
+are — a generic bound on a polynomial already known to be a product of norm
+forms — and are **not** what the lemma rests on.
+
 [COMPUTED, `boundary_endpoint.txt`, 8 seeds, both shapes]
 
 | boundary case | generators | non-data | rank on non-data | `k0` |
@@ -563,11 +769,12 @@ rows `2·2 + 2 = 6`. **Slack zero, at every shape.** The chosen minor is the
 | proximity pair `Fp`-dependent | 6 | 6 | 5 | **1** |
 | `cm = 0` on one site | 6 | 6 | 4 | **2** |
 | the two claims sharing one pair (`audit_claims` forbids) | 6 | 6 | 4 | **2** |
-| a THIRD opening group appears | 8 | 6 | 6 | **2** |
+| a THIRD opening group appears — **UNREACHABLE past `audit_claims`**, see the STRUCK N-2 below | 8 | 6 | 6 | 2 |
 | **one proximity ROW instead of a pair** (ruling M-1's own case) | 6 | 5 | 5 | **1** |
 | the two claims merged into one group | 4 | 6 | 4 | 0 |
 
-Three readings, in order of importance.
+Three readings, in order of importance — the second of them is now STRUCK
+and is kept, struck, as the record of what was claimed and why it is wrong.
 
 > **Finding N-1 (new). At the boundary the proximity refusal is EXACTLY
 > NECESSARY for hiding, not a completeness convention.** With an
@@ -582,15 +789,47 @@ Three readings, in order of importance.
 > **sharpens** the toy disposition's ruling G-4 — which said the zero-mask
 > refusal is exactly necessary — with a second refusal that becomes exactly
 > necessary as soon as a commitment is tight.
+>
+> The finding was **REPRODUCED** by the independent check on its own model,
+> 6 seeds — `k0` rising 0 → 1 at the boundary and staying 0 on `A` and `H`
+> under the same perturbation — as was the whole of the table above, row for
+> row (`..._check/nondata_rank.txt`).
+>
+> **What a boundary's hiding rests on, exactly** (ruling S-2's wording): the
+> audit's **pair exclusivity**, the **two zero-mask refusals** and the
+> **proximity-determinant refusal**. With 6 generators on 6 non-data rows a
+> boundary has **zero slack**, and the external endpoint's spare row is what
+> gives it slack 1. Nothing else carries it — in particular **not** the
+> opening-group count check, which the draft's Finding N-2 wrongly priced as
+> a privacy check and which ruling S-2 strikes (next).
 
-> **Finding N-2 (new). At the boundary the opening-group COUNT check is a
-> privacy check.** `check_opening` refuses when the first-occurrence grouping
-> has a different number of groups from the schedule (`protocol.rs:301-303`,
-> reached from `boundary.rs:281-283` with `want_groups = spec.sites()`). With
-> three groups instead of two there are 8 generators against 6 non-data rows,
-> the full-rank implication cannot hold, and `k0` rises to 2. Nowhere is this
-> recorded as a privacy-relevant check; it is documented as a schedule check.
-> **GS-10** records that no test pins it as one.
+> **~~Finding N-2~~ — STRUCK by ruling S-2 (the check's B-1).** The draft
+> claimed that at the boundary the opening-group COUNT check is a privacy
+> check: with three groups instead of two there would be 8 generators against
+> 6 non-data rows, the full-rank implication could not hold, and `k0` would
+> rise to 2. The arithmetic is right (`..._check/nondata_rank.txt`, 6 seeds,
+> reproduces `k0 = 2`) **and the configuration is unreachable**.
+> `check_opening` runs `audit_claims` **first** — `protocol.rs:298`, the
+> first statement of the function at `:297` (verified at `e6b612f` while
+> editing) — and on a two-site boundary the audit forces **exactly two**
+> claims: every non-sum claim must touch exactly two adjacent site rows
+> (`protocol.rs:259-262`) and every site row must be used exactly once
+> (`protocol.rs:270-272`), so with `2·sites = 4` site rows, `claims × 2 = 4`.
+> With two claims the first-occurrence grouping returns 1 or 2 groups and
+> never 3. The only deviation the count check can catch is the **merge** of
+> the two column keys, which this memo's own §3.1 point 2 calls a liveness
+> event and which computes to **disclosure 0** (4 generators, 6 non-data
+> rows, rank 4 — the last row of the table above, and
+> `..._check/nondata_rank.txt`, 6 seeds): the verifier sees strictly less and
+> the hidden rows are no less blinded.
+>
+> **The count check stays** — it is a schedule and soundness check and it is
+> cheap — but it is **not** load-bearing for hiding, and **nobody builds a
+> test for N-2**. Recording a check as privacy-critical when it is not is not
+> a harmless over-statement: it is the kind of entry that later licenses
+> relaxing something that *is* critical, on the grounds that "the count check
+> covers it". What carries the boundary is stated on Finding N-1 above.
+> **Gap GS-10 is struck with it** (§7).
 
 > **Ruling M-1's own finding is reproduced.** A boundary with a single
 > proximity row — `rows = data + 2·sites + 1` — has rank 5 of 5 on its
@@ -605,6 +844,19 @@ stage `k+1`. At **fixed** challenges that changes nothing, because the set of
 published field values is the same. It matters for the Fiat–Shamir lift,
 where later challenges are functions of a transcript that already contains
 that value. That belongs to gap G-R5 and is **GS-7** here.
+
+**GS-7 is correctly sized** (ruling S-5, the check's B-11): the check read
+the ordering and found **no prover-side defect**. `run.rs:486-510` commits
+the boundary root *before* either adjacent equality slot's challenges and
+`:528-537` opens with `pending` + `ic`; the published terminal is `cm`-masked
+by a mask row drawn from a fresh OS stream before the value exists, so the
+value alone is uniform, and the `λ`s and `ρ_prox` are drawn strictly after it
+and, in the ROM, independently of it. Both boundary refusals are enforced on
+**both** sides — prover `boundary.rs:269-275`, verifier `run.rs:670`, both
+through `protocol::check_opening`. What is owed is the **simulator's**
+ordering in the Fiat–Shamir lift, which is gap G-R5, and this memo places it
+there. [ARGUED by the check from reading; not re-verified line by line in
+this revision.]
 
 ---
 
@@ -681,6 +933,14 @@ each refusal switched off in turn. Data-row weights are drawn uniformly,
 which is the **worst case** for `k0`: `k0 = rank(gens) − rank(gens|non-data)`
 can only grow when `rank(gens)` grows. Results in §3.5 and §3.6, plus:
 
+> **Definitional note, for anyone re-running these models** (the check's, and
+> it cost it a first pass): `k0` is
+> **`rank(all generators) − rank(generators restricted to the non-data
+> rows)`**, *not* `#generators − rank(| non-data)`. The two differ exactly on
+> the refused zero-`λ` draws, where a wholly zero generator discloses
+> nothing — which is why the `λ = 0` rows of the endpoint and `cm = 0`
+> boundary tables read as they do. Use this definition.
+
 | `A`, rung-G (122 claims in 36 groups) | generators | non-data | rank\|nd | `k0` |
 |---|---:|---:|---:|---:|
 | honest | 74 | 246 | 74 | **0** |
@@ -690,15 +950,29 @@ can only grow when `rank(gens)` grows. Results in §3.5 and §3.6, plus:
 
 The last two rows reproduce ruling G-4 at the shaped layout **and sharpen
 it**: the zero-mask refusal is exactly necessary **where a group has one
-member**, and harmless where it does not. How many singleton groups `A` has
-at a shaped layout depends on the real column keys, which I did not derive;
-the script uses a reconstruction (its largest group has 36 members, which is
-an artefact of that reconstruction and not a counted fact — **GS-15**).
-What *is* counted, from `sites_per_slot` and the declared
-`Shape::a_groups` detail (`shaped_counts.txt`), is a rigorous lower bound:
-**at least 15 of the 36 groups on `A` are singletons** — the eleven slots
-that raise one claim in one group, plus the four claims of the two
-**bilinear** slots, which the schedule puts in two groups of one each.
+member**, and harmless where it does not. The draft could not say how many
+singleton groups `A` has, because the script used a **reconstruction** of
+the group-size distribution rather than the real column keys, and recorded
+that as **GS-15**; its reconstruction's largest group had 36 members and its
+rigorous lower bound was "at least 15 of the 36 singletons".
+
+**GS-15 is CLOSED, and both figures move** (ruling S-5, the check's B-7).
+The distribution is derivable exactly from `claim_sites`
+(`shape.rs:582-617` at `e6b612f`) and the declared `a_groups` detail
+(`shape.rs:763-780`, `a_groups = tzc + 15 + 2·2 + 4·2`), and it is
+
+`[6, 2×8 | 1, 1 | 2 | 2 | 1×3 | 1,1 | 1,1 | 1 | 1×3 | 35, 2 | 7, 1 | 6, 1 |
+13, 2 | 11 | 3 | 1, 1]`
+
+— **36 groups, 122 claims, largest group 35** (not 36), **17 singletons**
+(not "at least 15"). The two extra singletons over the draft's count are
+`SC_QZC`'s and `SC_KVZC`'s off-cube claims, each alone in its group.
+[COUNTED, `..._check/nondata_rank.py` header.] Re-run at the **real**
+distribution, 6 seeds, the §4.B table above reproduces without the
+reconstruction: `A` honest `k0 = 0`; degenerate proximity `k0 = 0`; `cm = 0`
+in a singleton `k0 = 2`; `cm = 0` in the 35-member group or the 6-member
+group `k0 = 0`; two same-group claims sharing one pair `k0 = 0`
+[COMPUTED, `..._check/nondata_rank.txt`].
 
 > **Finding N-4.** Each of the four claims of the repaired bilinear slots is
 > **alone in its opening group** at both shaped layouts. By ruling G-4's own
@@ -706,7 +980,9 @@ that raise one claim in one group, plus the four claims of the two
 > `protocol.rs:246`) is therefore **exactly necessary for each of them**: set
 > one of their `cm` to zero and the commitment discloses `n` field elements
 > (`bilinear_miniature.txt` part C, `k0 = 2`; part D, disclosed 16 = 2·`n`).
-> [COUNTED + COMPUTED.]
+> [COUNTED + COMPUTED.] **Unchanged by the check, and now with a counted
+> denominator**: `A` has **17** singleton groups of 36 (above), four of which
+> are these.
 
 ### 4.C The pad block and the CFS channel (`channels_shaped.py` / `.txt`)
 
@@ -746,8 +1022,23 @@ three-block rung-G runs — one on a fully dense generic witness, one all-zero:
 `A` disclosed 0 with `rank_P1` 74 of 623; `H` 2, shown by span equality to be
 the public LogUp identity, 20 of 576; both external endpoints 0;
 each boundary 0 on its reserved rows with rank 6 of 6; `M` 0; every
-certifying minor nonsingular; 243–251 distinct opened columns inside the
+certifying minor nonsingular; the distinct opened columns inside the
 256-pad budget; the pad block's exact rank equal to the distinct count.
+
+**Two of those MEASURED figures are re-cited** (ruling S-5, the check's
+B-8), because the draft quoted them from the wrong section and they are
+measurements, not prose:
+
+* **`rank_P1` "74 of 623"** is in the gate's **§8.5** ("The headline: dense
+  against degenerate", lines 1084 and 1097), not §2.3/§2.4. §2.3's table
+  carries the *generator count* 74, which is a different figure that happens
+  to agree. [Verified against `ZK60_NATIVE_RUN_GATE.md` while editing.]
+* **"243–251 distinct opened columns"** is specifically **`run-b-zero`'s**
+  spread, stated in **§2.3** (line 173). The tabulated `run-a-tame` spread
+  is **246–250**, and §8.5's per-bundle stage-0 `A` figures include **242**
+  and **252**, i.e. outside the quoted range. What is true of all of them,
+  and is the only thing this memo uses, is that every distinct count is
+  **inside the 256-pad budget** and equals the pad block's exact rank.
 
 **What that tests in Lemma S.** It confirms items 1, 2 and 3 at **one shape**
 (rung-G) at **two challenge vectors**, on receipts a real binary produced —
@@ -771,7 +1062,10 @@ itself.
 1. **A synthetic four-key-value-group capture at a rung-sized shape** — the
    stage-20 reviewer already had to build one (`head_dim = 8`, finding F-2).
    A capture from it, through the run gate, would give `lkv = 2` on real
-   receipt bytes and close the largest part of **GS-3**.
+   receipt bytes and close the largest part of **GS-3**. **In flight, not
+   owed:** `Shape::rung_k4` was committed at `3247a89` *after* this memo's
+   pin, and the disposition records real bytes (`run-i-dense-k4`) existing
+   since 23:03 and with the gate. This memo has read neither.
 2. **A rung-G capture with the certifying minor for the boundary printed
    with its determinant**, so that Finding N-1's zero slack is visible in the
    gate's own record rather than in this memo's model.
@@ -825,32 +1119,63 @@ this lemma's own inputs are priced.
 ### 5.3 The input-dependent refusal, and the refinement ruling R-6 asked for
 
 The prover inverts LogUp denominators (`protocol.rs:402-405`, called at
-`:691, 702, 703, 734`) and discards the attempt on a zero. Ruling R-6 prices
+`:691, 702, 704, 734`) and discards the attempt on a zero. Ruling R-6 prices
 it by the **raw count of inversions**, and asks for a distinct-value
-refinement before any 125M statement. The raw counts reproduce exactly from
-the layout model:
+refinement before any 125M statement. (The draft cited the fourth live call
+site as `:703`; `:703` *builds* the activation denominators and the
+inversion is on the next line — an erratum the check found while recounting,
+corrected here and verified at `e6b612f`.) The raw counts, **with the
+table-helper term corrected** by ruling S-4:
 
 | shape | u8 positions | exp | act | table rows | raw total | bits | R-6's figure |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | toy | 61,440 | 2,048 | 512 | 768 | 64,768 | `2^-112.02` | `2^-112.0` |
-| rung-G | 419,840 | 8,192 | 8,192 | 3,072 | **439,296** | `2^-109.26` | `2^-109.3` |
-| 125M | 98,598,912 | 4,194,304 | 1,048,576 | 49,152 | **103,890,944** | `2^-101.37` | `2^-101.4` |
-| 12 × 125M | | | | | 1,246,691,328 | `2^-97.78` | `2^-97.8` |
+| rung-G | 419,840 | 8,192 | 8,192 | **768** | **436,992** | `2^-109.26` | `2^-109.3` |
+| 125M | 98,598,912 | 4,194,304 | 1,048,576 | **768** | **103,842,560** | `2^-101.37` | `2^-101.4` |
+| 12 × 125M | | | | | **1,246,110,720** | `2^-97.79` | `2^-97.8` |
 
-**The refinement, taken.** `α` is drawn *after* the `A` and `M` roots
-(`protocol.rs:682-684`), so every denominator's argument is fixed before it,
-and the bad event is `α` landing in the **set of distinct arguments**. For an
-honest witness that set is:
+**The correction to the table-helper term** (ruling S-4, the check's B-5).
+The draft priced the three table helpers at `3 × row width` — 768 / 3,072 /
+49,152 at toy / rung-G / 125M. The code inverts `table_values_u8(g_u8)`,
+`table_values_exp(...)`, `table_values_act(...)` (`protocol.rs:730-734`),
+each of which is `table_values_*_at(Dom::Tab.len(), …)`
+(`argument.rs:854-883`), and `Dom::Tab.len()` (`layout.rs:163-165`) is
+`1 << domain_log_at(8, true, LOG_N)` with `LOG_N` the **toy's 8**
+(`layout.rs:48`) — i.e. **256, at every shape**, not `sh.size(Dom::Tab)`. So
+the term is `3 × 256 = 768` everywhere. [COUNTED,
+`..._check/refusal_recount.txt` §A, and verified in the code at `e6b612f`
+while editing. The draft's own `refusals_and_backstop.py` still carries the
+superseded 3,072 / 49,152 and has **not** been re-run; the corrected totals
+in the table above are the check's.] The per-block bit figures **do not
+move** (`2^-112.02` / `2^-109.26` / `2^-101.37`); the twelve-block figure
+moves by 0.0007 bits, from `2^-97.78` to `2^-97.79` — the only *bit* figure
+on this page the recount moves. It also means the P-3 lift argument
+the draft gave for the table families is not needed: they never grow in the
+first place.
+
+**The refinement, taken.** `α` is drawn *after* `β` (`protocol.rs:682`), `γ`
+(`:683`) and the `A` and `M` roots (`α` at `:684`), so conditioned on the
+transcript the whole set of denominator arguments is fixed — including the
+two families whose arguments contain `β` — and `α` is uniform on `Fp2`. The
+bad event is exactly `α` landing in the **set of distinct arguments**. For
+**any witness the constructors admit** that set is:
 
 * the byte-lookup family: `α − (v + γ·TAG_U8)` with `v` a byte — **≤ 256**
-  values, whatever the number of positions;
+  values, whatever the number of positions. Every `u8` lookup expression in
+  the module is one of three constructors, `byte(p)` (`v = p`),
+  `scaled(p, k)` (`v = k·p`, with `byte(p)` also present) and `sym(p)` (the
+  pair `p + 127` and `127 − p`), `layout.rs:561-571`; and at a **padded**
+  position every non-exempt plane is proved zero (ruling P-1), so the
+  argument is the constant `cst ∈ {0, 127}` — still a byte;
 * the exponential family: `α − (d + β·e + γ·TAG_EXP)` with `(d, e)` a row of
   the 256-entry exponential table — **≤ 256**;
 * the activation family: `α − (i + β·a + γ·TAG_ACT)` with `(i, a)` a row of
   the 256-entry activation table — **≤ 256**;
-* the three **table**-helper families add nothing new: their values are
-  indexed `x % U8_LEN` (`argument.rs:870-872, 881-883`), so the P-3 lift
-  repeats rather than extends them.
+* the three **table**-helper families add nothing new, and for a simpler
+  reason than the draft gave: `table_values_*_at(256, …)` enumerates exactly
+  the 256 rows of each table (§5.3's correction above), so each helper
+  family is a **subset** of its own family above. [COUNTED,
+  `..._check/refusal_recount.txt` §B.]
 
 > **Finding N-3.** The distinct-argument set has at most **3 × 256 = 768**
 > elements **at every shape**, so the input-dependent refusal is at most
@@ -860,14 +1185,32 @@ honest witness that set is:
 > toy. It removes R-6's stated worry that the term "sits a third of a bit
 > from the run's soundness level": at `2^-114.8` it is 17 bits below it.
 > **PROVED HERE** (the argument) and **COUNTED** (the arithmetic).
+> **CONFIRMED by independent recount** (ruling S-4): the check counted the
+> same three families of at most 256 arguments each, with the three table
+> helpers subsets of them, and reproduced `768`, `2^-118.42` and `2^-114.83`
+> **to the digit** [COUNTED, `..._check/refusal_recount.txt` §B]. Ruling S-4
+> adopts these figures; R-6's raw `2^-101.4` and `2^-97.8` stay correct as
+> upper bounds, and the toy's own statement keeps its conservative
+> `2^-112`.
 >
-> The conditioning is the right one: this is the *prover's own* refusal, run
-> on the witness it is proving, and an honest witness's lookup arguments are
-> table rows by definition of the LogUp statement. A dishonest prover can
-> make an argument that is not a table row, but then the LogUp identity fails
-> and the receipt is refused for a different reason; that is soundness, not
-> this term. **GS-12** records that I did not re-derive the byte-range
-> obligation on every one of the `u8` lookup expressions.
+> **The conditioning, strengthened** (ruling S-4, the check's B-6). The draft
+> conditioned on "an honest witness". The right and stronger conditioning is
+> **"any witness the constructors admit"** — which is exactly Lemma S's own
+> hypothesis, so the term is in scope rather than parked beside it. The byte
+> ranges are **refusals in the constructor**, not a property of honesty:
+> `Witness::new` refuses out-of-range values at `witness.rs:290, 374, 386,
+> 394, 534, 555, 600, 640, 672, 708`, including
+> `if !(0..256).contains(&delta)` for the exp difference at `:533` and
+> `:639`; every `u8` lookup expression is one of the three constructors at
+> `layout.rs:561-571`; and a padded position carries the constant `cst`.
+> [Each line verified at `e6b612f` while editing.]
+>
+> **The caveat that replaces the old one, and it belongs here rather than in
+> §8.** Those same range refusals are ruling R-1's **input-determined**
+> refusal sites. The LogUp-denominator term is correctly priced *given
+> admission*; the admission event itself is a function of the hidden input
+> and is governed by operating rule M-9, not by this term. Nothing here
+> prices M-9.
 
 ### 5.4 The Schwartz–Zippel backstop, if a structural step is rejected
 
@@ -893,6 +1236,22 @@ and sits below the run's own soundness level, so **the backstop is not a
 usable fallback for a run** — if a structural step of §3 is rejected, the
 answer is to fix the structure, not to fall back. **ARGUED.**
 
+**At a boundary the backstop is not merely unusable, it is MOOT** (ruling
+S-5, the check's B-10; the identity and its refusals are written out in
+§3.6). The whole 6 × 6 minor **equals** `Norm(λ₁cm₁)·Norm(λ₂cm₂)·wedge(prox)`
+exactly, so "bad set ⊆ refusal set" is an identity there and no
+Schwartz–Zippel estimate enters. **`2^-52.24` is therefore a bound on a
+quantity this lemma does not use, and no later reader should quote it as a
+security figure of a run.**
+
+**Where the figures still matter,** and the reason they stay on the page: as
+a fallback for a commitment whose factorisation has *not* been verified as
+an identity at its own size. This page computed the identity only on the
+4-claim miniature (§4.A, 10 seeds) and at the boundary (§3.6, 6 seeds); the
+full `A` (74 × 74) and `H` (20 × 20) minors at the shaped counts were
+checked by **rank at random draws**, not symbolically. Anyone who rejects
+H-pair, or the factorisation at those two sizes, is back to this table.
+
 ---
 
 ## 6. The table of every step, and what to attack first
@@ -902,30 +1261,31 @@ answer is to fix the structure, not to fall back. **ARGUED.**
 | # | Statement | Label |
 |---|---|---|
 | S1 | full row rank of the non-data block ⇒ `k0 = 0` | REDUCED to `ZK60_GENERIC_RANK_LEMMA.md` §1.3 (shape-free) |
-| S2 | a claim's point reaches only its data rows and its column key (Fact 1) | **PROVED HERE** §1.4, GIVEN the four asserts `pcs.rs:867, 876, 883, 894` |
+| S2 | **REVISED (S-1): Fact 1 as drafted is FALSE; Fact 1′ replaces it** — (i) on `A`, the endpoints and the boundaries the point reaches only its data rows and its column key; (ii) on `H`'s two zero-sum rows a claim's data part does land in the non-data block, and contributes nothing only because `log(Dom::Tab) == log_cols` | **PROVED HERE** §1.4, GIVEN the four asserts `pcs.rs:867, 876, 883, 894` **and hypothesis S-1**, which is checked by no code path and is owed a named `Shape::new` refusal |
 | S3 | pair weights are `(cm, cm·U)` at every shape, including planes below the row width | **PROVED HERE** §1.3 from `argument.rs:264-278`, `pcs.rs:860-900`; COMPUTED in every miniature instance |
-| S4 | the repaired bilinear slots' shared coordinates leave the non-data block unchanged | **PROVED HERE** §3.1 (corollary of S2); COMPUTED `bilinear_miniature.py`, 10 seeds + 9 regimes + brute force |
-| S5 | the pre-repair and repaired schedules give the same linear view | COMPUTED `bilinear_miniature.py` part C, 5 seeds |
-| S6 | the pad-zero term raises no claim and allocates no pair | **PROVED HERE** §3.2 from `argument.rs:527-529, 588-600, 690-746` |
+| S4 | the repaired bilinear slots' shared coordinates leave the non-data block unchanged | **PROVED HERE** §3.1 (corollary of S2, clause (i), the four planes being on `A`); COMPUTED `bilinear_miniature.py`, 10 seeds + 9 regimes + brute force; **CONFIRMED** independently (`..._check/keys_bilinear.txt`) |
+| S4b | the shared-coordinate inventory also contains `SC_GMM` / `SC_UMM` (same plane `A_YM`, shared fixed `r_tf`), and a structural collision exists at `head_dim ≥ row width` (outside every shape in scope, a liveness trap, refused by nothing) | COUNTED + COMPUTED §3.1 from `..._check/keys_bilinear.txt`; **no figure moves**; ruling S-3 owes a named `Shape::new` refusal. *(New row; no existing number was renumbered.)* |
+| S5 | the pre-repair and repaired schedules give the same linear view | COMPUTED `bilinear_miniature.py` part C, 5 seeds; **CONFIRMED** (the defect S19-F1 is privacy-neutral in the linear view) |
+| S6 | the pad-zero term raises no claim and allocates no pair | **PROVED HERE** §3.2 from `argument.rs:537-539, 588-600, 690-746` (this row cited `:527-529` for `B::tab`; `fn tab` is at `:536-539` at `e6b612f`, as §3.2 already said — editor's erratum, found beyond the check's list); **CONFIRMED** by the check (`a_sites` 122 and `a_groups` 36 unchanged) |
 | S7 | ruling P-2's zero-off-support public weights are not the PCS `cw` | **PROVED HERE** §3.3 |
 | S8 | `cw ≠ 0` always | REDUCED to `ZK60_TERMINAL_SURJECTION_REVIEW.md` §1.4 (shape-free) |
 | S9 | a known-zero data region can only lower the disclosed dimension (Fact 2) | **PROVED HERE** §3.4; COMPUTED `bilinear_miniature.py` §E with a separating control |
 | S10 | the LogUp sum claim is constructible and alone in its group at both shaped layouts | **PROVED HERE** §3.5; COUNTED `shaped_counts.txt` (1 key with the lift, 3 without) |
 | S11 | the sum claim's pair coefficients are `(1, U)` at both shaped layouts | **PROVED HERE** §3.5 from `protocol.rs:167-178` and the lifted `Dom::Tab` |
 | S12 | `H`'s two groups share the zero-sum pair at every shape; rank them as one component | REDUCED to `ZK60_GENERIC_RANK_LEMMA.md` §3.3 (change R-5); COMPUTED at shaped counts |
-| S13 | the u-row term is exactly the public LogUp identity at 125M | **GAP GS-1** for the *measurement*; the argument is REDUCED (S10–S12). MEASURED at rung-G only |
+| S13 | the u-row term is exactly the public LogUp identity at 125M | **GAP GS-1** for the *measurement*; the argument is REDUCED (S10–S12). MEASURED at rung-G only. **Advanced (S-5 / B-9):** the *identity* (not just the dimension) is now **COMPUTED** span-equal at the shaped layouts, 3 seeds, and the mechanism — the zero-sum construction leaving the all-ones sum claim unblinded — is written in at §3.5 |
 | S14 | the endpoint's spare row is the slack that absorbs a degenerate proximity draw | **PROVED HERE** §3.5; COMPUTED `boundary_endpoint.py`, 8 seeds, both shapes |
-| S15 | the boundary has zero slack; its proximity refusal is exactly necessary (Finding N-1) | **PROVED HERE** (rank argument) + COMPUTED, 8 seeds, both shapes |
-| S16 | the boundary's opening-group count check is a privacy check (Finding N-2) | **PROVED HERE** + COMPUTED; **GS-10** for the missing test |
-| S17 | the zero-mask refusal is exactly necessary where a group is a singleton; **at least 15 of 36** `A` groups are, including all four bilinear claims (Finding N-4) | COMPUTED `boundary_endpoint.py` + COUNTED `shaped_counts.txt` |
+| S15 | the boundary has zero slack; its proximity refusal is exactly necessary (Finding N-1) | **PROVED HERE** (rank argument) + COMPUTED, 8 seeds, both shapes; **REPRODUCED** independently, 6 seeds. Its bad set is an **identity**, not a bound (S-5 / B-10, §3.6) |
+| S16 | ~~the boundary's opening-group count check is a privacy check (Finding N-2)~~ | **STRUCK by ruling S-2.** The configuration priced is unreachable past `audit_claims` (`protocol.rs:298`); the only catchable deviation is a key merge, disclosure **0**. See the STRUCK paragraph in §3.6 and the struck **GS-10** in §7. No test is owed |
+| S17 | the zero-mask refusal is exactly necessary where a group is a singleton; **17 of 36** `A` groups are (derived, superseding the draft's "at least 15"), including all four bilinear claims (Finding N-4) | COMPUTED `boundary_endpoint.py` + COUNTED `shaped_counts.txt`; the distribution **derived** in `..._check/nondata_rank.py` (largest group **35**, 17 singletons) — **GS-15 CLOSED** |
 | S18 | H-pad / M-cols at both shaped `(n, nn, Q)`, every column set | **PROVED HERE** §4.C with exact determinants; conditional on `q_pad == num_col_checks == 256` |
 | S19 | the reduction is right at `n ≠ Q` | COMPUTED without the reduction, `bilinear_miniature.py` part D′; the *general* reduction at `n ≠ Q` is **GAP GS-5** |
 | S20 | `uncovered_s = 0` and the mask functionals lie in the round span, all 23 slots of both shapes | COMPUTED `channels_shaped.py`, 5 `ρ` regimes, with the `d`-values control; the proof is REDUCED to the toy §3.5 |
-| S21 | the individual claim values add nothing (Step 7 / terminal surjection) | REDUCED to `ZK60_TERMINAL_SURJECTION_REVIEW.md` §1.4; COMPUTED at `m = 1` and `m = 2` in the brute force |
+| S21 | the individual claim values add nothing (Step 7 / terminal surjection) | REDUCED to `ZK60_TERMINAL_SURJECTION_REVIEW.md` §1.4; COMPUTED at `m = 1` and `m = 2` in the brute force, and independently **at `m = 5` and `m = 3`** (disclosed 0, control firing at 16; `..._check/brute_view.txt` §1) |
 | S22 | refusal probabilities per block and per run | COUNTED §5.1; reproduces ruling R-6's `2^-58.8` |
-| S23 | the input-dependent refusal is `≤ 2^-118.42` per block, `2^-114.83` per run | **PROVED HERE** + COUNTED §5.3 (Finding N-3) |
-| S24 | the Schwartz–Zippel backstop at both shapes and for a run | COUNTED §5.4 |
-| S25 | 125M endpoint rows 37, prox pair (34,35), receipt 40,783,352 B | COUNTED §1.5; matches the measured receipt |
+| S23 | the input-dependent refusal is `≤ 2^-118.42` per block, `2^-114.83` per run, **conditioned on any witness the constructors admit** (S-4, not "an honest witness") | **PROVED HERE** + COUNTED §5.3 (Finding N-3); **COUNTED twice, independently**; the raw table-helper counts corrected to 768 at every shape, the bit figures unmoved but for the run's `2^-97.78` → `2^-97.79` |
+| S24 | the Schwartz–Zippel backstop at both shapes and for a run | COUNTED §5.4; **REPRODUCED**, and **MOOT at a boundary** (S-5 / B-10): there the minor is exactly a product of norm forms and the inclusion is an identity |
+| S25 | 125M endpoint rows 37, prox pair (34,35), receipt 40,783,352 B | COUNTED §1.5; **CONFIRMED**, and the receipt figure is MEASURED in `ZK60_BLOCK125M_S19F1_DISPOSITION.md` §6. The layout model was stale at **two** endpoints, not one (S-5 / B-12) |
 | S26 | `audit_claims` exclusivity on a shaped claim schedule | RELIES ON the code; MEASURED at rung-G by the run gate on two captures; **GS-4** at 125M |
 | S27 | the refusal replay draws the same challenges the PCS will | RELIES ON reading; **GS-2**, no Rust test, and the shaped layout has more to get wrong |
 | S28 | non-data rows uniform in the new commitments | RELIES ON `endpoint_g.rs:229-232`, `boundary.rs:322-325`; not re-derived |
@@ -935,15 +1295,32 @@ answer is to fix the structure, not to fall back. **ARGUED.**
 
 ### 6.2 What the checker should attack first — my own ranking
 
-1. **Fact 1 (§1.4), because everything in §3.1 is a corollary of it.** If
-   there is any path by which a claim's evaluation point reaches a non-data
-   row — a data part whose slice straddles into the site rows, a plane whose
-   `a_off` is not row-aligned so that `c0 ≠ 0` and the mask part's key is not
-   what I say, a fourth branch of `zpart_weights` — then the repaired
-   bilinear slots become a real question and this memo's headline is wrong.
-   Attack `part_rows` (`protocol.rs:215-218`) and the four asserts. I did
-   read the `a_off` / `h_off` cursors (`layout.rs:1037-1042, 1052-1057`) and
-   they are row-aligned, so `c0 = 0`; attack that reading.
+**Ranking as it stands after the check.** The check took item 1 and found
+the memo's Fact 1 false as stated (the repair is in §1.4, the ruling is
+S-1); it took item 2 and reproduced it; it took item 3 and *strengthened*
+the conditioning; it took item 4 and showed the >2-claim case unreachable,
+which is what struck Finding N-2 (§3.6, and GS-10 in §7 — **do not build a
+test for either; they are STRUCK**). Items 5 and 6 are unexamined by anyone.
+The ranking below is kept, amended, so that the next reader can see what has
+already been swung at.
+
+1. **~~Fact 1~~ → Fact 1′ and hypothesis S-1 (§1.4), because everything in
+   §3.1 is a corollary of it.** The universal form is now known to be wrong:
+   on `H`, `SC_ZS`'s claim and the pairless sum claim do reach the two
+   zero-sum rows. What is left to attack is the *repair*: (a) the hypothesis
+   `log(Dom::Tab) == log_cols` — find a shape, or a future lift, that breaks
+   it before the owed `Shape::new` refusal exists; (b) whether any **other**
+   non-data row can receive a data part, which would mean a third clause
+   (the check enumerated `audit_claims`' row-placement checks at
+   `protocol.rs:241-249, 259-272` and found only the `u` rows outside them);
+   (c) the original targets, still live — a data part whose slice straddles
+   into the site rows, a plane whose `a_off` is not row-aligned so that
+   `c0 ≠ 0` and the mask part's key is not what I say, a fourth branch of
+   `zpart_weights`. Attack `part_rows` (`protocol.rs:215-218`) and the four
+   asserts. I did read the `a_off` / `h_off` cursors
+   (`layout.rs:1037-1042, 1052-1057`) and they are row-aligned, so `c0 = 0`;
+   attack that reading — the check did not re-derive the plane cursor
+   either.
 2. **Finding N-1's slack argument (§3.6).** I claim the boundary's zero slack
    makes the proximity refusal necessary and that `A`'s slack makes it
    unnecessary. Both come from one synthetic model with uniformly drawn
@@ -953,16 +1330,22 @@ answer is to fix the structure, not to fall back. **ARGUED.**
    `zk_rhos`, but I did not model a group whose members' *data* weights are
    linearly dependent — which is exactly what the shared coordinates
    produce).
-3. **Finding N-3's conditioning (§5.3).** I price the input-dependent refusal
-   over the *honest* witness's distinct arguments. Attack whether every `u8`
-   lookup expression is really range-proved to a byte *before* its
-   denominator is inverted, and whether `exp_deltas` and `act_indices` are
-   really table rows for every admissible witness at a padded shape — the
-   padded positions are where I would look.
+3. **Finding N-3's conditioning (§5.3) — answered, and narrower now.** The
+   draft priced the input-dependent refusal over the *honest* witness's
+   distinct arguments; ruling S-4 conditions it instead on **any witness the
+   constructors admit**, which the check justified from the constructor's own
+   refusal sites. What is left to attack is the **activation family's
+   `act_indices` at padded positions** (all that remains of GS-12), and the
+   separate question the caveat names: the admission event is itself
+   input-dependent and is priced by operating rule M-9, not here.
 4. **Whether `2(G+1)` is the right generator count at a boundary.** I take
    `G = sites = 2` from the declared count. If a run ever opens a boundary
    with a claim the schedule does not declare, or with `sites > 2`, the slack
-   goes negative and `k0 > 0` follows immediately.
+   goes negative and `k0 > 0` follows immediately. **Narrowed:** with
+   `sites = 2` the audit makes a third *claim* impossible
+   (`protocol.rs:259-272`, the reason Finding N-2 is STRUCK), so what is
+   left to attack is a shape or a run that declares `sites > 2` in the first
+   place, i.e. `BoundarySpec::new` and ruling M-1's derived count.
 5. **The `ζ` count and the pad-zero term's reach.** I assert the term raises
    no claim. Attack `b.tab` returning `usize::MAX` for a zero-rule plane
    outside the slot's `a_range` — I believe that panics rather than
@@ -977,21 +1360,21 @@ answer is to fix the structure, not to fall back. **ARGUED.**
 
 | # | Gap |
 |---|---|
-| **GS-1** | **Nothing has ever been measured at 125M.** No capture, no disclosure figure, no rank, no certifying minor. Lemma S at 125M rests on structure + counts only, and the run disposition's own table says "nothing" in that column for every row. |
+| **GS-1** | **OPEN, slightly narrowed. Nothing has ever been measured at 125M.** No capture, no disclosure figure, no rank, no certifying minor. Lemma S at 125M rests on structure + counts only, and the run disposition's own table says "nothing" in that column for every row. *Narrowed only in this:* the `H` identity that GS-1 asked to be computed rather than assumed is now COMPUTED span-equal at the shaped layouts (§3.5, S-5 / B-9) — on a model, not on 125M bytes, and the disposition records that **nothing can be measured at 125M with the present tools** (a 125M capture is out of the Python gate's reach). |
 | **GS-2** | The refusal replay order is still pinned by no Rust test (the toy's condition O-1), and a shaped layout adds two things to get wrong: 36 groups on `A`, and a boundary whose `want_groups` is derived separately in `boundary.rs`. |
-| **GS-3** | **`lkv = 2` has never been exercised on real receipt bytes.** rung-G has `lkv = 1`; 125M has `lkv = 2` and no capture. §4.A's miniature is the only place two group bits have been computed at all. |
+| **GS-3** | **OPEN, in flight. `lkv = 2` has never been exercised on real receipt bytes** *by anything this memo read*. rung-G has `lkv = 1`; 125M has `lkv = 2` and no capture. §4.A's miniature and the check's rung-K4 key computation are the only places two group bits have been computed, and both are models. Since the pin, `Shape::rung_k4` exists (`3247a89`) and the disposition records real four-group bytes (`run-i-dense-k4`) with the gate. |
 | **GS-4** | `audit_claims` exclusivity at 125M is enforced but never observed. At rung-G the run gate observed it on two captures. |
 | **GS-5** | The tool's **reduction** `disclosed = n·k0 + u-term` is not re-derived at `n ≠ Q`. I computed *without* it at `n ≠ Q` on a miniature (part D′); the general derivation, including why the u-term enters as `u_dim` and not `n·u_dim` when `n = 16,384`, is owed. |
 | **GS-6** | The joint statement across commitments (U-3(b) / G-R4) is untouched, and the boundary is where three commitments hold the same plane. Nothing here licenses adding the per-commitment figures. |
-| **GS-7** | A boundary's site-0 claim value is published one stage **before** the opening whose `λ`s blind it. Harmless at fixed challenges; it belongs to the Fiat–Shamir lift for a run (gap G-R5), which is unwritten. |
+| **GS-7** | **OPEN and CONFIRMED AS SIZED** (S-5 / B-11): it is a gap in the *argument*, not in the protocol. A boundary's site-0 claim value is published one stage **before** the opening whose `λ`s blind it. Harmless at fixed challenges, and the check found no prover-side ordering defect (`run.rs:486-510, 528-537`; both refusals enforced on both sides). What is owed is the simulator's ordering in the Fiat–Shamir lift (gap G-R5), which is unwritten. |
 | **GS-8** | ~~`a_off` unread.~~ **CLOSED while drafting**: `layout.rs:1037-1042` and `:1052-1057` push every plane offset at a row boundary, so `c0 = 0` at every shape and the sub-row-plane case of §1.3 is settled. Kept in the list so the numbering does not move. |
 | **GS-9** | The `ζ` count at rung-G (8) is an upper bound: the project's pad table classifies only 125M's planes, so `Dom::T`, `Dom::F` and `Dom::Kv` are unclassified at the rung. Worth `< 1` bit. |
-| **GS-10** | No test pins the opening-group **count** check as a privacy check at the boundary, where it is one (Finding N-2). |
+| **GS-10** | ~~No test pins the opening-group **count** check as a privacy check at the boundary, where it is one (Finding N-2).~~ **STRUCK by ruling S-2** (the check's B-1), not closed and not deleted: the count check is **not** a privacy check, the three-group configuration is unreachable past the `audit_claims` call at `protocol.rs:298`, and the only deviation it can catch — a key merge — computes to disclosure **0**. **No test is owed.** The reasoning is in the STRUCK paragraph of §3.6; the number is kept so nothing renumbers. |
 | **GS-11** | `M-q` and `M-prox` (`zk.rs:452-457`) are taken from the toy lemma, not re-derived. `M`'s geometry is shape-independent, so this is a carry-over, not a new gap — but it is still a RELIES ON. |
-| **GS-12** | Finding N-3 assumes every `u8` lookup argument is a byte and every exp/act argument a table row for an honest witness at a **padded** shape. I did not re-derive that plane by plane. |
+| **GS-12** | **NARROWED** (S-4, the check's B-6). The draft did not re-derive, plane by plane, that every `u8` lookup argument is a byte and every exp/act argument a table row at a **padded** shape. The check derived it for the **u8 family** (three constructors only, `layout.rs:561-571`, plus `Witness::new`'s range refusals and the padded constant) and for the **exp family** (`witness.rs:533, 639` refuse `delta` outside `0..256`). **What remains of GS-12:** the activation family's `act_indices` at padded positions, not re-derived by anyone. |
 | **GS-13** | The non-linear channel is worse at a shaped layout than at the toy: slot degrees reach **5** (against the toy's 4), the two bilinear closures now carry a public `eq` factor, and eight slots carry a support indicator. `ZK60_JOINT_LAW_COMPOSITION_RUN.md`'s gap G-R2 (the 23 closures re-read) is untouched here. |
 | **GS-14** | **A linear-view argument cannot see a completeness defect of any kind**, on any witness. S19-F1 proved that the hard way. Nothing in this memo, and nothing any disclosure gate can compute from a capture, would have caught it. |
-| **GS-15** | `boundary_endpoint.py`'s `A` and `H` cases use a **reconstruction** of the group-size distribution from the declared per-slot group counts, not the real column keys. The rank verdicts do not depend on it (every group has a member with its own pair whatever the split), but any *count* of singleton groups taken from that script does. The rigorous lower bound is 15 of 36. |
+| **GS-15** | **CLOSED** (S-5, the check's B-7). `boundary_endpoint.py`'s `A` and `H` cases used a **reconstruction** of the group-size distribution rather than the real column keys, and its singleton count was a lower bound of 15 of 36. The distribution is derivable exactly from `claim_sites` (`shape.rs:582-617`) and the declared `a_groups` detail (`shape.rs:763-780`): **36 groups, 122 claims, largest group 35, 17 singletons**, and every rank verdict of §4.B reproduces at the real distribution (6 seeds). §4.B carries the list. |
 
 ---
 
@@ -1004,10 +1387,21 @@ answer is to fix the structure, not to fall back. **ARGUED.**
    This memo supplies the structure and the counts, and closes the two
    channels the toy proved identically (§4.C). It does **not** supply the
    certificate at 125M, where nothing has been computed (GS-1), and it does
-   not supply the `lkv = 2` evidence on real bytes (GS-3). **My own reading
-   is that G-R1 should be narrowed, not closed**: at rung-G it is down to
-   GS-2, GS-5 and the gate's two-challenge-vector limit; at 125M it is still
-   open in full.
+   not supply the `lkv = 2` evidence on real bytes (GS-3). **G-R1 is
+   narrowed, not closed.** Where it stands after the check and the
+   disposition (the disposition's §3 table, reproduced so this page and the
+   ruling cannot drift apart):
+
+   | Shape | State |
+   |---|---|
+   | **Generalised rung** (one group bit) | Lemma **accepted with hypothesis S-1**. Left: a Rust test pinning the refusal replay order against the opening's challenge order (**GS-2**); the reduction not re-derived at pad count ≠ column count, though brute force there scores 0 (**GS-5**); and the computed gate sees only two challenge vectors per shape. |
+   | **Four-group rung** (two group bits) | Covered by the checker's collision count and its generic computation; real bytes exist since 23:03 (`run-i-dense-k4`) and are with the gate now. Neither is read by this memo. |
+   | **125M** | The argument and every count carry over; **nothing has been measured there** (**GS-1**), **and nothing can be with the present tools** — a 125M capture is out of the Python gate's reach. A privacy statement at this shape would rest on the argument, the counts, and measurements at the two development shapes that share its head geometry. That is a limit to state, not to hide. |
+
+   Still open on the whole path, and untouched here: the joint law across
+   commitments with its machine-asserted draw accounting (G-R4), the slot
+   closures as a reading (G-R2), the sequential lift for a run (G-R5), and
+   the non-linear channel (GS-13).
 3. **Not a statement about the commitments jointly.** Adding the
    per-commitment figures is exactly the step ruling R-3 corrected.
 4. **Not a statement about the run's refusal channel.** Ruling R-1 found
@@ -1018,5 +1412,49 @@ answer is to fix the structure, not to fall back. **ARGUED.**
    identical for exactly that reason, and the 20 that differ are counts of
    distinct sampled columns.
 6. **Not a re-derivation by the security owner.** Every computation here was
-   written by one delegated agent in one sitting and has not yet been
-   attacked.
+   written by one delegated agent in one sitting. It **has now been
+   attacked**, once, by a second delegated agent with its own field library
+   and its own models (`ZK60_GENERIC_RANK_LEMMA_SHAPED_CHECK.md`, findings
+   B-1 … B-12, §9 below), and ruled on by the security owner
+   (`..._DISPOSITION.md`, S-1 … S-5, which records what he checked himself
+   and what he did not re-derive). Two independent computations agreeing is
+   not a proof, and neither page is a privacy acceptance.
+
+---
+
+## 9. What the check changed
+
+One line per finding of `ZK60_GENERIC_RANK_LEMMA_SHAPED_CHECK.md`, with the
+ruling that disposed of it. Its verdict on the lemma as a whole: **HOLDS
+WITH CHANGE** — every numerical verdict of this memo reproduced on
+independent computations at both shaped layouts.
+
+| # | What it found | Ruling | Where it landed |
+|---|---|---|---|
+| **B-1** | Finding N-2 is **broken**: the boundary's opening-group COUNT check is not a privacy check, and the configuration priced is unreachable past `audit_claims` | **S-2** | N-2 and GS-10 **STRUCK** (§3.6, §7); no test owed; N-1 restated as what a boundary's hiding rests on |
+| **B-2** | **Fact 1 is false as stated** — on `H`, two claims' data parts reach the two zero-sum rows; harmless only because `log(Dom::Tab) == log_cols` | **S-1** | **Fact 1′** in two clauses + **hypothesis S-1** (§1.4), added to the lemma (§2.1), to T2 (§2.2), to §3.1 and to S2 (§6.1); joins ruling G-3's invariants; a named shape refusal is owed |
+| **B-3** | a **structural** key collision nobody named: `head_dim ≥ row width` would merge `SC_SCORE`'s two keys on every run | **S-3** | §3.1, as a liveness trap outside every shape in scope; a named `Shape::new` refusal with a test is owed |
+| **B-4** | the shared-coordinate inventory was incomplete: `SC_GMM` / `SC_UMM` share the fixed `r_tf` on the same plane | **S-5** | §3.1 (3 of 10 / 4 of 14 equal by construction, no collision), plus the rung-K4 row (7 of 10, 10 of 10); **no figure moves** |
+| **B-5** | §5.3's table-helper raw counts are wrong by a factor of the row width — the code inverts `Dom::Tab.len() = 256` per helper | **S-4** | §5.3: **768 at every shape**, raw totals 436,992 / 103,842,560; bit figures unmoved but for `2^-97.78` → `2^-97.79` |
+| **B-6** | N-3's conditioning is weaker than it needs to be; the byte ranges are **constructor refusals**, not honesty | **S-4** | §5.3: conditioned on **any witness the constructors admit**; **GS-12 narrowed** to the activation family at padded positions; the M-9 caveat moved into §5.3 |
+| **B-7** | the `A` group-size distribution is derivable: largest group **35**, **17** singletons, not 36 and "at least 15" | **S-5** | §4.B, and **GS-15 CLOSED**; S17 corrected |
+| **B-8** | two MEASURED figures cited to the wrong gate section | **S-5** | §4.D: `rank_P1` 74 of 623 → gate §8.5; "243–251" is `run-b-zero`'s spread (gate §2.3), `run-a-tame`'s is 246–250 |
+| **B-9** | the memo never said **why** `H` discloses 2, and the reason is the zero-sum construction | **S-5** | §3.5: the mechanism written in, and the identity **COMPUTED** span-equal at the shaped layouts (closes the *identity* question there, not GS-1) |
+| **B-10** | the boundary's whole 6 × 6 minor is **exactly** `Norm(λ₁cm₁)·Norm(λ₂cm₂)·wedge(prox)`, so the backstop is moot there | **S-5** | §3.6 and §5.4: "bad set ⊆ refusal set" is an identity at a boundary; `2^-52.24` is not a security figure of a run; where the figures still matter is said |
+| **B-11** | GS-7 is correctly sized — an ordering gap in the argument, not in the protocol | **S-5** | §3.6 and §7: GS-7 confirmed as sized, still open, still G-R5's |
+| **B-12** | the layout model is stale at **two** endpoints (the frozen-seam rung's 14 against the code's 21), not one | **S-5** | §1.5; fixed in the model, on the lane |
+| — | definitional trap: `k0 = rank(all) − rank(non-data)`, not `#generators − rank(non-data)` | — | §4.B, as a note for anyone re-running the models |
+| — | erratum found while recounting: the fourth live `inverses` call site is `protocol.rs:704`, not `:703` | — | §5.3 |
+| — | **found by this revision, in neither page**: §6.1's S6 row cited `argument.rs:527-529` for `B::tab`, which is at `:536-539` at `e6b612f` (§3.2 had it right) | — | §6.1 |
+| — | **found by this revision, in the check**: its `shape.rs` line numbers past `:379` are the *worktree's*, not `e6b612f`'s — `Shape::rung_k4` shifts everything after it by +60, so its `claim_sites` `:642-677` is `:582-617` here and its `a_groups` `:823-840` is `:763-780`. No verdict changes; this page cites the pin | — | §4.B, §7 GS-15 |
+
+**What the check could not check, and nobody has**: anything on real 125M
+bytes (GS-1); `lkv = 2` on real receipt bytes (GS-3, now in flight); the
+exact column keys of all 122 `A` claims (it checked the four bilinear
+claims, the three feed-forward matmuls and cross-slot spot checks, and took
+the `SC_TZC` sub-row offsets from the code's own `a_groups` derivation
+rather than recomputing the plane cursor); `M-q` / `M-prox` (GS-11); the CFS
+channel and the pad block of §4.C (it read `channels_shaped.py` and judged
+the method sound, but did not re-run it); the non-linear channel, the hash
+layer and the joint law (GS-13, GS-6, S29–S31); and whether the declared 36
+`A` groups are what the Rust forms at 125M (GS-4).
