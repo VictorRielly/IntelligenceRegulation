@@ -331,12 +331,23 @@ pub(super) fn dense_ff_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, V
 /// at `fixed oracle range refusal: residual 2`. This shape's hidden axis is
 /// 512 and its width 384, both four times rung-P2's, so both the band
 /// formula's `1/sqrt(hidden)` and the wider residual pull the same way.
+/// **STAGE 32: `(1024, 4)` is `Shape::rung_w14`'s**, measured the same way
+/// by `w14_tests::the_pinned_rung_w14_chain_band_is_the_first_admissible_one`
+/// — and it is the first shape where the chain needs NO reduction at all:
+/// the recipe's own single-block band there is 20 (the band scales as
+/// `1/sqrt(hidden)` and this hidden axis is 1,024), and the two-block chain
+/// is admissible at 20. The entry therefore equals what the fallback would
+/// return; it is written out so that the value is a MEASUREMENT and not an
+/// absence. The chain measured is TWO blocks, which is what this shape's
+/// run test proves; a longer chain at this shape is not measured and this
+/// pin says nothing about one.
 pub(super) fn band_down_run(s: &Shape) -> i64 {
     match (s.hidden, s.kv_heads) {
         (192, 2) => 47,
         (192, 4) => 47,
         (256, 4) => 39,
         (512, 4) => 27,
+        (1024, 4) => 20,
         (2048, 4) => 1,
         // any other geometry has not been measured; fall back to the
         // single-block band, which is the recipe's own and is honest about

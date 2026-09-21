@@ -33,9 +33,12 @@
 //! claim about 125M: no 125M proof runs anywhere in this module. It is
 //! development grade (ruling P-7), on its own profile (D17).
 //!
-//! **THE CAPTURE RULE.** Everything here is public synthetic test data from
-//! fixed-seed integer streams; what the census prints is counts, fractions
-//! and live-slot counts, never a witness value or a position.
+//! **THE CAPTURE RULE** (stage 31's, kept). Everything here is public
+//! synthetic test data from fixed-seed integer streams; what the census
+//! prints is counts, fractions and live-slot counts, and **never a witness
+//! value**. The only indices printed are the PUBLIC, test-chosen positions
+//! of the tampers — the last index of a domain, a named head slot — which
+//! are properties of the shape and not of any witness.
 
 use super::layout::*;
 use super::protocol::{prove_inner_at, verify_inner_at};
@@ -44,7 +47,6 @@ use super::run::{self, RunShape, RunStatement, RunWitnessSource};
 use super::shape::Shape;
 use super::witness::{self, Witness};
 use super::*;
-use crate::field::Fp2;
 
 // ---------------------------------------------------------------- the shape's own facts
 
@@ -318,4 +320,467 @@ fn an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14() {
     verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the rung-W14 receipt verifies from bytes");
     eprintln!("rung-W14 DENSE one block: prove {prove_s:.2} s, verify from bytes {:.2} s, frame {} B", t1.elapsed().as_secs_f64(), bytes.len());
     assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short rung-W14 frame was accepted");
+}
+
+/// **THE DEGENERATE CASE, NAMED AS ONE.** The all-zero hidden input on the
+/// lane's synthetic tame fixture proves and verifies at rung-W14. It says
+/// nothing about the group bits — every key-value group is identically zero
+/// — and it exists because it is the fixed input the privacy case is stated
+/// at and the witness the second capture bundle carries.
+#[test]
+fn the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_w14() {
+    let sh = Shape::rung_w14();
+    let (public, ff, _) = super::grow_tests::tame_case(&sh);
+    let input = vec![0i16; sh.tokens * sh.width];
+    let w = witness::build_shaped(&sh, &public, &ff, &input).expect("the rung-W14 all-zero witness");
+    let blk = BlockPublic::new(public, ff);
+    let (expected, receipt, bytes) = prove_w14(&sh, &blk, w).expect("the rung-W14 all-zero prover");
+    assert_eq!(bytes.len(), W14_FRAME_BYTES, "a receipt's length is a function of the shape alone");
+    verify_inner_at(&sh, &blk, &expected, &receipt).expect("the all-zero receipt verifies in typed form");
+    verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the all-zero receipt verifies from bytes");
+    eprintln!("rung-W14 ALL-ZERO (degenerate) one block: frame {} B, verified", bytes.len());
+}
+
+// ---------------------------------------------------------------- what the ROW WIDTH fixes
+
+/// **EVERYTHING KEYED TO THE ROW WIDTH, ASSERTED AGAINST THE MODEL AND
+/// AGAINST 125M.** This is the census the stage exists for: at
+/// `log_cols = 14` the message is 2^14 words, the encoding 2^16, the Merkle
+/// tree 16 deep, the NTT table `2^16`, every domain's row count is its size
+/// shifted by 14, the lookup-table domain is lifted from 2^8 by a factor of
+/// SIXTY-FOUR, and the `pcs-vec` hash input is 266,295 bytes. Every one of
+/// those is 125M's own value and no other shape in the filter has any of
+/// them.
+#[test]
+fn the_row_geometry_is_125ms_and_every_derived_quantity_follows_it() {
+    use super::hash_domain;
+    use super::protocol::{endpoint_pcs_params, pcs_params_at};
+    let (w, m, c6) = (Shape::rung_w14(), Shape::m125(), Shape::rung_c6());
+    let lay = Layout::for_shape(&w).expect("the rung-W14 layout");
+    // ---- the PCS parameters, and the pads that move with them
+    let (pw, pm) = (pcs_params_at(&w), pcs_params_at(&m));
+    assert_eq!((pw.log_cols, pw.inv_rate, pw.num_col_checks), (14, 4, 256), "the rung-W14 PCS parameters");
+    assert_eq!((pw.log_cols, pw.inv_rate, pw.num_col_checks), (pm.log_cols, pm.inv_rate, pm.num_col_checks), "the PCS parameters are not 125M's");
+    assert_eq!(1usize << pw.log_cols, 16_384, "the message is not 2^14 words");
+    assert_eq!((1usize << pw.log_cols) * pw.inv_rate, 65_536, "the encoded row is not 2^16 words");
+    // the pad count and the opened-column count move together (`ZkOpts::standard`)
+    assert_eq!(w.opened_cols, pw.num_col_checks, "the pad count and the opened-column count parted company");
+    // ---- the Merkle depth and the NTT log
+    assert_eq!(hash_domain::tree_depth(&pw), 16, "the rung-W14 Merkle tree depth");
+    assert_eq!(hash_domain::tree_depth(&pw), hash_domain::tree_depth(&pm), "the Merkle depth is not 125M's");
+    assert_eq!(hash_domain::tree_depth(&pcs_params_at(&c6)), 12, "rung-C6's Merkle depth moved");
+    assert_eq!(super::protocol::ntt_log_at(&w), 16, "the rung-W14 NTT table log");
+    assert_eq!(super::protocol::ntt_log_at(&w), super::protocol::ntt_log_at(&m), "the NTT table log is not 125M's");
+    super::protocol::fits_the_ntt_tables(&w).expect("the rung-W14 evaluation domain is inside the module's ceiling");
+    // ---- `rows_of` for every domain is the size shifted by the row width
+    for dom in ALL_DOMS {
+        assert_eq!(w.rows_of(dom), (w.size(dom) >> w.log_cols).max(1), "{dom:?}: rows_of is not the size shifted by the row width");
+    }
+    assert_eq!(ALL_DOMS.map(|d| w.rows_of(d)), [1, 1, 1, 4, 4, 1, 4, 4, 1], "the per-domain row counts");
+    // ---- ruling S-1 at fourteen, and the P-3 lift distance
+    assert_eq!(w.log(Dom::Tab), w.log_cols, "S-1: Dom::Tab must sit exactly at the row width");
+    assert_eq!(w.natural_log(Dom::Tab), 8, "the table's natural log is the fixed clog2(U8_LEN)");
+    assert_eq!(w.size(Dom::Tab) / U8_LEN, 64, "the P-3 table lift factor");
+    assert_eq!(w.size(Dom::Tab) / U8_LEN, m.size(Dom::Tab) / U8_LEN, "the table lift factor is not 125M's");
+    assert_eq!(c6.size(Dom::Tab) / U8_LEN, 4, "rung-C6's table lift factor moved");
+    // Dom::L is the other lifted domain, and it is lifted further here than
+    // at 125M (2^10 -> 2^14 against 2^13 -> 2^14)
+    assert_eq!((w.natural_log(Dom::L), w.log(Dom::L)), (10, 14), "Dom::L's lift");
+    assert_eq!((m.natural_log(Dom::L), m.log(Dom::L)), (13, 14), "125M's Dom::L lift");
+    for dom in ALL_DOMS.into_iter().filter(|d| ![Dom::L, Dom::Tab].contains(d)) {
+        assert_eq!(w.log(dom), w.natural_log(dom), "{dom:?} is P-3 lifted at rung-W14, which only L and Tab are");
+    }
+    // ---- the OPENED-COLUMN byte length: `8 * rows`, and the rows are what a
+    // wide row makes small
+    assert_eq!((8 * lay.a_rows, 8 * lay.h_rows), (4_216, 3_488), "the rung-W14 opened-column digest lengths");
+    let mlay = Layout::for_shape(&m).expect("the 125M layout");
+    assert_eq!((8 * mlay.a_rows, 8 * mlay.h_rows), (45_448, 56_960), "125M's opened-column digest lengths");
+    assert_eq!((lay.a_rows, lay.h_rows), (527, 436), "the rung-W14 row totals are not the model's");
+    // ---- the tagged hash inputs of this profile
+    assert_eq!(hash_domain::single_block_seed_input_len(&w), 118, "the rung-W14 block prover's seed derivation");
+    assert_eq!(48 + "pcs-vec".len() + 16 * ((1usize << w.log_cols) + w.opened_cols), 266_295, "the pcs-vec absorb at this row width");
+    assert_eq!(
+        48 + "pcs-vec".len() + 16 * ((1usize << w.log_cols) + w.opened_cols),
+        48 + "pcs-vec".len() + 16 * ((1usize << m.log_cols) + m.opened_cols),
+        "the pcs-vec absorb is not 125M's"
+    );
+    hash_domain::imposed_at_shape(&w)
+        .refuse(&[("A", lay.a_rows), ("H", lay.h_rows), ("M", M_ROWS), ("endpoint", w.endpoint_rows)])
+        .expect("no rung-W14 commitment's column collides with a non-column hash input (C-H4)");
+    // ---- the ENDPOINT commitment's geometry: 125M's log and rate over a
+    // quarter of 125M's cube
+    let (ew, em) = (endpoint_pcs_params(&w), endpoint_pcs_params(&m));
+    assert_eq!((ew.log_cols, ew.inv_rate, ew.num_col_checks), (14, 4, 256), "the rung-W14 endpoint PCS parameters");
+    assert_eq!((ew.log_cols, ew.inv_rate, ew.num_col_checks), (em.log_cols, em.inv_rate, em.num_col_checks), "the endpoint parameters are not 125M's");
+    assert_eq!(hash_domain::tree_depth(&ew), 16, "the endpoint's Merkle depth");
+    assert_eq!((w.t_pad * w.d_pad, w.endpoint_rows), (65_536, 9), "the rung-W14 endpoint cube and row count");
+    assert_eq!((m.t_pad * m.d_pad, m.endpoint_rows), (524_288, 37), "125M's endpoint cube and row count");
+    assert_eq!(8 * w.endpoint_rows, 72, "the endpoint's opened-column digest length");
+    eprintln!(
+        "S32 ROW GEOMETRY: message 2^{} (encoded 2^{}, rate 1/{}), {} opened columns and {} pads, Merkle depth {}, NTT log {}, Dom::Tab lifted 2^8 -> 2^{} (x{}), rows_of {:?}, columns {} / {} B, endpoint log {} over {} rows (cube 2^16) — every one of them 125M's but the endpoint ROW COUNT (9 against 37)",
+        w.log_cols,
+        w.log_cols + 2,
+        w.inv_rate,
+        w.opened_cols,
+        w.opened_cols,
+        hash_domain::tree_depth(&pw),
+        super::protocol::ntt_log_at(&w),
+        w.log(Dom::Tab),
+        w.size(Dom::Tab) / U8_LEN,
+        ALL_DOMS.map(|d| w.rows_of(d)),
+        8 * lay.a_rows,
+        8 * lay.h_rows,
+        w.endpoint_log_n,
+        w.endpoint_rows
+    );
+}
+
+// ---------------------------------------------------------------- the negative controls
+
+/// **THE TAMPERS ONLY THIS ROW WIDTH REACHES.** Every earlier development
+/// shape has rows of 2^8 or 2^10 words, so no test in the filter has ever
+/// put a wrong value in a column index at or above 2^13 — the LAST COLUMN
+/// BLOCK of a 2^14-wide row, the half of every row that only this width and
+/// 125M have. Each case is placed so that the first slot whose relation it
+/// breaks is the one named, the message is asserted to name that slot (so a
+/// rejection by an earlier check cannot pass for one), and the column index
+/// is asserted to be in the last block. The honest control is asserted
+/// accepted first.
+#[test]
+fn a_tamper_in_the_last_column_block_of_a_row_is_rejected_at_its_own_slot_at_the_rung_w14() {
+    let sh = Shape::rung_w14();
+    let ids = Ids::new(&sh).expect("plane map");
+    let (public, ff, input) = super::dense_tests::dense_case(&sh);
+    let base = witness::build_shaped(&sh, &public, &ff, &input).expect("the rung-W14 dense honest witness");
+    let blk = BlockPublic::new(public, ff);
+    assert!(outcome(&sh, &blk, clone_witness(&base)).is_accepted(), "the honest rung-W14 witness is not accepted");
+    let cols = 1usize << sh.log_cols;
+    let sup_d = witness::Geom::new(&sh).support(Dom::D);
+    // the last supported `Dom::D` position whose column is in the upper half
+    // of its row — a residual-2 word no narrower shape can place
+    let deep_d = *sup_d.iter().rev().find(|i| *i % cols >= cols / 2).expect("a Dom::D support position in the last column block");
+    let cases: [(&str, usize, usize, usize); 5] = [
+        ("the gate A_G8 at the LAST index of the unpadded Dom::F (row 3, column 2^14 - 1)", ids.at(A_G8), sh.size(Dom::F) - 1, SC_FZC),
+        ("the key A_K8 at the LAST index of the unpadded Dom::Kv, which is one whole row", ids.at(A_K8), sh.size(Dom::Kv) - 1, SC_KVZC),
+        ("residual 2, A_X2, on the true Dom::D support in the LAST column block", ids.at(A_X2), deep_d, SC_DZC),
+        ("the query A_Q8 in the last column block of a Dom::Q row", ids.at(A_Q8), 3 * cols + cols - 7, SC_QZC),
+        ("the norm square A_DSQ at the last Dom::T position (a one-row domain)", ids.at(A_DSQ), sh.size(Dom::T) - 1, SC_TZC),
+    ];
+    let mut deep = 0usize;
+    for (what, plane, at, slot) in cases {
+        if at % cols >= cols / 2 {
+            deep += 1;
+        }
+        let mut w = clone_witness(&base);
+        w.planes[plane][at] += 1;
+        let o = outcome(&sh, &blk, w);
+        eprintln!("W14 TAMPER {what} (column {} of row {}): {}", at % cols, at / cols, o.short());
+        match o {
+            Outcome::Accepted => panic!("{what} was ACCEPTED at rung-W14"),
+            Outcome::ProverRefused(e) => panic!("{what} was refused by the PROVER, which is not a soundness statement: {e}"),
+            Outcome::VerifierRejected(e) => assert!(e.contains(&format!("slot {slot} [{}]", SLOT_NAMES[slot])), "{what} was rejected, but not by slot {slot} [{}]: {e}", SLOT_NAMES[slot]),
+        }
+    }
+    assert!(deep >= 4, "only {deep} of the five tampers are in the last column block, so the case this shape adds is barely exercised");
+    eprintln!("W14 TAMPER SWEEP: 5 of 5 rejected by the VERIFIER at the slot under test, {deep} of them at a column index >= 2^13 — a position no shape below this row width has");
+}
+
+/// **A MULTIPLICITY MOVED INTO A FAR LIFTED COPY OF ITS TABLE ROW.** The
+/// `Dom::Tab` pad term is finding F-4's family: one count of the byte
+/// histogram moves from a true table row to a PADDED copy of that same row,
+/// the table helper that position needs is written too, and every LogUp
+/// denominator and the total multiplicity are unchanged — so the value-0
+/// identity and all three `SC_TAB` product relations still hold and only the
+/// pad-zero term can object.
+///
+/// **What this shape adds.** At the rung the table is lifted from 256 to
+/// 1,024, so the only copies are at `row + 256`, `+ 512` and `+ 768`. Here
+/// the lift factor is **64** — 125M's own — so the same tamper can be placed
+/// at `row + 8,192`, which is a different ROW of the commitment and a column
+/// in the last block. Both are exercised, and the far one is the case no
+/// smaller shape can write.
+#[test]
+fn a_multiplicity_moved_into_a_far_lifted_table_row_is_rejected_at_the_rung_w14() {
+    let sh = Shape::rung_w14();
+    assert_eq!(sh.size(Dom::Tab), 1usize << 14, "the rung-W14 table domain is not the lifted 2^14");
+    assert_eq!(sh.size(Dom::Tab) / U8_LEN, 64, "the lift factor this test is about");
+    let (public, ff, input) = super::grow_tests::tame_case(&sh);
+    let blk = BlockPublic::new(public, ff);
+    for (to, what) in [(256usize, "the first padded copy"), (8_192, "a copy 8,192 rows away, in the last column block")] {
+        let w = witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the rung-W14 honest witness");
+        super::protocol::set_moved_multiplicity(Some((0, 0, to)));
+        let o = outcome(&sh, &blk, w);
+        super::protocol::set_moved_multiplicity(None);
+        eprintln!("W14 F-4: one count of the byte histogram moved from table row 0 to {what} (index {to}): {}", o.short());
+        assert!(!o.is_accepted(), "a multiplicity moved into a padded table row was ACCEPTED at rung-W14");
+        assert!(matches!(o, Outcome::VerifierRejected(_)), "the moved multiplicity was caught only by the prover: {}", o.short());
+    }
+    // and the hook, left clear, changes nothing
+    let w = witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the rung-W14 honest witness");
+    assert!(outcome(&sh, &blk, w).is_accepted(), "the F-4 hook left a trace behind it at rung-W14");
+}
+
+/// **A WRONG GROUP BIT AT A HEAD DIMENSION OF 64.** The key family of
+/// key-value groups 2 and 3 is exchanged: they share the HIGH group bit and
+/// differ in the low one, which is the substitution a construction that
+/// summed only the leading bit would be blind to. The values are untouched,
+/// so this is a statement about the group map alone — and it is made here at
+/// `head_dim = 64`, where each group block is 64 columns wide and the two
+/// bilinear slots' coordinate lists are six entries longer than at
+/// `head_dim = 8`.
+#[test]
+fn exchanging_the_keys_of_key_value_groups_two_and_three_is_rejected_at_the_rung_w14() {
+    let sh = Shape::rung_w14();
+    let ids = Ids::new(&sh).expect("plane map");
+    let (public, ff, input) = super::dense_tests::dense_case(&sh);
+    let base = witness::build_shaped(&sh, &public, &ff, &input).expect("the rung-W14 dense honest witness");
+    let blk = BlockPublic::new(public, ff);
+    let (dh, kvw) = (sh.head_dim, sh.kv_heads * sh.head_dim);
+    assert_eq!(dh, 64, "this case is about the 64-wide head");
+    let mut w = clone_witness(&base);
+    let mut moved = 0usize;
+    for p in [ids.at(A_K8), ids.at(A_RKL), ids.at(A_KR8), ids.at(A_RKRL)] {
+        for t in 0..sh.t_pad {
+            for i in 0..dh {
+                let (a, b) = (t * kvw + 2 * dh + i, t * kvw + 3 * dh + i);
+                if w.planes[p][a] != w.planes[p][b] {
+                    moved += 1;
+                }
+                w.planes[p].swap(a, b);
+            }
+        }
+    }
+    assert!(moved > 0, "key-value groups 2 and 3 carry identical keys: the swap is a no-op");
+    let o = outcome(&sh, &blk, w);
+    eprintln!("W14 GQA: the key family of groups 2 and 3 exchanged ({moved} positions differ): {}", o.short());
+    // MEASURED, and it is worth stating which slot: the four swapped planes
+    // all live on `Dom::Kv`, whose host is slot 16, and 16 comes BEFORE the
+    // two bilinear slots in nothing — it comes after them (8 and 9) in the
+    // slot order — yet it is slot 16 that reports. The reason is that the
+    // swap breaks the key-value zero-check's own relation (the rotation and
+    // limb identities of the swapped columns) as well as the score, and the
+    // verifier reports the first relation that fails in ITS order. The
+    // bilinear slots' own group bits are reached by the next test, which
+    // moves a SCORE word and leaves every `Dom::Kv` plane honest.
+    match o {
+        Outcome::VerifierRejected(e) => assert!(e.contains(&format!("slot {SC_KVZC} [{}]", SLOT_NAMES[SC_KVZC])), "the group swap was rejected, but not by the key-value zero-check: {e}"),
+        o => panic!("the rung-W14 key swap was not rejected by the VERIFIER: {}", o.short()),
+    }
+}
+
+/// **A WRONG SCORE IN THE FOURTH KEY-VALUE GROUP, AT A HEAD DIMENSION OF
+/// 64.** One word of the score plane `A_S8` moves, at a NON-FIRST true
+/// query head of the FOURTH key-value group — so neither the head index nor
+/// the group index is zero, and the relation under test is the bilinear
+/// score slot's, whose two private factors end in a shared
+/// `rho(lkv .. lkv + log2(head_dim))` segment that is SIX entries long here
+/// against three at `head_dim = 8`. Every `Dom::Kv` plane is left honest,
+/// so the key-value zero-check has nothing to object to.
+///
+/// **Where it is rejected, and why that is the right place.** The score
+/// matmul (slot 08) is a HOSTED slot: its claims ride the `Dom::S`
+/// zero-check, slot 17 `06 softmax zero-check (hosts 07, 10)`, which is
+/// where the verifier reports. MEASURED, and asserted as such — the
+/// bilinear slot's own group bits are what the broken relation is about,
+/// and the host is the slot that carries them.
+#[test]
+fn a_moved_score_word_in_the_fourth_group_is_rejected_at_its_host_slot_at_the_rung_w14() {
+    let sh = Shape::rung_w14();
+    let ids = Ids::new(&sh).expect("plane map");
+    let (public, ff, input) = super::dense_tests::dense_case(&sh);
+    let base = witness::build_shaped(&sh, &public, &ff, &input).expect("the rung-W14 dense honest witness");
+    let blk = BlockPublic::new(public, ff);
+    assert!(outcome(&sh, &blk, clone_witness(&base)).is_accepted(), "the honest rung-W14 witness is not accepted");
+    // query head 11 is the third head of key-value group 3; its padded head
+    // slot is 14, inside the fourth group's own block
+    let h = sh.q_heads - 1;
+    let slot = sh.head_slot(h);
+    assert_eq!(sh.kv_of_slot(slot), 3, "query head {h} must sit in key-value group 3");
+    assert!(slot % sh.slots_per_kv_group() > 0, "query head {h} must not be the first head of its group");
+    let tp = sh.t_pad;
+    let at = (slot * tp + 5) * tp + 2; // head slot, token 5, source token 2 (causally live)
+    let mut w = clone_witness(&base);
+    w.planes[ids.at(A_S8)][at] += 1;
+    let o = outcome(&sh, &blk, w);
+    eprintln!("W14 GROUP BIT: one score word at head slot {slot} (key-value group 3), token 5, source 2: {}", o.short());
+    match o {
+        Outcome::VerifierRejected(e) => {
+            assert!(e.contains(&format!("slot {SC_SZC} [{}]", SLOT_NAMES[SC_SZC])), "the moved score word was rejected, but not by the score slot's host: {e}");
+            assert!(SLOT_NAMES[SC_SZC].contains("hosts 07, 10"), "slot {SC_SZC} no longer hosts the score matmul, so this test is asserting the wrong slot");
+        }
+        o => panic!("the moved score word was not rejected by the VERIFIER: {}", o.short()),
+    }
+}
+
+/// **AN ENDPOINT WORD IN A COLUMN NO OLDER SHAPE HAS.** The endpoint
+/// commits the padded `Dom::D` cube at its own row width, and at this shape
+/// that width is `2^14` — 125M's, sixteen times the three 10-log rungs' and
+/// sixty-four times the toy's. The proof is honest; what moves is the
+/// VERIFIER's own statement, by one word of the input endpoint plane at a
+/// column in the last block. The endpoint equality must refuse it.
+#[test]
+fn a_verifier_statement_with_one_moved_endpoint_word_is_refused_at_the_rung_w14() {
+    let sh = Shape::rung_w14();
+    let ids = Ids::new(&sh).expect("plane map");
+    let (public, ff, input) = super::dense_tests::dense_case(&sh);
+    let w = witness::build_shaped(&sh, &public, &ff, &input).expect("the rung-W14 dense honest witness");
+    let (pin, pout) = (padded(&w, ids.at(A_X)), padded(&w, ids.at(A_X2)));
+    let blk = BlockPublic::new(public, ff);
+    let (expected, _receipt, bytes) = prove_w14(&sh, &blk, w).expect("the rung-W14 dense prover");
+    verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the honest control verifies");
+    let cols = 1usize << sh.endpoint_log_n;
+    let at = cols - 1; // the last column of the endpoint's first row
+    assert!(at >= 1 << 13, "the moved word is not in the last column block");
+    let mut moved = pin.clone();
+    moved[at] = moved[at].wrapping_add(1);
+    let spec = IoSpec::new_shaped(&sh, w14_context(), 0, 0).expect("the endpoint spec");
+    let (other, _owners) = prepare_endpoints(spec, &moved, &pout).expect("the moved endpoint owners");
+    let e = verify_bytes_at(&sh, &blk, &other, &bytes).expect_err("a receipt was accepted against a statement whose input endpoint differs by one word");
+    eprintln!("W14 ENDPOINT: the verifier's input endpoint moved by one word at column {at} of a 2^{}-wide endpoint row: {e}", sh.endpoint_log_n);
+    assert!(!e.is_empty(), "the refusal carries no message");
+}
+
+// ---------------------------------------------------------------- the chain band probe
+
+/// **THE FIRST ADMISSIBLE TWO-BLOCK DOWN BAND AT rung-W14 — MEASURED**,
+/// exactly as stage 21 measures it at rung-G, stage 22 at rung-K4, stage 30
+/// at rung-P2 and stage 31 at rung-C6.
+#[test]
+fn the_pinned_rung_w14_chain_band_is_the_first_admissible_one() {
+    use super::dense_tests::{band_down, band_down_run, dense_words_with, statement_of_words, BAND_ATTN, BAND_GATE, GAIN, INPUT_MAG};
+    let sh = Shape::rung_w14();
+    let ids = Ids::new(&sh).expect("plane map");
+    let mut found: Option<i64> = None;
+    for down in (1..=band_down(&sh)).rev() {
+        let (words, input) = dense_words_with(&sh, BAND_ATTN, BAND_GATE, down, GAIN, INPUT_MAG);
+        let (public, ff) = statement_of_words(&sh, &words);
+        let mut x = input;
+        let mut ok = true;
+        for _ in 0..W14_RUN_BLOCKS {
+            match witness::build_shaped(&sh, &public, &ff, &x) {
+                Ok(w) => x = true_input(&sh, &padded(&w, ids.at(A_X2))),
+                Err(m) => {
+                    eprintln!("W14 DENSE RUN band {down}: the witness builder refused a block of the chain: {m}");
+                    ok = false;
+                    break;
+                }
+            }
+        }
+        if ok {
+            found = Some(down);
+            break;
+        }
+    }
+    let band = found.expect("no fully dense band makes a chain admissible at rung-W14");
+    eprintln!("W14 DENSE RUN: the first admissible {W14_RUN_BLOCKS}-block down band is {band} (the recipe's single-block band is {})", band_down(&sh));
+    assert_eq!(band, band_down_run(&sh), "the band `dense_tests::band_down_run` pins for rung-W14 is not the first admissible one");
+}
+
+// ---------------------------------------------------------------- a two-block run
+
+/// how many blocks this stage's run proves. Two is the least that has an
+/// INTERNAL BOUNDARY, which is the part a run adds over a block, and at
+/// about four seconds a block it is what the ordinary filter can carry at
+/// this shape.
+pub(super) const W14_RUN_BLOCKS: usize = 2;
+
+/// The honest chain of `l` rung-W14 blocks: each block's hidden output is
+/// the next one's hidden input, and none of it is published.
+pub(super) struct W14Chain {
+    sh: Shape,
+    public: AttentionPublic,
+    ff: FeedForwardPublic,
+    inputs: Vec<Vec<i16>>,
+    planes: Vec<Vec<i16>>,
+}
+
+impl W14Chain {
+    pub(super) fn build(sh: &Shape, l: usize, public: AttentionPublic, ff: FeedForwardPublic, x0: Vec<i16>) -> W14Chain {
+        let ids = Ids::new(sh).expect("the rung-W14 plane map");
+        let (mut inputs, mut planes) = (Vec::with_capacity(l), Vec::with_capacity(l + 1));
+        let mut x = x0;
+        for k in 0..l {
+            let w = witness::build_shaped(sh, &public, &ff, &x).expect("an honest witness of the rung-W14 chain");
+            if k == 0 {
+                planes.push(padded(&w, ids.at(A_X)));
+            }
+            planes.push(padded(&w, ids.at(A_X2)));
+            inputs.push(x);
+            x = true_input(sh, &w.output().expect("the block's hidden output"));
+        }
+        W14Chain { sh: sh.clone(), public, ff, inputs, planes }
+    }
+}
+
+impl RunWitnessSource for W14Chain {
+    fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        witness::build_shaped(&self.sh, &self.public, &self.ff, &self.inputs[k])
+    }
+    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+        Ok(self.planes[k + 1].clone())
+    }
+}
+
+/// the run statement and the two EXTERNAL endpoint owners of a rung-W14 chain
+pub(super) fn w14_statement_of(c: &W14Chain, l: usize, blocks: &[BlockPublic]) -> (RunStatement, Endpoints) {
+    let rs = RunShape::rung_w14(l).expect("the rung-W14 run shape");
+    let spec = IoSpec::new_shaped(&c.sh, w14_context(), 0, 0).expect("the run's endpoint spec");
+    let (expected, owners) = prepare_endpoints(spec, &c.planes[0], &c.planes[l]).expect("the run's external endpoint owners");
+    let st = RunStatement::new(rs, w14_context(), expected, blocks, &vec![(0, 0); l]).expect("the rung-W14 run statement");
+    (st, owners)
+}
+
+/// the fully dense rung-W14 chain of `l` blocks and its `l` public statements
+pub(super) fn w14_dense_chain(l: usize) -> (W14Chain, Vec<BlockPublic>) {
+    let sh = Shape::rung_w14();
+    let (public, ff, x0) = super::dense_tests::dense_run_case(&sh);
+    let blocks = (0..l).map(|_| BlockPublic::new(public.clone(), ff.clone())).collect();
+    (W14Chain::build(&sh, l, public, ff, x0), blocks)
+}
+
+/// **AN HONEST TWO-BLOCK FULLY DENSE rung-W14 RUN VERIFIES FROM ITS
+/// SEGMENTS.** Two blocks under one transcript, each block's hidden output
+/// the next one's hidden input and neither published, at the 125M row width
+/// — so the run layer's internal boundary is exercised at a 2^14-wide
+/// endpoint geometry, which only an `#[ignore]`d 125M run reached before.
+/// The segment lengths are the counted ones, byte for byte, and every
+/// block's census is asserted.
+#[test]
+fn an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_w14() {
+    let sh = Shape::rung_w14();
+    let ids = Ids::new(&sh).expect("plane map");
+    let l = W14_RUN_BLOCKS;
+    let (mut c, blocks) = w14_dense_chain(l);
+    for k in 0..l {
+        let w = witness::build_shaped(&sh, &c.public, &c.ff, &c.inputs[k]).expect("a fully dense witness of the chain");
+        assert_non_trivial(&sh, &ids, &w, &format!("run block {k}"));
+    }
+    let (st, owners) = w14_statement_of(&c, l, &blocks);
+    let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
+    // MEASURED: ten, one more than an external endpoint's nine. The boundary
+    // commits the same padded `Dom::D` cube at the same endpoint row width —
+    // four data rows — but carries `BOUNDARY_SITES = 2` reserved IO tab rows
+    // where an external endpoint carries one, which is the same +1 the
+    // rung-G boundary has over its own nine-row endpoint.
+    assert_eq!(rows, 10, "the internal boundary's commitment row count");
+    assert_eq!(rows, sh.endpoint_rows + 1, "the boundary is not one row more than an external endpoint at this shape");
+    let mut segs: Vec<Vec<u8>> = Vec::new();
+    let t0 = std::time::Instant::now();
+    let stats = run::prove_run(&st, &blocks, &mut c, owners, &mut |k, b| {
+        assert_eq!(k, segs.len(), "the sink was handed the segments out of order");
+        segs.push(b);
+        Ok(())
+    })
+    .expect("the honest two-block fully dense rung-W14 run proves");
+    let prove_s = t0.elapsed().as_secs_f64();
+    assert_eq!(stats.segment_bytes, super::run_tests::counted_segment_bytes(&sh, l, rows), "a rung-W14 segment is not the counted length");
+    let t1 = std::time::Instant::now();
+    run::verify_run(&st, &blocks, &segs).expect("the honest two-block fully dense rung-W14 run verifies from its segments");
+    eprintln!(
+        "W14 FULLY DENSE RUN L={l} (down band {}): prove {prove_s:.2} s, verify from segments {:.2} s, segments {:?} B (total {} B), boundary {rows} rows",
+        super::dense_tests::band_down_run(&sh),
+        t1.elapsed().as_secs_f64(),
+        stats.segment_bytes,
+        stats.segment_bytes.iter().sum::<usize>()
+    );
 }

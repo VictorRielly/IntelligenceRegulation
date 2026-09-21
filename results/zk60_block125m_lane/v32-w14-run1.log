@@ -1,0 +1,199 @@
+Running scope as unit: run-rc22ed426b6be44e6819371d74c2b0f6c.scope
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:680:13
+    |
+680 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 14 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 1m 10s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 12 tests
+test private_block::parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_w14 ... private block DENSE reference agreement at development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads): every kernel-backed plane agrees element for element, and the block output agrees on all 49152 words
+ok
+test private_block::w14_tests::a_multiplicity_moved_into_a_far_lifted_table_row_is_rejected_at_the_rung_w14 ... W14 F-4: one count of the byte histogram moved from table row 0 to the first padded copy (index 256): verifier rejected: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W14 F-4: one count of the byte histogram moved from table row 0 to a copy 8,192 rows away, in the last column block (index 8192): verifier rejected: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::w14_tests::a_tamper_in_the_last_column_block_of_a_row_is_rejected_at_its_own_slot_at_the_rung_w14 ... W14 TAMPER the gate A_G8 at the LAST index of the unpadded Dom::F (row 3, column 2^14 - 1) (column 16383 of row 3): verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+W14 TAMPER the key A_K8 at the LAST index of the unpadded Dom::Kv, which is one whole row (column 16383 of row 0): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+W14 TAMPER residual 2, A_X2, on the true Dom::D support in the LAST column block (column 16127 of row 3): verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+W14 TAMPER the query A_Q8 in the last column block of a Dom::Q row (column 16377 of row 3): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+W14 TAMPER the norm square A_DSQ at the last Dom::T position (a one-row domain) (column 63 of row 0): verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+W14 TAMPER SWEEP: 5 of 5 rejected by the VERIFIER at the slot under test, 4 of them at a column index >= 2^13 — a position no shape below this row width has
+ok
+test private_block::w14_tests::a_verifier_statement_with_one_moved_endpoint_word_is_refused_at_the_rung_w14 ... W14 ENDPOINT: the verifier's input endpoint moved by one word at column 16383 of a 2^14-wide endpoint row: private block wire: expected statement mismatch
+ok
+test private_block::w14_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14 ... S32 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the rotation live on the 64-wide head
+rung-W14 DENSE one block: prove 4.09 s, verify from bytes 0.50 s, frame 16421048 B
+ok
+test private_block::w14_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_w14 ... S32 CENSUS [run block 0]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the rotation live on the 64-wide head
+S32 CENSUS [run block 1]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the rotation live on the 64-wide head
+
+thread 'private_block::w14_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_w14' (660627) panicked at src/private_block/w14_tests.rs:707:5:
+assertion `left == right` failed: the internal boundary commits the same padded cube as an external endpoint
+  left: 10
+ right: 9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test private_block::w14_tests::exchanging_the_keys_of_key_value_groups_two_and_three_is_rejected_at_the_rung_w14 ... W14 GQA: the key family of groups 2 and 3 exchanged (15794 positions differ): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::w14_tests::only_the_125m_shape_and_the_new_one_reach_the_125m_row_width ... S32 GAP CENSUS (log_cols / head_dim / endpoint_log_n / endpoint rows / encoded row):
+    toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)  8 /  8 /  8 /  7 / 2^11
+    development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) 10 / 16 /  8 / 21 / 2^12
+    development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) 10 / 16 / 10 /  9 / 2^12
+    development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) 10 /  8 / 10 /  9 / 2^12
+    development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) 10 /  8 / 10 /  9 / 2^12
+    development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) 10 / 32 / 10 / 21 / 2^12
+    development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) 14 / 64 / 14 /  9 / 2^16
+    125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) 14 / 64 / 14 / 37 / 2^16
+S32 GAP: the row width 2^14, the head dimension 64 and the endpoint log 14 are reached by 125M and rung-W14 and by nothing else; without rung-W14 each is 125M's alone
+ok
+test private_block::w14_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_w14 ... rung-W14 ALL-ZERO (degenerate) one block: frame 16421048 B, verified
+ok
+test private_block::w14_tests::the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count ... S32 rung-W14: T64/d768/f1024, 12 heads of 64 over 4 KV heads, pads (64, 1024, 16, 1024), lkv 2, log_cols 14 (encoded 2^16), endpoint log 14 over 9 rows, largest L 87, receipt 16421048 B
+ok
+test private_block::w14_tests::the_pinned_rung_w14_chain_band_is_the_first_admissible_one ... W14 DENSE RUN: the first admissible 2-block down band is 20 (the recipe's single-block band is 20)
+ok
+test private_block::w14_tests::the_row_geometry_is_125ms_and_every_derived_quantity_follows_it ... S32 ROW GEOMETRY: message 2^14 (encoded 2^16, rate 1/4), 256 opened columns and 256 pads, Merkle depth 16, NTT log 16, Dom::Tab lifted 2^8 -> 2^14 (x64), rows_of [1, 1, 1, 4, 4, 1, 4, 4, 1], columns 4216 / 3488 B, endpoint log 14 over 9 rows (cube 2^16) — every one of them 125M's but the endpoint ROW COUNT (9 against 37)
+ok
+
+failures:
+
+failures:
+    private_block::w14_tests::an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_w14
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 444 filtered out; finished in 60.34s
+
+error: test failed, to rerun pass `--lib`
+Command exited with non-zero status 101
+	Command being timed: "env CARGO_TARGET_DIR=/home/victor/wt-zk60-attention-compile/hashline/target CARGO_PROFILE_RELEASE_LTO=false CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8 /home/victor/.cargo/bin/cargo test --release --offline -j 2 --manifest-path /home/victor/wt-zk60-block125m/hashline/Cargo.toml --lib w14 -- --test-threads=1 --nocapture"
+	User time (seconds): 345.77
+	System time (seconds): 137.33
+	Percent of CPU this job got: 369%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:10.89
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1355660
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 3
+	Minor (reclaiming a frame) page faults: 3064054
+	Voluntary context switches: 6008112
+	Involuntary context switches: 943181
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 87800
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 101
