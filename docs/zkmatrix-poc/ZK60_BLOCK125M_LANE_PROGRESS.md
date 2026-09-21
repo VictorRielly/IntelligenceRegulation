@@ -8988,10 +8988,75 @@ test. The histogram has no separate gate and needs none: a wrong count breaks
 the value-0 LogUp identity and every honest proof at five shapes would be
 rejected by its own verifier.
 
-### Task 3 — the 125M re-measurement
+### Task 3 — the 125M re-measurement [MEASURED, one run each, shared box]
 
-TO BE FILLED (the run is queued on the heavy lock behind another lane's
-Python job).
+`q28-baseline-dense.log` (tip `79f0726`) against `q28-m125-final-dense.log`
+(tip `a9f2211`), the same command, the same env
+(`HL_PB_TIMING=1 HL_PB_WEIGHTS=dense`, `MALLOC_MMAP_THRESHOLD_=131072`),
+detached under the heavy lock in a 12 GiB scope, nothing else heavy on the
+box. Both exit 0 and the test's own assertions — the counted frame length and
+the short-frame refusal — pass in both.
+
+| figure | baseline | **after** | change |
+|---|---|---|---|
+| **prove, s** | 27.71 | **17.40** | **-10.31 s, -37.2%** |
+| verify from bytes, s | 1.28 | 1.15 | -0.13 (the verifier is untouched; this is run-to-run) |
+| **receipt, B** | 40,783,352 | **40,783,352** | **0** |
+| **peak RSS (VmHWM), MiB** | 10,232 (9.99 GiB) | **10,156 (9.92 GiB)** | **-76 MiB, -0.7%** (the ceiling was "not more than +2%") |
+| witness build, s | 5.04 | 5.24 | outside the prover |
+| SUM OF PHASES / wall | 27.710 / 27.713 | 17.398 / 17.401 | the table still accounts for the clock |
+
+Phase by phase, every phase that moved by more than 0.05 s:
+
+| phase | half | baseline | after | whose code |
+|---|---|---|---|---|
+| slot 17 `SC_SZC` | attention | 7.204 | **3.559** | lane (tables 3.419 -> 0.251) + shared sumcheck (3.118 -> 3.054) |
+| `H: LogUp helper inverses` | commit | 4.061 | **1.079** | **lane** |
+| slot 14 `SC_DZC` | residual | 3.007 | **1.965** | lane (tables 0.859 -> 0.051) + shared |
+| slot 18 `SC_FZC` | feed-forward | 1.635 | **0.795** | lane (tables 0.620 -> 0.044) + shared |
+| slot 15 `SC_QZC` | attention | 0.976 | **0.668** | lane (tables 0.302 -> 0.025) + shared |
+| slot 04 `SC_RS` | attention | 0.916 | **0.372** | **lane** (tables 0.364 -> 0.048, claimed sum 0.116 -> 0.016) |
+| `A: lookup values + the byte histogram` | commit | 0.571 | **0.096** | **lane** |
+| slot 16 `SC_KVZC` | attention | 0.398 | 0.349 | lane + shared |
+| slots 21 + 22 (endpoints) | endpoints | 0.243 | 0.157 | lane |
+| slots 00 + 01 (norm row sums) | norm | 0.198 | 0.132 | lane |
+| `A: commit` | commit | 3.076 | 3.069 | **shared** (`pcs.rs`) |
+| `H: commit` | commit | 3.499 | 3.431 | **shared** (`pcs.rs`) |
+
+and the sub-steps, summed over the twenty-three slots:
+
+| step | baseline | after |
+|---|---|---|
+| tables: build (**lane**) | 6.011 | **0.588** |
+| claimed sum `total` (**lane**) | 0.140 | **0.020** |
+| masked sumcheck (**shared**) | 6.907 | 6.594 |
+| extension rounds (`mask_eval` + shared) | 0.747 | 0.757 |
+
+The shared sumcheck and the two shared commitments did not move, which is the
+control this stage wanted: the 10.31 s came out of the lane's own code and
+nothing else drifted.
+
+**WHERE THE REMAINING 17.40 s SITS — the integrator's and the GPU's part.**
+
+| phase | s | % of prove | file |
+|---|---|---|---|
+| masked sumcheck bodies (all 23 slots) | 6.594 | 37.9% | **shared**: `zk::masked_prove` -> `zkp-core/src/sumcheck.rs` |
+| `H: commit` | 3.431 | 19.7% | **shared**: `pcs::commit_zk_owned_tagged` |
+| `A: commit` | 3.069 | 17.6% | **shared**: the same |
+| the four openings + `M` | 0.667 | 3.8% | **shared** `pcs::open_zk` / `zk::mask_open` (the schedule audit around them is the lane's) |
+| extension rounds | 0.757 | 4.4% | mixed: `mask_eval` (lane) inside `zk::extension` (shared) |
+| everything else | 2.88 | 16.6% | the lane: the `A` and `H` builds (0.86), the helper inverses (1.27), the slot tables (0.59), the claimed sums (0.02), the rest under 0.1 each |
+
+**So about 79% of a 125M prove is now in files this lane may not edit**
+(6.594 + 3.431 + 3.069 + 0.667 = 13.76 s of 17.40 s), and up to 83% counting
+the shared half of the extension rounds. The two PCS commitments alone are
+37.3%: that is the GPU's target and the one a two-prover split would have to
+pay twice. Requests R1 and R2 below say what to try there, with these
+numbers as the attribution.
+
+**What this is not.** One run of one shape on a shared 8-thread laptop, dense
+public weights, development grade. Not a forecast for another shape, another
+box or another witness, and not a privacy statement about anything.
 
 ### What was tried and dropped, each with why
 
