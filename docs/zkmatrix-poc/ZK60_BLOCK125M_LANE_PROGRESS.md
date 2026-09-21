@@ -10650,3 +10650,28 @@ that add eighty-three seconds to the ordinary filter**.
   verifier statement whose input endpoint differs by one word at **column
   16,383**, a column no older endpoint geometry has. The 32-data-row
   endpoint is item 4a/4b of the heavy-only list.
+
+## Stage 33 — the three closures the security owner ruled after reading stage 32 (2026-09-21, 14:2x–)
+
+**Status: OPEN.** Opened 2026-09-21 14:25 PDT on the lane tip `f8b926f`
+(pushed). Three small, independent closures, each of them a thing stage 32
+either DECLARED without checking or left as a dead branch:
+
+| task | ruling | what | state |
+|---|---|---|---|
+| 1 | **J-7a** | stage 32's declared 60-byte coincidence rests on a premise stated only in a comment ("a profile string is ASCII and has no NUL"). It becomes a CHECK over the whole registry, and the separation becomes a general lemma-as-test: at every registered profile length, the `Transcript::new` input can equal NO absorb input of the same length | OPEN |
+| 2 | **S-6** | `Shape::a_groups`'s first arm (`natural_log(Dom::T) >= log_cols`) is reached by no registered shape. That family becomes a NAMED shape refusal, the arm is documented, and the Python model mirrors the refusal | OPEN |
+| 3 | stage 32's item **4b** | the 125M endpoint's 32 data / 37 commitment ROW COUNT at a 10-log endpoint, as one more small profile by the stage-30/31 method — IF one honest proof measures under ~5 s and ~1.5 GB | OPEN |
+
+**The rules this stage works under** are the lane's and stages 30–32's: one
+writer, the build recipe in this file's header, **no 125M run**, no
+registered profile moved (toy, the frozen-seam rung, rung-G, rung-K4,
+rung-P2, rung-C6, rung-W14, 125M — named and kept green), the toy
+byte-frozen, **no witness VALUE in any log**, a gap reproduced as a FAILING
+TEST before it is closed, and no "proves and verifies" without a GENERIC
+honest witness (dense weights, a non-constant hidden input, heads and
+key-value groups that differ) checked against the independent
+`private-block-kernel-shaped` reference. The ordinary filter may not grow by
+more than about a minute.
+
+**Evidence prefix**: `results/zk60_block125m_lane/w33-*`.
