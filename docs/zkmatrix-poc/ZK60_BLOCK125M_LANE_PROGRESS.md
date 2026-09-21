@@ -7412,10 +7412,10 @@ at all.) `zkp-core/src/hashtag.rs` in particular is untouched: ruling H-3's
 correction of its doc comment is the INTEGRATOR's, in the integrator's crate,
 and is deliberately not made here.
 
-The whole diff against `8c5922b` is 15 files: this ledger,
+The whole diff against `8c5922b` is **17 files**: this ledger,
 `ZK60_RUN_CAPTURE_FORMAT.md`, `hashline/src/private_block{.rs,/run.rs,
-/run_capture.rs,/shape.rs,/s24_tests.rs}` and eight files under
-`results/zk60_block125m_lane/`.
+/run_capture.rs,/shape.rs,/s24_tests.rs}` and ten files under
+`results/zk60_block125m_lane/` (five logs and their `.done` markers).
 
 ### WHAT STAGE 24 DOES NOT ESTABLISH
 
