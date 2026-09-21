@@ -22,7 +22,7 @@
 
 use super::argument::{define, Coord, Ctx, Points, Priv, SlotDef, Tab};
 use super::layout::*;
-use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_M125, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4};
+use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_M125, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2};
 use super::run_sink::{DirSink, SegmentSink};
 use super::shape::Shape;
 use super::witness::{self, Witness};
@@ -34,7 +34,7 @@ use zkp_core::hashtag::HashTag;
 /// the five shapes this module builds, and the only ones anything is ever
 /// proved, captured or counted at
 fn every_shape() -> Vec<Shape> {
-    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()]
+    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::m125()]
 }
 
 /// `clog2`, as `Shape::natural_log` uses it
@@ -162,7 +162,7 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     in_source.dedup();
     // (2) THE REGISTRY, as the constructors give it.
     let shapes = every_shape();
-    let runs = [RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_M125];
+    let runs = [RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_M125];
     let mut covered: Vec<String> = shapes.iter().map(|s| s.profile.to_string()).collect();
     covered.extend(runs.iter().map(|r| r.to_string()));
     covered.sort();
@@ -204,7 +204,12 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     }
 
     // (4) THE RUN PROFILES USE THEIR BLOCK SHAPE'S KEYS.
-    for (rp, sh) in [(RUN_PROFILE_RUNG_G, Shape::rung_g()), (RUN_PROFILE_RUNG_K4, Shape::rung_k4()), (RUN_PROFILE_M125, Shape::m125())] {
+    for (rp, sh) in [
+        (RUN_PROFILE_RUNG_G, Shape::rung_g()),
+        (RUN_PROFILE_RUNG_K4, Shape::rung_k4()),
+        (RUN_PROFILE_RUNG_P2, Shape::rung_p2()),
+        (RUN_PROFILE_M125, Shape::m125()),
+    ] {
         let live = super::protocol::tagged_transcript(&sh, rp.as_bytes()).state();
         let block_key = *sh.hash_tag().transcript_key().expect("a tagged block profile carries a transcript key");
         assert_eq!(live, Transcript::new_tagged(rp.as_bytes(), block_key).state(), "{rp}: the run's transcript is not keyed by its BLOCK shape's key");
@@ -220,7 +225,11 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
             all.push((rp.to_string(), role, *k.expect("derivable")));
         }
     }
-    assert_eq!(all.len(), 24);
+    // four roles per tagged block profile, plus four per run profile's
+    // would-be set — derived from the registry, never a literal that a new
+    // profile could leave stale (stage 30 added a sixth shape and a fourth
+    // run profile and this line did not move)
+    assert_eq!(all.len(), 4 * (shapes.len() - legacy) + 4 * runs.len());
     for i in 0..all.len() {
         for j in i + 1..all.len() {
             assert_ne!(all[i].2, all[j].2, "the {} key of {} collides with the {} key of {}", all[i].1, all[i].0, all[j].1, all[j].0);

@@ -521,6 +521,69 @@ impl Shape {
         .expect("the rung-K4 shape is well formed")
     }
 
+    /// **THE BOTH-BRANCHES-OF-THE-PAD-RULE DEVELOPMENT SHAPE (stage 30,
+    /// "rung-P2").**
+    ///
+    /// **Why it exists.** Ruling P-1's pad-zero term is per HOST SLOT and is
+    /// drawn only when that slot's domain actually pads: `argument.rs` draws
+    /// one extra `mu` (`n_pad`) and a `zeta` **iff `pad_on`**, and
+    /// [`super::argument`]'s `B::supp` returns `None` — no public support
+    /// table and no gate — when `!self.pads(dom)`. At `rung`, `rung_g` and
+    /// `rung_k4` **all nine domains pad**, so those shapes exercise the
+    /// `pad_on == true` arm only; the one shape that takes the FALSE arm
+    /// while still carrying the rule is 125M, whose proofs are `#[ignore]`d
+    /// heavy tests. This shape takes both arms at a size the ordinary test
+    /// filter runs in seconds.
+    ///
+    /// **The geometry, and why each number is forced.** It is
+    /// [`Shape::rung_k4`]'s PADDED layout exactly — `t_pad = 32`,
+    /// `d_pad = 128`, `h_pad = 16`, `f_pad = 256`, the same nine domain logs,
+    /// the same helper counts, the same generalised endpoint of 9 rows — with
+    /// two true sizes moved onto their pads:
+    ///
+    /// * `tokens = 32` instead of 24, so `Dom::T = t_pad = 2^5` **does not
+    ///   pad**, and with it `Dom::Kv = tokens * kv_heads * head_dim = 2^10`
+    ///   (which also sits exactly at the row width, the toy's case and not a
+    ///   P-3 lift);
+    /// * `hidden = 256` instead of 192, so `Dom::F = tokens * hidden = 2^13`
+    ///   **does not pad** either;
+    /// * the head axis is rung-K4's — 12 query heads of 8 over 4 key-value
+    ///   heads, `lkv = 2`, padded head slots `{3, 7, 11, 15}` — so
+    ///   `Dom::Ht`, `Dom::D`, `Dom::Q` and `Dom::S` all still pad (12 true
+    ///   heads in 16 slots, width 96 in 128), `Dom::L` still pads (9 limb
+    ///   sub-planes of 16, then the P-3 lift) and `Dom::Tab` still pads
+    ///   through the lift.
+    ///
+    /// **That is 125M's OWN padded-domain set**, `{Ht, L, D, Q, S, Tab}`
+    /// padded and `{T, Kv, F}` unpadded, which is the whole point: the three
+    /// host slots that take the false arm here — `SC_TZC` (02), `SC_KVZC`
+    /// (16) and `SC_FZC` (18) — are exactly the three the independent Python
+    /// gate names at 125M.
+    ///
+    /// Development grade, never a deliverable (ruling P-7), its OWN profile
+    /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+    pub(crate) fn rung_p2() -> Shape {
+        Shape::new(
+            "development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)",
+            "hashline-zk-mr1/private-block-rung-p2-t32-dev/1",
+            32,
+            96,
+            256,
+            12,
+            8,
+            4,
+            10,
+            4,
+            12,
+            9,
+            None,
+            None,
+            None,
+            None,
+        )
+        .expect("the rung-P2 shape is well formed")
+    }
+
     /// THE 125M-CLASS BLOCK (memo §2). A counted layout only, at this step.
     ///
     /// **S11b: 37 endpoint rows, not the 29 of memo §6.** The memo costed the

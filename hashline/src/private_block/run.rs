@@ -55,6 +55,9 @@ pub(crate) const RUN_PROFILE_RUNG_G: &str = "hashline-zk-mr1/private-run-rung-g-
 /// its own transcript and its own hash-tag key set and no existing run
 /// profile moves.
 pub(crate) const RUN_PROFILE_RUNG_K4: &str = "hashline-zk-mr1/private-run-rung-k4-t24-dev/1";
+/// **STAGE 30.** The run profile of the both-pad-branches development shape
+/// (`Shape::rung_p2`), by the same rule: one profile per shape (D17).
+pub(crate) const RUN_PROFILE_RUNG_P2: &str = "hashline-zk-mr1/private-run-rung-p2-t32-dev/1";
 pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
 
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
@@ -80,6 +83,10 @@ impl RunShape {
     /// **STAGE 22.** A run at the four-key-value-head development shape.
     pub(crate) fn rung_k4(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::rung_k4(), l, RUN_PROFILE_RUNG_K4)
+    }
+    /// **STAGE 30.** A run at the both-pad-branches development shape.
+    pub(crate) fn rung_p2(l: usize) -> Result<RunShape, String> {
+        RunShape::new(Shape::rung_p2(), l, RUN_PROFILE_RUNG_P2)
     }
     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::m125(), l, RUN_PROFILE_M125)
