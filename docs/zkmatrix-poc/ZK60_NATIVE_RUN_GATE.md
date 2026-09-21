@@ -2457,6 +2457,25 @@ are disjoint in the honest layout — it is not evidence about the prover.
 
 ## 12.9 Timings, the refresh and the suite
 
+**The masking arm is cheap.** Stage 12 is **5.7–6.2 s per stage** and
+**17.8–18.3 s per bundle** for the three stages, plus the six controls; the
+joint stage 13 is bookkeeping over the two stage records and costs nothing
+measurable. The whole gate with BOTH arms on is **3:32–3:52 per bundle**
+against round 7's 170–193 s with one arm, so the masking layer adds roughly
+**20 %** to a run that was already dominated by the `A` and `H` solves. The
+gate PROCESS peaks at **780–850 MB** (round 7: 677–713 MB) — again four
+bundles held at once under `--other`, `--old` and `--cross-profile` — so the
+masking arm adds about **100–140 MB**. Measured with `/usr/bin/time -v`;
+`…/mask/time-<bundle>.log`.
+
+**The arm is off by default**, so the gate stays what it was and no earlier
+figure changed cost. The ten records of record were nevertheless re-run,
+because the tool hashes moved and the record gained two stage blocks and
+three channel entries, and diffed **leaf by leaf** against the committed
+bytes: **0 unclassified leaves on all ten**, with every difference in one
+of six classes — the channel array, the channel counts, the two new stage
+blocks, the tool hashes and the wall clock.
+
 ## 12.10 What this round is NOT
 
 * **It is not a privacy result and not a step toward one on its own.** It
