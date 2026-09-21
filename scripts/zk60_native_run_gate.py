@@ -37,6 +37,13 @@ Report: `docs/zkmatrix-poc/ZK60_NATIVE_RUN_GATE.md`.
                           bundle carries, with five controls.  A bundle
                           written before stage 15 has no table: the stage
                           says so and the channel stays OPEN
+ 11 THE FULL PREIMAGE     **round 7, opt-in (`--full-preimage`)**: the same
+                          construction at MSG != PAD, so `A` and `H` are in
+                          it, and both halves plus every opened column plus
+                          the salted leaves of the opened columns.  Off by
+                          default because it is minutes, not seconds; when
+                          it is off the stage says so and three channels
+                          stay OPEN with round 1's reason
   9 RECORD                the machine-readable result under --evidence
 
 NO STAGE ESTABLISHES A PRIVACY PROPERTY, AND THIS IS NOT A PRIVACY
@@ -71,6 +78,8 @@ from zk60_native_rg_joint import (  # noqa: E402
 )
 from zk60_native_rg_pcs import RunRoleView  # noqa: E402
 from zk60_native_rg_planes import NO_TABLE, plane_index_of  # noqa: E402
+from zk60_native_rg_ahcontrols import ah_controls  # noqa: E402
+from zk60_native_rg_ahpreimage import full_preimages  # noqa: E402
 from zk60_native_rg_preimage import preimages  # noqa: E402
 from zk60_native_rg_replay import RunReplay  # noqa: E402
 from zk60_native_rg_runpins import (  # noqa: E402
@@ -98,6 +107,8 @@ TOOLS = [
     "zk60_native_rg_pcs.py",
     "zk60_native_rg_joint.py",
     "zk60_native_rg_preimage.py",
+    "zk60_native_rg_ahpreimage.py",
+    "zk60_native_rg_ahcontrols.py",
     "zk60_native_rg_controls.py",
     "zk60_native_rg_planes.py",
     "zk60_native_rg_terminals.py",
@@ -110,6 +121,8 @@ TOOLS = [
     "zk60_native_jv_field.py",
     "zk60_native_jv_pcs.py",
     "zk60_native_jv_joint.py",
+    # the toy gate's own solve, imported by round 7's arm and never edited
+    "zk60_native_pg_pcs.py",
 ]
 
 EXPECTED_DISCLOSED = {
@@ -361,6 +374,47 @@ def stage8(bundle, replay, old=None, do_controls=True):
     }, index
 
 
+# -------------------------------------------------------------- stage 11
+FULL_PREIMAGE_OFF = {
+    "requested": False,
+    "what": "the FULL zero-data preimage -- A and H included, both halves, "
+    "every opened column and the salted leaves of the opened columns",
+    "why_off": "it is minutes of exact Fp arithmetic per bundle, not seconds, "
+    "so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool "
+    "and every figure of rounds 1-6 is taken at the same cost as before",
+    "consequence": "the three channels round 1 left OPEN for A and H -- their "
+    "vectors, the pad half and the opened column values -- stay OPEN with "
+    "round 1's reason, and stage 5's message-half construction for the "
+    "singleton-group commitments is unaffected",
+    "ok": True,
+}
+
+
+def stage11(bundle, views, do_controls=True):
+    """**ROUND 7.**  The preimage construction for every PCS commitment.
+
+    Round 1 skipped `A` and `H` -- "skipped, not faked" -- because the toy
+    gate's solve is written at `MSG == PAD == 256`.  `zk60_native_rg_ahpreimage`
+    is that solve with the two widths apart; this stage runs it on every PCS
+    commitment of every stage and fires round 7's controls.
+    """
+    order = [k for k in views]
+    out = full_preimages(bundle, views, names=order)
+    out["requested"] = True
+    if do_controls:
+        a = next((k for k in order if k.startswith("A@")), None)
+        h = next((k for k in order if k.startswith("H@")), None)
+        out["controls"] = (
+            ah_controls(bundle, views, a_name=a, h_name=h)
+            if a and h
+            else {"skipped": "this bundle has no A and H pair", "ok": False}
+        )
+    else:
+        out["controls"] = {"skipped": "controls not requested", "ok": False}
+    out["ok"] = out["ok"] and out["controls"].get("ok", False)
+    return out
+
+
 # --------------------------------------------------------------- stage 4
 def stage4(bundle, views, shared, run_wide=True):
     per_boundary = []
@@ -423,6 +477,7 @@ def channels(bundle, record):
     """Every channel of a RUN's view, with a status and a reason."""
     s3 = record["stage3_per_commitment"]
     s5 = record["stage5_zero_data_preimage"]
+    s11 = record.get("stage11_full_preimage") or FULL_PREIMAGE_OFF
     s8 = record["stage8_plane_index_and_terminals"]
     s9 = record.get("stage9_hash_layer")
     hash_rule_derived = bool(
@@ -443,6 +498,28 @@ def channels(bundle, record):
         if "verification" in p
     )
     disclosed = {r["role"]: r["disclosed_dimension"] for r in s3["per_commitment"]}
+    # [ROUND 7] the FULL construction, when it was asked for: every PCS
+    # commitment of every stage, both halves, the opened columns and their
+    # salted leaves.  `full_ok` is what moves three channels off OPEN, and it
+    # is true only when every commitment the run has was exhibited AND
+    # verified AND every control fired.
+    full_names = list(s11.get("commitments") or [])
+    full_done = list(s11.get("exhibited") or [])
+    pcs_names = [r["role"] for r in s3["per_commitment"]]
+    full_ok = bool(
+        s11.get("requested")
+        and s11.get("ok")
+        and s11.get("view_entries_differing") == 0
+        and sorted(full_done) == sorted(pcs_names)
+    )
+    full_entries = s11.get("view_entries_compared", 0)
+    full_leaves = s11.get("salted_leaves_authenticated", 0)
+    full_why_open = s11.get("why_off") or (
+        "the construction ran and did not close: "
+        + ", ".join(sorted(set(full_names) - set(full_done)))
+        if s11.get("requested")
+        else None
+    )
     seg = [
         {"stage": st.index, "bytes": st.doc["segment_bytes"],
          "sha256": st.doc["segment_sha256"][:16]}
@@ -476,13 +553,30 @@ def channels(bundle, record):
         {
             "channel": "opening-group and proximity vectors of A and H",
             "section": "run 2.1",
-            "status": "open",
+            "status": "constructed" if full_ok else "open",
             "assumption": None,
-            "preimage_exhibited": False,
-            "reason": "their opening groups have several members, so each claim's own "
-            "published value is an extra constraint; the correction step that handles "
-            "it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this "
-            "shape (1,024 message positions against 256 pads)",
+            "preimage_exhibited": bool(full_ok),
+            # [ROUND 7] round 1's reason, kept verbatim as the reason the
+            # channel is open WHEN THE ARM DID NOT RUN -- and replaced by the
+            # construction when it did.
+            "reason": None if full_ok else (
+                "their opening groups have several members, so each claim's own "
+                "published value is an extra constraint; the correction step that "
+                "handles it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not "
+                "hold at this shape (1,024 message positions against 256 pads).  "
+                "ROUND 7 removed that assumption; " + str(full_why_open)
+            ),
+            "how": (
+                "zk60_native_rg_ahpreimage: the same solve with the two widths apart. "
+                "Per group, the whole per-position residual on one anchor pair, then a "
+                "correction inside the kernel of that constraint meeting every claim's "
+                "own published value and the public zero-sum rows; the proximity pair "
+                "last; then each row's pad polynomial by Lagrange interpolation through "
+                "the d distinct sampled nodes.  The view is then RECOMPUTED from the "
+                "solved blinding and compared entry by entry"
+                if full_ok else None
+            ),
+            "commitments": full_done if full_ok else [],
             "what_is_computed_instead": {
                 "disclosed_dimension_by_exact_rank": {
                     k: v for k, v in disclosed.items() if k.startswith(("A@", "H@"))
@@ -494,23 +588,51 @@ def channels(bundle, record):
         {
             "channel": "the pad half of every published vector",
             "section": "run 2.1",
-            "status": "open",
+            "status": "constructed" if full_ok else "open",
             "assumption": None,
-            "preimage_exhibited": False,
-            "reason": "constructing it needs the Lagrange interpolation through the "
-            "distinct sampled nodes and the Z_S divisibility test of "
-            "zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, "
-            "the exact rank of the pad block over the distinct opened columns",
+            "preimage_exhibited": bool(full_ok),
+            "reason": None if full_ok else (
+                "constructing it needs the Lagrange interpolation through the "
+                "distinct sampled nodes and the Z_S divisibility test of "
+                "zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is "
+                "H-pad, the exact rank of the pad block over the distinct opened "
+                "columns.  ROUND 7 removed that assumption; " + str(full_why_open)
+            ),
+            "how": (
+                "the fibre of each row's pad is I(p_i) + Z_S q_i with deg q_i < Q - d; "
+                "the pad half of each combination then fixes sum_i rho[i] q_i, which is "
+                "a polynomial only when the residual is divisible by Z_S -- exactly "
+                "when the verifier's own sampled-column identity holds"
+                if full_ok else None
+            ),
+            "excluded": "the masking commitment M's own opening, which is the "
+            "separate CFS channel below",
         },
         {
             "channel": "opened column values",
             "section": "run 2.1",
-            "status": "open",
+            "status": "constructed" if full_ok else "open",
             "assumption": None,
-            "preimage_exhibited": False,
-            "reason": "they are a function of the pads, which are not constructed "
-            "here; the verifier's own column identity IS reproduced from the model on "
-            "a sample of columns of every commitment, with no failures",
+            "preimage_exhibited": bool(full_ok),
+            "reason": None if full_ok else (
+                "they are a function of the pads, which are not constructed here; the "
+                "verifier's own column identity IS reproduced from the model on a "
+                "sample of columns of every commitment, with no failures.  ROUND 7 "
+                "constructs them; " + str(full_why_open)
+            ),
+            "how": (
+                "every row of every PCS commitment is re-encoded from the solved "
+                "(zero data + blinding) and read at every distinct sampled position, "
+                "and compared with the capture; the rebuilt columns are then re-hashed "
+                "under the bundle's own rule and their salted leaves re-authenticated "
+                "against the PUBLISHED salts and paths"
+                if full_ok else None
+            ),
+            "entries_recomputed_and_compared": full_entries if full_ok else None,
+            "salted_leaves_authenticated": full_leaves if full_ok else None,
+            "unopened_leaves": "NOT reproducible from any preimage and not claimed: "
+            "an unopened leaf is a salted digest, its hiding is M-2 / M-3, and that "
+            "channel stays ARGUED",
             "identities_reproduced": sum(
                 r["column_identity_checked"] for r in s3["per_commitment"]
             ),
@@ -738,12 +860,24 @@ def channels(bundle, record):
             "status": "open",
             "assumption": None,
             "preimage_exhibited": False,
-            "reason": "exhibited here per commitment, message half only, for the "
-            f"{len(constructed)} singleton-group commitments of the run.  A RUN "
-            "preimage is a joint object: it must reproduce every stage's view at once "
-            "with the boundary planes shared between three commitments, and it needs "
-            "the pad half and the CFS channel first",
-            "constructed_so_far": constructed,
+            "reason": (
+                "exhibited PER COMMITMENT for all "
+                f"{len(full_done)} PCS commitments of the run, both halves, every "
+                "opened column and their salted leaves (round 7).  It is still not a "
+                "RUN preimage: a run preimage is a JOINT object -- one randomness "
+                "reproducing every stage's view at once with each boundary plane "
+                "shared between three commitments -- and round 7's control P-5 is "
+                "exactly the case where per-commitment preimages exist and no joint "
+                "one does.  The CFS channel is unconstructed as well"
+                if full_ok else
+                "exhibited here per commitment, message half only, for the "
+                f"{len(constructed)} singleton-group commitments of the run.  A RUN "
+                "preimage is a joint object: it must reproduce every stage's view at "
+                "once with the boundary planes shared between three commitments, and "
+                "it needs the pad half and the CFS channel first"
+            ),
+            "constructed_so_far": full_done if full_ok else constructed,
+            "per_commitment_not_joint": True,
         },
         {
             "channel": "the boundary scale tags and the one calibration identity",
@@ -856,7 +990,8 @@ def channels(bundle, record):
 
 # ------------------------------------------------------------------- main
 def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
-             do_controls=True, old_dir=None, cross_profile_dir=None):
+             do_controls=True, old_dir=None, cross_profile_dir=None,
+             full_preimage=False):
     t0 = time.time()
     bundle = RunBundle(bundle_dir)
     record = {
@@ -941,6 +1076,17 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
                    if all(len(m) == 1 for m in v.groups)]
         record["stage5_zero_data_preimage"] = preimages(
             bundle, views, sorted(singles))
+    # [ROUND 7] the same construction at MSG != PAD, so A and H are in it.
+    # It is suspended with stage 5 (it needs the same views) and off unless
+    # asked for.
+    if _skipped("stage5_zero_data_preimage"):
+        record["stage11_full_preimage"] = not_checked(
+            "stage11_full_preimage", suspended["stage5_zero_data_preimage"])
+    elif full_preimage:
+        record["stage11_full_preimage"] = stage11(
+            bundle, views, do_controls=do_controls)
+    else:
+        record["stage11_full_preimage"] = dict(FULL_PREIMAGE_OFF)
     if _skipped("stage6_negative_controls"):
         record["stage6_negative_controls"] = not_checked(
             "stage6_negative_controls", suspended["stage6_negative_controls"])
@@ -1063,6 +1209,14 @@ def main(argv=None):
     ap.add_argument("--name")
     ap.add_argument("--skip-exact-pad-rank", action="store_true")
     ap.add_argument("--skip-run-wide", action="store_true")
+    ap.add_argument(
+        "--full-preimage",
+        action="store_true",
+        help="round 7: also CONSTRUCT the zero-data preimage of every PCS "
+        "commitment -- A and H included, both halves, every opened column and "
+        "the salted leaves of the opened columns -- and fire round 7's "
+        "controls.  Minutes, not seconds; off by default",
+    )
     args = ap.parse_args(argv)
 
     record = run_gate(
@@ -1072,6 +1226,7 @@ def main(argv=None):
         cross_profile_dir=args.cross_profile,
         pad_rank=not args.skip_exact_pad_rank,
         run_wide=not args.skip_run_wide,
+        full_preimage=args.full_preimage,
     )
     os.makedirs(args.evidence, exist_ok=True)
     name = args.name or record["bundle"]
