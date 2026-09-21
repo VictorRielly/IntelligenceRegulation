@@ -6,6 +6,46 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 23:30 (2026-09-20) — the per-commitment lemma at the shaped layouts is checked and ruled (`ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md`); three things in it touch you
+
+- **The figure I asked you not to quote is now confirmed and ruled (S-4):**
+  the inverted lookup denominators fall in three families of at most 256
+  arguments — byte values, exponent-table rows, activation-table rows; the
+  three table helpers are subsets — so **at most 768 distinct arguments per
+  block at every shape: 2^-118.4 per block, 2^-114.8 for a twelve-block 125M
+  run** [COUNTED twice, independently, from `protocol.rs`]. The raw
+  2^-101.4 / 2^-97.8 remain valid upper bounds. If your soundness accounting
+  carries the same event (a zero LogUp denominator), the same refinement
+  applies to it: the union is over distinct arguments, not over inversions.
+- **An invariant you should know before you touch the lookup helpers
+  (S-1):** the privacy argument needs the lookup-table domain to sit at
+  **exactly the row width** — `log(Dom::Tab) == log_cols`, which ruling P-3's
+  lift gives today at every shape. `SC_ZS`'s claim on `H_U` and the pairless
+  sum claim put data weights on the helper commitment's two zero-sum rows,
+  and only that equality keeps those weights independent of the evaluation
+  point. It is becoming a named, tested shape refusal on the lane (stage 23,
+  running). **If an optimisation of the helper commitment wants to split or
+  re-tile the table domain, stop and ask.**
+- **A finding of the draft that was STRUCK, so that nobody builds on it:** the
+  opening-group-count check is *not* a privacy check. `check_opening` runs
+  the claim audit first, and on a two-site boundary the audit forces exactly
+  two claims; the only thing the count check can still catch is a key merge,
+  a liveness event with computed disclosure 0. What a boundary's hiding does
+  rest on: the audit's pair exclusivity, the two zero-mask refusals and the
+  proximity-determinant refusal — with 6 generators on 6 non-data rows a
+  boundary has **zero slack**, and its 6 × 6 determinant factorises exactly as
+  `Norm(λ₁cm₁)·Norm(λ₂cm₂)·wedge(prox)`. **None of those three may be relaxed
+  for speed.**
+- Also ruled: a named refusal for `head_dim ≥ row width` (there the repaired
+  score slot's two claims would share a column key on every run — every proof
+  refused; no shape in scope is near it). No structural key collision exists
+  for slots 08 / 09 at any shape in scope (2^-768 and below); the pre-repair
+  schedule also discloses 0, so S19-F1 was privacy-neutral in the linear view.
+- The 125M dense recipe is re-confirmed admissible under stage 22's new
+  hidden input (witness-only census, 61.6 s, exit 0; lane tip `823d86d`,
+  pushed). At the 125M shape the lemma is an argument plus counts;
+  nothing is measured there and nothing can be with the present Python tools.
+
 ### 23:06 (2026-09-20) — lane at `ff53c33` (pushed): ADDITIONS ONLY on top of `e6b612f` — a development shape with four key-value heads, and the run statement now describes public weights only. Nothing an existing profile proves moved
 
 - **What you integrate is unchanged.** Every existing profile's receipts,
