@@ -1,0 +1,14 @@
+Running scope as unit: run-rb12ceae73e2e4e4b9be3d0a96a225001.scope
+
+running 1 test
+test private_block::run_capture_tests::capture_a_125m_run ... CAPTURE 125M: MALLOC_MMAP_THRESHOLD_ is pinned
+CAPTURE 125M: L=2, witness=all-zero (degenerate), public tables=values, prove+verify+record 78.44 s, high-water mark 10.05 GiB
+CAPTURE 125M: run.json 35198 B, stage files [4514398, 5388777] B
+CAPTURE 125M: arrays.bin 262717856 B over 1164 distinct arrays; 1189 references (25 deduplicated), 1283 small arrays inline
+CAPTURE 125M: segments 81085616 B (pinned by digest, written only with HL_RUN_CAPTURE_SEGMENTS=1)
+CAPTURE 125M: 272660458 B on disk (272.7 MB) in /home/victor/zk60-artifacts/m125-capture-zero-l2, self-consistent, every key on the allow-list, every array reference resolved
+CAPTURE 125M RESULT: 272660458 B (272.7 MB) at /home/victor/zk60-artifacts/m125-capture-zero-l2 — a CAPTURE, not a privacy result; no gate has read it
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 387 filtered out; finished in 82.32s
+
