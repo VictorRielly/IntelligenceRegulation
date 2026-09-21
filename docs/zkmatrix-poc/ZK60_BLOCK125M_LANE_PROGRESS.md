@@ -9856,3 +9856,41 @@ receipt lengths are unmoved. What it IS: the `pad_on == false` arm of ruling
 P-1, which until today only an `#[ignore]`d 10 GiB test could reach, is now
 proved, verified, censused on both sides of the protocol, tampered with and
 captured by tests that run in twelve seconds.
+
+## Stage 31 — correction C-6 (`norm_top_is_full_byte`) in the ordinary test filter (2026-09-21, 12:3x–)
+
+**THE GAP, IN ONE SENTENCE.** `layout::lookups_at` drops **four** `scaled`
+norm lookups — the top `rho` and `sigma` limb of `norm_a` and of `norm_m` —
+when `Shape::norm_top_is_full_byte` is true, so `Dom::D` carries 34 lookups
+per position instead of 38, **17** helper planes instead of 19, and the `H`
+plane list is two planes shorter; that is correction **C-6**. The flag is
+true only when the norm window `norm_wrho = NORM_TN + 1 + bits(D_max)` is a
+multiple of eight, and `D_max = isqrt(1 + width * 32767^2)`, so it needs
+`width > 256`. Every development shape in the ordinary filter has width 96
+(`norm_wrho = 31`), the toy has width 16 (29), and the only shape in the
+module with the flag TRUE is 125M, whose proofs are `#[ignore]`d 10 GiB
+tests. Under the security owner's standing rule after finding S19-F1 — a
+branch that only an ignored heavy test reaches is a branch nobody tests —
+this stage puts the C-6 arm inside a small shape the ordinary filter proves
+in seconds, by exactly stage 30's method. It is the LAST cheap heavy-only
+branch on stage 30's list.
+
+| task | what | state |
+|---|---|---|
+| 1 | the shape: `norm_top_is_full_byte == true`, `lkv = 2`, every named refusal unweakened, the three unpadded domains kept if possible | PENDING |
+| 2 | the tests in the ORDINARY filter: the gap census, the generic honest witness, the all-zero input, the layout census by name, the tampers only this branch can get wrong, a three-block run | PENDING |
+| 3 | two capture bundles of the new shape for the independent Python gate | PENDING |
+| 4 | the refreshed "still heavy-only" list | PENDING |
+| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof, the Python model's tests | PENDING |
+
+**The rules this stage works under** are the lane's and stage 30's: one
+writer, the build recipe in this file's header, **no 125M run** (the heavy
+lock carries stage 29's queued census and no `r29-*` file is touched), a NEW
+profile for the new shape (D17 and Codex's condition), each gap reproduced
+as a failing or asserting test FIRST, the toy byte-frozen, no older profile
+moved, and no "proves and verifies" without a GENERIC honest witness — dense
+public weights, a non-constant hidden input, key-value groups that differ —
+checked element for element against the independent
+`private-block-kernel-shaped` reference.
+
+**Evidence prefix**: `results/zk60_block125m_lane/u31-*`.
