@@ -27,13 +27,13 @@ use super::shape::{Shape, LIMBS_ISQRT};
 // shared: the registry, read two ways
 // ---------------------------------------------------------------------------
 
-/// the eight shapes this module builds — stage 25's `every_shape`, which the
+/// the nine shapes this module builds — stage 25's `every_shape`, which the
 /// registry guards already require to be the whole block registry
 fn every_shape() -> Vec<Shape> {
     vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::rung_e32(), Shape::m125()]
 }
 
-/// the six RUN profiles
+/// the seven RUN profiles
 fn every_run_profile() -> Vec<&'static str> {
     vec![RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_W14, RUN_PROFILE_RUNG_E32, RUN_PROFILE_M125]
 }

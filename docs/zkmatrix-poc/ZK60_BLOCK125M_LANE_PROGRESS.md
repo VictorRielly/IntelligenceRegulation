@@ -10675,3 +10675,376 @@ key-value groups that differ) checked against the independent
 more than about a minute.
 
 **Evidence prefix**: `results/zk60_block125m_lane/w33-*`.
+
+### Task 1 (ruling J-7a) — the separator of stage 32's declared pair, CHECKED
+
+**WHAT WAS WRONG WITH IT.** Stage 32's sixth registry guard fired on a real
+coincidence: at the 48-byte rung-W14 profile `Transcript::new`'s input
+(`b"hashline-v1/" ‖ profile`, 60 bytes) has the same length as an absorb of
+the four-byte label `rows` with eight bytes of data (`32 + 8 + 4 + 8 + 8`),
+and both are hashed by the transcript function. The stage DECLARED the pair
+rather than lengthening the profile to dodge it — the right call under ruling
+J-7 — and separated it with a structural argument: at offset 32 the absorb
+carries `le64(4)`, whose NUL bytes an ASCII profile cannot match. **Every
+part of that argument was a comment.** The premise (profiles are ASCII) was
+asserted nowhere, the offset was written as a literal 32, and the argument
+was made for one pair at one length when it is general.
+
+**WHAT IS THERE NOW**, five tests in `hashline/src/private_block/s33_tests.rs`,
+all in the ordinary filter and all cheap (no proving):
+
+| test | what it measures |
+|---|---|
+| `every_registered_profile_context_and_label_is_printable_ascii_with_no_nul` | **42 fixed literals** — the **14 registered profiles** (8 block, 6 run), the **4 `derive_key` context literals**, the **22 transcript absorb labels** the census knows and the 2 fixed transcript literals (`hashline-v1/`, `squeeze`) — are printable ASCII, `0x20..=0x7E`, with no NUL. The registry is built BOTH from the shape and run constructors AND read out of `shape.rs` / `run.rs`, and the two lists must agree, so a profile added tomorrow is covered whether or not anyone remembers this file |
+| `the_ascii_premise_check_rejects_a_profile_with_a_nul_or_a_non_ascii_byte` | **the control that makes it bite**: five deliberately bad profile strings — a NUL inside, a NUL at the end, a two-byte UTF-8 character, a tab, DEL — are each rejected, and all eight registered ones accepted |
+| `no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length` | **the lemma.** For every registered profile length `n` and **every** absorb layout of that length — every `(|label|, |data|)` with `48 + |label| + |data| = n`, whether or not a label of that length exists — at least one byte position inside one of the two `le64` LENGTH FIELDS is forced to `0x00` where the constructor carries a profile byte. The positions are COMPUTED from the layout, never the literal 32 |
+| `the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names` | stage 32's own pair, re-derived and demonstrated on real bytes with the absorb state chosen adversarially (the constructor input's own first 32 bytes) |
+| `the_separation_lemma_collapses_on_a_deliberately_bad_profile` | **the lemma's control**: a test-local 48-byte profile whose bytes under the two length fields are NUL has **no** separating position at the declared layout; one printable byte back restores one |
+
+**WHAT THE LEMMA MEASURED.** **14 profiles, 124 absorb layouts, every single
+one separated.** The thinnest case has **14** forced-NUL positions, and the
+census is worth reading:
+
+* the 36-byte block profile `…/private-block-m125/1` gives `n = 48`, where
+  exactly ONE layout exists (`|label| = |data| = 0`) and both length fields
+  are `le64(0)` — **16** separating positions, the first at offset 32;
+* the twelve profiles with `n` between 51 and 60 have 4 to 13 layouts each
+  and at least **14** positions each, the first at offset 33;
+* the run profile `…/private-run-m125/1` is 34 bytes, so `n = 46` — **below
+  the shortest absorb input there is (48 bytes)**, and no layout of its
+  length exists at all. That case is reported rather than skipped silently.
+
+**WHY EVERY (LENGTH, LAYOUT) PAIR HAS ONE, in plain words.** A layout fixes
+both length fields' VALUES, so their bytes are constants: with a label
+shorter than 256 bytes, `le64(|label|)` is one value byte and **seven NULs**
+at offsets 33..39, and the constructor's bytes there are profile bytes
+because the profile begins at offset 12 and every collision has `n ≥ 48`.
+Nothing about the absorb's label content, its data or its incoming state
+enters, which is why one position settles the whole pair rather than one
+instance of it.
+
+**FINDING S33-F1 (message only, no soundness consequence).** The declared
+row's own sentence says `le64(4)` has "**six** NUL bytes". It has **seven**,
+and at the declared layout there are **fourteen** forced-NUL positions over
+the two length fields — seven in `le64(|label|)` at offsets 33..39 and seven
+in `le64(|data|)` at 45..51. The record understated its own separator. The
+literal is corrected in `s25_tests.rs` and now points at the lemma.
+
+**WHAT THIS IS NOT.** Not a claim that the transcript function is collision
+free, and not a hash-security statement of any kind: it is the statement that
+two INPUT CLASSES of equal length can never be the same STRING, which is what
+ruling J-7 asks a declared pair to carry.
+
+### Task 2 (ruling S-6) — the dead arm of `Shape::a_groups` becomes a named refusal
+
+**THE GAP.** `Shape::a_groups` fixes the `A` opening's column-weight GROUP
+structure — the structure the privacy argument's opening accounting counts —
+and its `SC_TZC` term has two arms:
+
+```
+let tzc = if self.natural_log(Dom::T) >= self.log_cols { 1 } else { … offsets … };
+```
+
+Stages 31 and 32 established that **no registered shape reaches the first
+arm**: 125M's `Dom::T` is 2^9 against a row width of 2^14, rung-W14's is 2^6
+against 2^14, and every other shape is 2^5. An arm no shape reaches is code
+nobody tests, inside the one function that fixes the opening groups.
+
+**FAILING FIRST** (`results/zk60_block125m_lane/w33-s6-failing-first.log`,
+exit 101). The family was constructible and the probe is the toy's own axes
+at 256 tokens and the toy's own row width of 2^8 — every other check
+satisfied: the three bilinear domains sit above the row width so ruling F-2
+does not fire, `Dom::Tab` is exactly at it so ruling S-1 does not, the head
+dimension is five bits below it so S-3 does not, and the longest mask is far
+inside C-4's budget. `Shape::new` returned it happily, and it read
+**`a_groups() = 28` out of the FIRST arm** (the toy's own count, out of the
+second, is 35). The sweep's 129-token case — 129 tokens PAD to 256 — was
+accepted too.
+
+**THE REFUSAL**, in `Shape::new` (`shape.rs`), after rulings S-1 and S-3 and
+**before** ruling C-4's mask budget:
+
+```
+private block shape: ruling S-6 — the padded token count 2^8 (256 tokens) is at
+or above the row width 2^8, which is the family that reaches `Shape::a_groups`'s
+unreached first arm; the A opening's group structure would then be decided by a
+branch no registered shape takes and no test covers
+```
+
+**THE ARM STAYS, as a documented defensive return — and here is the reason it
+may.** On exactly the refused family the two arms **agree**: `t_pad` is a
+power of two (ruling T-2), so `t_pad ≥ 2^log_cols` makes every offset
+`k · t_pad mod 2^log_cols` zero and the live arm's deduplicated set is `{0}`
+— the first arm's own 1. The arm is a SHORTCUT, not a second behaviour;
+deleting it would change no value at any shape, reachable or refused. That is
+why it is neither removed (which would be a silent change to a function the
+prover calls) nor turned into a panic (no shape that passed validation may
+panic on the proving path). It is kept, with a doc paragraph and an inline
+comment saying it is unreachable after validation and why it is harmless.
+`s33_tests::the_refused_arm_and_the_live_arm_agree_wherever_both_are_defined`
+proves the agreement over 15 row widths × 5 padded token counts each.
+
+**THE REFUSED FAMILY, IN PLAIN WORDS**: token counts at or above the row
+width — at the toy's row width of 2^8, 129 tokens and up, because 129 tokens
+pad to 256. It is not a privacy or a soundness condition and it costs no
+shape anybody has: the cheapest member prices at a **39,380,616-byte**
+receipt, since `Dom::S = h_pad · t_pad²` grows quadratically in the tokens.
+**Lifting the refusal later takes a shape of that family in the ORDINARY
+filter** — proved, tampered and censused like any other — not an edit to
+`a_groups`.
+
+**THE TESTS** (four, in `s33_tests.rs`, all in the ordinary filter):
+
+| test | what it measures |
+|---|---|
+| `no_registered_shape_reaches_the_first_arm_of_a_groups` | at all eight shapes, `natural_log(Dom::T) < log_cols`, with the margin printed: 3 bits at the toy, 5 at the five 10-log rungs and at 125M, **8** at rung-W14 |
+| `a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name` | the 256-token probe refused, the message naming the ruling, the axis and the branch; the 128-token CONTROL constructs; 129 tokens refused because the PADDED count is what is read; and stage 24's old mask-budget geometry refused by S-6 rather than C-4, which pins the order |
+| `the_s6_refusal_is_exactly_the_padded_token_counts_at_or_above_the_row_width` | a sweep of 32, 64, 128, 129, 192, 256, 257, 512 and 4,096 tokens at the toy's other axes: below the row width the shape constructs and its `A` group count follows `SC_TZC`'s offsets (35 at `t_pad = 32`, 31 at 64, 29 at 128), at and above it ruling S-6 owns the refusal and no other refusal reaches those shapes first |
+| `the_refused_arm_and_the_live_arm_agree_wherever_both_are_defined` | the agreement above, and the toy's own 35 |
+
+**ONE EXISTING TEST'S GEOMETRY MOVED, and it is worth stating why.** Stage
+24's mask-budget probe is 2^20 − 1 tokens over 2,048 query heads of 8 **at a
+row width of 2^14** — which is inside the new refused family, and so is its
+CONTROL (2^19 − 1 tokens), the one that has to CONSTRUCT for the C-4 refusal
+to be shown tight. The probe's row width moved from **2^14 to 2^21** and
+nothing else: `log(Dom::S) = log2(h_pad) + 2·log2(t_pad)` has no `log_cols`
+in it, so the two masked message lengths are still **262** (refused) and
+**252** (constructs), both still asserted in that test. The old geometry is
+kept as evidence — `s33_tests` constructs it and reads back ruling S-6.
+
+**THE PYTHON MODEL MIRRORS THE REFUSAL, by the same name.** The independent
+layout model (`scripts/zk60_private_block_layout_model.py`) raises
+`ValueError` with the same "ruling S-6" sentence at the same shapes, its
+`opening_groups` carries the same comment on the same dead arm, and its
+acceptance test gains a `TheTokenCountRefusal` class with four tests: the
+named refusal, the same 32/64/128/129/192/256/257/512 boundary sweep, no
+registered model shape refused, and the two-arm agreement. **56 model tests,
+OK** (52 before this stage). A model that priced a shape the prover refuses
+would be a model of something else.
+
+### Task 3 (stage 32's item 4b) — the 125M ENDPOINT ROW COUNT, 32 data rows and 37 commitment rows, in the ordinary filter
+
+**THE GAP.** The external endpoint commits the padded `Dom::D` cube in rows
+of `2^endpoint_log_n`. At 125M that cube is `512 · 1,024 = 2^19` words and
+the endpoint log is 14, so the endpoint is **32 data rows and 37 commitment
+rows**, its opened-column digest is **296 B**, and a run's internal boundary
+is **38 rows**. Every shape the ordinary filter proves at has 2, 4 or 16 data
+rows, so the endpoint row INDEX 16 and up existed only inside an `#[ignore]`d
+10 GiB test. Stage 32 split the item in two and priced both halves: **4a**
+(32 data rows AT an endpoint log of 14) needs a 2^19-word cube, which with
+the width capped at 1,024 by the four-norm-limb refusal means 512 tokens —
+125M itself; **4b**, the row COUNT at a smaller endpoint log, is cheap. This
+is 4b.
+
+**THE SHAPE.** `Shape::rung_e32` — "development rung, the 125M endpoint row
+count" — is rung-W14's head axis, width and hidden size at **32 tokens and a
+row width of 2^10**. Every number is forced by the target:
+
+| | rung-C6 | rung-W14 | **rung-E32** | 125M |
+|---|---:|---:|---:|---:|
+| tokens / width / hidden | 32 / 384 / 512 | 64 / 768 / 1,024 | **32 / 768 / 1,024** | 512 / 768 / 2,048 |
+| query heads × head_dim, kv heads | 12 × 32, 4 | 12 × 64, 4 | **12 × 64, 4** | 12 × 64, 4 |
+| `log_cols` / encoded row | 10 / 2^12 | 14 / 2^16 | **10 / 2^12** | 14 / 2^16 |
+| endpoint cube / log / **data rows** / **commitment rows** | 2^14 / 10 / 16 / 21 | 2^16 / 14 / 4 / 9 | **2^15 / 10 / 32 / 37** | 2^19 / 14 / **32** / **37** |
+| endpoint column digest | 168 B | 72 B | **296 B** | **296 B** |
+| internal boundary rows | 22 | 10 | **38** | 38 |
+| `A` rows / `H` rows | 1,337 / 1,408 | 527 / 436 | **2,209 / 2,416** | 5,681 / 7,120 |
+| `D_max` / `norm_wrho` / C-6 | 642,099 / 32 / yes | 908,065 / 32 / yes | **908,065 / 32 / yes** | 908,065 / 32 / yes |
+| `wrho_s` / `limbs_sigma_s` | 17 / 3 | 18 / 3 | **17 / 3** | 18 / 3 |
+| U8 lookup positions | 1,214,464 | 4,882,432 | **2,181,120** | 98,598,912 |
+| counted receipt | 7,452,040 B | 16,421,048 B | **11,368,824 B** | 40,783,352 B |
+
+* **32 tokens and width 768 are what make the cube 2^15**, and `2^15 / 2^10`
+  is the 32 data rows the stage is about. The width cannot grow (the
+  four-norm-limb refusal caps it at 1,024) and the row width cannot be 14
+  (the cube would be ONE row), so at this head axis the shape is the only
+  cheap way to the row count.
+* `hidden = 1,024` is the smallest power of two above the width, which keeps
+  `Dom::F` unpadded and keeps an upper hidden half for the dense fixture.
+* `f_e = 12` at 32 tokens gives `wrho_s = 17`, so `limbs_sigma_s` is 3 as at
+  125M, and width 768 gives `D_max` 908,065, `norm_wrho` 32 and correction
+  **C-6**, all three 125M's own.
+* **Ruling S-6, this stage's own refusal, is checked where it binds**: the
+  padded token count is 2^5 against a row width of 2^10.
+
+**WHAT IT DOES NOT REACH, and the census says so**: the endpoint LOG (10
+here, 14 at 125M) and therefore the endpoint's row WIDTH and Merkle depth
+(12 against 16). Row count and row width are the endpoint's two independent
+axes; rung-W14 holds the second and this shape holds the first.
+
+**MEASURED FIRST, BEFORE ANY TEST WAS PLACED** (`w33-e32-measure1.log`,
+detached under `systemd-run --user --scope -p MemoryMax=4G -p
+MemorySwapMax=0`): one honest fully dense proof is **prove 1.80 s, verify
+from bytes 0.20 s**, and the frame is the counted **11,368,824 B**. The
+budget the security owner gave this task is ~5 s and ~1.5 GB, so it is an
+ORDINARY-FILTER shape. The whole module then runs in **25.28 s at a peak RSS
+of 361 MB** (`w33-e32-run1.log`, the same cap, `/usr/bin/time -v`), the
+two-block run included.
+
+**THE TESTS** — nine in `e32_tests.rs` plus one in `parity.rs`, all in the
+ordinary filter, none `#[ignore]`d except the bundle writer:
+
+| test | result |
+|---|---|
+| `only_the_125m_shape_and_the_new_one_reach_the_thirty_two_row_endpoint` | **the gap, asserted**: over the nine-shape registry exactly two have 37 commitment rows — 125M and rung-E32 — and with rung-E32 removed no shape has more than 16 endpoint data rows. The census prints cube, log, data rows, commitment rows and column digest per shape, and asserts the new shape does NOT reach the endpoint log |
+| `the_new_shape_is_125ms_endpoint_row_count_at_a_ten_log_endpoint` | the head axis, padded axes, `D_max`, the norm and softmax windows and their limb counts asserted against `Shape::m125()` and not against literals; the endpoint's 32 / 37 asserted against 125M's; every named refusal checked where it binds, **ruling S-6 included**; the profile new and pairwise distinct; the four older development receipt lengths re-asserted unmoved |
+| `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_e32` | the INDEPENDENT `private-block-kernel-shaped` crate takes this geometry unchanged: every kernel-backed plane agrees element for element and the block output on all **24,576** words, with the four key-value groups asserted pairwise different and **all sixteen upper endpoint data rows asserted live in the kernel's own output** first. **This is the generic-witness check the acceptance rule asks for** |
+| `an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_e32` | prove **1.76 s**, verify from bytes **0.18 s**, frame **11,368,824 B** — the COUNTED length from the Python model — and a one-byte truncation refused |
+| `the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_e32` | verified, frame 11,368,824 B. Named degenerate: every key-value group is identically zero |
+| `the_endpoint_geometry_is_125ms_row_count_over_a_narrower_row` | the endpoint census: 32 / 37 / 296 B / 5 mask rows **identical to 125M's**, the rate and opened-column count 125M's, and the row width, Merkle depth and cube **different** (10 / 12 / 2^15 against 14 / 16 / 2^19); the C-H4 no-collision refusal clear at a 37-row endpoint; `A` / `H` columns 17,672 / 19,328 B over 2,209 / 2,416 rows, the model's own |
+| `a_verifier_statement_with_a_moved_word_in_a_high_endpoint_row_is_refused_at_the_rung_e32` | the honest proof verifies, then the VERIFIER's own input endpoint moves by one word at **data row 0** (the control any shape has), **data row 16** and **the last data row 31, last column**: each refused, `private block wire: expected statement mismatch` |
+| `a_tamper_in_a_high_endpoint_row_is_rejected_at_its_own_slot_at_the_rung_e32` | the prover's residual-2 plane — which IS the endpoint's output cube — changed at the first word of data row 16 and at the last true word of row 31: **both rejected by the VERIFIER at slot 14 `03 D zero-check`**, neither by the prover |
+| `an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_e32` | prove **3.68 s**, verify from segments **0.39 s**, segments **11,143,656 / 11,391,432 B** (the counted lengths), internal boundary **38 rows = endpoint rows + 1**, both blocks censused |
+| `a_moved_word_in_a_high_boundary_row_is_refused_in_a_two_block_run_at_the_rung_e32` | the two-block run's BOUNDARY plane changed at data row 16 and at the last data row: **both rejected by the VERIFIER at slot 22 `IO-out endpoint equality`** |
+
+**NO SOUNDNESS FINDING.** Nothing this task tried was accepted, nothing was
+caught only by the prover, and every rejection names a slot or the wire
+statement.
+
+**ONE TAMPER THE BRIEF NAMED THAT IS NOT REACHABLE, and what covers it
+instead.** The brief asked for a tamper on "the last commitment row" and on
+"the boundary's reserved rows". The endpoint's rows 32..36 are its five MASK
+rows and the boundary's extra row is its second reserved IO-tab row: none of
+them is a witness word or a statement word — they are written by the
+prover's own hiding and site machinery — so reaching them means editing
+RECEIPT BYTES at an offset computed from the wire layout, which no tamper
+family in this lane does. What pins those rows instead is **byte-exact
+arithmetic**: an endpoint opening carries `8 · endpoint_rows` bytes per
+opened column, so a receipt whose endpoint had one row more or fewer could
+not be 11,368,824 B, and both the block frame and the two run segments are
+asserted equal to the INDEPENDENT model's counted lengths. The boundary's own
+count is asserted directly (38, and `= endpoint_rows + 1`).
+
+**THE TWO CAPTURE BUNDLES, and why they are IN the repository this time.**
+`run-q-dense-e32` and `run-r-zero-e32`, two blocks each, schema
+`hashline-native-capture/5-run` (the array store), tagged, public tables'
+VALUES included, written and checked off disk by the same `#[ignore]`d test
+(`w33-e32-bundles-repo.log`, exit 0: self-consistent, every key on the
+allow-list, every array reference resolved).
+
+| bundle | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|
+| `run-q-dense-e32` (FULLY DENSE, generic) | 35,068 B | 3,478,050 / 4,201,171 B | 25,033,024 B | **32,752,273 B** |
+| `run-r-zero-e32` (all-zero, degenerate) | 35,074 B | 3,477,890 / 4,201,709 B | 24,611,408 B | **32,377,576 B** |
+
+**32.8 and 32.4 MB**, inside the ~40 MB a repository file should be (the
+older in-repo pairs run to 45 MB), so unlike stage 32's 50 MB pair these go
+in `results/zk60_run_captures_20260920/` in full. What a gate sees in them
+that it has never seen: `"endpoint_rows":37` over 32 data rows with a
+296-byte column digest, a 38-row internal boundary, one endpoint data row
+per TOKEN so rows 16..32 exist at all, and `"a_rows":2209` / `"h_rows":2416`
+— the largest of any development bundle. What is deliberately unchanged, so
+that the pair is a regression as well as new evidence: `Dom::T`, `Dom::Kv`
+and `Dom::F` unpadded (finding M-F1's set) and slot 14 at 54 terminals
+(correction C-6), both asserted by the writer off the files it wrote. They
+are **not gate evidence** (ruling T-6) and not a privacy result.
+
+A first, identical pair was written to `/home/victor/zk60-artifacts/` to
+size them (`w33-e32-bundles.log`, 32.6 and 32.3 MB — the small difference
+is fresh per-proof randomness, not a change in the schedule); those copies
+are outside the repository and the orchestrator may delete them.
+
+### Task 4 — what is STILL reached only by an `#[ignore]`d heavy test
+
+Stage 32's list, re-read after this stage. **Item 4b is CLOSED**; 4a, 5 and
+6 stand, and the dead-arm observation is gone because the family is now
+refused.
+
+| # | branch | why no shape in the filter reaches it | can a small shape? |
+|---|---|---|---|
+| 4a | **32 endpoint data rows AT `endpoint_log_n = 14`** — the endpoint's row count and its row WIDTH together | the endpoint commits `t_pad · d_pad`; 32 data rows at a 14-log endpoint need a 2^19-word cube | **NO, not small.** The four-norm-limb refusal caps the width at 1,024, so the cube can only grow through the TOKENS, and `2^19 / 1,024 = 512` — 125M itself, a 39,275,896 B receipt. **What this stage closes is the row COUNT (rung-E32) and what stage 32 closed is the row WIDTH (rung-W14); only their conjunction is left, and it is 125M** |
+| ~~4b~~ | ~~the 32 / 37 endpoint row count at a smaller endpoint log~~ | — | **CLOSED by this stage**: `Shape::rung_e32`, nine non-ignored tests plus the parity one, and two capture bundles |
+| 5 | **the token count 512 and everything that scales with it**: `Dom::S` at 2^22 and `Dom::F` at 2^20, `A` 5,681 / `H` 7,120 rows, 98.6 M U8 lookups, the largest slot mask length 117, the parallel thresholds' far side | size alone | **A LADDER, and every rung is priced** (stage 32's figures): 128 tokens an 18,162,936 B receipt and 11.7 M lookups, 256 tokens 23,169,336 B and 31.2 M, 512 tokens 39,275,896 B and 93.9 M. 128 would still be an ordinary-filter shape, 256 a medium-tier one at roughly 25 s a proof, 512 is 125M. **NOT DONE**, and the open question is still what a rung buys beyond what stages 32 and 33 already prove |
+| 6 | **long runs and the memory path**: `L = 12`, a 484 MB run receipt, the >10 GiB proving peak, the mmap threshold crossings | size alone | **NO** — inherently heavy, and the one item a small shape cannot stand in for. Stage 29 unit-gated the five size thresholds themselves, so what is uncovered is the memory BEHAVIOUR, not a branch |
+| ~~the dead arm~~ | ~~`Shape::a_groups`'s first arm~~ | — | **GONE**: ruling S-6 refuses the family that reaches it, the arm is unreachable after validation, and the two arms are proved to agree on it anyway. Lifting the refusal later needs a shape of that family in the ordinary filter |
+
+**One row of the old list no longer belongs on it.** Stage 32 wrote "the
+cheapest shape reaching the dead arm is a 39,380,616-byte receipt" as if it
+were a heavy-only BRANCH. It is now a refused shape family, which is a
+different kind of thing: not untested code, but code that cannot be reached.
+
+### Task 5 — the gates, the SEVENTH registry guard, and the commits
+
+**THE SEVENTH REGISTRY GUARD, AND WHY THE NUMBER IS RECORDED RATHER THAN
+DODGED.** Stage 30 tripped four guards with a new profile, stage 31 a fifth,
+stage 32 a sixth, and this stage a seventh:
+`s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape`
+refuses a development run whose `parameters` absorb length it has not
+recorded. rung-E32's is **299 bytes at `L = 1`**, where the three 96-wide
+runs are 294, rung-W14 is 297 and rung-C6 is 298. The whole filter's FIRST
+run at the stage-33 tip is kept as evidence of it
+(`w33-gate-private2.log`: **393 passed / 1 failed / 17 ignored, 564.84 s**).
+
+The two extra bytes over rung-W14 are exactly locatable, and the guard now
+says so: **the endpoint's row count appears TWICE in a run's parameter
+line** — once as the block's `endpoint-…-rows` and once as the run's own
+`external-rows` — and 37 is one decimal digit longer than rung-W14's 9 in
+both places. Every other field is the same width (`T32` against `T64`,
+`log_cols10` against `log_cols14`, the same width, hidden and head axis), so
+the difference is that one number counted twice. At 299 the 295-byte
+`parameters` / `pb-term`(15) coincidence **cannot arise at any `L`**, so the
+split of the development runs becomes **3 narrow / 3 wide**.
+
+**THE GATES AT THE STAGE-33 TIP.**
+
+| gate | result |
+|---|---|
+| `--lib private_` (the whole filter), FIRST run | **393 passed / 1 failed / 17 ignored, 564.84 s** (`w33-gate-private2.log`) — the seventh registry guard, recorded above. The log is kept |
+| `--lib private_` (the whole filter), SECOND run, after the recorded length | **394 passed / 0 failed / 17 ignored, 565.58 s, exit 0** (`w33-gate-private3.log`) — stage 32's 375 plus this stage's nineteen (nine in `s33_tests`, nine in `e32_tests`, one in `parity.rs`), nothing lost. The one new ignored test is the bundle writer. **The filter grew by 16.65 seconds** against stage 32's 548.93 s, inside the minute this stage was given |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — all in the pass list of both runs |
+| the rung, rung-G, rung-K4, rung-P2, rung-C6 and rung-W14 pins, BY NAME | in the pass list: `rung_tests`, `dense_tests`, `k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims` (4,743,128 B), `p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move` (4,742,728 B), `c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved` (7,452,040 B) and `w14_tests` (16,421,048 B). `e32_tests` asserts the last four again beside its own 11,368,824 B |
+| an earlier gate, for the S-6 refusal alone | **384 passed / 0 failed / 16 ignored, 541.01 s** (`w33-gate-private1.log`), taken at the task-2 tip before task 3 existed: stage 32's 375 plus s33's nine, nothing lost, and the filter did NOT grow (stage 32's own run was 548.93 s) |
+| the Python model's tests | `python3 tests/test_zk60_private_block_layout_model.py` — **60 tests, OK** (52 before this stage; 56 after task 2), `w33-pytests.log` |
+| the forbidden-files proof | `git diff --stat f8b926f HEAD -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/field hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu zkvm-block private-block-kernel private-model-kernel private-block-kernel-shaped` prints **nothing**. With `tests` and `scripts` added it prints exactly two paths, the lane's own layout model and its acceptance test |
+| the filter's GROWTH | task 2 added **nothing measurable** (its nine tests are arithmetic); task 3's ten add about **25 s** (`w33-e32-run1.log`: the whole `e32_tests` module in 25.28 s at a peak RSS of 361 MB). Inside the minute this stage was given |
+| no 125M run | none. No `r29-*` file was touched, and the two quarantined `u31-c6-run1.*` files are untracked and untouched |
+
+**THE COMMITS OF STAGE 33**, in order:
+
+| commit | what |
+|---|---|
+| `629f5f3` | the ledger skeleton: the three closures, the rules, the evidence prefix |
+| `9f76ed8` | **task 1** (ruling J-7a): `s33_tests.rs` — the ASCII premise over the whole registry, the bad-profile control, the separation LEMMA over every profile length and every absorb layout, stage 32's own pair on real bytes, and the lemma's own control. In the same commit, **task 2's gap reproduced as two FAILING tests** and its log |
+| `a57817e` | **task 2** (ruling S-6): the refusal in `Shape::new`, the `a_groups` arm documented as unreachable-after-validation, stage 24's mask-budget probe moved from a row width of 2^14 to 2^21, and the whole filter green at 384 |
+| `ddb5db8` | **finding S33-F1**: the declared pair's own sentence corrected from "six NUL bytes" to the checked fourteen positions |
+| `4505ddf` | **task 2**: the Python model mirrors ruling S-6 by the same name; 56 model tests |
+| `6d71b40` | **task 3**: `Shape::rung_e32`, its run profile, the six registry lists a new profile trips, `e32_tests.rs` (9 tests), the parity test, and the measurement that places the shape in the ordinary filter |
+| `2d04d94` | **task 3**: the two capture bundles, written INTO the repository (32.8 / 32.4 MB), their writer, and the captures README |
+| `8361db2` | **task 3**: the shape in the independent Python model with its own test class; 60 model tests |
+| this one | the seventh registry guard (the 299-byte parameter line), the ledger's tasks 1–5 and the close |
+
+**WHAT THIS STAGE IS NOT.** Not a privacy result and not an acceptance: the
+lane's code stays experimental, for the integrator (ruling V-1), and the two
+bundles are the INPUT to the Python gate, not its verdict (ruling T-6). Not
+a claim about 125M: **no 125M proof was run**, and no `r29-*` file was
+touched. Not a change to what any existing profile sends, absorbs or draws:
+the toy is byte-frozen and green and the six older development profiles'
+receipt lengths are unmoved. Ruling S-6 is **not** a soundness or privacy
+condition — it refuses a family nothing has ever proved at, and the arm it
+protects is proved to compute the same value the live arm does.
+
+**WHAT IT IS.** Three things that were true but unchecked are now checked.
+A DECLARED hash coincidence whose separator was a comment is a lemma over
+every registered profile length and every absorb layout of that length, with
+one message-only finding against the record itself (S33-F1). A branch of the
+function that fixes the `A` opening's group structure, which no shape
+reached and no test covered, is a named refusal with the family stated in
+plain words and the arm proved redundant. And the 125M endpoint's **32 data
+rows, 37 commitment rows, 296-byte column digest and 38-row internal
+boundary** — until today reachable only by an `#[ignore]`d 10 GiB test — are
+proved, verified from bytes, checked against an independent reference kernel
+on a GENERIC witness, censused against 125M figure by figure, tampered with
+in rows no smaller shape has, run over two blocks, and captured for the gate
+in two bundles a reader can open, **by tests that add about twenty-five
+seconds to the ordinary filter**.
+
+**ONE NOTE FOR THE INTEGRATOR.** `w14_tests::every_shape` and
+`c6_tests::every_shape` are each a frozen list from their own stage and do
+not carry rung-E32, so their censuses ("exactly two shapes at `head_dim`
+64", "exactly two on the C-6 arm") are statements about the registry AS IT
+WAS. rung-E32 is a third shape at `head_dim = 64` and a fourth on the C-6
+arm. Nothing is wrong and nothing fails — the registry guards that must be
+complete (`s24_tests`, `s25_tests`, `s33_tests`, `run_statement_file`) are
+all updated — but if those two censuses are meant to stay current, their
+lists want the same treatment, and that is a decision about what those tests
+are for rather than a defect.

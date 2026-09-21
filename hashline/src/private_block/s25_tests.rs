@@ -1194,23 +1194,32 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
             assert_eq!((lens[0], lens[11]), (294, 296), "{p}: the one- and twelve-block absorbs");
             narrow += 1;
         } else {
-            assert!([297, 298].contains(&base), "{p}: an unrecorded parameter-line length {base}; this test knows 294 (the 96-wide runs), 297 (rung-W14) and 298 (rung-C6)");
+            // **STAGE 33 records a third wide run, rung-E32 at 299**, and its
+            // two extra bytes over rung-W14's 297 are exactly locatable: the
+            // ENDPOINT ROW COUNT appears TWICE in a run's parameter line —
+            // once as the block's `endpoint-…-rows` and once as the run's
+            // `external-rows` — and 37 is one decimal digit longer than
+            // rung-W14's 9 in both places. Every other field is the same
+            // width (`T32` against `T64`, `log_cols10` against `log_cols14`,
+            // the same width, hidden and head axis), so the difference is
+            // that one number, counted twice.
+            assert!([297, 298, 299].contains(&base), "{p}: an unrecorded parameter-line length {base}; this test knows 294 (the 96-wide runs), 297 (rung-W14), 298 (rung-C6) and 299 (rung-E32)");
             assert!(hits.is_empty(), "{p}: a 295-byte parameters absorb appeared at a shape whose base is {base}: {hits:?}");
             wide += 1;
         }
         eprintln!("    {p}: parameters absorb {base} at L = 1, boundary rows {}, span {:?}; 295 collisions at L = {hits:?}", rows_at[1], (lens[0], lens[11]));
     }
     // every registered run but 125M's (stage 31: four of them, three narrow
-    // and one wide; stage 32: five, three and two), derived from the registry
-    // and never a literal
+    // and one wide; stage 32: five, three and two; stage 33: six, three and
+    // three), derived from the registry and never a literal
     assert_eq!(narrow + wide, every_run().len() - 1, "the 295-byte coincidence was checked at fewer than every development run");
-    assert_eq!((narrow, wide), (3, 2), "the split between the runs that CAN collide at 295 and those that cannot moved");
+    assert_eq!((narrow, wide), (3, 3), "the split between the runs that CAN collide at 295 and those that cannot moved");
     // and what separates them, at a fixed offset inside the input
     let a = [&(10u64).to_le_bytes()[..], b"parameters"].concat();
     let b = [&(7u64).to_le_bytes()[..], b"pb-term"].concat();
     assert_ne!(a[..8], b[..8], "the two labels' length prefixes are equal");
     assert_ne!(a, b, "the two label literals do not differ");
-    eprintln!("S25 W-6: slot 19 carries six terminals at every shape (151 B, = the boundary spec digest's input, never in one function inside one profile); the 295-byte `parameters`/`pb-term`(15) pair is live at {narrow} of the {} development runs for 2 <= L <= 9 and cannot arise at the other {wide} (rung-C6's parameter line is four bytes longer than the 96-wide runs', rung-W14's three)", narrow + wide);
+    eprintln!("S25 W-6: slot 19 carries six terminals at every shape (151 B, = the boundary spec digest's input, never in one function inside one profile); the 295-byte `parameters`/`pb-term`(15) pair is live at {narrow} of the {} development runs for 2 <= L <= 9 and cannot arise at the other {wide} (rung-C6's parameter line is four bytes longer than the 96-wide runs', rung-W14's three, rung-E32's five — its 37-row endpoint is written twice)", narrow + wide);
 }
 
 // ---------------------------------------------------------------------------
