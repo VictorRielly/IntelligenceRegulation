@@ -1,0 +1,61 @@
+==============================================================================
+TOY RESIDUALS RE-DERIVED FROM MAIN @ 4751b93 (exact integers)
+==============================================================================
+N_leaf = 4*2048 + 4096 = 12288   [COUNTED]
+N_node = 4*2047 + 4095 = 12283   [COUNTED]
+N_overlap = 24571   [COUNTED]
+
+1. SAMPLER (D9)
+   2^128 mod p = 18446744065119617025 = p - 2^32 : True
+   per-draw TV distance  b(p-b)/(p*2^128) = 2^-96.000000   [COMPUTED]
+   per-draw REJECTION REGION b/2^128      = 2^-64.000000   <- an EVENT, 32 bits larger; must never be used as the distance
+   CFS coefficients sum((n+e)*d+2) over 23 slots = 583  -> 1166 fp() draws
+     A mask+prox rows (455-213)*256                 61952
+     A pads 455*256                                116480
+     23 CFS masks 2*sum((n+e)*d+2)                   1166
+     M row pads 23*2*256                            11776
+     M b_re,b_im,u_re,u_im 4*1024                    4096
+     H mask+prox rows (384-280)*256                 26624
+     H two zero-sum rows 2*255                        510
+     H pads 384*256                                 98304
+     two endpoints 2*((7-2)*256 + 7*256)             6144
+   TOTAL fp() draws = 327052   [COUNTED]   (memo: 327,052 -> True)
+   sampler residual N * TV = 2^-77.6808      (statement: 2^-77.7)   [COMPUTED]
+   at 10^6 proofs           = 2^-57.7493      (statement: 2^-57.7)   [COMPUTED]
+
+2. THE ONE INPUT-DEPENDENT REFUSAL CLASS (zero LogUp denominator)
+   U8 61440 + exp 2048 + act 512 + table 768 = 64768   [COUNTED]
+   ONE-WORLD, all denominators   64768/p^2      = 2^-112.0170   (statement 2^-112.0)
+   ONE-WORLD, distinct arguments 768/p^2 = 2^-118.4150   (ruling S-4's 2^-118.4)
+   TWO-WORLD union (what a DISTANCE needs): 2x each = 2^-111.0170  /  2^-117.4150  (memo hop G_7->G_8 writes 2 * 2^-112.0)
+   => the statement's 2^-112.0, READ AS A DISTANCE, is still an upper bound:
+      2*distinct = 2^-117.4150 < 2^-112.0170 by 5.4 bits.
+
+3. HASH-LAYER TERMS
+   salt guessing        q * 12288 * 2^-256   = q * 2^-242.4150   (statement q*2^-242.4)
+   leaf-input collision C(12288,2) * 2^-256 = 2^-229.8302   (statement 2^-229.8)
+   64-byte absorb overlap 24571 * 2^-256  = 2^-241.4153   (statement 2^-241.4)
+   leaf input = node input 12283*12288*2^-512 = 2^-484.8307   (NOT in the statement's table)
+   challenge pre-query   q * 4000 * 2^-256  = q * 2^-244.0342   (statement q*2^-244.0)
+   absorb-input collision C(4000,2)*2^-256 = 2^-233.0688   (statement 2^-233.1)
+   generator (ROM alternative) 6q * 2^-256      = q * 2^-253.4150   (statement 6q*2^-256)
+   -- the 4,000 is a BOUND. This review COUNTS 2180 distinct absorb+squeeze points (3207 calls incl. the refusal replay);
+      with the counted 317 absorbs the collision term is 2^-240.3879, and with 2180 points 2^-234.8204; both below the carried figure.
+
+4. LIVENESS (NOT a distance)
+   one proximity determinant vanishes with probability 2^-64.0000 (~1/p)
+   four sites (A, H, in, out): 2^-62.0000   (statement 2^-62.0)   [COMPUTED]
+   the Fp2-valued refusals (222 draws, ~2/p^2 each): 2^-119.2 -- 64+ bits smaller, as claimed
+
+5. THE TOTAL, at the statement's own ceiling q = 2^128
+   q=2^12   hash layer 2^-228.8372 | sum w/ 1-world refusal 2^-77.680839488954 | w/ 2x 2^-77.680839488887 | w/ 2x distinct 2^-77.680839489019
+   q=2^50   hash layer 2^-192.0079 | sum w/ 1-world refusal 2^-77.680839488954 | w/ 2x 2^-77.680839488887 | w/ 2x distinct 2^-77.680839489019
+   q=2^80   hash layer 2^-162.0079 | sum w/ 1-world refusal 2^-77.680839488954 | w/ 2x 2^-77.680839488887 | w/ 2x distinct 2^-77.680839489019
+   q=2^128  hash layer 2^-114.0079 | sum w/ 1-world refusal 2^-77.680839488937 | w/ 2x 2^-77.680839488870 | w/ 2x distinct 2^-77.680839489002
+   The three sums agree to 10 decimal places: the refusal form does not move
+   the headline 2^-77.7 at any q.
+   margin of the sampler over q*2^-242.4 at q=2^128: -36.7 bits
+
+6. THE SALT-GUESSING COEFFICIENT, checked both ways
+   statement uses ALL 12288 leaves: 2^-242.4150
+   only never-opened leaves (~11,077 by the memo's expectation): 2^-242.5647  -- SMALLER, so the carried figure is conservative in the honest direction

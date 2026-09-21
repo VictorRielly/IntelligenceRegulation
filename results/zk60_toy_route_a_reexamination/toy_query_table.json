@@ -1,0 +1,86 @@
+{
+ "N_leaf": 12288,
+ "N_node": 12283,
+ "N_overlap": 24571,
+ "absorb_expected_io": 171,
+ "absorb_parameters": 171,
+ "blockpublic_digest_len": 6311,
+ "clashes": {
+  "171": [
+   "T3 absorb \"expected-IO\"",
+   "T3 absorb \"parameters\""
+  ],
+  "47": [
+   "T4a transcript squeeze, live chain",
+   "T4c squeeze off a clone: the REFUSAL REPLAY (same points as T4a)"
+  ],
+  "64": [
+   "T3 absorb_u64 \"log-cols\"",
+   "P3 salted leaf  blake3(digest(32) || salt(32))",
+   "P4 Merkle inner node  blake3(left(32) || right(32))"
+  ]
+ },
+ "lengths": [
+  30,
+  40,
+  47,
+  51,
+  56,
+  60,
+  63,
+  64,
+  71,
+  73,
+  81,
+  87,
+  88,
+  91,
+  96,
+  103,
+  104,
+  120,
+  128,
+  136,
+  151,
+  171,
+  263,
+  295,
+  327,
+  391,
+  400,
+  407,
+  951,
+  3072,
+  3205,
+  3640,
+  6311,
+  8247,
+  8248,
+  16438,
+  16441
+ ],
+ "live_squeezes": 1863,
+ "n_a_claims": 120,
+ "n_absorb": 317,
+ "n_h_claims": 52,
+ "parameters_literal": 113,
+ "pb_term_lengths": [
+  71,
+  87,
+  103,
+  151,
+  263,
+  295,
+  327,
+  391,
+  407,
+  951
+ ],
+ "replay_squeezes": 1027,
+ "sc_round_lengths": [
+  104,
+  120,
+  136
+ ],
+ "schedule_digest_len": 3205
+}

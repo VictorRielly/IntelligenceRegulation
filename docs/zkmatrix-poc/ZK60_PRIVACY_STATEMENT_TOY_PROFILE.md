@@ -82,6 +82,18 @@ D21").
 > which includes that **separate operating-system entropy reads are
 > independent**. That was always what the argument used; it is now said.
 
+> **Re-examined against the complete hash-call table — note of 2026-09-21
+> 05:03.** An independent agent re-examined step 5's argument for this
+> profile, on the main branch at `4751b93`, against everything learned about
+> the hashing during the night (`ZK60_TOY_ROUTE_A_REEXAMINATION.md`). **Verdict:
+> unchanged, with clarifications.** Every figure of §4 reproduces from the code
+> (327,052 draws call site by call site; the per-draw distance exactly 2^-96,
+> never priced as an event; 64,768 denominators; the tree counts; the 4,000
+> bound on absorbs, counted for the first time: 2,180 points); no accepted
+> sentence relies on anything now known to be false. The nine clarifying
+> sentences it recommended are in §9 below. None changes §2's sentence, any
+> figure, or the substance of any condition.
+
 **Changes since the 05:32 draft** (nothing in the argument changed): D19–D21
 are decisions, no longer proposals; the gate's record of record was found
 stale in one file and is being refreshed (its numbers were right); the run
@@ -199,3 +211,45 @@ differs from the Rust it claims to port.
 rungs, the 125M block, the multi-block run — gets a separating hash tag, and
 owes this whole argument again at its own layout before anything is said
 about its privacy.
+
+## 9. Clarifications added after the re-examination of 2026-09-21
+
+They say more exactly what the sections above already meant. Source:
+`ZK60_TOY_ROUTE_A_REEXAMINATION.md` §7, accepted by the security owner as
+written except where noted.
+
+1. **§4, the 2^-112.0 row.** It is the one-world probability of the
+   input-dependent refusal class (64,768 inverted denominators over |Fp2|). The
+   distance a two-world comparison needs is twice the tighter count over
+   distinct arguments, 2 × 768/p² = 2^-117.4, which 2^-112.0 bounds with 5.4
+   bits to spare. The figure stays; its label is "a bound on the distance".
+2. **§4, the sampler row.** Exactly 327,052 × 2^-96 = 2^-77.68. "2^-77.7" is a
+   rounding, not an upper bound; "about" in §2 carries it. It is a *distance*
+   and is never priced as an event (the rejection region is 2^-64 per draw).
+3. **§4, a row that was missing.** A salted-leaf input equal to a Merkle node
+   input (both 64 untagged bytes; ruling L-7): 2^-484.8, a distance.
+4. **§5 condition 5, scope.** The condition is about the five commitments of
+   this proof (`A`, `H`, `M` and the two endpoints). The Merkle trees over the
+   *public* weights that the synthetic fixture builds are unsalted and contain
+   no hidden value.
+5. **§5 condition 6.** Three fresh reads of the operating system's entropy per
+   proof, not one: the block's and one per endpoint. The assumption of §2 is
+   that the three generators are jointly indistinguishable from uniform, which
+   includes that separate reads are independent (already noted at 03:23).
+6. **§5 condition 6, a weakness to know.** The two endpoint generators derive
+   their keys from **byte-identical** public inputs; the two entropy reads are
+   the only thing separating them. At this frozen profile there is no domain
+   separation behind that assumption for two of the three generators. It
+   cannot be changed here without moving frozen code; **for every unfrozen
+   profile the endpoint's role and spec digest go into the generator's domain**
+   (owed on the lane; it moves no verifier-visible byte).
+7. **§5 condition 4.** The generator is not `Clone`: it cannot be forked, by
+   the type system.
+8. **§5 condition 7.** The pin set is what keeps the hash-layer argument's code
+   conditions true: no commitment has 5 or 8 rows, and no transcript domain on
+   this path has length 28 or 35 — properties of files that are all pinned.
+9. **§3, step 5.** The lift uses uniqueness of the challenge *point* along the
+   live transcript, not of the call: the prover's refusal replay re-issues
+   1,027 of those points per proof with no absorb in between, which returns the
+   value already sampled and enters no bound. The earlier phrase "challenge
+   queries are unique unconditionally" is to be read that way.

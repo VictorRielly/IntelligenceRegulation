@@ -1,0 +1,55 @@
+{
+ "A_bound": 4000,
+ "A_counted_calls": 3207,
+ "A_counted_points": 2180,
+ "N_leaf": 12288,
+ "N_node": 12283,
+ "N_overlap": 24571,
+ "absorbcoll_counted_log2": -240.38788022168347,
+ "absorbcoll_log2": -233.06879214952778,
+ "all_denominators": 64768,
+ "distinct_denominators": 768,
+ "eps_d9_1M_log2": -57.749270919696045,
+ "eps_d9_log2": -77.68083948902022,
+ "gen_log2": -253.41503749927884,
+ "leafcoll_log2": -229.83019241015825,
+ "leafnode_log2": -484.83066215213745,
+ "liveness_log2": -61.9999999996641,
+ "n_fp_draws": 327052,
+ "one_det_log2": -63.9999999996641,
+ "one_world_all_log2": -112.01700642463388,
+ "one_world_distinct_log2": -118.41503749860703,
+ "overlap_log2": -241.41533104619847,
+ "per_draw_tv_log2": -96.0000000003359,
+ "prequery_log2": -244.03421571533792,
+ "rejection_region_log2": -64.0000000006718,
+ "salt_log2": -242.41503749927884,
+ "totals": {
+  "2^12": {
+   "hash_layer_log2": -228.83717066161162,
+   "sum_one_world_log2": -77.6808394889537,
+   "sum_two_world_distinct_log2": -77.68083948901864,
+   "sum_two_world_log2": -77.68083948888717
+  },
+  "2^128": {
+   "hash_layer_log2": -114.00794680714736,
+   "sum_one_world_log2": -77.68083948893695,
+   "sum_two_world_distinct_log2": -77.6808394890019,
+   "sum_two_world_log2": -77.68083948887043
+  },
+  "2^50": {
+   "hash_layer_log2": -192.0079468071408,
+   "sum_one_world_log2": -77.6808394889537,
+   "sum_two_world_distinct_log2": -77.68083948901864,
+   "sum_two_world_log2": -77.68083948888717
+  },
+  "2^80": {
+   "hash_layer_log2": -162.00794680714736,
+   "sum_one_world_log2": -77.6808394889537,
+   "sum_two_world_distinct_log2": -77.68083948901864,
+   "sum_two_world_log2": -77.68083948888717
+  }
+ },
+ "two_world_all_log2": -111.01700642463388,
+ "two_world_distinct_log2": -117.41503749860703
+}

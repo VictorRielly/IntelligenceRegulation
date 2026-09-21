@@ -1,0 +1,136 @@
+==============================================================================
+THE TOY'S BLAKE3 QUERY TABLE, RE-DERIVED FROM MAIN AT 4751b93
+==============================================================================
+[T1     ] transcript constructor
+          mode=unkeyed  lengths=[51]  count/proof=1  secret=False
+          zkp-core/src/transcript.rs:25-30 via private_block/protocol.rs:30
+[T3     ] absorb "expected-IO"
+          mode=unkeyed  lengths=[171]  count/proof=1  secret=False
+          private_block/protocol.rs:31
+[T3     ] absorb "public-statement"
+          mode=unkeyed  lengths=[96]  count/proof=1  secret=False
+          protocol.rs:32
+[T3     ] absorb "parameters"
+          mode=unkeyed  lengths=[171]  count/proof=1  secret=False
+          protocol.rs:33
+[T3     ] absorb "calibration"
+          mode=unkeyed  lengths=[91]  count/proof=1  secret=False
+          protocol.rs:35
+[T3     ] absorb "schedule"
+          mode=unkeyed  lengths=[88]  count/proof=1  secret=False
+          protocol.rs:36
+[T3     ] absorb "A" / "H" / "M" (a 32-byte root)
+          mode=unkeyed  lengths=[81]  count/proof=3  secret=False
+          protocol.rs:40-44 (:320, :377), :326
+[T3     ] absorb_u64 "rows"
+          mode=unkeyed  lengths=[60]  count/proof=2  secret=False
+          protocol.rs:42
+[T3     ] absorb_u64 "log-cols"
+          mode=unkeyed  lengths=[64]  count/proof=2  secret=False
+          protocol.rs:43  <-- the 64-byte absorb
+[T3     ] absorb_u64 "pb-slot"
+          mode=unkeyed  lengths=[63]  count/proof=23  secret=False
+          private_block/argument.rs:270
+[T3     ] absorb_fp2 "pb-scalar" (1 Fp2)
+          mode=unkeyed  lengths=[73]  count/proof=23  secret=False
+          argument.rs:290, :321
+[T3     ] absorb_fp2 "sc-round" (d+1 Fp2)
+          mode=unkeyed  lengths=[104, 120, 136]  count/proof=184  secret=False
+          sumcheck/zk.rs:994 and the masked rounds
+[T3     ] absorb_fp2 "pb-term" (slot_terms Fp2)
+          mode=unkeyed  lengths=[71, 87, 103, 151, 263, 295, 327, 391, 407, 951]  count/proof=23  secret=False
+          argument.rs:350
+[T3     ] absorb_fp2 "mask-q" (1024 Fp2)
+          mode=unkeyed  lengths=[16438]  count/proof=1  secret=False
+          hashline/src/zk.rs:533, :562
+[T3     ] absorb_fp2 "mask-prox" (1024 Fp2)
+          mode=unkeyed  lengths=[16441]  count/proof=1  secret=False
+          zk.rs:542, :565
+[T3     ] absorb_fp2 "pcs-vec"
+          mode=unkeyed  lengths=[8247]  count/proof=46  secret=False
+          zkp-core/src/pcs.rs:924-926, :981-983
+[T3     ] absorb_fp2 "pcs-prox"
+          mode=unkeyed  lengths=[8248]  count/proof=4  secret=False
+          pcs.rs:927, :987
+[T4a    ] transcript squeeze, live chain
+          mode=unkeyed  lengths=[47]  count/proof=1863  secret=False
+          transcript.rs:85-94
+[T4c    ] squeeze off a clone: the REFUSAL REPLAY (same points as T4a)
+          mode=unkeyed  lengths=[47]  count/proof=1027  secret=False
+          protocol.rs:173-174 (check_opening), :201-202 (endpoints); pcs.rs:835-855
+[P1/P2  ] column digest (A / H / M / endpoint)
+          mode=unkeyed  lengths=[56, 400, 3072, 3640]  count/proof=12288  secret=True
+          pcs.rs:137-143, :147-166; hashline/src/zk.rs:592-595
+[P3     ] salted leaf  blake3(digest(32) || salt(32))
+          mode=unkeyed  lengths=[64]  count/proof=12288  secret=True
+          pcs.rs:640-645 (:689), zk.rs:464
+[P4     ] Merkle inner node  blake3(left(32) || right(32))
+          mode=unkeyed  lengths=[64]  count/proof=12283  secret=True
+          zkp-core/src/merkle.rs:14-19
+[R1     ] generator seed derivation (block)
+          mode=KEYED, key = 32 B /dev/urandom  lengths=[61]  count/proof=1  secret=True
+          rng.rs:44-51 via protocol.rs:275
+[R1     ] generator seed derivation (each endpoint)
+          mode=KEYED, key = 32 B /dev/urandom  lengths=[50]  count/proof=2  secret=True
+          rng.rs:44-51 via private_seam.rs:196
+[R2     ] generator refill (XOF -> 8192 B)
+          mode=unkeyed XOF  lengths=[40]  count/proof=None  secret=True
+          rng.rs:53-61
+[D1     ] calibration identity
+          mode=unkeyed  lengths=[30]  count/proof=2  secret=False
+          private_block.rs:96-98 (prover and verifier)
+[D2     ] block public-statement digest
+          mode=unkeyed  lengths=[6311]  count/proof=2  secret=False
+          private_block.rs:260-266
+[D3     ] block schedule digest
+          mode=unkeyed  lengths=[3205]  count/proof=2  secret=False
+          layout.rs:678-686 (35 lines; RUST-STRING-DEPENDENT)
+[D8     ] frozen-seam spec digest
+          mode=unkeyed  lengths=[128]  count/proof=6  secret=False
+          private_seam.rs:115-133
+
+------------------------------------------------------------------------------
+LENGTH COINCIDENCES inside the ONE unkeyed function (legacy rule)
+------------------------------------------------------------------------------
+       47 bytes : 2 kinds
+            - T4a transcript squeeze, live chain
+            - T4c squeeze off a clone: the REFUSAL REPLAY (same points as T4a)
+       64 bytes : 3 kinds
+            - T3 absorb_u64 "log-cols"
+            - P3 salted leaf  blake3(digest(32) || salt(32))
+            - P4 Merkle inner node  blake3(left(32) || right(32))
+      171 bytes : 2 kinds
+            - T3 absorb "expected-IO"
+            - T3 absorb "parameters"
+  TOTAL distinct unkeyed lengths: 37;  clashing lengths: 3
+
+  47 (squeeze) occupied by anything else?  YES
+  40 (refill)  occupied by anything else?  NO
+
+------------------------------------------------------------------------------
+ONE-BYTE MARGINS between unkeyed input kinds on the toy's path
+------------------------------------------------------------------------------
+  63 vs 64: ['T3 absorb_u64 "pb-slot"']  |  ['T3 absorb_u64 "log-cols"', 'P3 salted leaf  blake3(digest(32) || salt(32))', 'P4 Merkle inner node  blake3(left(32) || right(32))']
+  87 vs 88: ['T3 absorb_fp2 "pb-term" (slot_terms Fp2)']  |  ['T3 absorb "schedule"']
+  103 vs 104: ['T3 absorb_fp2 "pb-term" (slot_terms Fp2)']  |  ['T3 absorb_fp2 "sc-round" (d+1 Fp2)']
+  8247 vs 8248: ['T3 absorb_fp2 "pcs-vec"']  |  ['T3 absorb_fp2 "pcs-prox"']
+
+  (keyed R1 inputs, separated by mode not length: [[61], [50]])
+  R1 at 61 B is within one byte of unkeyed [60] -> [['T3 absorb_u64 "rows"']]
+  R1 at 50 B is within one byte of unkeyed [51] -> [['T1 transcript constructor']]
+
+------------------------------------------------------------------------------
+COUNTS PER PROOF
+------------------------------------------------------------------------------
+  absorbs                          : 317
+  live squeezes (distinct points)  : 1863
+    slots 464  (definition 257 + c 23 + rounds 184)
+    logup 3, mask 113, A 639, H 500, endpoints 144
+  refusal-replay squeezes (DUPLICATE points): 1027
+  A := absorbs + distinct squeeze points = 2180
+  A including the replay's repeated CALLS  = 3207
+  the memo's bound A <= 4000 holds: True
+  encoded columns / salts drawn N_leaf = 12288
+  internal nodes              N_node = 12283
+  N_overlap = N_leaf + N_node        = 24571
+  A claims 120 in 35 groups; H claims 52 in 9 groups
