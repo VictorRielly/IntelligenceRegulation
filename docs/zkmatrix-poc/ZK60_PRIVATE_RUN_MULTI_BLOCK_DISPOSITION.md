@@ -486,6 +486,69 @@ record's shape — and the lane says so.]
   no bundle pins; the 125M shape; the private-attention profile. **No privacy
   claim about any run.**
 
+**Round 9 (11:18, 2026-09-21): the gate at the 125M shape — the first time
+anything is MEASURED there** (`zk60-native-jointview` at `ad16a77`, pushed;
+report §13; I re-ran its 42 tests and read the two records' public-identity
+flags myself). Input: two two-block runs captured by the lane at `f4697f9`
+(dense generic input; all-zero input), a new capture schema that keeps big
+arrays in one side file by SHA-256. Everything below is [MEASURED] on those two
+bundles unless labelled otherwise.
+
+- **Loader.** A reference is resolved only after its length, element type,
+  byte range and SHA-256 are checked; thirteen malformed cases each give the
+  NAMED refusal. The decoder was proved against the format on a development
+  bundle two ways (3,430,417 leaves member by member, none differing; and
+  through the whole gate, only names, paths, clocks and the new store block
+  moving). That does not test the Rust encoder, which has its own test.
+- **Pins.** All 38 pinned files verified against the blobs at `f4697f9`; the
+  six that moved since the last accepted capture commit were read hunk by
+  hunk; **the 23 shared files are now pinned by the writer, and the eight a
+  port depends on carry exactly the digests round 8 read** — the writer-side
+  pin this page listed as open is granted.
+- **Replay and hash layer.** 251 positions and 27,828 challenges re-derived,
+  none not reproduced; 2,304 opened columns (52,867,072 bytes) re-hashed under
+  the derived keys and authenticated.
+- **The 23-slot terminal identity: 46 of 46**, with two group bits, 13 public
+  tables rebuilt and 15 taken from the capture after a digest check.
+  **Finding M-F1 (the headline, and a port defect, not a prover defect):** the
+  first pass was 40 of 46 — every zero-check port assumed a pad-zero term, and
+  at 125M three domains are exact powers of two (2^9, 2^17, 2^20), so their
+  host slots draw two fewer challenges (`argument.rs:936`). No development
+  shape could have shown it. Repaired by deriving the condition from the
+  shape; the crash became a named refusal; its own control exists only at this
+  shape. It agrees with the counted five pad-zero hosts at 125M against eight
+  at the rungs.
+- **Disclosure, exact ranks.** `A` 5,681 rows, 122 claims, disclosed **0**; `H`
+  7,120 rows, 51 claims, disclosed 2 **which the gate checks IS the public
+  LogUp identity** (true in both stages of both bundles); both endpoints 0;
+  **the boundary 6 of 6 on its reserved rows, disclosed 0**; `M` 50 rows,
+  disclosed 0 beyond its budget; the whole run 206 functionals over 25,686
+  rows, joint 4 = the sum of the parts.
+- **Preimage construction.** Three small commitments (145,118 entries) and
+  **`A` of block 0 alone — 2,070,138 published entries recomputed from
+  blinding constructed for all-zero data, none differing**, 365 s at 2.5 GB;
+  the masking arm 32,918 entries, none differing. The other three big
+  commitments, round 7's controls and the joint run-wide preimage are
+  **running detached** (about 26 minutes a bundle; markers under
+  `results/zk60_native_run_gate_m125/`), so the 125M records of record
+  carry the channel table at **2 constructed / 5 derived / 4 argued / 17
+  open** — NOT the development shapes' 10 / 5 / 4 / 9 — until they land.
+- **Prediction before measurement.** 180 figures predicted from the shape and
+  validated on both development shapes first: 55 shape-independent figures
+  identical at all three shapes, 61 block-count figures, 64 scaling figures as
+  predicted, **none unexplained**. Dense against all-zero at 125M: 124 of 128
+  figures identical; the four that differ are sampled-column counts and the
+  pad margins that follow from them — the same classes as at the rungs.
+- **Controls fire at 125M**: a moved array range is refused by digest (this
+  one caught a defect in the round's own loader cache, finding M-F2, fixed);
+  one moved column entry fails exactly one leaf of 2,304; the rung's keys
+  authenticate nothing; round 8's six masking controls.
+- **What this is not.** Two runs of two blocks: one internal boundary, where
+  the model has eleven. Linear channels only. The law of the blinding, the
+  joint law and the hiding of unopened leaves are where round 8 left them.
+  Both bundles still say `privacy_review_complete: false`. **No privacy claim
+  about any run, at any shape.**
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external
