@@ -1,0 +1,180 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:673:13
+    |
+673 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 14 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 13 tests
+test private_block::c6_tests::a_frame_with_the_dropped_helper_claims_is_refused_before_any_draw_at_the_rung_c6 ... C6 UN-CORRECTED FRAME: slot 14 carries 54 terminals here against 56 on the arm that keeps the four lookups; a frame with the two extra helper claims is refused by the frame check before any draw — private block wire: argument shape
+ok
+test private_block::c6_tests::a_norm_top_limb_outside_its_byte_range_is_rejected_at_the_rung_c6 ... C6 NORM RANGE TAMPER norm_a rho (A_NR): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+C6 NORM RANGE TAMPER norm_a sigma (A_NS): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+C6 NORM RANGE TAMPER norm_m rho (A_MR): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+C6 NORM RANGE TAMPER norm_m sigma (A_MS): top limb now negative true, limb below now at or above 256 true, recomposed remainder unchanged true — verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+C6 NORM RANGE SWEEP: 4 of 4 rejected by the VERIFIER at the H commitment's group 8 — the value-0 LogUp identity `protocol::finish_claims` pushes last — with the block's ARITHMETIC exactly satisfied, so the `byte(top)` lookup C-6 keeps is what carries the range obligation (finding S31-F1: that refusal does not name the lookup)
+ok
+test private_block::c6_tests::a_tampered_round_message_of_slot_14_is_rejected_at_the_rung_c6 ... C6 ROUND-MESSAGE TAMPER slot 14 [03 D zero-check (hosts 12, 13D)]: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+C6 ROUND-MESSAGE TAMPER slot 16 [05 KV zero-check (hosts 09K, 09V)]: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+C6 ROUND-MESSAGE TAMPER slot 18 [14 F zero-check (hosts 13G, 13U)]: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::c6_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_c6 ... S31 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+rung-C6 DENSE one block: prove 1.24 s, verify from bytes 0.16 s, frame 7452040 B
+ok
+test private_block::c6_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_c6 ... S31 CENSUS [run block 0]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+S31 CENSUS [run block 1]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+S31 CENSUS [run block 2]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, all four TOP norm limbs live and in range
+C6 FULLY DENSE RUN L=3 (down band 27): prove 3.84 s, verify from segments 0.50 s, segments [7259640, 7282168, 7474648] B (total 22016456 B), boundary 22 rows
+ok
+test private_block::c6_tests::only_the_125m_shape_and_the_new_one_reach_correction_c_6 ... S31 C-6 CENSUS toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)       width   16 D_max  131068 norm_wrho 29 full_byte false Dom::D 38 lookups / 19 helpers, H planes 51
+S31 C-6 CENSUS development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) width   96 D_max  321049 norm_wrho 31 full_byte false Dom::D 38 lookups / 19 helpers, H planes 52
+S31 C-6 CENSUS development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) width  384 D_max  642099 norm_wrho 32 full_byte true  Dom::D 34 lookups / 17 helpers, H planes 50
+S31 C-6 CENSUS 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) width  768 D_max  908065 norm_wrho 32 full_byte true  Dom::D 34 lookups / 17 helpers, H planes 50
+ok
+test private_block::c6_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_c6 ... rung-C6 ALL-ZERO (degenerate) one block: frame 7452040 B, verified
+ok
+test private_block::c6_tests::the_lookup_c6_drops_is_a_duplicate_of_one_that_stays ... S31 C-6 DUPLICATE norm_a rho top limb (A_NR): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DUPLICATE norm_a sigma top limb (A_NS): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DUPLICATE norm_m rho top limb (A_MR): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DUPLICATE norm_m sigma top limb (A_MS): rung-C6 keeps `byte(plane)` and drops `scaled(plane, 1)`, which is the SAME Lk; rung-P2 keeps `byte(plane)` and `scaled(plane, 2)`, which is not
+S31 C-6 DIFFERENCE: rung-P2's Dom::D list minus rung-C6's is exactly the four scaled top-limb entries; at rung-C6 their coefficient would be 1, i.e. the byte lookup already in the list
+ok
+test private_block::c6_tests::the_named_tampers_are_rejected_at_their_own_slots_at_the_rung_c6 ... C6 TAMPER the norm square A_DSQ of norm_a (slot 02's own relation) at index 31: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+C6 TAMPER the norm square A_DSQM of norm_m at index 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+C6 TAMPER residual 2, A_X2 (slot 14 hosts it) at index 0: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+C6 TAMPER the key A_K8, the LAST index of the unpadded Dom::Kv at index 4095: verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+C6 TAMPER the gate A_G8, the LAST index of the unpadded Dom::F at index 16383: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+C6 TAMPER the norm square A_DSQ at index 0 of the unpadded Dom::T at index 0: verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+C6 TAMPER SWEEP: 6 of 6 rejected by the VERIFIER at the slot under test, 0 by the prover, 0 accepted
+ok
+test private_block::c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved ... S31 rung-C6: T32/d384/f512, 12 heads of 32 over 4 KV heads, pads (32, 512, 16, 512), lkv 2, D_max 642099 -> norm_wrho 32 -> C-6 ON, unpadded T/Kv/F, largest L 77, receipt 7452040 B
+ok
+test private_block::c6_tests::the_norm_range_tamper_rejects_at_the_same_slot_on_both_arms ... C6 BOTH ARMS development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) (full_byte true): H: pcs zk: group 8: <v, c> != combined claim
+C6 BOTH ARMS development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) (full_byte false): H: pcs zk: group 8: <v, c> != combined claim
+C6 BOTH ARMS: the arm that DROPS the scaled lookup and the arm that keeps it reject the identical out-of-range top limb with the identical message
+ok
+test private_block::c6_tests::the_pinned_rung_c6_chain_band_is_the_first_admissible_one ... C6 DENSE RUN band 29: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+C6 DENSE RUN band 28: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+C6 DENSE RUN: the first admissible three-block down band is 27 (the recipe's single-block band is 29)
+ok
+test private_block::c6_tests::the_rows_and_lookups_c6_drops_are_absent_here_and_present_at_rung_k4 ... S31 SIDE BY SIDE   shape | full_byte | pad_on per domain | A rows | H rows | Dom::D lookups | slot 14 terms | lkv | head_dim | row width
+S31   development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) false | T:1 Ht:1 L:1 D:1 Q:1 Kv:1 S:1 F:1 Tab:1 | A   727 | H   720 | D 38 lookups / 19 helpers | slot 14 terms 56 | lkv 2 | head_dim  8 | 2^10
+S31   development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) false | T:0 Ht:1 L:1 D:1 Q:1 Kv:0 S:1 F:0 Tab:1 | A   727 | H   720 | D 38 lookups / 19 helpers | slot 14 terms 56 | lkv 2 | head_dim  8 | 2^10
+S31   development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) true  | T:0 Ht:1 L:1 D:1 Q:1 Kv:0 S:1 F:0 Tab:1 | A  1337 | H  1408 | D 34 lookups / 17 helpers | slot 14 terms 54 | lkv 2 | head_dim 32 | 2^10
+S31   125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) true  | T:0 Ht:1 L:1 D:1 Q:1 Kv:0 S:1 F:0 Tab:1 | A  5681 | H  7120 | D 34 lookups / 17 helpers | slot 14 terms 54 | lkv 2 | head_dim 64 | 2^14
+ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 431 filtered out; finished in 30.40s
+

@@ -1,0 +1,149 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:673:13
+    |
+673 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 14 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 1m 10s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 3 tests
+test private_block::c6_tests::probe_the_c6_band ... PROBE band_down(c6) = 29
+PROBE band 29: block 2 refused: fixed oracle range refusal: residual 2
+PROBE band 28: block 2 refused: fixed oracle range refusal: residual 2
+PROBE first admissible three-block down band at c6: Some(27)
+ok
+test private_block::c6_tests::probe_the_c6_proof ... PROBE witness 0.04 s
+PROBE c6 one block: prove 1.25 s, verify 0.17 s, frame 7452040 B (counted 7452040)
+ok
+test private_block::c6_tests::probe_the_c6_shape ... PROBE development wrho 32 full_byte true ln 4 ls 3 lp 2 dmax 642099
+PROBE development wrho 31 full_byte false ln 4 ls 3 lp 2 dmax 321049
+PROBE development wrho 31 full_byte false ln 4 ls 3 lp 2 dmax 321049
+PROBE 125M       wrho 32 full_byte true ln 4 ls 3 lp 2 dmax 908065
+PROBE dom T: c6 true 32 padded 32 log 5 pads false lookups 0 helpers 0 | p2 log 5 pads false lookups 0 helpers 0
+PROBE dom Ht: c6 true 384 padded 512 log 9 pads true lookups 0 helpers 0 | p2 log 9 pads true lookups 0 helpers 0
+PROBE dom L: c6 true 288 padded 1024 log 10 pads true lookups 2 helpers 1 | p2 log 10 pads true lookups 2 helpers 1
+PROBE dom D: c6 true 12288 padded 16384 log 14 pads true lookups 34 helpers 17 | p2 log 12 pads true lookups 38 helpers 19
+PROBE dom Q: c6 true 12288 padded 16384 log 14 pads true lookups 13 helpers 7 | p2 log 12 pads true lookups 13 helpers 7
+PROBE dom Kv: c6 true 4096 padded 4096 log 12 pads false lookups 12 helpers 6 | p2 log 10 pads false lookups 12 helpers 6
+PROBE dom S: c6 true 12288 padded 16384 log 14 pads true lookups 15 helpers 8 | p2 log 14 pads true lookups 15 helpers 8
+PROBE dom F: c6 true 16384 padded 16384 log 14 pads false lookups 9 helpers 5 | p2 log 13 pads false lookups 9 helpers 5
+PROBE dom Tab: c6 true 256 padded 1024 log 10 pads true lookups 0 helpers 0 | p2 log 10 pads true lookups 0 helpers 0
+PROBE c6 a_rows 1337 h_rows 1408 a_planes 83 h_planes 50
+PROBE c6 receipt 7452040
+PROBE c6 slots [(14, 1, 4), (14, 1, 4), (5, 1, 3), (10, 1, 4), (14, 1, 4), (9, 1, 2), (9, 1, 2), (9, 1, 2), (7, 2, 3), (7, 2, 3), (9, 1, 2), (9, 1, 2), (9, 1, 2), (9, 1, 2), (14, 1, 5), (14, 1, 5), (12, 1, 4), (14, 1, 5), (14, 1, 4), (10, 1, 3), (10, 1, 2), (14, 1, 2), (14, 1, 2)]
+PROBE c6 slot_lengths max Some(77)
+PROBE c6 endpoint rows 21 log_n 10 rate 4 general true
+PROBE p2 receipt 4742728 k4 receipt 4743128
+ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 429 filtered out; finished in 1.86s
+

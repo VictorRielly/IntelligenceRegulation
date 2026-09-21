@@ -9931,11 +9931,11 @@ branch on stage 30's list.
 
 | task | what | state |
 |---|---|---|
-| 1 | the shape: `norm_top_is_full_byte == true`, `lkv = 2`, every named refusal unweakened, the three unpadded domains kept if possible | PENDING |
-| 2 | the tests in the ORDINARY filter: the gap census, the generic honest witness, the all-zero input, the layout census by name, the tampers only this branch can get wrong, a three-block run | PENDING |
-| 3 | two capture bundles of the new shape for the independent Python gate | PENDING |
-| 4 | the refreshed "still heavy-only" list | PENDING |
-| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof, the Python model's tests | PENDING |
+| 1 | the shape: `norm_top_is_full_byte == true`, `lkv = 2`, every named refusal unweakened, the three unpadded domains kept if possible | **DONE** — `Shape::rung_c6`, receipt 7,452,040 B counted and measured, and it DOES keep the three unpadded domains |
+| 2 | the tests in the ORDINARY filter: the gap census, the generic honest witness, the all-zero input, the layout census by name, the tampers only this branch can get wrong, a three-block run | **DONE** — 13 new tests in `c6_tests.rs` + 1 in `parity.rs`, all non-ignored. **No soundness finding**: what C-6 drops is a literal duplicate of a lookup that stays |
+| 3 | two capture bundles of the new shape for the independent Python gate | **DONE** — `run-m-dense-c6` / `run-n-zero-c6`, 22.9 + 22.7 MB |
+| 4 | the refreshed "still heavy-only" list | **DONE** — four items left, none of them cheap, and one observation that is not heavy-only at all |
+| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof, the Python model's tests | **DONE** — see the gate table |
 
 **The rules this stage works under** are the lane's and stage 30's: one
 writer, the build recipe in this file's header, **no 125M run** (the heavy
@@ -9949,3 +9949,344 @@ checked element for element against the independent
 
 **Evidence prefix**: `results/zk60_block125m_lane/u31-*`.
 
+### Task 1 — `Shape::rung_c6`, and why every number of it is forced
+
+**The idea in one line: take rung-P2 and widen the head dimension, which is
+the only axis that can cross the norm window.** Nothing else is chosen,
+which is what makes everything that follows a measurement of C-6 and of the
+head dimension and of nothing else.
+
+| | rung-P2 | **rung-C6** |
+|---|---|---|
+| tokens / width / hidden | 32 / 96 / 256 | **32 / 384 / 512** |
+| query heads × head_dim, key-value heads | 12 × 8, 4 (`lkv = 2`) | **12 × 32**, 4 (`lkv = 2`) |
+| `t_pad, d_pad, h_pad, f_pad` | 32, 128, 16, 256 | 32, **512**, 16, **512** |
+| `log_cols`, `inv_rate`, `F_E` | 10, 4, 12 | **the same** |
+| `wrho_s`, `limbs_sigma_s`, `limbs_p` | 17, 3, 2 | **the same** |
+| `D_max`, `norm_wrho`, `limbs_norm` | 321,049, **31**, 4 | 642,099, **32**, 4 |
+| `norm_top_is_full_byte` (C-6) | **false** | **TRUE** |
+| endpoint | generalised, 9 rows (4 data) | generalised, **21 rows (16 data)** |
+| padded head slots | `{3, 7, 11, 15}` | **the same** |
+| domains that PAD | Ht, L, D, Q, S, Tab | **the same** |
+| domains that do NOT | T, Kv, F | **the same** |
+| block profile | `…/private-block-rung-p2-t32-dev/1` | `hashline-zk-mr1/private-block-rung-c6-t32-dev/1` |
+| run profile | `…/private-run-rung-p2-t32-dev/1` | `hashline-zk-mr1/private-run-rung-c6-t32-dev/1` |
+| counted receipt | 4,742,728 B | **7,452,040 B** |
+
+**Every dimension is forced.** `norm_wrho = NORM_TN + 1 + bit_length(D_max)`
+and `D_max = isqrt(1 + width · 32767²)`, so the flag is a function of the
+WIDTH alone and turns on the moment the width passes 256 (`D_max` 524,272 at
+256 against 2^19 = 524,288 — it misses by sixteen). The reference kernel
+refuses a shape whose `width != q_heads · head_dim`, and `Shape::new`
+refuses one whose `d_pad != h_pad · head_dim`, so at this head axis the
+width IS `12 · head_dim`: 8 gives 96 and 16 gives 192, both at 31 bits, and
+**32 gives 384, the smallest admissible width above 256**. `q_heads = 12` is
+the smallest non-power-of-two multiple of four, which is what keeps `lkv = 2`
+with a padded slot inside every group's block. `hidden = 512` is the
+smallest power of two above the width: a power of two is what keeps
+`Dom::F = tokens · hidden` unpadded, and it has to EXCEED the width or the
+dense fixture has no "upper hidden half" to be live on (the S19-F1 census).
+`tokens`, `log_cols`, `inv_rate` and `F_E` are rung-P2's, which keeps
+`wrho_s = 17` and `limbs_sigma_s = 3` — 125M's — so **`Dom::D` is the only
+lookup family in the whole layout that differs from rung-P2, and it differs
+by exactly C-6's four.**
+
+**IT ALSO KEEPS STAGE 30's THREE UNPADDED DOMAINS.** `Dom::T` (2^5),
+`Dom::Kv` (32·4·32 = 2^12) and `Dom::F` (32·512 = 2^14) are exact powers of
+two; `Ht`, `L`, `D`, `Q`, `S` and `Tab` pad. That is 125M's own
+padded-domain set, asserted domain for domain, so this shape carries the
+`pad_on == false` arm as well as the C-6 arm — one shape closer to 125M than
+either stage's on its own. It was free: no refusal had to be bent for it.
+
+**THE SIDE-BY-SIDE TABLE** (printed by
+`c6_tests::the_rows_and_lookups_c6_drops_are_absent_here_and_present_at_rung_k4`,
+`u31-c6-run2.log`, and reproduced by the independent Python model):
+
+| | rung-K4 | rung-P2 | **rung-C6** | 125M |
+|---|---:|---:|---:|---:|
+| `norm_top_is_full_byte` | false | false | **true** | true |
+| `D_max` / `norm_wrho` | 321,049 / 31 | 321,049 / 31 | **642,099 / 32** | 908,065 / 32 |
+| `pad_on` T / Ht / L / D / Q / Kv / S / F / Tab | 1 1 1 1 1 1 1 1 1 | 0 1 1 1 1 0 1 0 1 | **0 1 1 1 1 0 1 0 1** | 0 1 1 1 1 0 1 0 1 |
+| `A` rows / `H` rows | 727 / 720 | 727 / 720 | **1,337 / 1,408** | 5,681 / 7,120 |
+| `A` planes / `H` planes | 83 / 52 | 83 / 52 | **83 / 50** | 83 / 50 |
+| lookups per position `L/D/F/Q/Kv/S` | 2 / **38** / 9 / 13 / 12 / 15 | 2 / **38** / 9 / 13 / 12 / 15 | 2 / **34** / 9 / 13 / 12 / 15 | 2 / **34** / 9 / 13 / 12 / 15 |
+| helpers `L/D/F/Q/Kv/S` | 1 / **19** / 5 / 7 / 6 / 8 | 1 / **19** / 5 / 7 / 6 / 8 | 1 / **17** / 5 / 7 / 6 / 8 | 1 / **17** / 5 / 7 / 6 / 8 |
+| slot 14 (`SC_DZC`) term list | **56** | **56** | **54** | **54** |
+| `lkv` / head_dim / row width | 2 / 8 / 2^10 | 2 / 8 / 2^10 | **2 / 32 / 2^10** | 2 / 64 / 2^14 |
+| counted receipt | 4,743,128 B | 4,742,728 B | **7,452,040 B** | 40,783,352 B |
+
+**Which refusal constrained which choice, and which one BINDS.** Every named
+refusal was checked at construction (`the_new_shape_is_rung_p2_with_the_head_dimension_moved`
+asserts each where it binds) and none was weakened:
+
+| refusal | how rung-C6 satisfies it | does it bind? |
+|---|---|---|
+| **T-8** (`head_dim` a power of two ≥ 2) | 32 | **YES — this is the narrow one.** With `width = q_heads · head_dim` forced by the kernel, a head dimension of 22 would have given the smallest width above 256; T-8 makes it 32, hence width 384 |
+| `width == q_heads · head_dim` (the reference kernel's own refusal) | 384 = 12 · 32 | **YES**, with T-8: together they are what fixes the width |
+| `d_pad == h_pad · head_dim` | 512 = 16 · 32 | **YES**: it is why the width cannot be chosen apart from the head axis |
+| the four-norm-limb refusal (`build_shaped`, finding S8-F3) | `norm_wrho` 32 → 4 limbs | **not here, but it is the ceiling**: `norm_wrho` reaches 33 at width 1,025, so **no provable shape has a width above 1,024** |
+| **T-2** (padded widths powers of two) | 32 / 512 / 512 | no |
+| **F-2** (no P-3 lift on `Dom::Q`, `Dom::Kv`, `Dom::S`) | 2^14 / 2^12 / 2^14, all at or above the 2^10 row width | no — it was stage 30's narrow refusal and the wider head dimension puts `Dom::Kv` two bits clear of it |
+| **S-1** (`Dom::Tab` exactly at the row width) | `log_cols = 10`, `log(Dom::Tab) = 10` | no |
+| **S-3 / C-2** (`head_dim < 2^log_cols`) | 32 against 1,024 | no, but the margin is now five bits rather than seven |
+| **C-4** (the mask budget) | worst slot 77 + 256 ≤ 512 | no |
+| the grouping refusals (`q_heads % kv_heads`, `h_pad % kv_heads`) | 12 % 4, 16 % 4 | no |
+| **P-3 / ruling S-1's lift** | `Dom::L` and `Dom::Tab` lifted, as at rung-P2; neither is bilinear | no |
+
+One geometry was considered and dropped: **16 tokens** instead of 32 is
+smaller — 4,686,104 B counted, `A` 733 / `H` 678 rows — and reaches C-6 just
+as well, but at `F_E = 12` it gives `wrho_s = 16` and `limbs_sigma_s = 2`,
+which moves a SECOND lookup family (`Dom::S` from 15 to 13) and drops the
+third `sigma_s` limb that 125M has and that step S8 added on purpose. The
+clean difference — `Dom::D` and nothing else — was judged worth the 2.8 MB.
+
+### Task 2 — the tests, and what each MEASURED
+
+All in the ordinary filter, none `#[ignore]`d. `c6_tests.rs` is 13 tests,
+**13 passed / 0 failed in 30.40 s** (`u31-c6-run2.log`); `parity.rs` gains
+one (`u31-parity.log`, 13 passed / 0 failed). Every wall figure below was
+taken on a SHARED box (two Python gate runs of another lane were live), so
+they are upper bounds and not a timing ladder.
+
+| test | result |
+|---|---|
+| `only_the_125m_shape_and_the_new_one_reach_correction_c_6` | **the gap, asserted**: over the seven-shape registry exactly two are on the C-6 arm, rung-C6 and 125M, and **with rung-C6 removed it is 125M alone**. Also asserts, per shape, that the flag equals `norm_wrho == 32` at four limbs and equals `width > 256`, and that `Dom::D`'s built lookup list is the counted length |
+| `the_lookup_c6_drops_is_a_duplicate_of_one_that_stays` | **THE SOUNDNESS STATEMENT** — see below |
+| `the_rows_and_lookups_c6_drops_are_absent_here_and_present_at_rung_k4` | the four `scaled` lookups absent here and present at rung-K4 plane by plane BY NAME; 17 helpers against 19; the `H` plane list 50 against 52 with **no other domain's block moved**; two fewer `H` claim sites and no `A` site moved; `A`/`H` rows 1,337 / 1,408; the side-by-side table above printed |
+| `the_new_shape_is_rung_p2_with_the_head_dimension_moved` | the shape is rung-P2 in tokens, heads, row width, rate, calibration, softmax limbs and head permutation; the unpadded set is 125M's; every named refusal checked where it binds; the profile, the tag and the counted receipt |
+| `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_c6` | the INDEPENDENT `private-block-kernel-shaped` crate takes this geometry unchanged; every kernel-backed plane agrees element for element and the block output on all **12,288** words, with the kernel's own buffers asserted live on the upper hidden half and its four key-value groups pairwise different FIRST. **This is the generic-witness check the acceptance rule asks for.** It adds C-6's COMPLETENESS side: all four norm remainders' top limb is nonzero somewhere, every limb is inside `[0, 256)`, and the recomposition lands inside the 2^32 window |
+| `an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_c6` | prove **1.24 s**, verify from bytes **0.16 s**, frame **7,452,040 B** — the COUNTED length, from the Python model — and a one-byte truncation refused |
+| `the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_c6` | verified, frame 7,452,040 B. Named degenerate: every key-value group is identically zero |
+| `a_norm_top_limb_outside_its_byte_range_is_rejected_at_the_rung_c6` | **4 of 4 rejected by the VERIFIER, 0 by the prover, 0 accepted** — see below |
+| `the_norm_range_tamper_rejects_at_the_same_slot_on_both_arms` | the identical tamper at rung-K4, which KEEPS the `scaled` lookup, is rejected with the IDENTICAL message |
+| `the_named_tampers_are_rejected_at_their_own_slots_at_the_rung_c6` | **6 of 6 rejected by the VERIFIER** at the slot under test — see the tamper table |
+| `a_tampered_round_message_of_slot_14_is_rejected_at_the_rung_c6` | slots 14, 16 and 18, each rejected at its own slot with `sumcheck round 0: s(0) + s(1) != claim` |
+| `a_frame_with_the_dropped_helper_claims_is_refused_before_any_draw_at_the_rung_c6` | slot 14 carries 54 terminals here against rung-K4's 56; a frame with the two extra helper claims is refused by `wire::validate` with `"private block wire: argument shape"` BEFORE the verifier draws anything, and `verify_inner_at` returns that same string |
+| `the_pinned_rung_c6_chain_band_is_the_first_admissible_one` | band **29 and 28 refused** by the THIRD block (`fixed oracle range refusal: residual 2`), **27 admissible**, so `dense_tests::band_down_run` gains a MEASURED `(512, 4) => 27` arm |
+| `an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_c6` | prove **3.84 s**, verify from segments **0.50 s**, segments **7,259,640 / 7,282,168 / 7,474,648 = 22,016,456 B** (the counted lengths), boundary 22 rows, all three blocks censused |
+
+**THE SOUNDNESS QUESTION OF C-6, AND THE ANSWER.** Dropping a range lookup
+is exactly the kind of optimisation that quietly removes an obligation. It
+does not here, and the reason is arithmetic rather than argument: the
+dropped entry is `scaled(top, 1 << (8·ln − wrho))`, and on this arm
+`8·ln == wrho`, so the coefficient is `1 << 0 = 1` and the entry is
+`Lk { terms: [(top, 1)], cst: 0 }` — **term for term the `Lk` that
+`byte(top)` builds**, and `byte(top)` is emitted unconditionally by the
+`(0..ln).map(|k| byte(ids.nr(k)))` loop directly above it. C-6 drops a
+literal duplicate. The test states it three ways:
+
+* the coefficient is 1 at rung-C6 and 2 at rung-P2, computed from the shape;
+* at rung-C6 each of the four top limb planes is read by **exactly one**
+  lookup, `(plane, 1)`; at rung-P2 by **two**, `(plane, 1)` and `(plane, 2)`;
+* the multiset of rung-P2's `Dom::D` lookups minus rung-C6's is **exactly**
+  those four scaled entries and nothing else.
+
+**And the dynamic form, which is the one that could have found a hole.** A
+carry is MOVED between a norm remainder's top limb and the one below it:
+`top -= top + 1` and `below += 256 · (top + 1)`. Because `argument::limbs`
+folds the limbs as `Σ limb_k · 256^k` and that fold is the ONLY way the
+limbs enter any relation of `argument::define`, the recomposed `rho` (or
+`sigma`) is **bit for bit the honest value** — asserted — so every
+ARITHMETIC clause of the block is still exactly satisfied, and the only
+thing wrong with the witness is that two limbs are outside `[0, 256)`. All
+four remainders — `rho` and `sigma` of `norm_a` and of `norm_m` — are then:
+
+| what | rejected by | at |
+|---|---|---|
+| `norm_a` `rho`, top limb −1, remainder unchanged | **VERIFIER** | `H: pcs zk: group 8: <v, c> != combined claim` |
+| `norm_a` `sigma`, likewise | **VERIFIER** | the same |
+| `norm_m` `rho`, likewise | **VERIFIER** | the same |
+| `norm_m` `sigma`, likewise | **VERIFIER** | the same |
+
+**Group 8 is the LAST opening group of the helper commitment**, which is the
+one `protocol::finish_claims` fills by pushing `protocol::logup_sum_claim`
+after every slot's claims — the value-0 LogUp identity, whose published
+value is the compile-time constant `Fp2::ZERO`. An out-of-range lookup value
+is not in the table, `protocol::byte_histogram_at` bins it into entry 0
+("only the LogUp identity can catch it", its own comment), and the identity
+fails to close. **So the relation that carries the top limb's range
+obligation after C-6 is the `byte(top)` lookup inside the value-0 LogUp
+identity**, which is exactly what the structural statement says. The group
+index is asserted, not merely printed, and the same tamper at rung-K4 — the
+arm that KEEPS the scaled lookup — is rejected with the identical message,
+so the obligation is enforced the same on both arms. **No soundness finding.**
+
+**FINDING S31-F1 (a message, not a hole).** That refusal names neither the
+slot, nor the domain, nor the lookup: a reader sees an opening-group
+mismatch on `H`. It is fail-closed and it arrives before the proof is
+accepted, which is what matters for soundness, but it is weaker than the
+sumcheck-level refusals, which name the slot and the relation. It is the
+same family as stage 30's **T30-F1** and it is left to the integrator as a
+suggestion, not taken here: the LogUp group's refusal could say "the value-0
+LogUp identity" instead of a group number.
+
+**THE ORDINARY TAMPERS**, each placed so that the first slot whose relation
+it breaks is the one named, with the message asserted to name that slot so a
+rejection by an earlier check cannot pass for one, and the honest control
+asserted accepted first:
+
+| tamper | rejected by | at |
+|---|---|---|
+| the norm square `A_DSQ` at index 31 (the last `Dom::T` position) | **VERIFIER** | slot 02 `02 norm squares zero-check` |
+| the norm square `A_DSQM` at index 0 | **VERIFIER** | slot 02 |
+| residual 2, `A_X2`, on the true `Dom::D` support | **VERIFIER** | slot 14 `03 D zero-check` |
+| the key `A_K8` at index 4,095 (the last `Dom::Kv` position) | **VERIFIER** | slot 16 `05 KV zero-check` |
+| the gate `A_G8` at index 16,383 (the last `Dom::F` position) | **VERIFIER** | slot 18 `14 F zero-check` |
+| `A_DSQ` at index 0 | **VERIFIER** | slot 02 |
+| a round message of slot 14 / 16 / 18 | **VERIFIER** | that slot, `sumcheck round 0: s(0) + s(1) != claim` |
+
+### Task 3 — the two capture bundles
+
+`results/zk60_run_captures_20260920/run-m-dense-c6` and `run-n-zero-c6`,
+**two blocks each**, schema `hashline-native-capture/5-run` (the array
+store), public tables' VALUES included, tagged, source pin `3e106e1` over 38
+files (`u31-bundles.log`, exit 0).
+
+| bundle | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|
+| `run-m-dense-c6` (FULLY DENSE, generic) | 34,847 B | 3,275,672 / 3,913,538 B | 15,635,336 B | **22,864,518 B** |
+| `run-n-zero-c6` (all-zero, degenerate) | 34,852 B | 3,282,805 / 3,913,226 B | 15,464,440 B | **22,700,238 B** |
+
+**22.9 and 22.7 MB, with both of the size levers the task named already
+taken**: two blocks (the least that still has an internal boundary) and the
+`/5-run` array store, which deduplicated 52 arrays in the dense bundle and
+45 in the zero one. What is left is the SHAPE — the helper commitment is
+1,408 rows against rung-P2's 720 because the head dimension is four times as
+wide — and it is not C-6's doing: C-6 makes the bundle smaller by two helper
+planes. A one-block bundle would be about 12 MB and would carry no internal
+boundary, so it was not taken. The overshoot against the ~20 MB target is
+14%.
+
+**What a gate sees in them** (`u31-bundle-check.log`, read off the committed
+files, **0 mismatches**), against `run-k-dense-p2`, stage 0 against stage 0:
+17 `Dom::D` helper planes instead of 19, 50 `H` planes instead of 52, slot
+14 at **54 terminals instead of 56**, and no other domain's helper block
+moved. Deliberately the same: slots 16 and 18 still report `"degree":4`
+where the rung-K4 pair reports 5, so the pair is a regression for finding
+**M-F1** as well as the first evidence for C-6. (The absolute
+`definition_challenges` counts are NOT rung-P2's — every domain log is
+larger here, so each `tau` is longer. The pad-rule fact a port must get
+right is the DEGREE and the presence of the support-indicator table, and
+those are rung-P2's exactly.) Both stages of each bundle carry the same
+schedule and the same draw counts on all 23 slots; each manifest's five
+files match their recorded length and SHA-256; the parent `README.md` gains
+a stage-31 section with these tables; no older bundle and no older README is
+touched.
+
+They are **not gate evidence** (ruling T-6) and not a privacy result.
+
+### Task 4 — what is STILL reached only by an `#[ignore]`d heavy test
+
+Stage 30's list, re-read after this stage. Item 1 is **CLOSED**; the numbers
+below for the remaining items are the independent model's, so each "could be
+reached by" carries a price.
+
+| # | branch | why no shape in the filter reaches it | can a small shape? |
+|---|---|---|---|
+| ~~1~~ | ~~`Shape::norm_top_is_full_byte` — correction C-6~~ | — | **CLOSED by this stage**: `Shape::rung_c6`, 13 non-ignored tests, two capture bundles |
+| 2 | **the row width `log_cols = 14`** and everything keyed to it: the PCS column geometry, `rows_of` for every domain, the `Dom::Tab` lift distance, the NTT log, `hash_domain`'s length set at that width | every development shape is at `log_cols` 8 or 10 | **YES, and the price is now known.** F-2 needs `Dom::Kv ≥ 2^14`, and the four-norm-limb refusal caps the width at 1,024, so at twelve heads `head_dim ≤ 64` and the TOKENS have to carry it: **64 tokens, width 768, hidden 1,024, 12 heads of 64 over 4 key-value heads at `log_cols = 14`** is admissible in the model — receipt **16,421,048 B**, 4,882,432 U8 lookups, `A` 527 / `H` 436 rows, worst slot `L` 87. About four times this stage's lookup work. **NOT DONE**, and it would close item 3 with it |
+| 3 | **`head_dim = 64`** — the S-3 / C-2 margin, the RoPE partner bit at `log − 6` | the filter has 8, 16 and, since this stage, **32** | **YES**: 32 tokens, width 768, hidden 1,024, 12 heads of 64 over 4 — receipt **11,368,824 B**, `A` 2,209 / `H` 2,416 rows. **NOT DONE.** Item 2's shape reaches it too |
+| 4 | **the 125M endpoint geometry**: `endpoint_log_n = 14`, 32 data rows, 37 commitment rows | the filter has 2 and 16 data rows on the FROZEN seam (toy, rung), 4 on the generalised endpoint (rung-G, rung-K4, rung-P2) and, since this stage, **16 on the generalised endpoint** (rung-C6) | **YES, in two halves.** The 32 data / 37 commitment rows fall out of item 3's shape for free (its padded `Dom::D` cube is 2^15 words at `endpoint_log_n = 10`); `endpoint_log_n = 14` itself needs item 2's shape or a declared endpoint parameter. **NOT DONE** |
+| 5 | **long runs and the memory path**: `L = 12`, a 484 MB run receipt, the >10 GiB proving peak, the mmap threshold crossings | size alone | **NO** — inherently heavy, and the one item a small shape cannot stand in for. Stage 29 unit-gated the five size thresholds themselves, so what is uncovered is the memory BEHAVIOUR, not a branch |
+
+**One observation that is not on the list, because it is not heavy-only.**
+`Shape::a_groups`'s first arm, `natural_log(Dom::T) >= log_cols`, is reached
+by **no registered shape at all** — not even 125M, whose `log(Dom::T)` is 9
+against a row width of 2^14. It needs `t_pad ≥ 2^log_cols`: 256 tokens at
+the toy's row width, 1,024 at the rungs'. Both are constructible and neither
+is small, because `Dom::S = h_pad · t_pad²` grows quadratically in the
+tokens — the model puts the first at a 39,380,616-byte receipt (8,017 `A`
+rows) and the second at 1,081,144,520 B. It is a dead arm rather than a
+heavy one, and it is recorded here so that the next reader of `a_groups`
+knows no test exercises it.
+
+### Task 5 — the gates and the commits
+
+**THE GATES AT THE STAGE-31 TIP.**
+
+| gate | result |
+|---|---|
+| `--lib private_` (the whole filter), FIRST run | **361 passed / 1 failed / 15 ignored, 467.72 s** (`u31-gate-private.log`). The one failure is a fifth registry guard — `s25_tests::the_per_slot_terminal_absorb_lengths_and_recorded_at_every_shape`, which pinned the one-block run's `parameters` absorb at **294** and got **298** — and it is a defect of the PIN, not of the shape: see below. The log is kept as evidence |
+| `--lib private_` (the whole filter), SECOND run, after `fe5d4e7` | **362 passed / 0 failed / 15 ignored, 466.36 s, exit 0** (`u31-gate-private2.log`) — the stage-30 tip's 348 plus this stage's fourteen, nothing lost; the one new ignored test is the bundle writer |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` and the 2,816,472 B receipt-length family (`tests`, `zero_witness_tests`, `hash_domain_tests`, `review_tests`, `grow_tests`) — **all in the pass list of both runs** |
+| the rung, rung-G, rung-K4 and rung-P2 receipt lengths | in the pass list (`rung_tests`, `dense_tests`, `k4_tests`, `p2_tests`, dense AND all-zero). `k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims` still asserts 4,743,128 B and `p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move` still asserts 4,742,728 B; `c6_tests` asserts both again beside its own 7,452,040 B |
+| the new shape's own tests | `c6_tests` (13) and `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_c6` (1), all non-`#[ignore]`d |
+| the Python model's test file | `python3 -m unittest discover -s tests -p 'test_zk60_private_block_layout_model.py'` — **47 tests, OK** (42 before this stage) |
+| the forbidden-files proof | `git diff --stat b923d07 HEAD -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/field hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu zkvm-block private-block-kernel private-model-kernel private-block-kernel-shaped` prints **nothing**. Run with `tests` and `scripts` added, as stage 30's gate table names them, it prints exactly two paths — `scripts/zk60_private_block_layout_model.py` and `tests/test_zk60_private_block_layout_model.py` — which are the lane's own layout model and its acceptance test, this stage's brief permits, and nothing else under either directory is touched |
+| the whole diff against `b923d07` | nine sources — `shape.rs`, `run.rs`, `private_block.rs` (one `mod` line), the new `c6_tests.rs`, `parity.rs`, `dense_tests.rs`, `run_capture_tests.rs`, `s24_tests.rs`, `s25_tests.rs`, `run_statement_file.rs` — plus the shape model and its test, the two bundles with their parent README, this ledger and the evidence logs. The three `r29-*` entries in that diff are the stage-29 lane's, not this stage's |
+
+**THE FIFTH REGISTRY GUARD, AND WHY ITS PIN WAS WRONG RATHER THAN THE
+SHAPE.** Stage 30 tripped four guards; this stage tripped a fifth, and it is
+worth reading. The run's `parameters` line carries the shape's axes IN
+DECIMAL (`protocol::parameter_line`) plus `L`, the boundary commitment row
+count and the external row count (`run::parameter_line`), so its LENGTH is a
+property of the shape. Exactly three quantities move with `L` and nothing
+else does — the boundary rows are `0` at `L = 1` and two digits above it,
+and `L` gains a digit at 10 — so every run profile's absorb is `base` at
+`L = 1`, `base + 1` at `2 ≤ L ≤ 9` and `base + 2` at `10 ≤ L ≤ 12`. The test
+now asserts that CURVE, derived, and splits the record in two:
+
+| run profile | `parameters` absorb at L = 1 / 2..9 / 10..12 | collides with `pb-term`(15) = 295 at |
+|---|---|---|
+| `…private-run-rung-g-t24-dev/1` | 294 / **295** / 296 | `L = 2 … 9` |
+| `…private-run-rung-k4-t24-dev/1` | 294 / **295** / 296 | `L = 2 … 9` |
+| `…private-run-rung-p2-t32-dev/1` | 294 / **295** / 296 | `L = 2 … 9` |
+| `…private-run-rung-c6-t32-dev/1` | **298 / 299 / 300** | **never** |
+
+rung-C6's width (384), head dimension (32) and endpoint rows (21) are each
+one decimal digit longer than rung-P2's, so its line is four bytes longer
+and the 295 / 295 pair — the within-function coincidence ruling J-7 wants
+recorded and separated — **cannot arise at this profile at any `L`**. That
+is a record, not a regression, and the `(3, 1)` split is now pinned against
+the registry's own length rather than against a hand list.
+
+**THE COMMITS OF STAGE 31**, in order:
+
+| commit | what |
+|---|---|
+| `d4b8c27` | the ledger skeleton: the gap, the five tasks, the rules |
+| `08198cd` | **task 1**: `Shape::rung_c6`, the run profile, the four registry lists and the measured `(512, 4) => 27` chain band |
+| `47a22a6` | **task 1**: the shape in the independent Python model, C-6 as an explicit difference, the regenerated report and `model_rung_c6.json` (7,452,040 B) |
+| `a147012` | **task 2**: `c6_tests.rs` (13 tests) — the gap census, the duplicate-lookup statement, the layout census, the tampers, the run |
+| `3e106e1` | **task 2**: the generic witness against the independent reference kernel at the new shape |
+| `4f29776` | **task 3**: `run-m-dense-c6` and `run-n-zero-c6`, the writer, the bundle check and the parent README |
+| `fe5d4e7` | the fifth registry guard, derived instead of pinned; and the capture rule in the tamper printout (the range FACTS, never the limb values) |
+| this one | the ledger: tasks 1–5 and the close |
+
+Three commits between `3e106e1` and `4f29776` — `6a3c7cf`, `d5501a1`,
+`c7210b2` — are **NOT this stage's**: they are the stage-29 lane, re-woken
+by its queued 125M census, writing into the Stage 29 section of this ledger
+and its own `r29-*` evidence. Nothing of theirs is code, and nothing of this
+stage's touches an `r29-*` file. Two of this stage's commits, `08198cd` and
+`47a22a6`, do not BUILD on their own: `08198cd` adds the `mod c6_tests;`
+line while the file itself arrives in `a147012`. That is a defect of the
+commit split and is recorded rather than rewritten.
+
+**ONE PATH AWAITING DELETION BY THE ORCHESTRATOR** (this lane has no delete
+permission). The first run of the new test file,
+`results/zk60_block125m_lane/u31-c6-run1.log`, printed the tampered norm
+LIMB VALUES and the recomposed remainder, which are values of the fixture's
+hidden witness and which the lane's capture rule forbids in an evidence
+file. It is therefore **not committed** — `u31-c6-run2.log`, taken after
+`fe5d4e7` made the printout state the range FACTS instead, replaces it — and
+the untracked file is left on disk for deletion:
+
+```
+results/zk60_block125m_lane/u31-c6-run1.log
+results/zk60_block125m_lane/u31-c6-run1.done
+```
+
+**WHAT THIS STAGE IS NOT.** Not a privacy result and not an acceptance: the
+lane's code stays experimental, for the integrator (ruling V-1), and the two
+bundles are the INPUT to the Python gate, not its verdict (ruling T-6). Not
+a claim about 125M: **no 125M run was launched by this stage** — the one
+that ran on this box at 12:50 is stage 29's queued census, and no `r29-*`
+file was touched here. Not a change to what any existing profile sends,
+absorbs or draws: the toy is byte-frozen and green, and the four older
+development profiles' receipt lengths are unmoved. What it IS: correction
+C-6 — four dropped lookups, two dropped helper planes, a two-plane shorter
+`H` index and a two-terminal shorter slot 14 — which until today only an
+`#[ignore]`d 10 GiB test could reach, is now proved, verified, censused by
+name, tampered with at the exact obligation it could have removed, and
+captured, by tests that run in twenty-nine seconds. **Stage 30's list of
+cheap heavy-only branches is empty.**
