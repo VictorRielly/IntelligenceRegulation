@@ -396,7 +396,46 @@ in place (a line count; "byte-identical at every capture commit" — the
 boundary file has two digests). **Named limit:** `wire.rs`, `run_sink.rs`,
 `endpoint_g.rs` and `hash_domain.rs` cannot be pinned from a bundle at all,
 because the capture writer does not list them among its sources; the ask to
-the Rust side is to list them.
+the Rust side is to list them. *(Done on the lane the same night, stage 24:
+the writer lists 15 sources; future bundles only.)*
+
+**Round 7 (05:59, 2026-09-21): the preimage construction for the two big
+commitments — the step every earlier round had recorded as "skipped, not
+faked".** [MEASURED by the lane; I re-ran its 30 new tests, all passing, 120 s;
+`zk60-native-jointview` at `df04d14`, pushed; suite 390, all passing; the arm
+is off by default and the ten records of record re-run with no figure moved.]
+For every hiding commitment of every stage of all four current bundles — ten
+per run, forty in all, `A` and `H` included — the gate **fixes the
+commitment's data rows to zero and solves for blinding (reserved pair rows,
+the proximity pair, the helper commitment's zero-sum pair, 256 pads per row)
+that reproduces the captured view**, then recomputes the view from that
+preimage and compares entry by entry: **4,763,302 view entries, none
+differing** (group vectors, proximity vectors, claim values, opened column
+entries), and **10,240 salted Merkle leaves** rebuilt from the preimage,
+re-hashed under the keyed rule and re-authenticated against the published
+salts and paths. The captured views come from a **fully dense, generic hidden
+input**; their reproduction from zero data is the concrete content, on real
+bytes, of "the linear view does not depend on the input". Round 1's "too
+expensive" was wrong: with zero data every data row drops out of the
+accumulations, the system never has to be assembled (per group, 1,024
+independent 2 × 2 systems and a small kernel correction), and one commitment
+takes 8 to 13 seconds in exact arithmetic. The solver is not a fork: every
+primitive is imported from the toy gate's pinned module, and run at the toy's
+widths the new code reproduces the toy module's whole solved matrix.
+**Six controls fire**, among them the one that tests the criterion itself (a
+perturbed group-vector entry leaves the claim values unreachable inside the
+kernel) and the project's standing counterexample made concrete: **with a
+blinding row shared between `A` and `H`, each commitment alone still has a
+preimage, and the two force different values at all 1,024 positions — no joint
+preimage exists.** Channels: 25, now **5 constructed, 5 derived, 4 argued, 11
+open** (was 2 / 5 / 4 / 14).
+**What it is not.** It fixes a commitment's data rectangle to zero — the
+object all rounds call "the all-zero hidden input" — and does not show that
+rectangle is a reachable witness (the Rust lane's all-zero proofs do that); it
+says nothing about the *law* of the blinding (the lemma's job); it does not
+cover the masking commitments (the port of their channel is written at the
+toy's row layout — now the largest open channel), a joint run-wide preimage,
+the unopened leaves, or the 125M shape. **No privacy claim about any run.**
 
 ## 3. What I reviewed myself, and what was delegated
 

@@ -85,7 +85,7 @@ the honest state of the five-step argument:
 |---|---|---|
 | The all-zero reference input proves and verifies | done | one block done; a twelve-block all-zero run not run |
 | Per commitment, the verifier's linear view discloses nothing | argument checked by an independent implementation and ruled; measured on fully dense inputs | argument and counts only — **nothing measured, and the tools cannot measure at this size** |
-| The gate constructs matching blinding values | done for boundaries and endpoints; not for the two big commitments | nothing |
+| The gate constructs matching blinding values | **done for all ten commitments of a run, the two big ones included (2026-09-21 05:59): 4.76 million published values of four real runs reproduced from all-zero data, none differing**; not yet for the masking commitments, nor jointly for a whole run | nothing |
 | All published values jointly do not depend on the input | accepted as a reduction; three named gaps being drafted or tested | the same |
 | The hash layer and the step to the real (hashed) protocol | computed for what a proof opens; the argument for a run is being drafted | nothing |
 
