@@ -1,0 +1,42 @@
+test_a_declared_group_point_that_differs_is_refused_by_name (test_zk60_native_run_gate_s20.TestLive) ... ok
+test_a_derived_group_point_that_differs_is_refused_too (test_zk60_native_run_gate_s20.TestLive)
+The comparison is two-sided: this tool is not the authority ... ok
+test_an_unknown_argument_digest_makes_every_slot_not_checked (test_zk60_native_run_gate_s20.TestLive) ... ok
+test_the_controls_run_live_on_both_bundles (test_zk60_native_run_gate_s20.TestLive) ... ok
+test_the_group_point_is_the_transcripts_and_the_bundle_only_agrees (test_zk60_native_run_gate_s20.TestLive) ... ok
+test_the_pre_repair_definition_forced_is_refused_at_both_slots (test_zk60_native_run_gate_s20.TestLive) ... ok
+test_the_pre_repair_polynomial_on_the_dense_and_the_zero_bundle (test_zk60_native_run_gate_s20.TestLive)
+The same answer on both, which is the honest limit: a capture ... ok
+test_the_repaired_definition_forced_on_a_pre_repair_bundle_is_refused (test_zk60_native_run_gate_s20.TestLive) ... ok
+test_both_records_pass_and_claim_no_privacy_property (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_round_fours_six_controls_all_fire (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_channel_table_recounted_from_the_tools_own_array (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_dense_and_the_zero_witness_are_compared_figure_by_figure (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_four_pre_repair_bundles_are_recorded_as_superseded (test_zk60_native_run_gate_s20.TestRecordedEvidence)
+a-f are IN scope and replayed under the definition that made ... ok
+test_the_group_factor_is_derived_and_compared (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_hash_layer_and_the_round_three_controls_still_fire (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_pre_repair_polynomial_fails_on_both_repaired_bundles (test_zk60_native_run_gate_s20.TestRecordedEvidence)
+And it fails on the DENSE one exactly as it fails on the zero ... ok
+test_the_replay_under_the_repaired_schedule (test_zk60_native_run_gate_s20.TestRecordedEvidence)
+Six more challenges than round 3 -- `lkv` per bilinear slot per ... ok
+test_the_round_one_to_three_figures_are_re_established (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_six_older_bundles_are_unchanged_where_it_matters (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_the_twenty_three_slot_terminal_identity (test_zk60_native_run_gate_s20.TestRecordedEvidence) ... ok
+test_both_argument_digests_are_definitions_this_port_has_read (test_zk60_native_run_gate_s20.TestTheGeometry) ... ok
+test_clog2_and_lg (test_zk60_native_run_gate_s20.TestTheGeometry) ... ok
+test_one_key_value_head_reduces_the_repair_to_the_old_path (test_zk60_native_run_gate_s20.TestTheGeometry)
+The property the repair had to keep: at `kv_heads == 1` there is ... ok
+test_the_derived_dimensions_of_both_definitions (test_zk60_native_run_gate_s20.TestTheGeometry) ... ok
+test_the_factor_names_are_the_push_order (test_zk60_native_run_gate_s20.TestTheGeometry) ... ok
+test_the_group_is_a_summed_variable_of_BOTH_factors_only_after_the_repair (test_zk60_native_run_gate_s20.TestTheGeometry)
+The whole finding, as a property of the two schedules: before the ... ok
+test_the_repaired_coordinate_schedule_written_out (test_zk60_native_run_gate_s20.TestTheGeometry)
+`SC_SCORE`: A_QR8 at fixed(r_t) | rho(0..lkv) | fixed(r_hj) | ... ok
+test_the_rung_geometry_is_read_from_the_shape (test_zk60_native_run_gate_s20.TestTheGeometry) ... ok
+
+----------------------------------------------------------------------
+Ran 29 tests in 9.125s
+
+OK

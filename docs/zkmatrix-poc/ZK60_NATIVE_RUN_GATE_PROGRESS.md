@@ -411,19 +411,89 @@ EVERY figure of rounds 1–3 on a bundle whose witness is generic.
 | # | item | state |
 |---|---|---|
 | V0 | ledger skeleton, round 4 opened | done |
-| V1 | the group factor: derived from the transcript, compared, never consumed | |
-| V2 | slots 08 / 09 ported under the repaired definition, selected by the bundle's own source pin | |
-| V3 | the replay and the 23-slot terminal identity on both new bundles | |
-| V4 | rounds 1–3's figures re-established on the dense bundle; dense vs degenerate | |
-| V5 | the controls, including the OLD definition on each bundle | |
-| V6 | the R-3 correction notes on rounds 1–3 | |
-| V7 | evidence, report §8, the channel table recounted | |
-| V8 | the whole native suite; the toy record guard | |
+| V1 | the group factor: derived from the transcript, compared, never consumed | done |
+| V2 | slots 08 / 09 ported under the repaired definition, selected by the bundle's own source pin | done |
+| V3 | the replay and the 23-slot terminal identity on both new bundles | done |
+| V4 | rounds 1–3's figures re-established on the dense bundle; dense vs degenerate | done |
+| V5 | the controls, including the OLD definition on each bundle | done |
+| V6 | the R-3 correction notes on rounds 1–3 | done |
+| V7 | evidence, report §8, the channel table recounted | done |
+| V8 | the whole native suite; the toy record guard | done |
 
 ## R4.3 Commands and logs (round 4)
 
-(filled as the round runs)
+| what | command | log |
+|---|---|---|
+| the gate, the two REPAIRED bundles | `python3 scripts/zk60_native_run_gate.py --bundle <B>/run-g-dense-s20 --other <B>/run-h-zero-s20 --old <B>/run-a-tame --evidence results/zk60_native_run_gate_s20` (and swapped, with `--old run-b-zero`) | `results/zk60_native_run_gate_s20/run-{g,h}-*.log` — **16.5 s each** |
+| rounds 1–3's evidence refreshed IN PLACE (the tool bytes moved) | the round-1 / 2 / 3 command lines, unchanged | `…/zk60_native_run_gate_s20/refresh.log` — six records, 9.2–16.0 s |
+| each older record diffed leaf by leaf against its committed one | `zk60_native_rg_recdiff.py <…/old/prev/n.json> <the refreshed> --out …/old/n.diff.json`, then `zk60_native_rg_recclass.py` | `…/old/*.diff.json`, `…/old/old_bundles_unchanged.json` — **0 unclassified leaves on all six** |
+| the witness comparison, dense against zero | `python3 scripts/zk60_native_rg_witcmp.py --record … --label … --witness … --out …` | `…/witness_comparison_dense_vs_zero.json` — **173 figures, 153 identical** |
+| the same four ways, against round 3's `e`/`f` | the same tool, four records | `…/witness_comparison_round4_vs_round3.json` — 173 figures, 138 identical |
+| this round's test file | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native_run_gate_s20.py' -v` | `…/tests_s20.log` — **29 tests, OK**, 9.1 s |
+| the four RUN-gate test files | `… -p 'test_zk60_native_run_gate*.py' -v` | `…/tests_run_gate_all.log` — **123 tests, OK**, 30.0 s (round 3: 94) |
+| the WHOLE native suite | `… -p 'test_zk60_native*.py' -v` | `…/tests_native_all.log`, `.done` — **290 tests, OK**, 240.6 s, one skip and one recorded expected failure, against **261** before this round |
 
-## R4.4 Results
+`--old` names a bundle written BEFORE the plane index table; it is control
+CT-4's input, and on the first attempt round 4 passed a stage-18 bundle
+there, which made CT-4 report itself SKIPPED and stage 8 fail. That is the
+control working: a control with no input is not a passed control.
 
-(filled as the round runs)
+## R4.4 Results (MEASURED 2026-09-20 21:23–21:27 PDT, shared laptop, CPU only)
+
+| what | figure |
+|---|---|
+| the definition in force | **`repaired`**, selected by each bundle's own `argument.rs` pin `dd8469cb`; the six older bundles select `pre-repair` (`909670c9`) and are marked SUPERSEDED |
+| the geometry, derived from the shape alone | `lt = 5`, `lh = 3`, `ldh = 4`, **`lkv = clog2(kv_heads) = 1`** |
+| slot dimensions derived and compared twice (the slot's own declaration, and the shape's `slots` array) | **6 of 6** — slot 08 `(5, 2, 3)`, slot 09 `(6, 2, 3)` |
+| the group point `r_g = r_h[..lkv]`, derived from the REPLAY and compared with the bundle's `Tab::Eq` | **6 of 6**, 6 entries; never consumed |
+| both private factors' coordinate lists, re-derived | **12 of 12**, **135** entries, **69** fixed coordinates against a re-derived challenge |
+| the replay | run binding reproduced, **375** positions, **6,092** challenges (round 3: 6,086 — exactly `lkv` per bilinear slot per stage), counter **6,924**, **6 of 6** tags, nothing un-re-derived |
+| the segments | 4,067,160 / 4,089,688 / 4,257,592 — **+336 B per stage**, the disposition's own figure |
+| the terminal identity | **23 of 23** slots, **69 of 69** equal and matching the stored `terminal_polynomial`, **0** open, both bundles |
+| **dense against zero** | **173 figures compared, 153 identical.** Every one of the 20 that differ is a count of DISTINCT sampled columns, the pad margin (256 minus it) or the pad block's rank (equal to it) — drawn from the transcript, so they move with the randomness, not the witness |
+| disclosure, unchanged from rounds 1–3 | `A` 0, `H` 2, boundaries 0, endpoints 0, `M` 0; `rank_P1` `A` 74, `H` 20; each boundary 10 rows / 6 generators / rank 6 / disclosed **0**; three-role joint **0** = sum; whole run 308 × 3,761, joint **6** = sum 6; preimage 4 commitments, 0 free `Fp` per position |
+| round 4's controls | **six, all fire** on both new bundles (four on a pre-repair one) |
+| the older rounds' controls on the new bundles | CT-1…CT-8, CH-1…CH-6, C1…C6 — all fire |
+| channels | **25**, 2 constructed, 5 derived, 4 argued, **14 open** — unmoved; round 4 added no channel and closed none |
+| the six superseded bundles | **0** unclassified differing leaves; 2,512 / 2,512 / 3,159 / 3,160 / 3,480 / 3,479 identical |
+
+### R4.4b The one question this round could not answer
+
+Control GQ-6 evaluates the PRE-REPAIR polynomial `X·Y` beside the repaired
+`eq(r_g,ρ_g)·X·Y` on each bundle's own terminals. On BOTH new bundles the
+repaired one holds 6 of 6 and the pre-repair one 0 of 6, with no group
+factor equal to 1 and no terminal product zero. **Dense and zero give the
+same answer.**
+
+That is the honest limit, and it is worth stating plainly: finding S19-F1
+is a disagreement between the prover's CLAIM and the true sum over
+key-value groups, and both sides of that need a witness. No capture
+carries one. So from the gate's side the defect is invisible on EVERY
+witness, not only a degenerate one, and the mechanism that hid it — prover
+and verifier sharing one wrong definition function — is exactly what a
+round-trip reader cannot see. What round 4 DOES establish is that the
+claim point and the whole schedule of both bilinear slots are the repaired
+construction's, derived here and compared, at this run's real challenges.
+
+### R4.4c Ruling R-3, recorded
+
+`joint == sum of the parts` is a consistency check of the model's
+coordinate classes, NOT evidence of independent blinding: two distinct
+blinding rows whose values coincide score like an honest run while
+disclosing 1,024 field elements at this shape. Dated correction blocks
+added in the report's §2.4 and above §7 (rounds 1–3's numbers are
+untouched), and the sentence now travels with every joint figure the gate
+reports, as `ruling_R3` in the records.
+
+## R4.5 NEXT after round 4
+
+1. **A shape with `lkv > 1`.** Every group figure here was taken at
+   `kv_heads = 2`. The port is shape-driven, but one group bit is one group
+   bit; the 125M shape's `lkv` is the first thing that would exercise more.
+2. The masked sumcheck / CFS channel, still the largest open one a port
+   could close (R3.5 item 1), and `zk60_native_pg_pcs` at `MSG != PAD`.
+3. The run-wide preimage as ONE joint object.
+4. Ruling R-3's machine assertion — accounting for every draw of a run by
+   role and showing the roles' stream positions pairwise disjoint — is
+   asked of the Rust lane (gap G-R4), not of this gate.
+5. Nothing in this round moves D8/D11 or ruling M-8's decision.

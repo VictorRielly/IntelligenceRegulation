@@ -7,9 +7,9 @@
     "run-f-zero-tagged"
   ],
   "witnesses": [
-    "dense weights, non-constant hidden input, the two kv groups differ (NON-DEGENERATE)",
+    "dense weights, a non-constant hidden input, the two kv groups differ (NON-DEGENERATE)",
     "the all-zero hidden input",
-    "the lane fixture (identical in every head)",
+    "the lane fixture: the normalised state is identical in every head",
     "the all-zero hidden input"
   ],
   "sources": [
@@ -19,8 +19,8 @@
     "results/zk60_native_run_gate_tagged/run-f-zero-tagged.json"
   ],
   "the_witness_is_not_in_the_bundle": "no capture carries a witness, so the witness column is a claim about the Rust lane's test that made the bundle (its README), not something this tool measured",
-  "figures_compared": 164,
-  "figures_identical": 130,
+  "figures_compared": 173,
+  "figures_identical": 138,
   "figures_that_differ": [
     {
       "figure": "replay/challenges re-derived",
@@ -261,6 +261,15 @@
         248,
         248,
         246
+      ]
+    },
+    {
+      "figure": "terminals/derived group points used",
+      "values": [
+        6,
+        6,
+        0,
+        0
       ]
     },
     {
@@ -1274,22 +1283,52 @@
       "identical": true
     },
     {
-      "figure": "boundary 0/reserved rows ranked",
+      "figure": "boundary 0/reserved rows",
       "values": [
-        null,
-        null,
-        null,
-        null
+        10,
+        10,
+        10,
+        10
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/generators on the reserved block",
+      "values": [
+        6,
+        6,
+        6,
+        6
       ],
       "identical": true
     },
     {
       "figure": "boundary 0/rank on the reserved block",
       "values": [
-        null,
-        null,
-        null,
-        null
+        6,
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/rank over all rows",
+      "values": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/full row rank",
+      "values": [
+        true,
+        true,
+        true,
+        true
       ],
       "identical": true
     },
@@ -1370,22 +1409,52 @@
       "identical": true
     },
     {
-      "figure": "boundary 1/reserved rows ranked",
+      "figure": "boundary 1/reserved rows",
       "values": [
-        null,
-        null,
-        null,
-        null
+        10,
+        10,
+        10,
+        10
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/generators on the reserved block",
+      "values": [
+        6,
+        6,
+        6,
+        6
       ],
       "identical": true
     },
     {
       "figure": "boundary 1/rank on the reserved block",
       "values": [
-        null,
-        null,
-        null,
-        null
+        6,
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/rank over all rows",
+      "values": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/full row rank",
+      "values": [
+        true,
+        true,
+        true,
+        true
       ],
       "identical": true
     },
@@ -1586,12 +1655,34 @@
       "identical": true
     },
     {
-      "figure": "preimage/commitments reproduced",
+      "figure": "preimage/commitments exhibited",
       "values": [
-        0,
-        0,
-        0,
-        0
+        4,
+        4,
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/free field elements per position",
+      "values": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
       ],
       "identical": true
     },
@@ -1668,12 +1759,12 @@
     {
       "figure": "terminals/derived group points used",
       "values": [
-        null,
-        null,
-        null,
-        null
+        6,
+        6,
+        0,
+        0
       ],
-      "identical": true
+      "identical": false
     },
     {
       "figure": "terminals/controls that fire",
@@ -1696,12 +1787,32 @@
       "identical": true
     },
     {
-      "figure": "public tables/checked against len and sha256",
+      "figure": "public tables/carried",
       "values": [
-        null,
-        null,
-        null,
-        null
+        93,
+        93,
+        93,
+        93
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/length checked",
+      "values": [
+        93,
+        93,
+        93,
+        93
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/digest checked",
+      "values": [
+        93,
+        93,
+        93,
+        93
       ],
       "identical": true
     },

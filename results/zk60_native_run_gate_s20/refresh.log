@@ -8,7 +8,7 @@ stage5_zero_data_preimage: ok
 stage6_negative_controls: ok
 stage9_hash_layer: ok
 stage7_channels: ok
-record: results/zk60_native_run_gate/run-a-tame.json (9.2 s)
+record: results/zk60_native_run_gate/run-a-tame.json (9.3 s)
 stage1_integrity: ok
 stage2_transcript_replay: ok
 stage8_plane_index_and_terminals: ok
@@ -19,7 +19,7 @@ stage5_zero_data_preimage: ok
 stage6_negative_controls: ok
 stage9_hash_layer: ok
 stage7_channels: ok
-record: results/zk60_native_run_gate/run-b-zero.json (9.1 s)
+record: results/zk60_native_run_gate/run-b-zero.json (9.3 s)
 stage1_integrity: ok
 stage2_transcript_replay: ok
 stage8_plane_index_and_terminals: ok
@@ -30,7 +30,7 @@ stage5_zero_data_preimage: ok
 stage6_negative_controls: ok
 stage9_hash_layer: ok
 stage7_channels: ok
-record: results/zk60_native_run_gate_planeindex/run-c-tame.json (12.7 s)
+record: results/zk60_native_run_gate_planeindex/run-c-tame.json (12.8 s)
 stage1_integrity: ok
 stage2_transcript_replay: ok
 stage8_plane_index_and_terminals: ok
@@ -41,7 +41,7 @@ stage5_zero_data_preimage: ok
 stage6_negative_controls: ok
 stage9_hash_layer: ok
 stage7_channels: ok
-record: results/zk60_native_run_gate_planeindex/run-d-zero.json (12.8 s)
+record: results/zk60_native_run_gate_planeindex/run-d-zero.json (12.4 s)
 stage1_integrity: ok
 stage2_transcript_replay: ok
 stage8_plane_index_and_terminals: ok
@@ -52,7 +52,7 @@ stage5_zero_data_preimage: ok
 stage6_negative_controls: ok
 stage9_hash_layer: ok
 stage7_channels: ok
-record: results/zk60_native_run_gate_tagged/run-e-tame-tagged.json (15.9 s)
+record: results/zk60_native_run_gate_tagged/run-e-tame-tagged.json (15.7 s)
 stage1_integrity: ok
 stage2_transcript_replay: ok
 stage8_plane_index_and_terminals: ok
@@ -63,4 +63,4 @@ stage5_zero_data_preimage: ok
 stage6_negative_controls: ok
 stage9_hash_layer: ok
 stage7_channels: ok
-record: results/zk60_native_run_gate_tagged/run-f-zero-tagged.json (15.9 s)
+record: results/zk60_native_run_gate_tagged/run-f-zero-tagged.json (15.4 s)

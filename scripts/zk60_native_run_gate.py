@@ -318,6 +318,9 @@ def stage8(bundle, replay, old=None, do_controls=True):
             "slot_checks_expected": terms["slot_checks_expected"],
             "slot_checks_matching_the_stored_terminal_polynomial":
                 terms["slot_checks_matching_the_stored_terminal_polynomial"],
+            "derived_group_points_used_and_compared":
+                terms["derived_group_points_used_and_compared"],
+            "bilinear_group_factor": terms["bilinear_group_factor"],
             "public_tables_rebuilt_and_digest_matched":
                 terms["public_tables_rebuilt_and_digest_matched"],
             "rebuilt_public_tables": terms["rebuilt_public_tables"],

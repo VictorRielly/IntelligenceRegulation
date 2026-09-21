@@ -1,12 +1,12 @@
 {
  "changed": [
   {
-   "new": 15.9,
+   "new": 15.7,
    "old": 14.1,
    "path": "seconds"
   },
   {
-   "new": 3.4,
+   "new": 3.7,
    "old": 3.6,
    "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
   },
@@ -31,7 +31,7 @@
    "path": "tool_sha256/zk60_native_rg_terminals.py"
   },
   {
-   "new": "a3fefd950162d546ad73dc575d5fc15e8a92be0c44ac3d19c951953d717c67e2",
+   "new": "a9155cf114c1770843cdbee7bf90261d5207ae7687a22f66f05fa688366e506e",
    "old": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165",
    "path": "tool_sha256/zk60_native_run_gate.py"
   },
@@ -42,7 +42,7 @@
   }
  ],
  "identical_leaves": 3480,
- "leaves_new": 3834,
+ "leaves_new": 3846,
  "leaves_old": 3488,
  "only_in_the_new_record": [
   "stage10_bilinear_group_factor/controls/controls/[0]/control",
@@ -372,6 +372,12 @@
   "stage10_bilinear_group_factor/group_factor/what",
   "stage10_bilinear_group_factor/group_factor/what_this_does_not_establish",
   "stage10_bilinear_group_factor/ok",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/definition_in_force",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/definition_selected_by",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/ok",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/slots_with_a_derived_group_point",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/superseded",
+  "stage3_per_commitment/per_slot_terminal_check/derived_group_points_used_and_compared",
   "stage3_per_commitment/per_slot_terminal_check/source_pins/argument_definitions_this_port_implements/909670c96562",
   "stage3_per_commitment/per_slot_terminal_check/source_pins/argument_definitions_this_port_implements/dd8469cb0279",
   "stage3_per_commitment/per_slot_terminal_check/source_pins/bilinear_definition_reason",
@@ -383,6 +389,12 @@
   "stage4_the_boundary/ruling_R3",
   "stage4_the_boundary/whole_run/ruling_R3",
   "stage7_channels/channels/[15]/ruling_R3",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/definition_in_force",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/definition_selected_by",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/ok",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/slots_with_a_derived_group_point",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/superseded",
+  "stage8_plane_index_and_terminals/terminal_identity/derived_group_points_used_and_compared",
   "stage8_plane_index_and_terminals/terminal_identity/source_pins/argument_definitions_this_port_implements/909670c96562",
   "stage8_plane_index_and_terminals/terminal_identity/source_pins/argument_definitions_this_port_implements/dd8469cb0279",
   "stage8_plane_index_and_terminals/terminal_identity/source_pins/bilinear_definition_reason",

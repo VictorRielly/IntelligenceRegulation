@@ -97,9 +97,12 @@ def figures(rec: dict) -> dict:
     for b in s4["per_boundary"]:
         k = b["boundary"]
         res = b["restricted_to_the_reserved_rows"]
-        out[f"boundary {k}/reserved rows ranked"] = res.get("reserved_rows")
+        out[f"boundary {k}/reserved rows"] = res.get("rows")
+        out[f"boundary {k}/generators on the reserved block"] = res.get("generators")
         out[f"boundary {k}/rank on the reserved block"] = res.get(
-            "rank_of_the_reserved_block")
+            "rank_on_the_reserved_block")
+        out[f"boundary {k}/rank over all rows"] = res.get("rank_over_all_rows")
+        out[f"boundary {k}/full row rank"] = res.get("full_row_rank")
         out[f"boundary {k}/disclosed on the reserved block"] = res[
             "disclosed_on_the_reserved_block_fp"]
         th = b["three_roles_of_the_plane"]
@@ -121,8 +124,10 @@ def figures(rec: dict) -> dict:
     s5 = rec["stage5_zero_data_preimage"]
     out["preimage/attempted"] = s5.get("attempted")
     out["preimage/half"] = s5.get("half")
-    out["preimage/commitments reproduced"] = sum(
-        1 for c in s5.get("per_commitment", []) if c.get("reproduced"))
+    out["preimage/commitments exhibited"] = sum(
+        1 for c in s5.get("per_commitment", []) if c.get("preimage_exhibited"))
+    out["preimage/free field elements per position"] = sorted(
+        {c.get("free_fp_per_position") for c in s5.get("per_commitment", [])})
 
     s8 = rec["stage8_plane_index_and_terminals"]
     t = s8.get("terminal_identity", {})
@@ -144,8 +149,9 @@ def figures(rec: dict) -> dict:
         1 for c in ct.get("controls", []) if c.get("fires"))
     out["terminals/controls total"] = len(ct.get("controls", []))
     pt = s8.get("carried_public_tables", {})
-    out["public tables/checked against len and sha256"] = pt.get(
-        "tables_checked", pt.get("checked"))
+    out["public tables/carried"] = pt.get("public_tables")
+    out["public tables/length checked"] = pt.get("length_checked")
+    out["public tables/digest checked"] = pt.get("digest_checked")
 
     s9 = rec.get("stage9_hash_layer", {})
     out["hash layer/openings"] = s9.get("openings")

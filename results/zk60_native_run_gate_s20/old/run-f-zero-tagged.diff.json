@@ -1,19 +1,14 @@
 {
  "changed": [
   {
-   "new": 15.9,
+   "new": 15.4,
    "old": 14.0,
    "path": "seconds"
   },
   {
-   "new": 3.6,
+   "new": 3.4,
    "old": 3.7,
    "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
-  },
-  {
-   "new": 1.2,
-   "old": 1.1,
-   "path": "stage4_the_boundary/whole_run/seconds"
   },
   {
    "new": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b).  ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
@@ -36,7 +31,7 @@
    "path": "tool_sha256/zk60_native_rg_terminals.py"
   },
   {
-   "new": "a3fefd950162d546ad73dc575d5fc15e8a92be0c44ac3d19c951953d717c67e2",
+   "new": "a9155cf114c1770843cdbee7bf90261d5207ae7687a22f66f05fa688366e506e",
    "old": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165",
    "path": "tool_sha256/zk60_native_run_gate.py"
   },
@@ -46,8 +41,8 @@
    "path": "what_it_does_not_show/[6]"
   }
  ],
- "identical_leaves": 3479,
- "leaves_new": 3834,
+ "identical_leaves": 3480,
+ "leaves_new": 3846,
  "leaves_old": 3488,
  "only_in_the_new_record": [
   "stage10_bilinear_group_factor/controls/controls/[0]/control",
@@ -377,6 +372,12 @@
   "stage10_bilinear_group_factor/group_factor/what",
   "stage10_bilinear_group_factor/group_factor/what_this_does_not_establish",
   "stage10_bilinear_group_factor/ok",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/definition_in_force",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/definition_selected_by",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/ok",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/slots_with_a_derived_group_point",
+  "stage3_per_commitment/per_slot_terminal_check/bilinear_group_factor/superseded",
+  "stage3_per_commitment/per_slot_terminal_check/derived_group_points_used_and_compared",
   "stage3_per_commitment/per_slot_terminal_check/source_pins/argument_definitions_this_port_implements/909670c96562",
   "stage3_per_commitment/per_slot_terminal_check/source_pins/argument_definitions_this_port_implements/dd8469cb0279",
   "stage3_per_commitment/per_slot_terminal_check/source_pins/bilinear_definition_reason",
@@ -388,6 +389,12 @@
   "stage4_the_boundary/ruling_R3",
   "stage4_the_boundary/whole_run/ruling_R3",
   "stage7_channels/channels/[15]/ruling_R3",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/definition_in_force",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/definition_selected_by",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/ok",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/slots_with_a_derived_group_point",
+  "stage8_plane_index_and_terminals/terminal_identity/bilinear_group_factor/superseded",
+  "stage8_plane_index_and_terminals/terminal_identity/derived_group_points_used_and_compared",
   "stage8_plane_index_and_terminals/terminal_identity/source_pins/argument_definitions_this_port_implements/909670c96562",
   "stage8_plane_index_and_terminals/terminal_identity/source_pins/argument_definitions_this_port_implements/dd8469cb0279",
   "stage8_plane_index_and_terminals/terminal_identity/source_pins/bilinear_definition_reason",

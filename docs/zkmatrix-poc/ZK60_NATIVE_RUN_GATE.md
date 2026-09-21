@@ -22,6 +22,18 @@
 > soundness and says why the HIDING part is argued still. The disclosure
 > figures of §2.3 and §2.4 did not move under the tag, which is itself one
 > of round 3's results.
+>
+> **Section 8, the same day again, is the fourth round**, and it is the
+> first on a witness that is NOT degenerate. The Rust lane found and
+> repaired a COMPLETENESS defect in the two bilinear attention slots
+> (finding S19-F1) and re-took the captures on fully dense weights with a
+> non-constant hidden input whose two key-value groups carry different
+> data. Every bundle §§1–7 read used a fixture that is identical in every
+> head, or the all-zero input. §8 ports the repaired definition, DERIVES
+> the new public group factor instead of consuming it, and re-establishes
+> every figure of rounds 1–3 on the dense witness. **A dated correction
+> under ruling R-3 sits in §2.4 and again above §7**: it changes the
+> READING of the joint figures and not one number.
 
 > **THIS IS NOT A PRIVACY ACCEPTANCE AND ESTABLISHES NO PRIVACY PROPERTY.**
 > Every number below is a rank, a count or a digest of an explicitly stated
@@ -206,8 +218,24 @@ pair is the one its position in the claim order implies.
 | `B0` | `A@0`, `B0`, `A@1` | 8 | 1,248 | 154 | 0, 0, 0 | 0 | **0** | yes |
 | `B1` | `A@1`, `B1`, `A@2` | 8 | 1,248 | 154 | 0, 0, 0 | 0 | **0** | yes |
 
+> **CORRECTION, 2026-09-20 (round 4), ruling R-3.** Nothing in this table
+> or in the paragraph below is wrong, and no number here moves. What was
+> too generous was the READING. `joint == sum of the parts` is a
+> **consistency check of this model's coordinate classes, NOT evidence that
+> the commitments' blinding is independent.** The checker for the run's
+> joint-law composition built the counterexample: two DISTINCT blinding
+> rows whose VALUES coincide score exactly like an honest run (joint 0 =
+> sum 0) while disclosing 1,024 field elements at this shape. Independence
+> across the 4L+1 commitments rests on the generator and the draw
+> discipline (gap G-R4) and is to be machine-asserted elsewhere. The same
+> correction applies wherever a joint figure appears below — §2.6's control
+> C3, §5, §6.5, §7.6 — and round 4 put the sentence into the gate's own
+> records (`ruling_R3`, beside every joint figure).
+
 **Is `joint == sum` a theorem here?** Yes, *given two facts the gate
-computes rather than assumes*. Only DATA coordinates are shared — no
+computes rather than assumes* — and "theorem" here means only that the two
+NUMBERS must agree, which is the reading ruling R-3 corrects above. Only
+DATA coordinates are shared — no
 blinding source is: each commitment draws its own mask rows, proximity rows
 and pads — so the non-data block of the joint generator matrix is block
 diagonal by role (`non_data_block_is_block_diagonal_by_role: true`) and its
@@ -669,6 +697,13 @@ Evidence: `results/zk60_native_run_gate_tagged/`.
 > §2.3 and §2.4 is **unchanged** — that is itself one of this round's
 > results: the tag moved every proof byte and not one rank.
 
+> **CORRECTION, 2026-09-20 (round 4), ruling R-3**, applying to every joint
+> figure quoted in §6 and §7 as it does to §2.4: `joint == sum of the
+> parts` is a consistency check of the model's coordinate classes, not
+> evidence of independent blinding — two distinct blinding rows whose
+> values coincide score like an honest run. See the correction block in
+> §2.4. No figure of round 2 or round 3 moves.
+
 ## 7.1 The rule, and the one rule about the rule
 
 The gate **derives** the key set itself. The four context strings and the
@@ -907,3 +942,294 @@ gates' record guard still passes and no toy file's bytes were touched.
 * **A weight fold is the capture's.** See §7.4: no bundle carries a weight,
   so "this is the fold of the statement's matrix" is not established by
   anything in this round.
+
+---
+
+# 8. 2026-09-20, fourth round: the REPAIRED bilinear slots, and the first NON-DEGENERATE witness
+
+**Written 2026-09-20 21:30 PDT on the same lane.** Evidence:
+`results/zk60_native_run_gate_s20/`. New tools:
+`scripts/zk60_native_rg_gqa.py` (the group factor) and
+`scripts/zk60_native_rg_gcontrols.py` (GQ-1 … GQ-6); the comparison tool
+`scripts/zk60_native_rg_witcmp.py` sits beside the gate rather than in it.
+
+Two things landed, and they are not the same kind of thing.
+
+* **A COMPLETENESS defect was found and repaired** in the two bilinear
+  attention slots, 08 `SC_SCORE` and 09 `SC_PV` — finding S19-F1, the
+  security owner's disposition `ZK60_BLOCK125M_S19F1_DISPOSITION.md`.
+  Under grouped-query attention the key-value GROUP bits of the head
+  challenge were FIXED coordinates of BOTH private factors. A product of
+  two multilinear extensions that share a variable is quadratic in it, so
+  prover and verifier computed different polynomials the moment two
+  key-value groups carried different data, and the verifier refused an
+  HONEST proof. Soundness was not weakened (argued by the owner,
+  confirmed independently). The repair (lane stage 20) makes the group
+  bits SUMCHECK VARIABLES `rho(0..lkv)` shared by both factors, with a
+  PUBLIC factor `eq(r_g, ·)`, `lkv = clog2(kv_heads)` more main rounds and
+  one more degree.
+* **Every bundle this gate has ever read used a DEGENERATE witness.**
+  `run-a` … `run-f` used the lane fixture, whose normalised hidden state is
+  identical in every attention head, or the all-zero input. The defect
+  turned on exactly that. So no disclosure or rank figure in §§1–7 was ever
+  taken on a witness that varies across heads, and round 4's real job is
+  not the port — it is re-establishing every one of those figures on a
+  witness that does.
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** A
+> dense witness makes these figures worth more than a degenerate one did;
+> it does not turn a rank of a stated linear model at one shape into a
+> privacy property. Both bundles carry `privacy_review_complete: false`
+> and so does every record.
+
+## 8.1 The two bundles, and how the definition is chosen
+
+| bundle | witness (the capture's README — see §8.9) | argument |
+|---|---|---|
+| `run-g-dense-s20` | **fully dense public weights, a non-constant hidden input, the two key-value groups carrying different data in every block** | repaired |
+| `run-h-zero-s20` | the all-zero hidden input | repaired |
+
+Both pin `argument.rs dd8469cb` where the stage-18 bundles pin `909670c9`,
+and **that digest is what selects which definition of slots 08 and 09 the
+port evaluates.** The alternative — "does the bundle carry an `eq`
+table?" — would be consuming the prover's own claim about its schedule.
+Both digests are definitions this port has READ
+(`ARGUMENT_DEFINITIONS`); any other digest still makes every slot NOT
+CHECKED, and control GQ-5 shows the wrong definition cannot be smuggled in
+either direction. `layout.rs`, `protocol.rs` and `plane_index.rs` are
+byte-identical to round 3's pins; `argument.rs`'s whole diff is the two
+slots, the `B::group_eq` helper and a `#[cfg(test)]` accessor, and
+`shape.rs`'s is the two slots' dims plus finding F-2's named refusal —
+both of which this port **derives for itself** and compares, so it does not
+take the moved file's word for either.
+
+## 8.2 The group factor: derived, compared, never consumed
+
+`eq(r_g, ·)` is a VERIFIER-COMPUTED table. A gate that read its point out
+of the bundle would be checking the prover's arithmetic against the
+prover's own claim. So the tool derives everything and compares:
+
+| check, both bundles | figure |
+|---|---|
+| the geometry, from `run.json["shape"]` alone | `lt = lg(t_pad) = 5`, `lh = lg(h_pad) = 3`, `ldh = lg(head_dim) = 4`, **`lkv = clog2(kv_heads) = 1`** |
+| each slot's `(main, extension, degree)` derived, and compared with the slot's own declaration AND with the shape's `slots` array | **6 of 6** — slot 08 `(5, 2, 3)`, slot 09 `(6, 2, 3)` (were `(4, 2, 2)` and `(5, 2, 2)`) |
+| each slot's definition-draw count derived and compared | **6 of 6** — 13 and 12 |
+| `r_g = r_h[..lkv]` taken from the REPLAY's own re-derived definition challenges and compared entry by entry with the bundle's `Tab::Eq` (kind, `start = 0`, length) | **6 of 6** points, 6 entries |
+| both private factors' WHOLE coordinate lists re-derived — which axis is a summed `rho`, which is a fixed challenge, and WHICH challenge | **12 of 12** lists, **135** entries, of which **69** fixed coordinates compared with a re-derived challenge |
+| refusals, failures | none |
+
+The derived point is what the identity evaluates; the declared one is only
+ever compared, and `vals` refuses the slot outright if the two disagree
+(ruling T-7, as round 3 applied it to the hash keys).
+
+The coordinate lists are where the repair actually shows. Written out at
+this shape, with `r_h = dc[0:3]`, `r_t = dc[3:8]`, `r_j = dc[8:13]`:
+
+    A_QR8  fixed(r_t) ‖ rho(0..1) ‖ fixed(r_hj) ‖ rho(1..5)
+    A_KR8  fixed(r_j) ‖ rho(0..1)              ‖ rho(1..5)
+
+Before the repair the group bit `dc[0]` appeared as a FIXED coordinate of
+both factors; after it, the same summed variable `rho(0)` appears in both.
+A pure test asserts exactly that as a property of the two schedules, and
+another asserts the property the repair had to keep: at `kv_heads == 1`
+the two definitions are the SAME schedule, the same dimensions and no
+public table — which is why the frozen toy did not move a byte.
+
+## 8.3 The replay under the repaired schedule
+
+| | round 3 | round 4 |
+|---|---|---|
+| run binding | reproduced | **reproduced** |
+| transcript positions as (state, next challenge) | 375 | **375** |
+| challenges re-derived and compared | 6,086 | **6,092** |
+| final transcript counter | 6,918 | **6,924** |
+| segment position tags, from a discarded clone | 6 of 6 | **6 of 6** |
+| challenges NOT re-derived | none | **none** |
+| segment byte lengths | 4,066,824 / 4,089,352 / 4,257,256 | **4,067,160 / 4,089,688 / 4,257,592** |
+
+`+6` challenges is exactly `lkv` per bilinear slot per stage (1 × 2 × 3);
+`+336` bytes per stage is exactly the figure the S19-F1 disposition
+counted. Neither was read from anywhere: the round counts and degrees come
+from the shape, and the replay compares every one.
+
+## 8.4 The twenty-three slots, under the new definition for two of them
+
+**23 of 23** slots, **69 of 69** checks equal and matching the capture's own
+`terminal_polynomial`, **0** open, on both bundles — round 3's figures,
+with slots 08 and 09 now closed under `eq(r_g, ρ_g) · X · Y` instead of
+`X · Y`. The carried public tables are checked as in §7.4: 93 per bundle
+against the capture's own `len` and SHA-256, 16 per stage rebuilt and
+digest-matched, 45 structure checks.
+
+## 8.5 The headline: dense against degenerate
+
+`witness_comparison_dense_vs_zero.json` — **173 figures compared, 153
+identical.** Every one of the 20 that differ is a count of DISTINCT
+sampled columns, or the pad margin (256 minus it), or the pad block's exact
+rank (which equals it). Those columns are drawn from the transcript, so
+they move with the randomness and not with the witness.
+
+**Not one rank, disclosed dimension, joint figure, boundary figure,
+preimage figure, terminal check, public-table count, hash-layer count,
+channel count or control figure differs between the dense witness and the
+zero one.** Against round 3's `e` / `f` the only further differences are
+the repair's own cost (§8.3) and the group-factor figures, which exist only
+under the repair.
+
+| figure | `g` dense | `h` zero | `e` fixture (round 3) | `f` zero (round 3) |
+|---|---|---|---|---|
+| `A` disclosed, each stage | **0** | 0 | 0 | 0 |
+| `H` disclosed, each stage | **2** | 2 | 2 | 2 |
+| boundaries, endpoints, `M` disclosed | **0** | 0 | 0 | 0 |
+| `rank_P1` — `A` 74 of 623 rows, `H` 20 of 576, endpoints 4 / 6 | same | same | same | same |
+| each boundary on its reserved rows: 10 rows, 6 generators, rank 6 | disclosed **0** | 0 | 0 | 0 |
+| three-role joint (`A@k`, `B_k`, `A@k+1`), 154 generators | **0** = sum 0 | 0 = 0 | 0 = 0 | 0 = 0 |
+| the whole run, 308 × 3,761 | joint **6** = sum 6 | 6 = 6 | 6 = 6 | 6 = 6 |
+| zero-data preimage, message half | 4 commitments, 0 free `Fp` per position | same | same | same |
+| distinct opened columns (stage 0, `A`) | 252 | 250 | 250 | 242 |
+| pad block: distinct columns = exact rank, full rank | 249 | 248 | 248 | 246 |
+| terminal identity | 69 / 69 | 69 / 69 | 69 / 69 | 69 / 69 |
+| hash layer: 13 openings, 3,328 columns, 7,751,680 bytes | same | same | same | same |
+| channels | 25, **14 open** | 25, 14 open | 25, 14 open | 25, 14 open |
+
+**Was a low rank artificially low because the planes were identical across
+heads?** No — that is the one thing this comparison is for, and the answer
+is measured, not argued. The `A` commitment's `rank_P1` is 74 of 623 rows
+and its disclosed dimension 0 on the dense witness exactly as on the
+fixture; the boundary's rank on its ten reserved rows is 6 either way. The
+model's disclosure figures are ranks of the BLINDING structure — mask
+rows, proximity rows, pads — and that structure does not depend on the
+values the witness puts in the data rows. A dense witness was the right
+thing to demand, and the result is that the figures are the same figures.
+
+## 8.6 Round 4's controls
+
+Six, **all firing on both bundles**; four of them fire on a pre-repair
+bundle, which has no group table to perturb.
+
+| control | what | fires |
+|---|---|---|
+| **GQ-1** | stage 0, slot 08 `SC_SCORE`, terminal 0 changed by +1 | fails at **exactly** that slot and stage, 68 of 69 |
+| **GQ-2** | stage 2, slot 09 `SC_PV`, terminal 1 changed by +1 | the same |
+| **GQ-3** | the bundle's DECLARED eq point changed in memory | refused **by name** — "the declared eq point is not `r_g = r_h[..lkv]` re-derived from the transcript" — and the slot is not evaluated at the prover's point |
+| **GQ-4** | the point THIS TOOL derived perturbed, the bundle untouched | refused too: the comparison is two-sided and neither side is the authority |
+| **GQ-5** | the OTHER definition forced on these bytes | both slots refused in every stage, on the derived dims, on the missing or extra group table AND on the coordinate lists; the other 21 slots are unaffected (63 of 69 still check) |
+| **GQ-6** | the PRE-REPAIR polynomial `X·Y` measured beside `eq·X·Y` | the repaired one holds **6 of 6**, the pre-repair one **0 of 6**; no group factor is 1 and no terminal product is 0 |
+
+The 8 terminal controls (CT-1 … CT-8), the 6 hash-rule controls
+(CH-1 … CH-6) and the 6 run controls (C1 … C6) all still fire on both new
+bundles, unchanged.
+
+### What GQ-6 does NOT show, and why that is the round's most honest line
+
+GQ-6 gives the **same** answer on the dense bundle and on the zero bundle.
+That is not a disappointment to be explained away; it is the limit of what
+a capture reader can reach. Finding S19-F1 is a disagreement between the
+prover's CLAIM and the true sum over key-value groups, and both sides of
+that need a witness. No capture carries one. What GQ-6 measures is the
+arithmetic weight of the group factor in the verifier's own final check —
+real on both witnesses, `eq` never 1 and no terminal product ever 0. So:
+**from this gate's side the defect is invisible on EVERY witness, not only
+on a degenerate one**, and the mechanism that hid it — prover and verifier
+sharing one wrong definition function — is exactly the mechanism a
+round-trip reader cannot see. The gate's record says this in its own
+`what_it_does_not_show`.
+
+## 8.7 The four (now six) superseded bundles
+
+`run-a` … `run-f` are kept IN scope and replayed under the definition that
+made their bytes, marked **SUPERSEDED** for the two slots — the treatment
+round 3 gave a pre-tag hash rule, for the same reason: refusing them by
+name would throw away three rounds of evidence, and replaying them under
+the repaired definition would mis-replay them. Their records say which
+definition was in force, that it is the one finding S19-F1 names as wrong
+for a witness that varies across groups, and that nothing measured on them
+is a statement about what the profile produces today.
+
+All six were re-run under round 4's tools and diffed leaf by leaf against
+their committed records (`old/old_bundles_unchanged.json`): **0
+unclassified differing leaves**, with 2,512 / 2,512 / 3,159 / 3,160 /
+3,480 / 3,479 identical leaves. Every difference is a wall clock, a tool
+SHA-256, the new stage-10 block, ruling R-3's note beside a joint figure,
+the terminal port naming which definition is in force, the one channel
+reason that gained R-3's sentence, or the `what_it_does_not_show` wording.
+**No rank, disclosed dimension, challenge count, slot check or control
+figure moved.** The classifier is a tool, not a reading.
+
+## 8.8 The channel table, recounted
+
+Counted from the tool's own `stage7_channels.channels` array.
+
+| bundle | total | constructed | derived | argued | **open** |
+|---|---:|---:|---:|---:|---:|
+| `run-g-dense-s20`, `run-h-zero-s20` | **25** | 2 | 5 | 4 | **14** |
+| `run-e-tame-tagged`, `run-f-zero-tagged` (re-run) | 25 | 2 | 5 | 4 | 14 |
+| `run-c-tame`, `run-d-zero` (re-run) | 25 | 2 | 4 | 4 | 15 |
+| `run-a-tame`, `run-b-zero` (re-run) | 25 | 2 | 3 | 4 | 16 |
+
+**Nothing moved, and that is the right answer.** Round 4 added no channel
+and closed none. Deriving the group factor makes the terminal-identity
+channel *better founded* — the verifier-computed table in it is now
+computed here rather than taken — but it was already DERIVED, and a
+channel does not get counted twice for being derived more carefully. The
+fourteen that stay open are the same fourteen §7.6 lists.
+
+## 8.9 Ruling R-3, and what the gate cannot see
+
+Two corrections were recorded this round, both dated, neither rewriting a
+number.
+
+* **Ruling R-3** (`ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md`):
+  `joint == sum of the parts` is a **consistency check of this model's
+  coordinate classes, not evidence that the commitments' blinding is
+  independent.** The checker built the counterexample — two DISTINCT
+  blinding rows whose VALUES coincide score exactly like an honest run
+  (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.
+  Independence rests on the generator and the draw discipline (gap G-R4)
+  and is to be machine-asserted elsewhere. The correction block is in
+  §2.4 and repeated above §7; the sentence now travels with every joint
+  figure the gate reports, as `ruling_R3` in the records.
+* **The gate cannot see the witness.** No capture carries one. "Dense" and
+  "zero" are claims about the Rust lane's test that wrote each bundle, read
+  from the capture's README. The record says so in
+  `what_it_does_not_show`, and nothing in §8 should be read as this tool
+  having verified what was proved.
+
+## 8.10 The suite
+
+`python3 -m unittest discover -s tests -p 'test_zk60_native_run_gate*.py'`:
+**123 tests, OK**, 30.0 s — round 3's 94 plus this round's 29.
+`-p 'test_zk60_native*.py'`: **290 tests, OK**, 240.6 s, one skip and one
+recorded expected failure — against **261** before this round. The 29 new ones are `tests/test_zk60_native_run_gate_s20.py`, in
+the three arms this lane uses: a PURE arm that needs no bundle (the
+geometry, both definitions' dimensions and coordinate schedules written
+out, the group bit fixed-then-summed property, and the `kv_heads == 1`
+reduction), a RECORDED arm asserting every figure above from the tracked
+evidence, and a LIVE arm skipped when the ~41 MB bundles are absent.
+**No round-1, round-2 or round-3 assertion had to move** — the only reason
+their evidence was refreshed is that the tool bytes changed. The toy
+gates' record guard still passes and no toy file's bytes were touched.
+
+## 8.11 What this round is NOT
+
+* **Not a privacy claim, and a dense witness does not make it one.** Ruling
+  M-8's decision, D8/D11 and the run's joint-law composition are untouched.
+* **Still LINEAR channels.** §2.3 and §2.4's figures are ranks of the same
+  explicitly stated linear model; the "any nonlinear functional" channel
+  stays OPEN.
+* **Two runs, one development shape.** `run-g-dense-s20` and
+  `run-h-zero-s20` are two captured runs at 24 tokens, width 96, hidden
+  192, 6 query heads over 2 key-value heads. Two runs are not a
+  distribution, and one dense witness is not a distribution of witnesses.
+* **Nothing about the 125M shape.** The port is shape-driven — `lkv`, the
+  round counts, the degrees and both coordinate schedules come from
+  `run.json["shape"]` — but it has been RUN at one shape, where `lkv = 1`.
+  At `lkv > 1` the same code paths carry more group variables and nothing
+  here has exercised them.
+* **The hash layer's HIDING is still argued** (§7.3), and the masked
+  sumcheck / CFS channel is still the largest open one a port could close.
+* **The defect itself is out of reach from a capture** (§8.6). What round 4
+  establishes is that the claim point and the schedule are the repaired
+  construction's, at this run's real challenges — not that the run proved
+  the statement it names, and not that the witness was what its README
+  says.

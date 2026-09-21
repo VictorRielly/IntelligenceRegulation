@@ -290,9 +290,12 @@ class TestRecordedEvidence(unittest.TestCase):
             self.assertEqual(m["the_pre_repair_definition_holds"], 0, name)
             self.assertEqual(m["group_factors_equal_to_one"], 0, name)
             self.assertEqual(m["terminal_products_that_are_zero"], 0, name)
-            self.assertIn("cannot reproduce", " ".join(
-                x for x in rec["what_it_does_not_show"] if "CANNOT TELL" in x
-            ).lower() or "cannot reproduce", name)
+            # and the record says, in its own words, that it cannot see the
+            # defect and cannot tell the two witnesses apart
+            said = [x for x in rec["what_it_does_not_show"]
+                    if "CANNOT TELL A DENSE WITNESS" in x]
+            self.assertEqual(len(said), 1, name)
+            self.assertIn("cannot reproduce finding S19-F1", said[0], name)
 
     def test_the_round_one_to_three_figures_are_re_established(self):
         for name, rec in self.records().items():

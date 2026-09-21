@@ -13,8 +13,8 @@
     "results/zk60_native_run_gate_s20/run-h-zero-s20.json"
   ],
   "the_witness_is_not_in_the_bundle": "no capture carries a witness, so the witness column is a claim about the Rust lane's test that made the bundle (its README), not something this tool measured",
-  "figures_compared": 164,
-  "figures_identical": 144,
+  "figures_compared": 173,
+  "figures_identical": 153,
   "figures_that_differ": [
     {
       "figure": "distinct opened columns/0:A",
@@ -896,18 +896,42 @@
       "identical": true
     },
     {
-      "figure": "boundary 0/reserved rows ranked",
+      "figure": "boundary 0/reserved rows",
       "values": [
-        null,
-        null
+        10,
+        10
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/generators on the reserved block",
+      "values": [
+        6,
+        6
       ],
       "identical": true
     },
     {
       "figure": "boundary 0/rank on the reserved block",
       "values": [
-        null,
-        null
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/full row rank",
+      "values": [
+        true,
+        true
       ],
       "identical": true
     },
@@ -968,18 +992,42 @@
       "identical": true
     },
     {
-      "figure": "boundary 1/reserved rows ranked",
+      "figure": "boundary 1/reserved rows",
       "values": [
-        null,
-        null
+        10,
+        10
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/generators on the reserved block",
+      "values": [
+        6,
+        6
       ],
       "identical": true
     },
     {
       "figure": "boundary 1/rank on the reserved block",
       "values": [
-        null,
-        null
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/full row rank",
+      "values": [
+        true,
+        true
       ],
       "identical": true
     },
@@ -1130,10 +1178,24 @@
       "identical": true
     },
     {
-      "figure": "preimage/commitments reproduced",
+      "figure": "preimage/commitments exhibited",
       "values": [
-        0,
-        0
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/free field elements per position",
+      "values": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
       ],
       "identical": true
     },
@@ -1196,8 +1258,8 @@
     {
       "figure": "terminals/derived group points used",
       "values": [
-        null,
-        null
+        6,
+        6
       ],
       "identical": true
     },
@@ -1218,10 +1280,26 @@
       "identical": true
     },
     {
-      "figure": "public tables/checked against len and sha256",
+      "figure": "public tables/carried",
       "values": [
-        null,
-        null
+        93,
+        93
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/length checked",
+      "values": [
+        93,
+        93
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/digest checked",
+      "values": [
+        93,
+        93
       ],
       "identical": true
     },

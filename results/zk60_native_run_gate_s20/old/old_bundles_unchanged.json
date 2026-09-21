@@ -39,7 +39,7 @@
    "by_class": {
     "ruling R-3's correction note, added beside every joint figure": 6,
     "the channel array (one entry inserted; every later index shifts)": 2,
-    "the new fields about captured public tables": 8,
+    "the new fields about captured public tables": 20,
     "the new stage 10 block (the bilinear slots' group factor)": 327,
     "the what-it-does-not-show wording": 3,
     "tool hashes": 6,
@@ -47,7 +47,7 @@
    },
    "changed": 9,
    "identical_leaves": 3159,
-   "only_in_the_new_record": 346,
+   "only_in_the_new_record": 358,
    "only_in_the_old_record": 0
   },
   {
@@ -55,15 +55,15 @@
    "by_class": {
     "ruling R-3's correction note, added beside every joint figure": 6,
     "the channel array (one entry inserted; every later index shifts)": 2,
-    "the new fields about captured public tables": 8,
+    "the new fields about captured public tables": 20,
     "the new stage 10 block (the bilinear slots' group factor)": 327,
     "the what-it-does-not-show wording": 3,
     "tool hashes": 6,
-    "wall clock": 2
+    "wall clock": 3
    },
-   "changed": 8,
-   "identical_leaves": 3160,
-   "only_in_the_new_record": 346,
+   "changed": 9,
+   "identical_leaves": 3159,
+   "only_in_the_new_record": 358,
    "only_in_the_old_record": 0
   },
   {
@@ -71,7 +71,7 @@
    "by_class": {
     "ruling R-3's correction note, added beside every joint figure": 6,
     "the channel array (one entry inserted; every later index shifts)": 2,
-    "the new fields about captured public tables": 8,
+    "the new fields about captured public tables": 20,
     "the new stage 10 block (the bilinear slots' group factor)": 327,
     "the what-it-does-not-show wording": 3,
     "tool hashes": 6,
@@ -79,7 +79,7 @@
    },
    "changed": 8,
    "identical_leaves": 3480,
-   "only_in_the_new_record": 346,
+   "only_in_the_new_record": 358,
    "only_in_the_old_record": 0
   },
   {
@@ -87,15 +87,15 @@
    "by_class": {
     "ruling R-3's correction note, added beside every joint figure": 6,
     "the channel array (one entry inserted; every later index shifts)": 2,
-    "the new fields about captured public tables": 8,
+    "the new fields about captured public tables": 20,
     "the new stage 10 block (the bilinear slots' group factor)": 327,
     "the what-it-does-not-show wording": 3,
     "tool hashes": 6,
-    "wall clock": 3
+    "wall clock": 2
    },
-   "changed": 9,
-   "identical_leaves": 3479,
-   "only_in_the_new_record": 346,
+   "changed": 8,
+   "identical_leaves": 3480,
+   "only_in_the_new_record": 358,
    "only_in_the_old_record": 0
   }
  ],

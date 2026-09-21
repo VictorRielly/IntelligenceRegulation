@@ -50,7 +50,7 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 15.9,
+ "seconds": 15.7,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -509,7 +509,7 @@
    "slots_with_a_derived_group_point": 0,
    "stages": 3,
    "superseded": true,
-   "superseded_note": "this bundle was made under the PRE-REPAIR definition of slots 08 and 09, which finding S19-F1 names as wrong for a witness that varies across key-value groups.  It is replayed under that definition because that is what made its bytes; nothing measured on it is a statement about what the profile produces today",
+   "superseded_note": "SUPERSEDED: this bundle was made under the PRE-REPAIR definition of slots 08 and 09, which finding S19-F1 names as wrong for a witness that varies across key-value groups.  It is replayed under that definition because that is what made its bytes; nothing measured on it is a statement about what the profile produces today",
    "what": "the two bilinear attention slots' GROUP FACTOR: lkv, the slot dimensions, the point r_g = r_h[..lkv] and both private factors' coordinate lists, all DERIVED from the shape and the replayed transcript and then compared with what the bundle declares.  The derived point is what the terminal identity evaluates; the declared one is only ever compared",
    "what_this_does_not_establish": "that the private factors are the quantised query, key, probability and value planes of the statement.  No bundle carries a witness.  What is established is that the claim POINT and the slot's SCHEDULE are the ones the repaired construction derives from this shape, and that the group factor the verifier multiplies in is the one this tool computed for itself"
   },
@@ -847,7 +847,7 @@
    "exact_rank_of_the_pad_block": 248,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.4,
+   "seconds": 3.7,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -2082,6 +2082,15 @@
    }
   ],
   "per_slot_terminal_check": {
+   "bilinear_group_factor": {
+    "definition_in_force": "pre-repair",
+    "definition_selected_by": "the bundle's own source pin of argument.rs (909670c96562)",
+    "failures": [],
+    "ok": true,
+    "refusals": [],
+    "slots_with_a_derived_group_point": 0,
+    "superseded": true
+   },
    "captured_public_tables": [
     "fold_cols_i8 of the public down weight matrix (argument.rs:1110)",
     "fold_cols_i8 of the public gate weight matrix (argument.rs:1110)",
@@ -2148,6 +2157,7 @@
     21,
     22
    ],
+   "derived_group_points_used_and_compared": 0,
    "findings": [],
    "ok": true,
    "open_slots": [],
@@ -4389,6 +4399,15 @@
    "what_it_is_not": "the table says WHERE a plane lives and what it is called; it carries no plane content and is a function of the public shape alone"
   },
   "terminal_identity": {
+   "bilinear_group_factor": {
+    "definition_in_force": "pre-repair",
+    "definition_selected_by": "the bundle's own source pin of argument.rs (909670c96562)",
+    "failures": [],
+    "ok": true,
+    "refusals": [],
+    "slots_with_a_derived_group_point": 0,
+    "superseded": true
+   },
    "captured_public_tables": [
     "fold_cols_i8 of the public down weight matrix (argument.rs:1110)",
     "fold_cols_i8 of the public gate weight matrix (argument.rs:1110)",
@@ -4455,6 +4474,7 @@
     21,
     22
    ],
+   "derived_group_points_used_and_compared": 0,
    "findings": [],
    "ok": true,
    "open_slots": [],
@@ -5277,7 +5297,7 @@
   "zk60_native_rg_bundle.py": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
   "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
   "zk60_native_rg_gcontrols.py": "c03f50ce2a09013a6a7421c1219bb8c52777687f4ca7afcc79eef8006e2c84af",
-  "zk60_native_rg_gqa.py": "54b5369e7080c47669d286297da641782e2717846b3cd1cb6465e6c7c3a5dd0c",
+  "zk60_native_rg_gqa.py": "89d9c1f39921d9cf218f972079a35909e44812bbe91ef45a04653df3a8b3582d",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
@@ -5288,7 +5308,7 @@
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
   "zk60_native_rg_terminals.py": "dc51ed03944ef0d9cde8b623fc87a8d68bfc36c686bc02a091c8f8b91c10d792",
-  "zk60_native_run_gate.py": "a3fefd950162d546ad73dc575d5fc15e8a92be0c44ac3d19c951953d717c67e2"
+  "zk60_native_run_gate.py": "a9155cf114c1770843cdbee7bf90261d5207ae7687a22f66f05fa688366e506e"
  },
  "version": 1,
  "what_it_does_not_show": [

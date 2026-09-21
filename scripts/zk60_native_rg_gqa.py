@@ -477,12 +477,13 @@ class GroupFactors:
             "definition_reason": self.why,
             "superseded": self.definition == PRE_REPAIR,
             "superseded_note": (
-                "this bundle was made under the PRE-REPAIR definition of slots "
-                "08 and 09, which finding S19-F1 names as wrong for a witness "
-                "that varies across key-value groups.  It is replayed under "
-                "that definition because that is what made its bytes; nothing "
-                "measured on it is a statement about what the profile produces "
-                "today" if self.definition == PRE_REPAIR else None),
+                "SUPERSEDED: this bundle was made under the PRE-REPAIR "
+                "definition of slots 08 and 09, which finding S19-F1 names as "
+                "wrong for a witness that varies across key-value groups.  It "
+                "is replayed under that definition because that is what made "
+                "its bytes; nothing measured on it is a statement about what "
+                "the profile produces today"
+                if self.definition == PRE_REPAIR else None),
             "geometry": self.geom.as_dict(),
             "group_point_derived_from": self.derived_from,
             "bilinear_slots_per_stage": len(BILINEAR_SLOTS),
