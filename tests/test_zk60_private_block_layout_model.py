@@ -838,6 +838,70 @@ class DerivedEndpoints(unittest.TestCase):
         self.assertNotIn("endpoint_rows", inspect.signature(M.Shape.__init__).parameters)
 
 
+class TheEndpointRowCountShape(unittest.TestCase):
+    """**LANE STAGE 33 — the 125M ENDPOINT's ROW COUNT, reached by a small
+    shape** (item 4b of stage 32's heavy-only list).
+
+    The endpoint commits the padded Dom::D cube in rows of
+    `2^endpoint_log_n`.  `rung_e32` is rung-W14's head axis at 32 tokens and
+    a row width of 2^10, so the cube is 2^15 and the endpoint has 32 data
+    rows and 37 commitment rows — 125M's own counts — while its LOG stays
+    the rungs'.  The model is the independent oracle for both halves."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.e = M.model(M.RUNG_E32)
+        cls.m = M.model(M.M125)
+
+    def test_the_geometry(self):
+        s = M.RUNG_E32
+        self.assertEqual((s.tokens, s.width, s.hidden), (32, 768, 1024))
+        self.assertEqual((s.q_heads, s.head_dim, s.kv_heads), (12, 64, 4))
+        self.assertEqual((s.t_pad, s.d_pad, s.h_pad, s.f_pad), (32, 1024, 16, 1024))
+        self.assertEqual((s.log_cols, s.inv_rate, s.opened_cols), (10, 4, M.COL_CHECKS))
+        self.assertEqual(s.wrho_s, 17)
+        self.assertEqual(s.limbs_sigma_s, 3)
+        self.assertTrue(s.norm_top_is_full_byte)
+        self.assertLess(s.natural_log("T"), s.log_cols)   # ruling S-6
+
+    def test_the_endpoint_row_count_is_125Ms(self):
+        (e, m) = (M.RUNG_E32, M.M125)
+        self.assertEqual(e.endpoint_words, 1 << 15)
+        self.assertEqual(e.endpoint_data_rows, 32)
+        self.assertEqual(e.endpoint_rows, 37)
+        self.assertEqual((e.endpoint_data_rows, e.endpoint_rows),
+                         (m.endpoint_data_rows, m.endpoint_rows))
+        self.assertTrue(e.endpoint_general)
+        # and what it does NOT reach: the endpoint LOG and the cube
+        self.assertEqual((e.endpoint_log_n, m.endpoint_log_n), (10, 14))
+        self.assertEqual((e.endpoint_words, m.endpoint_words), (1 << 15, 1 << 19))
+        # no other registered shape has more than 16 endpoint data rows
+        for name, s in M.SHAPES.items():
+            if name not in ("rung_e32", "m125"):
+                with self.subTest(shape=name):
+                    self.assertLessEqual(s.endpoint_data_rows, 16)
+
+    def test_the_counted_receipt_and_rows(self):
+        self.assertEqual(self.e["receipt_bytes"]["total"], 11_368_824)
+        self.assertEqual((self.e["rows"]["a_rows"], self.e["rows"]["h_rows"]), (2209, 2416))
+        self.assertEqual(self.e["lookups"]["u8_total"], 2_181_120)
+        # the opening-group structure is 125M's
+        self.assertEqual((self.e["opening_groups"]["a_groups"], self.e["opening_groups"]["h_groups"]),
+                         (self.m["opening_groups"]["a_groups"], self.m["opening_groups"]["h_groups"]))
+
+    def test_what_it_shares_with_125M(self):
+        (e, m) = (M.RUNG_E32, M.M125)
+        self.assertEqual((e.width, e.d_pad, e.head_dim, e.q_heads, e.kv_heads),
+                         (m.width, m.d_pad, m.head_dim, m.q_heads, m.kv_heads))
+        self.assertEqual((e.d_max, e.norm_wrho, e.limbs_norm, e.norm_top_is_full_byte),
+                         (m.d_max, m.norm_wrho, m.limbs_norm, m.norm_top_is_full_byte))
+        self.assertEqual(e.limbs_sigma_s, m.limbs_sigma_s)
+        # the same padded-domain set as 125M (finding M-F1's), which is what
+        # makes the pair a regression as well as new evidence
+        self.assertEqual(sorted(d for d in M.ALL_DOMS if not e.lifted(d) and e.size(d) == e.true_size(d)),
+                         sorted(d for d in M.ALL_DOMS if not m.lifted(d) and m.size(d) == m.true_size(d)))
+
+
 class TheTokenCountRefusal(unittest.TestCase):
     """**LANE STAGE 33, RULING S-6 — the model mirrors the Rust's refusal.**
 
