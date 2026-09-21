@@ -1,0 +1,138 @@
+{
+ "no_measured_figure_moved": true,
+ "note": "every difference is one of: a wall clock, a tool SHA-256, the two NEW record blocks (hash_rule and stage 9), the replay naming its rule, the new fields about captured public tables (empty on a bundle that carries none), the reworded OPEN reason of the eleven slots, or the insertion of ONE channel entry, which shifts every later entry's index.  No rank, disclosed dimension, challenge count, slot check or control figure differs.  Round 4 adds four classes: the new stage 10 block, ruling R-3's correction note beside every joint figure, the terminal port naming which definition of the two bilinear slots is in force, and the one channel entry whose reason gained R-3's sentence.  Round 6 adds one class: the new `run_layer_source_pins` block, which is the pin table for `run_capture.rs`, `run.rs` and `boundary.rs` that finding K4-F2 said did not exist.  Round 7 adds one class: the new `stage11_full_preimage` block, which on a default run carries only the sentence saying the arm was not requested and which three channels therefore stay OPEN.",
+ "per_bundle": [
+  {
+   "bundle": "run-a-tame",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 1
+   },
+   "changed": 5,
+   "identical_leaves": 2795,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-b-zero",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 2
+   },
+   "changed": 6,
+   "identical_leaves": 2794,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-c-tame",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 3
+   },
+   "changed": 7,
+   "identical_leaves": 3573,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-d-zero",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 3
+   },
+   "changed": 7,
+   "identical_leaves": 3573,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-e-tame-tagged",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 2
+   },
+   "changed": 6,
+   "identical_leaves": 3912,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-f-zero-tagged",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 2
+   },
+   "changed": 6,
+   "identical_leaves": 3912,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-g-dense-s20",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 3
+   },
+   "changed": 7,
+   "identical_leaves": 3994,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-h-zero-s20",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 3
+   },
+   "changed": 7,
+   "identical_leaves": 3994,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-i-dense-k4",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 3
+   },
+   "changed": 7,
+   "identical_leaves": 4078,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-j-zero-k4",
+   "by_class": {
+    "the channel array (one entry inserted; every later index shifts)": 11,
+    "the new stage 11 block (round 7's full preimage, off by default)": 5,
+    "tool hashes": 4,
+    "wall clock": 3
+   },
+   "changed": 7,
+   "identical_leaves": 4078,
+   "only_in_the_new_record": 16,
+   "only_in_the_old_record": 0
+  }
+ ],
+ "unclassified": [],
+ "what": "the superseded bundles re-run under the current tools and diffed leaf by leaf against their previous round's records"
+}

@@ -174,11 +174,32 @@ DERIVED_FROM = {
         "the msg and pad halves because they now have different lengths, and the "
         "hash arm below is NEW (the toy gate has no Merkle layer)"
     ),
+    "WideRolePreimage.build": (
+        "RolePreimage.build -- the same three phases in the same order, with a "
+        "wall clock per phase recorded"
+    ),
     "WideRolePreimage.blinding_digest": "RolePreimage.blinding_digest -- identical",
     "WideRolePreimage.fibre_dimension": (
         "RolePreimage.fibre_dimension -- identical, with `MSG` and `PAD` apart: "
         "the pad term is `(rows - 2(G+1)) * (Q - d)`"
     ),
+}
+
+# Methods with NO toy counterpart, named so that the map above is a complete
+# account of this module and not only of its overlaps.
+NEW_HERE = {
+    "WideRoleLayout.dimensions": "the system's own dimensions, for the report",
+    "WideRolePreimage._nonzero_msg_rows": "the rows whose message block is not "
+    "all zero, so a zero row's contribution is dropped from a sum it adds "
+    "nothing to",
+    "WideRolePreimage._combination_msg": "the same accumulation the toy does "
+    "position by position, done column by column -- an exact re-association, "
+    "which is what makes `A`'s 36 groups over 1,024 positions cheap",
+    "WideRolePreimage._inner_products": "`<msg_i, cw>` per nonzero row, cached "
+    "for the claim-value targets",
+    "WideRolePreimage._hash_layer": "NEW: the rebuilt columns re-hashed under "
+    "the bundle's own rule and their salted leaves re-authenticated against "
+    "the PUBLISHED salts and paths.  The toy gate has no Merkle layer",
 }
 
 

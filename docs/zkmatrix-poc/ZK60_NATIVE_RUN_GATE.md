@@ -294,6 +294,16 @@ correction step that handles it lives in `zk60_native_pg_pcs`, whose
 values are not constructed either. Both are OPEN in the channel table with
 that reason.
 
+> **DATED NOTE, 2026-09-21 (round 7).** That assumption is gone and the
+> construction is done: **§11**. `zk60_native_rg_ahpreimage` is the same
+> solve with the two widths apart, and on all four current bundles every one
+> of the ten PCS commitments — `A` and `H` included — has a constructed and
+> verified zero-data preimage: both halves, every opened column and the
+> salted leaves of the opened columns, **4,763,302 view entries recomputed
+> and compared, none differing**. No number in this section changed; §11.5
+> is the larger table beside it. The arm is opt-in (`--full-preimage`), so a
+> default record still reports this section's four commitments and no more.
+
 ### 2.6 Negative controls (stage 6)
 
 Each is shown to PASS on the honest bundle first, and each makes the gate
@@ -1739,3 +1749,351 @@ receipt size differs on any of the ten.**
   exactly the fact that would stop being true if a port grew.
 * **Nothing here moves D8/D11, ruling M-8's decision, the hash layer's
   ARGUED hiding, or the open sumcheck / CFS channel.**
+
+---
+
+# 11. 2026-09-21, seventh round: the PREIMAGE for `A` and `H`, constructed
+
+**Written 2026-09-21 on the same lane.** New modules:
+`scripts/zk60_native_rg_ahpreimage.py` (the construction),
+`scripts/zk60_native_rg_ahcontrols.py` (six controls); the gate gains one
+opt-in stage, `--full-preimage` → `stage11_full_preimage`. Evidence:
+`results/zk60_native_run_gate_preimage/`. Tests:
+`tests/test_zk60_native_run_gate_ahpreimage.py`.
+
+§2.5 has said the same sentence since round 1: "`A` and `H` are **skipped,
+not faked**: their opening groups have several members, so each claim's own
+published value is an extra constraint, and the correction step that handles
+it lives in `zk60_native_pg_pcs`, whose `MSG == PAD == 256` does not hold
+here." Round 7 removes that assumption and does the construction. **All ten
+PCS commitments of every one of the four current runs now have a
+constructed, verified, zero-data preimage** — message half AND pad half AND
+every opened column AND the salted leaves of the opened columns.
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** A
+> preimage EXISTS; that is not the statement that the honest prover's
+> randomness is uniform on the fibre, which is the lemma's job and is not
+> touched here. §11.8 is the list of what this does not show, and it is
+> longer than the list of what it does.
+
+## 11.1 The headline, in one line each
+
+1. **The cost was never the obstacle.** Round 1 skipped `A` and `H` "for
+   cost". Measured: the whole construction plus its verification is
+   **11.3–12.8 s for an `A`** and **8.1–9.2 s for an `H`**, and **70–77 s
+   for a whole three-block run's ten commitments**, in pure Python with
+   exact `Fp` arithmetic, and the construction's own peak resident set is
+   **103 MB** above the loaded bundle (325 MB for a process that does
+   nothing else). What was real was the `MSG == PAD` assumption; the cost
+   estimate was wrong by two orders of magnitude.
+2. **4,763,302 view entries recomputed and compared, none differing**, over
+   the four bundles — and **10,240 salted Merkle leaves** rebuilt from the
+   construction and re-authenticated against the published salts and paths.
+3. **It is the toy gate's own solve, not a second one.** Every arithmetic
+   primitive is IMPORTED from `zk60_native_pg_pcs`; the two classes around
+   them are re-derived with the widths apart, and a test runs the NEW
+   classes on the TOY captures at `256/256` and requires the matrix digest,
+   the step records, the solved matrix `X`, the exhibited-randomness digest,
+   the fibre dimension and every verification count to equal the toy
+   module's **to the byte**.
+4. **Six controls, all fire** (§11.6), including the two that test the
+   gate's own criterion and one — P-5 — that exhibits a case where both
+   per-commitment preimages exist and **no joint one does**.
+5. **Three channels move from OPEN to CONSTRUCTED**: `A` and `H`'s vectors,
+   the pad half of every published vector, and the opened column values.
+   The table goes from 2 constructed / 14 open to **5 constructed / 11
+   open**, of 25. **A preimage for a RUN stays OPEN**, and P-5 is the reason
+   it is not a formality.
+
+## 11.2 The system, stated exactly
+
+For one commitment the committed matrix is `X` in `Fp^{rows × (n+Q)}`; row
+`i` is `z_i = (msg_i, pad_i)` in `Fp^n × Fp^Q`, with `n = 1,024` message
+positions and `Q = 256` pad symbols at both development rungs. Split the
+coordinates into the DATA block (`msg_i[t]` on the data rows) and the
+BLINDING block (`msg_i[t]` on the non-data rows, and `pad_i[k]` on **every**
+row, subject to the layout's public linear constraints).
+
+**The unknowns.** Per commitment: the reserved mask-pair rows (one adjacent
+pair per claim, H-pair), the proximity pair, `H`'s zero-sum `u` pair, and
+`Q` pads per row.
+
+**The equations.** Every entry of the verifier's field-valued view: each
+opening group's vector (`n+Q` `Fp2` entries each), the proximity vector
+(`n+Q`), each claim's published value, each opened column entry
+(`d × rows`), plus the public zero-sum constraint on each `u` row.
+
+| | `A`, rung-G | `H`, rung-G | `A`, rung-K4 | `H`, rung-K4 |
+|---|---:|---:|---:|---:|
+| rows | 623 | 576 | 727 | 720 |
+| data rows | 377 | 468 | 481 | 612 |
+| non-data rows | 246 | 108 | 246 | 108 |
+| opening groups `G` | 36 | 9 | 36 | 9 |
+| claims | 122 | 53 | 122 | 53 |
+| generators `2(G+1)` | 74 | 20 | 74 | 20 |
+| reserved pairs | 122 | 53 (one of them the `u` pair) | 122 | 53 |
+| distinct opened columns `d` | 248–252 | 245–250 | 250–253 | 244–247 |
+| **blinding unknowns (`Fp`)** | **411,392** | **258,046** | **438,016** | **294,910** |
+| **equations (`Fp`)** | **249,468–251,960** | **166,828–169,708** | **276,714–278,895** | **201,388–203,548** |
+
+The system is **underdetermined by construction** — that is what a hiding
+commitment is — and the interesting question is not its size but whether it
+is CONSISTENT for a data block that is not the one the run was proved on.
+
+## 11.3 How it is solved: the order, not the size
+
+No dense elimination over 600+ rows appears anywhere. The system decomposes,
+and each step is small and exact over Goldilocks `Fp`:
+
+1. **The message half, per opening group, in dependency order.** Under
+   H-pair each claim owns one reserved pair that no other claim touches, so
+   a group's only non-data support is its own claims' pairs. The whole
+   per-position residual goes on ONE anchor pair — at each of the 1,024
+   positions a 2×2 `Fp` system whose determinant the verifier itself refuses
+   when zero — and then a correction **inside the kernel of that
+   constraint** meets (a) each claim's own published value and (b) the
+   public zero-sum constraint on any `u` row. The correction space is
+   parametrised exactly (≤ 3 positions reach what all 1,024 reach, because
+   the claim values see a correction only through `<δ_i, cw>` and a `u` row
+   only through its row sum), so "no solution" is a statement about the
+   channel and not about the search.
+   The **order matters and is computed, not assumed**: `H`'s zero-sum slot
+   READS the `u` pair that another group OWNS, so that group must be solved
+   first. On `H` the gate reports `{7: [8]}` — group 7 reads group 8's rows
+   — and the solve order is `0..6, 8, 7`.
+2. **The message half of the proximity pair, last**: no claim touches it
+   (H-prox).
+3. **The pads, per row.** Writing the encoded row as `Enc_i = Msg_i + Z_n
+   Pad_i`, the opened columns fix `Pad_i` at the `d` distinct sampled nodes;
+   one Lagrange interpolation through those nodes (built once for the
+   commitment, `d × d`) gives a solution, and the whole fibre is
+   `I(p_i) + Z_S q_i` with `deg q_i < Q − d`.
+4. **The pad half of each group vector and of the proximity vector.** It
+   fixes `Σ_i ρ[i] q_i`, which is a polynomial **only when the residual is
+   divisible by `Z_S`** — exactly when the verifier's own sampled-column
+   identity holds. That divisibility is the channel's feasibility test, and
+   controls P-1 and P-3 make it fire.
+
+**Why the cost is small.** The per-row Lagrange solve is `d²` and the group
+steps are per-position 2×2 systems; the only `rows × (n+Q)` passes are the
+forward map in the verification. With the data block at zero, the residual
+accumulation drops every zero row — an exact re-association of the same sum,
+not a shortcut past a constraint, and the point at which round 1's cost
+estimate went wrong.
+
+## 11.4 It is the same solve, and that is asserted rather than asserted-to
+
+`zk60_native_pg_pcs.py` is a hash-pinned record of the toy gate and this
+lane does not edit it, so the two classes had to be re-derived. Three things
+keep that from being a fork:
+
+* **Every primitive is imported, not copied**: `solve_pair`,
+  `kernel_basis`, `poly_div_exact`, `Lagrange` (with its `Z_S` and its
+  interpolation basis) and `poly_eval`. A test asserts each name in the new
+  module **IS** the toy module's object, and that the new module's source
+  defines no function or class of those names.
+* **`DERIVED_FROM` and `NEW_HERE`** name, method by method, the toy method
+  each one comes from and the one thing that differs — and a test requires
+  every method with a toy counterpart to be in the first map and every other
+  method to be in the second, so the map cannot silently fall behind.
+* **The equivalence run.** The new classes, at `msg_width == pad_width ==
+  256`, are run on a real TOY capture (`40083e7a…`, roles `H` and `Input`)
+  beside `zk60_native_pg_pcs`'s own classes. Equal: the matrix digest, the
+  anchor list, the solve order, `d`, the step records, the failure list, the
+  **whole solved matrix `X`**, the exhibited-randomness digest, the fibre
+  dimension, and every verification count. One difference, stated: the wide
+  `verify` has a hash arm the toy has no Merkle layer for, and with no rule
+  supplied it says `checked: false` rather than pretending.
+
+A fourth, on the run side: round 1's singleton-group construction
+(`zk60_native_rg_preimage`) and round 7's general one are two different
+routes to the same object, and a test requires them to agree on **every**
+message entry of `B0`.
+
+## 11.5 What was constructed and verified
+
+Every PCS commitment of every stage of all four bundles, at the ALL-ZERO
+data block. `run-h-zero-s20` and `run-j-zero-k4` are the sanity anchor: on
+those the prover's own hidden input was all zero, so the construction is a
+preimage of the same data block the prover used, and it succeeds exactly as
+on the dense ones.
+
+| bundle | witness | commitments exhibited | view entries compared | differing | salted leaves re-authenticated | stage-11 seconds |
+|---|---|---:|---:|---:|---:|---:|
+| `run-g-dense-s20` | fully dense generic | **10 / 10** | **1,097,847** | **0** | 2,560 | 70.8 |
+| `run-h-zero-s20` | all zero | **10 / 10** | **1,103,569** | **0** | 2,560 | 71.2 |
+| `run-i-dense-k4` | fully dense generic | **10 / 10** | **1,282,025** | **0** | 2,560 | 76.2 |
+| `run-j-zero-k4` | all zero | **10 / 10** | **1,279,861** | **0** | 2,560 | 75.3 |
+| **total** | | **40 / 40** | **4,763,302** | **0** | **10,240** | |
+
+Per commitment, rung-G (`run-g-dense-s20`; the other three differ only in
+`d` and in the row counts of the table in §11.2):
+
+| commitment | rows | `d` | group-vector entries | proximity | claim values | opened-column entries | **total** | fibre (`Fp`) | seconds |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `A@0` | 623 | 252 | 46,080 | 1,280 | 122 | 156,996 | **204,478** | 178,152 | 11.6 |
+| `H@0` | 576 | 250 | 11,520 | 1,280 | 53 | 144,000 | **156,853** | 93,360 | 8.1 |
+| `E-Input` | 9 | 246 | 1,280 | 1,280 | 1 | 2,214 | **4,775** | 50 | 2.7 |
+| `A@1` | 623 | 248 | 46,080 | 1,280 | 122 | 154,504 | **201,986** | 180,348 | 11.3 |
+| `H@1` | 576 | 246 | 11,520 | 1,280 | 53 | 141,696 | **154,549** | 95,584 | 8.2 |
+| `B0` | 10 | 249 | 2,560 | 1,280 | 2 | 2,490 | **6,332** | 28 | 2.8 |
+| `A@2` | 623 | 251 | 46,080 | 1,280 | 122 | 156,373 | **203,855** | 178,701 | 12.3 |
+| `H@2` | 576 | 245 | 11,520 | 1,280 | 53 | 141,120 | **153,973** | 96,140 | 8.4 |
+| `B1` | 10 | 242 | 2,560 | 1,280 | 2 | 2,420 | **6,262** | 56 | 2.7 |
+| `E-Output` | 9 | 247 | 1,280 | 1,280 | 1 | 2,223 | **4,784** | 45 | 2.8 |
+
+An `Fp2` entry counts once. "Entries compared" means: the view was
+RECOMPUTED from (all-zero data + the solved blinding) by the forward map and
+compared with the capture, entry by entry. **None differ**, on any
+commitment of any bundle, and the record also carries a `first_mismatch`
+field which is `null` everywhere.
+
+**The hash layer of the opened columns.** For each of the 256 opened columns
+of each commitment (sampled with replacement) the column is rebuilt from the
+preimage, its leaf digest recomputed under the bundle's own derived rule,
+salted with the PUBLISHED salt and folded along the PUBLISHED path. All
+2,560 per bundle reach the committed root, and all 2,560 rebuilt columns are
+equal to the capture's bytes. So the construction reproduces the receipt's
+BYTES for the opened columns, not only its field values.
+**The unopened leaves are not reproduced and cannot be**: an unopened leaf
+is a salted digest of data nothing publishes. Their hiding is M-2 / M-3 and
+stays ARGUED — round 7 does not touch it.
+
+## 11.6 The controls
+
+Each is shown to PASS on the honest capture first, and each makes the
+construction refuse **by name**, at the thing that moved. Nothing on disk is
+written: every perturbation is applied to the layout object in memory, and a
+test re-digests the bundle directory afterwards.
+
+| control | what moves | what fires |
+|---|---|---|
+| **P-1** | one OPENED COLUMN entry of `H@0`, by one (column 21, row 288) | `H@0: pad:group4 — NO PREIMAGE: the pad half of this combination is not reachable from the opened columns (the residual is not divisible by the sampled nodes' vanishing polynomial)` |
+| **P-2** | one GROUP VECTOR entry of `A@0`, message half, at a position the group's column key really reads | `A@0: group 0 — NO PREIMAGE: the published claim values and the public row constraints cannot be met inside the kernel of the group-vector constraint` |
+| **P-3** | one GROUP VECTOR entry of `H@0`, first pad coefficient | the `Z_S` divisibility, as P-1 |
+| **P-4** | `H@0` modelled with 249 pads against 250 distinct opened columns | `H@0: row 0 — NO PREIMAGE: 249 pad symbols cannot meet 250 distinct opened columns (the interpolant of the required values has degree 249)` |
+| **P-5** | one reserved mask row of `A@0` (row 377) and one of `H@0` (row 470) declared the SAME unknown | both per-commitment preimages exist and **force different values at all 1,024 message positions**, first at position 0: **no JOINT preimage** |
+| **P-6** | a SECOND fixed input on `H@0` — public, deterministic, in-range, from the toy gate's own seed — before and after projection onto the identity the view discloses | **before**: `H@0: group 8 — NO PREIMAGE …`; **after**: solved, and 156,853 entries recomputed and equal |
+
+**P-2 is the control that tests the gate's own criterion.** If the solver
+returned something for every view whatsoever, "constructed" would measure
+nothing. It does not: the anchor pair still absorbs the moved entry, so the
+group VECTOR is reproduced — and then the verifier's own group identity
+`<v_g, cw> = Σ λ·value` no longer holds, and nothing inside the kernel of
+the vector constraint can change that sum, because that sum is invariant on
+the kernel. The refusal is a property of the channel.
+
+**P-6 is what `H`'s disclosed dimension of 2 MEANS.** §2.3 reports
+`disclosed = 2` for `H` and says it is the public LogUp identity. P-6 shows
+the same fact as a REFUSAL: a fixed input off that identity has no preimage
+at all, and the same input projected onto it has one, verified entry by
+entry. It also explains why round 7's honest case is feasible: the published
+LogUp sum is zero and the all-zero data block sits on the identity.
+It is also the one place where the SAME captured view is shown to have
+preimages at **two different** data blocks.
+
+**P-5 is the one that should be read twice.** Two commitments of the same
+stage each have a preimage; identify one blinding row between them and there
+is none. Each of the two rows is FORCED by its own commitment — each is the
+anchor of a group whose only non-data support is that pair and whose
+correction kernel is empty, so with the data at zero its value at every
+position is the unique solution of an invertible 2×2 system — and the two
+forced values differ everywhere. This is exactly the case a per-commitment
+acceptance cannot see, and it is the concrete form of ruling **R-3**: the
+run gate's joint figures are a consistency check of coordinate classes, not
+evidence that the commitments' blinding is independent.
+
+## 11.7 The channel table, recounted
+
+25 channels: **5 constructed, 5 derived, 4 argued, 11 open** (round 6: 2 /
+5 / 4 / 14). Three moved, and only three:
+
+| channel | was | is | why |
+|---|---|---|---|
+| opening-group and proximity vectors of `A` and `H` | OPEN (`MSG == PAD` does not hold) | **CONSTRUCTED** | §11.3, verified §11.5 |
+| the pad half of every published vector | OPEN (needs the `Z_S` step of a module written at `MSG == PAD`) | **CONSTRUCTED** | the same solve; the masking commitment `M`'s own opening is excluded and is the separate CFS channel, still OPEN |
+| opened column values | OPEN (a function of the pads) | **CONSTRUCTED** | every row re-encoded and read at every distinct sampled position, and the rebuilt columns re-hashed and re-authenticated |
+
+**Nothing else moved.** In particular:
+
+* **a preimage for a RUN** — still OPEN. What exists is ten per-commitment
+  preimages; a run preimage is a JOINT object, one randomness reproducing
+  every stage's view at once with each boundary plane shared between three
+  commitments. P-5 is a live demonstration that per-commitment existence
+  does not give joint existence.
+* **the masked sumcheck rounds and the CFS channel** — still OPEN, and now
+  the largest open one a port could close.
+* **the Merkle roots, the leaf salts, the authentication paths** — still
+  ARGUED (M-2, M-3). Re-authenticating an OPENED column says nothing about
+  what an UNOPENED leaf hides.
+* **the cross-block joint law, the boundary scale tags, the integer-range
+  facts, any nonlinear functional** — unchanged.
+
+When `--full-preimage` is not passed, `stage11_full_preimage` records that
+it was not requested and the three channels stay OPEN with round 1's reason
+plus a sentence saying round 7 removed the assumption. **The ten records of
+rounds 1–6 keep their 2 / 5 / 4 / 14 counts**, which is how the refresh in
+§11.9 can be a leaf diff with nothing measured moving.
+
+## 11.8 What this establishes, and what it does not
+
+**It establishes**, for these four captured runs, these two development
+shapes and these runs' real challenges: the linear view of every PCS
+commitment — both halves of every published vector, every claim value,
+every opened column entry, and the salted leaves of the opened columns — is
+**reproducible from a data block that is identically zero**, with blinding
+that the gate exhibits and that the gate then checks by recomputing the view
+entry by entry. Two of the four runs were proved on a fully dense generic
+hidden input; their views have a preimage at zero all the same.
+
+**It does not establish:**
+
+* **anything about the LAW of the blinding.** A preimage exists; whether the
+  honest prover's randomness is uniform on the fibre is the lemma's job
+  (obligation O-R2 / gap G-R4) and nothing here bears on it.
+* **that the zero DATA BLOCK is a reachable witness.** What is fixed is the
+  data rectangle of the commitment, set to zero — the same object the toy
+  gate and rounds 1–6 call "the all-zero hidden input". Whether a model
+  input exists whose activations are exactly that block is a question about
+  the block's ARITHMETIC, not about its linear view, and this gate does not
+  ask it. The statement is about the view map.
+* **a RUN preimage** (§11.7), and nothing joint: P-5 exhibits the gap.
+* **anything about the CFS / masked-sumcheck channel**, which is untouched.
+* **anything about an unopened Merkle leaf**, which no preimage can
+  reproduce.
+* **anything at the 125M shape**, where `A` has thousands of rows, nor
+  anything nonlinear, nor anything about the four out-of-band channels.
+* **and it is not a privacy acceptance.** Both bundles carry
+  `privacy_review_complete: false`, and so does every record round 7 wrote.
+
+## 11.9 Timings, memory, the refresh and the suite
+
+The whole gate with the arm on is **170–193 s per bundle**, of which
+stage 11 is **70–77 s**; the solve itself is **20–22 s** of that and the
+rest is the verification, which is the part that is worth the time. The
+gate PROCESS peaks at **677–713 MB**, but that is four bundles held at once
+(`--other`, `--old`, `--cross-profile`); isolated, one bundle and its views
+are 215 MB and **the arm itself adds 103 MB** (`mem_probe.py`, rung-K4, the
+largest of the four). Measured with `/usr/bin/time -v`; §R7.6 of the ledger
+has both figures.
+
+The arm is **off by default**, so the gate stays a ~10–25 s tool and no
+earlier figure changed cost. The ten records of record were nevertheless
+re-run, because the tool hashes moved and the record gained one stage block,
+and diffed **leaf by leaf** against the committed bytes: the ledger's §R7.7
+has the table. The suite is in §R7.8.
+
+## 11.10 What this round is NOT
+
+* **It is not a privacy result and not a step toward one on its own.** It
+  closes three channels of a table with eleven still open, and the two
+  biggest open ones — the joint law and the CFS channel — are untouched.
+* **It is not a statement about the prover.** The exhibited blinding is a
+  SOLVED object for a public fixed data block. No capture carries a witness
+  and none was read; the record keeps a sha256 of the exhibited randomness,
+  not its values.
+* **It does not make `joint == sum` mean more than ruling R-3 says.** P-5
+  points the other way.
+* **It does not generalise to the 125M shape by arithmetic.** The solve is
+  `O(rows · d²)` in the pads and `O(G · n · rows)` in the verification; at
+  125M both grow, and nobody has measured it.

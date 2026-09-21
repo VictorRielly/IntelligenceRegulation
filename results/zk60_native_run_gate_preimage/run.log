@@ -1,0 +1,56 @@
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ W=/home/victor/wt-zk60-jointview
++ G=/home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py --full-preimage --bundle /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-g-dense-s20 --other /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-h-zero-s20 --old /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-a-tame --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage
+stage1_integrity: ok
+stage2_transcript_replay: ok
+stage8_plane_index_and_terminals: ok
+stage10_bilinear_group_factor: ok
+stage3_per_commitment: ok
+stage4_the_boundary: ok
+stage5_zero_data_preimage: ok
+stage11_full_preimage: ok
+stage6_negative_controls: ok
+stage9_hash_layer: ok
+stage7_channels: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-g-dense-s20.json (172.3 s)
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py --full-preimage --bundle /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-h-zero-s20 --other /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-g-dense-s20 --old /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-b-zero --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-j-zero-k4 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage
+stage1_integrity: ok
+stage2_transcript_replay: ok
+stage8_plane_index_and_terminals: ok
+stage10_bilinear_group_factor: ok
+stage3_per_commitment: ok
+stage4_the_boundary: ok
+stage5_zero_data_preimage: ok
+stage11_full_preimage: ok
+stage6_negative_controls: ok
+stage9_hash_layer: ok
+stage7_channels: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-h-zero-s20.json (173.6 s)
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py --full-preimage --bundle /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --other /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-j-zero-k4 --old /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-a-tame --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-g-dense-s20 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage
+stage1_integrity: ok
+stage2_transcript_replay: ok
+stage8_plane_index_and_terminals: ok
+stage10_bilinear_group_factor: ok
+stage3_per_commitment: ok
+stage4_the_boundary: ok
+stage5_zero_data_preimage: ok
+stage11_full_preimage: ok
+stage6_negative_controls: ok
+stage9_hash_layer: ok
+stage7_channels: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-i-dense-k4.json (191.9 s)
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py --full-preimage --bundle /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-j-zero-k4 --other /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --old /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-b-zero --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-h-zero-s20 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage
+stage1_integrity: ok
+stage2_transcript_replay: ok
+stage8_plane_index_and_terminals: ok
+stage10_bilinear_group_factor: ok
+stage3_per_commitment: ok
+stage4_the_boundary: ok
+stage5_zero_data_preimage: ok
+stage11_full_preimage: ok
+stage6_negative_controls: ok
+stage9_hash_layer: ok
+stage7_channels: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-j-zero-k4.json (190.1 s)

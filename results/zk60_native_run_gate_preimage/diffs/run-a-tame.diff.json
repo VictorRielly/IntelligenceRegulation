@@ -1,0 +1,51 @@
+{
+ "changed": [
+  {
+   "new": 9.4,
+   "old": 9.3,
+   "path": "seconds"
+  },
+  {
+   "new": "their opening groups have several members, so each claim's own published value is an extra constraint; the correction step that handles it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this shape (1,024 message positions against 256 pads).  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+   "old": "their opening groups have several members, so each claim's own published value is an extra constraint; the correction step that handles it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this shape (1,024 message positions against 256 pads)",
+   "path": "stage7_channels/channels/[2]/reason"
+  },
+  {
+   "new": "constructing it needs the Lagrange interpolation through the distinct sampled nodes and the Z_S divisibility test of zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, the exact rank of the pad block over the distinct opened columns.  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+   "old": "constructing it needs the Lagrange interpolation through the distinct sampled nodes and the Z_S divisibility test of zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, the exact rank of the pad block over the distinct opened columns",
+   "path": "stage7_channels/channels/[3]/reason"
+  },
+  {
+   "new": "they are a function of the pads, which are not constructed here; the verifier's own column identity IS reproduced from the model on a sample of columns of every commitment, with no failures.  ROUND 7 constructs them; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+   "old": "they are a function of the pads, which are not constructed here; the verifier's own column identity IS reproduced from the model on a sample of columns of every commitment, with no failures",
+   "path": "stage7_channels/channels/[4]/reason"
+  },
+  {
+   "new": "0e7674893377a13ffe20ee731dd77e08f9ed7ad1381e3404904edc0d44bd0fe7",
+   "old": "7f76c8ecd9152ea6a7ae5a24abe4c88130b6bafeb060962db68cb1da77f430ce",
+   "path": "tool_sha256/zk60_native_run_gate.py"
+  }
+ ],
+ "identical_leaves": 2795,
+ "leaves_new": 2816,
+ "leaves_old": 2800,
+ "only_in_the_new_record": [
+  "stage11_full_preimage/consequence",
+  "stage11_full_preimage/ok",
+  "stage11_full_preimage/requested",
+  "stage11_full_preimage/what",
+  "stage11_full_preimage/why_off",
+  "stage7_channels/channels/[16]/per_commitment_not_joint",
+  "stage7_channels/channels/[2]/how",
+  "stage7_channels/channels/[3]/excluded",
+  "stage7_channels/channels/[3]/how",
+  "stage7_channels/channels/[4]/entries_recomputed_and_compared",
+  "stage7_channels/channels/[4]/how",
+  "stage7_channels/channels/[4]/salted_leaves_authenticated",
+  "stage7_channels/channels/[4]/unopened_leaves",
+  "tool_sha256/zk60_native_pg_pcs.py",
+  "tool_sha256/zk60_native_rg_ahcontrols.py",
+  "tool_sha256/zk60_native_rg_ahpreimage.py"
+ ],
+ "only_in_the_old_record": []
+}

@@ -1,0 +1,34 @@
+test_a_boundary_with_one_proximity_row_is_refused_by_the_row_rule (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_a_manifest_hash_that_does_not_match_the_bytes_is_refused (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_a_toy_schema_3_capture_is_refused_by_name (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_both_bundles_pass_the_integrity_pass (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_the_shape_is_data_and_not_a_ported_constant (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_the_certifying_minor_rebuilds_from_the_emitted_indices_alone (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_the_disclosed_dimensions_at_the_run_shape (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_the_msg_and_pad_halves_have_different_lengths_here (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_a_commitment_with_multi_member_groups_is_skipped_not_faked (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_every_control_fires_on_a_bundle_that_passes_honest (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_the_controls_restore_everything_they_touched (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_the_zero_data_message_preimage_is_exhibited_and_verified (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_both_bundles_have_a_green_record_that_claims_no_privacy_property (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_every_recorded_channel_carries_a_usable_status (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_record_says_what_it_does_not_show (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_boundary_figures (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_controls_all_fire_and_give_the_checkers_numbers (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_disclosed_dimensions (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_one_altered_field_breaks_the_replay (test_zk60_native_run_gate.TestReplay) ... ok
+test_the_whole_run_transcript_is_re_derived (test_zk60_native_run_gate.TestReplay) ... ok
+test_a_shared_blinding_row_raises_the_joint_above_the_sum (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_a_shared_pair_gives_disclosed_two_and_a_single_prox_row_gives_one (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_reserved_row_figure_is_six_of_six_and_discloses_nothing (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_three_roles_are_identified_from_claim_sources (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_whole_run_is_one_system_and_the_joint_equals_the_sum (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_two_solves_agree_to_the_byte (test_zk60_native_run_gate_ahpreimage.TestEquivalenceWithTheToyGate) ... ok
+test_the_wide_verify_adds_a_hash_arm_the_toy_has_not (test_zk60_native_run_gate_ahpreimage.TestEquivalenceWithTheToyGate)
+The one difference in `verify`, stated and asserted: with no rule ... ok
+test_a_boundary_solves_and_verifies_from_scratch (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_no_capture_file_was_written (test_zk60_native_run_gate_ahpreimage.TestLive)
+Every perturbation is in memory: the bundle's bytes must be what ... ok
+test_p1_one_opened_column_entry (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p2_one_group_vector_entry_message_half (test_zk60_native_run_gate_ahpreimage.TestLive) ... 

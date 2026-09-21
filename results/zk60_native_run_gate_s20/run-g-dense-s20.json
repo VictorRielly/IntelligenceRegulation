@@ -135,7 +135,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 18.7,
+ "seconds": 17.9,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -694,6 +694,13 @@
   },
   "ok": true
  },
+ "stage11_full_preimage": {
+  "consequence": "the three channels round 1 left OPEN for A and H -- their vectors, the pad half and the opened column values -- stay OPEN with round 1's reason, and stage 5's message-half construction for the singleton-group commitments is unaffected",
+  "ok": true,
+  "requested": false,
+  "what": "the FULL zero-data preimage -- A and H included, both halves, every opened column and the salted leaves of the opened columns",
+  "why_off": "it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before"
+ },
  "stage1_integrity": {
   "any_root_opened_twice": false,
   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
@@ -1026,7 +1033,7 @@
    "exact_rank_of_the_pad_block": 249,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.7,
+   "seconds": 3.4,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -3688,7 +3695,7 @@
    },
    "rows_total": 3785,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 1.1,
+   "seconds": 1.2,
    "sum_of_parts_fp": 6
   }
  },
@@ -4035,8 +4042,10 @@
    {
     "assumption": null,
     "channel": "opening-group and proximity vectors of A and H",
+    "commitments": [],
+    "how": null,
     "preimage_exhibited": false,
-    "reason": "their opening groups have several members, so each claim's own published value is an extra constraint; the correction step that handles it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this shape (1,024 message positions against 256 pads)",
+    "reason": "their opening groups have several members, so each claim's own published value is an extra constraint; the correction step that handles it is in zk60_native_pg_pcs, whose MSG == PAD == 256 does not hold at this shape (1,024 message positions against 256 pads).  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
     "section": "run 2.1",
     "status": "open",
     "what_is_computed_instead": {
@@ -4054,20 +4063,26 @@
    {
     "assumption": null,
     "channel": "the pad half of every published vector",
+    "excluded": "the masking commitment M's own opening, which is the separate CFS channel below",
+    "how": null,
     "preimage_exhibited": false,
-    "reason": "constructing it needs the Lagrange interpolation through the distinct sampled nodes and the Z_S divisibility test of zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, the exact rank of the pad block over the distinct opened columns",
+    "reason": "constructing it needs the Lagrange interpolation through the distinct sampled nodes and the Z_S divisibility test of zk60_native_pg_pcs, which assumes MSG == PAD; what IS computed is H-pad, the exact rank of the pad block over the distinct opened columns.  ROUND 7 removed that assumption; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
     "section": "run 2.1",
     "status": "open"
    },
    {
     "assumption": null,
     "channel": "opened column values",
+    "entries_recomputed_and_compared": null,
+    "how": null,
     "identities_reproduced": 238,
     "identity_failures": 0,
     "preimage_exhibited": false,
-    "reason": "they are a function of the pads, which are not constructed here; the verifier's own column identity IS reproduced from the model on a sample of columns of every commitment, with no failures",
+    "reason": "they are a function of the pads, which are not constructed here; the verifier's own column identity IS reproduced from the model on a sample of columns of every commitment, with no failures.  ROUND 7 constructs them; it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before",
+    "salted_leaves_authenticated": null,
     "section": "run 2.1",
-    "status": "open"
+    "status": "open",
+    "unopened_leaves": "NOT reproducible from any preimage and not claimed: an unopened leaf is a salted digest, its hiding is M-2 / M-3, and that channel stays ARGUED"
    },
    {
     "assumption": null,
@@ -4251,6 +4266,7 @@
      "E-Input",
      "E-Output"
     ],
+    "per_commitment_not_joint": true,
     "preimage_exhibited": false,
     "reason": "exhibited here per commitment, message half only, for the 4 singleton-group commitments of the run.  A RUN preimage is a joint object: it must reproduce every stage's view at once with the boundary planes shared between three commitments, and it needs the pad half and the CFS channel first",
     "section": "run 2.2 (NEW)",
@@ -5497,6 +5513,9 @@
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
   "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
+  "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
+  "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
+  "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
   "zk60_native_rg_bundle.py": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
   "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
   "zk60_native_rg_gcontrols.py": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
@@ -5512,7 +5531,7 @@
   "zk60_native_rg_runpins.py": "24e3c391275b792b0f91d53450e459820d3a9214dcd16268149add299aee2dda",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
   "zk60_native_rg_terminals.py": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
-  "zk60_native_run_gate.py": "7f76c8ecd9152ea6a7ae5a24abe4c88130b6bafeb060962db68cb1da77f430ce"
+  "zk60_native_run_gate.py": "0e7674893377a13ffe20ee731dd77e08f9ed7ad1381e3404904edc0d44bd0fe7"
  },
  "version": 1,
  "what_it_does_not_show": [

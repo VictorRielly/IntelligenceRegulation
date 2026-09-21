@@ -82,6 +82,25 @@ CLASSES_ROUND_6 = (
      "the new run-layer source-pin block (finding K4-F2)"),
 )
 CLASSES = CLASSES + CLASSES_ROUND_6
+
+# **ROUND 7 (2026-09-21).**  The gate gained ONE new stage block --
+# `stage11_full_preimage`, OFF unless `--full-preimage` is passed -- and two
+# new tool files, whose hashes fall under the existing "tool hashes" class.
+# The three channels round 1 left OPEN for `A` and `H` gained round 7's
+# sentence in their reason and their new keys, which is the existing channel
+# class.  No figure was meant to move on a default run, so everything else
+# stays UNCLASSIFIED on purpose.
+CLASSES_ROUND_7 = (
+    (lambda p: p == "stage11_full_preimage"
+     or p.startswith("stage11_full_preimage/"),
+     "the new stage 11 block (round 7's full preimage, off by default)"),
+)
+CLASSES = CLASSES + CLASSES_ROUND_7
+NOTE_ROUND_7 = (
+    "  Round 7 adds one class: the new `stage11_full_preimage` block, which "
+    "on a default run carries only the sentence saying the arm was not "
+    "requested and which three channels therefore stay OPEN."
+)
 NOTE_ROUND_6 = (
     "  Round 6 adds one class: the new `run_layer_source_pins` block, which "
     "is the pin table for `run_capture.rs`, `run.rs` and `boundary.rs` that "
@@ -115,7 +134,7 @@ def summarise(diffs: dict) -> dict:
     out = {
         "what": "the superseded bundles re-run under the current tools and "
         "diffed leaf by leaf against their previous round's records",
-        "note": NOTE + NOTE_ROUND_4 + NOTE_ROUND_6,
+        "note": NOTE + NOTE_ROUND_4 + NOTE_ROUND_6 + NOTE_ROUND_7,
         "per_bundle": [],
         "unclassified": [],
     }

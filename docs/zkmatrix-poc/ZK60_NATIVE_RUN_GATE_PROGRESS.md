@@ -1162,16 +1162,179 @@ should be consistent with what the prover itself committed.
 | # | item | state |
 |---|---|---|
 | Z0 | ledger skeleton, round 7 opened | done |
-| Z1 | the linear system restated for `A` and for `H`: unknowns, equations, dimensions at both rungs, and the order it decomposes in | open |
-| Z2 | the tool: `zk60_native_pg_pcs`'s solve at `MSG != PAD`, with every primitive imported and the equivalence to the toy module asserted | open |
-| Z3 | built on all four bundles, every stage, both commitments; time and peak memory measured | open |
-| Z4 | verified: the view recomputed entry by entry, plus the opened columns' digests re-derived and authenticated | open |
-| Z5 | controls | open |
-| Z6 | the channel table recounted; what it does and does not establish | open |
-| Z7 | tests, evidence, report section, whole native suite | open |
+| Z1 | the linear system restated for `A` and for `H`: unknowns, equations, dimensions at both rungs, and the order it decomposes in | done — §R7.4, report §11.2–11.3 |
+| Z2 | the tool: `zk60_native_pg_pcs`'s solve at `MSG != PAD`, with every primitive imported and the equivalence to the toy module asserted | done — commit `3d01f54`, §R7.5 |
+| Z3 | built on all four bundles, every stage, every PCS commitment; time and peak memory measured | done — §R7.6 |
+| Z4 | verified: the view recomputed entry by entry, plus the opened columns' digests re-derived and authenticated | done — §R7.6, **4,763,302 entries, 0 differing, 10,240 salted leaves** |
+| Z5 | controls | done — §R7.6c, six, all fire |
+| Z6 | the channel table recounted; what it does and does not establish | done — report §11.7–11.8, **25: 5 / 5 / 4 / 11** |
+| Z7 | tests, evidence, report section, whole native suite | done — §R7.7, §R7.8 |
 
 ## R7.3 Commands and logs (round 7)
 
 | what | command | log |
 |---|---|---|
+| the first pass, while the tool was still being edited | `bash results/zk60_native_run_gate_preimage/run.sh`, detached under `flock /tmp/zk-heavy.lock` with a `.done` marker | `…/preimage/run.log`, `run.done` (exit 0) — superseded by the run of record |
+| **the run of record**: the four bundles under `--full-preimage`, each wrapped in `/usr/bin/time -v` so the peak resident set is measured; then the refresh and the leaf diff | `bash results/zk60_native_run_gate_preimage/run2.sh`, detached under the lock | `…/preimage/run2.log`, `run2.done`; `…/preimage/time-<bundle>.log` |
+| the ten committed records, taken BEFORE any refresh run | `bash results/zk60_native_run_gate_preimage/before.sh` (`git show HEAD:results/<dir>/<bundle>.json`) | `…/preimage/before/` — ten files, 104–154 kB |
+| the ten records of record re-run with the arm OFF | `bash results/zk60_native_run_gate_preimage/refresh.sh` (round 6's command lines, unchanged) | inside `run2.log` |
+| each record diffed leaf by leaf, then classified | `bash results/zk60_native_run_gate_preimage/diff.sh` (`zk60_native_rg_recdiff.py`, then `zk60_native_rg_recclass.py`) | `…/preimage/diffs/*.diff.json`, `…/preimage/all_ten_bundles_unchanged.json` |
+| the arm's own peak memory, isolated from the gate's four loaded bundles | `/usr/bin/time -v python3 results/zk60_native_run_gate_preimage/mem_probe.py <bundle>`, enqueued on the same lock | `…/preimage/mem_probe.log`, `.done` |
+| this round's test file | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native_run_gate_ahpreimage.py' -v` | `…/preimage/tests_ahpreimage.log` |
+| the run-gate suite | `… -p 'test_zk60_native_run_gate*.py' -v` | `…/preimage/tests_run_gate_all.log` |
+| the WHOLE native suite | `… -p 'test_zk60_native*.py' -v`, detached under the lock | `…/preimage/tests_native_all.log`, `.done` |
 
+## R7.4 Results — the system, and the order it decomposes in
+
+Report §11.2 has the dimensions table and §11.3 the solve. The two facts
+worth repeating in the ledger, because they are what made round 1's cost
+estimate wrong:
+
+1. **The system is never assembled.** Per group, the message half is 1,024
+   independent 2×2 `Fp` systems on one anchor pair, plus a correction of at
+   most `3·(pair rows − 2)` unknowns; the pads are one `d × d` Lagrange
+   basis built once per commitment and one `d`-length dot product per row.
+   The largest object the solve touches is the commitment's own
+   `rows × (n+Q)` matrix — 623 × 1,280 for `A` at rung-G.
+2. **With the data block at zero every data row drops out of the
+   accumulations**, exactly (a zero row contributes zero). That is what
+   turns `A`'s 36 groups × 1,024 positions × 377 data rows from 14 million
+   term-by-term operations into a few thousand.
+
+**The order is computed, not assumed.** `H`'s zero-sum slot READS the `u`
+pair that another group OWNS, so the gate builds the dependency graph and
+reports it: on `H`, `groups_reading_another_groups_rows = {7: [8]}` and the
+solve order is `0..6, 8, 7`. A test asserts every dependency comes earlier
+in the order than the group that reads it.
+
+## R7.5 Results — the module is the toy gate's solve, not a second one
+
+`zk60_native_pg_pcs.py` is hash-pinned evidence of the TOY gate and this
+lane does not edit it, so the two classes had to be re-derived at
+`MSG != PAD`. Three mechanisms keep that from being a fork, and the third
+is the real one:
+
+| mechanism | what it is | asserted by |
+|---|---|---|
+| import, never copy | `solve_pair`, `kernel_basis`, `poly_div_exact`, `Lagrange`, `poly_eval` are the toy module's OBJECTS | `assertIs` per name, plus a source scan requiring no `def`/`class` of those names in the new module |
+| a complete map | `DERIVED_FROM` (10 entries) and `NEW_HERE` (5) name every method | a test requires every method with a toy counterpart to be in the first and every other to be in the second |
+| **the equivalence run** | the NEW classes at `msg_width == pad_width == 256`, on the tracked toy capture `40083e7a…` (roles `H` and `Input`), beside `zk60_native_pg_pcs`'s own | equal matrix digest, anchors, solve order, `d`, step records, failure list, **the whole solved matrix `X`**, exhibited-randomness digest, fibre dimension and every verification count |
+
+A fourth, on the run side: round 1's singleton-group construction and round
+7's general one must agree on **every** message entry of `B0` — two routes,
+one object.
+
+## R7.6 Results — what was constructed, verified and measured
+
+**All ten PCS commitments of all four bundles, every stage.** Report §11.5
+has the per-commitment table; the totals:
+
+| bundle | witness | exhibited | view entries compared | differing | salted leaves | stage-11 s | whole gate s | peak RSS |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| `run-g-dense-s20` | fully dense generic | 10 / 10 | 1,097,847 | **0** | 2,560 | 70.8 | 170.3 | 677,368 kB |
+| `run-h-zero-s20` | all zero | 10 / 10 | 1,103,569 | **0** | 2,560 | 71.2 | 170.6 | 677,316 kB |
+| `run-i-dense-k4` | fully dense generic | 10 / 10 | 1,282,025 | **0** | 2,560 | 76.2 | 191.5 | 712,952 kB |
+| `run-j-zero-k4` | all zero | 10 / 10 | 1,279,861 | **0** | 2,560 | 75.3 | 192.5 | 707,088 kB |
+| **total** | | **40 / 40** | **4,763,302** | **0** | **10,240** | | | |
+
+The peak resident set is the WHOLE GATE PROCESS, which holds four bundles
+at once (`--other`, `--old`, `--cross-profile`); §R7.6b isolates the arm's
+own cost. An `Fp2` entry counts once.
+
+### R7.6b The arm's own memory
+
+`mem_probe.py` loads ONE bundle and runs the arm over all ten commitments:
+
+| figure | `run-i-dense-k4` (the largest of the four) |
+|---|---:|
+| peak after one bundle, its replay and its ten views | **214.6 MB** |
+| peak after the arm | **317.2 MB** |
+| **the arm's own peak** | **102.6 MB** |
+| the arm's wall clock | 78.8 s |
+| `/usr/bin/time -v` maximum resident set, whole process | 324,860 kB |
+
+So the construction costs about **0.1 GB** and the gate's 0.7 GB is the
+four bundles a control-bearing run holds, not the solve. Nothing here
+approaches the box's limits, and nothing had to be streamed.
+
+### R7.6c The controls
+
+Six, each shown to pass on the honest capture first, each firing by name.
+Report §11.6 has the refusal strings verbatim. In the record:
+`controls_that_fire == controls_applicable == 6` on every one of the four
+bundles, and a test re-digests the bundle directory to show no captured
+file was written.
+
+The two that matter most:
+
+* **P-2** tests the gate's OWN criterion. The anchor pair still absorbs a
+  moved group-vector entry, so the vector is reproduced — and then the
+  verifier's own group identity fails, and nothing inside the kernel of the
+  vector constraint can repair it, because the combination the identity
+  reads is invariant on that kernel. A refusal that is a property of the
+  channel, not of the search.
+* **P-5** exhibits a case where both per-commitment preimages exist and no
+  JOINT one does: one reserved mask row of `A@0` and one of `H@0`, each
+  FORCED by its own commitment (each is the anchor of a group whose only
+  non-data support is that pair, with an empty correction kernel), take
+  different values at all 1,024 message positions. This is the concrete
+  form of ruling **R-3** and the reason "a preimage for a RUN" is not a
+  formality away.
+
+## R7.7 The leaf diff, and what a default record gained
+
+The arm is OFF unless `--full-preimage` is passed, so the ten records of
+record keep every figure. They were nevertheless re-run and diffed leaf by
+leaf against the committed bytes (`before/`, taken with `git show HEAD:…`
+before any run):
+
+| bundle | identical leaves | changed | only in the NEW record | only in the OLD | UNCLASSIFIED |
+|---|---:|---:|---:|---:|---:|
+| `run-a-tame` | 2,795 | 5 | 16 | 0 | **0** |
+| `run-b-zero` | 2,794 | 6 | 16 | 0 | **0** |
+| `run-c-tame` | 3,573 | 7 | 16 | 0 | **0** |
+| `run-d-zero` | 3,573 | 7 | 16 | 0 | **0** |
+| `run-e-tame-tagged` | 3,912 | 6 | 16 | 0 | **0** |
+| `run-f-zero-tagged` | 3,912 | 6 | 16 | 0 | **0** |
+| `run-g-dense-s20` | 3,994 | 7 | 16 | 0 | **0** |
+| `run-h-zero-s20` | 3,994 | 7 | 16 | 0 | **0** |
+| `run-i-dense-k4` | 4,078 | 7 | 16 | 0 | **0** |
+| `run-j-zero-k4` | 4,078 | 7 | 16 | 0 | **0** |
+
+Every differing leaf decomposes the same way on every bundle: **5** new
+leaves under `stage11_full_preimage` (the arm was not requested, and the
+sentence saying which three channels therefore stay OPEN), **11** new
+leaves under the channel array (round 7's `how`, `excluded`,
+`unopened_leaves`, `commitments` and `per_commitment_not_joint` keys on
+the three channels it touched), **4** changed tool hashes (the gate,
+`rg_ahpreimage`, `rg_ahcontrols` and the toy `pg_pcs`, now pinned by the
+gate because the arm imports it), and **1–3** wall clocks.
+
+**Not one rank, disclosed dimension, challenge count, slot check, control
+figure, channel count or receipt size differs on any of the ten**, and the
+classifier reports **0 unclassified leaves** on all ten. The ten records
+still read **25** channels, 2 constructed / 5 derived / 4 argued / **14
+open** — a default run is exactly what it was.
+
+## R7.8 The suite
+
+SUITE
+
+## R7.9 NEXT after round 7
+
+1. **The run-wide preimage as ONE joint object** — the largest thing round
+   7 did not do, and control P-5 is the proof that it does not follow from
+   what round 7 did. It needs the boundary planes shared between three
+   commitments to take one value, which is a single system over the run's
+   thirteen commitments rather than ten independent ones.
+2. **The masked sumcheck / CFS channel**, now the largest open channel a
+   port could close: `zk60_native_jv_cfs` and `zk60_native_mask_commit` are
+   written at the toy's row layout and slot specs and would have to be
+   re-derived from the shape, exactly as the PCS solve was here.
+3. **Ruling R-3's machine assertion** (gap G-R4), still a Rust-lane ask.
+4. **The 125M shape**: the solve is `O(rows · d²)` in the pads and
+   `O(G · n · rows)` in the verification, and nobody has measured either
+   there. Round 7 makes the measurement cheap to take.
+5. R6.8 items 1–3 (the writer-side pin ask, the attention profile's path, a
+   shape with `lkv > 2`) are untouched and still open.
+6. Nothing in this round moves D8/D11 or ruling M-8's decision.

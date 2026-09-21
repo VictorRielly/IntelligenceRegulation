@@ -1,0 +1,41 @@
+test_the_two_solves_agree_to_the_byte (test_zk60_native_run_gate_ahpreimage.TestEquivalenceWithTheToyGate) ... ok
+test_the_wide_verify_adds_a_hash_arm_the_toy_has_not (test_zk60_native_run_gate_ahpreimage.TestEquivalenceWithTheToyGate)
+The one difference in `verify`, stated and asserted: with no rule ... ok
+test_a_boundary_solves_and_verifies_from_scratch (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_no_capture_file_was_written (test_zk60_native_run_gate_ahpreimage.TestLive)
+Every perturbation is in memory: the bundle's bytes must be what ... ok
+test_p1_one_opened_column_entry (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p2_one_group_vector_entry_message_half (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p3_one_group_vector_entry_pad_half (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p4_one_pad_fewer_than_the_distinct_opened_columns (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p5_a_blinding_row_shared_between_A_and_H (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p6_a_fixed_input_off_H_s_disclosed_identity (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_the_message_half_agrees_with_round_1_s_own_construction (test_zk60_native_run_gate_ahpreimage.TestLive)
+Round 1's singleton-group solve and round 7's general one are two ... ok
+test_the_solve_order_puts_the_zsum_group_after_the_one_it_reads (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_the_systems_dimensions_are_read_from_the_shape (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_derived_from_names_every_re_derived_method (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_every_primitive_is_the_toy_gate_s_own_object (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_the_module_defines_no_primitive_of_its_own (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork)
+A re-implementation would show up as a function defined HERE. ... ok
+test_the_module_says_it_establishes_no_privacy_property (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_the_stage_is_off_by_default_and_says_why (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_a_run_preimage_is_still_open_and_says_why (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_every_opened_column_re_authenticates (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_every_pcs_commitment_has_an_exhibited_preimage (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_nothing_differs_anywhere (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_channel_table_moved_three_channels_and_no_more (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_controls_all_fire (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_entry_counts_are_the_shapes_own_arithmetic (test_zk60_native_run_gate_ahpreimage.TestTheRecord)
+Not a constant: each count is re-derived from the commitment's own ... ok
+test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_four_bundles_are_the_ones_the_round_names (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_record_denies_a_privacy_property (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_two_shapes_are_the_ones_the_report_quotes (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_zero_witness_bundles_are_the_sanity_anchor (test_zk60_native_run_gate_ahpreimage.TestTheRecord)
+On a bundle the prover made from the ALL-ZERO hidden input the ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 134.246s
+
+OK
