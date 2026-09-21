@@ -395,8 +395,24 @@ manifest. Evidence in `results/zk60_block125m_s28_review/`.
 | run | threads | result |
 |---|---|---|
 | `gate-ambient.log` / `.done` | ambient rayon pool | **327 passed / 0 failed / 13 ignored, 414.59 s, exit 0** (the stage's 319 + 12, plus this review's 8 + 1) |
-| `gate-rayon1.log` / `.done` | `RAYON_NUM_THREADS=1` | *(filled in below)* |
+| `gate-rayon1.log` / `.done` | **`RAYON_NUM_THREADS=1`** | **327 passed / 0 failed / 13 ignored, 255.35 s, exit 0** |
 | `gate-final.log` / `.done` | ambient, final review code | *(filled in below)* |
+
+The `RAYON_NUM_THREADS=1` run is the thread-count control at the level that
+matters: it re-proves and re-verifies every honest proof of the filter — at
+the toy, the rung, rung-G and rung-K4, i.e. at every shape that crosses the
+histogram, `lookup_values`, slot-table-build and helper-inverse thresholds —
+with rayon reduced to one thread, and nothing changes. (It ran the same
+production binary as the ambient run; the only difference between the two
+review builds is two counters inside one of this review's own tests.)
+
+**The stage's all-zero control at 125M has since landed**, in the lane's
+worktree and not in the commit under review:
+`/home/victor/wt-zk60-block125m/results/zk60_block125m_lane/q28-m125-final-zero.log`,
+`.done` = 0 — tame weights, the ALL-ZERO hidden input, **prove 17.71 s,
+verify from bytes 1.14 s, receipt 40,783,352 B (the same length as the dense
+run and as the baseline), peak RSS 10,146 MiB**. A later session should fold
+it into the ledger, as the ledger asks.
 
 ### 9.3 Cross-version, 125M
 
