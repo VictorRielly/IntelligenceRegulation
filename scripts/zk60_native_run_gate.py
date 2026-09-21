@@ -44,6 +44,14 @@ Report: `docs/zkmatrix-poc/ZK60_NATIVE_RUN_GATE.md`.
                           default because it is minutes, not seconds; when
                           it is off the stage says so and three channels
                           stay OPEN with round 1's reason
+ 12 THE MASKING LAYER     **round 8, opt-in (`--mask-cfs`)**: the masking
+                          commitment `M` and the CFS channel at the SHAPED
+                          layout -- one coefficient vector per stage meeting
+                          every slot's masked rounds and its mask-bearing
+                          scalar AND `M`'s whole published opening, `M`'s
+                          rebuilt columns re-hashed and re-authenticated,
+                          the pad budget, and six controls.  Off by default;
+                          when it is off four channels stay OPEN
   9 RECORD                the machine-readable result under --evidence
 
 NO STAGE ESTABLISHES A PRIVACY PROPERTY, AND THIS IS NOT A PRIVACY
@@ -88,6 +96,9 @@ from zk60_native_rg_runpins import (  # noqa: E402
 )
 from zk60_native_rg_hashlayer import check_hash_layer  # noqa: E402
 from zk60_native_rg_hcontrols import hash_rule_controls  # noqa: E402
+from zk60_native_rg_mask import mask_cfs_run  # noqa: E402
+from zk60_native_rg_mcontrols import mask_controls_at_shape  # noqa: E402
+from zk60_native_rg_mjoint import JOINT_OFF, joint_run_preimage  # noqa: E402
 from zk60_native_rg_tcontrols import terminal_controls  # noqa: E402
 from zk60_native_rg_gqa import GroupFactors  # noqa: E402
 from zk60_native_rg_gcontrols import group_controls  # noqa: E402
@@ -118,11 +129,16 @@ TOOLS = [
     "zk60_native_rg_hashrule.py",
     "zk60_native_rg_hashlayer.py",
     "zk60_native_rg_hcontrols.py",
+    "zk60_native_rg_mask.py",
+    "zk60_native_rg_mcontrols.py",
+    "zk60_native_rg_mjoint.py",
     "zk60_native_jv_field.py",
     "zk60_native_jv_pcs.py",
     "zk60_native_jv_joint.py",
-    # the toy gate's own solve, imported by round 7's arm and never edited
+    # the toy gate's own solves, imported by rounds 7 and 8 and never edited
     "zk60_native_pg_pcs.py",
+    "zk60_native_pg_cfs.py",
+    "zk60_native_mask_commit.py",
 ]
 
 EXPECTED_DISCLOSED = {
@@ -415,6 +431,47 @@ def stage11(bundle, views, do_controls=True):
     return out
 
 
+MASK_CFS_OFF = {
+    "requested": False,
+    "what": "the masking commitment M and the masked-sumcheck (CFS) channel "
+    "at this run's shape: M's linear view, ONE coefficient vector that meets "
+    "every slot's masked rounds and scalar AND M's whole opening, M's opened "
+    "columns re-hashed and re-authenticated, and the pad budget",
+    "why_off": "it is seconds per stage of exact Fp arithmetic and the "
+    "controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as "
+    "round 7's arm is; the default gate keeps its cost and every figure of "
+    "rounds 1-7 is taken as before",
+    "consequence": "the masked round messages and the three channels of M's "
+    "own opening -- its q, its proximity vector and its 256 opened columns -- "
+    "stay OPEN, with round 1's reason plus a sentence saying round 8 removed "
+    "the assumption behind it",
+    "ok": True,
+}
+
+
+def stage12(bundle, replay, do_controls=True):
+    """**ROUND 8.**  The masking commitment `M` and the CFS channel.
+
+    Channel 7 of the table has said since round 1 that
+    `zk60_native_mask_commit` and `zk60_native_jv_cfs` "are written at the
+    toy's row layout and slot specs".  `zk60_native_rg_mask` is the
+    shape-driven port; this stage runs it on every stage of the run and
+    fires round 8's six controls on the first one.
+    """
+    out = mask_cfs_run(bundle, replay)
+    out["requested"] = True
+    if do_controls and out.get("stages_checked"):
+        out["controls"] = mask_controls_at_shape(bundle, replay, k=0)
+    else:
+        out["controls"] = {
+            "skipped": "controls not requested" if out.get("stages_checked")
+            else "the mask layer's pins refused, so nothing was perturbed",
+            "ok": False,
+        }
+    out["ok"] = bool(out["ok"] and out["controls"].get("ok", False))
+    return out
+
+
 # --------------------------------------------------------------- stage 4
 def stage4(bundle, views, shared, run_wide=True):
     per_boundary = []
@@ -478,6 +535,8 @@ def channels(bundle, record):
     s3 = record["stage3_per_commitment"]
     s5 = record["stage5_zero_data_preimage"]
     s11 = record.get("stage11_full_preimage") or FULL_PREIMAGE_OFF
+    s12 = record.get("stage12_mask_and_cfs") or MASK_CFS_OFF
+    s13 = record.get("stage13_joint_run_preimage") or JOINT_OFF
     s8 = record["stage8_plane_index_and_terminals"]
     s9 = record.get("stage9_hash_layer")
     hash_rule_derived = bool(
@@ -514,6 +573,43 @@ def channels(bundle, record):
     )
     full_entries = s11.get("view_entries_compared", 0)
     full_leaves = s11.get("salted_leaves_authenticated", 0)
+    # [ROUND 8] the masking layer.  `mask_ok` is what moves four channels off
+    # OPEN, and it is true only when every stage was exhibited AND verified
+    # with nothing differing AND every control fired.
+    mask_ok = bool(
+        s12.get("requested")
+        and s12.get("ok")
+        and s12.get("entries_differing") == 0
+        and s12.get("stages_checked")
+    )
+    mask_entries = s12.get("entries_recomputed", 0)
+    mask_leaves = s12.get("salted_leaves_authenticated", 0)
+    mask_stages = s12.get("per_stage") or []
+    mask_why_open = s12.get("why_off") or s12.get("why_not_checked") or (
+        "the construction ran and did not close on every stage"
+        if s12.get("requested") else None
+    )
+    joint_ok = bool(
+        s13.get("requested") and s13.get("ok")
+        and s13.get("entries_differing") == 0
+    )
+    mask_round_entries = sum(
+        st["entries_recomputed"]["masked_round_entries"] for st in mask_stages
+    )
+    mask_scalars = sum(
+        st["entries_recomputed"]["masked_scalars"] for st in mask_stages
+    )
+    mask_columns = sum(
+        st["entries_recomputed"]["column_entries"] for st in mask_stages
+    )
+    MASK_PORT_OPEN = (
+        "the CFS analysis (zk60_native_jv_cfs) and the mask-row port "
+        "(zk60_native_mask_commit) are written at the toy's capture and "
+        "replay TYPES, at the toy's three mask-domain constants and with no "
+        "shape to check the slot specs against, and they do not hash.  Round "
+        "8 supplied all five (zk60_native_rg_mask.LAYOUT_SPECIFIC) and the "
+        "arm is simply not switched on in this record"
+    )
     full_why_open = s11.get("why_off") or (
         "the construction ran and did not close: "
         + ", ".join(sorted(set(full_names) - set(full_done)))
@@ -667,14 +763,93 @@ def channels(bundle, record):
         {
             "channel": "the masked sumcheck round messages and the published scalars",
             "section": "run 2.1",
-            "status": "open",
+            "status": "constructed" if mask_ok else "open",
             "assumption": None,
-            "preimage_exhibited": False,
-            "reason": "the CFS analysis (zk60_native_jv_cfs) and the mask-row port "
-            "(zk60_native_mask_commit) are written at the toy's row layout and slot "
-            "specs; at the rung they would have to be re-derived from the shape.  The "
-            "masking commitment IS carried in the joint system as a block with 2S+4 "
-            "rows and no data row, and its part is computed as 0",
+            "preimage_exhibited": bool(mask_ok),
+            "reason": None if mask_ok else mask_why_open or MASK_PORT_OPEN,
+            "entries_recomputed_and_compared": (
+                mask_round_entries + mask_scalars if mask_ok else None
+            ),
+            "how": (
+                "zk60_native_rg_mask: per slot, the system "
+                "c_s R_s coef_s = masked_s - honest_s and "
+                "c_s <w_s, coef_s> = scalar_s - sigma_s is solved exactly over "
+                "Fp at a FIXED, named, public transcript (the flat honest one "
+                "whose claimed sum the hosted slots' published scalars force), "
+                "projected onto the functional identities M's opening pins; "
+                "every published round value and scalar is then RECOMPUTED "
+                "from (fixed transcript + solved coefficients) and compared"
+                if mask_ok else None
+            ),
+            "the_fixed_data_is_not_the_zero_witness_s_transcript": (
+                "the honest unmasked rounds are in no capture and are not "
+                "recoverable from one; what is fixed is a named public "
+                "element of the channel's data space, and the statement is "
+                "about the view map"
+                if mask_ok else None
+            ),
+            "joint_note": "the masking commitment IS carried in the joint system "
+            "as a block with 2S+4 rows and no data row, and its part over the "
+            "commitments' coordinates is computed as 0",
+        },
+        {
+            "channel": "the masking commitment M's opening: the product "
+            "polynomial q and the one batched functional value it pins",
+            "section": "run 2.1 (NEW)",
+            "status": "constructed" if mask_ok else "open",
+            "assumption": None,
+            "preimage_exhibited": bool(mask_ok),
+            "reason": None if mask_ok else mask_why_open or MASK_PORT_OPEN,
+            "disclosed_fp_computed": (
+                [st["disclosed"]["disclosed_fp_computed"] for st in mask_stages]
+                if mask_ok else None
+            ),
+            "how": (
+                "b is DEFINED as the residue q - sum_s a_s W_s, so q is "
+                "reproduced by construction and what the channel really pins "
+                "is b's zero-sum admissibility, 512 (q[0] + q[512]) = V(a).  "
+                "The disclosed dimension is COMPUTED as the exact Fp rank of "
+                "V over the coefficient unknowns, and the refusal one off the "
+                "V plane is exhibited beside it"
+                if mask_ok else None
+            ),
+        },
+        {
+            "channel": "the masking commitment M's proximity vector",
+            "section": "run 2.1 (NEW)",
+            "status": "constructed" if mask_ok else "open",
+            "assumption": None,
+            "preimage_exhibited": bool(mask_ok),
+            "reason": None if mask_ok else mask_why_open or MASK_PORT_OPEN,
+            "how": (
+                "u is DEFINED as the residue prox - sum_row rho_row * row, so "
+                "the proximity vector is reproduced by construction; its "
+                "entry count records that two arithmetic paths agree"
+                if mask_ok else None
+            ),
+        },
+        {
+            "channel": "the masking commitment M's own opened columns (and "
+            "their salted leaves)",
+            "section": "run 2.1 (NEW)",
+            "status": "constructed" if mask_ok else "open",
+            "assumption": None,
+            "preimage_exhibited": bool(mask_ok),
+            "reason": None if mask_ok else mask_why_open or MASK_PORT_OPEN,
+            "entries_recomputed_and_compared": mask_columns if mask_ok else None,
+            "salted_leaves_authenticated": mask_leaves if mask_ok else None,
+            "how": (
+                "genuinely independent data: the pads were solved by a "
+                "rational interpolation through the distinct sampled nodes "
+                "and every one of M's 50 rows is re-encoded here through the "
+                "NTT path mask_commit itself uses, then read at every sampled "
+                "node; the rebuilt columns are re-hashed under the bundle's "
+                "own derived rule and their salted leaves re-authenticated "
+                "against the PUBLISHED salts and 12-level paths"
+                if mask_ok else None
+            ),
+            "unopened_leaves": "NOT reproducible from any preimage and not "
+            "claimed: M-2 / M-3, and that channel stays ARGUED",
         },
         {
             "channel": "the derived mask evaluation per slot (the terminal identity) "
@@ -857,10 +1032,38 @@ def channels(bundle, record):
             "channel": "the preimage construction for a RUN (one randomness "
             "reproducing the whole run's view under a fixed input)",
             "section": "run 2.2 (NEW)",
-            "status": "open",
+            "status": "constructed" if joint_ok else "open",
             "assumption": None,
-            "preimage_exhibited": False,
-            "reason": (
+            "preimage_exhibited": bool(joint_ok),
+            "joint": (
+                {
+                    "entries_compared": s13.get("entries_compared"),
+                    "entries_differing": s13.get("entries_differing"),
+                    "salted_leaves_authenticated": s13.get(
+                        "salted_leaves_authenticated"),
+                    "couplings_respected": s13.get("all_four_couplings_respected"),
+                    "identified_row_pairs_all_data": s13["couplings"][
+                        "C1_shared_planes"]["both_sides_are_data_rows"],
+                    "pairs_touching_a_blinding_row": s13["couplings"][
+                        "C1_shared_planes"]["pairs_touching_a_blinding_row"],
+                }
+                if joint_ok else None
+            ),
+            "how": (
+                "the product of round 7's per-commitment blinding and round "
+                "8's per-stage mask coefficients and M blinding, over a data "
+                "block that is zero in EVERY commitment.  It is joint because "
+                "the only coordinates two commitments share are the boundary "
+                "and endpoint DATA planes, checked row by row to be data rows "
+                "on both sides and zero on both sides; a shared BLINDING row "
+                "would be round 7's control P-5.  Every published number each "
+                "part meets is the same number wherever it appears"
+                if joint_ok else None
+            ),
+            "still_not_shown": (
+                s13.get("what_it_does_not_show") if joint_ok else None
+            ),
+            "reason": None if joint_ok else (
                 "exhibited PER COMMITMENT for all "
                 f"{len(full_done)} PCS commitments of the run, both halves, every "
                 "opened column and their salted leaves (round 7).  It is still not a "
@@ -868,7 +1071,14 @@ def channels(bundle, record):
                 "reproducing every stage's view at once with each boundary plane "
                 "shared between three commitments -- and round 7's control P-5 is "
                 "exactly the case where per-commitment preimages exist and no joint "
-                "one does.  The CFS channel is unconstructed as well"
+                "one does.  " + (
+                    "The masking layer is now constructed too (round 8), per "
+                    "STAGE, and round 8's control M-5 is the same gap one "
+                    "layer down: two slots whose rounds each FORCE the same "
+                    "coefficient index have no joint assignment when the "
+                    "forced values differ"
+                    if mask_ok else "The CFS channel is unconstructed as well"
+                )
                 if full_ok else
                 "exhibited here per commitment, message half only, for the "
                 f"{len(constructed)} singleton-group commitments of the run.  A RUN "
@@ -991,7 +1201,7 @@ def channels(bundle, record):
 # ------------------------------------------------------------------- main
 def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
              do_controls=True, old_dir=None, cross_profile_dir=None,
-             full_preimage=False):
+             full_preimage=False, mask_cfs=False):
     t0 = time.time()
     bundle = RunBundle(bundle_dir)
     record = {
@@ -1087,6 +1297,31 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
             bundle, views, do_controls=do_controls)
     else:
         record["stage11_full_preimage"] = dict(FULL_PREIMAGE_OFF)
+    # [ROUND 8] the masking commitment M and the CFS channel at the shape.
+    # It needs the replayed challenges, so it is suspended with stage 2, and
+    # it is off unless asked for.
+    if _skipped("stage2_transcript_replay"):
+        record["stage12_mask_and_cfs"] = not_checked(
+            "stage12_mask_and_cfs", suspended["stage2_transcript_replay"])
+    elif mask_cfs:
+        record["stage12_mask_and_cfs"] = stage12(
+            bundle, replay, do_controls=do_controls)
+    else:
+        record["stage12_mask_and_cfs"] = dict(MASK_CFS_OFF)
+    # [ROUND 8, the stretch] the two arms JOINED: one assignment for the
+    # whole run, with the four couplings enumerated and each checked.  It
+    # needs both arms, so it is computed only when both ran.
+    if _skipped("stage5_zero_data_preimage") or _skipped("stage2_transcript_replay"):
+        record["stage13_joint_run_preimage"] = not_checked(
+            "stage13_joint_run_preimage",
+            suspended.get("stage5_zero_data_preimage")
+            or suspended["stage2_transcript_replay"])
+    elif full_preimage and mask_cfs:
+        record["stage13_joint_run_preimage"] = joint_run_preimage(
+            bundle, views, shared, record["stage11_full_preimage"],
+            record["stage12_mask_and_cfs"])
+    else:
+        record["stage13_joint_run_preimage"] = dict(JOINT_OFF)
     if _skipped("stage6_negative_controls"):
         record["stage6_negative_controls"] = not_checked(
             "stage6_negative_controls", suspended["stage6_negative_controls"])
@@ -1217,6 +1452,14 @@ def main(argv=None):
         "the salted leaves of the opened columns -- and fire round 7's "
         "controls.  Minutes, not seconds; off by default",
     )
+    ap.add_argument(
+        "--mask-cfs",
+        action="store_true",
+        help="round 8: also CONSTRUCT the masking layer -- one coefficient "
+        "vector per stage meeting every slot's masked rounds and scalar AND "
+        "M's whole published opening, with M's opened columns re-hashed and "
+        "re-authenticated -- and fire round 8's six controls.  Off by default",
+    )
     args = ap.parse_args(argv)
 
     record = run_gate(
@@ -1227,6 +1470,7 @@ def main(argv=None):
         pad_rank=not args.skip_exact_pad_rank,
         run_wide=not args.skip_run_wide,
         full_preimage=args.full_preimage,
+        mask_cfs=args.mask_cfs,
     )
     os.makedirs(args.evidence, exist_ok=True)
     name = args.name or record["bundle"]

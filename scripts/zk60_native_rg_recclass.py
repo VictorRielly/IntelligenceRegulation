@@ -96,6 +96,36 @@ CLASSES_ROUND_7 = (
      "the new stage 11 block (round 7's full preimage, off by default)"),
 )
 CLASSES = CLASSES + CLASSES_ROUND_7
+
+# **ROUND 8 (2026-09-21).**  The gate gained ONE new stage block --
+# `stage12_mask_and_cfs`, OFF unless `--mask-cfs` is passed -- and three new
+# tool files plus two toy records added to the hash list, whose hashes fall
+# under the existing "tool hashes" class.  The channel array gains THREE
+# entries (M's `q`, M's proximity vector and M's own opened columns) and
+# channel 7's OPEN reason is reworded, which is the existing channel class;
+# the totals move from 25 to 28 and the OPEN count from 11 to 14, which is
+# the existing channel-counts class.  No figure of rounds 1-7 was meant to
+# move on a default run, so everything else stays UNCLASSIFIED on purpose.
+CLASSES_ROUND_8 = (
+    (lambda p: p == "stage12_mask_and_cfs"
+     or p.startswith("stage12_mask_and_cfs/"),
+     "the new stage 12 block (round 8's masking layer, off by default)"),
+    (lambda p: p == "stage13_joint_run_preimage"
+     or p.startswith("stage13_joint_run_preimage/"),
+     "the new stage 13 block (round 8's joint run preimage, computed only "
+     "when BOTH arms are on)"),
+)
+CLASSES = CLASSES + CLASSES_ROUND_8
+NOTE_ROUND_8 = (
+    "  Round 8 adds two classes: the new `stage12_mask_and_cfs` block, which "
+    "on a default run carries only the sentence saying the arm was not "
+    "requested and which four channels therefore stay OPEN.  The channel "
+    "array grows from 25 entries to 28 -- M's q, M's proximity vector and "
+    "M's own opened columns are graded separately, as the TOY gate already "
+    "grades them -- and that growth is the existing channel class.  The "
+    "second is the new `stage13_joint_run_preimage` block, which on a "
+    "default run says only that it needs both arms."
+)
 NOTE_ROUND_7 = (
     "  Round 7 adds one class: the new `stage11_full_preimage` block, which "
     "on a default run carries only the sentence saying the arm was not "
@@ -134,7 +164,7 @@ def summarise(diffs: dict) -> dict:
     out = {
         "what": "the superseded bundles re-run under the current tools and "
         "diffed leaf by leaf against their previous round's records",
-        "note": NOTE + NOTE_ROUND_4 + NOTE_ROUND_6 + NOTE_ROUND_7,
+        "note": NOTE + NOTE_ROUND_4 + NOTE_ROUND_6 + NOTE_ROUND_7 + NOTE_ROUND_8,
         "per_bundle": [],
         "unclassified": [],
     }

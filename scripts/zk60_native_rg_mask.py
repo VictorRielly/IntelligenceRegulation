@@ -250,6 +250,8 @@ NEW_HERE = {
     "check_specs_against_shape": "every `(n_s, d_s)` re-derived from "
     "`shape[\"slots\"]` as `(main + ext, degree)` and compared with the "
     "capture's own `mask[\"specs\"]`",
+    "shaped_mask_model": "the toy's `MaskModel` built on one stage of a run "
+    "through `StageReplay`; the class is the toy's, the inputs are shaped",
     "slot_row_map": "the slot -> rows/offset map of M at this shape: which "
     "two rows carry a slot's coefficients, how many of the 512 message "
     "positions each occupies, and where its pads start",
@@ -1082,3 +1084,143 @@ def one_functional(model, i):
 def f2_of(x):
     """A captured `[re, im]` pair as this lane's Fp2."""
     return f2_from_list(x)
+
+
+# --------------------------------------------------------------------------
+# 7.  THE EQUIVALENCE RECORD
+# --------------------------------------------------------------------------
+# The figures the TOY gate's committed record carries for the block capture
+# `40083e7a…`, transcribed here so that the equivalence run compares against
+# a fixed expectation rather than against whatever the toy gate says today.
+# Source: `results/zk60_native_privacy_gate/privacy_gate.json`,
+# `per_capture[0]["masking_commitment_M_opening"]` and
+# `["masking_commitment"]["all"]`.
+TOY_BLOCK_EXPECTED = {
+    "capture_prefix": "40083e7a",
+    "disclosed_fp_computed": 2,
+    "coefficient_unknowns_fp": 1166,
+    "fibre_dimension_fp": 1164,
+    "declared_functionals": 34,
+    "position_matches": 34,
+    "value_matches": 34,
+    "weight_matches": 34,
+    "rows": 50,
+    "distinct_columns": 246,
+    "pad_margin": 10,
+    "blinding_unknowns_fp": 15870,
+    "q_entries": 1024,
+    "prox_entries": 1024,
+    "column_entries": 12800,
+    "exhibited_randomness_sha256": {
+        "a1": "e0513e2248d0f773fe872691429add245acb64d0b557f42112ab1381f203d015",
+        "a2": "f943d3a08c3663bc53405a82509988a8b066143ef590130fb007aa03eb90c5d6",
+    },
+    "cfs_round_entries": 721,
+    "cfs_scalars": 23,
+    "cfs_fibre_dimension_fp": 46,
+    "cfs_projection": {
+        "which": "all", "conditions": 34, "unmet_before": 29,
+        "conditions_on_the_fixed_transcript_fp": 68,
+    },
+}
+
+
+def compare_with_the_toy_record(eq: dict) -> dict:
+    """Every figure of the equivalence run against the toy gate's own."""
+    got = {
+        "disclosed_fp_computed": eq["disclosed"]["disclosed_fp_computed"],
+        "coefficient_unknowns_fp": eq["disclosed"]["coefficient_unknowns_fp"],
+        "fibre_dimension_fp": eq["disclosed"]["fibre_dimension_fp"],
+        "declared_functionals": eq["declared_order"]["captured_functionals"],
+        "position_matches": eq["declared_order"]["position_matches"],
+        "value_matches": eq["declared_order"]["value_matches"],
+        "weight_matches": eq["declared_order"]["weight_matches"],
+        "rows": eq["shape"]["rows"],
+        "distinct_columns": eq["shape"]["distinct_columns"],
+        "pad_margin": eq["shape"]["pad_margin"],
+        "blinding_unknowns_fp": eq["shape"]["blinding_unknowns_fp"],
+        "q_entries": eq["preimages"]["a1"]["verification"]["q_entries"],
+        "prox_entries": eq["preimages"]["a1"]["verification"]["prox_entries"],
+        "column_entries": eq["preimages"]["a1"]["verification"]["column_entries"],
+        "exhibited_randomness_sha256": {
+            t: eq["preimages"][t]["exhibited_randomness_sha256"]
+            for t in ("a1", "a2")
+        },
+        "cfs_round_entries": eq["cfs"]["verification"]["round_entries"],
+        "cfs_scalars": eq["cfs"]["verification"]["scalars"],
+        "cfs_fibre_dimension_fp": eq["cfs"]["fibre_dimension_fp"],
+        "cfs_projection": {
+            k: eq["cfs"]["projection"][k]
+            for k in ("which", "conditions", "unmet_before",
+                      "conditions_on_the_fixed_transcript_fp")
+        },
+    }
+    want = {k: v for k, v in TOY_BLOCK_EXPECTED.items() if k != "capture_prefix"}
+    bad = [f"{k}: got {got[k]!r}, the toy record has {want[k]!r}"
+           for k in want if got[k] != want[k]]
+    return {
+        "what": "this module's driver at the toy's widths, on the tracked toy "
+        "block capture, against the figures the TOY gate's committed record "
+        "carries.  Equality here is what makes the port the toy's "
+        "construction and not a second one",
+        "figures_compared": len(want),
+        "equal": len(want) - len(bad),
+        "differences": bad,
+        "ok": not bad,
+    }
+
+
+def main(argv=None):
+    import argparse
+    import glob
+    import json
+
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--toy", required=True,
+                    help="the tracked toy captures directory")
+    ap.add_argument("--evidence", required=True)
+    args = ap.parse_args(argv)
+
+    from zk60_native_jv_capture import Capture
+    from zk60_native_jv_replay import Replay
+
+    paths = sorted(glob.glob(os.path.join(args.toy, "*.json")))
+    hit = [p for p in paths
+           if os.path.basename(p).startswith(TOY_BLOCK_EXPECTED["capture_prefix"])]
+    if not hit:
+        raise SystemExit(
+            f"no toy capture starting {TOY_BLOCK_EXPECTED['capture_prefix']} "
+            f"in {args.toy}"
+        )
+    cap = Capture(hit[0])
+    rp = Replay(cap).run()
+    t0 = time.time()
+    eq = toy_equivalence(cap, rp)
+    eq["seconds"] = round(time.time() - t0, 2)
+    rec = {
+        "what": "round 8's equivalence run: the shape-driven driver at the "
+        "toy's widths",
+        "privacy_property_established": False,
+        "privacy_acceptance": False,
+        "capture": os.path.basename(hit[0]),
+        "capture_sha256": cap.sha256,
+        "layout_specific": sorted(LAYOUT_SPECIFIC),
+        "imported_objects": {k: list(v) for k, v in IMPORTED_OBJECTS.items()},
+        "derived_from": sorted(DERIVED_FROM),
+        "new_here": sorted(NEW_HERE),
+        "equivalence": eq,
+        "against_the_toy_record": compare_with_the_toy_record(eq),
+    }
+    rec["ok"] = rec["against_the_toy_record"]["ok"]
+    os.makedirs(args.evidence, exist_ok=True)
+    out = os.path.join(args.evidence, "toy_equivalence.json")
+    with open(out, "w") as fh:
+        fh.write(json.dumps(rec, indent=1, sort_keys=True) + "\n")
+    print(f"{out}: {rec['against_the_toy_record']['equal']} of "
+          f"{rec['against_the_toy_record']['figures_compared']} figures equal "
+          f"to the toy gate's record")
+    return 0 if rec["ok"] else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

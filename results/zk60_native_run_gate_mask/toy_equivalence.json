@@ -1,0 +1,240 @@
+{
+ "against_the_toy_record": {
+  "differences": [],
+  "equal": 19,
+  "figures_compared": 19,
+  "ok": true,
+  "what": "this module's driver at the toy's widths, on the tracked toy block capture, against the figures the TOY gate's committed record carries.  Equality here is what makes the port the toy's construction and not a second one"
+ },
+ "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.json",
+ "capture_sha256": "c9ee5dcc7a1b94d4e5e8c1a0e2ea542690490e1f6ec81d6c6e8f66d1058c4b3d",
+ "derived_from": [
+  "mask_cfs_stage/the CFS solve",
+  "mask_cfs_stage/the M model",
+  "mask_cfs_stage/the pad budget",
+  "toy_equivalence"
+ ],
+ "equivalence": {
+  "capture": "40083e7ac8f3f6c7",
+  "cfs": {
+   "fibre_dimension_fp": 46,
+   "functional_values": {
+    "functionals": 34,
+    "mismatches": 0
+   },
+   "projection": {
+    "applied": true,
+    "conditions": 34,
+    "conditions_on_the_fixed_transcript_fp": 68,
+    "needed": true,
+    "unmet_before": 29,
+    "which": "all"
+   },
+   "verification": {
+    "all_entries_equal": true,
+    "round_entries": 721,
+    "round_mismatches": 0,
+    "scalar_mismatches": 0,
+    "scalars": 23,
+    "theta_identity_holds": true
+   },
+   "zero_transcript_is_infeasible": true
+  },
+  "declared_order": {
+   "captured_functionals": 34,
+   "declared_order": "for each slot s in slot order: [Gamma_s, if slot s is Standalone] then eval_s; then every Host slot's Gamma, in slot order, last (private_block/argument.rs:361-376 and 924-925)",
+   "expected_functionals": 34,
+   "failures": [],
+   "host_gammas_last": true,
+   "kinds": {
+    "Host": 6,
+    "Private": 12,
+    "Standalone": 5
+   },
+   "ok": true,
+   "order_as_declared": [
+    "eval_00",
+    "eval_01",
+    "eval_02",
+    "Gamma_03",
+    "eval_03",
+    "eval_04",
+    "eval_05",
+    "eval_06",
+    "eval_07",
+    "eval_08",
+    "eval_09",
+    "eval_10",
+    "eval_11",
+    "eval_12",
+    "eval_13",
+    "eval_14",
+    "eval_15",
+    "eval_16",
+    "eval_17",
+    "eval_18",
+    "Gamma_19",
+    "eval_19",
+    "Gamma_20",
+    "eval_20",
+    "Gamma_21",
+    "eval_21",
+    "Gamma_22",
+    "eval_22",
+    "Gamma_02",
+    "Gamma_14",
+    "Gamma_15",
+    "Gamma_16",
+    "Gamma_17",
+    "Gamma_18"
+   ],
+   "position_matches": 34,
+   "slots": 23,
+   "value_matches": 34,
+   "weight_matches": 34
+  },
+  "disclosed": {
+   "coefficient_unknowns_fp": 1166,
+   "disclosed_fp_computed": 2,
+   "disclosed_fp_predicted": 2,
+   "fibre_dimension_fp": 1164,
+   "matches_prediction": true,
+   "published_functionals_fp2": 1
+  },
+  "joined_preimage_at_the_toy": {
+   "all_entries_equal": true,
+   "b_admissible": true,
+   "column_entries": 12800,
+   "column_mismatches": 0,
+   "first_column_mismatch": null,
+   "functional_value_equals_the_captured_batch": true,
+   "ok": true,
+   "prox_entries": 1024,
+   "prox_mismatches": 0,
+   "prox_reproduced_by_construction": true,
+   "q_entries": 1024,
+   "q_mismatches": 0,
+   "q_reproduced_by_construction": true,
+   "q_sum_identity_holds": true
+  },
+  "preimages": {
+   "a1": {
+    "corrected_at": {
+     "index": 0,
+     "slot": 0
+    },
+    "exhibited_randomness_sha256": "e0513e2248d0f773fe872691429add245acb64d0b557f42112ab1381f203d015",
+    "verification": {
+     "all_entries_equal": true,
+     "b_admissible": true,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "first_column_mismatch": null,
+     "functional_value_equals_the_captured_batch": true,
+     "ok": true,
+     "prox_entries": 1024,
+     "prox_mismatches": 0,
+     "prox_reproduced_by_construction": true,
+     "q_entries": 1024,
+     "q_mismatches": 0,
+     "q_reproduced_by_construction": true,
+     "q_sum_identity_holds": true
+    }
+   },
+   "a2": {
+    "corrected_at": {
+     "index": 0,
+     "slot": 0
+    },
+    "exhibited_randomness_sha256": "f943d3a08c3663bc53405a82509988a8b066143ef590130fb007aa03eb90c5d6",
+    "verification": {
+     "all_entries_equal": true,
+     "b_admissible": true,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "first_column_mismatch": null,
+     "functional_value_equals_the_captured_batch": true,
+     "ok": true,
+     "prox_entries": 1024,
+     "prox_mismatches": 0,
+     "prox_reproduced_by_construction": true,
+     "q_entries": 1024,
+     "q_mismatches": 0,
+     "q_reproduced_by_construction": true,
+     "q_sum_identity_holds": true
+    }
+   }
+  },
+  "seconds": 6.28,
+  "shape": {
+   "blinding_unknowns_fp": 15870,
+   "coefficients_plus_pads_fit": true,
+   "column_height_unique": true,
+   "data_coefficients_fp": 1166,
+   "distinct_columns": 246,
+   "failed": [],
+   "nodes_distinct": true,
+   "nodes_off_G512": true,
+   "ok": true,
+   "pad_margin": 10,
+   "pads_per_a_row": 256,
+   "prox_len": 1024,
+   "proximity_rhos": 48,
+   "proximity_rhos_expected": 48,
+   "q_len": 1024,
+   "q_prox_len_expected": 1024,
+   "rows": 50,
+   "rows_expected": 50,
+   "sampled_columns": 256,
+   "slots": 23,
+   "weights_vanish_above_L": true
+  },
+  "slot_row_map_rows": 25
+ },
+ "imported_objects": {
+  "zk60_native_mask_commit": [
+   "MaskModel",
+   "MaskPreimage",
+   "combined_weights",
+   "declared_functional_order",
+   "disclosed_dimension",
+   "force_functional",
+   "mask_len",
+   "single_functional_weights",
+   "synthetic_coefficients",
+   "MASK_LOG_MSG",
+   "MASK_LOG_DOM",
+   "MASK_Q",
+   "MSG_N"
+  ],
+  "zk60_native_pg_cfs": [
+   "CfsPreimage"
+  ],
+  "zk60_native_rg_hashlayer": [
+   "column_bytes"
+  ]
+ },
+ "layout_specific": [
+  "the Merkle layer",
+  "the Rust pins",
+  "the capture and replay types",
+  "the cross-check against a shape",
+  "the three domain constants"
+ ],
+ "new_here": [
+  "StageReplay",
+  "_hash_layer",
+  "check_mask_layer_pins",
+  "check_specs_against_shape",
+  "derive_mask_domain",
+  "joined_coefficients",
+  "mask_cfs_run",
+  "mask_cfs_stage",
+  "slot_row_map",
+  "toy_equivalence"
+ ],
+ "ok": true,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "what": "round 8's equivalence run: the shape-driven driver at the toy's widths"
+}
