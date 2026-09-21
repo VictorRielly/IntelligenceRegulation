@@ -121,6 +121,29 @@ frozen-seam spec digest is legacy-only, and legacy geometries are frozen:
 length coincidences, not four; seven citations one line early; several more
 one-byte margins listed.
 
+**J-8 (2026-09-21 04:37) — where the memo's table and the code differ, the
+code-derived table on the lane is the record.** The lane's stage 25
+(`zk60-private-block-125m` at `fd45a67`, pushed; filter 298 passed, none
+failing) re-derived every length from the code, for all eight registered
+profiles — **410 input kinds** — and asserts, per hash function, that no two
+different kinds have equal length unless a declared literal inside the input
+separates them (seven declared pairs). It found four things the memo and its
+check both missed: the `calibration` absorb (91 bytes) is in no list of the
+memo's; the four `derive_key` context strings are 49 / 44 / 49 / 48 bytes, one
+more each than the memo says, and two of them share a length (separated by the
+context literal itself — the seventh declared pair); there are **113**
+one-byte margins between input kinds, not six — all listed by the test, none
+an equality; and there is a fifth operating-system-seeded generator, in the
+frozen seam's own prover, off this path (the test asserts no production file
+on the path names it). It also confirmed what the type system already
+enforces and nobody had said: **the generator cannot be cloned — forking it is
+a compile error, not a discipline.** The hash-function separation table is now
+a document on the lane with the pinning test named per row
+(`ZK60_HASH_FUNCTION_SEPARATION_TABLE.md`). Still blocked on the integrator's
+accessor: five of the seven assertions of the draw-accounting test; the lane
+carries a test that fails the day the accessor lands, so it cannot be
+forgotten.
+
 ## 3. What the composition step rests on after tonight
 
 Real prover → (generator assumption, or `ε_gen`) → uniform stream →
