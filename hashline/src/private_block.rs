@@ -217,6 +217,14 @@ mod s26_tests;
 // witness carries, and on the inputs that must be refused.
 #[cfg(test)]
 mod s28_tests;
+// STAGE 28, THE INDEPENDENT ADVERSARIAL REVIEW (test-only, written by a
+// reviewer who did not write stage 28): the same equalities re-derived on
+// randomised descriptors, the refusal branch the stage's own gates never
+// take, every parallel path under one, two and eight threads, and a census of
+// which shape crosses which of the stage's five parallel thresholds.
+// Report: `docs/zkmatrix-poc/ZK60_BLOCK125M_S28_REVIEW.md`.
+#[cfg(test)]
+mod s28_review_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
