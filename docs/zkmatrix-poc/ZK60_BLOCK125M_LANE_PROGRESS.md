@@ -6613,3 +6613,27 @@ tip `e6b612f`. The whole diff against `e6b612f` touches only
 * **No completeness claim beyond the cases run.** The negative controls say
   seven specific tampers in the third and fourth key-value group are
   rejected by the verifier; they do not say every one would be.
+
+---
+
+## Stage 23 — the four items of tonight's ruling on the shaped generic-rank lemma (2026-09-20, 23:3x–)
+
+**Status: `SKELETON`.** Opened 2026-09-20 23:37 PDT on the lane tip
+`823d86d`. It works the four items the security owner's disposition
+`ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md` (rulings S-1, S-3, S-5) and
+the independent check `ZK60_GENERIC_RANK_LEMMA_SHAPED_CHECK.md` (findings
+B-2, B-3, B-12) leave on this lane.
+
+**The hard constraint of the stage: nothing an existing profile proves may
+move by a byte.** Every refusal added here must be FALSE at the toy, the
+frozen-seam rung, rung-G, rung-K4 and 125M, and that is asserted rather than
+argued.
+
+| item | ruling / finding | what | state |
+|---|---|---|---|
+| 1 | S-1 (check B-2) | `log(Dom::Tab) == log_cols` becomes a named, tested shape refusal and a documented invariant at the P-3 lift | PENDING |
+| 2 | S-3 (check B-3) | `head_dim >= row width` becomes a named, tested shape refusal; `SC_PV` and the feed-forward slots checked for the same trap | PENDING |
+| 3 | S-5 (check B-12) | the layout model derives each shape's endpoint geometry instead of declaring it; both Rust-side correction terms removed if it then agrees to the byte | PENDING |
+| 4 | gap GS-2 | the refusal replay order pinned in Rust at a shaped layout, on a generic dense witness | PENDING |
+
+Sections, evidence and the forbidden-files proof follow as each item lands.
