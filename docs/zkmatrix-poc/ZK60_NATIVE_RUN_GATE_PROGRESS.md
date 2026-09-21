@@ -1318,7 +1318,26 @@ open** — a default run is exactly what it was.
 
 ## R7.8 The suite
 
-SUITE
+| pattern | result |
+|---|---|
+| `test_zk60_native_run_gate_ahpreimage.py` | **30 tests, OK**, 134.2 s |
+| `test_zk60_native_run_gate*.py` | **214 tests, OK**, 216.4 s (round 6: 184) |
+| `test_zk60_native*.py` | **390 tests, OK**, 457.6 s, one skip and one recorded expected failure (round 6: 360) |
+
+**Two assertions of this round's own test file had to move, and no earlier
+one did.** Both were mine and both were wrong about the record rather than
+about the gate: the evidence directory's glob picked up
+`all_ten_bundles_unchanged.json` as if it were a bundle record, and a live
+assertion compared a Python dict with `int` keys against the JSON form with
+string keys. Every assertion of rounds 1–6 passes as written, which is what
+the leaf diff of §R7.7 predicted.
+
+The 30 tests of this round split four ways: 5 that the module is not a fork
+(the primitives are the toy gate's objects, no `def` of those names here,
+the two maps are complete, the stage is off by default), 2 equivalence runs
+against `zk60_native_pg_pcs` on a tracked toy capture, 12 on the record,
+and 11 live on the bundles (including all six controls and the assertion
+that no captured file was written).
 
 ## R7.9 NEXT after round 7
 

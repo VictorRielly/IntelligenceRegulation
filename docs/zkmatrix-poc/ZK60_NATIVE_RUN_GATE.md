@@ -35,6 +35,17 @@
 > under ruling R-3 sits in §2.4 and again above §7**: it changes the
 > READING of the joint figures and not one number.
 
+> **Section 11, 2026-09-21, is the seventh round**, and it closes the one
+> thing every section above records as missing: §2.5's "`A` and `H` are
+> **skipped, not faked**". The toy gate's solve now runs at `MSG != PAD`,
+> so every PCS commitment of all four current runs has a CONSTRUCTED and
+> VERIFIED zero-data preimage — both halves, every opened column and the
+> salted leaves of the opened columns. Wherever §2.5, §2.7 or §4 say that
+> `A` and `H`'s vectors, the pad half or the opened column values are OPEN,
+> read them against §11.7, which moves exactly those three channels to
+> CONSTRUCTED and no others. **A preimage for a RUN is still OPEN**, and
+> §11.6's control P-5 is the reason that is not a formality.
+
 > **THIS IS NOT A PRIVACY ACCEPTANCE AND ESTABLISHES NO PRIVACY PROPERTY.**
 > Every number below is a rank, a count or a digest of an explicitly stated
 > LINEAR model, at two captured runs' real challenges, at ONE development
@@ -362,6 +373,14 @@ the record; the shape of it:
   joint object: it must reproduce every stage's view at once with the
   boundary planes shared between three commitments, and it needs the pad half
   and the CFS channel first.
+  > **DATED NOTE, 2026-09-21 (round 7).** The per-commitment side is now
+  > **ten of the thirteen**, both halves, with every opened column and its
+  > salted leaf (§11). The channel itself is still OPEN and for a sharper
+  > reason than "it needs the pad half first": control **P-5** exhibits two
+  > commitments of one stage that each have a preimage and, with one
+  > blinding row identified between them, jointly have none. The CFS
+  > channel — the remaining three commitments, `M@0..2` — is still
+  > unconstructed.
 * **the boundary scale tags and the one calibration identity** — OPEN, on
   the strength of the check's A7.5: nothing in the run's privacy section
   covers the boundary's scale/calibration binding, and D12 item 5 records
@@ -439,6 +458,10 @@ One thing the bundle LACKS that the gate needs, and does not guess at:
   row layout and slot specs. What IS computed is `M`'s part in the joint
   system: a block with `2S + 4 = 50` rows, no data row, one published row
   combination, and a computed part of 0.
+  > **DATED NOTE, 2026-09-21 (round 7).** Still open, and now the LARGEST
+  > open channel a port could close: round 7 did the same re-derivation for
+  > the PCS side (`zk60_native_pg_pcs` at `MSG != PAD`, §11) and it took a
+  > day, so the shape of the remaining work is known rather than guessed.
 * **The equality of every Python port with its Rust source remains a
   reviewed obligation, established by reading.** That covers the transcript,
   `absorb_root`, `zpart_weights` / `zkey_weights` / `group_zclaims` and
@@ -1780,7 +1803,7 @@ every opened column AND the salted leaves of the opened columns.
 
 1. **The cost was never the obstacle.** Round 1 skipped `A` and `H` "for
    cost". Measured: the whole construction plus its verification is
-   **11.3–12.8 s for an `A`** and **8.1–9.2 s for an `H`**, and **70–77 s
+   **11.5–12.7 s for an `A`** and **7.9–9.6 s for an `H`**, and **70–77 s
    for a whole three-block run's ten commitments**, in pure Python with
    exact `Fp` arithmetic, and the construction's own peak resident set is
    **103 MB** above the loaded bundle (325 MB for a process that does
@@ -1920,10 +1943,10 @@ on the dense ones.
 
 | bundle | witness | commitments exhibited | view entries compared | differing | salted leaves re-authenticated | stage-11 seconds |
 |---|---|---:|---:|---:|---:|---:|
-| `run-g-dense-s20` | fully dense generic | **10 / 10** | **1,097,847** | **0** | 2,560 | 70.8 |
-| `run-h-zero-s20` | all zero | **10 / 10** | **1,103,569** | **0** | 2,560 | 71.2 |
-| `run-i-dense-k4` | fully dense generic | **10 / 10** | **1,282,025** | **0** | 2,560 | 76.2 |
-| `run-j-zero-k4` | all zero | **10 / 10** | **1,279,861** | **0** | 2,560 | 75.3 |
+| `run-g-dense-s20` | fully dense generic | **10 / 10** | **1,097,847** | **0** | 2,560 | 70.4 |
+| `run-h-zero-s20` | all zero | **10 / 10** | **1,103,569** | **0** | 2,560 | 71.3 |
+| `run-i-dense-k4` | fully dense generic | **10 / 10** | **1,282,025** | **0** | 2,560 | 76.1 |
+| `run-j-zero-k4` | all zero | **10 / 10** | **1,279,861** | **0** | 2,560 | 76.2 |
 | **total** | | **40 / 40** | **4,763,302** | **0** | **10,240** | |
 
 Per commitment, rung-G (`run-g-dense-s20`; the other three differ only in
@@ -1931,16 +1954,16 @@ Per commitment, rung-G (`run-g-dense-s20`; the other three differ only in
 
 | commitment | rows | `d` | group-vector entries | proximity | claim values | opened-column entries | **total** | fibre (`Fp`) | seconds |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| `A@0` | 623 | 252 | 46,080 | 1,280 | 122 | 156,996 | **204,478** | 178,152 | 11.6 |
-| `H@0` | 576 | 250 | 11,520 | 1,280 | 53 | 144,000 | **156,853** | 93,360 | 8.1 |
+| `A@0` | 623 | 252 | 46,080 | 1,280 | 122 | 156,996 | **204,478** | 178,152 | 11.8 |
+| `H@0` | 576 | 250 | 11,520 | 1,280 | 53 | 144,000 | **156,853** | 93,360 | 8.3 |
 | `E-Input` | 9 | 246 | 1,280 | 1,280 | 1 | 2,214 | **4,775** | 50 | 2.7 |
-| `A@1` | 623 | 248 | 46,080 | 1,280 | 122 | 154,504 | **201,986** | 180,348 | 11.3 |
-| `H@1` | 576 | 246 | 11,520 | 1,280 | 53 | 141,696 | **154,549** | 95,584 | 8.2 |
-| `B0` | 10 | 249 | 2,560 | 1,280 | 2 | 2,490 | **6,332** | 28 | 2.8 |
-| `A@2` | 623 | 251 | 46,080 | 1,280 | 122 | 156,373 | **203,855** | 178,701 | 12.3 |
-| `H@2` | 576 | 245 | 11,520 | 1,280 | 53 | 141,120 | **153,973** | 96,140 | 8.4 |
+| `A@1` | 623 | 248 | 46,080 | 1,280 | 122 | 154,504 | **201,986** | 180,348 | 11.6 |
+| `H@1` | 576 | 246 | 11,520 | 1,280 | 53 | 141,696 | **154,549** | 95,584 | 8.1 |
+| `B0` | 10 | 249 | 2,560 | 1,280 | 2 | 2,490 | **6,332** | 28 | 2.9 |
+| `A@2` | 623 | 251 | 46,080 | 1,280 | 122 | 156,373 | **203,855** | 178,701 | 11.5 |
+| `H@2` | 576 | 245 | 11,520 | 1,280 | 53 | 141,120 | **153,973** | 96,140 | 7.9 |
 | `B1` | 10 | 242 | 2,560 | 1,280 | 2 | 2,420 | **6,262** | 56 | 2.7 |
-| `E-Output` | 9 | 247 | 1,280 | 1,280 | 1 | 2,223 | **4,784** | 45 | 2.8 |
+| `E-Output` | 9 | 247 | 1,280 | 1,280 | 1 | 2,223 | **4,784** | 45 | 2.7 |
 
 An `Fp2` entry counts once. "Entries compared" means: the view was
 RECOMPUTED from (all-zero data + the solved blinding) by the forward map and
@@ -2081,7 +2104,16 @@ The arm is **off by default**, so the gate stays a ~10–25 s tool and no
 earlier figure changed cost. The ten records of record were nevertheless
 re-run, because the tool hashes moved and the record gained one stage block,
 and diffed **leaf by leaf** against the committed bytes: the ledger's §R7.7
-has the table. The suite is in §R7.8.
+has the table — **0 unclassified leaves on all ten**, and the ten records
+still read 25 channels at 2 / 5 / 4 / 14.
+
+The suite: `test_zk60_native_run_gate_ahpreimage.py` **30 tests, OK**;
+`-p 'test_zk60_native_run_gate*.py'` **214 tests, OK** (round 6: 184);
+`-p 'test_zk60_native*.py'` **390 tests, OK**, 457.6 s, one skip and one
+recorded expected failure (round 6: 360). **No assertion of rounds 1–6 had
+to move.** The ledger's §R7.8 has the two assertions of round 7's OWN test
+file that did, and why each was wrong about the record rather than about
+the gate.
 
 ## 11.10 What this round is NOT
 
