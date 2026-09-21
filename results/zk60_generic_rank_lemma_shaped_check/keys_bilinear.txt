@@ -1,0 +1,73 @@
+B-CHECK 1  column keys of the repaired bilinear slots (and the FF pair)
+==============================================================================
+
+toy: log_cols 8, lt 5, lh 1, lkv 0, ldh 3, ld 4; Dom::Q 9, Dom::Kv 8, Dom::S 11, Dom::D 9, Dom::F 9
+  SC_SCORE: A_QR8 vs A_KR8 (share rho_g)
+    A_QR8(log 9) vs A_KR8(log 8): tail len 8, 3 positions equal by construction, 5 of 8 must coincide by accident -> 2^-640
+  SC_PV: A_P vs A_V8 (share rho_g AND rho_s)
+    A_P(log 11) vs A_V8(log 8): tail len 8, 0 positions equal by construction, 8 of 8 must coincide by accident -> 2^-1024
+  SC_GMM vs SC_UMM on A_YM (share the FIXED r_tf) [memo does not count this pair]
+    A_YM(log 9) vs A_YM(log 9): tail len 8, 4 positions equal by construction, 4 of 8 must coincide by accident -> 2^-512
+        pos 4: ('rho', 'SC_GMM', 0) vs ('rho', 'SC_UMM', 0)
+        pos 5: ('rho', 'SC_GMM', 1) vs ('rho', 'SC_UMM', 1)
+        pos 6: ('rho', 'SC_GMM', 2) vs ('rho', 'SC_UMM', 2)
+        pos 7: ('rho', 'SC_GMM', 3) vs ('rho', 'SC_UMM', 3)
+  cross-slot spot checks
+    A_QR8(log 9) vs A_P(log 11): tail len 8, 0 positions equal by construction, 8 of 8 must coincide by accident -> 2^-1024
+    A_KR8(log 8) vs A_V8(log 8): tail len 8, 0 positions equal by construction, 8 of 8 must coincide by accident -> 2^-1024
+    numeric: 8 seeds x generic Fp2 for every symbol -> 0 key collisions
+
+rung-G: log_cols 10, lt 5, lh 3, lkv 1, ldh 4, ld 7; Dom::Q 12, Dom::Kv 10, Dom::S 13, Dom::D 12, Dom::F 13
+  SC_SCORE: A_QR8 vs A_KR8 (share rho_g)
+    A_QR8(log 12) vs A_KR8(log 10): tail len 10, 4 positions equal by construction, 6 of 10 must coincide by accident -> 2^-768
+  SC_PV: A_P vs A_V8 (share rho_g AND rho_s)
+    A_P(log 13) vs A_V8(log 10): tail len 10, 0 positions equal by construction, 10 of 10 must coincide by accident -> 2^-1280
+  SC_GMM vs SC_UMM on A_YM (share the FIXED r_tf) [memo does not count this pair]
+    A_YM(log 12) vs A_YM(log 12): tail len 10, 3 positions equal by construction, 7 of 10 must coincide by accident -> 2^-896
+  cross-slot spot checks
+    A_QR8(log 12) vs A_P(log 13): tail len 10, 0 positions equal by construction, 10 of 10 must coincide by accident -> 2^-1280
+    A_KR8(log 10) vs A_V8(log 10): tail len 10, 0 positions equal by construction, 10 of 10 must coincide by accident -> 2^-1280
+    numeric: 8 seeds x generic Fp2 for every symbol -> 0 key collisions
+
+rung-K4 (built after the memo): log_cols 10, lt 5, lh 4, lkv 2, ldh 3, ld 7; Dom::Q 12, Dom::Kv 10, Dom::S 14, Dom::D 12, Dom::F 13
+  SC_SCORE: A_QR8 vs A_KR8 (share rho_g)
+    A_QR8(log 12) vs A_KR8(log 10): tail len 10, 3 positions equal by construction, 7 of 10 must coincide by accident -> 2^-896
+  SC_PV: A_P vs A_V8 (share rho_g AND rho_s)
+    A_P(log 14) vs A_V8(log 10): tail len 10, 0 positions equal by construction, 10 of 10 must coincide by accident -> 2^-1280
+  SC_GMM vs SC_UMM on A_YM (share the FIXED r_tf) [memo does not count this pair]
+    A_YM(log 12) vs A_YM(log 12): tail len 10, 3 positions equal by construction, 7 of 10 must coincide by accident -> 2^-896
+  cross-slot spot checks
+    A_QR8(log 12) vs A_P(log 14): tail len 10, 0 positions equal by construction, 10 of 10 must coincide by accident -> 2^-1280
+    A_KR8(log 10) vs A_V8(log 10): tail len 10, 0 positions equal by construction, 10 of 10 must coincide by accident -> 2^-1280
+    numeric: 8 seeds x generic Fp2 for every symbol -> 0 key collisions
+
+125M: log_cols 14, lt 9, lh 4, lkv 2, ldh 6, ld 10; Dom::Q 19, Dom::Kv 17, Dom::S 22, Dom::D 19, Dom::F 20
+  SC_SCORE: A_QR8 vs A_KR8 (share rho_g)
+    A_QR8(log 19) vs A_KR8(log 17): tail len 14, 6 positions equal by construction, 8 of 14 must coincide by accident -> 2^-1024
+  SC_PV: A_P vs A_V8 (share rho_g AND rho_s)
+    A_P(log 22) vs A_V8(log 17): tail len 14, 0 positions equal by construction, 14 of 14 must coincide by accident -> 2^-1792
+  SC_GMM vs SC_UMM on A_YM (share the FIXED r_tf) [memo does not count this pair]
+    A_YM(log 19) vs A_YM(log 19): tail len 14, 4 positions equal by construction, 10 of 14 must coincide by accident -> 2^-1280
+  cross-slot spot checks
+    A_QR8(log 19) vs A_P(log 22): tail len 14, 0 positions equal by construction, 14 of 14 must coincide by accident -> 2^-1792
+    A_KR8(log 17) vs A_V8(log 17): tail len 14, 0 positions equal by construction, 14 of 14 must coincide by accident -> 2^-1792
+    numeric: 8 seeds x generic Fp2 for every symbol -> 0 key collisions
+
+------------------------------------------------------------------------------
+THE STRUCTURAL CONDITION (what would make SC_SCORE's two keys collide
+BY CONSTRUCTION).  A_QR8's list ends with rho(lkv..lkv+ldh) and A_KR8's
+ends with the SAME symbols.  If ldh >= log_cols both tails are the last
+log_cols entries of that one shared segment and the keys are EQUAL on
+every run: the two claims merge, `opening_groups_at` returns
+a_groups - 1, and `check_opening` (protocol.rs:301-303) refuses EVERY
+run at that shape.  Condition: head_dim >= 2^log_cols.
+    toy: head_dim 8 vs row width 256 -> safe
+    rung-G: head_dim 16 vs row width 1024 -> safe
+    rung-K4 (built after the memo): head_dim 8 vs row width 1024 -> safe
+    125M: head_dim 64 vs row width 16384 -> safe
+SC_PV can never collide structurally: A_V8's tail always ends in the
+fixed r_i and A_P's in rho_s.
+
+Also note: shape.rs:240-262 refuses the bilinear slots only when a
+domain is LIFTED by P-3 (natural log BELOW the row width).  The
+condition above is the opposite direction and is refused by nothing.

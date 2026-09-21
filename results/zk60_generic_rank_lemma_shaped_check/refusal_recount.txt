@@ -1,0 +1,104 @@
+B-CHECK 3  the refusal inventory, and Finding N-3 recounted
+==============================================================================
+
+A. WHAT IS ACTUALLY INVERTED (the only checked inversion in the module
+   is `inverses` at protocol.rs:402-405; its four live call sites are
+   :691, :702, :704, :734 -- the memo cites ':703', which builds the
+   activation denominators; the inversion is on the next line).
+
+   toy     u8       61,440  exp      2,048  act        512  table rows: memo     768  CODE   768
+           raw total: memo       64,768 (2^-112.02)   code       64,768 (2^-112.02)
+   rung-G  u8      419,840  exp      8,192  act      8,192  table rows: memo   3,072  CODE   768
+           raw total: memo      439,296 (2^-109.26)   code      436,992 (2^-109.26)
+   125M    u8   98,598,912  exp  4,194,304  act  1,048,576  table rows: memo  49,152  CODE   768
+           raw total: memo  103,890,944 (2^-101.37)   code  103,842,560 (2^-101.37)
+
+   >>> B-FINDING. The memo prices the three TABLE helpers at
+   `3 x row width` (3,072 at rung-G, 49,152 at 125M).  The code
+   inverts `table_values_*(...)` which is `table_values_*_at(
+   Dom::Tab.len(), ...)` -- and `Dom::Tab.len()` (layout.rs:163) is
+   the TOY's 256, not `sh.size(Dom::Tab)`.  So the table-helper term
+   is 3 x 256 = 768 at EVERY shape.  The raw figure moves by less
+   than 0.01 bit, so this is an erratum, not a finding of substance;
+   but it also means the lift argument the memo gives for N-3 is not
+   needed for the table families -- they never grow in the first
+   place.
+
+B. FINDING N-3 RE-DERIVED.  alpha is drawn at protocol.rs:684, AFTER
+   beta (:682) and gamma (:683) and after the A and M roots, so
+   conditioned on the transcript so far the whole set of denominator
+   ARGUMENTS is fixed and alpha is uniform on Fp2 (the memo's own
+   wording omits that beta and gamma are also conditioned on -- it
+   matters, because two of the three families' arguments contain
+   beta).  The bad event is exactly `alpha in S`.
+
+   S, family by family, for any witness `Witness::new` admits:
+     u8       alpha - (v + gamma*TAG_U8),   v = cst + sum c_p plane_p
+              `byte(p)`   -> v = p        in [0,256) by witness.rs
+              `scaled(p,k)`-> v = k*p     in [0,256) (byte(p) also present)
+              `sym(p)`    -> v = p+127 and 127-p, in [0,256) for p in [-127,127]
+              at a PADDED position every non-exempt plane is 0 (ruling P-1)
+              so v = cst, which is 0 or 127 -- still a byte.
+              => at most 256 distinct arguments
+     exp      alpha - (d + beta*e + gamma*TAG_EXP), (d,e) a row of the
+              256-row exponential table; witness.rs:533,639 REFUSE a
+              witness with d outside 0..256  => at most 256
+     act      alpha - (i + beta*a + gamma*TAG_ACT), i = g8+128  => at most 256
+     u8/exp/act TABLE helpers: `table_values_*_at(256, ...)` enumerates
+              exactly the 256 rows of each table, so each is a SUBSET
+              of its own family above and adds nothing.
+
+   |S| <= 3 x 256 = 768 per block, at EVERY shape.
+   per block: 768/p^2 = 2^-118.42   (memo: 2^-118.42)
+   12-block run, L independent alphas: 9216/p^2 = 2^-114.83   (memo: 2^-114.83)
+   VERDICT on N-3: the arithmetic and the bound both reproduce.
+
+   Two corrections to N-3's SCOPE, neither moving the number:
+   (i)  the memo conditions on 'an honest witness'; the right and
+        stronger conditioning is 'any witness `Witness::new` admits',
+        because the byte ranges are REFUSALS in the constructor
+        (witness.rs:290, 374, 386, 394, 534, 555, 600, 640, 672, 708),
+        not a property of honesty.  That is exactly Lemma S's own
+        hypothesis, so the term is in scope after all, and GS-12 can
+        be closed for the u8 and exp families rather than carried.
+   (ii) those same range refusals are R-1's INPUT-DETERMINED refusal
+        sites.  Pricing the LogUp-denominator term over the admitted
+        witnesses is right, but it must be said that the conditioning
+        event itself (admission) is input-dependent and is governed by
+        operating rule M-9, not by this term.
+
+C. THE CHALLENGE-ONLY TERMS, recounted independently.
+
+   toy     lambda draws per block = 120 (A) + 52 (H incl sum) + 2 (endpoints) = 174   -> 2^-120.56
+   rung-G  lambda draws per block = 122 (A) + 53 (H incl sum) + 2 (endpoints) = 177   -> 2^-120.53
+   125M    lambda draws per block = 122 (A) + 51 (H incl sum) + 2 (endpoints) = 175   -> 2^-120.55
+   12x125M run: 12*(122+51) + 2*11 + 2 = 2100  -> 2^-116.96   (memo: 2,100 / 2^-116.96)
+
+   Pr[wedge(a,b) = 0] for a,b uniform in Fp2 = (p^3+p^2-p)/p^4 = 2^-64.00
+   4 openings per block  -> 2^-62.00      (memo: 2^-62.00)
+   3L+1 = 37 per 12-run  -> 2^-58.79      (memo: 2^-58.79; ruling R-6's 2^-58.8)
+
+   terminal mask e in {0,1}, 25 extension rounds    2^-122.36
+   CFS multiplier c_s = 0, 23 slots                 2^-123.48
+   nu = 0, 5 sites x 2                              2^-124.68
+   zeta = 0, 8 pad-zero hosts (rung-G)              2^-125.00
+   zeta = 0, 5 pad-zero hosts (125M)                2^-125.68
+
+D. THE BACKSTOP DEGREES (memo section 5.4), recounted: degree 6G+2 over Fp.
+   A         minor 74x74  degree 218  bound 2^-56.23
+   H         minor 20x20  degree  56  bound 2^-58.19
+   endpoint  minor 4x4  degree   8  bound 2^-61.00
+   boundary  minor 6x6  degree  14  bound 2^-60.19
+   one shaped block union 2^-55.82   (memo: 2^-55.82)
+   twelve-block run union 2^-52.24   (memo: 2^-52.24)
+
+   BUT the backstop is never reached.  B-CHECK 2 computes the maximal
+   minor's determinant EXACTLY and it equals
+     prod_g Norm(lambda_{g,j(g)} * cm_{j(g)}) * wedge(rho_prox pair)
+   on every seed.  A product of norm forms vanishes iff one factor
+   does, and each factor vanishing is a NAMED refusal
+   (protocol.rs:246 / :284-286 / :289-290).  So 'bad set subset
+   refusal set' is an IDENTITY, conditional only on `audit_claims`
+   giving each group a member with a pair of its own
+   (protocol.rs:259-272).  Schwartz-Zippel is not the argument and
+   its unusability at run scale costs nothing.

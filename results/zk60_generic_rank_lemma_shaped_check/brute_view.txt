@@ -1,0 +1,24 @@
+B-CHECK 4  the whole linear view, no reduction, generic data
+==============================================================================
+
+(1) A-LIKE: groups of 5, 3, 1, 1 -- the individual claim values of a
+    group with m > 2 members.  The memo's brute force reached m = 2.
+    seed 0: 174 functionals, 312 coordinates, 32 hidden -> disclosed 0
+    seed 1: 174 functionals, 312 coordinates, 32 hidden -> disclosed 0
+    seed 2: 174 functionals, 312 coordinates, 32 hidden -> disclosed 0
+
+    controls (each must FIRE):
+    seed 0: cm = 0 in a singleton group -> disclosed 16
+    seed 1: cm = 0 in a singleton group -> disclosed 16
+
+(2) H-LIKE: groups of 3 and 1 with a reserved pair each, SC_ZS's
+    group also touching the two zero-sum u rows, and the pairless
+    LogUp sum claim alone in its group with coefficients (1, U).
+    seed 0: disclosed 2; disclosed span dim 2; public-identity span dim 2; EQUAL: True
+    seed 1: disclosed 2; disclosed span dim 2; public-identity span dim 2; EQUAL: True
+    seed 2: disclosed 2; disclosed span dim 2; public-identity span dim 2; EQUAL: True
+
+    (the sum claim's value is the public 0, so the identity is the
+    only thing the 2 disclosed dimensions can be, and here it is
+    computed rather than assumed -- which is what GS-1 asks for at
+    125M and what the run gate measured at rung-G.)

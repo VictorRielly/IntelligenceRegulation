@@ -1,0 +1,75 @@
+B-CHECK 2  the non-data block at the REAL group-size distribution
+==============================================================================
+U^2 - 7 irreducible over Goldilocks (so Norm(a)=0 iff a=0): True
+
+A, both shaped layouts: 36 groups, 122 claims, largest group 35, singletons 17
+  [the memo's GS-15 reconstruction had largest 36 and 'at least 15'
+   singletons; the derived figures are 35 and 17]
+
+A (36 groups, 122 claims, 246 non-data rows)
+  honest                                                         gens  74  non-data rows 246  rank|nd  74  k0 [0]
+  proximity pair Fp-dependent (a refused draw)                   gens  74  non-data rows 246  rank|nd  74  k0 [0]
+  cm = 0 in a SINGLETON group (claim 30, slot 09Q)               gens  74  non-data rows 246  rank|nd  72  k0 [2]
+  cm = 0 in the 35-member SC_DZC group (claim 45)                gens  74  non-data rows 246  rank|nd  74  k0 [0]
+  cm = 0 in the 6-member TZC group (claim 3)                     gens  74  non-data rows 246  rank|nd  74  k0 [0]
+  two SAME-GROUP claims sharing one pair (claims 0,1)            gens  74  non-data rows 246  rank|nd  74  k0 [0]
+
+H rung-G (9 groups incl. the pairless sum claim, 2 zero-sum u rows)
+  honest (sum claim pairless on u; SC_ZS also touches u)         gens  20  non-data rows 108  rank|nd  20  k0 [0]
+  proximity pair Fp-dependent (a refused draw)                   gens  20  non-data rows 108  rank|nd  20  k0 [0]
+  the sum claim's own lambda = 0 (a refused draw)                gens  20  non-data rows 108  rank|nd  18  k0 [0]
+  SC_ZS's cm = 0 (a refused draw)                                gens  20  non-data rows 108  rank|nd  18  k0 [2]
+
+H 125M (9 groups incl. the pairless sum claim, 2 zero-sum u rows)
+  honest (sum claim pairless on u; SC_ZS also touches u)         gens  20  non-data rows 104  rank|nd  20  k0 [0]
+  proximity pair Fp-dependent (a refused draw)                   gens  20  non-data rows 104  rank|nd  20  k0 [0]
+  the sum claim's own lambda = 0 (a refused draw)                gens  20  non-data rows 104  rank|nd  18  k0 [0]
+  SC_ZS's cm = 0 (a refused draw)                                gens  20  non-data rows 104  rank|nd  18  k0 [2]
+
+endpoint (1 group, 1 claim; pair, prox PAIR, ONE spare row)
+  honest                                                         gens   4  non-data rows   5  rank|nd   4  k0 [0]
+  proximity pair Fp-dependent (a refused draw)                   gens   4  non-data rows   5  rank|nd   4  k0 [0]
+  the same, with the spare row REMOVED                           gens   4  non-data rows   4  rank|nd   3  k0 [1]
+  cm = 0 (a refused draw)                                        gens   4  non-data rows   5  rank|nd   2  k0 [2]
+  lambda = 0 (a refused draw)                                    gens   4  non-data rows   5  rank|nd   2  k0 [0]
+
+boundary (2 singleton groups, 2 pairs, prox pair, ZERO spare rows)
+  honest                                                         gens   6  non-data rows   6  rank|nd   6  k0 [0]
+  proximity pair Fp-dependent (a refused draw)                   gens   6  non-data rows   6  rank|nd   5  k0 [1]
+  cm = 0 on one site (a refused draw)                            gens   6  non-data rows   6  rank|nd   4  k0 [2]
+  the two claims sharing one pair (audit_claims forbids)         gens   6  non-data rows   6  rank|nd   4  k0 [2]
+  ONE proximity row instead of a pair (ruling M-1's case)        gens   6  non-data rows   5  rank|nd   5  k0 [1]
+
+  FINDING N-2 UNDER ATTACK.  The memo prices the opening-group COUNT
+  check as a privacy check: '8 generators against 6 non-data rows,
+  k0 rises to 2'.  Both directions the count can move:
+  N-2 as the memo models it: a THIRD group, still 6 non-data rows gens   8  non-data rows   6  rank|nd   6  k0 [2]
+  the ONLY reachable deviation: the two claims MERGE into one group gens   4  non-data rows   6  rank|nd   4  k0 [0]
+
+  Reachability.  `check_opening` (protocol.rs:297-307) runs
+  `audit_claims` FIRST.  On a 2-site boundary `audit_claims` requires
+  every one of the 4 site rows to be used by exactly ONE claim and
+  every non-sum claim to touch exactly 2 adjacent site rows
+  (protocol.rs:259-272), so THREE claims are impossible: 3 x 2 = 6
+  uses over 4 rows forces some uses[r] != 1.  With exactly 2 claims
+  the group count is 1 or 2 and can only be WRONG by being 1 -- the
+  merge -- whose k0 is 0.  The 8-generator case the memo prices
+  CANNOT OCCUR past the audit that runs before the count check.
+
+  THE BRIEF'S 'THIRD EVENT' PROBES -- events NOT refused anywhere:
+  the two sites' cm EQUAL (same terminal mask both stages)       gens   6  non-data rows   6  rank|nd   6  k0 [0]
+  the two sites' claim points coinciding (data weights equal)    gens   6  non-data rows   6  rank|nd   6  k0 [0]
+
+The determinant identity (boundary, the whole 6x6 non-data block):
+  seed 0: det = 16572697612881767227   Norm(l0 cm0)*Norm(l1 cm1)*wedge(prox) = 16572697612881767227   EQUAL
+  seed 1: det = 5273380836899203738   Norm(l0 cm0)*Norm(l1 cm1)*wedge(prox) = 5273380836899203738   EQUAL
+  seed 2: det = 175796374817870668   Norm(l0 cm0)*Norm(l1 cm1)*wedge(prox) = 175796374817870668   EQUAL
+  seed 3: det = 6919284304600350128   Norm(l0 cm0)*Norm(l1 cm1)*wedge(prox) = 6919284304600350128   EQUAL
+  seed 4: det = 8301866466074192475   Norm(l0 cm0)*Norm(l1 cm1)*wedge(prox) = 8301866466074192475   EQUAL
+  seed 5: det = 8083459104974685939   Norm(l0 cm0)*Norm(l1 cm1)*wedge(prox) = 8083459104974685939   EQUAL
+
+  Consequence: the maximal minor is EXACTLY a product of norm forms and
+  one wedge.  Its zero set is {some lambda*cm = 0} union {wedge = 0},
+  and BOTH are refusals.  'bad set subset refusal set' is therefore an
+  IDENTITY at the boundary, not a Schwartz-Zippel estimate, so the
+  backstop of the memo's section 5.4 is never needed there.
