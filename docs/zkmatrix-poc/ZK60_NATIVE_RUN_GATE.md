@@ -1500,6 +1500,22 @@ uniformly random `Fp2` elements over seven seeds and never on the shaped
 instance), a RECORDED arm and a LIVE arm. The record guard
 `tests/test_zk60_native_gate_record.py` gains six for Item B.
 
+`-p 'test_zk60_native_run_gate*.py'`: **159 tests, OK**, 42.5 s (round 4:
+123). `-p 'test_zk60_native*.py'`: **335 tests, OK**, 281.5 s, one skip and
+one recorded expected failure, against **293** before this round.
+
+**Six earlier assertions moved, deliberately.** The first whole-suite pass
+after the tool changes was 5 failures and 1 error, and every one was an
+earlier round asserting an exact set round 5 widened on purpose: the pin
+count (now both tables), the tree materialised at `4751b93` (now 30 files,
+four of them at an accepted second digest), round 4's `GQ-1 … GQ-6` (now
+nine entries with `GQ-3` and `GQ-4` as families and `GQ-7` skipped at
+`lkv = 1`), and round 3's `CH-1 … CH-6` (now seven). Each was updated with
+the reason written beside it, and the ledger's §R5.7b tabulates all six.
+**Not one was a measured figure**: every rank, disclosed dimension,
+challenge count, slot check and channel count asserted by rounds 1–4 is
+asserted unchanged.
+
 ## 9.11 What this round is NOT
 
 * **Not a privacy claim.** A second shape is not a distribution of shapes,

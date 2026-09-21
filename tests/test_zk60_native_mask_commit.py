@@ -44,11 +44,25 @@ def _caps():
 
 class ThePort(unittest.TestCase):
     def test_every_source_pin_is_present_and_unchanged(self):
+        # [round 5] `check_source_pins` now checks SOURCE_PINS *and* the
+        # PATH_PINS the security owner's 22:06 ruling added -- every Rust
+        # file on the toy block profile's path, not only the ones a port
+        # transcribes.  The count is the sum, and `pin_kind` says which
+        # table each came from.
         pins = mc.check_source_pins()
-        self.assertEqual(len(pins), len(mc.SOURCE_PINS))
+        self.assertEqual(len(pins), len(mc.SOURCE_PINS) + len(mc.PATH_PINS))
         for p in mc.SOURCE_PINS:
             self.assertEqual(pins[p.path]["sha256"], p.sha256)
             self.assertTrue(pins[p.path]["ported"])
+            self.assertEqual(pins[p.path]["pin_kind"], "ported")
+        for p in mc.PATH_PINS:
+            self.assertEqual(pins[p.path]["sha256"], p.sha256)
+            self.assertTrue(pins[p.path]["ported"])
+            self.assertEqual(pins[p.path]["pin_kind"], "on-the-path")
+        # and the pre-round-5 behaviour is still reachable, for a caller
+        # that wants only the ported files
+        self.assertEqual(len(mc.check_source_pins(path_pins=())),
+                         len(mc.SOURCE_PINS))
 
     def test_a_changed_pin_is_a_hard_error_not_a_warning(self):
         bad = (mc.Pin("hashline/src/zk.rs", "00" * 32, "11" * 20, "x"),)
@@ -93,8 +107,19 @@ class ThePort(unittest.TestCase):
         main = "/home/victor/IntelligenceRegulation"
         if not os.path.isdir(os.path.join(main, ".git")):
             self.skipTest("the main repository is not on this box")
+        # [round 5] the tree must now carry the PATH pins too, and THREE
+        # files besides zk.rs differ between this lane's tree and main at
+        # 4751b93 -- private_block.rs, pcs.rs and gpu/mod.rs -- so all four
+        # come back at their accepted SECOND digest and every other pin at
+        # its pin of record.
+        moved_at_4751b93 = {
+            "hashline/src/zk.rs",
+            "hashline/src/private_block.rs",
+            "hashline/src/pcs.rs",
+            "hashline/src/gpu/mod.rs",
+        }
         with tempfile.TemporaryDirectory() as tmp:
-            for p in mc.SOURCE_PINS:
+            for p in list(mc.SOURCE_PINS) + list(mc.PATH_PINS):
                 blob = subprocess.run(
                     ["git", "--no-pager", "-C", main, "show", f"4751b93:{p.path}"],
                     capture_output=True)
@@ -112,16 +137,19 @@ class ThePort(unittest.TestCase):
             self.assertEqual(pins["hashline/src/zk.rs"]["sha256"], want)
             self.assertIn("4751b93", pins["hashline/src/zk.rs"]["accepted_as"])
             self.assertEqual(pins["hashline/src/zk.rs"]["pin_of_record"][:8], "c5b54753")
+            for path in moved_at_4751b93:
+                self.assertIn("4751b93", pins[path]["accepted_as"], path)
+                self.assertIn("pin_of_record", pins[path], path)
             # every OTHER pin is at its pin of record at 4751b93 too
-            for p in mc.SOURCE_PINS:
-                if p.path != "hashline/src/zk.rs":
+            for p in list(mc.SOURCE_PINS) + list(mc.PATH_PINS):
+                if p.path not in moved_at_4751b93:
                     self.assertEqual(pins[p.path]["sha256"], p.sha256, p.path)
                     self.assertNotIn("accepted_as", pins[p.path], p.path)
 
     def test_a_third_digest_is_still_refused(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            for p in mc.SOURCE_PINS:
+            for p in list(mc.SOURCE_PINS) + list(mc.PATH_PINS):
                 d = os.path.join(tmp, os.path.dirname(p.path))
                 os.makedirs(d, exist_ok=True)
                 with open(os.path.join(ROOT, p.path), "rb") as src:

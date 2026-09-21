@@ -271,10 +271,25 @@ class TestRecordedEvidence(unittest.TestCase):
             ctl = rec["stage9_hash_layer"]["controls"]
             self.assertTrue(ctl["ok"], name)
             got = {c["control"]: c for c in ctl["controls"]}
+            # [ROUND 5, 2026-09-20] CH-7 joins the set, and the assertion is
+            # updated deliberately: each bundle's real captured columns
+            # re-hashed under the OTHER tagged profile's derived key set.
+            # Nothing is perturbed -- both key sets are complete and
+            # internally consistent, and only the profile is wrong -- so it
+            # says the separation of D19 is in the BYTES and not only in the
+            # bookkeeping.  It could not be run before round 5, because
+            # until the rung-K4 bundles there was one tagged profile.
             self.assertEqual(sorted(got), ["CH-1", "CH-2", "CH-3", "CH-4",
-                                           "CH-5", "CH-6"], name)
+                                           "CH-5", "CH-6", "CH-7"], name)
             for k, c in got.items():
                 self.assertTrue(c["fires"], f"{name} {k}")
+            self.assertEqual(got["CH-7"]["a_under_bs_keys"], 0, name)
+            self.assertEqual(got["CH-7"]["b_under_as_keys"], 0, name)
+            self.assertEqual(got["CH-7"]["a_under_its_own_keys"],
+                             got["CH-7"]["of_columns_a"], name)
+            self.assertTrue(
+                all(got["CH-7"]["the_two_key_sets_differ_in_every_role"]
+                    .values()), name)
             self.assertFalse(got["CH-4"]["under_the_legacy_rule_the_run_binding"
                                          "_reproduces"], name)
             self.assertEqual(
@@ -577,8 +592,12 @@ class TestLive(unittest.TestCase):
         self.assertTrue(check_hash_layer(b)["ok"])
         ctl = hash_rule_controls(b, legacy_bundle=b)
         self.assertTrue(ctl["ok"])
+        # [round 5] CH-7 needs a bundle of a SECOND tagged profile; none is
+        # supplied here, so it is NAMED AND SKIPPED beside CH-1..CH-5, which
+        # a pre-tag bundle cannot have either.  A skipped control is named,
+        # never counted as passed.
         self.assertEqual([c["control"] for c in ctl["controls_skipped"]],
-                         ["CH-1..CH-5"])
+                         ["CH-1..CH-5", "CH-7"])
 
     def test_the_two_tagged_bundles_are_two_different_runs(self):
         e, _i, _r = loaded(RUN_E)

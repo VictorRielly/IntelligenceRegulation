@@ -543,21 +543,299 @@ previous night's work named in its own NEXT list.
 | # | item | state |
 |---|---|---|
 | X0 | ledger skeleton, round 5 opened | done |
-| X1 | Item A — the K4 geometry and the two-group factor derived; any one-group-bit assumption in the tools found and named | pending |
-| X2 | Item A — the whole-run replay and the keyed hash layer under the K4 profile's own keys, with the cross-profile key controls | pending |
-| X3 | Item A — the 23-slot terminal identity on both bundles | pending |
-| X4 | Item A — every per-commitment figure, next to rung-G's, in one table | pending |
-| X5 | Item A — round 4's controls re-aimed at the third and fourth group | pending |
-| X6 | Item A — evidence, report section, channel count recounted | pending |
-| X7 | Item B — the path list established from `4751b93`'s blobs, file by file | pending |
-| X8 | Item B — pins added, the path-pin table, the gate's refusal by name | pending |
-| X9 | Item B — the toy records refreshed deliberately, every figure of record shown unchanged, the guard updated | pending |
-| X10 | the whole native suite | pending |
+| X1 | Item A — the K4 geometry and the two-group factor derived; any one-group-bit assumption in the tools found and named | done — commit `a516bac` |
+| X2 | Item A — the whole-run replay and the keyed hash layer under the K4 profile's own keys, with the cross-profile key controls | done — `a516bac` |
+| X3 | Item A — the 23-slot terminal identity on both bundles | done — `a516bac` |
+| X4 | Item A — every per-commitment figure, next to rung-G's, in one table | done — `488c79c`, §R5.4 |
+| X5 | Item A — round 4's controls re-aimed at the third and fourth group | done — `a516bac`, `7ef86d6` |
+| X6 | Item A — evidence, report section, channel count recounted | done — report §9 |
+| X7 | Item B — the path list established from `4751b93`'s blobs, file by file | done — §R5.5 |
+| X8 | Item B — pins added, the path-pin table, the gate's refusal by name | done — `7ef86d6` |
+| X9 | Item B — the toy records refreshed deliberately, every figure of record shown unchanged, the guard updated | done — §R5.6 |
+| X10 | the whole native suite | done — §R5.7 |
 
 ## R5.3 Commands and logs (round 5)
 
-*(filled as each item lands)*
+| what | command | log |
+|---|---|---|
+| the gate, both rung-K4 bundles | `python3 scripts/zk60_native_run_gate.py --bundle <B>/run-i-dense-k4 --other <B>/run-j-zero-k4 --old <B>/run-a-tame --cross-profile <B>/run-g-dense-s20 --evidence results/zk60_native_run_gate_k4` (and swapped) | `…/zk60_native_run_gate_k4/run-{i,j}-*.log` — **25.0 / 25.5 s** |
+| the FIRST probe, before the two findings were repaired | the same, without `--cross-profile` | `…/probe-i.log` — **`KeyError: 'slot_checks_expected'`**, finding K4-F1 |
+| the eight older records refreshed IN PLACE (the tool bytes moved) | `bash results/zk60_native_run_gate_k4/refresh.sh` | `…/refresh.log`, `.done` — eight records, 9.6–18.8 s |
+| each older record diffed leaf by leaf, then classified | `zk60_native_rg_recdiff.py`, then `zk60_native_rg_recclass.py` | `…/old/*.diff.json`, `…/old/old_bundles_unchanged.json` — **0 unclassified leaves on all eight** |
+| dense against zero, at two group bits | `zk60_native_rg_witcmp.py` (two records) | `…/witness_comparison_k4_dense_vs_zero.json` — **173 compared, 153 identical** |
+| rung-K4 against rung-G | the same tool, four records | `…/shape_comparison_k4_vs_rungg.json` — **173 compared, 134 identical** |
+| **Item B**: the three toy gates re-run on the four 2026-09-19 captures | `bash results/zk60_native_pathpins/gates.sh` | `…/zk60_native_pathpins/gates.log`, `.done` |
+| this round's test file | `python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native_run_gate_k4.py' -v` | `…/zk60_native_run_gate_k4/tests_k4.log` — **36 tests, OK**, 11.9 s |
+| the WHOLE native suite | `… -p 'test_zk60_native*.py' -v` | `…/zk60_native_run_gate_k4/tests_native_all.log`, `.done` — see §R5.7 |
 
-## R5.4 Results
+## R5.4 Results — Item A (MEASURED 2026-09-20 23:08–23:15 PDT, shared laptop, CPU only)
 
-*(filled as each item lands)*
+| what | figure |
+|---|---|
+| the shape | rung-K4: 24 tokens, width 96, hidden 192, **12 query heads of 8 over 4 key-value heads**, `h_pad = 16`, padded head slots **{3, 7, 11, 15}** — 125M's own head geometry |
+| the geometry, derived from the shape alone | `lt = 5`, **`lh = 4`**, **`ldh = 3`**, **`lkv = clog2(4) = 2`**.  Three axes move, not one: a tool that had assumed six heads or a sixteen-wide head would fail here too |
+| the definition in force | **`repaired`**, selected by each bundle's own `argument.rs` pin `dd8469cb` |
+| the pins the shape moves | `shape.rs` `8f734422` → **`07a0547f`** (60 added lines, 0 removed: a doc comment and `Shape::rung_k4` calling the UNCHANGED `Shape::new`) and `run.rs` `65d55d25` → **`73f68221`** (12 added lines, 0 removed).  The first is accepted as a read second digest; the second is **pinned by nothing** — finding K4-F2 |
+| slot dimensions derived and compared twice | **6 of 6** — slot 08 `(5, 2, 3)`, slot 09 `(7, 2, 3)` |
+| **the group point** | **6 of 6** derived from the REPLAY and compared with the bundle's `Tab::Eq`, **12 entries** against 6 at `lkv = 1`; never consumed |
+| both factors' coordinate lists | **12 of 12**, **138** entries, **66** fixed against a re-derived challenge (135 and 69 at rung-G) — both PREDICTED from the two geometries in a pure test before they were read off a record |
+| the replay | run binding reproduced, **375** positions, **6,854** challenges, counter **7,686**, **6 of 6** tags, **nothing un-re-derived** |
+| `+762` challenges, decomposed | exactly `3 × (3 definition draws + 3 sumcheck rounds + 104 A proximity rows + 144 H proximity rows)`; `Dom::S` doubles to `2^14` because sixteen head slots replace eight |
+| the segments | 4,575,304 / 4,597,832 / 4,765,736 — **+508,144 B in each of the three stages**, the same figure three times |
+| the terminal identity | **23 of 23** slots, **69 of 69** equal and matching the stored `terminal_polynomial`, **0** open, both bundles; 16 tables rebuilt and digest-matched, 15 carried, 45 structure checks |
+| the hash layer, under the K4 profile's OWN derived keys | **3,328 of 3,328** columns authenticated, 13 openings, 9,275,392 bytes |
+| **disclosure, UNMOVED from rung-G** | `A` 0, `H` 2, boundaries 0, endpoints 0, `M` 0; `rank_P1` `A` **74**, `H` **20**; NON-DATA rows **246** and **108** at both shapes; each boundary 10 rows / 6 generators / rank 6 / disclosed 0; three-role joint **0** over 154 generators; whole run **308 × 4,505**, joint **6** = sum 6; preimage 4 commitments, 0 free `Fp` |
+| **dense against zero** | **173 compared, 153 identical**; every one of the 20 that differ is a distinct-column count, a pad margin or the pad block's exact rank — **the same twenty classes, and the same reading, round 4 found at one group bit** |
+| **rung-K4 against rung-G** | **173 compared, 134 identical**; every one of the 39 is a size the shape must change, a transcript-drawn column count, or a group figure that scales with `lkv` |
+| controls | **13 of 13** group controls fire, none skipped (rung-G: 8 of 8, GQ-7 named and skipped); **7 of 7** hash-rule including the new CH-7; **8 of 8** terminal; **6 of 6** run |
+| channels | **25**, 2 constructed, 5 derived, 4 argued, **14 open** — unmoved.  Round 5 added no channel and closed none |
+| the eight older records | **0** unclassified differing leaves; **0** bundles whose figures of record moved |
+
+### R5.4b THE HEADLINE: nothing failed to scale, and two things about the gate did
+
+The brief asked for "any figure that does not scale as the shape predicts"
+as the headline. **There is none.** Every figure either stayed exactly
+where it was or moved by exactly the amount the shape derives, including
+the `+762` challenges, which decompose to the unit. The port really is
+shape-driven.
+
+What round 5 actually found is two things about the GATE, both of which a
+second shape was needed to see:
+
+* **K4-F1 — the refusal path crashed.** The first probe died with
+  `KeyError: 'slot_checks_expected'`. The port had CORRECTLY refused the
+  bundle, because its `shape.rs` pin had moved; but `check_terminals`'s
+  moved-pin arm returned a dict without the keys stage 8 and the terminal
+  controls read. **No bundle had ever moved a pin, so that path had never
+  run end to end.** A refusal path that crashes is not a refusal path.
+  Repaired: the early return now carries every key a caller reads, plus a
+  sentence saying the zeros are the absence of a check and not a passing
+  one. `probe-i.log` is the crash; a live test now exercises it.
+* **K4-F2 — three of the eight files a bundle pins are pinned by nothing,
+  and the tool said otherwise.** `zk60_native_rg_terminals`'s comment read
+  "the other three (`run_capture.rs`, `run.rs`, `boundary.rs`) … are
+  checked by `zk60_native_rg_bundle`". They are not; no run-gate tool
+  hashes them. The K4 bundles' `run.rs` moved and nothing noticed. The
+  comment is corrected and the three named with their digests and what was
+  read; **the gap is recorded, not closed**, because closing it means
+  reading three files at five capture commits and a pin added without a
+  reading is what this discipline forbids.
+
+### R5.4c The one-group-bit assumption that was there
+
+`GroupFactors.perturb_derived_point` perturbed `r_g[0]` and had no way to
+name another coordinate — a TEST-surface assumption, not a gate one (no
+measured figure came from it), but it meant round 4's controls could not
+have reached a second group bit even on a bundle that had one. It now
+takes `perturb_derived_entry` and refuses an out-of-range coordinate by
+name. Everything else — `Geometry`, `dims`, `n_definition_challenges`,
+`coordinate_schedule`, `has_group_table`, `PadGeometry.head_slot`, every
+domain size — reads the shape. `plane_index.rs` is byte-identical at both
+shapes, so the "rung-G plane index digest" was never a shape-dependent pin.
+
+### R5.4d Two controls that needed the shape
+
+* **GQ-7** (new): the declared point's two group coordinates SWAPPED, every
+  value kept. Group 1 and group 2 exchange places; a comparison that
+  treated the point as a SET would pass it. **Fires** at `lkv = 2`, refused
+  by name with both entries differing; **named and skipped** at `lkv = 1`,
+  where a one-entry point cannot be reordered.
+* **CH-7** (new): each bundle's real captured columns re-hashed under the
+  OTHER tagged profile's derived key set. Nothing is perturbed — both key
+  sets are complete, internally consistent and derived here from profile
+  strings that really exist, and only the profile is wrong. **Two-sided**:
+  3,328 of 3,328 under its own keys and **0 of 3,328** under the other's,
+  in both directions, with all four role keys differing. It could not be
+  run before round 5, because until rung-K4 there was only one tagged
+  profile to read.
+
+## R5.5 Results — Item B: the path, file by file
+
+The security owner's ruling of **22:06**. Read from the COMMITTED BLOBS at
+`4751b93` (`git show 4751b93:<path>`), never the working tree, by following
+`use` and call out of `hashline/src/private_block.rs` and
+`private_block/{argument,layout,protocol,wire,witness}.rs`. Main's
+`private_block` module is the TOY-ONLY one, older than the lane's shaped
+module: no `shape.rs`, no `run.rs`, no `plane_index.rs`.
+
+**29 files on the path. 9 were already pinned; TWENTY were pinned by
+nothing.** Each of the twenty was READ before it was pinned; the reading is
+the last column.
+
+| file | kind | pinned before? | the reading, and why it is consistent with the ports |
+|---|---|---|---|
+| `hashline/src/zk.rs` | real logic | **yes**, `mask_commit` (two digests) | the mask commitment; re-read item by item in the D22 report §2.1 |
+| `hashline/src/private_block/argument.rs` | real logic | **yes**, both tools | the declared functional order |
+| `hashline/src/private_block/layout.rs` | real logic | yes, `terminal_polys` only | the plane table and the calibration constants. **Now pinned by `mask_commit` too**, at the same digest, so the P10 gate covers it |
+| `hashline/src/private_block/protocol.rs` | real logic | yes, `terminal_polys` only | the transcript, ownership and openings. **Now pinned by `mask_commit` too** |
+| `hashline/src/native_capture.rs` | real logic | yes, `terminal_polys` only | the writer of the four captures. **Now pinned by `mask_commit` too** |
+| `zkp-core/src/mle.rs` | real logic | yes, `terminal_polys` only | `eq_point`, `eq_table_msb`. **Now pinned by `mask_commit` too** |
+| `zkp-core/src/ntt.rs`, `pcs.rs`, `sumcheck.rs` | real logic | **yes**, `mask_commit` | the NTT convention, `coset_powers`, `CfsMask` |
+| **`zkp-core/src/field.rs`** | real logic | **NO** → `SOURCE_PINS` | `P = 0xFFFF_FFFF_0000_0001` and `NONRESIDUE = 7`, which are exactly the two constants `zk60_native_jv_field` carries; `from_u128`'s 128-bit reduction and the `to_bytes` encodings every absorb uses |
+| **`zkp-core/src/transcript.rs`** | real logic | **NO** → `SOURCE_PINS` | `Transcript::new(b"hashline-v1/" ‖ domain)`, `absorb` (length-prefixed label then data), `squeeze_bytes` (state ‖ `"squeeze"` ‖ counter, folding back), `challenge_fp2` (two 128-bit halves), `challenge_indices` — the Fiat-Shamir the replay ports, line for line |
+| **`zkp-core/src/merkle.rs`** | real logic | **NO** → `SOURCE_PINS` | `hash_pair = blake3(left ‖ right)`, `build` over a power-of-two leaf count, `path` taking `lvl[i ^ 1]`, `verify_path` folding left/right by the index bit — the fold the hash layer and the M opening's twelve-level paths are checked against |
+| **`zkp-core/src/rng.rs`** | real logic | **NO** → `SOURCE_PINS` | `ZkRng::from_os` (a keyed blake3 over 32 bytes of `/dev/urandom`, failing closed off Unix), the 8,192-byte refill, and `fp` / `fp_vec` / `bytes32`. This is **the draw order** `REPIN_HISTORY` already claimed to have checked — "per mask row `CfsMask::random`, then `MASK_Q` pads, then `b_re, b_im, u_re, u_im`, then one 32-byte salt per column" — a sentence about a file nothing pinned |
+| **`hashline/src/private_block.rs`** | real logic | **NO** → `PATH_PINS` (two digests) | `PROFILE`, the public statement (`AttentionPublic` / `FeedForwardPublic` / `BlockPublic`, their structure refusals and the ONE digest domain `b"hashline/private-block-public/1"`), `ENDPOINT_SCALES = (0, 0)` and `IoSpec::new`'s refusal pinning them, `prepare_endpoints`, the by-value `Endpoints` that makes a second proof not type-check, `prove` / `verify` / `verify_bytes`, and the `#[cfg(test)] mod capture` that `include!`s `native_capture.rs`. Consistent: the capture the gates read is written from inside this module |
+| **`hashline/src/private_block/wire.rs`** | real logic, no arithmetic | **NO** → `PATH_PINS` | the bounded codec and its typed shape check. Its constants ARE the ports': `CHECKS = 256` (`MASK_Q`), `VEC = 512` (`MSG_N`), `MASK_VEC = 1024`, `MASK_DOM = 4096` (`DOM_N`), `MASK_PATH = 12` (`MASK_LOG_DOM`). Nothing read from a frame controls an allocation or a loop bound |
+| **`hashline/src/private_block/witness.rs`** | real logic, PROVER ONLY | **NO** → `PATH_PINS` | the exact-integer witness: `isqrt`, `requant`, both RMSNorms, QKV, RoPE, the integer softmax, PV, O, both residuals, the SiLU feed-forward. No port transcribes it and nothing in it can contradict one, because no capture carries a witness. Pinned because the prover reaches it and its refusals are input-dependent |
+| **`hashline/src/private_seam.rs`** | real logic | **NO** → `PATH_PINS` | the two external endpoint commitments. `MASK_ROWS = 5` and `commitment_rows = data_rows + MASK_ROWS` are exactly the endpoint geometry the gates report — 4 data rows, 5 non-data, 9 rows, rank 4 |
+| **`hashline/src/pcs.rs`** | ADAPTER | **NO** → `PATH_PINS` (two digests) | `pub use zkp_core::pcs::*` plus dispatch: `commit`, `open`, `commit_zk`, `commit_zk_owned` all call the core through `backend()`, and the two GPU-only entries are `#[cfg(feature = "gpu-cuda")]`. On this path it adds NO arithmetic, so the port's subject stays zkp-core's |
+| **`hashline/src/gpu/mod.rs`** | ADAPTER | **NO** → `PATH_PINS` (two digests) | reached only through `pcs::backend()`. Without `gpu-cuda`, `backend()` is `zkp_core::pcs::Cpu` and `enabled()` is a const `false`, so no device arm is reachable in the build the captures were made in |
+| **`zkp-core/src/pcs/backend.rs`** | ADAPTER | **NO** → `PATH_PINS` | the `Backend` / `EncodedStore` seam. `Cpu`'s store type `NoExternal` is an EMPTY ENUM and both hooks default to `None`, so in a CPU build the external arms are unreachable and the CPU body — the one the ports transcribe — is the only path |
+| **`hashline/src/tables_attn.rs`** | three constants | **NO** → `PATH_PINS` | `protocol.rs` imports `TAG_EXP`, `TAG_U8`, `TAG_ACT` from it, and they are **129, 133, 134** — the same three literals `zk60_native_rg_terminals` and the toy ports carry. The rest of the file is the public FFN attention half's generators, which this profile does not call |
+| **`hashline/src/{merkle,transcript,field,ntt,mle,sumcheck}.rs`** | PURE RE-EXPORTS, 97–229 bytes | **NO** → `PATH_PINS` (six) | each is one `//!` line and one `pub use zkp_core::<mod>::*`; `field.rs` adds a `#[cfg(test)]` module declaration. Nothing to be inconsistent with |
+| **`hashline/src/lib.rs`**, **`zkp-core/src/lib.rs`** | crate roots | **NO** → `PATH_PINS` (two) | the module trees: which files exist and which are feature-gated |
+
+### R5.5b Three files carry TWO digests
+
+This lane's worktree still carries `4751b93^`'s bytes for
+`private_block.rs`, `pcs.rs` and `gpu/mod.rs` while main carries
+`4751b93`'s, so both are accepted and the lane tree's is the pin of record
+— the form §4.1 of the re-pin report used for `zk.rs`. Every diff was read
+in full (`results/zk60_native_pathpins/{pb_pcs,gpu_mod}.diff.txt`):
+
+* `private_block.rs`: **2 added lines, 0 removed** — `#[cfg(test)] mod norm_alias;`
+* `pcs.rs`: **47 added lines, 0 removed** — the two arms of `commit_planes`,
+  one feature-gated and one returning `None`; nothing on this path calls it
+* `gpu/mod.rs`: **426 added lines in two hunks, 0 removed or modified** —
+  three re-exports and the host buffer pool; `backend()` and `enabled()` are
+  untouched and both hunks are above them
+
+### R5.5c NOT pinned, and why — no file was refused
+
+**No file on the path was refused.** Every one of the twenty was found
+consistent with the ports and pinned. Three groups are deliberately OUT of
+the list, each named in the tool rather than merely absent:
+
+1. `private_block/{norm_alias,parity,refusals,tamper,tests}.rs` are
+   `#[cfg(test)]` modules the prover and verifier do not reach.
+   `native_capture.rs` is the one `#[cfg(test)]` file that IS pinned,
+   because it wrote the four captures.
+2. `causal_oracle.rs`, `tables_v3.rs` and `zkp-core/src/tables.rs` are
+   reached only by `*::synthetic_fixture`, which makes the PUBLIC test
+   data — the fixture's path, not the prover's or the verifier's, and the
+   ruling's words are "prover and verifier reach". Recorded with their
+   reasons in `zk60_native_mask_commit.FIXTURE_PATH_NOT_PINNED`, and a test
+   asserts they are named and not pinned.
+3. **A RESIDUAL, named:** `private_attention.rs`,
+   `private_attention/wire.rs` and `private_attention/witness.rs` are on the
+   ATTENTION profile's path. Two of the four toy captures are attention
+   receipts, so the same widening is owed there. The ruling names the block
+   profile, so it is not done here.
+
+## R5.6 Results — Item B: the toy gates re-run, and why each tool hash moved
+
+Run AFTER the pins were added and BEFORE anything was claimed, with the
+commands the records' own READMEs give, on the same four toy captures
+(`results/zk60_native_captures_20260919`, source commit `2b5c65c3`). The
+committed bytes were taken with `git show HEAD:…` into
+`results/zk60_native_pathpins/before_{p10,channels,jointview}.json` before
+any run, and compared at every leaf with
+`results/zk60_native_gate_record_refresh/jsondiff.py`. Heavy runs were
+launched detached under `flock /tmp/zk-heavy.lock` with a `.done` marker.
+
+| record | seconds | differing leaves | diff |
+|---|---:|---:|---|
+| `results/zk60_native_privacy_gate/privacy_gate.json` | 226.7 (was 221.8) | **122** | `…/zk60_native_pathpins/p10.diff.txt` |
+| `results/zk60_native_privacy_gate_channels/privacy_gate.json` | 227.9 (was 222.9) | **122** | `…/channels.diff.txt` |
+| `results/zk60_native_joint_view/joint_view.json` | 25.2 (was 21.6) | **5** | `…/jointview.diff.txt` |
+
+The 122 on each P10 record decompose exactly: `/seconds`;
+`/tool_sha256/zk60_native_mask_commit.py`; and, on each of the four
+captures, the **20 new files** and the **10 new `pin_kind` keys** under
+`/per_capture/N/masking_commitment_M_opening/source_pins/` —
+`2 + 4 × 30 = 122`. **Nothing else differs.** The five on the joint-view
+record are `/seconds`, three per-stage wall clocks and the same tool hash;
+that record gains no pin keys because it takes its pins from
+`zk60_native_terminal_polys`, whose table did not move.
+
+### R5.6b Every figure of record, unchanged
+
+Both P10 records, on all four captures: `ok` true, **28 channels**,
+**11 constructed / 2 derived / 8 argued / 7 open** on every capture, the
+same **10 control entries** all firing with the honest run passing before
+and after each, receipts **2,816,472** bytes (block ×2) and **2,245,800**
+bytes (attention ×2), `is_a_privacy_acceptance` false,
+`privacy_property_established` false, `privacy_review_complete` false. The
+joint-view record: stages 1–7 all `ok`.
+
+### R5.6c Why each tool hash moved
+
+**Exactly one tool moved**, `scripts/zk60_native_mask_commit.py`
+(`a42639a6…` → `fae15b49…`), and only because the pin tables were written
+into it: four entries added to `SOURCE_PINS`, the new `PATH_PINS` table of
+16, `FIXTURE_PATH_NOT_PINNED`, three second digests in `ALSO_ACCEPTED`, and
+the `pin_kind` field and path-specific refusal message in
+`check_source_pins`. **No arithmetic in that file changed**, and the
+leaf-by-leaf diffs are the proof of it: not one rank, dimension, channel
+label, control figure or receipt size moved.
+
+The record GUARD (`tests/test_zk60_native_gate_record.py`) needed no change
+to its existing assertions — it re-derives the channel counts from each
+record's own array and compares them with
+`results/zk60_native_gate_record_refresh/channel_counts_of_record.json`
+(28 channels, 11 / 2 / 8 / 7) and with §14.1 of `ZK60_NATIVE_JOINT_VIEW.md`
+— and **the pin file was not touched, because no count moved.** Six tests
+were ADDED to it for the ruling:
+
+1. the pin table covers **exactly** the established path list (both
+   directions: a file added to the path without a pin fails, and a pin for
+   a file not on the list fails);
+2. the whole widened table passes on the tree as it stands, with 20
+   entries marked `on-the-path`;
+3. **a byte flipped in EVERY path-pinned file, one at a time**, in a
+   throwaway tree with every other pinned file unchanged: each must raise
+   and each message must name its own file and say
+   `ON THE TOY BLOCK PROFILE'S PATH`;
+4. the control for (3): the same throwaway tree with nothing flipped
+   passes, so the refusals are the perturbation's and not the copying's;
+5. the two pin tables agree at every digest they share;
+6. the three fixture-path files are named with a reason and NOT pinned.
+
+## R5.7 The suite
+
+`python3 -m unittest discover -s tests -p 'test_zk60_native_run_gate_k4.py'`:
+**36 tests, OK**, 11.9 s.
+`-p 'test_zk60_native_gate_record.py'`: **12 tests, OK** (was 6).
+`-p 'test_zk60_native_run_gate*.py'`: **159 tests, OK**, 42.5 s (round 4: 123).
+`-p 'test_zk60_native*.py'`: **335 tests, OK**, 281.5 s, one skip and one
+recorded expected failure, against **293** before this round. The 42 new
+ones are round 5's 36 and the record guard's 6.
+
+### R5.7b Six earlier assertions moved DELIBERATELY, and why each one did
+
+The first whole-suite pass after the tool changes was **335 tests, 5
+failures and 1 error**, and every one of the six was an earlier round
+asserting an exact set that round 5 widened on purpose. They are listed
+here rather than merely fixed, because "the suite went green" is not a
+reading:
+
+| test | was | is | why |
+|---|---|---|---|
+| `test_zk60_native_mask_commit.test_every_source_pin_is_present_and_unchanged` | `len(pins) == len(SOURCE_PINS)` | the SUM of both tables, with `pin_kind` asserted on each, and the pre-round-5 behaviour (`path_pins=()`) still checked | the path pins |
+| `…test_a_tree_at_4751b93_passes_and_the_record_names_it` | materialised a tree of the 6 ported files | materialises all 30, and asserts that **four** files come back at an accepted second digest (`zk.rs`, `private_block.rs`, `pcs.rs`, `gpu/mod.rs`) and every other at its pin of record | three more files differ between this lane's tree and main |
+| `…test_a_third_digest_is_still_refused` | the same tree of 6 | of 30 | the same |
+| `test_…_run_gate_s20.test_round_fours_six_controls_all_fire` | `controls_total == 6`, names `GQ-1 … GQ-6` | **9 total, 8 live, 8 fire, `GQ-7` skipped**, names `GQ-3.08.0 / .09.0` and `GQ-4.08.0 / .09.0` | `GQ-3` and `GQ-4` became families, one per slot per group coordinate, and `GQ-7` does not exist at `lkv = 1` |
+| `test_…_run_gate_s20.test_the_controls_run_live_on_both_bundles` | 6 fire | **8** fire, `GQ-7` skipped by name | the same |
+| `test_…_run_gate_tagged.test_the_six_hash_rule_controls_all_fire` | `CH-1 … CH-6` | `CH-1 … CH-7`, with CH-7's two-sided figures asserted | CH-7 |
+| `test_…_run_gate_tagged.test_a_pre_tag_bundle_is_legacy_and_marked_superseded` | skipped `["CH-1..CH-5"]` | `["CH-1..CH-5", "CH-7"]` | a pre-tag bundle has no second tagged profile to cross, so CH-7 is named and skipped there |
+
+**Not one of the six was a measured figure.** Every rank, disclosed
+dimension, challenge count, slot check and channel count asserted by rounds
+1–4 is asserted unchanged.
+
+## R5.8 NEXT after round 5
+
+1. **Close finding K4-F2**: read `run_capture.rs`, `run.rs` and
+   `boundary.rs` at each capture commit and pin them, so the run gate's
+   claim about its own pin coverage becomes true.
+2. **The attention profile's path** (R5.5c item 3): the same widening for
+   `private_attention.rs`, `wire.rs` and `witness.rs`, which two of the
+   four toy captures reach.
+3. **A shape with `lkv > 2`.** 125M's `lkv` is 2, so rung-K4 exercises the
+   case that shape needs; eight or more key-value groups are still unread.
+4. The masked sumcheck / CFS channel, still the largest open one a port
+   could close, and `zk60_native_pg_pcs` at `MSG != PAD`.
+5. The run-wide preimage as ONE joint object; ruling R-3's machine
+   assertion (gap G-R4), asked of the Rust lane.
+6. Nothing in this round moves D8/D11 or ruling M-8's decision.

@@ -264,18 +264,35 @@ class TestRecordedEvidence(unittest.TestCase):
             self.assertIn("transcript replay", gf["group_point_derived_from"])
 
     def test_round_fours_six_controls_all_fire(self):
+        # [ROUND 5, 2026-09-20] Round 4's six became NINE at this shape and
+        # the assertion is updated deliberately, not relaxed.  `GQ-3` and
+        # `GQ-4` are now FAMILIES, one member per bilinear slot per group
+        # coordinate: at `lkv = 1` that is `GQ-3.08.0` and `GQ-3.09.0`
+        # (round 4 ran only the slot-08 one, and one slot passing was never
+        # evidence for the other).  `GQ-7` -- the declared point's group
+        # coordinates SWAPPED -- does not exist at one group bit and is
+        # NAMED AND SKIPPED, which is why `controls_total` is 9 while
+        # `controls_live` and `controls_that_fire` are 8.  Round 4's own
+        # figures are all still asserted below.
         for name, rec in self.records().items():
             c = rec["stage10_bilinear_group_factor"]["controls"]
             self.assertTrue(c["ok"], name)
-            self.assertEqual(c["controls_total"], 6, name)
-            self.assertEqual(c["controls_that_fire"], 6, name)
+            self.assertEqual(c["controls_total"], 9, name)
+            self.assertEqual(c["controls_live"], 8, name)
+            self.assertEqual(c["controls_that_fire"], 8, name)
+            self.assertEqual(c["controls_skipped"], ["GQ-7"], name)
             got = {x["control"]: x for x in c["controls"]}
-            self.assertEqual(sorted(got), ["GQ-1", "GQ-2", "GQ-3", "GQ-4",
-                                           "GQ-5", "GQ-6"], name)
+            self.assertEqual(
+                sorted(got),
+                ["GQ-1", "GQ-2", "GQ-3.08.0", "GQ-3.09.0",
+                 "GQ-4.08.0", "GQ-4.09.0", "GQ-5", "GQ-6", "GQ-7"], name)
+            self.assertIn("lkv = 1", got["GQ-7"]["skipped"], name)
             self.assertTrue(got["GQ-1"]["fails_at_exactly_the_perturbed_slot"])
             self.assertTrue(got["GQ-2"]["fails_at_exactly_the_perturbed_slot"])
-            self.assertIn("not r_g", got["GQ-3"]["refusal"])
-            self.assertTrue(got["GQ-4"]["the_slot_is_not_evaluated"])
+            for slot in ("08", "09"):
+                self.assertIn("not r_g", got[f"GQ-3.{slot}.0"]["refusal"])
+                self.assertTrue(
+                    got[f"GQ-4.{slot}.0"]["the_slot_is_not_evaluated"])
             self.assertTrue(got["GQ-5"]["both_slots_refused_in_every_stage"])
             self.assertTrue(got["GQ-5"]["the_other_21_slots_are_unaffected"])
 
@@ -525,7 +542,9 @@ class TestLive(unittest.TestCase):
             b, index, rp = loaded(which)
             c = group_controls(b, index, replay=rp)
             self.assertTrue(c["ok"], (which, c.get("controls")))
-            self.assertEqual(c["controls_that_fire"], 6, which)
+            # [round 5] eight live at one group bit; GQ-7 is skipped by name
+            self.assertEqual(c["controls_that_fire"], 8, which)
+            self.assertEqual(c["controls_skipped"], ["GQ-7"], which)
 
 
 if __name__ == "__main__":
