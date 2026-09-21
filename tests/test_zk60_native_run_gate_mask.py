@@ -397,6 +397,43 @@ class TestLive(unittest.TestCase):
         )
         self.assertTrue(d["host_gammas_last"])
 
+    def test_a_stage_that_refuses_zeroes_its_counts_and_does_not_crash(self):
+        """A REFUSAL IS NEVER A CRASH -- round 5's finding K4-F1, kept.
+
+        The CFS side is made to refuse; every key a caller reads must be
+        present, the counts must be zero, the zeros must SAY they are an
+        absence, and the run-level and channel-level summaries must sum
+        them without raising.
+        """
+        import unittest.mock as mock
+
+        def _refuse(stage, acc, which="all"):
+            return None, None, {"solved": False, "findings": ["forced refusal"]}
+
+        with mock.patch.object(rgm, "joined_coefficients", _refuse):
+            rec = rgm.mask_cfs_stage(self.b, self.rp, 0)
+            run = rgm.mask_cfs_run(self.b, self.rp)
+        self.assertFalse(rec["ok"])
+        self.assertFalse(rec["preimage"]["preimage_exhibited"])
+        self.assertIn("forced refusal", rec["preimage"]["why"])
+        self.assertEqual(rec["entries_recomputed"]["total"], 0)
+        self.assertIn("these_zeros_are_an_absence", rec["entries_recomputed"])
+        self.assertFalse(rec["hash_layer"]["checked"])
+        self.assertFalse(run["ok"])
+        self.assertEqual(run["entries_recomputed"], 0)
+        self.assertEqual(run["stages_that_refused"], [0, 1, 2])
+        # and the channel summary, which is where the crash would have been
+        fake = {
+            "stage3_per_commitment": {"per_commitment": []},
+            "stage5_zero_data_preimage": {"per_commitment": []},
+            "stage12_mask_and_cfs": dict(run, requested=True),
+        }
+        stages = [
+            (st.get("entries_recomputed") or {}).get("masked_round_entries", 0)
+            for st in fake["stage12_mask_and_cfs"]["per_stage"]
+        ]
+        self.assertEqual(stages, [0, 0, 0])
+
     def test_a_mask_domain_that_moved_is_refused_by_name(self):
         class _B:
             pass

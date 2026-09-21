@@ -593,15 +593,17 @@ def channels(bundle, record):
         s13.get("requested") and s13.get("ok")
         and s13.get("entries_differing") == 0
     )
-    mask_round_entries = sum(
-        st["entries_recomputed"]["masked_round_entries"] for st in mask_stages
-    )
-    mask_scalars = sum(
-        st["entries_recomputed"]["masked_scalars"] for st in mask_stages
-    )
-    mask_columns = sum(
-        st["entries_recomputed"]["column_entries"] for st in mask_stages
-    )
+    # `.get` throughout: a stage that REFUSED carries zeroed counts rather
+    # than no counts, and this summary must not crash on one (K4-F1).
+    def _mask_sum(field):
+        return sum(
+            (st.get("entries_recomputed") or {}).get(field, 0)
+            for st in mask_stages
+        )
+
+    mask_round_entries = _mask_sum("masked_round_entries")
+    mask_scalars = _mask_sum("masked_scalars")
+    mask_columns = _mask_sum("column_entries")
     MASK_PORT_OPEN = (
         "the CFS analysis (zk60_native_jv_cfs) and the mask-row port "
         "(zk60_native_mask_commit) are written at the toy's capture and "

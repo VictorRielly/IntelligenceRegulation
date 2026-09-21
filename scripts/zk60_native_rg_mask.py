@@ -767,8 +767,23 @@ def mask_cfs_stage(bundle, replay, k, columns="full", coefficients="cfs",
     # ------------------------------------------------ the M preimage
     if coefficients == "cfs":
         if coef is None:
-            out["preimage"] = {"preimage_exhibited": False,
-                               "why": "the CFS side did not solve"}
+            # A REFUSAL IS NEVER A CRASH (round 5's finding K4-F1).  Every
+            # key a caller reads is present and zero-valued, and the record
+            # says the zeros are the absence of a construction and not a
+            # passing one.
+            out["preimage"] = {
+                "preimage_exhibited": False,
+                "why": "the CFS side did not solve: " + "; ".join(
+                    cfs.get("findings") or ["no reason recorded"]),
+            }
+            out["hash_layer"] = {"checked": False,
+                                 "why": "there is no preimage to re-hash"}
+            out["pad_budget"] = {"ok": False,
+                                 "why": "not evaluated: the stage refused"}
+            out["entries_recomputed"] = _entries(out)
+            out["entries_recomputed"]["these_zeros_are_an_absence"] = (
+                "no entry was recomputed, because nothing was constructed"
+            )
             out["seconds"] = round(time.time() - t0, 2)
             out["ok"] = False
             return out
@@ -929,16 +944,20 @@ def mask_cfs_run(bundle, replay, columns="full", coefficients="cfs",
                            coefficients=coefficients, hash_layer=hash_layer)
         )
     out["stages_checked"] = len(out["per_stage"])
-    out["entries_recomputed"] = sum(
-        s["entries_recomputed"]["total"] for s in out["per_stage"]
-    )
-    out["entries_differing"] = sum(
-        s["entries_recomputed"]["differing"] for s in out["per_stage"]
-    )
-    out["salted_leaves_authenticated"] = sum(
-        s["entries_recomputed"]["salted_leaves_authenticated"]
-        for s in out["per_stage"]
-    )
+    # `.get` throughout: a stage that REFUSED carries zeroed counts and an
+    # `these_zeros_are_an_absence` note, and summing must not crash on it.
+    def _sum(field):
+        return sum(
+            (s.get("entries_recomputed") or {}).get(field, 0)
+            for s in out["per_stage"]
+        )
+
+    out["entries_recomputed"] = _sum("total")
+    out["entries_differing"] = _sum("differing")
+    out["salted_leaves_authenticated"] = _sum("salted_leaves_authenticated")
+    out["stages_that_refused"] = [
+        s["stage"] for s in out["per_stage"] if not s.get("ok")
+    ]
     out["functional_count"] = out["per_stage"][0]["declared_order"][
         "captured_functionals"
     ]
