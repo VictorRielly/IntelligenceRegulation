@@ -1,0 +1,52 @@
+test_a_perturbed_group_coordinate_changes_the_factor (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+Every coordinate of `r_g` matters, one at a time: flipping any ... ok
+test_eq_point_agrees_with_the_msb_first_table_at_every_arity (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+`eq(r, .)` built as a TABLE over 2^n points and evaluated ... ok
+test_the_group_factor_sums_to_one_over_the_boolean_cube (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+`sum over g in {0,1}^n of eq(r, g) == 1` for every `r`: the ... ok
+test_the_repaired_sum_picks_out_one_group (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+The identity the repair rests on, stated generically: for any ... ok
+test_both_factors_coordinate_schedules_written_out_at_lkv_2 (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+The whole point of the repair, at two group bits: the SAME two ... ok
+test_the_bilinear_slot_dimensions_at_two_group_bits (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived) ... ok
+test_the_definition_draws_at_both_shapes (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived) ... ok
+test_the_group_bits_are_summed_in_both_factors_at_lkv_2 (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+The property finding S19-F1 names: BEFORE the repair the group ... ok
+test_the_head_axis_moves_in_three_ways_not_one (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+If anything in the port had assumed six heads or a sixteen-wide ... ok
+test_the_lengths_scale_exactly_as_the_two_shapes_predict (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+The coordinate-entry counts the gate reports, derived here from ... ok
+test_the_padded_head_slots_are_the_125m_geometry (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+12 query heads of 8 over 4 key-value heads with `h_pad = 16` ... ok
+test_the_shape_digest_of_rung_k4_is_a_read_second_value (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+`shape.rs` moved for the K4 bundles, and the port accepts the ... ok
+test_two_group_bits_at_rung_k4_and_one_at_rung_g (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived) ... ok
+test_a_coordinate_out_of_range_is_refused_rather_than_ignored (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_a_same_profile_pair_is_named_and_skipped_not_passed (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_all_thirteen_group_controls_fire_live (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_each_group_coordinate_is_compared_on_both_sides (test_zk60_native_run_gate_k4.TheLiveK4Bundle)
+The two halves of the derive-and-compare rule, once per group ... ok
+test_the_group_point_is_two_entries_and_is_derived_not_read (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_the_terminal_identity_holds_on_the_live_bundle (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_the_two_profiles_derive_four_different_keys (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_the_two_profiles_keys_do_not_authenticate_each_others_columns (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_both_bundles_pass_every_stage_and_claim_no_privacy (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_every_control_of_record_fires (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_boundary_and_the_whole_run (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_dense_against_zero_comparison_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_disclosure_and_rank_figures_are_rung_gs (test_zk60_native_run_gate_k4.TheRecordedFigures)
+The headline: the blinding structure does not move with the head ... ok
+test_the_eight_older_records_were_refreshed_without_a_figure_moving (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_geometry_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_group_counts_of_record_double_with_lkv (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_hash_layer_and_the_channel_count (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_profile_and_the_keyed_rule_are_the_k4_ones (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_replay_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_shape_comparison_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_twenty_three_slots_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 12.431s
+
+OK

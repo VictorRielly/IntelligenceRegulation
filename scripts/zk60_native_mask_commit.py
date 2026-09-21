@@ -156,7 +156,291 @@ SOURCE_PINS = (
         "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
         "coset_powers, and its assertion that the coset misses the subgroup",
     ),
+    # ---------------------------------------------- added 2026-09-20 (round 5)
+    # Four files this port's own arithmetic rests on that no pin named.  They
+    # are here rather than in PATH_PINS because a PORT depends on each: the
+    # field the whole module computes in, the transcript `mask_challenge`
+    # draws from, the Merkle fold `mask_open`'s columns are authenticated
+    # under, and the generator whose DRAW ORDER `REPIN_HISTORY` already
+    # records as the thing the re-read had to check ("per mask row
+    # CfsMask::random, then MASK_Q pads, then b_re, b_im, u_re, u_im, then
+    # one 32-byte salt per column").  That sentence was true of a file
+    # nothing pinned.
+    Pin(
+        "zkp-core/src/field.rs",
+        "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+        "4dcea8c34237f3de838df1bc9338a1e7c2ffdeb9",
+        "P = 0xFFFF_FFFF_0000_0001 and NONRESIDUE = 7 (the Fp2 multiplication "
+        "this port's f2_mul transcribes), from_u128's 128-bit reduction and "
+        "Fp::to_bytes / Fp2::to_bytes, the encodings every absorb uses",
+    ),
+    Pin(
+        "zkp-core/src/transcript.rs",
+        "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8",
+        "ce7a0ddd4ca80fea4007108c77c20d05aaa2904c",
+        "Transcript::new / absorb / squeeze_bytes / challenge_fp2 / "
+        "challenge_indices: the Fiat-Shamir the mask challenge and the opened "
+        "column indices come out of",
+    ),
+    Pin(
+        "zkp-core/src/merkle.rs",
+        "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62",
+        "bd55af7c2b9ee4344f43877d1ef6b94f63212b7c",
+        "hash_pair, MerkleTree::build and verify_path: the fold the M "
+        "opening's twelve-level paths are checked against",
+    ),
+    Pin(
+        "zkp-core/src/rng.rs",
+        "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+        "0a24ea0fbb74de6220f6e11a6910da0aff23888f",
+        "ZkRng: from_os, the blake3 stream, and fp / fp_vec / bytes32 -- the "
+        "ORDER in which every pad, mask and salt of this commitment is drawn",
+    ),
 )
+
+# ================================================================= PATH PINS
+# **THE SECURITY OWNER'S RULING OF 2026-09-20 22:06.**
+#
+# Condition 7 of the toy profile's accepted privacy statement (register D22)
+# says: *a change to any pinned Rust file suspends step 3 until the file is
+# re-read and re-pinned.*  The re-read at `4751b93`
+# (`ZK60_NATIVE_D22_REPIN_4751B93.md` §7 item 1) found that condition
+# NARROWER IN PRACTICE THAN IN WORDS: `hashline/src/pcs.rs`,
+# `hashline/src/private_block.rs` and the hashline-side `merkle`,
+# `transcript`, `field` and `ntt` files are ON the toy block profile's path
+# and were pinned by NOTHING, so a change to any of them would have tripped
+# no gate.  `pcs.rs` in fact changed at `4751b93` and nothing noticed; the
+# change happened to be additive.  The owner ruled that the pin set is
+# extended to EVERY Rust file on the path.
+#
+# THE LIST.  Read from the committed blobs at `4751b93`, never a working
+# tree, by following `use` and call from `hashline/src/private_block.rs` and
+# `private_block/{argument,layout,protocol,wire,witness}.rs` outwards.  The
+# files a PORT transcribes stay in `SOURCE_PINS` above (and in
+# `zk60_native_terminal_polys.SOURCE_PINS`); the ones below are the rest of
+# the path -- the module roots, the adapters and the pure re-exports -- and
+# no port depends on their content.  Each was READ before it was pinned and
+# each entry says what it is.  `ZK60_NATIVE_RUN_GATE_PROGRESS.md` round 5
+# carries the one-line reading of every file.
+#
+# TWO DIGESTS where the lane's tree and main disagree, for the reason §4.1 of
+# the re-pin report gives for `zk.rs`: this lane's worktree still carries
+# `4751b93^`'s bytes for three files while main carries `4751b93`'s, and a
+# port must be usable, and refusable, in either tree.  Anything outside the
+# accepted set is a `SourcePinError` NAMING THE FILE.
+#
+# NOT HERE, and why:
+#   * `private_block/{norm_alias,parity,refusals,tamper,tests}.rs` are
+#     `#[cfg(test)]` modules: the prover and the verifier do not reach them.
+#     `native_capture.rs` is the one `#[cfg(test)]` file that IS pinned
+#     (by `zk60_native_terminal_polys`), because it WROTE the four captures.
+#   * `causal_oracle.rs`, `tables_v3.rs` and `zkp-core/src/tables.rs` are
+#     reached only by `*::synthetic_fixture`, which makes the PUBLIC test
+#     data.  They are on the FIXTURE's path, not the prover's or the
+#     verifier's, and the ruling's words are "prover and verifier reach".
+#     Their digests at `4751b93` are recorded in `FIXTURE_PATH_NOT_PINNED`
+#     below so the next reader does not have to find them again.
+#   * `private_attention.rs`, `private_attention/wire.rs` and
+#     `private_attention/witness.rs` are on the ATTENTION profile's path, not
+#     this one's.  Two of the four toy captures are attention receipts, so
+#     the same widening is owed there; it is named as a residual in round 5's
+#     ledger and is not done here, because the ruling names the block
+#     profile.
+PATH_PINS = (
+    # ------------------------------------------------- hashline, module roots
+    Pin(
+        "hashline/src/lib.rs",
+        "fcb784d3853c9d3e21443bcb4f774ecf388c253a948de7122408a3c8cadfb8ac",
+        "5ce9213f4d93aa9873c71c2e63bb21f2ab5e1c03",
+        "the crate's module tree: which files exist and which are "
+        "feature-gated.  `pub mod private_block` and the six adapter modules "
+        "below are declared here",
+    ),
+    Pin(
+        "hashline/src/private_block.rs",
+        "5d9dd178beb708650d37a0af2bb7736e20c797cbb39d5ca7dfdadc300b48e001",
+        "4155a0a99754fdefeeee8e81c60aa171061a1b85",
+        "REAL LOGIC, and the profile's own root: PROFILE, the public "
+        "statement (AttentionPublic / FeedForwardPublic / BlockPublic and "
+        "their structure refusals and one-shot digest), ENDPOINT_SCALES and "
+        "IoSpec's pinning refusal, prepare_endpoints, the by-value Endpoints "
+        "that makes a second proof not type-check, prove / verify / "
+        "verify_bytes, and the `#[cfg(test)] mod capture` that includes "
+        "native_capture.rs",
+    ),
+    Pin(
+        "hashline/src/private_block/wire.rs",
+        "5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5",
+        "14e15fcc0f7280e590f34caa7ce5ac58d223cf16",
+        "REAL LOGIC, no arithmetic: the bounded codec and its typed shape "
+        "check.  Its constants are the ones this port assumes -- CHECKS 256 "
+        "(= MASK_Q), VEC 512 (= MSG_N), MASK_VEC 1024, MASK_DOM 4096 "
+        "(= DOM_N), MASK_PATH 12 (= MASK_LOG_DOM) -- and nothing read from a "
+        "frame controls an allocation or a loop bound",
+    ),
+    Pin(
+        "hashline/src/private_block/witness.rs",
+        "640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5",
+        "51f89e866232bdaf35e2579eba143a8774e463cb",
+        "REAL LOGIC, PROVER ONLY: the exact-integer witness (isqrt, requant, "
+        "the two RMSNorms, QKV, RoPE, the integer softmax, PV, O, both "
+        "residuals and the SiLU feed-forward).  No port transcribes it and "
+        "nothing in it can contradict one, because no capture carries a "
+        "witness -- it is pinned because the prover reaches it and because "
+        "its refusals are input-dependent",
+    ),
+    Pin(
+        "hashline/src/private_seam.rs",
+        "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+        "6255661fdb4645b6bdba2c9a8187635c9528786c",
+        "REAL LOGIC: the two external endpoint commitments the block binds "
+        "to.  `MASK_ROWS = 5` and `commitment_rows = data_rows + MASK_ROWS` "
+        "are exactly the endpoint geometry the gates report (4 data rows, 5 "
+        "non-data, 9 rows, rank 4)",
+    ),
+    # ------------------------------------------------------ hashline adapters
+    Pin(
+        "hashline/src/pcs.rs",
+        "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8",
+        "20bc75ca31d10742724d4d130357ffea50713a76",
+        "ADAPTER over `pub use zkp_core::pcs::*`: commit / open / commit_zk / "
+        "commit_zk_owned call the core through `backend()`, which is "
+        "`zkp_core::pcs::Cpu` without the gpu-cuda feature and never takes "
+        "over.  The GPU-only entries (commit_planes, commit_zk_device) are "
+        "`#[cfg(feature = \"gpu-cuda\")]`.  So on this profile's path the "
+        "file adds NO arithmetic and the port's subject stays zkp-core's",
+    ),
+    Pin(
+        "hashline/src/merkle.rs",
+        "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee",
+        "8ad7c345f7085b3a4f0506acc70946e017d058f5",
+        "PURE RE-EXPORT, 100 bytes: `pub use zkp_core::merkle::*`",
+    ),
+    Pin(
+        "hashline/src/transcript.rs",
+        "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78",
+        "471f2ab5f13a07d51ba08e4c0d245fccff1462e9",
+        "PURE RE-EXPORT, 104 bytes: `pub use zkp_core::transcript::*`",
+    ),
+    Pin(
+        "hashline/src/field.rs",
+        "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669",
+        "441e0a3c63c1b931bd724abe62c124110381072c",
+        "PURE RE-EXPORT, 229 bytes: `pub use zkp_core::field::*` plus one "
+        "`#[cfg(test)]` module declaration",
+    ),
+    Pin(
+        "hashline/src/ntt.rs",
+        "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c",
+        "56148560f204aa0fe74e3b7c5bbec5818ded46b0",
+        "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::ntt::*`",
+    ),
+    Pin(
+        "hashline/src/mle.rs",
+        "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741",
+        "a9b1a837b5973709068f9a32223fe6dfdfc210d9",
+        "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::mle::*`",
+    ),
+    Pin(
+        "hashline/src/sumcheck.rs",
+        "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566",
+        "253523c1203ef66f4a012e4937be3e15c7f36267",
+        "PURE RE-EXPORT, 102 bytes: `pub use zkp_core::sumcheck::*`",
+    ),
+    Pin(
+        "hashline/src/tables_attn.rs",
+        "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3",
+        "b4317f5d9833300dd4c8f5a39e564161b8509f7b",
+        "ON THE PATH FOR THREE CONSTANTS: `protocol.rs` imports TAG_EXP, "
+        "TAG_U8 and TAG_ACT from it, and they are 129, 133 and 134 -- the "
+        "same three literals `zk60_native_rg_terminals` and the toy ports "
+        "carry.  Everything else in the file is the public FFN attention "
+        "half's table generators, which this profile does not call",
+    ),
+    Pin(
+        "hashline/src/gpu/mod.rs",
+        "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229",
+        "7758452fc0e5911d0f14f5cdf6e9c8509993ee0f",
+        "ADAPTER, reached only through `pcs::backend()`: without the "
+        "gpu-cuda feature `backend()` is `zkp_core::pcs::Cpu` and "
+        "`enabled()` is a const `false`, so no device arm of the commitment "
+        "is reachable in the build the captures were made in",
+    ),
+    # ---------------------------------------------------------------- zkp-core
+    Pin(
+        "zkp-core/src/lib.rs",
+        "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa",
+        "dff709ca2875b9bd95d3b59e3ba98a04a17b05e6",
+        "the core crate's module tree: field, merkle, mle, ntt, pcs, rng, "
+        "sumcheck, tables, transcript",
+    ),
+    Pin(
+        "zkp-core/src/pcs/backend.rs",
+        "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499",
+        "8f44cd4afb99057e338011bcafb163b3fbe41796",
+        "the Backend / EncodedStore seam.  `Cpu`'s store type `NoExternal` is "
+        "an empty enum and both hooks default to `None`, so in a CPU build "
+        "the external arms of the commitment are UNREACHABLE and the CPU "
+        "body -- the one the ports transcribe -- is the only path",
+    ),
+    # ------------------------------- pinned by the OTHER tool, repeated here
+    # These four ARE ported, by `zk60_native_terminal_polys`, whose pin table
+    # the JOINT-VIEW gate reads.  The P10 PRIVACY gate reads only this tool's,
+    # so before round 5 a change to any of them stopped the joint-view gate
+    # and left the privacy gate running.  The ruling's words are "the gate
+    # stops with a message naming the file", and step 3's instrument is the
+    # privacy gate, so they are repeated here at the SAME digests.  If the
+    # two tables ever disagree, `the_two_pin_tables_agree` (the record guard)
+    # fails.
+    Pin(
+        "hashline/src/private_block/layout.rs",
+        "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989",
+        "4d72869b1bc98b4149bd2084b88c8e7e7f74a169",
+        "the plane table, the row counts and the calibration constants; "
+        "ported by zk60_native_terminal_polys, pinned here so the P10 gate "
+        "covers it too",
+    ),
+    Pin(
+        "hashline/src/private_block/protocol.rs",
+        "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65",
+        "39f6edc0e00eed931f708b4f438045e8257b2343",
+        "the transcript, the commitment ownership and the openings; ported "
+        "by zk60_native_terminal_polys, pinned here so the P10 gate covers "
+        "it too",
+    ),
+    Pin(
+        "hashline/src/native_capture.rs",
+        "621f6459ccf516ebbc1434629f0061f997df8f3b8369d0c7f923201e9cb0e6e8",
+        "25a60ee36ce8a5dde9ed614b16374f06516d606e",
+        "the capture WRITER that produced the four toy bundles this gate "
+        "reads; ported by zk60_native_terminal_polys, pinned here so the "
+        "P10 gate covers it too",
+    ),
+    Pin(
+        "zkp-core/src/mle.rs",
+        "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+        "51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+        "eq_point, eq_table_msb and the MLE evaluations; ported by "
+        "zk60_native_terminal_polys (and re-pinned there at 4bf1fa0), "
+        "pinned here so the P10 gate covers it too",
+    ),
+)
+
+# The digests of the three files reached only by the PUBLIC fixtures that
+# made the captures' statement, recorded and deliberately NOT pinned (see the
+# note above).  A reader who wants to widen the rule to the fixture's path
+# starts here.
+FIXTURE_PATH_NOT_PINNED = {
+    "hashline/src/causal_oracle.rs":
+        "public_synthetic_fixture / public_synthetic_registration: the "
+        "public weights, tables and input of the toy fixture",
+    "hashline/src/tables_v3.rs":
+        "a 173-byte pure re-export of `zkp_core::tables`, used by "
+        "FeedForwardPublic::synthetic_fixture for the frozen int16-out SiLU "
+        "member (-3, -11)",
+    "zkp-core/src/tables.rs":
+        "the frozen activation-table registry behind that member",
+}
 
 # ------------------------------------------------- a pin that MOVED, both kept
 # A pin is moved ONLY after the changed file has been re-read item by item,
@@ -184,6 +468,42 @@ ALSO_ACCEPTED = {
             "main at 4751b93 (2026-09-20 20:52), the integrator's host/private "
             "work: every item this port transcribes is byte-identical, see "
             "REPIN_HISTORY",
+        ),
+    },
+    # ---------------------------------------------- added 2026-09-20 (round 5)
+    # The three PATH files where this lane's worktree (`4751b93^`'s bytes) and
+    # main (`4751b93`'s) disagree.  Each diff was read in full at
+    # `results/zk60_native_pathpins/`; each is ADDITIVE, with zero deleted or
+    # modified lines, and none of the added code is reachable from this
+    # profile.  The pin of record stays the lane tree's, which is the tree the
+    # four captures were produced in.
+    "hashline/src/private_block.rs": {
+        "412a43f488f809a5b479cf20690f06e35d79807c39d380f52abddb8966b09cf7": (
+            "8757e074b6708e2fefdd200ac157ed8c79721092",
+            "main at 4751b93: TWO LINES, `#[cfg(test)] mod norm_alias;`.  A "
+            "test module declaration and nothing else "
+            "(results/zk60_native_pathpins/pb_pcs.diff.txt)",
+        ),
+    },
+    "hashline/src/pcs.rs": {
+        "9537915b26b21ea906b0098d14afedf65c3d33320619bd380d4987d0c5fcf5a7": (
+            "04f1b70f8cd1aa1eb2bdad9387723665b70f3d90",
+            "main at 4751b93: 47 added lines, 0 removed -- the two arms of "
+            "`commit_planes`, one `#[cfg(feature = \"gpu-cuda\")]` and one "
+            "returning None without it.  Nothing on this profile's path "
+            "calls it; the private block reaches commit_zk_owned, open_zk "
+            "and verify_zk, all unchanged "
+            "(results/zk60_native_pathpins/pb_pcs.diff.txt)",
+        ),
+    },
+    "hashline/src/gpu/mod.rs": {
+        "706ca7fafb3e54114ca7c7241541a52ed6238764314f2877585071a1be37a31c": (
+            "3ec120999ddecc09621e99282bcc421faf40a4d2",
+            "main at 4751b93: 426 added lines in two hunks and 0 removed or "
+            "modified -- three re-exports and the host buffer pool.  "
+            "`backend()` and `enabled()` are untouched, and both hunks are "
+            "above them in the file "
+            "(results/zk60_native_pathpins/gpu_mod.diff.txt)",
         ),
     },
 }
@@ -260,7 +580,7 @@ def _blob_id(raw: bytes) -> str:
 
 
 def check_source_pins(root: str | None = None, pins=SOURCE_PINS,
-                      also=None) -> dict:
+                      also=None, path_pins=PATH_PINS) -> dict:
     """HARD ERROR if a pinned Rust source is missing or changed.
 
     Same discipline as `zk60_native_terminal_polys.check_source_pins`: this
@@ -271,17 +591,28 @@ def check_source_pins(root: str | None = None, pins=SOURCE_PINS,
     value and the record says so; anything else is the same hard error it
     always was.  Widening this table is only ever legitimate after the
     changed file has been re-read item by item -- see `REPIN_HISTORY`.
+
+    **`path_pins` (round 5, the owner's ruling of 2026-09-20 22:06)** is the
+    REST of the toy block profile's path -- the module roots, the adapters
+    and the pure re-exports that no port transcribes.  They are checked by
+    exactly the same rule and the same error, so a change to ANY file on the
+    path stops the gate with a message naming that file.  Pass `()` to check
+    only the ported files (the pre-round-5 behaviour), which is what the
+    control test does.
     """
     root = root or os.path.dirname(HERE)
     also = ALSO_ACCEPTED if also is None else also
     out = {}
-    for pin in pins:
+    on_path = {p.path for p in path_pins}
+    for pin in tuple(pins) + tuple(path_pins):
+        kind = ("ON THE TOY BLOCK PROFILE'S PATH (no port transcribes it)"
+                if pin.path in on_path else "PORTED BY THIS TOOL")
         path = os.path.join(root, pin.path)
         if not os.path.exists(path):
             raise SourcePinError(
-                f"source pin: {pin.path} is missing under {root}. The port of the "
-                "masking commitment is pinned to that file; re-read it before "
-                "re-pinning."
+                f"source pin: {pin.path} is missing under {root} [{kind}]. The "
+                "port of the masking commitment is pinned to that file; "
+                "re-read it before re-pinning."
             )
         with open(path, "rb") as fh:
             raw = fh.read()
@@ -290,19 +621,32 @@ def check_source_pins(root: str | None = None, pins=SOURCE_PINS,
         second = also.get(pin.path, {})
         if got != pin.sha256 and got not in second:
             raise SourcePinError(
-                f"source pin MISMATCH for {pin.path}:\n"
+                f"source pin MISMATCH for {pin.path} [{kind}]:\n"
                 f"  pinned sha256 {pin.sha256} (git blob {pin.blob})\n"
                 + "".join(
                     f"  also accepted {d} (git blob {b}) -- {w}\n"
                     for d, (b, w) in second.items()
                 )
                 + f"  found  sha256 {got} (git blob {blob})\n"
-                "The Python port of the masking commitment was written against "
-                "the pinned bytes. Re-read the changed functions line by line, "
-                "update the port and only then re-pin. Do NOT re-pin to make "
-                "this pass."
+                f"  what it is: {pin.why}\n"
+                + (
+                    "This file is on the toy block profile's path and no "
+                    "Python port transcribes it, so nothing here can be "
+                    "'checked against' it: condition 7 of the toy profile's "
+                    "privacy statement SUSPENDS step 3 until the file is "
+                    "re-read and re-pinned (the security owner's ruling of "
+                    "2026-09-20 22:06). Read the diff, write the one-line "
+                    "reading in the ledger, and only then add the digest."
+                    if pin.path in on_path else
+                    "The Python port of the masking commitment was written "
+                    "against the pinned bytes. Re-read the changed functions "
+                    "line by line, update the port and only then re-pin. Do "
+                    "NOT re-pin to make this pass."
+                )
             )
-        out[pin.path] = {"sha256": got, "git_blob": blob, "ported": pin.why}
+        out[pin.path] = {"sha256": got, "git_blob": blob, "ported": pin.why,
+                         "pin_kind": ("on-the-path" if pin.path in on_path
+                                      else "ported")}
         if got != pin.sha256:
             out[pin.path]["accepted_as"] = second[got][1]
             out[pin.path]["pin_of_record"] = pin.sha256
