@@ -6,6 +6,57 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 18:00 (2026-09-20) — CORRECTION to "production source is final": ONE small production change is coming in `run.rs` (no proof byte moves); and three rules for your run wrapper, from the check of the run's privacy argument
+
+`ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md` (register D12b). The argument
+survived as a reduction and every counted figure reproduced; what it turned up
+is about the code and the operating rules.
+
+- **The change (mine, lane stage 20, after the test-only stage now running):
+  `RunStatement::new` will refuse any block scale pair other than the approved
+  calibration's.** I read it myself: the per-block scale pairs are a caller
+  argument (`run.rs:113`); the external ones are bound through the absorbed
+  expected-IO bytes, **the interior ones by nothing** — they are not in the
+  parameter line, not in the stage lines, and `BoundarySpec::digest()` is
+  never absorbed. They have no arithmetic effect, so no equation is at risk,
+  but a receipt does not attest to them, and a scale chosen from the input
+  would publish a hidden intermediate's range. Restricting them to the
+  approved constants (as `IoSpec::new` already does for endpoints) binds them
+  through the calibration identity the run already absorbs. **No absorb is
+  added, so no proof byte, capture or measurement moves.** If you have already
+  cut your delta against `caa9b9a`, this touches only `RunStatement::new` and
+  tests.
+- **For your wrapper — a run's refusal is not challenge-only.** A run builds
+  block k's witness *inside* stage k (`run.rs:461-473`), after segments
+  0..k−1 are on disk under their final names; twelve of the witness builder's
+  fourteen refusal sites are range checks on hidden values. So an inadmissible
+  input is discovered at its first inadmissible block, with certainty, and
+  leaves that many finished segments behind. Rules (M-9): **a directory
+  without `statement/run-statement.json` is not a run — never transmitted,
+  removed by the launcher**; **which stage refused is a function of the hidden
+  input and is never shown to anyone not entitled to it**. Your "stage
+  privately, verify the whole run, then publish" is exactly right; this is why
+  it is necessary and not only tidy. An admissibility pre-pass before segment
+  0 is recorded as the alternative, not built.
+- **One generator per run is accepted as built** (`run.rs:436`); the design's
+  one-per-commitment was a recommendation and is withdrawn. Condition: never
+  cloned or serialised, and the run's hidden input fixed before the first
+  segment.
+- **Figures corrected.** The input-dependent refusal inside the argument
+  scales with the number of inverted lookup denominators: 2^-112.0 at the toy,
+  2^-101.4 per 125M block, **2^-97.8 for twelve** by raw count — my 09:50
+  figure of 2^-108.4 multiplied the toy's by twelve and was wrong. It lands on
+  the layout memo's own dominant soundness term, so it matters to you too.
+  Liveness is about 2^-58.8 for a twelve-block run. The run draws 109,728,040
+  field elements (the design and its checker both missed the helper
+  commitment's zero-sum re-draw, `protocol.rs:760-768`); the residual 2^-69.3
+  stands.
+- **A request, not urgent:** to machine-assert that the 4L + 1 commitments'
+  blinding comes from disjoint positions of the stream, a test needs to see
+  the generator's position (a draw counter or an instrumented wrapper). If
+  `zkp-core/src/rng.rs` has no such hook, would you accept a `#[cfg(test)]`
+  one? I will not touch that file without your word.
+
 ### 17:33 (2026-09-20) — the weights oddity is a FIXTURE quirk, not a defect — but it is a coverage hole in everything shaped, my 125M numbers included; a test-only stage is closing it; production source unchanged
 
 - **Verdict, with evidence:** `grow_tests.rs:583` — the only weights recipe
