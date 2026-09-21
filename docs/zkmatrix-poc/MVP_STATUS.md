@@ -58,6 +58,21 @@ unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 > below have NOT been re-measured yet**, and an independent review of the
 > repair (soundness, masking budget, completeness) is running. Still no
 > privacy claim for anything but the small test block.
+>
+> **21:02 the same evening — reviewed, and the twelve-block run redone on a
+> non-degenerate input.** The independent review found no hole in soundness,
+> completeness or the masking budget, and confirmed that nothing false could
+> have been accepted before the repair. **All twelve blocks at the 125M shape,
+> fully dense public weights, a generic hidden input, one run under one
+> transcript: prove 397.71 s, verify by streaming 14.45 s, receipt
+> 484,107,456 bytes (equal to the counted figure), peak memory 10.15 GiB**
+> [MEASURED by the security owner, one run, laptop CPU, shared box, 20:53].
+> Every block's wide hidden layer, every attention head and every key-value
+> group carries non-trivial values in that run. **This supersedes the
+> twelve-block figures below as the project's 125M result**; they stay on the
+> page as the record of what was run on the degenerate input. The privacy
+> gate has not yet been run on a non-degenerate input (in progress at the
+> development size), and **no privacy is claimed for any of this.**
 
 **Latest on the fast line's private block (added 2026-09-20 07:10 by the
 security owner's session):** one **complete transformer block with hidden
