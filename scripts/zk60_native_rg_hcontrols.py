@@ -21,6 +21,17 @@ restoration, and **no captured file on disk is ever written**.
         PRE-TAG (legacy-era) one, which is the one path where the gate does
         not compare -- and the replay then fails, so the path cannot be used
         to smuggle a tagged bundle through it.
+  CH-7  TWO TAGGED PROFILES, each bundle's real bytes checked under the
+        OTHER profile's derived key set (round 5) -> 0 of N columns
+        authenticated in BOTH directions, while each authenticates all N
+        under its own.  CH-3 perturbs a DECLARED profile string and is
+        refused by the derivation before any byte is hashed; CH-7 never
+        touches a declaration -- it derives a complete, internally
+        consistent key set from a real sibling profile and runs it against
+        real captured columns.  It is the control that says the separation
+        of D19 is in the BYTES and not only in the bookkeeping, and it
+        could not be run until round 5, because until the rung-K4 bundles
+        there was only one tagged profile to read.
   CH-6  a legacy-rule bundle checked under the TAG -> the same in reverse:
         the columns of a pre-tag bundle do not authenticate under rung-G's
         keys.
@@ -74,8 +85,72 @@ def _replay_under(bundle, rule):
         bundle.hash_rule = keep
 
 
-def hash_rule_controls(bundle, legacy_bundle=None) -> dict:
-    """The six controls, honest first."""
+def cross_profile_key_control(bundle, other) -> dict:
+    """**CH-7 (round 5).** Two bundles of two DIFFERENT tagged profiles, each
+    one's real captured columns re-hashed under the key set this tool derives
+    for the OTHER profile.
+
+    Nothing is perturbed and nothing is declared: both key sets are complete,
+    internally consistent and derived here from a profile string that really
+    exists.  The only thing that is wrong is WHICH profile.  If the keyed
+    rule separates two profiles in the bytes, each bundle must authenticate
+    every column under its own keys and NONE under the other's -- in both
+    directions, because a one-directional result could be an accident of one
+    bundle's data.
+    """
+    out = {"control": "CH-7",
+           "what": "two TAGGED profiles: each bundle's real captured columns "
+                   "re-hashed under the key set derived for the OTHER profile"}
+    if other is None:
+        out.update({"skipped": "no bundle of a second tagged profile was supplied",
+                    "fires": False})
+        return out
+    pa = bundle.run["shape"]["profile"]
+    pb = other.run["shape"]["profile"]
+    if pa == pb:
+        out.update({"skipped": f"both bundles are of the same profile ({pa}), so "
+                               "there is no second key set to cross",
+                    "fires": False})
+        return out
+    ka, kb = HashRule.for_profile(pa), HashRule.for_profile(pb)
+    if ka.is_legacy or kb.is_legacy:
+        out.update({"skipped": "one of the two profiles hashes under the LEGACY "
+                               "rule, which is control CH-6, not this one",
+                    "fires": False})
+        return out
+    a_own = check_hash_layer(bundle, rule=ka, probe=False)
+    a_other = check_hash_layer(bundle, rule=kb, probe=False)
+    b_own = check_hash_layer(other, rule=kb, probe=False)
+    b_other = check_hash_layer(other, rule=ka, probe=False)
+    out.update({
+        "mechanism": "the column, leaf and node keys, derived here from each "
+                     "profile string, on real captured bytes",
+        "profile_a": pa,
+        "profile_b": pb,
+        "bundle_a": bundle.name,
+        "bundle_b": other.name,
+        "the_two_key_sets_differ_in_every_role": {
+            r: ka.keys[r] != kb.keys[r] for r in sorted(ka.keys)},
+        "a_under_its_own_keys": a_own["columns_authenticated"],
+        "a_under_bs_keys": a_other["columns_authenticated"],
+        "of_columns_a": a_own["columns_checked"],
+        "b_under_its_own_keys": b_own["columns_authenticated"],
+        "b_under_as_keys": b_other["columns_authenticated"],
+        "of_columns_b": b_own["columns_checked"],
+        "fires": (a_own["columns_authenticated"] == a_own["columns_checked"]
+                  and b_own["columns_authenticated"] == b_own["columns_checked"]
+                  and a_own["columns_checked"] > 0 and b_own["columns_checked"] > 0
+                  and a_other["columns_authenticated"] == 0
+                  and b_other["columns_authenticated"] == 0
+                  and all(ka.keys[r] != kb.keys[r] for r in ka.keys)),
+    })
+    return out
+
+
+def hash_rule_controls(bundle, legacy_bundle=None,
+                       cross_profile_bundle=None) -> dict:
+    """The six controls, honest first, plus round 5's CH-7 when a bundle of a
+    second TAGGED profile is supplied."""
     honest = rule_for_bundle(bundle)
     out = {
         "what": "the hash rule the gate DERIVES, against every way a bundle "
@@ -211,6 +286,9 @@ def hash_rule_controls(bundle, legacy_bundle=None) -> dict:
                       and bad["columns_authenticated"] == 0),
         })
     out["controls"].append(ch6)
+
+    # ---------------------- CH-7 (round 5): the other TAGGED profile's keys
+    out["controls"].append(cross_profile_key_control(bundle, cross_profile_bundle))
 
     # A SKIPPED control is not a failure -- it is a control this bundle
     # cannot have (a pre-tag bundle declares no key set to perturb).  It is

@@ -134,9 +134,35 @@ ONE, ZERO = F2_ONE, F2_ZERO
 # ------------------------------------------------------------- source pins
 # The digests of the Rust this port was READ from, which are exactly the
 # digests `run-c-tame` / `run-d-zero` pin in their own manifests.  Four of the
-# seven files a bundle pins decide what a slot's polynomial is; the other
-# three (`run_capture.rs`, `run.rs`, `boundary.rs`) decide the bundle's shape
-# and are checked by `zk60_native_rg_bundle`.
+# eight files a bundle pins decide what a slot's polynomial is.
+#
+# **ROUND 5 CORRECTION (2026-09-20).**  This comment used to say that the
+# other files a bundle pins -- `run_capture.rs`, `run.rs`, `boundary.rs` --
+# "are checked by `zk60_native_rg_bundle`".  THEY ARE NOT.  No run-gate tool
+# hashes or compares them; `zk60_native_rg_bundle` reads the bundle's
+# `source_pins` array into its record and checks the bundle's SIZES against
+# `run.json["shape"]`, which is a different thing.  Those three files move
+# freely without tripping anything here, and the rung-K4 bundles of round 5
+# are the first to show it: their `run.rs` is `73f68221`, not the `65d55d25`
+# every earlier bundle pinned, and nothing noticed.  The gap is recorded as
+# finding **K4-F2** in `ZK60_NATIVE_RUN_GATE.md` §9; it is not repaired here
+# because closing it means READING three more files at five capture commits,
+# and a pin added without a reading is exactly what this discipline forbids.
+# What round 5 does do is name the three and their observed digests, below,
+# so the next reader starts from a true statement.
+NOT_PINNED_BY_ANY_RUN_GATE_TOOL = {
+    "src/private_block/run_capture.rs": "the bundle WRITER: which fields a "
+    "capture carries.  A change here changes what this gate can read, and "
+    "would be caught only by the schema and allow-list checks the writer "
+    "itself puts in the bundle",
+    "src/private_block/run.rs": "the run's own geometry and profile table "
+    "(`RunShape`, `RUN_PROFILE_*`).  Round 5's reading: `0426ad2 -> 3247a89` "
+    "adds `RUN_PROFILE_RUNG_K4` and `RunShape::rung_k4` and changes no "
+    "existing line (`git diff 0426ad2 3247a89 -- .../run.rs`, 12 added "
+    "lines, 0 removed)",
+    "src/private_block/boundary.rs": "the internal boundary's rows and "
+    "scales; byte-identical at every capture commit so far (`3786a300`)",
+}
 PORTED_FROM = {
     "src/private_block/argument.rs":
         "909670c96562e7ff99b7ad37f6c3aae027574f3c0e9ab74f01a27e45058bf675",
@@ -211,6 +237,18 @@ PINNED_IF_PRESENT = {
             "independently in `zk60_native_rg_gqa.Geometry` and compared "
             "with the shape's own `slots` array, so this port does not take "
             "the moved file's word for either",
+        "07a0547f06602bc27cbad1658a7cc0079f2ac1158d2bb372e24096e930e6a7fd":
+            "stage 22 (round 5): ONE addition, `Shape::rung_k4()` -- 24 "
+            "tokens, width 96, hidden 192, 12 query heads of 8 over 4 "
+            "key-value heads, h_pad 16, so lkv = 2 and the padded head "
+            "slots are {3, 7, 11, 15}.  `git diff 0426ad2 3247a89 -- "
+            ".../shape.rs` is 60 added lines and 0 removed: a doc comment "
+            "and one constructor calling the UNCHANGED `Shape::new`.  Not "
+            "one geometry function this port reads moved -- not `true_size`, "
+            "not `head_slot`, not `pads`, not `clog2`, not `slot_dims` -- "
+            "and the new shape's numbers are derived here from "
+            "`run.json[\"shape\"]` and compared with the shape's own `slots` "
+            "array, so this port takes nothing from the file on trust",
     },
 }
 
@@ -1922,12 +1960,43 @@ def check_terminals(bundle, index, replay=None, structural=True,
                        for s, n, fn, r in PORTS if s not in covered],
         "per_stage": [],
         "findings": [],
+        # [round 5, finding K4-F1] every key a CALLER reads, present from the
+        # start.  The moved-pin arm below returns this dict as it stands, and
+        # until round 5 it returned it WITHOUT these keys -- so `stage8` and
+        # `terminal_controls` raised `KeyError: 'slot_checks_expected'` and
+        # the whole gate died with a traceback instead of reporting the
+        # refusal it had correctly computed.  A refusal path that crashes is
+        # not a refusal path, and this one had never been exercised
+        # end-to-end because no bundle had ever moved a pin.  The rung-K4
+        # bundles moved two.
+        "slot_checks_expected": len(covered) * bundle.blocks,
+        "slots_open_per_stage": bundle.shape.n_slots - len(covered),
+        "derived_group_points_used_and_compared": 0,
+        "rebuilt_public_tables": [],
+        "captured_public_tables": [],
+        "public_table_structure_detail": [],
+        "what_a_captured_table_does_not_establish": None,
+        "bilinear_group_factor": {
+            "definition_in_force": None,
+            "definition_selected_by": None,
+            "superseded": None,
+            "slots_with_a_derived_group_point": 0,
+            "failures": [],
+            "refusals": [],
+            "ok": False,
+        },
     }
     if not out["source_pins"]["ok"]:
         out["findings"].append(
             "the bundle's source pins are not the ones this port was read at: "
             + "; ".join(out["source_pins"]["pins_that_moved"]
                         + out["source_pins"]["pins_missing_from_the_bundle"])
+        )
+        out["refused_before_any_slot_was_evaluated"] = (
+            "a moved or missing source pin: NO slot of any stage was checked, "
+            "and the zeros above are the absence of a check, not a passing "
+            "one.  Nothing here says the bundle is bad -- it says this port "
+            "has not read the Rust that made it"
         )
         out["ok"] = False
         return out

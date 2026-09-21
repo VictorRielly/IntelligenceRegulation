@@ -5,21 +5,33 @@ Each is shown to pass HONEST first, and each record says WHICH check fired.
 Five controls, and one measurement that is not a control but the reason the
 round exists:
 
-    GQ-1  a terminal of slot 08 `SC_SCORE` changed by +1
-    GQ-2  a terminal of slot 09 `SC_PV` changed by +1
-    GQ-3  the bundle's DECLARED group point changed (in memory)
-    GQ-4  the point this tool DERIVED perturbed (in memory)
-    GQ-5  the other definition of the two slots FORCED on these bytes
-    GQ-6  the PRE-REPAIR polynomial evaluated on a repaired bundle's own
-          terminals -- the measurement, run on both witnesses, that says
-          from the gate's side what the defect looks like and what it does
-          not look like
+    GQ-1        a terminal of slot 08 `SC_SCORE` changed by +1
+    GQ-2        a terminal of slot 09 `SC_PV` changed by +1
+    GQ-3.SS.c   the bundle's DECLARED group point changed (in memory)
+    GQ-4.SS.c   the point this tool DERIVED perturbed (in memory)
+    GQ-5        the other definition of the two slots FORCED on these bytes
+    GQ-6        the PRE-REPAIR polynomial evaluated on a repaired bundle's own
+                terminals -- the measurement, run on both witnesses, that says
+                from the gate's side what the defect looks like and what it
+                does not look like
+    GQ-7        the DECLARED point's group coordinates SWAPPED (round 5;
+                skipped by name at `lkv = 1`, where it does not exist)
 
 GQ-3 and GQ-4 are the two halves of one rule.  The group factor is
 VERIFIER-COMPUTED: this tool derives it and only compares.  GQ-3 shows that
 a bundle cannot name a different point and be believed; GQ-4 shows that
 this tool cannot derive a different point and get away with it either --
 the comparison is two-sided, and neither side is the authority.
+
+**ROUND 5.**  `GQ-3` and `GQ-4` became FAMILIES, one member per bilinear
+slot per GROUP COORDINATE -- `GQ-3.08.0`, `GQ-3.09.0` at `lkv = 1`, and
+`GQ-3.08.0`, `GQ-3.08.1`, `GQ-3.09.0`, `GQ-3.09.1` at `lkv = 2`.  Round 4
+ran one of each, on slot 08's single group coordinate, which was the only
+one any bundle had.  Two reasons for the widening: the second coordinate is
+the bit that separates the third and fourth key-value groups from the first
+two, and the two slots put their group variables at DIFFERENT positions of
+their factors' coordinate lists (`A_QR8` after `r_t`, `A_P` first), so one
+slot passing was never evidence for the other.
 
 NOTHING HERE IS A PRIVACY STATEMENT.
 """
@@ -75,8 +87,18 @@ def _docs_with_terminal_perturbed(bundle, stage: int, slot: int, term: int):
     return docs, old, new
 
 
-def _docs_with_group_point_perturbed(bundle, stage: int, slot: int):
-    """The same, for the DECLARED `Tab::Eq` point of a bilinear slot."""
+def _docs_with_group_point_perturbed(bundle, stage: int, slot: int,
+                                     entry: int = 0, swap: bool = False):
+    """The same, for the DECLARED `Tab::Eq` point of a bilinear slot.
+
+    `entry` picks WHICH group coordinate moves.  At `lkv = 1` only entry 0
+    exists; at `lkv = 2` entry 1 is the bit that tells the third and fourth
+    key-value groups from the first two, and no control before round 5 could
+    reach it.  `swap` instead exchanges the two coordinates, which is a
+    perturbation a one-entry point cannot have at all: it leaves the
+    multiset of the point untouched and only reorders the group axis, so a
+    tool that compared points as a SET rather than a sequence would pass it.
+    """
     docs = [st.doc for st in bundle.stages]
     doc = dict(docs[stage])
     args = list(doc["arguments"])
@@ -86,9 +108,15 @@ def _docs_with_group_point_perturbed(bundle, stage: int, slot: int):
     if tab["kind"] != "eq":
         raise ValueError(f"slot {slot}: table 0 is not the group eq table")
     pt = list(tab["point"])
-    old = f2_from_list(pt[0])
-    new = f2_add(old, F2_ONE)
-    pt[0] = [new[0], new[1]]
+    if swap:
+        if len(pt) < 2:
+            raise ValueError("a point of one entry cannot be reordered")
+        pt[0], pt[1] = pt[1], pt[0]
+    else:
+        if not 0 <= entry < len(pt):
+            raise ValueError(f"group coordinate {entry} of a point of {len(pt)}")
+        new = f2_add(f2_from_list(pt[entry]), F2_ONE)
+        pt[entry] = [new[0], new[1]]
     tab["point"] = pt
     tabs[0] = tab
     arg["tables"] = tabs
@@ -251,47 +279,119 @@ def group_controls(bundle, index, replay=None, other_definition=None) -> dict:
         del old, new
 
     # ------------------------- GQ-3: the bundle names a different group point
+    #
+    # [round 5] GQ-3 and GQ-4 are now run ONCE PER GROUP COORDINATE.  At
+    # `lkv = 1` that is one pass each and the figures are round 4's exactly.
+    # At `lkv = 2` (rung-K4) the second pass perturbs the bit that separates
+    # the third and fourth key-value groups from the first two -- a
+    # coordinate that did not exist in any bundle before round 5.  A slot 09
+    # pass is added beside the slot 08 one for the same reason: the two
+    # bilinear slots put the group variables at DIFFERENT positions of their
+    # factors' coordinate lists (`A_QR8` after `r_t`, `A_P` first), so one
+    # slot passing is no evidence for the other.
     if group.geom.lkv > 0 and group.definition == REPAIRED:
-        stage, slot = 1, 8
-        docs = _docs_with_group_point_perturbed(bundle, stage, slot)
-        g3 = GroupFactors(bundle, replay=replay, stage_docs=docs)
-        s3 = g3.summary()
-        got = check_terminals(bundle, index, replay=replay, stage_docs=docs, group=g3)
-        why = _not_checked(got, slot)
-        out["controls"].append({
-            "control": "GQ-3",
-            "what": f"stage {stage}, slot {slot}: the DECLARED eq point changed by +1",
-            "mechanism": "the derive-and-compare, refused by name",
-            "group_factor_ok": s3["ok"],
-            "refusal": (s3["failures"] or [""])[0][:220],
-            "slots_with_a_derived_group_point": s3["slots_with_a_derived_group_point"],
-            "of": s3["slot_instances"],
-            "the_slot_is_not_evaluated": bool(why),
-            "why_the_slot_is_not_evaluated": (why[0][1] if why else "")[:220],
-            "slot_checks_equal": got["slot_checks_equal"],
-            "of_expected": got["slot_checks_expected"],
-            "fires": (not s3["ok"]) and bool(why)
-            and any("not r_g" in f for f in s3["failures"]),
-        })
+        lkv = group.geom.lkv
+        aims = [(1, 8, j) for j in range(lkv)] + [(2, 9, j) for j in range(lkv)]
+        for stage, slot, entry in aims:
+            sfx = f".{slot:02d}.{entry}"
+            where = (f"stage {stage}, slot {slot} [{SLOT_NAMES[slot]}], group "
+                     f"coordinate {entry} of {lkv}")
+            docs = _docs_with_group_point_perturbed(bundle, stage, slot,
+                                                    entry=entry)
+            g3 = GroupFactors(bundle, replay=replay, stage_docs=docs)
+            s3 = g3.summary()
+            got = check_terminals(bundle, index, replay=replay,
+                                  stage_docs=docs, group=g3)
+            why = _not_checked(got, slot)
+            out["controls"].append({
+                "control": f"GQ-3{sfx}",
+                "what": f"{where}: the DECLARED eq point's entry {entry} "
+                        "changed by +1",
+                "mechanism": "the derive-and-compare, refused by name",
+                "group_coordinate": entry,
+                "of_group_coordinates": lkv,
+                "slot": slot,
+                "group_factor_ok": s3["ok"],
+                "refusal": (s3["failures"] or [""])[0][:220],
+                "slots_with_a_derived_group_point":
+                    s3["slots_with_a_derived_group_point"],
+                "of": s3["slot_instances"],
+                "the_slot_is_not_evaluated": bool(why),
+                "why_the_slot_is_not_evaluated": (why[0][1] if why else "")[:220],
+                "slot_checks_equal": got["slot_checks_equal"],
+                "of_expected": got["slot_checks_expected"],
+                "fires": (not s3["ok"]) and bool(why)
+                and any("not r_g" in f for f in s3["failures"]),
+            })
 
-        # ------------------- GQ-4: THIS TOOL derives a different group point
-        g4 = GroupFactors(bundle, replay=replay, perturb_derived_point=(stage, slot))
-        s4 = g4.summary()
-        got4 = check_terminals(bundle, index, replay=replay, group=g4)
-        why4 = _not_checked(got4, slot)
-        out["controls"].append({
-            "control": "GQ-4",
-            "what": f"stage {stage}, slot {slot}: the point this tool DERIVED "
-                    "perturbed by +1, the bundle untouched",
-            "mechanism": "the same comparison, from the other side",
-            "group_factor_ok": s4["ok"],
-            "refusal": (s4["failures"] or [""])[0][:220],
-            "the_slot_is_not_evaluated": bool(why4),
-            "why_the_slot_is_not_evaluated": (why4[0][1] if why4 else "")[:220],
-            "slot_checks_equal": got4["slot_checks_equal"],
-            "of_expected": got4["slot_checks_expected"],
-            "fires": (not s4["ok"]) and bool(why4),
-        })
+            # --------------- GQ-4: THIS TOOL derives a different group point
+            g4 = GroupFactors(bundle, replay=replay,
+                              perturb_derived_point=(stage, slot),
+                              perturb_derived_entry=entry)
+            s4 = g4.summary()
+            got4 = check_terminals(bundle, index, replay=replay, group=g4)
+            why4 = _not_checked(got4, slot)
+            out["controls"].append({
+                "control": f"GQ-4{sfx}",
+                "what": f"{where}: the point this tool DERIVED perturbed by +1, "
+                        "the bundle untouched",
+                "mechanism": "the same comparison, from the other side",
+                "group_coordinate": entry,
+                "of_group_coordinates": lkv,
+                "slot": slot,
+                "group_factor_ok": s4["ok"],
+                "refusal": (s4["failures"] or [""])[0][:220],
+                "the_slot_is_not_evaluated": bool(why4),
+                "why_the_slot_is_not_evaluated": (why4[0][1] if why4 else "")[:220],
+                "slot_checks_equal": got4["slot_checks_equal"],
+                "of_expected": got4["slot_checks_expected"],
+                "fires": (not s4["ok"]) and bool(why4),
+            })
+
+        # ------------------------------- GQ-7 [round 5]: the point REORDERED
+        #
+        # The one perturbation that needs more than one group bit to exist.
+        # Swapping the two coordinates of the declared point keeps every
+        # value it names and only changes which group each bit selects --
+        # group 1 and group 2 exchange places.  A comparison that treated
+        # the point as a SET, or that only checked its length and its first
+        # entry, would pass this.  At lkv = 1 it is NAMED AND SKIPPED, which
+        # is the honest record: a one-entry point cannot be reordered, so
+        # round 4 could not have run this control at all.
+        gq7 = {"control": "GQ-7",
+               "what": "the DECLARED eq point's two group coordinates SWAPPED, "
+                       "every value kept",
+               "mechanism": "the entry-by-entry comparison, which is ordered",
+               "slot": 8}
+        if lkv < 2:
+            gq7.update({
+                "skipped": f"this shape has lkv = {lkv}: a point of one entry "
+                           "cannot be reordered, so the control does not exist "
+                           "here",
+                "fires": False})
+        else:
+            docs7 = _docs_with_group_point_perturbed(bundle, 0, 8, swap=True)
+            g7 = GroupFactors(bundle, replay=replay, stage_docs=docs7)
+            s7 = g7.summary()
+            got7 = check_terminals(bundle, index, replay=replay,
+                                   stage_docs=docs7, group=g7)
+            why7 = _not_checked(got7, 8)
+            # a swap that changes nothing is not a control: if the prover's
+            # two group challenges happened to be equal the bytes are
+            # identical, and the record must say so rather than claim a pass
+            pt = bundle.stages[0].doc["arguments"][8]["tables"][0]["point"]
+            distinct = f2_from_list(pt[0]) != f2_from_list(pt[1])
+            gq7.update({
+                "the_two_group_challenges_differ": distinct,
+                "group_factor_ok": s7["ok"],
+                "refusal": (s7["failures"] or [""])[0][:220],
+                "the_slot_is_not_evaluated": bool(why7),
+                "slot_checks_equal": got7["slot_checks_equal"],
+                "of_expected": got7["slot_checks_expected"],
+                "fires": distinct and (not s7["ok"]) and bool(why7)
+                and any("not r_g" in f for f in s7["failures"]),
+            })
+        out["controls"].append(gq7)
 
     # ------------------------------- GQ-5: the other definition, forced whole
     other = other_definition or (PRE_REPAIR if group.definition == REPAIRED
@@ -360,7 +460,15 @@ def group_controls(bundle, index, replay=None, other_definition=None) -> dict:
         "fires": expect,
     })
 
-    out["controls_that_fire"] = sum(1 for c in out["controls"] if c["fires"])
+    # [round 5] A SKIPPED control is not a failure -- it is a control this
+    # SHAPE cannot have, and it is named so a reader can see which ones did
+    # not run.  GQ-7 is skipped at lkv = 1, where a one-entry point cannot
+    # be reordered; every control of round 4 still runs on every bundle.
+    live = [c for c in out["controls"] if "skipped" not in c]
+    out["controls_that_fire"] = sum(1 for c in live if c["fires"])
     out["controls_total"] = len(out["controls"])
-    out["ok"] = all(c["fires"] for c in out["controls"])
+    out["controls_live"] = len(live)
+    out["controls_skipped"] = [c["control"] for c in out["controls"]
+                               if "skipped" in c]
+    out["ok"] = bool(live) and all(c["fires"] for c in live)
     return out

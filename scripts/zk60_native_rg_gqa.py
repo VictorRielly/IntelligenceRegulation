@@ -262,7 +262,8 @@ class GroupFactors:
     """
 
     def __init__(self, bundle, replay=None, stage_docs=None,
-                 definition=None, perturb_derived_point=None):
+                 definition=None, perturb_derived_point=None,
+                 perturb_derived_entry=0):
         self.bundle = bundle
         self.definition, self.why, self.pin = definition_in_force(bundle)
         self.forced = definition is not None
@@ -279,6 +280,11 @@ class GroupFactors:
                              else "the capture's definition_challenges "
                              "(no replay was given)")
         self.perturb = perturb_derived_point
+        # [round 5] WHICH group coordinate a control perturbs.  At lkv = 1
+        # there is only entry 0; at lkv = 2 (rung-K4) entry 1 is the bit that
+        # separates the third and fourth key-value groups from the first two,
+        # and it is a coordinate no control before round 5 could reach.
+        self.perturb_entry = perturb_derived_entry
         self.points: dict[tuple, list] = {}
         self.failures: list[str] = []
         self.refusals: list[str] = []
@@ -372,8 +378,15 @@ class GroupFactors:
                 i, tab = eqs[0]
                 r_g = [c for c in dc[:g.lkv]]
                 if self.perturb == (stage, slot):
-                    r_g = [f2_add(r_g[0], F2_ONE)] + r_g[1:]
+                    j = self.perturb_entry
+                    if not 0 <= j < len(r_g):
+                        raise ValueError(
+                            f"the control asks for group coordinate {j} and this "
+                            f"shape has {len(r_g)} (lkv = {g.lkv})")
+                    r_g = list(r_g)
+                    r_g[j] = f2_add(r_g[j], F2_ONE)
                     row["derived_point_perturbed_by_a_control"] = True
+                    row["derived_point_coordinate_perturbed"] = j
                 named = [f2_from_list(x) for x in tab["point"]]
                 row["group_table_index"] = i
                 row["start"] = tab["start"]

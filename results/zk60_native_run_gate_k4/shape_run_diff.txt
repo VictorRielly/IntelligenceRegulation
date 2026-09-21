@@ -1,0 +1,98 @@
+diff --git a/hashline/src/private_block/run.rs b/hashline/src/private_block/run.rs
+index cc41cd8..0d86be9 100644
+--- a/hashline/src/private_block/run.rs
++++ b/hashline/src/private_block/run.rs
+@@ -50,6 +50,11 @@ use zkp_core::hashtag::HashTag;
+ pub(crate) const BOUNDARY_SITES: usize = 2;
+ 
+ pub(crate) const RUN_PROFILE_RUNG_G: &str = "hashline-zk-mr1/private-run-rung-g-t24-dev/1";
++/// **STAGE 22.** The run profile of the four-key-value-head development
++/// shape. One profile per shape (D17), so a run over `Shape::rung_k4` gets
++/// its own transcript and its own hash-tag key set and no existing run
++/// profile moves.
++pub(crate) const RUN_PROFILE_RUNG_K4: &str = "hashline-zk-mr1/private-run-rung-k4-t24-dev/1";
+ pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
+ 
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+@@ -72,6 +77,10 @@ impl RunShape {
+     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
+         RunShape::new(Shape::rung_g(), l, RUN_PROFILE_RUNG_G)
+     }
++    /// **STAGE 22.** A run at the four-key-value-head development shape.
++    pub(crate) fn rung_k4(l: usize) -> Result<RunShape, String> {
++        RunShape::new(Shape::rung_k4(), l, RUN_PROFILE_RUNG_K4)
++    }
+     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
+         RunShape::new(Shape::m125(), l, RUN_PROFILE_M125)
+     }
+diff --git a/hashline/src/private_block/shape.rs b/hashline/src/private_block/shape.rs
+index 092d955..4082216 100644
+--- a/hashline/src/private_block/shape.rs
++++ b/hashline/src/private_block/shape.rs
+@@ -338,6 +338,66 @@ impl Shape {
+         .expect("the rung-G shape is well formed")
+     }
+ 
++    /// **THE FOUR-KEY-VALUE-HEAD DEVELOPMENT RUNG (stage 22, "rung-K4").**
++    ///
++    /// **Why it exists.** The S19-F1 repair makes the key-value GROUP a
++    /// sumcheck variable, `lkv = log2(kv_heads)` of them under a public
++    /// `eq(r_g, .)`. Every proof-level test and every capture bundle this
++    /// lane has ever taken is at `lkv = 1` (the two rungs) or `lkv = 0` (the
++    /// frozen toy); the only `lkv = 2` shape is 125M, whose runs are 484 MB
++    /// and which the Python privacy gate cannot ingest. **More than one
++    /// group bit had therefore never been exercised anywhere a tool can
++    /// read.** This shape is the smallest honest place to do it.
++    ///
++    /// **The geometry, and why each number is what it is.** It is
++    /// [`Shape::rung_g`]'s in every respect but the head axis — same tokens,
++    /// width, hidden, row width, rate, `F_E` calibration, generalised
++    /// endpoint and endpoint rows — with the heads recut as **12 query heads
++    /// of 8 over 4 key-value heads**:
++    ///
++    /// * `q_heads = 12`, `kv_heads = 4`, so `lkv = 2` and each group owns a
++    ///   group of THREE true query heads;
++    /// * `h_pad = 16`, `slots_per_kv_group = 4`, so the padded head slots are
++    ///   `{3, 7, 11, 15}` — one at the end of each group's own block, which
++    ///   is 125M's head geometry exactly (§3.7a note 2) and the case a
++    ///   contiguous padded tail could never produce;
++    /// * `head_dim = 8` because `d_pad = h_pad * head_dim` must hold and
++    ///   `width = q_heads * head_dim = 96` keeps the rung's width, and
++    ///   because a smaller head dimension would put `Dom::Kv` BELOW the row
++    ///   width, where ruling F-2's P-3 refusal (stage 21) forbids the
++    ///   bilinear slots. At `head_dim = 8`, `Dom::Kv = 32 * 4 * 8 = 2^10` is
++    ///   exactly the row width — the toy's case, not a lift — and `Dom::Q`
++    ///   and `Dom::S` are above it.
++    ///
++    /// **What it costs.** `Dom::S = h_pad * t_pad * t_pad = 2^14`, twice
++    /// rung-G's, because sixteen head slots replace eight. That is the only
++    /// axis that grows, and it is what makes the receipt bigger than
++    /// rung-G's.
++    ///
++    /// Development grade, never a deliverable (ruling P-7), its OWN profile
++    /// (D17) and therefore its own hash-tag key set. No existing shape moves.
++    pub(crate) fn rung_k4() -> Shape {
++        Shape::new(
++            "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)",
++            "hashline-zk-mr1/private-block-rung-k4-t24-dev/1",
++            24,
++            96,
++            192,
++            12,
++            8,
++            4,
++            10,
++            4,
++            12,
++            9,
++            None,
++            None,
++            None,
++            None,
++        )
++        .expect("the rung-K4 shape is well formed")
++    }
++
+     /// THE 125M-CLASS BLOCK (memo §2). A counted layout only, at this step.
+     ///
+     /// **S11b: 37 endpoint rows, not the 29 of memo §6.** The memo costed the

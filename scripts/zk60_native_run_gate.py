@@ -842,7 +842,7 @@ def channels(bundle, record):
 
 # ------------------------------------------------------------------- main
 def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
-             do_controls=True, old_dir=None):
+             do_controls=True, old_dir=None, cross_profile_dir=None):
     t0 = time.time()
     bundle = RunBundle(bundle_dir)
     record = {
@@ -896,7 +896,15 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
     if legacy_for_ch6 is None and bundle.hash_rule is not None \
             and bundle.hash_rule.is_legacy:
         legacy_for_ch6 = bundle
-    hl["controls"] = (hash_rule_controls(bundle, legacy_bundle=legacy_for_ch6)
+    # CH-7 (round 5) needs a bundle of a SECOND tagged profile.  `--other` is
+    # normally the same profile's sibling run, so it is used only when its
+    # profile really differs; otherwise `--cross-profile` names one.
+    cross = RunBundle(cross_profile_dir) if cross_profile_dir else None
+    if cross is None and other is not None and \
+            other.run["shape"]["profile"] != bundle.run["shape"]["profile"]:
+        cross = other
+    hl["controls"] = (hash_rule_controls(bundle, legacy_bundle=legacy_for_ch6,
+                                         cross_profile_bundle=cross)
                       if do_controls else {"skipped": "controls not requested",
                                            "ok": False})
     hl["ok"] = hl["ok"] and (hl["controls"].get("ok") if do_controls else True)
@@ -950,6 +958,12 @@ def main(argv=None):
         "stage-8 control that a missing table leaves the channel OPEN rather "
         "than quietly passed",
     )
+    ap.add_argument(
+        "--cross-profile",
+        help="a bundle of a DIFFERENT tagged profile, for control CH-7: each "
+        "bundle's real columns re-hashed under the other profile's derived "
+        "key set (round 5)",
+    )
     ap.add_argument("--evidence", required=True)
     ap.add_argument("--name")
     ap.add_argument("--skip-exact-pad-rank", action="store_true")
@@ -960,6 +974,7 @@ def main(argv=None):
         args.bundle,
         other_dir=args.other,
         old_dir=args.old,
+        cross_profile_dir=args.cross_profile,
         pad_rank=not args.skip_exact_pad_rank,
         run_wide=not args.skip_run_wide,
     )
