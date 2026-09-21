@@ -1109,3 +1109,69 @@ figure and no set, so every assertion of rounds 1–5 passes as written.
    assertion (gap G-R4), asked of the Rust lane.
 6. Nothing in this round moves D8/D11 or ruling M-8's decision, and no
    channel was added or closed: the count stays **25**, with 14 open.
+
+---
+
+# Round 7 — the PREIMAGE construction for `A` and `H` (R6.8 item 4)
+
+**Opened 2026-09-21 04:45 PDT** on lane `zk60-native-jointview`, same sole
+writer, Python only. Nothing here is a privacy acceptance and no statement
+here establishes a privacy property.
+
+## R7.0 Why there is a round 7
+
+Every earlier round recorded the same omission, in the same words. §2.5 of
+the report: "`A` and `H` are **skipped, not faked**: their opening groups
+have several members, so each claim's own published value is an extra
+constraint, and the correction step that handles it lives in
+`zk60_native_pg_pcs`, whose `MSG == PAD == 256` does not hold here." Round 1
+skipped them for cost and for that assumption; rounds 2–6 did not come back
+to them. R6.8 item 4 is the entry.
+
+The two big commitments are the whole hidden state of a block: `A` holds the
+activations (377 data rows of 1,024 `Fp` at rung-G, 481 at rung-K4), `H` the
+LogUp side (468 / 612). Four of the thirteen commitments of a run have a
+constructed preimage today, and they are the four SMALL ones. Round 7 asks
+what the construction really costs on the two big ones, and does it.
+
+**What the construction is** (the toy gate's P10, §1–2 of
+`ZK60_NATIVE_PRIVACY_GATE.md`): fix the hidden data rows to the ALL-ZERO
+hidden input — public, and no witness is read anywhere — and SOLVE exactly
+over `Fp` for blinding (reserved mask-pair rows, proximity rows, the pads of
+every row) that reproduces every published field value of that commitment's
+view. Then RECOMPUTE the view from the solved blinding and compare it with
+the capture entry by entry. A view captured from a DENSE generic hidden
+input having a preimage at the all-zero input is the concrete content of
+"this view does not depend on the input", for these challenges and these
+linear channels.
+
+## R7.1 Input (READ-ONLY, never written)
+
+| bundle | witness | rung | source |
+|---|---|---|---|
+| `run-g-dense-s20` | fully dense generic | G | `…/wt-zk60-block125m/results/zk60_run_captures_20260920/` |
+| `run-h-zero-s20` | all zero | G | the same |
+| `run-i-dense-k4` | fully dense generic | K4 | the same |
+| `run-j-zero-k4` | all zero | K4 | the same |
+
+The two ZERO bundles are the sanity anchor: there the constructed preimage
+should be consistent with what the prover itself committed.
+
+## R7.2 Status
+
+| # | item | state |
+|---|---|---|
+| Z0 | ledger skeleton, round 7 opened | done |
+| Z1 | the linear system restated for `A` and for `H`: unknowns, equations, dimensions at both rungs, and the order it decomposes in | open |
+| Z2 | the tool: `zk60_native_pg_pcs`'s solve at `MSG != PAD`, with every primitive imported and the equivalence to the toy module asserted | open |
+| Z3 | built on all four bundles, every stage, both commitments; time and peak memory measured | open |
+| Z4 | verified: the view recomputed entry by entry, plus the opened columns' digests re-derived and authenticated | open |
+| Z5 | controls | open |
+| Z6 | the channel table recounted; what it does and does not establish | open |
+| Z7 | tests, evidence, report section, whole native suite | open |
+
+## R7.3 Commands and logs (round 7)
+
+| what | command | log |
+|---|---|---|
+
