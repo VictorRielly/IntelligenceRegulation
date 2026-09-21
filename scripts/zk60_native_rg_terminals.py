@@ -39,6 +39,17 @@ that a weight fold is the fold of the weight matrix the statement names: no
 bundle carries a weight.  That is stated per slot in `TAKEN_FROM_CAPTURE`
 and in the report, and it is a soundness-side reading, not a privacy one.
 
+ROUND 4 (2026-09-20, finding S19-F1).  Slots 08 `SC_SCORE` and 09 `SC_PV`
+have TWO definitions now, and the bundle's own `argument.rs` pin selects
+one.  Under the REPAIRED definition (stage 20) each is `eq(r_g, .)` times
+its two private factors — degree 3, `lkv = clog2(kv_heads)` more main
+rounds — and the group point `r_g` is DERIVED here from the replayed
+transcript and only COMPARED with the bundle's.  Under the PRE-REPAIR
+definition each is the plain product, and the bundle is marked SUPERSEDED.
+The geometry, the dimensions and both factors' whole coordinate lists live
+in `zk60_native_rg_gqa`, which this module calls; a bundle whose
+`argument.rs` digest is neither definition makes every slot NOT CHECKED.
+
 COVERED AT THIS SHAPE — 12 of the 23 slots on a stage-15 bundle, and all 23
 on a stage-18 one:
 
@@ -95,6 +106,14 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 from zk60_native_jv_cfs import sumcheck_final  # noqa: E402
+from zk60_native_rg_gqa import (  # noqa: E402
+    ARGUMENT_DEFINITIONS,
+    BILINEAR_SLOTS,
+    PRE_REPAIR,
+    REPAIRED,
+    GroupFactors,
+    definition_of_pin,
+)
 from zk60_native_jv_field import (  # noqa: E402
     F2_ONE,
     F2_ZERO,
@@ -184,18 +203,56 @@ PINNED_IF_PRESENT = {
             "stage 17/18: the D19 hash-tag selector and a degree_range helper, "
             "additions only; every geometry function this port reads is "
             "unchanged",
+        "8f7344221ad7a783caaadfa768611fb927ac6320d5b02c1e6adeb658c7900a2a":
+            "stage 20/21: the two bilinear slots' dims become "
+            "`lkv + clog2(...)` main rounds and degree 2 + indicator + "
+            "group_eq, and `Shape::new` gains finding F-2's named refusal "
+            "for a P-3-lifted Dom::Q / Dom::Kv / Dom::S.  Both are DERIVED "
+            "independently in `zk60_native_rg_gqa.Geometry` and compared "
+            "with the shape's own `slots` array, so this port does not take "
+            "the moved file's word for either",
     },
 }
+
+# **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
+# decides what a slot's polynomial IS, and its stage-20 digest carries a
+# DIFFERENT definition of slots 08 and 09 from every earlier one.  It is
+# therefore no longer checked against one pinned value: it selects which of
+# the two definitions this port implements, out of `ARGUMENT_DEFINITIONS`
+# (`zk60_native_rg_gqa`).  A digest outside that table is a refusal exactly
+# as a moved pin was, and the digest `PORTED_FROM` still names is the
+# pre-repair one, so the count of pins at an accepted second digest does not
+# move for a bundle written before stage 20.
+ARGUMENT_FILE = "src/private_block/argument.rs"
 
 
 def check_source_pins(bundle) -> dict:
     """The bundle's own `source_pins` against the digests this port was
-    written from.  A moved pin is a refusal, never a silent re-read."""
+    written from.  A moved pin is a refusal, never a silent re-read.
+
+    `argument.rs` is the one exception and it is an explicit one: both of
+    its digests are definitions this port has READ, and the pin SELECTS one
+    (see `zk60_native_rg_gqa`).  The record says which."""
     pins = {p["file"]: p["sha256"] for p in bundle.manifest.get("source_pins", [])}
     moved, missing, accepted = [], [], []
+    definition, definition_why = None, None
     for f, want in PORTED_FROM.items():
         got = pins.get(f)
         second = ALSO_ACCEPTED.get(f, {})
+        if f == ARGUMENT_FILE:
+            if got is None:
+                missing.append(f)
+                continue
+            definition, definition_why = definition_of_pin(got)
+            if definition is None:
+                moved.append(
+                    f"{f}: the bundle pins {got[:12]}, which is neither definition "
+                    "of the bilinear attention slots this port has read "
+                    f"({', '.join(d[:12] for d in ARGUMENT_DEFINITIONS)})"
+                )
+            elif got != want:
+                accepted.append(f"{f}: {got[:12]} -- {definition_why}")
+            continue
         if got is None:
             missing.append(f)
         elif got == want:
@@ -217,6 +274,11 @@ def check_source_pins(bundle) -> dict:
     return {
         "ported_from": PORTED_FROM,
         "also_read_not_pinned_by_a_bundle": ALSO_READ,
+        "bilinear_definition_selected_by_the_argument_pin": definition,
+        "bilinear_definition_reason": definition_why,
+        "argument_definitions_this_port_implements": {
+            d[:12]: v[0] for d, v in ARGUMENT_DEFINITIONS.items()
+        },
         "pins_missing_from_the_bundle": missing,
         "pins_that_moved": moved,
         "pins_at_an_accepted_second_digest": accepted,
@@ -669,6 +731,14 @@ class SlotCtx:
         # table, which carries the LogUp tag `g_u8`)
         self.public_is_base: dict[int, bool] = {}
         self.rho_full: list = []
+        # [round 4] which definition of the two bilinear slots is in force,
+        # and the group point this tool DERIVED for this slot.  A derived
+        # point is never defaulted from the capture: a repaired bilinear
+        # slot with no derived point is refused.
+        self.bilinear_definition = None
+        self.group_table_required = None
+        self.derived_eq_points: dict[int, list] = {}
+        self.eq_points_compared = 0
 
     # -------------------------------------------------------------- lookups
     def expect(self, want: list) -> None:
@@ -712,6 +782,46 @@ class SlotCtx:
 
     def eq(self, i: int) -> int:
         return self.eq_idx[i]
+
+    def group_gate(self, v):
+        """`Gate(b.group_eq(r_g)).at(v)` (argument.rs:488, :754) -- the
+        PUBLIC group factor of a bilinear slot, or ONE.
+
+        The definition in force decides whether there must be a table, and
+        the structure is checked both ways: a repaired slot at a grouped
+        shape MUST carry exactly one eq table whose point this tool derived
+        for itself, and a pre-repair slot (or a shape with one key-value
+        head) MUST carry none.  Either mismatch is a refusal, so the port
+        cannot silently evaluate one definition's polynomial on the other
+        definition's bytes."""
+        if self.slot not in BILINEAR_SLOTS:
+            raise ValueError(f"slot {self.slot} is not a bilinear attention slot")
+        if self.bilinear_definition is None or self.group_table_required is None:
+            raise ValueError(
+                f"slot {self.slot}: no definition of the bilinear attention slots "
+                "is in force for this bundle, so its polynomial is unknown"
+            )
+        if not self.group_table_required:
+            if self.eq_idx:
+                raise ValueError(
+                    f"slot {self.slot}: the {self.bilinear_definition} definition "
+                    "at this shape has no public group table and the bundle "
+                    f"declares {len(self.eq_idx)}"
+                )
+            return ONE
+        if len(self.eq_idx) != 1:
+            raise ValueError(
+                f"slot {self.slot}: the repaired definition at this shape has "
+                f"exactly one public group table and the bundle declares "
+                f"{len(self.eq_idx)}"
+            )
+        if self.eq_idx[0] not in self.derived_eq_points:
+            raise ValueError(
+                f"slot {self.slot}: no group point was DERIVED for this slot (its "
+                "derivation refused, or the comparison with the bundle's failed), "
+                "and the port will not fall back to the point the capture names"
+            )
+        return v[self.eq_idx[0]]
 
     def zero_planes(self, dom: str) -> list[int]:
         """`pad::zero_rule_a_planes(sh, ids, dom)` (pad.rs:365) mapped through
@@ -811,17 +921,30 @@ def sc_rs(v, cx):
 
 
 def _bilinear(v, cx, want):
-    """`SC_SCORE` / `SC_PV` (argument.rs:1056-1088): two private factors, the
-    first masked in extension round 0 and the second in round 1, and no
-    public table at all.  `|v| v[0].mul(v[1])`
+    """`SC_SCORE` / `SC_PV`: two private factors, the first masked in
+    extension round 0 and the second in round 1, times the PUBLIC group
+    factor.
 
-    These are the two GROUPED-HEAD (GQA) slots: the key-value factor is read
-    at the key-value head of the QUERY head the challenge selects -- the top
-    `log2(kv_heads)` bits of `r_h` (correction C-1, trap T-3) -- which is a
-    fact about the claim POINT and is in the capture's `coordinates`, not in
-    the polynomial.  The polynomial is the plain product either way."""
+    **ROUND 4, finding S19-F1.**  Under the REPAIRED definition
+    (argument.rs:1126-1187, stage 20) the polynomial is
+
+        |v| ig.at(v).mul(v[iq]).mul(v[ik])
+
+    -- `eq(r_g, rho[..lkv])` times the two terminals, degree 3, `lkv` extra
+    main rounds.  Under the PRE-REPAIR definition it is the plain product
+    `|v| v[0].mul(v[1])`, and so it is under either definition at a shape
+    with ONE key-value head, where `lkv = 0` and `B::group_eq` returns
+    nothing.  [`SlotCtx.group_gate`] is the `Gate`, and the group point it
+    multiplies in is the one this tool DERIVED from the transcript and
+    compared with the bundle's -- never the bundle's own.
+
+    The key-value factor is read at the key-value GROUP, which under the
+    repair is a summed variable of both factors rather than a fixed
+    coordinate of both (correction C-1, trap T-3).  That is a fact about
+    the claim POINT; `zk60_native_rg_gqa` re-derives the whole coordinate
+    list of both factors and compares it with the capture's."""
     cx.expect(want)
-    return mul(v[cx.t(want[0])], v[cx.t(want[1])])
+    return mul(cx.group_gate(v), mul(v[cx.t(want[0])], v[cx.t(want[1])]))
 
 
 def sc_score(v, cx):
@@ -1704,6 +1827,21 @@ class TerminalGate:
             if tab["kind"] == "eq":
                 point = [f2_from_list(x) for x in tab["point"]]
                 start = tab["start"]
+                # [round 4] a table this tool DERIVED for itself is used in
+                # its derived form, and the bundle's is only compared.  The
+                # comparison already happened in `zk60_native_rg_gqa`; it is
+                # repeated here so that no path can reach the arithmetic
+                # with the two disagreeing.
+                derived = cx.derived_eq_points.get(i)
+                if derived is not None:
+                    cx.eq_points_compared += 1
+                    if derived != point:
+                        raise ValueError(
+                            f"slot {cx.slot}: the eq point this tool derived is not "
+                            "the one the bundle names, so the slot is refused rather "
+                            "than evaluated at the prover's own point"
+                        )
+                    point = derived
                 out.append(mul(sel, eq_point(point, rho_main[start:start + len(point)])))
             elif tab["kind"] == "public":
                 values = cx.public_values[i]
@@ -1738,13 +1876,21 @@ def lam_z_of(stage_doc):
 
 
 def check_terminals(bundle, index, replay=None, structural=True,
-                    stage_docs=None, slot_planes=None, check_digests=True) -> dict:
+                    stage_docs=None, slot_planes=None, check_digests=True,
+                    group=None, force_definition=None) -> dict:
     """The per-slot terminal identity over every stage of the run.
 
     `stage_docs` / `slot_planes` override the bundle's own, which is how a
     control perturbs a terminal or a plane list without writing any file.
     `structural=False` drops the port's declared push-order check, so that a
     control can show the ARITHMETIC failing and not merely the label.
+
+    `group` is a ready-made [`GroupFactors`] (round 4): the two bilinear
+    slots' group point, derived from the shape and the replayed transcript.
+    When it is not given, one is built here from the same inputs, so every
+    caller -- the gate and every control -- gets the derived factor without
+    asking.  `force_definition` makes a control evaluate the OTHER
+    definition of those two slots on these bytes.
     """
     gate = TerminalGate(bundle, index)
     covered = covered_at(bundle)
@@ -1790,6 +1936,21 @@ def check_terminals(bundle, index, replay=None, structural=True,
     planes = slot_planes if slot_planes is not None else [
         [p.name for p in row] for row in index.slot_planes
     ]
+    # [round 4] the bilinear slots' group factor, derived here unless the
+    # caller already derived it
+    if group is None:
+        group = GroupFactors(bundle, replay=replay, stage_docs=docs,
+                             definition=force_definition)
+    gs = group.summary()
+    out["bilinear_group_factor"] = {
+        "definition_in_force": gs["definition_in_force"],
+        "definition_selected_by": gs["definition_selected_by"],
+        "superseded": gs["superseded"],
+        "slots_with_a_derived_group_point": gs["slots_with_a_derived_group_point"],
+        "failures": gs["failures"],
+        "refusals": gs["refusals"],
+        "ok": gs["ok"],
+    }
     for st in bundle.stages:
         doc = docs[st.index]
         gate.set_logup(doc["logup_challenges"])
@@ -1803,6 +1964,17 @@ def check_terminals(bundle, index, replay=None, structural=True,
             try:
                 dc = [f2_from_list(x) for x in arg["definition_challenges"]]
                 cx = SlotCtx(gate, arg, planes[s], dc, lam_z, structural=structural)
+                cx.bilinear_definition = group.definition
+                cx.group_table_required = group.group_table_required()
+                if s in BILINEAR_SLOTS:
+                    pt = group.point(st.index, s)
+                    if pt is not None:
+                        if not cx.eq_idx:
+                            raise ValueError(
+                                f"slot {s}: a group point was derived and the bundle "
+                                "declares no eq table to compare it with"
+                            )
+                        cx.derived_eq_points = {cx.eq_idx[0]: pt}
                 if replay is not None:
                     cx.rho_full = replay.stages[st.index]["rho"][s]
                     c = replay.stages[st.index]["slot_c"][s]
@@ -1811,6 +1983,10 @@ def check_terminals(bundle, index, replay=None, structural=True,
                     c = f2_from_list(arg["c"])
                 gate.build_public(cx, check_digests=check_digests)
                 poly = fn(gate.vals(cx), cx)
+                out["derived_group_points_used_and_compared"] = (
+                    out.get("derived_group_points_used_and_compared", 0)
+                    + cx.eq_points_compared
+                )
             except (ValueError, IndexError, KeyError) as exc:
                 row["not_checked"].append({"slot": s, "name": nm, "why": str(exc)})
                 out["findings"].append(f"stage {st.index} slot {s} [{nm}]: {exc}")
@@ -1860,6 +2036,7 @@ def check_terminals(bundle, index, replay=None, structural=True,
     want = len(covered) * bundle.blocks
     out["slot_checks_expected"] = want
     out["slots_open_per_stage"] = bundle.shape.n_slots - len(covered)
+    out.setdefault("derived_group_points_used_and_compared", 0)
     out["ok"] = (
         not out["findings"]
         and not gate.public_digest_failures
@@ -1867,6 +2044,7 @@ def check_terminals(bundle, index, replay=None, structural=True,
         and out["slot_checks_attempted"] == want
         and out["slot_checks_equal"] == want
         and out["slot_checks_matching_the_stored_terminal_polynomial"] == want
+        and out["bilinear_group_factor"]["ok"]
     )
     return out
 

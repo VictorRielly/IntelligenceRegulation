@@ -1,0 +1,366 @@
+#!/usr/bin/env python3
+"""Round 4's negative controls: the two REPAIRED bilinear attention slots.
+
+Each is shown to pass HONEST first, and each record says WHICH check fired.
+Five controls, and one measurement that is not a control but the reason the
+round exists:
+
+    GQ-1  a terminal of slot 08 `SC_SCORE` changed by +1
+    GQ-2  a terminal of slot 09 `SC_PV` changed by +1
+    GQ-3  the bundle's DECLARED group point changed (in memory)
+    GQ-4  the point this tool DERIVED perturbed (in memory)
+    GQ-5  the other definition of the two slots FORCED on these bytes
+    GQ-6  the PRE-REPAIR polynomial evaluated on a repaired bundle's own
+          terminals -- the measurement, run on both witnesses, that says
+          from the gate's side what the defect looks like and what it does
+          not look like
+
+GQ-3 and GQ-4 are the two halves of one rule.  The group factor is
+VERIFIER-COMPUTED: this tool derives it and only compares.  GQ-3 shows that
+a bundle cannot name a different point and be believed; GQ-4 shows that
+this tool cannot derive a different point and get away with it either --
+the comparison is two-sided, and neither side is the authority.
+
+NOTHING HERE IS A PRIVACY STATEMENT.
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
+
+from zk60_native_jv_cfs import sumcheck_final  # noqa: E402
+from zk60_native_jv_field import (  # noqa: E402
+    F2_ONE,
+    F2_ZERO,
+    f2_add,
+    f2_from_list,
+    f2_mul,
+)
+from zk60_native_rg_gqa import (  # noqa: E402
+    BILINEAR_SLOTS,
+    PRE_REPAIR,
+    REPAIRED,
+    SLOT_NAMES,
+    GroupFactors,
+)
+from zk60_native_rg_terminals import (  # noqa: E402
+    SlotCtx,
+    TerminalGate,
+    lam_z_of,
+)
+from zk60_native_rg_terminals import check_terminals  # noqa: E402
+
+
+def _docs_with_terminal_perturbed(bundle, stage: int, slot: int, term: int):
+    """The bundle's stage documents with ONE terminal changed by +1, sharing
+    all the JSON that is not on the path."""
+    docs = [st.doc for st in bundle.stages]
+    doc = dict(docs[stage])
+    args = list(doc["arguments"])
+    arg = dict(args[slot])
+    terms = list(arg["terminals"])
+    old = f2_from_list(terms[term])
+    new = f2_add(old, F2_ONE)
+    terms[term] = [new[0], new[1]]
+    arg["terminals"] = terms
+    args[slot] = arg
+    doc["arguments"] = args
+    docs = list(docs)
+    docs[stage] = doc
+    return docs, old, new
+
+
+def _docs_with_group_point_perturbed(bundle, stage: int, slot: int):
+    """The same, for the DECLARED `Tab::Eq` point of a bilinear slot."""
+    docs = [st.doc for st in bundle.stages]
+    doc = dict(docs[stage])
+    args = list(doc["arguments"])
+    arg = dict(args[slot])
+    tabs = list(arg["tables"])
+    tab = dict(tabs[0])
+    if tab["kind"] != "eq":
+        raise ValueError(f"slot {slot}: table 0 is not the group eq table")
+    pt = list(tab["point"])
+    old = f2_from_list(pt[0])
+    new = f2_add(old, F2_ONE)
+    pt[0] = [new[0], new[1]]
+    tab["point"] = pt
+    tabs[0] = tab
+    arg["tables"] = tabs
+    args[slot] = arg
+    doc["arguments"] = args
+    docs = list(docs)
+    docs[stage] = doc
+    return docs
+
+
+def _failed_slots(got) -> list:
+    return sorted({(r["stage"], s) for r in got["per_stage"]
+                   for s in r["checked"] if s not in r["equal"]})
+
+
+def _not_checked(got, slot: int) -> list:
+    return [(r["stage"], e["why"]) for r in got["per_stage"]
+            for e in r["not_checked"] if e["slot"] == slot]
+
+
+# =====================================================================
+#  GQ-6: the pre-repair polynomial on a repaired bundle's own bytes
+# =====================================================================
+def pre_repair_polynomial_on_this_bundle(bundle, index, replay, group) -> dict:
+    """Evaluate, for every bilinear slot of every stage, BOTH
+
+        poly_repaired   = eq(r_g, rho[..lkv]) * X * Y     (the definition in
+                                                           force)
+        poly_pre_repair = X * Y                           (the definition
+                                                           finding S19-F1
+                                                           names as wrong)
+
+    on the SAME captured terminals, and say which of them satisfies the
+    verifier's final identity `fin == c*mask_eval + poly`.
+
+    This is the round's headline measurement, not a control, and its value
+    is in what it does NOT show.  It cannot reproduce the defect, because
+    the defect was an inequality between the prover's CLAIM and the true
+    sum over heads, and no bundle carries a witness to compute either side
+    from.  What it does show is the arithmetic weight of the group factor
+    in the verifier's own final check, on a dense witness and on a
+    degenerate one, and whether that weight is the same.
+    """
+    gate = TerminalGate(bundle, index)
+    planes = [[p.name for p in row] for row in index.slot_planes]
+    rows, repaired_ok, pre_ok = [], 0, 0
+    for st in bundle.stages:
+        doc = st.doc
+        gate.set_logup(doc["logup_challenges"])
+        lam_z = lam_z_of(doc)
+        for slot in BILINEAR_SLOTS:
+            arg = doc["arguments"][slot]
+            dc = [f2_from_list(x) for x in arg["definition_challenges"]]
+            cx = SlotCtx(gate, arg, planes[slot], dc, lam_z)
+            cx.bilinear_definition = group.definition
+            cx.group_table_required = group.group_table_required()
+            pt = group.point(st.index, slot)
+            if pt is not None and cx.eq_idx:
+                cx.derived_eq_points = {cx.eq_idx[0]: pt}
+            cx.rho_full = replay.stages[st.index]["rho"][slot]
+            c = replay.stages[st.index]["slot_c"][slot]
+            gate.build_public(cx)
+            v = gate.vals(cx)
+            a, b = [v[cx.t(n)] for n in
+                    (("A_QR8", "A_KR8") if slot == 8 else ("A_P", "A_V8"))]
+            product = f2_mul(a, b)
+            eq_val = cx.group_gate(v)
+            poly_new = f2_mul(eq_val, product)
+            poly_old = product
+            claimed = f2_from_list(arg["scalar"])
+            fin, _ = sumcheck_final(arg["rounds"], arg["degree"],
+                                    cx.rho_full, claimed)
+            target = f2_add(f2_mul(c, f2_from_list(arg["mask_eval"])), F2_ZERO)
+            want = None if fin is None else f2_add(target, F2_ZERO)
+            new_holds = fin is not None and fin == f2_add(
+                f2_mul(c, f2_from_list(arg["mask_eval"])), poly_new)
+            old_holds = fin is not None and fin == f2_add(
+                f2_mul(c, f2_from_list(arg["mask_eval"])), poly_old)
+            repaired_ok += int(new_holds)
+            pre_ok += int(old_holds)
+            rows.append({
+                "stage": st.index,
+                "slot": slot,
+                "name": SLOT_NAMES[slot],
+                "group_factor_is_one": eq_val == F2_ONE,
+                "first_terminal_is_zero": a == F2_ZERO,
+                "second_terminal_is_zero": b == F2_ZERO,
+                "product_of_the_two_terminals_is_zero": product == F2_ZERO,
+                "the_repaired_polynomial_satisfies_the_identity": new_holds,
+                "the_pre_repair_polynomial_satisfies_the_identity": old_holds,
+            })
+            del want
+    return {
+        "what": "both definitions' polynomials evaluated on the SAME captured "
+        "terminals and rho, and which of them satisfies fin == c*mask_eval + poly",
+        "slot_instances": len(rows),
+        "the_repaired_definition_holds": repaired_ok,
+        "the_pre_repair_definition_holds": pre_ok,
+        "group_factors_equal_to_one": sum(r["group_factor_is_one"] for r in rows),
+        "terminal_products_that_are_zero": sum(
+            r["product_of_the_two_terminals_is_zero"] for r in rows),
+        "per_slot": rows,
+        "what_this_does_not_show": (
+            "the defect itself.  Finding S19-F1 is a disagreement between the "
+            "prover's CLAIM and the true sum over key-value groups, and both "
+            "sides of that need a witness, which no capture carries.  A gate "
+            "reading a capture can only say which POLYNOMIAL the published "
+            "numbers satisfy -- and both bundles here were produced under the "
+            "repaired one, so the pre-repair polynomial failing is a "
+            "statement about the group factor's arithmetic weight, not about "
+            "the witness"
+        ),
+        "ok": repaired_ok == len(rows),
+    }
+
+
+# =====================================================================
+#  the controls
+# =====================================================================
+def group_controls(bundle, index, replay=None, other_definition=None) -> dict:
+    """The five controls plus GQ-6, each honest-then-perturbed."""
+    group = GroupFactors(bundle, replay=replay)
+    honest = check_terminals(bundle, index, replay=replay, group=group)
+    out = {
+        "what": "round 4's controls: the two bilinear attention slots under the "
+        "definition the bundle's own source pin selects",
+        "definition_in_force": group.definition,
+        "honest": {
+            "ok": honest["ok"],
+            "slot_checks_equal": honest["slot_checks_equal"],
+            "slot_checks_expected": honest["slot_checks_expected"],
+            "derived_group_points_used_and_compared":
+                honest["derived_group_points_used_and_compared"],
+            "findings": honest["findings"],
+        },
+        "controls": [],
+    }
+    if not honest["ok"]:
+        out["ok"] = False
+        out["skipped"] = "the honest case does not pass; a control would prove nothing"
+        return out
+
+    # ------------------------------ GQ-1 / GQ-2: a perturbed bilinear terminal
+    for name, stage, slot, term in (("GQ-1", 0, 8, 0), ("GQ-2", 2, 9, 1)):
+        docs, old, new = _docs_with_terminal_perturbed(bundle, stage, slot, term)
+        g2 = GroupFactors(bundle, replay=replay, stage_docs=docs)
+        got = check_terminals(bundle, index, replay=replay, stage_docs=docs, group=g2)
+        failed = _failed_slots(got)
+        out["controls"].append({
+            "control": name,
+            "what": f"stage {stage}, slot {slot} [{SLOT_NAMES[slot]}], terminal "
+                    f"{term} changed by +1",
+            "mechanism": "the repaired identity's own arithmetic",
+            "slots_that_failed": [list(x) for x in failed],
+            "fails_at_exactly_the_perturbed_slot": failed == [(stage, slot)],
+            "slot_checks_equal": got["slot_checks_equal"],
+            "of": got["slot_checks_expected"],
+            "fires": failed == [(stage, slot)],
+        })
+        del old, new
+
+    # ------------------------- GQ-3: the bundle names a different group point
+    if group.geom.lkv > 0 and group.definition == REPAIRED:
+        stage, slot = 1, 8
+        docs = _docs_with_group_point_perturbed(bundle, stage, slot)
+        g3 = GroupFactors(bundle, replay=replay, stage_docs=docs)
+        s3 = g3.summary()
+        got = check_terminals(bundle, index, replay=replay, stage_docs=docs, group=g3)
+        why = _not_checked(got, slot)
+        out["controls"].append({
+            "control": "GQ-3",
+            "what": f"stage {stage}, slot {slot}: the DECLARED eq point changed by +1",
+            "mechanism": "the derive-and-compare, refused by name",
+            "group_factor_ok": s3["ok"],
+            "refusal": (s3["failures"] or [""])[0][:220],
+            "slots_with_a_derived_group_point": s3["slots_with_a_derived_group_point"],
+            "of": s3["slot_instances"],
+            "the_slot_is_not_evaluated": bool(why),
+            "why_the_slot_is_not_evaluated": (why[0][1] if why else "")[:220],
+            "slot_checks_equal": got["slot_checks_equal"],
+            "of_expected": got["slot_checks_expected"],
+            "fires": (not s3["ok"]) and bool(why)
+            and any("not r_g" in f for f in s3["failures"]),
+        })
+
+        # ------------------- GQ-4: THIS TOOL derives a different group point
+        g4 = GroupFactors(bundle, replay=replay, perturb_derived_point=(stage, slot))
+        s4 = g4.summary()
+        got4 = check_terminals(bundle, index, replay=replay, group=g4)
+        why4 = _not_checked(got4, slot)
+        out["controls"].append({
+            "control": "GQ-4",
+            "what": f"stage {stage}, slot {slot}: the point this tool DERIVED "
+                    "perturbed by +1, the bundle untouched",
+            "mechanism": "the same comparison, from the other side",
+            "group_factor_ok": s4["ok"],
+            "refusal": (s4["failures"] or [""])[0][:220],
+            "the_slot_is_not_evaluated": bool(why4),
+            "why_the_slot_is_not_evaluated": (why4[0][1] if why4 else "")[:220],
+            "slot_checks_equal": got4["slot_checks_equal"],
+            "of_expected": got4["slot_checks_expected"],
+            "fires": (not s4["ok"]) and bool(why4),
+        })
+
+    # ------------------------------- GQ-5: the other definition, forced whole
+    other = other_definition or (PRE_REPAIR if group.definition == REPAIRED
+                                 else REPAIRED)
+    g5 = GroupFactors(bundle, replay=replay, definition=other)
+    s5 = g5.summary()
+    got5 = check_terminals(bundle, index, replay=replay, group=g5)
+    why5 = {s: _not_checked(got5, s) for s in BILINEAR_SLOTS}
+    out["controls"].append({
+        "control": "GQ-5",
+        "what": f"the {other} definition of slots 08 and 09 FORCED on bytes made "
+                f"under the {group.definition} one",
+        "mechanism": "the derived dimensions and the presence of the group table, "
+                     "both refused by name before any arithmetic runs",
+        "group_factor_ok": s5["ok"],
+        "refusals": s5["failures"][:4],
+        "refusal_count": len(s5["failures"]),
+        "both_slots_refused_in_every_stage": all(
+            len(why5[s]) == bundle.blocks for s in BILINEAR_SLOTS),
+        "slot_checks_equal": got5["slot_checks_equal"],
+        "of_expected": got5["slot_checks_expected"],
+        "the_other_21_slots_are_unaffected":
+            got5["slot_checks_equal"] == got5["slot_checks_expected"]
+            - 2 * bundle.blocks,
+        "fires": (not s5["ok"]) and all(
+            len(why5[s]) == bundle.blocks for s in BILINEAR_SLOTS),
+    })
+
+    # ------------------------- GQ-6: the pre-repair polynomial, measured
+    measured = pre_repair_polynomial_on_this_bundle(bundle, index, replay, group)
+    out["pre_repair_polynomial_measured"] = measured
+    n = measured["slot_instances"]
+    grouped = group.group_table_required()
+    if grouped:
+        # a bundle made under the repair at a grouped shape: the group factor
+        # is a real field element, so dropping it must break the identity
+        expect = (measured["the_repaired_definition_holds"] == n
+                  and measured["the_pre_repair_definition_holds"] == 0)
+        reading = ("the group factor is never 1 and no terminal product is 0, so "
+                   "dropping it breaks the verifier's final check in every slot "
+                   "of every stage")
+    else:
+        # a bundle made BEFORE the repair: there is no group table, so the two
+        # definitions are literally the same expression and this gate cannot
+        # tell them apart -- which is the configuration in which the defect
+        # was invisible
+        expect = (measured["the_repaired_definition_holds"] == n
+                  and measured["the_pre_repair_definition_holds"] == n
+                  and measured["group_factors_equal_to_one"] == n)
+        reading = ("this bundle carries no group table, so the two definitions "
+                   "are the SAME expression here and no gate reading this "
+                   "capture can separate them")
+    out["controls"].append({
+        "control": "GQ-6",
+        "what": "the PRE-REPAIR polynomial X*Y evaluated on this bundle's own "
+                "terminals, beside the repaired eq(r_g,.)*X*Y",
+        "mechanism": "a measurement, not a perturbation",
+        "the_bundle_carries_a_group_table": grouped,
+        "the_repaired_definition_holds": measured["the_repaired_definition_holds"],
+        "the_pre_repair_definition_holds": measured["the_pre_repair_definition_holds"],
+        "of": n,
+        "group_factors_equal_to_one": measured["group_factors_equal_to_one"],
+        "terminal_products_that_are_zero":
+            measured["terminal_products_that_are_zero"],
+        "reading": reading,
+        "fires": expect,
+    })
+
+    out["controls_that_fire"] = sum(1 for c in out["controls"] if c["fires"])
+    out["controls_total"] = len(out["controls"])
+    out["ok"] = all(c["fires"] for c in out["controls"])
+    return out

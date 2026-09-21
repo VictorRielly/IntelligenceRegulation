@@ -52,6 +52,11 @@ class RunReplay:
         self.stages: list[dict] = [
             {
                 "rho": {},
+                # [round 4] the slot's DEFINITION challenges as this replay
+                # re-derived them, kept so that a later stage can build a
+                # verifier-computed table (the bilinear slots' `eq(r_g, .)`)
+                # out of the transcript rather than out of the capture
+                "def_challenges": {},
                 "slot_c": {},
                 "theta": None,
                 "mask_prox_rhos": None,
@@ -185,8 +190,12 @@ class RunReplay:
                 # slot's `before_definition`, its `after` the slot's `after`
                 self._check_state(tr, site["before"], f"{tag} slot {s} site before")
             self._check_state(tr, arg["before_definition"], f"{tag} slot {s} before_definition")
+            drawn = []
             for i, want in enumerate(arg["definition_challenges"]):
-                self._eq_f2(tr.challenge_fp2(), want, f"{tag} slot {s} definition draw {i}")
+                d = tr.challenge_fp2()
+                self._eq_f2(d, want, f"{tag} slot {s} definition draw {i}")
+                drawn.append(d)
+            acc["def_challenges"][s] = drawn
             self._check_state(tr, arg["before"], f"{tag} slot {s} before")
             tr.absorb_u64(b"pb-slot", s)
             c = tr.challenge_fp2()
