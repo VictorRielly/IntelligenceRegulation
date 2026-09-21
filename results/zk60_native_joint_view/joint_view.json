@@ -47,7 +47,7 @@
  "ok": true,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 21.6,
+ "seconds": 25.2,
  "stage1_transcript_replay": {
   "ok": true,
   "per_capture": [
@@ -113,7 +113,7 @@
    "pad_margin": 0,
    "q_pad": 256,
    "role": "Input",
-   "seconds": 1.9
+   "seconds": 2.1
   },
   "pad_block_exact_rank_cross_check": {
    "capture": "40083e7ac8f3f6c7",
@@ -121,7 +121,7 @@
    "exact_rank_of_pad_block": 246,
    "full_rank": true,
    "role": "Input",
-   "seconds": 1.5
+   "seconds": 2.2
   },
   "per_capture": [
    {
@@ -1696,7 +1696,7 @@
    "distinct_columns": 246,
    "exact_rank_of_a_row_pad_block": 246,
    "full_rank": true,
-   "seconds": 1.7
+   "seconds": 2.1
   },
   "ok": true,
   "per_capture": [
@@ -3499,7 +3499,7 @@
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
   "zk60_native_jv_smallmodel.py": "620e676cd9981c0f8098dea8165220a79a55a6167fb52983f4708fb397d73a33",
-  "zk60_native_mask_commit.py": "a42639a6c7d85c422f1974feda31f1c71ab681325389c41b81f62ad1a63a4dda",
+  "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
   "zk60_native_terminal_polys.py": "3ad8b71c6927f0d828aac0c97d891c8a89a4c963149f83c1e1e563d90f64b869"
  },
  "version": 1

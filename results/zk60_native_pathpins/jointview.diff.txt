@@ -1,0 +1,18 @@
+committed: /home/victor/wt-zk60-jointview/results/zk60_native_pathpins/before_jointview.json
+current  : /home/victor/wt-zk60-jointview/results/zk60_native_joint_view/joint_view.json
+differing paths: 5
+  [  1x] /seconds
+          committed: 21.6
+          current  : 25.2
+  [  1x] /stage2_commitment_side_joint_view/pad_block_at_the_full_budget/seconds
+          committed: 1.9
+          current  : 2.1
+  [  1x] /stage2_commitment_side_joint_view/pad_block_exact_rank_cross_check/seconds
+          committed: 1.5
+          current  : 2.2
+  [  1x] /stage3_masking_commitment_view/m_pad_block_exact_rank_cross_check/seconds
+          committed: 1.7
+          current  : 2.1
+  [  1x] /tool_sha256/zk60_native_mask_commit.py
+          committed: 'a42639a6c7d85c422f1974feda31f1c71ab681325389c41b81f62ad1a63a4dda'
+          current  : 'fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1'

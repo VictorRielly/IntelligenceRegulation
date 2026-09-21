@@ -1318,15 +1318,119 @@
      "weights_vanish_above_L": true
     },
     "source_pins": {
+     "hashline/src/field.rs": {
+      "git_blob": "441e0a3c63c1b931bd724abe62c124110381072c",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 229 bytes: `pub use zkp_core::field::*` plus one `#[cfg(test)]` module declaration",
+      "sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669"
+     },
+     "hashline/src/gpu/mod.rs": {
+      "git_blob": "7758452fc0e5911d0f14f5cdf6e9c8509993ee0f",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER, reached only through `pcs::backend()`: without the gpu-cuda feature `backend()` is `zkp_core::pcs::Cpu` and `enabled()` is a const `false`, so no device arm of the commitment is reachable in the build the captures were made in",
+      "sha256": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229"
+     },
+     "hashline/src/lib.rs": {
+      "git_blob": "5ce9213f4d93aa9873c71c2e63bb21f2ab5e1c03",
+      "pin_kind": "on-the-path",
+      "ported": "the crate's module tree: which files exist and which are feature-gated.  `pub mod private_block` and the six adapter modules below are declared here",
+      "sha256": "fcb784d3853c9d3e21443bcb4f774ecf388c253a948de7122408a3c8cadfb8ac"
+     },
+     "hashline/src/merkle.rs": {
+      "git_blob": "8ad7c345f7085b3a4f0506acc70946e017d058f5",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 100 bytes: `pub use zkp_core::merkle::*`",
+      "sha256": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee"
+     },
+     "hashline/src/mle.rs": {
+      "git_blob": "a9b1a837b5973709068f9a32223fe6dfdfc210d9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::mle::*`",
+      "sha256": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741"
+     },
+     "hashline/src/native_capture.rs": {
+      "git_blob": "25a60ee36ce8a5dde9ed614b16374f06516d606e",
+      "pin_kind": "on-the-path",
+      "ported": "the capture WRITER that produced the four toy bundles this gate reads; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "621f6459ccf516ebbc1434629f0061f997df8f3b8369d0c7f923201e9cb0e6e8"
+     },
+     "hashline/src/ntt.rs": {
+      "git_blob": "56148560f204aa0fe74e3b7c5bbec5818ded46b0",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::ntt::*`",
+      "sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c"
+     },
+     "hashline/src/pcs.rs": {
+      "git_blob": "20bc75ca31d10742724d4d130357ffea50713a76",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER over `pub use zkp_core::pcs::*`: commit / open / commit_zk / commit_zk_owned call the core through `backend()`, which is `zkp_core::pcs::Cpu` without the gpu-cuda feature and never takes over.  The GPU-only entries (commit_planes, commit_zk_device) are `#[cfg(feature = \"gpu-cuda\")]`.  So on this profile's path the file adds NO arithmetic and the port's subject stays zkp-core's",
+      "sha256": "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8"
+     },
      "hashline/src/private_attention/argument.rs": {
       "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "pin_kind": "ported",
       "ported": "the same declared order for the attention profile's 18 slots",
       "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
      },
+     "hashline/src/private_block.rs": {
+      "git_blob": "4155a0a99754fdefeeee8e81c60aa171061a1b85",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, and the profile's own root: PROFILE, the public statement (AttentionPublic / FeedForwardPublic / BlockPublic and their structure refusals and one-shot digest), ENDPOINT_SCALES and IoSpec's pinning refusal, prepare_endpoints, the by-value Endpoints that makes a second proof not type-check, prove / verify / verify_bytes, and the `#[cfg(test)] mod capture` that includes native_capture.rs",
+      "sha256": "5d9dd178beb708650d37a0af2bb7736e20c797cbb39d5ca7dfdadc300b48e001"
+     },
      "hashline/src/private_block/argument.rs": {
       "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "pin_kind": "ported",
       "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/private_block/layout.rs": {
+      "git_blob": "4d72869b1bc98b4149bd2084b88c8e7e7f74a169",
+      "pin_kind": "on-the-path",
+      "ported": "the plane table, the row counts and the calibration constants; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989"
+     },
+     "hashline/src/private_block/protocol.rs": {
+      "git_blob": "39f6edc0e00eed931f708b4f438045e8257b2343",
+      "pin_kind": "on-the-path",
+      "ported": "the transcript, the commitment ownership and the openings; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65"
+     },
+     "hashline/src/private_block/wire.rs": {
+      "git_blob": "14e15fcc0f7280e590f34caa7ce5ac58d223cf16",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, no arithmetic: the bounded codec and its typed shape check.  Its constants are the ones this port assumes -- CHECKS 256 (= MASK_Q), VEC 512 (= MSG_N), MASK_VEC 1024, MASK_DOM 4096 (= DOM_N), MASK_PATH 12 (= MASK_LOG_DOM) -- and nothing read from a frame controls an allocation or a loop bound",
+      "sha256": "5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5"
+     },
+     "hashline/src/private_block/witness.rs": {
+      "git_blob": "51f89e866232bdaf35e2579eba143a8774e463cb",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, PROVER ONLY: the exact-integer witness (isqrt, requant, the two RMSNorms, QKV, RoPE, the integer softmax, PV, O, both residuals and the SiLU feed-forward).  No port transcribes it and nothing in it can contradict one, because no capture carries a witness -- it is pinned because the prover reaches it and because its refusals are input-dependent",
+      "sha256": "640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5"
+     },
+     "hashline/src/private_seam.rs": {
+      "git_blob": "6255661fdb4645b6bdba2c9a8187635c9528786c",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC: the two external endpoint commitments the block binds to.  `MASK_ROWS = 5` and `commitment_rows = data_rows + MASK_ROWS` are exactly the endpoint geometry the gates report (4 data rows, 5 non-data, 9 rows, rank 4)",
+      "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+     },
+     "hashline/src/sumcheck.rs": {
+      "git_blob": "253523c1203ef66f4a012e4937be3e15c7f36267",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 102 bytes: `pub use zkp_core::sumcheck::*`",
+      "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566"
+     },
+     "hashline/src/tables_attn.rs": {
+      "git_blob": "b4317f5d9833300dd4c8f5a39e564161b8509f7b",
+      "pin_kind": "on-the-path",
+      "ported": "ON THE PATH FOR THREE CONSTANTS: `protocol.rs` imports TAG_EXP, TAG_U8 and TAG_ACT from it, and they are 129, 133 and 134 -- the same three literals `zk60_native_rg_terminals` and the toy ports carry.  Everything else in the file is the public FFN attention half's table generators, which this profile does not call",
+      "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3"
+     },
+     "hashline/src/transcript.rs": {
+      "git_blob": "471f2ab5f13a07d51ba08e4c0d245fccff1462e9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 104 bytes: `pub use zkp_core::transcript::*`",
+      "sha256": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78"
      },
      "hashline/src/zk.rs": {
       "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
@@ -1346,6 +1450,7 @@
        "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
        "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
       ],
+      "pin_kind": "ported",
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
       "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
       "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
@@ -1353,20 +1458,65 @@
       "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
+     "zkp-core/src/field.rs": {
+      "git_blob": "4dcea8c34237f3de838df1bc9338a1e7c2ffdeb9",
+      "pin_kind": "ported",
+      "ported": "P = 0xFFFF_FFFF_0000_0001 and NONRESIDUE = 7 (the Fp2 multiplication this port's f2_mul transcribes), from_u128's 128-bit reduction and Fp::to_bytes / Fp2::to_bytes, the encodings every absorb uses",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+     },
+     "zkp-core/src/lib.rs": {
+      "git_blob": "dff709ca2875b9bd95d3b59e3ba98a04a17b05e6",
+      "pin_kind": "on-the-path",
+      "ported": "the core crate's module tree: field, merkle, mle, ntt, pcs, rng, sumcheck, tables, transcript",
+      "sha256": "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa"
+     },
+     "zkp-core/src/merkle.rs": {
+      "git_blob": "bd55af7c2b9ee4344f43877d1ef6b94f63212b7c",
+      "pin_kind": "ported",
+      "ported": "hash_pair, MerkleTree::build and verify_path: the fold the M opening's twelve-level paths are checked against",
+      "sha256": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62"
+     },
+     "zkp-core/src/mle.rs": {
+      "git_blob": "51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+      "pin_kind": "on-the-path",
+      "ported": "eq_point, eq_table_msb and the MLE evaluations; ported by zk60_native_terminal_polys (and re-pinned there at 4bf1fa0), pinned here so the P10 gate covers it too",
+      "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+     },
      "zkp-core/src/ntt.rs": {
       "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "pin_kind": "ported",
       "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
       "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
      },
      "zkp-core/src/pcs.rs": {
       "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "pin_kind": "ported",
       "ported": "coset_powers, and its assertion that the coset misses the subgroup",
       "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
      },
+     "zkp-core/src/pcs/backend.rs": {
+      "git_blob": "8f44cd4afb99057e338011bcafb163b3fbe41796",
+      "pin_kind": "on-the-path",
+      "ported": "the Backend / EncodedStore seam.  `Cpu`'s store type `NoExternal` is an empty enum and both hooks default to `None`, so in a CPU build the external arms of the commitment are UNREACHABLE and the CPU body -- the one the ports transcribe -- is the only path",
+      "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499"
+     },
+     "zkp-core/src/rng.rs": {
+      "git_blob": "0a24ea0fbb74de6220f6e11a6910da0aff23888f",
+      "pin_kind": "ported",
+      "ported": "ZkRng: from_os, the blake3 stream, and fp / fp_vec / bytes32 -- the ORDER in which every pad, mask and salt of this commitment is drawn",
+      "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+     },
      "zkp-core/src/sumcheck.rs": {
       "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "pin_kind": "ported",
       "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
       "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     },
+     "zkp-core/src/transcript.rs": {
+      "git_blob": "ce7a0ddd4ca80fea4007108c77c20d05aaa2904c",
+      "pin_kind": "ported",
+      "ported": "Transcript::new / absorb / squeeze_bytes / challenge_fp2 / challenge_indices: the Fiat-Shamir the mask challenge and the opened column indices come out of",
+      "sha256": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8"
      }
     },
     "two_preimages_at_different_coefficients": {
@@ -2789,15 +2939,119 @@
      "weights_vanish_above_L": true
     },
     "source_pins": {
+     "hashline/src/field.rs": {
+      "git_blob": "441e0a3c63c1b931bd724abe62c124110381072c",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 229 bytes: `pub use zkp_core::field::*` plus one `#[cfg(test)]` module declaration",
+      "sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669"
+     },
+     "hashline/src/gpu/mod.rs": {
+      "git_blob": "7758452fc0e5911d0f14f5cdf6e9c8509993ee0f",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER, reached only through `pcs::backend()`: without the gpu-cuda feature `backend()` is `zkp_core::pcs::Cpu` and `enabled()` is a const `false`, so no device arm of the commitment is reachable in the build the captures were made in",
+      "sha256": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229"
+     },
+     "hashline/src/lib.rs": {
+      "git_blob": "5ce9213f4d93aa9873c71c2e63bb21f2ab5e1c03",
+      "pin_kind": "on-the-path",
+      "ported": "the crate's module tree: which files exist and which are feature-gated.  `pub mod private_block` and the six adapter modules below are declared here",
+      "sha256": "fcb784d3853c9d3e21443bcb4f774ecf388c253a948de7122408a3c8cadfb8ac"
+     },
+     "hashline/src/merkle.rs": {
+      "git_blob": "8ad7c345f7085b3a4f0506acc70946e017d058f5",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 100 bytes: `pub use zkp_core::merkle::*`",
+      "sha256": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee"
+     },
+     "hashline/src/mle.rs": {
+      "git_blob": "a9b1a837b5973709068f9a32223fe6dfdfc210d9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::mle::*`",
+      "sha256": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741"
+     },
+     "hashline/src/native_capture.rs": {
+      "git_blob": "25a60ee36ce8a5dde9ed614b16374f06516d606e",
+      "pin_kind": "on-the-path",
+      "ported": "the capture WRITER that produced the four toy bundles this gate reads; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "621f6459ccf516ebbc1434629f0061f997df8f3b8369d0c7f923201e9cb0e6e8"
+     },
+     "hashline/src/ntt.rs": {
+      "git_blob": "56148560f204aa0fe74e3b7c5bbec5818ded46b0",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::ntt::*`",
+      "sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c"
+     },
+     "hashline/src/pcs.rs": {
+      "git_blob": "20bc75ca31d10742724d4d130357ffea50713a76",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER over `pub use zkp_core::pcs::*`: commit / open / commit_zk / commit_zk_owned call the core through `backend()`, which is `zkp_core::pcs::Cpu` without the gpu-cuda feature and never takes over.  The GPU-only entries (commit_planes, commit_zk_device) are `#[cfg(feature = \"gpu-cuda\")]`.  So on this profile's path the file adds NO arithmetic and the port's subject stays zkp-core's",
+      "sha256": "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8"
+     },
      "hashline/src/private_attention/argument.rs": {
       "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "pin_kind": "ported",
       "ported": "the same declared order for the attention profile's 18 slots",
       "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
      },
+     "hashline/src/private_block.rs": {
+      "git_blob": "4155a0a99754fdefeeee8e81c60aa171061a1b85",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, and the profile's own root: PROFILE, the public statement (AttentionPublic / FeedForwardPublic / BlockPublic and their structure refusals and one-shot digest), ENDPOINT_SCALES and IoSpec's pinning refusal, prepare_endpoints, the by-value Endpoints that makes a second proof not type-check, prove / verify / verify_bytes, and the `#[cfg(test)] mod capture` that includes native_capture.rs",
+      "sha256": "5d9dd178beb708650d37a0af2bb7736e20c797cbb39d5ca7dfdadc300b48e001"
+     },
      "hashline/src/private_block/argument.rs": {
       "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "pin_kind": "ported",
       "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/private_block/layout.rs": {
+      "git_blob": "4d72869b1bc98b4149bd2084b88c8e7e7f74a169",
+      "pin_kind": "on-the-path",
+      "ported": "the plane table, the row counts and the calibration constants; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989"
+     },
+     "hashline/src/private_block/protocol.rs": {
+      "git_blob": "39f6edc0e00eed931f708b4f438045e8257b2343",
+      "pin_kind": "on-the-path",
+      "ported": "the transcript, the commitment ownership and the openings; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65"
+     },
+     "hashline/src/private_block/wire.rs": {
+      "git_blob": "14e15fcc0f7280e590f34caa7ce5ac58d223cf16",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, no arithmetic: the bounded codec and its typed shape check.  Its constants are the ones this port assumes -- CHECKS 256 (= MASK_Q), VEC 512 (= MSG_N), MASK_VEC 1024, MASK_DOM 4096 (= DOM_N), MASK_PATH 12 (= MASK_LOG_DOM) -- and nothing read from a frame controls an allocation or a loop bound",
+      "sha256": "5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5"
+     },
+     "hashline/src/private_block/witness.rs": {
+      "git_blob": "51f89e866232bdaf35e2579eba143a8774e463cb",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, PROVER ONLY: the exact-integer witness (isqrt, requant, the two RMSNorms, QKV, RoPE, the integer softmax, PV, O, both residuals and the SiLU feed-forward).  No port transcribes it and nothing in it can contradict one, because no capture carries a witness -- it is pinned because the prover reaches it and because its refusals are input-dependent",
+      "sha256": "640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5"
+     },
+     "hashline/src/private_seam.rs": {
+      "git_blob": "6255661fdb4645b6bdba2c9a8187635c9528786c",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC: the two external endpoint commitments the block binds to.  `MASK_ROWS = 5` and `commitment_rows = data_rows + MASK_ROWS` are exactly the endpoint geometry the gates report (4 data rows, 5 non-data, 9 rows, rank 4)",
+      "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+     },
+     "hashline/src/sumcheck.rs": {
+      "git_blob": "253523c1203ef66f4a012e4937be3e15c7f36267",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 102 bytes: `pub use zkp_core::sumcheck::*`",
+      "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566"
+     },
+     "hashline/src/tables_attn.rs": {
+      "git_blob": "b4317f5d9833300dd4c8f5a39e564161b8509f7b",
+      "pin_kind": "on-the-path",
+      "ported": "ON THE PATH FOR THREE CONSTANTS: `protocol.rs` imports TAG_EXP, TAG_U8 and TAG_ACT from it, and they are 129, 133 and 134 -- the same three literals `zk60_native_rg_terminals` and the toy ports carry.  Everything else in the file is the public FFN attention half's table generators, which this profile does not call",
+      "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3"
+     },
+     "hashline/src/transcript.rs": {
+      "git_blob": "471f2ab5f13a07d51ba08e4c0d245fccff1462e9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 104 bytes: `pub use zkp_core::transcript::*`",
+      "sha256": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78"
      },
      "hashline/src/zk.rs": {
       "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
@@ -2817,6 +3071,7 @@
        "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
        "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
       ],
+      "pin_kind": "ported",
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
       "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
       "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
@@ -2824,20 +3079,65 @@
       "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
+     "zkp-core/src/field.rs": {
+      "git_blob": "4dcea8c34237f3de838df1bc9338a1e7c2ffdeb9",
+      "pin_kind": "ported",
+      "ported": "P = 0xFFFF_FFFF_0000_0001 and NONRESIDUE = 7 (the Fp2 multiplication this port's f2_mul transcribes), from_u128's 128-bit reduction and Fp::to_bytes / Fp2::to_bytes, the encodings every absorb uses",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+     },
+     "zkp-core/src/lib.rs": {
+      "git_blob": "dff709ca2875b9bd95d3b59e3ba98a04a17b05e6",
+      "pin_kind": "on-the-path",
+      "ported": "the core crate's module tree: field, merkle, mle, ntt, pcs, rng, sumcheck, tables, transcript",
+      "sha256": "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa"
+     },
+     "zkp-core/src/merkle.rs": {
+      "git_blob": "bd55af7c2b9ee4344f43877d1ef6b94f63212b7c",
+      "pin_kind": "ported",
+      "ported": "hash_pair, MerkleTree::build and verify_path: the fold the M opening's twelve-level paths are checked against",
+      "sha256": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62"
+     },
+     "zkp-core/src/mle.rs": {
+      "git_blob": "51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+      "pin_kind": "on-the-path",
+      "ported": "eq_point, eq_table_msb and the MLE evaluations; ported by zk60_native_terminal_polys (and re-pinned there at 4bf1fa0), pinned here so the P10 gate covers it too",
+      "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+     },
      "zkp-core/src/ntt.rs": {
       "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "pin_kind": "ported",
       "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
       "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
      },
      "zkp-core/src/pcs.rs": {
       "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "pin_kind": "ported",
       "ported": "coset_powers, and its assertion that the coset misses the subgroup",
       "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
      },
+     "zkp-core/src/pcs/backend.rs": {
+      "git_blob": "8f44cd4afb99057e338011bcafb163b3fbe41796",
+      "pin_kind": "on-the-path",
+      "ported": "the Backend / EncodedStore seam.  `Cpu`'s store type `NoExternal` is an empty enum and both hooks default to `None`, so in a CPU build the external arms of the commitment are UNREACHABLE and the CPU body -- the one the ports transcribe -- is the only path",
+      "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499"
+     },
+     "zkp-core/src/rng.rs": {
+      "git_blob": "0a24ea0fbb74de6220f6e11a6910da0aff23888f",
+      "pin_kind": "ported",
+      "ported": "ZkRng: from_os, the blake3 stream, and fp / fp_vec / bytes32 -- the ORDER in which every pad, mask and salt of this commitment is drawn",
+      "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+     },
      "zkp-core/src/sumcheck.rs": {
       "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "pin_kind": "ported",
       "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
       "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     },
+     "zkp-core/src/transcript.rs": {
+      "git_blob": "ce7a0ddd4ca80fea4007108c77c20d05aaa2904c",
+      "pin_kind": "ported",
+      "ported": "Transcript::new / absorb / squeeze_bytes / challenge_fp2 / challenge_indices: the Fiat-Shamir the mask challenge and the opened column indices come out of",
+      "sha256": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8"
      }
     },
     "two_preimages_at_different_coefficients": {
@@ -4194,15 +4494,119 @@
      "weights_vanish_above_L": true
     },
     "source_pins": {
+     "hashline/src/field.rs": {
+      "git_blob": "441e0a3c63c1b931bd724abe62c124110381072c",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 229 bytes: `pub use zkp_core::field::*` plus one `#[cfg(test)]` module declaration",
+      "sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669"
+     },
+     "hashline/src/gpu/mod.rs": {
+      "git_blob": "7758452fc0e5911d0f14f5cdf6e9c8509993ee0f",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER, reached only through `pcs::backend()`: without the gpu-cuda feature `backend()` is `zkp_core::pcs::Cpu` and `enabled()` is a const `false`, so no device arm of the commitment is reachable in the build the captures were made in",
+      "sha256": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229"
+     },
+     "hashline/src/lib.rs": {
+      "git_blob": "5ce9213f4d93aa9873c71c2e63bb21f2ab5e1c03",
+      "pin_kind": "on-the-path",
+      "ported": "the crate's module tree: which files exist and which are feature-gated.  `pub mod private_block` and the six adapter modules below are declared here",
+      "sha256": "fcb784d3853c9d3e21443bcb4f774ecf388c253a948de7122408a3c8cadfb8ac"
+     },
+     "hashline/src/merkle.rs": {
+      "git_blob": "8ad7c345f7085b3a4f0506acc70946e017d058f5",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 100 bytes: `pub use zkp_core::merkle::*`",
+      "sha256": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee"
+     },
+     "hashline/src/mle.rs": {
+      "git_blob": "a9b1a837b5973709068f9a32223fe6dfdfc210d9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::mle::*`",
+      "sha256": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741"
+     },
+     "hashline/src/native_capture.rs": {
+      "git_blob": "25a60ee36ce8a5dde9ed614b16374f06516d606e",
+      "pin_kind": "on-the-path",
+      "ported": "the capture WRITER that produced the four toy bundles this gate reads; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "621f6459ccf516ebbc1434629f0061f997df8f3b8369d0c7f923201e9cb0e6e8"
+     },
+     "hashline/src/ntt.rs": {
+      "git_blob": "56148560f204aa0fe74e3b7c5bbec5818ded46b0",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::ntt::*`",
+      "sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c"
+     },
+     "hashline/src/pcs.rs": {
+      "git_blob": "20bc75ca31d10742724d4d130357ffea50713a76",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER over `pub use zkp_core::pcs::*`: commit / open / commit_zk / commit_zk_owned call the core through `backend()`, which is `zkp_core::pcs::Cpu` without the gpu-cuda feature and never takes over.  The GPU-only entries (commit_planes, commit_zk_device) are `#[cfg(feature = \"gpu-cuda\")]`.  So on this profile's path the file adds NO arithmetic and the port's subject stays zkp-core's",
+      "sha256": "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8"
+     },
      "hashline/src/private_attention/argument.rs": {
       "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "pin_kind": "ported",
       "ported": "the same declared order for the attention profile's 18 slots",
       "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
      },
+     "hashline/src/private_block.rs": {
+      "git_blob": "4155a0a99754fdefeeee8e81c60aa171061a1b85",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, and the profile's own root: PROFILE, the public statement (AttentionPublic / FeedForwardPublic / BlockPublic and their structure refusals and one-shot digest), ENDPOINT_SCALES and IoSpec's pinning refusal, prepare_endpoints, the by-value Endpoints that makes a second proof not type-check, prove / verify / verify_bytes, and the `#[cfg(test)] mod capture` that includes native_capture.rs",
+      "sha256": "5d9dd178beb708650d37a0af2bb7736e20c797cbb39d5ca7dfdadc300b48e001"
+     },
      "hashline/src/private_block/argument.rs": {
       "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "pin_kind": "ported",
       "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/private_block/layout.rs": {
+      "git_blob": "4d72869b1bc98b4149bd2084b88c8e7e7f74a169",
+      "pin_kind": "on-the-path",
+      "ported": "the plane table, the row counts and the calibration constants; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989"
+     },
+     "hashline/src/private_block/protocol.rs": {
+      "git_blob": "39f6edc0e00eed931f708b4f438045e8257b2343",
+      "pin_kind": "on-the-path",
+      "ported": "the transcript, the commitment ownership and the openings; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65"
+     },
+     "hashline/src/private_block/wire.rs": {
+      "git_blob": "14e15fcc0f7280e590f34caa7ce5ac58d223cf16",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, no arithmetic: the bounded codec and its typed shape check.  Its constants are the ones this port assumes -- CHECKS 256 (= MASK_Q), VEC 512 (= MSG_N), MASK_VEC 1024, MASK_DOM 4096 (= DOM_N), MASK_PATH 12 (= MASK_LOG_DOM) -- and nothing read from a frame controls an allocation or a loop bound",
+      "sha256": "5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5"
+     },
+     "hashline/src/private_block/witness.rs": {
+      "git_blob": "51f89e866232bdaf35e2579eba143a8774e463cb",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, PROVER ONLY: the exact-integer witness (isqrt, requant, the two RMSNorms, QKV, RoPE, the integer softmax, PV, O, both residuals and the SiLU feed-forward).  No port transcribes it and nothing in it can contradict one, because no capture carries a witness -- it is pinned because the prover reaches it and because its refusals are input-dependent",
+      "sha256": "640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5"
+     },
+     "hashline/src/private_seam.rs": {
+      "git_blob": "6255661fdb4645b6bdba2c9a8187635c9528786c",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC: the two external endpoint commitments the block binds to.  `MASK_ROWS = 5` and `commitment_rows = data_rows + MASK_ROWS` are exactly the endpoint geometry the gates report (4 data rows, 5 non-data, 9 rows, rank 4)",
+      "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+     },
+     "hashline/src/sumcheck.rs": {
+      "git_blob": "253523c1203ef66f4a012e4937be3e15c7f36267",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 102 bytes: `pub use zkp_core::sumcheck::*`",
+      "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566"
+     },
+     "hashline/src/tables_attn.rs": {
+      "git_blob": "b4317f5d9833300dd4c8f5a39e564161b8509f7b",
+      "pin_kind": "on-the-path",
+      "ported": "ON THE PATH FOR THREE CONSTANTS: `protocol.rs` imports TAG_EXP, TAG_U8 and TAG_ACT from it, and they are 129, 133 and 134 -- the same three literals `zk60_native_rg_terminals` and the toy ports carry.  Everything else in the file is the public FFN attention half's table generators, which this profile does not call",
+      "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3"
+     },
+     "hashline/src/transcript.rs": {
+      "git_blob": "471f2ab5f13a07d51ba08e4c0d245fccff1462e9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 104 bytes: `pub use zkp_core::transcript::*`",
+      "sha256": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78"
      },
      "hashline/src/zk.rs": {
       "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
@@ -4222,6 +4626,7 @@
        "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
        "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
       ],
+      "pin_kind": "ported",
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
       "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
       "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
@@ -4229,20 +4634,65 @@
       "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
+     "zkp-core/src/field.rs": {
+      "git_blob": "4dcea8c34237f3de838df1bc9338a1e7c2ffdeb9",
+      "pin_kind": "ported",
+      "ported": "P = 0xFFFF_FFFF_0000_0001 and NONRESIDUE = 7 (the Fp2 multiplication this port's f2_mul transcribes), from_u128's 128-bit reduction and Fp::to_bytes / Fp2::to_bytes, the encodings every absorb uses",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+     },
+     "zkp-core/src/lib.rs": {
+      "git_blob": "dff709ca2875b9bd95d3b59e3ba98a04a17b05e6",
+      "pin_kind": "on-the-path",
+      "ported": "the core crate's module tree: field, merkle, mle, ntt, pcs, rng, sumcheck, tables, transcript",
+      "sha256": "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa"
+     },
+     "zkp-core/src/merkle.rs": {
+      "git_blob": "bd55af7c2b9ee4344f43877d1ef6b94f63212b7c",
+      "pin_kind": "ported",
+      "ported": "hash_pair, MerkleTree::build and verify_path: the fold the M opening's twelve-level paths are checked against",
+      "sha256": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62"
+     },
+     "zkp-core/src/mle.rs": {
+      "git_blob": "51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+      "pin_kind": "on-the-path",
+      "ported": "eq_point, eq_table_msb and the MLE evaluations; ported by zk60_native_terminal_polys (and re-pinned there at 4bf1fa0), pinned here so the P10 gate covers it too",
+      "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+     },
      "zkp-core/src/ntt.rs": {
       "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "pin_kind": "ported",
       "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
       "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
      },
      "zkp-core/src/pcs.rs": {
       "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "pin_kind": "ported",
       "ported": "coset_powers, and its assertion that the coset misses the subgroup",
       "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
      },
+     "zkp-core/src/pcs/backend.rs": {
+      "git_blob": "8f44cd4afb99057e338011bcafb163b3fbe41796",
+      "pin_kind": "on-the-path",
+      "ported": "the Backend / EncodedStore seam.  `Cpu`'s store type `NoExternal` is an empty enum and both hooks default to `None`, so in a CPU build the external arms of the commitment are UNREACHABLE and the CPU body -- the one the ports transcribe -- is the only path",
+      "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499"
+     },
+     "zkp-core/src/rng.rs": {
+      "git_blob": "0a24ea0fbb74de6220f6e11a6910da0aff23888f",
+      "pin_kind": "ported",
+      "ported": "ZkRng: from_os, the blake3 stream, and fp / fp_vec / bytes32 -- the ORDER in which every pad, mask and salt of this commitment is drawn",
+      "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+     },
      "zkp-core/src/sumcheck.rs": {
       "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "pin_kind": "ported",
       "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
       "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     },
+     "zkp-core/src/transcript.rs": {
+      "git_blob": "ce7a0ddd4ca80fea4007108c77c20d05aaa2904c",
+      "pin_kind": "ported",
+      "ported": "Transcript::new / absorb / squeeze_bytes / challenge_fp2 / challenge_indices: the Fiat-Shamir the mask challenge and the opened column indices come out of",
+      "sha256": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8"
      }
     },
     "two_preimages_at_different_coefficients": {
@@ -5599,15 +6049,119 @@
      "weights_vanish_above_L": true
     },
     "source_pins": {
+     "hashline/src/field.rs": {
+      "git_blob": "441e0a3c63c1b931bd724abe62c124110381072c",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 229 bytes: `pub use zkp_core::field::*` plus one `#[cfg(test)]` module declaration",
+      "sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669"
+     },
+     "hashline/src/gpu/mod.rs": {
+      "git_blob": "7758452fc0e5911d0f14f5cdf6e9c8509993ee0f",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER, reached only through `pcs::backend()`: without the gpu-cuda feature `backend()` is `zkp_core::pcs::Cpu` and `enabled()` is a const `false`, so no device arm of the commitment is reachable in the build the captures were made in",
+      "sha256": "a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229"
+     },
+     "hashline/src/lib.rs": {
+      "git_blob": "5ce9213f4d93aa9873c71c2e63bb21f2ab5e1c03",
+      "pin_kind": "on-the-path",
+      "ported": "the crate's module tree: which files exist and which are feature-gated.  `pub mod private_block` and the six adapter modules below are declared here",
+      "sha256": "fcb784d3853c9d3e21443bcb4f774ecf388c253a948de7122408a3c8cadfb8ac"
+     },
+     "hashline/src/merkle.rs": {
+      "git_blob": "8ad7c345f7085b3a4f0506acc70946e017d058f5",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 100 bytes: `pub use zkp_core::merkle::*`",
+      "sha256": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee"
+     },
+     "hashline/src/mle.rs": {
+      "git_blob": "a9b1a837b5973709068f9a32223fe6dfdfc210d9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::mle::*`",
+      "sha256": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741"
+     },
+     "hashline/src/native_capture.rs": {
+      "git_blob": "25a60ee36ce8a5dde9ed614b16374f06516d606e",
+      "pin_kind": "on-the-path",
+      "ported": "the capture WRITER that produced the four toy bundles this gate reads; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "621f6459ccf516ebbc1434629f0061f997df8f3b8369d0c7f923201e9cb0e6e8"
+     },
+     "hashline/src/ntt.rs": {
+      "git_blob": "56148560f204aa0fe74e3b7c5bbec5818ded46b0",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 97 bytes: `pub use zkp_core::ntt::*`",
+      "sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c"
+     },
+     "hashline/src/pcs.rs": {
+      "git_blob": "20bc75ca31d10742724d4d130357ffea50713a76",
+      "pin_kind": "on-the-path",
+      "ported": "ADAPTER over `pub use zkp_core::pcs::*`: commit / open / commit_zk / commit_zk_owned call the core through `backend()`, which is `zkp_core::pcs::Cpu` without the gpu-cuda feature and never takes over.  The GPU-only entries (commit_planes, commit_zk_device) are `#[cfg(feature = \"gpu-cuda\")]`.  So on this profile's path the file adds NO arithmetic and the port's subject stays zkp-core's",
+      "sha256": "6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8"
+     },
      "hashline/src/private_attention/argument.rs": {
       "git_blob": "338689f1770081f50cf7338959bc7e8990624960",
+      "pin_kind": "ported",
       "ported": "the same declared order for the attention profile's 18 slots",
       "sha256": "3343620eefa848421633971210305a356c183848ac15f566a503244ef2283a25"
      },
+     "hashline/src/private_block.rs": {
+      "git_blob": "4155a0a99754fdefeeee8e81c60aa171061a1b85",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, and the profile's own root: PROFILE, the public statement (AttentionPublic / FeedForwardPublic / BlockPublic and their structure refusals and one-shot digest), ENDPOINT_SCALES and IoSpec's pinning refusal, prepare_endpoints, the by-value Endpoints that makes a second proof not type-check, prove / verify / verify_bytes, and the `#[cfg(test)] mod capture` that includes native_capture.rs",
+      "sha256": "5d9dd178beb708650d37a0af2bb7736e20c797cbb39d5ca7dfdadc300b48e001"
+     },
      "hashline/src/private_block/argument.rs": {
       "git_blob": "e492afdb18bf205d246abafd89f8ae82a9eec3b2",
+      "pin_kind": "ported",
       "ported": "the DECLARED functional order: run_slot 361-376 and argument 924-925",
       "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+     },
+     "hashline/src/private_block/layout.rs": {
+      "git_blob": "4d72869b1bc98b4149bd2084b88c8e7e7f74a169",
+      "pin_kind": "on-the-path",
+      "ported": "the plane table, the row counts and the calibration constants; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989"
+     },
+     "hashline/src/private_block/protocol.rs": {
+      "git_blob": "39f6edc0e00eed931f708b4f438045e8257b2343",
+      "pin_kind": "on-the-path",
+      "ported": "the transcript, the commitment ownership and the openings; ported by zk60_native_terminal_polys, pinned here so the P10 gate covers it too",
+      "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65"
+     },
+     "hashline/src/private_block/wire.rs": {
+      "git_blob": "14e15fcc0f7280e590f34caa7ce5ac58d223cf16",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, no arithmetic: the bounded codec and its typed shape check.  Its constants are the ones this port assumes -- CHECKS 256 (= MASK_Q), VEC 512 (= MSG_N), MASK_VEC 1024, MASK_DOM 4096 (= DOM_N), MASK_PATH 12 (= MASK_LOG_DOM) -- and nothing read from a frame controls an allocation or a loop bound",
+      "sha256": "5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5"
+     },
+     "hashline/src/private_block/witness.rs": {
+      "git_blob": "51f89e866232bdaf35e2579eba143a8774e463cb",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC, PROVER ONLY: the exact-integer witness (isqrt, requant, the two RMSNorms, QKV, RoPE, the integer softmax, PV, O, both residuals and the SiLU feed-forward).  No port transcribes it and nothing in it can contradict one, because no capture carries a witness -- it is pinned because the prover reaches it and because its refusals are input-dependent",
+      "sha256": "640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5"
+     },
+     "hashline/src/private_seam.rs": {
+      "git_blob": "6255661fdb4645b6bdba2c9a8187635c9528786c",
+      "pin_kind": "on-the-path",
+      "ported": "REAL LOGIC: the two external endpoint commitments the block binds to.  `MASK_ROWS = 5` and `commitment_rows = data_rows + MASK_ROWS` are exactly the endpoint geometry the gates report (4 data rows, 5 non-data, 9 rows, rank 4)",
+      "sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5"
+     },
+     "hashline/src/sumcheck.rs": {
+      "git_blob": "253523c1203ef66f4a012e4937be3e15c7f36267",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 102 bytes: `pub use zkp_core::sumcheck::*`",
+      "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566"
+     },
+     "hashline/src/tables_attn.rs": {
+      "git_blob": "b4317f5d9833300dd4c8f5a39e564161b8509f7b",
+      "pin_kind": "on-the-path",
+      "ported": "ON THE PATH FOR THREE CONSTANTS: `protocol.rs` imports TAG_EXP, TAG_U8 and TAG_ACT from it, and they are 129, 133 and 134 -- the same three literals `zk60_native_rg_terminals` and the toy ports carry.  Everything else in the file is the public FFN attention half's table generators, which this profile does not call",
+      "sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3"
+     },
+     "hashline/src/transcript.rs": {
+      "git_blob": "471f2ab5f13a07d51ba08e4c0d245fccff1462e9",
+      "pin_kind": "on-the-path",
+      "ported": "PURE RE-EXPORT, 104 bytes: `pub use zkp_core::transcript::*`",
+      "sha256": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78"
      },
      "hashline/src/zk.rs": {
       "captured_against": "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, git blob 28f32f184751d14188a45b830c42fde8811ca155",
@@ -5627,6 +6181,7 @@
        "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW): a PUBLIC-endpoint cost probe for the v3 FFN with its own Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', distinct from this profile's; not reachable from it",
        "PendingV3::finish, prepare_layer_zk_v3_inner: CHANGED (pool take/give, the fused fold); both are v3 FFN layer functions, off this profile's path"
       ],
+      "pin_kind": "ported",
       "ported": "mask_commit / mask_open / mask_verify, encode_coeffs_coset, combined_weights, weight_polys, poly_mul_512, and the three constants",
       "repinned_at": "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
       "repinned_by": "re-read under condition 7 of the toy profile's privacy statement (register D22). The file grew by 365 lines in twelve hunks, ALL of them at or below line 2275 -- the v3 FFN layer prover, which no private-block or private-attention entry point reaches. Lines 1-2274, which contain every item this port transcribes, are byte-identical (sha256 52e96335... of the prefix at both commits). Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md",
@@ -5634,20 +6189,65 @@
       "repinned_on": "2026-09-20",
       "sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310"
      },
+     "zkp-core/src/field.rs": {
+      "git_blob": "4dcea8c34237f3de838df1bc9338a1e7c2ffdeb9",
+      "pin_kind": "ported",
+      "ported": "P = 0xFFFF_FFFF_0000_0001 and NONRESIDUE = 7 (the Fp2 multiplication this port's f2_mul transcribes), from_u128's 128-bit reduction and Fp::to_bytes / Fp2::to_bytes, the encodings every absorb uses",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+     },
+     "zkp-core/src/lib.rs": {
+      "git_blob": "dff709ca2875b9bd95d3b59e3ba98a04a17b05e6",
+      "pin_kind": "on-the-path",
+      "ported": "the core crate's module tree: field, merkle, mle, ntt, pcs, rng, sumcheck, tables, transcript",
+      "sha256": "1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa"
+     },
+     "zkp-core/src/merkle.rs": {
+      "git_blob": "bd55af7c2b9ee4344f43877d1ef6b94f63212b7c",
+      "pin_kind": "ported",
+      "ported": "hash_pair, MerkleTree::build and verify_path: the fold the M opening's twelve-level paths are checked against",
+      "sha256": "77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62"
+     },
+     "zkp-core/src/mle.rs": {
+      "git_blob": "51655b76e0ae39fb77d9eebd5f5c0beadb3df10f",
+      "pin_kind": "on-the-path",
+      "ported": "eq_point, eq_table_msb and the MLE evaluations; ported by zk60_native_terminal_polys (and re-pinned there at 4bf1fa0), pinned here so the P10 gate covers it too",
+      "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+     },
      "zkp-core/src/ntt.rs": {
       "git_blob": "66758af0c58f7daf609d1fee3bf93dd607c867e9",
+      "pin_kind": "ported",
       "ported": "forward/inverse: coefficients <-> evaluations at omega^i in natural order, the convention the whole port rests on",
       "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
      },
      "zkp-core/src/pcs.rs": {
       "git_blob": "8806bbe0e9ca8d9e3f8717972e84fd81a1bf8ec3",
+      "pin_kind": "ported",
       "ported": "coset_powers, and its assertion that the coset misses the subgroup",
       "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d"
      },
+     "zkp-core/src/pcs/backend.rs": {
+      "git_blob": "8f44cd4afb99057e338011bcafb163b3fbe41796",
+      "pin_kind": "on-the-path",
+      "ported": "the Backend / EncodedStore seam.  `Cpu`'s store type `NoExternal` is an empty enum and both hooks default to `None`, so in a CPU build the external arms of the commitment are UNREACHABLE and the CPU body -- the one the ports transcribe -- is the only path",
+      "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499"
+     },
+     "zkp-core/src/rng.rs": {
+      "git_blob": "0a24ea0fbb74de6220f6e11a6910da0aff23888f",
+      "pin_kind": "ported",
+      "ported": "ZkRng: from_os, the blake3 stream, and fp / fp_vec / bytes32 -- the ORDER in which every pad, mask and salt of this commitment is drawn",
+      "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb"
+     },
      "zkp-core/src/sumcheck.rs": {
       "git_blob": "5543a3a6d34d958951731adf1dd03547f458afaa",
+      "pin_kind": "ported",
       "ported": "CfsMask::len / sum_weights / eval_weights, the weights every functional carries",
       "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19"
+     },
+     "zkp-core/src/transcript.rs": {
+      "git_blob": "ce7a0ddd4ca80fea4007108c77c20d05aaa2904c",
+      "pin_kind": "ported",
+      "ported": "Transcript::new / absorb / squeeze_bytes / challenge_fp2 / challenge_indices: the Fiat-Shamir the mask challenge and the opened column indices come out of",
+      "sha256": "31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8"
      }
     },
     "two_preimages_at_different_coefficients": {
@@ -5780,14 +6380,14 @@
    2816472
   ]
  },
- "seconds": 222.9,
+ "seconds": 233.8,
  "tool_sha256": {
   "zk60_native_jv_capture.py": "191f8bc95153d5a46644a3b2443c453f82b08ad934f7227efe28e3211aeb14b8",
   "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
-  "zk60_native_mask_commit.py": "a42639a6c7d85c422f1974feda31f1c71ab681325389c41b81f62ad1a63a4dda",
+  "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
   "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
   "zk60_native_privacy_gate.py": "c33a27fbcc9aefe82c2661efa5daeb6270d4057bcbbaa0e8cdd9f38e0fc3e345"

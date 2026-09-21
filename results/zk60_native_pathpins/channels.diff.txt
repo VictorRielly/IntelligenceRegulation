@@ -1,0 +1,99 @@
+committed: /home/victor/wt-zk60-jointview/results/zk60_native_pathpins/before_channels.json
+current  : /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json
+differing paths: 122
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/field.rs
+          committed: <absent>
+          current  : {'git_blob': '441e0a3c63c1b931bd724abe62c124110381072c', 'pin_kind': 'on-the-path', 'ported': 'PURE RE-EXPORT, 229 bytes
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/gpu/mod.rs
+          committed: <absent>
+          current  : {'git_blob': '7758452fc0e5911d0f14f5cdf6e9c8509993ee0f', 'pin_kind': 'on-the-path', 'ported': 'ADAPTER, reached only thr
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/lib.rs
+          committed: <absent>
+          current  : {'git_blob': '5ce9213f4d93aa9873c71c2e63bb21f2ab5e1c03', 'pin_kind': 'on-the-path', 'ported': "the crate's module tree: 
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/merkle.rs
+          committed: <absent>
+          current  : {'git_blob': '8ad7c345f7085b3a4f0506acc70946e017d058f5', 'pin_kind': 'on-the-path', 'ported': 'PURE RE-EXPORT, 100 bytes
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/mle.rs
+          committed: <absent>
+          current  : {'git_blob': 'a9b1a837b5973709068f9a32223fe6dfdfc210d9', 'pin_kind': 'on-the-path', 'ported': 'PURE RE-EXPORT, 97 bytes:
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/native_capture.rs
+          committed: <absent>
+          current  : {'git_blob': '25a60ee36ce8a5dde9ed614b16374f06516d606e', 'pin_kind': 'on-the-path', 'ported': 'the capture WRITER that p
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/ntt.rs
+          committed: <absent>
+          current  : {'git_blob': '56148560f204aa0fe74e3b7c5bbec5818ded46b0', 'pin_kind': 'on-the-path', 'ported': 'PURE RE-EXPORT, 97 bytes:
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/pcs.rs
+          committed: <absent>
+          current  : {'git_blob': '20bc75ca31d10742724d4d130357ffea50713a76', 'pin_kind': 'on-the-path', 'ported': 'ADAPTER over `pub use zkp
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_attention/argument.rs/pin_kind
+          committed: <absent>
+          current  : 'ported'
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_block.rs
+          committed: <absent>
+          current  : {'git_blob': '4155a0a99754fdefeeee8e81c60aa171061a1b85', 'pin_kind': 'on-the-path', 'ported': "REAL LOGIC, and the profi
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_block/argument.rs/pin_kind
+          committed: <absent>
+          current  : 'ported'
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_block/layout.rs
+          committed: <absent>
+          current  : {'git_blob': '4d72869b1bc98b4149bd2084b88c8e7e7f74a169', 'pin_kind': 'on-the-path', 'ported': 'the plane table, the row 
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_block/protocol.rs
+          committed: <absent>
+          current  : {'git_blob': '39f6edc0e00eed931f708b4f438045e8257b2343', 'pin_kind': 'on-the-path', 'ported': 'the transcript, the commi
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_block/wire.rs
+          committed: <absent>
+          current  : {'git_blob': '14e15fcc0f7280e590f34caa7ce5ac58d223cf16', 'pin_kind': 'on-the-path', 'ported': 'REAL LOGIC, no arithmetic
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_block/witness.rs
+          committed: <absent>
+          current  : {'git_blob': '51f89e866232bdaf35e2579eba143a8774e463cb', 'pin_kind': 'on-the-path', 'ported': 'REAL LOGIC, PROVER ONLY: 
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/private_seam.rs
+          committed: <absent>
+          current  : {'git_blob': '6255661fdb4645b6bdba2c9a8187635c9528786c', 'pin_kind': 'on-the-path', 'ported': 'REAL LOGIC: the two exter
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/sumcheck.rs
+          committed: <absent>
+          current  : {'git_blob': '253523c1203ef66f4a012e4937be3e15c7f36267', 'pin_kind': 'on-the-path', 'ported': 'PURE RE-EXPORT, 102 bytes
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/tables_attn.rs
+          committed: <absent>
+          current  : {'git_blob': 'b4317f5d9833300dd4c8f5a39e564161b8509f7b', 'pin_kind': 'on-the-path', 'ported': "ON THE PATH FOR THREE CON
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/transcript.rs
+          committed: <absent>
+          current  : {'git_blob': '471f2ab5f13a07d51ba08e4c0d245fccff1462e9', 'pin_kind': 'on-the-path', 'ported': 'PURE RE-EXPORT, 104 bytes
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/hashline/src/zk.rs/pin_kind
+          committed: <absent>
+          current  : 'ported'
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/field.rs
+          committed: <absent>
+          current  : {'git_blob': '4dcea8c34237f3de838df1bc9338a1e7c2ffdeb9', 'pin_kind': 'ported', 'ported': "P = 0xFFFF_FFFF_0000_0001 and 
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/lib.rs
+          committed: <absent>
+          current  : {'git_blob': 'dff709ca2875b9bd95d3b59e3ba98a04a17b05e6', 'pin_kind': 'on-the-path', 'ported': "the core crate's module t
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/merkle.rs
+          committed: <absent>
+          current  : {'git_blob': 'bd55af7c2b9ee4344f43877d1ef6b94f63212b7c', 'pin_kind': 'ported', 'ported': "hash_pair, MerkleTree::build a
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/mle.rs
+          committed: <absent>
+          current  : {'git_blob': '51655b76e0ae39fb77d9eebd5f5c0beadb3df10f', 'pin_kind': 'on-the-path', 'ported': 'eq_point, eq_table_msb an
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/ntt.rs/pin_kind
+          committed: <absent>
+          current  : 'ported'
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/pcs.rs/pin_kind
+          committed: <absent>
+          current  : 'ported'
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/pcs/backend.rs
+          committed: <absent>
+          current  : {'git_blob': '8f44cd4afb99057e338011bcafb163b3fbe41796', 'pin_kind': 'on-the-path', 'ported': "the Backend / EncodedStor
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/rng.rs
+          committed: <absent>
+          current  : {'git_blob': '0a24ea0fbb74de6220f6e11a6910da0aff23888f', 'pin_kind': 'ported', 'ported': 'ZkRng: from_os, the blake3 str
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/sumcheck.rs/pin_kind
+          committed: <absent>
+          current  : 'ported'
+  [  4x] /per_capture/N/masking_commitment_M_opening/source_pins/zkp-core/src/transcript.rs
+          committed: <absent>
+          current  : {'git_blob': 'ce7a0ddd4ca80fea4007108c77c20d05aaa2904c', 'pin_kind': 'ported', 'ported': 'Transcript::new / absorb / squ
+  [  1x] /seconds
+          committed: 222.9
+          current  : 233.8
+  [  1x] /tool_sha256/zk60_native_mask_commit.py
+          committed: 'a42639a6c7d85c422f1974feda31f1c71ab681325389c41b81f62ad1a63a4dda'
+          current  : 'fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1'

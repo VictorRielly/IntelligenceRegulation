@@ -1233,3 +1233,294 @@ gates' record guard still passes and no toy file's bytes were touched.
   construction's, at this run's real challenges — not that the run proved
   the statement it names, and not that the witness was what its README
   says.
+
+# 9. 2026-09-20, fifth round: TWO key-value group bits (rung-K4), and two findings about the gate itself
+
+**Written 2026-09-20 23:40 PDT on the same lane.** Evidence:
+`results/zk60_native_run_gate_k4/`. No new gate module; the changes are in
+`zk60_native_rg_terminals.py` (one accepted shape digest, one repaired
+refusal path, one corrected comment), `zk60_native_rg_gqa.py` and
+`zk60_native_rg_gcontrols.py` (the controls per group coordinate, and
+GQ-7), `zk60_native_rg_hcontrols.py` (CH-7) and the gate's
+`--cross-profile` flag.
+
+Round 4's NEXT list opened with "a shape with `lkv > 1`", because every
+group figure this gate had ever reported was taken at `kv_heads = 2` — one
+group bit, a one-element `eq` point, two terms in the sum over groups. The
+Rust lane's stage 22 wrote **rung-K4**: 24 tokens, width 96, hidden 192,
+**12 query heads of 8 over 4 key-value heads**, `h_pad = 16`, padded head
+slots **{3, 7, 11, 15}**. That is the 125M model's own head geometry, and
+it is the case a contiguous padded tail can never produce. Two tagged
+three-block bundles at it, `run-i-dense-k4` and `run-j-zero-k4`, under a
+NEW profile (D17) with its own keyed-hash key set.
+
+The port claims to be shape-driven. This is the first time the claim has
+been tested against a shape it was not written at — and rung-K4 moves more
+than `lkv`: `lh` goes 3 → 4 and `ldh` goes 4 → 3, so a tool that had
+quietly assumed six heads or a sixteen-wide head would fail here too.
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** Two
+> more captured runs at a second development shape are two more runs at a
+> second development shape. Both bundles carry
+> `privacy_review_complete: false` and so does every record.
+
+## 9.1 The headline, in one line each
+
+1. **Every figure scaled as the shape predicts, and nothing that should be
+   invariant moved.** §9.4 is the table; §9.3 gives the exact arithmetic
+   for the one figure that looked large.
+2. **Finding K4-F1: the gate's REFUSAL path crashed.** The first probe on
+   `run-i-dense-k4` died with `KeyError: 'slot_checks_expected'`. The port
+   had correctly refused the bundle (its `shape.rs` pin had moved), but
+   `check_terminals`'s moved-pin arm returned a dict without the keys
+   stage 8 and the terminal controls read. That path had never been
+   exercised end to end, because no bundle had ever moved a pin; the
+   rung-K4 bundles moved two. **A refusal path that crashes is not a
+   refusal path.** Repaired, and now covered by a test.
+3. **Finding K4-F2: three of the eight files a bundle pins are pinned by
+   nothing, and the tool said otherwise.** `zk60_native_rg_terminals`'s own
+   comment read: "the other three (`run_capture.rs`, `run.rs`,
+   `boundary.rs`) decide the bundle's shape and are checked by
+   `zk60_native_rg_bundle`". They are not. No run-gate tool hashes or
+   compares them, and the K4 bundles' `run.rs` moved from `65d55d25` to
+   `73f68221` with nothing noticing. The comment is corrected and the three
+   are named in the tool with their digests and what was read; the gap is
+   **not closed here**, because closing it means reading three files at
+   five capture commits, and a pin added without a reading is what this
+   discipline exists to forbid.
+
+## 9.2 The pins the new shape moves, and what was read
+
+Two of the eight digests a bundle pins move between `0426ad2` (rung-G) and
+`3247a89` (rung-K4):
+
+| file | rung-G | rung-K4 | read |
+|---|---|---|---|
+| `shape.rs` | `8f734422` | **`07a0547f`** | `git diff 0426ad2 3247a89`: **60 added lines, 0 removed** — a doc comment and `Shape::rung_k4()` calling the UNCHANGED `Shape::new`. Not one geometry function this port reads moved: not `true_size`, not `head_slot`, not `pads`, not `clog2`, not `slot_dims`. Accepted as a second read digest in `PINNED_IF_PRESENT` |
+| `run.rs` | `65d55d25` | **`73f68221`** | **12 added lines, 0 removed** — `RUN_PROFILE_RUNG_K4` and `RunShape::rung_k4`. **Pinned by nothing** (finding K4-F2); read and recorded anyway |
+
+`argument.rs` is `dd8469cb` on both, so both bundles select the REPAIRED
+definition of slots 08 and 09 by their own pin, as round 4's do.
+`layout.rs`, `protocol.rs`, `plane_index.rs`, `run_capture.rs` and
+`boundary.rs` are byte-identical.
+
+The shape's numbers are not taken from the moved file: `zk60_native_rg_gqa.Geometry`
+derives `lt`, `lh`, `ldh` and `lkv` from `run.json["shape"]` and compares
+every slot dimension with the shape's own `slots` array and with the slot's
+own declaration.
+
+## 9.3 The replay, and the one figure that looked large
+
+| | rung-G (round 4) | **rung-K4** |
+|---|---|---|
+| run binding | reproduced | **reproduced** |
+| transcript positions | 375 | **375** |
+| challenges re-derived and compared | 6,092 | **6,854** |
+| final transcript counter | 6,924 | **7,686** |
+| segment position tags | 6 of 6 | **6 of 6** |
+| challenges NOT re-derived | none | **none** |
+| segment byte lengths | 4,067,160 / 4,089,688 / 4,257,592 | **4,575,304 / 4,597,832 / 4,765,736** |
+
+`+762` challenges is a big number beside round 4's `+6`, so it is worth
+writing out. It is exactly **3 stages × (3 + 3 + 104 + 144)**:
+
+* **+3 definition draws** per stage. `SC_SCORE` draws `r_h ‖ r_t ‖ r_j`, so
+  `lh` 3 → 4 gives one; slots 04 and 17 gain one each with `Dom::S`.
+* **+3 sumcheck rounds** per stage: the three slots whose `main` grows
+  (04 `13 → 14`, 09 `6 → 7`, 17 `13 → 14`), because `Dom::S = h_pad ×
+  t_pad × t_pad` doubles from `2^13` to `2^14` when sixteen head slots
+  replace eight.
+* **+104 and +144 proximity rows**, one challenge each, because the `A`
+  commitment grows 623 → 727 rows and `H` 576 → 720.
+
+Every term is read from the shape or the capture, and the sum is the
+measured figure to the unit. The segments grow by **+508,144 bytes in each
+of the three stages**, the same figure three times.
+
+## 9.4 Every figure, rung-K4 beside rung-G
+
+`shape_comparison_k4_vs_rungg.json`: **173 figures over four records
+(K4 dense, rung-G dense, K4 zero, rung-G zero), 134 identical.**
+
+| figure | rung-K4 | rung-G | reading |
+|---|---|---|---|
+| `lkv` | **2** | 1 | the point of the round |
+| slot 08 / 09 `(main, ext, degree)` | **(5,2,3) / (7,2,3)** | (5,2,3) / (6,2,3) | derived, and compared with the slot AND the shape: **6 of 6** |
+| group points derived and compared | 6 | 6 | one per bilinear slot per stage |
+| **group point ENTRIES compared** | **12** | 6 | exactly `lkv` per point |
+| coordinate lists re-derived | 12 | 12 | |
+| coordinate entries compared | **138** | 135 | predicted from the two geometries, not observed |
+| of which fixed, against a re-derived challenge | **66** | 69 | `ldh` 4 → 3 loses three |
+| `A` rows / data / **non-data** | 727 / 481 / **246** | 623 / 377 / **246** | the blinding block does not move |
+| `H` rows / data / **non-data** | 720 / 612 / **108** | 576 / 468 / **108** | nor here |
+| `A` disclosed / `rank_P1` | **0 / 74** | 0 / 74 | |
+| `H` disclosed / `rank_P1` | **2 / 20** | 2 / 20 | |
+| endpoints, boundaries, `M` disclosed | **0** | 0 | |
+| each boundary: rows / generators / rank / disclosed | **10 / 6 / 6 / 0** | 10 / 6 / 6 / 0 | |
+| three-role joint, generators | **0, 154** | 0, 154 | |
+| whole run | **308 × 4,505, joint 6 = sum 6** | 308 × 3,761, joint 6 = sum 6 | ruling R-3 below |
+| zero-data preimage, message half | **4 commitments, 0 free `Fp`** | same | |
+| terminal identity | **69 / 69**, 0 open | 69 / 69, 0 open | |
+| public tables: rebuilt / carried / structure checks | **16 / 15 / 45** | 16 / 15 / 45 | |
+| hash layer: openings / columns / bytes | **13 / 3,328 / 9,275,392** | 13 / 3,328 / 7,751,680 | |
+| channels | **25, 14 open** | 25, 14 open | |
+
+**Every one of the 39 figures that differ is a size the shape must change,
+a transcript-drawn column count, or a group figure that scales with `lkv`.
+Not one disclosed dimension, rank, boundary figure, three-role figure,
+joint figure, preimage figure, terminal check or channel count moved.**
+
+That the `A` commitment's `rank_P1` is 74 and its disclosed dimension 0 at
+BOTH shapes is the same reading §8.5 gave for dense against degenerate,
+now across a change of geometry: the model's disclosure figures are ranks
+of the BLINDING structure — mask rows, proximity rows, pads — and that
+structure is a function of the group counts (`a_groups` 36, `h_groups` 9,
+equal at both rungs), not of how the head axis is cut.
+
+**Dense against zero, at two group bits**
+(`witness_comparison_k4_dense_vs_zero.json`): **173 compared, 153
+identical**, and every one of the 20 that differ is a count of distinct
+sampled columns, a pad margin (256 minus it) or the pad block's exact rank
+(which equals it) — **the same twenty classes, and the same reading, round
+4 found at one group bit.** The witness result reproduces at `lkv = 2`.
+
+## 9.5 The controls, re-aimed at the third and fourth group
+
+`GQ-3` and `GQ-4` were single controls aimed at slot 08's only group
+coordinate. They are now **families**, one member per bilinear slot per
+group coordinate, and two controls are new.
+
+| control | what | rung-K4 | rung-G |
+|---|---|---|---|
+| **GQ-1** | stage 0, slot 08, terminal 0 `+1` | fires at exactly that slot, 68 of 69 | fires |
+| **GQ-2** | stage 2, slot 09, terminal 1 `+1` | fires | fires |
+| **GQ-3.08.0 / .1**, **GQ-3.09.0 / .1** | the bundle's DECLARED eq point, each coordinate in turn `+1` | **4 of 4 fire**, refused by name | 2 of 2 |
+| **GQ-4.08.0 / .1**, **GQ-4.09.0 / .1** | the point THIS TOOL derived, each coordinate in turn | **4 of 4 fire** | 2 of 2 |
+| **GQ-5** | the pre-repair definition forced on these bytes | fires; both slots refused in every stage, the other 21 unaffected | fires |
+| **GQ-6** | the pre-repair polynomial `X·Y` measured beside `eq·X·Y` | repaired **6 of 6**, pre-repair **0 of 6**; no group factor is 1, no terminal product 0 | same |
+| **GQ-7** *(new)* | the declared point's two group coordinates **SWAPPED**, every value kept | **fires** — refused by name, entries `[0, 1]` both differ | **NAMED AND SKIPPED**: a one-entry point cannot be reordered |
+| **CH-7** *(new)* | each bundle's real captured columns re-hashed under the OTHER tagged profile's derived key set | **fires, two-sided**: 3,328 of 3,328 under its own keys, **0 of 3,328** under the other's, in both directions, with all four role keys differing | the same pair, from the other side |
+
+**13 of 13** group controls fire on both K4 bundles, none skipped; **8 of
+8** on both rung-G bundles with GQ-7 named and skipped. The 8 terminal
+controls (CT-1 … CT-8), the 7 hash-rule controls (CH-1 … CH-7) and the 6
+run controls (C1 … C6) all fire on both.
+
+Two of these deserve their reason written down.
+
+* **GQ-7 is the control that needed the shape.** Swapping the two
+  coordinates keeps every value the point names and only changes which
+  group each bit selects — group 1 and group 2 exchange places. A
+  comparison that treated the point as a SET, or that checked only its
+  length and its first entry, would pass it. At `lkv = 1` the control does
+  not exist, which is why it is skipped by name rather than counted.
+* **CH-7 is not CH-3.** CH-3 rewrites a DECLARED profile string and is
+  refused by the derivation before a byte is hashed. CH-7 perturbs nothing:
+  both key sets are complete, internally consistent and derived here from
+  profile strings that really exist, and the only thing wrong is which
+  profile. It says the separation of D19 is in the BYTES, not only in the
+  bookkeeping — and it could not be run until round 5, because until
+  rung-K4 there was only one tagged profile to read.
+
+## 9.6 Did anything in the tools assume one group bit?
+
+Asked directly, and the answer is **no for the group arithmetic and yes for
+two things next to it**.
+
+* `Geometry`, `dims`, `n_definition_challenges`, `coordinate_schedule`,
+  `has_group_table`, `PadGeometry.head_slot` and every domain size read
+  `kv_heads`, `q_heads`, `h_pad`, `head_dim` and `t_pad` from
+  `run.json["shape"]`. Nothing in them is a rung-G constant, and the
+  padded head slots the port derives at rung-K4 are `{3, 7, 11, 15}`,
+  which is the interleaved case and not a tail.
+* `plane_index.rs` is byte-identical at both shapes, so the "rung-G plane
+  index digest" the brief asked about was never a shape-dependent pin.
+* **`GroupFactors`' control hook did assume one bit**: `perturb_derived_point`
+  perturbed `r_g[0]` and had no way to name another coordinate. That is a
+  test-surface assumption rather than a gate one — no measured figure came
+  from it — but it meant the round-4 controls could not have reached the
+  second bit even on a bundle that had one. It now takes
+  `perturb_derived_entry` and refuses an out-of-range coordinate by name.
+* The **refusal** path assumed no bundle would ever move a pin (finding
+  K4-F1), and the **pin coverage** comment assumed three files were checked
+  somewhere they are not (finding K4-F2).
+
+## 9.7 The channel table, recounted
+
+Counted from the tool's own `stage7_channels.channels` array.
+
+| bundle | total | constructed | derived | argued | **open** |
+|---|---:|---:|---:|---:|---:|
+| `run-i-dense-k4`, `run-j-zero-k4` | **25** | 2 | 5 | 4 | **14** |
+| `run-g-dense-s20`, `run-h-zero-s20` (re-run) | 25 | 2 | 5 | 4 | 14 |
+| `run-e-tame-tagged`, `run-f-zero-tagged` (re-run) | 25 | 2 | 5 | 4 | 14 |
+| `run-c-tame`, `run-d-zero` (re-run) | 25 | 2 | 4 | 4 | 15 |
+| `run-a-tame`, `run-b-zero` (re-run) | 25 | 2 | 3 | 4 | 16 |
+
+**Nothing moved.** Round 5 added no channel and closed none. A second shape
+makes the open ones no less open; the fourteen are the fourteen §7.6 lists.
+
+## 9.8 The eight older records, refreshed
+
+The tool bytes changed, so every committed run-gate record was re-run and
+diffed leaf by leaf against its committed bytes
+(`old/prev/*.json`, `old/*.diff.json`, `old/old_bundles_unchanged.json`):
+**0 unclassified differing leaves on all eight**, and a direct comparison
+of the figures of record — `ok`, the challenge and position counts, every
+per-commitment disclosed dimension / rank / column count, the whole-run
+joint and sum, the slot checks and the channel counts — finds **0 bundles
+whose figures moved**. Every difference is a wall clock, a tool SHA-256,
+or the two new control entries.
+
+## 9.9 Ruling R-3, and what the gate still cannot see
+
+Unchanged and repeated, because a joint figure appears in §9.4:
+
+> **Ruling R-3.** `joint == sum of the parts` is a **consistency check of
+> this model's coordinate classes, not evidence that the commitments'
+> blinding is independent.** Two DISTINCT blinding rows whose VALUES
+> coincide score exactly like an honest run (joint 0 = sum 0) while
+> disclosing 1,024 field elements at this shape. Independence rests on the
+> generator and the draw discipline (gap G-R4) and is to be machine-asserted
+> elsewhere.
+
+And: **the gate cannot see the witness.** "Dense" and "zero" are claims
+about the Rust lane's test that wrote each bundle, read from the capture's
+README. §8.6 still stands in full — finding S19-F1 is invisible to a
+capture reader on EVERY witness, and a second shape does not change that.
+
+## 9.10 The suite
+
+`python3 -m unittest discover -s tests -p 'test_zk60_native_run_gate_k4.py'`:
+**36 tests, OK**, 11.9 s, in four arms — a PURE arm (the K4 geometry, both
+slots' dimensions and coordinate schedules written out at two group bits,
+the padded head slots, and the scaling laws the two shapes must obey), a
+**GENERIC** arm (the `eq` algebra the two-group case newly exercises, on
+uniformly random `Fp2` elements over seven seeds and never on the shaped
+instance), a RECORDED arm and a LIVE arm. The record guard
+`tests/test_zk60_native_gate_record.py` gains six for Item B.
+
+## 9.11 What this round is NOT
+
+* **Not a privacy claim.** A second shape is not a distribution of shapes,
+  and ruling M-8's decision, D8/D11 and the run's joint-law composition are
+  untouched.
+* **Still LINEAR channels.** §2.3 and §2.4's figures are ranks of the same
+  explicitly stated linear model; the "any nonlinear functional" channel
+  stays OPEN.
+* **Two runs, and one development shape per head geometry.** `run-i` and
+  `run-j` are two captured runs at rung-K4, as `run-g` and `run-h` are two
+  at rung-G. Two runs are not a distribution.
+* **Nothing at the 125M shape.** Rung-K4 has 125M's HEAD geometry — four
+  key-value groups, `lkv = 2`, interleaved padded slots — and nothing else
+  of it: 24 tokens against 512, width 96 against 768, three blocks against
+  twelve. The exact-rank computation over thousands of rows per commitment
+  is still untried, and a 484 MB run is still more than this gate ingests.
+* **`lkv = 2` is not `lkv > 2`.** The 125M shape's `lkv` is 2 as well, so
+  what is now exercised is the case that shape needs; a shape with eight or
+  more key-value groups is still unread.
+* **The hash layer's HIDING is still argued** (§7.3), and the masked
+  sumcheck / CFS channel is still the largest open one a port could close.
+* **Finding K4-F2 is recorded, not repaired.** Three files a bundle pins
+  are checked by nothing, and until they are read at every capture commit
+  they can still move unnoticed.
