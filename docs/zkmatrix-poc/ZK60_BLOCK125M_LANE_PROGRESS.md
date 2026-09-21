@@ -10336,3 +10336,229 @@ filter, or one honest proof in the filter and a documented medium tier
 beside it — follows that measurement and nothing else.
 
 **Evidence prefix**: `results/zk60_block125m_lane/v32-*`.
+
+### Task 1 — `Shape::rung_w14`, and why every number of it is forced
+
+**The idea in one line: take 125M's HEAD AXIS and its ROW GEOMETRY exactly,
+and cut the tokens to the smallest count those two admit.** Nothing else is
+chosen, which is what makes everything that follows a measurement of the row
+width, the head size and the endpoint log and of nothing else.
+
+| | rung-C6 (stage 31) | **rung-W14** | 125M |
+|---|---:|---:|---:|
+| tokens / width / hidden | 32 / 384 / 512 | **64 / 768 / 1,024** | 512 / 768 / 2,048 |
+| query heads × head_dim, key-value heads | 12 × 32, 4 | **12 × 64, 4** | 12 × 64, 4 |
+| `t_pad, d_pad, h_pad, f_pad` | 32, 512, 16, 512 | **64, 1,024, 16, 1,024** | 512, 1,024, 16, 2,048 |
+| **`log_cols`, encoded row, rate, opened cols** | 10, 2^12, 4, 256 | **14, 2^16, 4, 256** | 14, 2^16, 4, 256 |
+| Merkle depth / NTT log | 12 / 12 | **16 / 16** | 16 / 16 |
+| `D_max` / `norm_wrho` / `limbs_norm` | 642,099 / 32 / 4 | **908,065 / 32 / 4** | 908,065 / 32 / 4 |
+| `norm_top_is_full_byte` (C-6) | true | **true** | true |
+| `wrho_s` / `limbs_sigma_s` / `limbs_p` | 17 / 3 / 2 | **18 / 3 / 2** | 18 / 3 / 2 |
+| `pad_on` T / Ht / L / D / Q / Kv / S / F / Tab | 0 1 1 1 1 0 1 0 1 | **0 1 1 1 1 0 1 0 1** | 0 1 1 1 1 0 1 0 1 |
+| the nine domain logs | 5, 9, 10, 14, 14, 12, 14, 14, 10 | **6, 10, 14, 16, 16, 14, 16, 16, 14** | 9, 13, 14, 19, 19, 17, 22, 20, 14 |
+| `Dom::Tab` P-3 lift (natural → log) | 8 → 10 (×4) | **8 → 14 (×64)** | 8 → 14 (×64) |
+| `A` planes / `H` planes | 83 / 50 | **83 / 50** | 83 / 50 |
+| `A` rows / `H` rows / `M` rows | 1,337 / 1,408 / 50 | **527 / 436 / 50** | 5,681 / 7,120 / 50 |
+| claim sites `A` / `H` | 122 / 50 | **122 / 50** | 122 / 50 |
+| `a_groups` / `h_groups` | 36 / 9 | **36 / 9** | 36 / 9 |
+| lookups per position `L/D/F/Q/Kv/S` | 2 / 34 / 9 / 13 / 12 / 15 | **2 / 34 / 9 / 13 / 12 / 15** | 2 / 34 / 9 / 13 / 12 / 15 |
+| helpers `L/D/F/Q/Kv/S` | 1 / 17 / 5 / 7 / 6 / 8 | **1 / 17 / 5 / 7 / 6 / 8** | 1 / 17 / 5 / 7 / 6 / 8 |
+| U8 lookup positions | 1,214,464 | **4,882,432** | 98,598,912 |
+| mask budget (worst `L` + 256 ≤ 512) | 77 + 256 = 333 | **87 + 256 = 343** | 117 + 256 = 373 |
+| opened-column digest `A` / `H` (`8·rows`) | 10,696 / 11,264 B | **4,216 / 3,488 B** | 45,448 / 56,960 B |
+| `pcs-vec` absorb | 20,535 B | **266,295 B** | 266,295 B |
+| endpoint: cube / data rows / commitment rows / log | 2^14 / 16 / 21 / 10 | **2^16 / 4 / 9 / 14** | 2^19 / 32 / 37 / 14 |
+| block profile | `…rung-c6-t32-dev/1` | `hashline-zk-mr1/private-block-rung-w14-t64-dev/1` | `…/private-block-m125/1` |
+| counted receipt | 7,452,040 B | **16,421,048 B** | 40,783,352 B |
+
+**WHAT IS NOW IDENTICAL TO 125M — the point of the stage.** The head axis
+(12 × 64 over 4), the width 768 and `d_pad` 1,024, the row width 14 with its
+2^16 encoding, rate 4 and 256 opened columns, the Merkle depth 16 and the
+NTT log 16, `D_max` 908,065 with `norm_wrho` 32 and four norm limbs (so
+correction C-6 applies), `wrho_s` 18 with three `sigma_s` limbs, the padded
+head slots `{3, 7, 11, 15}`, the padded-domain set, the `Dom::Tab` lift
+distance ×64, the 83 `A` planes and 50 `H` planes, the 122 / 50 claim sites
+with their 244 / 100 site rows, the 36 / 9 opening groups, the per-position
+lookup and helper counts domain for domain, **all 23 slot DEGREES**, the
+`pcs-vec` absorb of 266,295 B, and the endpoint's log, rate and kind.
+
+**WHAT STILL DIFFERS, and it is one axis and its consequences.** The token
+count (64 against 512) and everything that scales with it: the nine domain
+logs, the row totals (527 / 436 against 5,681 / 7,120), the U8 lookup work
+(4.88 M against 98.6 M), the largest slot mask length (87 against 117), the
+opened-column digest lengths (which are `8 · rows`), the endpoint's DATA
+rows (4 against 32, so 9 commitment rows against 37), the hidden axis
+(1,024 against 2,048, which is the smallest power of two above the width)
+and `f_e` (12 against 9, the two routes to the same `wrho_s = 18`, which
+moves only the exponential and activation TABLE sizes).
+
+**Every dimension is forced.**
+
+* **`tokens = 64` is the smallest admissible count, and F-2 is what forces
+  it.** `Dom::Kv = tokens · kv_heads · head_dim = 256 · tokens` must reach
+  the row width 2^14 or the P-3 lift makes the bilinear slots unserveable,
+  so `tokens ≥ 64`; at 64 it sits EXACTLY at the row width, the toy's case
+  and not a lift. The test constructs the 16- and 32-token shapes and reads
+  back the refusal by name.
+* **`head_dim = 64` and `q_heads = 12` over `kv_heads = 4` are 125M's**, so
+  `width = q_heads · head_dim = 768` follows from the reference kernel's own
+  refusal and `d_pad = h_pad · head_dim = 1,024` from a construction
+  refusal. The width cannot grow: `norm_wrho` reaches 33 at width 1,025 and
+  the four-limb refusal bars it.
+* **`hidden = 1,024`** is the smallest power of two above the width — a
+  power of two keeps `Dom::F` unpadded, and it must EXCEED the width or the
+  dense fixture has no upper hidden half to be live on (the S19-F1 census).
+* **`f_e = 12`** is the rungs' calibration, and at 64 tokens it gives
+  `wrho_s = clog2(64) + 12 = 18`, which is 125M's own softmax window
+  (125M reaches it as `clog2(512) + 9`). That is what keeps `limbs_sigma_s`
+  at three and therefore the plane lists and every per-position lookup count
+  125M's.
+
+**Which refusal constrained which choice, and which one BINDS.**
+
+| refusal | how rung-W14 satisfies it | does it bind? |
+|---|---|---|
+| **F-2** (no P-3 lift on `Dom::Q`, `Dom::Kv`, `Dom::S`) | `Dom::Kv = 2^14` exactly at the row width; `Q`, `S`, `F` at 2^16 | **YES — this is the narrow one.** It is what sets the token count at 64 and therefore the whole size of the shape |
+| the four-norm-limb refusal (`build_shaped`, S8-F3) | `norm_wrho` 32 → 4 limbs | **YES, as the ceiling**: it caps the width at 1,024, which is why 32 endpoint data rows need 512 tokens |
+| **T-8** (`head_dim` a power of two ≥ 2) | 64 | no (125M's own value) |
+| `width == q_heads · head_dim` (the reference kernel) | 768 = 12 · 64 | **YES**, with the head axis: it fixes the width |
+| `d_pad == h_pad · head_dim` | 1,024 = 16 · 64 | **YES** |
+| **T-2** (padded widths powers of two) | 64 / 1,024 / 1,024 | no |
+| **S-1** (`Dom::Tab` exactly at the row width) | `log_cols = 14`, `log(Dom::Tab) = 14` | no — and this is the first time it is satisfied by a ×64 LIFT |
+| **S-3 / C-2** (`head_dim < 2^log_cols`) | 64 against 16,384 | no; the margin is eight bits, 125M's own |
+| **C-4** (the mask budget) | worst slot 87 + 256 ≤ 512 | no |
+| the grouping refusals (`q_heads % kv_heads`, `h_pad % kv_heads`) | 12 % 4, 16 % 4 | no |
+
+**MEASURED FIRST, BEFORE ANY TEST WAS PLACED** (`v32-measure1.log`,
+detached under `systemd-run --user --scope -p MemoryMax=6G -p
+MemorySwapMax=0`, with `/usr/bin/time -v`): one honest fully dense proof is
+**prove 3.87 s, verify from bytes 0.50 s, peak RSS 757 MB**, and the frame
+is the counted 16,421,048 B. The stage's own rule puts an ordinary-filter
+shape under ~20 s and ~4 GB, so **everything goes in the ordinary filter and
+no medium tier is needed**. The box was shared (another lane's Python gate
+was live), so the wall figures are upper bounds and not a timing ladder.
+
+### Task 2 — the tests, and what each MEASURED
+
+All in the ordinary filter, none `#[ignore]`d except the bundle writer of
+task 3. `w14_tests.rs` is **12 tests**, `parity.rs` gains **one**. Every
+wall figure below is from `v32-w14-run3.log` on a SHARED box, so they are
+upper bounds.
+
+| test | result |
+|---|---|
+| `only_the_125m_shape_and_the_new_one_reach_the_125m_row_width` | **the gap, asserted**: over the eight-shape registry exactly two are at `log_cols = 14`, exactly two at `head_dim = 64` and exactly two at `endpoint_log_n = 14` — 125M and rung-W14 — and with rung-W14 removed each of the three is 125M's alone. The per-shape census is printed |
+| `the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count` | the head axis, the width, the padded axes, the PCS parameters, `D_max`, the norm and softmax windows and their limb counts are 125M's, each asserted against `Shape::m125()` and not against a literal; **F-2 is reproduced as a refusal**, by constructing the 16- and 32-token shapes and reading back "the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3"; every named refusal is checked where it binds; the profile and hash-tag key set are new and pairwise distinct from all seven older ones; the three older development receipts are re-asserted unmoved |
+| `the_row_geometry_is_125ms_and_every_derived_quantity_follows_it` | **the row-width census**: message 2^14, encoded 2^16, rate 4, 256 opened columns and 256 pads, Merkle depth **16**, NTT log **16**, `rows_of` `[1,1,1,4,4,1,4,4,1]` (each the size shifted by 14), ruling S-1 at fourteen, the `Dom::Tab` P-3 lift **×64** (125M's own; rung-C6's is ×4), `Dom::L` lifted 2^10 → 2^14 and no other domain lifted at all, the opened-column digests **4,216 / 3,488 B** against 125M's 45,448 / 56,960, the C-H4 no-collision refusal clear, the block seed input **118 B**, the `pcs-vec` absorb **266,295 B** — 125M's exactly — and the endpoint parameters (log 14, rate 4, depth 16, cube 2^16, 9 rows, column digest 72 B) |
+| `parity::the_dense_witness_equals_the_reference_kernel_at_the_rung_w14` | the INDEPENDENT `private-block-kernel-shaped` crate takes this geometry unchanged; every kernel-backed plane agrees element for element and the block output on all **49,152** words, with the kernel's own buffers asserted live on the upper hidden half and its four key-value groups pairwise different FIRST. **This is the generic-witness check the acceptance rule asks for** |
+| `an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14` | prove **3.99 s**, verify from bytes **0.55 s**, frame **16,421,048 B** — the COUNTED length, from the Python model — and a one-byte truncation refused. The census asserts 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live and the 64-wide rotation live |
+| `the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_w14` | verified, frame 16,421,048 B. Named degenerate: every key-value group is identically zero |
+| `a_tamper_in_the_last_column_block_of_a_row_is_rejected_at_its_own_slot_at_the_rung_w14` | **5 of 5 rejected by the VERIFIER** at the slot under test, **4 of them at a column index ≥ 2^13** — see the tamper table |
+| `a_multiplicity_moved_into_a_far_lifted_table_row_is_rejected_at_the_rung_w14` | **2 of 2 rejected by the VERIFIER at slot 19**, at the first padded copy (index 256) and at a copy **8,192 rows away** — the F-4 family at a lift factor of 64, which no smaller shape can write. The hook left clear changes nothing |
+| `exchanging_the_keys_of_key_value_groups_two_and_three_is_rejected_at_the_rung_w14` | the four key planes of groups 2 and 3 exchanged (15,794 positions differ at `head_dim = 64`): rejected at **slot 16** `05 KV zero-check` |
+| `a_moved_score_word_in_the_fourth_group_is_rejected_at_its_host_slot_at_the_rung_w14` | one score word at head slot 14 (key-value group 3, a non-first head): rejected at **slot 17** `06 softmax zero-check (hosts 07, 10)` — the score matmul is a HOSTED slot and its host is where the verifier reports |
+| `a_verifier_statement_with_one_moved_endpoint_word_is_refused_at_the_rung_w14` | the proof is honest and the VERIFIER's statement moves by one word at **column 16,383 of a 2^14-wide endpoint row**: `private block wire: expected statement mismatch` |
+| `the_pinned_rung_w14_chain_band_is_the_first_admissible_one` | band **20**, which is also the recipe's own single-block band: the first shape whose chain needs NO reduction. `dense_tests::band_down_run` gains a MEASURED `(1024, 4) => 20` arm |
+| `an_honest_two_block_fully_dense_run_verifies_from_its_segments_at_the_rung_w14` | prove **8.05 s**, verify from segments **1.07 s**, segments **15,728,936 / 16,689,416 = 32,418,352 B** (the counted lengths), internal boundary **10 rows**, both blocks censused |
+
+**THE TAMPERS, and what rejects each.** Every one is placed so that the
+first relation it breaks is the one named, the message is asserted to name
+that slot so a rejection by an earlier check cannot pass for one, and the
+honest control is asserted accepted first.
+
+| tamper | column of its row | rejected by | at |
+|---|---:|---|---|
+| the gate `A_G8` at the last index of the unpadded `Dom::F` | **16,383** | **VERIFIER** | slot 18 `14 F zero-check` |
+| the key `A_K8` at the last index of the unpadded `Dom::Kv` (one whole row) | **16,383** | **VERIFIER** | slot 16 `05 KV zero-check` |
+| residual 2, `A_X2`, on the true `Dom::D` support, deepest column | **16,127** | **VERIFIER** | slot 14 `03 D zero-check` |
+| the query `A_Q8` in the last column block of a `Dom::Q` row | **16,377** | **VERIFIER** | slot 15 `04 Q zero-check` |
+| the norm square `A_DSQ` at the last `Dom::T` position | 63 | **VERIFIER** | slot 02 `02 norm squares zero-check` |
+| a byte-histogram multiplicity moved to lifted table row 256 | 256 | **VERIFIER** | slot 19 `TAB table helper zero-check` |
+| the same, moved **8,192 rows** away (the ×64 lift) | 8,192 | **VERIFIER** | slot 19 |
+| the key family of key-value groups 2 and 3 exchanged | — | **VERIFIER** | slot 16 |
+| one score word at a non-first head of the fourth group | — | **VERIFIER** | slot 17 (the score slot's host) |
+| the verifier's input endpoint moved by one word | **16,383** | **VERIFIER** | `wire: expected statement mismatch` |
+
+**NO SOUNDNESS FINDING.** Nothing this stage tried was accepted, nothing was
+caught only by the prover, and no refusal was weaker than the one its
+narrower counterpart gives. Two results are worth recording as FACTS rather
+than findings, because both are about WHICH slot reports and neither is a
+hole: the group-key exchange is reported by the `Dom::Kv` host (slot 16) and
+not by a bilinear slot, because the swapped planes live on `Dom::Kv` and
+that relation breaks too; and a wrong SCORE word is reported by slot 17,
+because the score matmul is hosted there. Both name a slot and a relation,
+which is the standard stage 30's finding T30-F1 and stage 31's S31-F1 asked
+for and did not get from the wire-level and opening-group refusals.
+
+### Task 3 — the two capture bundles, and why they are NOT in the repository
+
+`run-o-dense-w14` and `run-p-zero-w14`, **two blocks each**, schema
+`hashline-native-capture/5-run` (the array store), public tables' VALUES
+included, tagged, source pin `11703c9` over 38 files (`v32-bundles.log`,
+exit 0, 22.91 s for the pair).
+
+| bundle | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|
+| `run-o-dense-w14` (FULLY DENSE, generic) | 34,845 B | 3,695,023 / 4,415,868 B | 42,424,904 B | **50,575,731 B** |
+| `run-p-zero-w14` (all-zero, degenerate) | 34,828 B | 3,694,816 / 4,418,843 B | 41,380,544 B | **49,533,887 B** |
+
+**50.6 and 49.5 MB with both size levers already taken** — two blocks (the
+least that still has an internal boundary) and the array store (25 arrays
+deduplicated in the dense bundle) — so under the stage's own rule they are
+written **outside the repository**, beside the 125M captures:
+
+```
+/home/victor/zk60-artifacts/run-o-dense-w14
+/home/victor/zk60-artifacts/run-p-zero-w14
+```
+
+What is committed is each bundle's `manifest.json` and its own `README.md`,
+a `WHERE.md` with the exact regeneration command, the self-check log and the
+self-check script, all under
+`results/zk60_block125m_lane/v32-bundle-manifests/`; the parent captures
+README gains a stage-32 section saying where they are. The size is the
+SHAPE's doing and not a defect of the encoding: `arrays.bin` holds the
+opened columns, and at a 2^14-wide row there are 256 of them over 527 and
+436 rows.
+
+**What a gate sees in them** (`v32-bundle-check.log`, read off the files on
+disk, **0 mismatches**), against `run-m-dense-c6`, stage 0 against stage 0:
+
+* `"log_cols":14` with `"a_rows":527` and `"h_rows":436`, against
+  `"log_cols":10` with 1,337 and 1,408 — the row width, in the first fields
+  of every stage file;
+* slot 14 at **54 terminals** and slots 16 and 18 at **degree 4**, so
+  correction C-6 and stage 30's unpadded arm are both still there and the
+  pair is a regression for findings M-F1 and C-6 as well as new evidence;
+* **all 23 slots differ from rung-C6 in their ROUND COUNTS** (main rounds
+  and `definition_challenges`), which is what a wider row and larger domains
+  do, and is exactly the part of the schedule a port at the 125M row width
+  has to get right;
+* both stages of each bundle carry the same schedule and the same draw
+  counts on all 23 slots; each manifest's five files match their recorded
+  length and SHA-256; no older bundle and no older README is touched.
+
+They are **not gate evidence** (ruling T-6) and not a privacy result.
+
+### Task 4 — what is STILL reached only by an `#[ignore]`d heavy test
+
+Stage 31's list, re-read after this stage. Its items 2 and 3 are **CLOSED**
+and item 4 is half closed; the prices below are the independent model's.
+
+| # | branch | why no shape in the filter reaches it | can a small shape? |
+|---|---|---|---|
+| ~~2~~ | ~~the row width `log_cols = 14`~~ and everything keyed to it | — | **CLOSED by this stage**: `Shape::rung_w14`, twelve non-ignored tests plus the parity one, and two capture bundles |
+| ~~3~~ | ~~`head_dim = 64`~~ — the S-3 / C-2 margin, the RoPE partner bit at `log − 6` | — | **CLOSED by this stage**, with the width 768 and `D_max` 908,065 that follow from it |
+| 4a | **the 125M endpoint's 32 data rows / 37 commitment rows AT `endpoint_log_n = 14`** | the endpoint commits `t_pad · d_pad`, which is 2^16 here and 2^19 at 125M | **NO, not small.** 32 data rows at a 14-log endpoint need a 2^19-word padded cube; the four-norm-limb refusal caps the width at 1,024, so the cube can only grow through the TOKENS, and 2^19 / 1,024 = 512 tokens — 125M itself. The model prices that shape (512 tokens, width 768, hidden 1,024) at a **39,275,896 B** receipt and 93.9 M U8 lookups, which is 125M's own class |
+| 4b | the 32 / 37 endpoint ROW COUNT at a smaller endpoint log | the filter has 2, 4 and 16 data rows | **YES, and it is the one cheap thing left**: 32 tokens, width 768, hidden 1,024, 12 heads of 64 over 4 at `log_cols = 10` gives a 2^15-word cube at an endpoint log of 10 — **32 data rows, 37 commitment rows** — for an 11,368,824 B receipt and 2.2 M U8 lookups. It reaches the ROW COUNT and not the LOG. **NOT DONE** |
+| 5 | **the token count 512 and everything that scales with it**: `Dom::S` at 2^22 and `Dom::F` at 2^20 (the two biggest cubes), `A` 5,681 / `H` 7,120 rows, 98.6 M U8 lookups, the largest slot mask length 117, and the parallel thresholds' far side at that scale | size alone | **A LADDER, and every rung is priced.** At this shape's geometry the model gives 128 tokens an **18,162,936 B** receipt and 11.7 M lookups (2.4× this stage's work), 256 tokens **23,169,336 B** and 31.2 M (6.4×), 512 tokens **39,275,896 B** and 93.9 M. 128 tokens would still be an ordinary-filter shape; 256 would be a medium-tier one at roughly 25 s a proof; 512 is 125M. **NOT DONE**, and the open question is what a rung buys beyond what this stage already proves |
+| 6 | **long runs and the memory path**: `L = 12`, a 484 MB run receipt, the >10 GiB proving peak, the mmap threshold crossings | size alone | **NO** — inherently heavy, and the one item a small shape cannot stand in for. Stage 29 unit-gated the five size thresholds themselves, so what is uncovered is the memory BEHAVIOUR, not a branch |
+
+**The observation stage 31 recorded is still true, and further from being
+reached than ever.** `Shape::a_groups`'s first arm,
+`natural_log(Dom::T) >= log_cols`, is reached by **no registered shape**: at
+rung-W14 `log(Dom::T)` is 6 against a row width of 2^14, where at rung-C6 it
+was 5 against 2^10. It needs `t_pad ≥ 2^log_cols`, and
+`Dom::S = h_pad · t_pad²` grows quadratically in the tokens, so the cheapest
+such shape is still a 39,380,616-byte receipt. It is a dead arm rather than
+a heavy one, and no test exercises it.
