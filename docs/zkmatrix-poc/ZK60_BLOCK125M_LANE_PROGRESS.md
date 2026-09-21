@@ -5796,3 +5796,20 @@ capture rule, and only these counts are recorded):
 file of this lane (`va-s20-norun.log`, exit 0). **Re-read its mtime before
 launching anything**: the target directory is shared with another worktree.
 
+
+## Stage 21 — the owed items before the hand-back (2026-09-20, 19:5x–)
+
+**Status: `IN PROGRESS` (skeleton).** Five items, all of them owed by the
+independent stage-20 review (`ZK60_BLOCK125M_S20_FIX_REVIEW.md`, findings
+F-1 … F-6) or by ruling R-5 of
+`ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md`. No shared or frozen file
+changes; the toy stays byte-frozen.
+
+| item | what | state |
+|---|---|---|
+| 1 | F-1: the Python layout model derives the repaired bilinear schedule ITSELF, its own totals re-pinned from its own arithmetic, and the Rust-side `s20_bilinear_delta` adjustment removed so the model is an oracle again | PENDING |
+| 2 | F-2: a NAMED refusal for a shape whose bilinear domains are P-3 lifted | PENDING |
+| 3 | R-5: interior boundary scales are constants of the approved calibration — a run REFUSES any other pair, with NO absorb and NO proof byte moved | PENDING |
+| 4 | a fully dense, admissible TWELVE-block run recipe at 125M, witness-builder only | PENDING |
+| 5 | the capture bundles re-taken for the repaired argument (`run-g-dense-s20`, `run-h-zero-s20`) | PENDING |
+
