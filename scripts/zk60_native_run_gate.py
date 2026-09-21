@@ -73,6 +73,10 @@ from zk60_native_rg_pcs import RunRoleView  # noqa: E402
 from zk60_native_rg_planes import NO_TABLE, plane_index_of  # noqa: E402
 from zk60_native_rg_preimage import preimages  # noqa: E402
 from zk60_native_rg_replay import RunReplay  # noqa: E402
+from zk60_native_rg_runpins import (  # noqa: E402
+    check_run_layer_pins,
+    not_checked,
+)
 from zk60_native_rg_hashlayer import check_hash_layer  # noqa: E402
 from zk60_native_rg_hcontrols import hash_rule_controls  # noqa: E402
 from zk60_native_rg_tcontrols import terminal_controls  # noqa: E402
@@ -90,6 +94,7 @@ TOOLS = [
     "zk60_native_run_gate.py",
     "zk60_native_rg_bundle.py",
     "zk60_native_rg_replay.py",
+    "zk60_native_rg_runpins.py",
     "zk60_native_rg_pcs.py",
     "zk60_native_rg_joint.py",
     "zk60_native_rg_preimage.py",
@@ -858,26 +863,79 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         "bundle_dir": bundle.dir,
         "tool_sha256": tool_hashes(),
     }
-    record["stage1_integrity"] = integrity(bundle)
+    # [ROUND 6, finding K4-F2] the RUN LAYER's own pins, before any stage.
+    # Until 2026-09-21 `run_capture.rs`, `run.rs` and `boundary.rs` were
+    # pinned by no run-gate tool at all, and a comment said otherwise.  A
+    # digest this gate has not read leaves the AFFECTED STAGES not checked by
+    # name -- never a crash, which is finding K4-F1's lesson one layer up.
+    rlp = check_run_layer_pins(bundle)
+    record["run_layer_source_pins"] = rlp
+    suspended = rlp["stages_not_checked"]
+
+    def _skipped(stage):
+        return stage in suspended
+
+    if _skipped("stage1_integrity"):
+        record["stage1_integrity"] = not_checked(
+            "stage1_integrity", suspended["stage1_integrity"])
+    else:
+        record["stage1_integrity"] = integrity(bundle)
     record["hash_rule"] = bundle.hash_rule_record.copy()
     record["hash_rule"].pop("rule", None)
-    replay = RunReplay(bundle).run()
-    record["stage2_transcript_replay"] = replay.summary()
     other = RunBundle(other_dir) if other_dir else None
     old = RunBundle(old_dir) if old_dir else None
-    s8, _index = stage8(bundle, replay, old=old, do_controls=do_controls)
-    record["stage8_plane_index_and_terminals"] = s8
-    record["stage10_bilinear_group_factor"] = stage10(
-        bundle, _index, replay, do_controls=do_controls)
-    note = dict(s8["terminal_identity"])
-    note["status"] = s8["channel_status"]
-    s3, views = stage3(bundle, replay, pad_rank=pad_rank, terminal_note=note)
-    record["stage3_per_commitment"] = s3
-    shared = discover_shared_planes(bundle)
-    record["stage4_the_boundary"] = stage4(bundle, views, shared, run_wide=run_wide)
-    singles = [k for k, v in views.items() if all(len(m) == 1 for m in v.groups)]
-    record["stage5_zero_data_preimage"] = preimages(bundle, views, sorted(singles))
-    if do_controls and other is not None:
+    if _skipped("stage2_transcript_replay"):
+        replay = None
+        record["stage2_transcript_replay"] = not_checked(
+            "stage2_transcript_replay", suspended["stage2_transcript_replay"])
+    else:
+        replay = RunReplay(bundle).run()
+        record["stage2_transcript_replay"] = replay.summary()
+    if _skipped("stage8_plane_index_and_terminals"):
+        s8, _index = None, None
+        record["stage8_plane_index_and_terminals"] = not_checked(
+            "stage8_plane_index_and_terminals",
+            suspended["stage8_plane_index_and_terminals"])
+    else:
+        s8, _index = stage8(bundle, replay, old=old, do_controls=do_controls)
+        record["stage8_plane_index_and_terminals"] = s8
+    if _skipped("stage10_bilinear_group_factor"):
+        record["stage10_bilinear_group_factor"] = not_checked(
+            "stage10_bilinear_group_factor",
+            suspended["stage10_bilinear_group_factor"])
+    else:
+        record["stage10_bilinear_group_factor"] = stage10(
+            bundle, _index, replay, do_controls=do_controls)
+    if _skipped("stage3_per_commitment"):
+        views = {}
+        record["stage3_per_commitment"] = not_checked(
+            "stage3_per_commitment", suspended["stage3_per_commitment"])
+    else:
+        note = dict(s8["terminal_identity"])
+        note["status"] = s8["channel_status"]
+        s3, views = stage3(bundle, replay, pad_rank=pad_rank,
+                           terminal_note=note)
+        record["stage3_per_commitment"] = s3
+    if _skipped("stage4_the_boundary"):
+        shared = None
+        record["stage4_the_boundary"] = not_checked(
+            "stage4_the_boundary", suspended["stage4_the_boundary"])
+    else:
+        shared = discover_shared_planes(bundle)
+        record["stage4_the_boundary"] = stage4(bundle, views, shared,
+                                               run_wide=run_wide)
+    if _skipped("stage5_zero_data_preimage"):
+        record["stage5_zero_data_preimage"] = not_checked(
+            "stage5_zero_data_preimage", suspended["stage5_zero_data_preimage"])
+    else:
+        singles = [k for k, v in views.items()
+                   if all(len(m) == 1 for m in v.groups)]
+        record["stage5_zero_data_preimage"] = preimages(
+            bundle, views, sorted(singles))
+    if _skipped("stage6_negative_controls"):
+        record["stage6_negative_controls"] = not_checked(
+            "stage6_negative_controls", suspended["stage6_negative_controls"])
+    elif do_controls and other is not None:
         record["stage6_negative_controls"] = controls(
             bundle, other, views, replay, shared
         )
@@ -889,30 +947,58 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         }
     # stage 9 (round 3): the hash layer under the rule the loader derived,
     # and the controls of the rule itself
-    hl = check_hash_layer(bundle)
-    # CH-6 needs a LEGACY-rule bundle; when none is supplied and the bundle
-    # under test is itself a legacy-rule one, it stands for itself.
-    legacy_for_ch6 = old
-    if legacy_for_ch6 is None and bundle.hash_rule is not None \
-            and bundle.hash_rule.is_legacy:
-        legacy_for_ch6 = bundle
-    # CH-7 (round 5) needs a bundle of a SECOND tagged profile.  `--other` is
-    # normally the same profile's sibling run, so it is used only when its
-    # profile really differs; otherwise `--cross-profile` names one.
-    cross = RunBundle(cross_profile_dir) if cross_profile_dir else None
-    if cross is None and other is not None and \
-            other.run["shape"]["profile"] != bundle.run["shape"]["profile"]:
-        cross = other
-    hl["controls"] = (hash_rule_controls(bundle, legacy_bundle=legacy_for_ch6,
-                                         cross_profile_bundle=cross)
-                      if do_controls else {"skipped": "controls not requested",
-                                           "ok": False})
-    hl["ok"] = hl["ok"] and (hl["controls"].get("ok") if do_controls else True)
-    record["stage9_hash_layer"] = hl
-    record["stage7_channels"] = channels(bundle, record)
+    if _skipped("stage9_hash_layer"):
+        record["stage9_hash_layer"] = not_checked(
+            "stage9_hash_layer", suspended["stage9_hash_layer"])
+    else:
+        hl = check_hash_layer(bundle)
+        # CH-6 needs a LEGACY-rule bundle; when none is supplied and the
+        # bundle under test is itself a legacy-rule one, it stands for itself.
+        legacy_for_ch6 = old
+        if legacy_for_ch6 is None and bundle.hash_rule is not None \
+                and bundle.hash_rule.is_legacy:
+            legacy_for_ch6 = bundle
+        # CH-7 (round 5) needs a bundle of a SECOND tagged profile.
+        # `--other` is normally the same profile's sibling run, so it is used
+        # only when its profile really differs; otherwise `--cross-profile`
+        # names one.
+        cross = RunBundle(cross_profile_dir) if cross_profile_dir else None
+        if cross is None and other is not None and \
+                other.run["shape"]["profile"] != bundle.run["shape"]["profile"]:
+            cross = other
+        hl["controls"] = (hash_rule_controls(bundle,
+                                             legacy_bundle=legacy_for_ch6,
+                                             cross_profile_bundle=cross)
+                          if do_controls
+                          else {"skipped": "controls not requested",
+                                "ok": False})
+        hl["ok"] = hl["ok"] and (hl["controls"].get("ok")
+                                 if do_controls else True)
+        record["stage9_hash_layer"] = hl
+    # The channel table is a summary of the stages above, so it is suspended
+    # whenever ANY of them is -- `channels()` is never handed a partial
+    # record.  That is finding K4-F1's lesson kept rather than repeated.
+    if _skipped("stage7_channels"):
+        record["stage7_channels"] = not_checked(
+            "stage7_channels", suspended["stage7_channels"])
+    else:
+        record["stage7_channels"] = channels(bundle, record)
     record["seconds"] = round(time.time() - t0, 1)
     stages = [k for k in record if k.startswith("stage")]
     record["ok"] = all(record[k]["ok"] for k in stages)
+    if suspended:
+        record["what_it_does_not_show"] = [
+            "NOTHING WAS COMPUTED ABOUT THIS BUNDLE beyond its run-layer "
+            "source pins: " + "; ".join(sorted(
+                set(rlp["pins_that_moved"] + rlp["pins_missing_from_the_bundle"]))),
+            "the stages left unchecked, by name: "
+            + ", ".join(sorted(suspended)),
+            "the absence of a figure is not a figure, and nothing here says "
+            "the bundle is bad -- it says this gate has not read the Rust "
+            "that made it",
+            "NOT a privacy acceptance and NOT a privacy property",
+        ]
+        return record
     n_cov = len(covered_at(bundle))
     record["what_it_does_not_show"] = [
         "linear channels of ONE captured three-block run at ONE development shape",

@@ -85,7 +85,11 @@ READING.  The reading is pinned: the bundle's own
 `manifest.json["source_pins"]` names `argument.rs`, `layout.rs`,
 `protocol.rs` and `plane_index.rs` by SHA-256, and [`check_source_pins`]
 compares them with the digests this port was written against.  A pin that
-moved makes every slot NOT CHECKED rather than silently wrong.  What the
+moved makes every slot NOT CHECKED rather than silently wrong.  (The other
+four files a bundle pins -- `shape.rs` here, and `run_capture.rs`, `run.rs`
+and `boundary.rs` in `zk60_native_rg_runpins` since 2026-09-21 -- are pinned
+elsewhere; before that date the last three were pinned by nothing, which was
+finding K4-F2.)  What the
 machine does check is stronger than the pin: every rebuilt public table is
 compared with the capture's SHA-256 of the real one, and the identity itself
 must hold at the run's real challenges for every covered slot of every stage.
@@ -150,19 +154,41 @@ ONE, ZERO = F2_ONE, F2_ZERO
 # and a pin added without a reading is exactly what this discipline forbids.
 # What round 5 does do is name the three and their observed digests, below,
 # so the next reader starts from a true statement.
-NOT_PINNED_BY_ANY_RUN_GATE_TOOL = {
+#
+# **ROUND 6 CORRECTION (2026-09-21).  FINDING K4-F2 IS CLOSED.**  The three
+# files below ARE now pinned -- by `zk60_native_rg_runpins`, which carries
+# nine (file, digest) pairs covering all five capture commits, one written
+# READING per pair, and an affected-stage table so that a digest this gate
+# has not read leaves the affected stages NOT CHECKED by name rather than
+# crashing.  The dict below is kept, with its name, as the dated record of
+# what was true until 2026-09-21; it is no longer the state of the tools.
+# Two corrections to round 5's own text are folded in, because a ledger is
+# not rewritten and a wrong figure is not left standing:
+#   * `run.rs` `0426ad2 -> 3247a89` is **9 added lines, 0 removed**
+#     (`git diff --numstat`), not the 12 round 5 recorded;
+#   * `boundary.rs` is NOT byte-identical at every capture commit.  It has
+#     TWO digests: `9860c35d` at `cb27845d` and `aff891d` (bundles a-d) and
+#     `3786a300` at `facc057`, `0426ad2` and `3247a89` (bundles e-j).
+WAS_NOT_PINNED_BY_ANY_RUN_GATE_TOOL_UNTIL_20260921 = {
     "src/private_block/run_capture.rs": "the bundle WRITER: which fields a "
     "capture carries.  A change here changes what this gate can read, and "
-    "would be caught only by the schema and allow-list checks the writer "
-    "itself puts in the bundle",
+    "until round 6 would have been caught only by the schema and allow-list "
+    "checks the writer itself puts in the bundle",
     "src/private_block/run.rs": "the run's own geometry and profile table "
     "(`RunShape`, `RUN_PROFILE_*`).  Round 5's reading: `0426ad2 -> 3247a89` "
     "adds `RUN_PROFILE_RUNG_K4` and `RunShape::rung_k4` and changes no "
-    "existing line (`git diff 0426ad2 3247a89 -- .../run.rs`, 12 added "
-    "lines, 0 removed)",
+    "existing line (`git diff 0426ad2 3247a89 -- .../run.rs`, **9** added "
+    "lines, 0 removed; round 5 wrote 12, corrected 2026-09-21)",
     "src/private_block/boundary.rs": "the internal boundary's rows and "
-    "scales; byte-identical at every capture commit so far (`3786a300`)",
+    "scales.  Round 5 said 'byte-identical at every capture commit so far "
+    "(3786a300)'; that is WRONG and was corrected 2026-09-21 -- bundles a-d "
+    "pin `9860c35d`, and the two digests differ by the D19 tag plumbing "
+    "only (production +27/-3, no geometry accessor moved)",
 }
+# The name the round-5 tree used.  Kept as an alias so nothing that reads it
+# breaks, and so a reader who greps the old name lands on the correction.
+NOT_PINNED_BY_ANY_RUN_GATE_TOOL = (
+    WAS_NOT_PINNED_BY_ANY_RUN_GATE_TOOL_UNTIL_20260921)
 PORTED_FROM = {
     "src/private_block/argument.rs":
         "909670c96562e7ff99b7ad37f6c3aae027574f3c0e9ab74f01a27e45058bf675",

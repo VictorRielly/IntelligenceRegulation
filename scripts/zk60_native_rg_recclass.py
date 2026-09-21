@@ -71,6 +71,22 @@ CLASSES_ROUND_4 = (
      "the terminal port naming which definition of slots 08/09 is in force"),
 )
 CLASSES = CLASSES + CLASSES_ROUND_4
+
+# **ROUND 6 (2026-09-21), finding K4-F2 closed.**  The gate gained ONE new
+# top-level block -- `run_layer_source_pins` -- and one new tool file, whose
+# hash falls under the existing "tool hashes" class.  Nothing else was meant
+# to move, so everything else stays UNCLASSIFIED on purpose.
+CLASSES_ROUND_6 = (
+    (lambda p: p == "run_layer_source_pins"
+     or p.startswith("run_layer_source_pins/"),
+     "the new run-layer source-pin block (finding K4-F2)"),
+)
+CLASSES = CLASSES + CLASSES_ROUND_6
+NOTE_ROUND_6 = (
+    "  Round 6 adds one class: the new `run_layer_source_pins` block, which "
+    "is the pin table for `run_capture.rs`, `run.rs` and `boundary.rs` that "
+    "finding K4-F2 said did not exist."
+)
 NOTE_ROUND_4 = (
     "  Round 4 adds four classes: the new stage 10 block, ruling R-3's "
     "correction note beside every joint figure, the terminal port naming "
@@ -99,7 +115,7 @@ def summarise(diffs: dict) -> dict:
     out = {
         "what": "the superseded bundles re-run under the current tools and "
         "diffed leaf by leaf against their previous round's records",
-        "note": NOTE + NOTE_ROUND_4,
+        "note": NOTE + NOTE_ROUND_4 + NOTE_ROUND_6,
         "per_bundle": [],
         "unclassified": [],
     }
