@@ -6193,3 +6193,22 @@ git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 901557e -- \
 
 prints NOTHING: every one of those trees is byte-identical to the tip the
 review merged.
+
+
+## Stage 22 — the run statement's recipe, and a four-key-value-head development shape (2026-09-20, 22:1x–)
+
+**Status: `IN PROGRESS` (skeleton).** Two items, both purely ADDITIVE on top
+of the hand-back tip `e6b612f`. Nothing an existing profile proves may move
+by a byte: the toy, the rung, rung-G, 125M and their runs keep every receipt
+length, every digest and every frozen gate.
+
+| item | what | state |
+|---|---|---|
+| 1 | the public run statement's weights recipe describes PUBLIC WEIGHTS ONLY — today its string also says how the synthetic HIDDEN INPUT is drawn, and the one seeded stream ends in `x`, so the published seed regenerates the hidden input | `TODO` |
+| 2 | a development shape with FOUR key-value heads (`rung-K4`), proved, captured, and carried through the layout model — every proof and every capture so far has `lkv <= 1`, so the Python privacy gate's ports have never seen two group bits | `TODO` |
+
+Sections to be filled as the work lands: the repaired recipe and what the
+statement now contains; which retained statements carry the old string; the
+K4 geometry as built with every dimension and every counted figure; the
+tests and their results; the two capture bundles; the model-vs-Rust
+comparison; the gate counts; the forbidden-files proof.
