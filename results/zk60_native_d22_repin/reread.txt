@@ -1,0 +1,51 @@
+================================================================================================
+hashline/src/zk.rs
+  4751b93^    4184 lines  sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310
+  4751b93     4549 lines  sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b
+  identical  pub const MASK_LOG_MSG       zk.rs:373 -> :373   1 lines
+  identical  pub const MASK_LOG_DOM       zk.rs:374 -> :374   1 lines
+  identical  pub const MASK_Q             zk.rs:375 -> :375   1 lines
+  identical  pub struct MaskCommit        zk.rs:377 -> :377   14 lines
+  identical  pub struct MaskFunctional    zk.rs:395 -> :395   4 lines
+  identical  pub struct MaskOpening       zk.rs:401 -> :401   5 lines
+  identical  impl MaskOpening             zk.rs:407 -> :407   15 lines
+  identical  fn encode_coeffs_coset       zk.rs:424 -> :424   5 lines
+  identical  pub fn mask_commit           zk.rs:430 -> :430   38 lines
+  identical  fn combined_weights          zk.rs:470 -> :470   18 lines
+  identical  fn weight_polys              zk.rs:490 -> :490   7 lines
+  identical  fn poly_mul_512              zk.rs:499 -> :499   12 lines
+  identical  pub fn mask_open             zk.rs:512 -> :512   39 lines
+  identical  pub fn mask_verify           zk.rs:552 -> :552   39 lines
+  identical  fn pcs_hash_column           zk.rs:592 -> :592   4 lines
+  identical  fn mask_challenge            zk.rs:961 -> :961   5 lines
+  identical  pub(crate) fn masked_prove   zk.rs:972 -> :972   10 lines
+  identical  pub(crate) fn extension      zk.rs:984 -> :984   14 lines
+  --> 0 of 18 items on the toy path changed
+================================================================================================
+hashline/src/pcs.rs
+  4751b93^      84 lines  sha256 6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8
+  4751b93      131 lines  sha256 9537915b26b21ea906b0098d14afedf65c3d33320619bd380d4987d0c5fcf5a7
+  identical  pub fn commit                pcs.rs:36 -> :36   3 lines
+  identical  pub fn open                  pcs.rs:42 -> :89   11 lines
+  identical  pub fn commit_zk             pcs.rs:55 -> :102   3 lines
+  identical  pub fn commit_zk_owned       pcs.rs:60 -> :107   3 lines
+  identical  pub type Store               pcs.rs:28 -> :28   1 lines
+  identical  pub type Committed           pcs.rs:30 -> :30   1 lines
+  identical  pub type CommittedZk         pcs.rs:32 -> :32   1 lines
+  --> 0 of 7 items on the toy path changed
+================================================================================================
+hashline/src/layer.rs
+  4751b93^    2198 lines  sha256 d66c385d87b86e95e3140422f6fa4f3156f2c25395a70a65794377d30807326f
+  4751b93     2304 lines  sha256 d665e41e5c4565755c20b000e2feb82a88a1155d6525f271c5bfc867968a551d
+  identical  pub const TAG_SILU           layer.rs:33 -> :33   1 lines
+  identical  pub const TAG_INT8           layer.rs:34 -> :34   1 lines
+  identical  pub fn tag_range             layer.rs:35 -> :35   3 lines
+  identical  pub struct Statement         layer.rs:40 -> :40   7 lines
+  identical  pub struct Layout            layer.rs:71 -> :71   14 lines
+  identical  pub const LOG_WBLOCK         layer.rs:86 -> :86   1 lines
+  --> 0 of 6 items on the toy path changed
+================================================================================================
+zk.rs lines 1-2274 (everything above the first hunk, and every ported item):
+  4751b93^: 52e96335c166cfc62b6da883251e31391ad6451d1d67d10a61625385dd3ea8ab
+  4751b93: 52e96335c166cfc62b6da883251e31391ad6451d1d67d10a61625385dd3ea8ab
+  IDENTICAL

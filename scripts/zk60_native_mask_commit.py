@@ -158,19 +158,122 @@ SOURCE_PINS = (
     ),
 )
 
+# ------------------------------------------------- a pin that MOVED, both kept
+# A pin is moved ONLY after the changed file has been re-read item by item,
+# and the value the captures were taken against is kept beside the new one, so
+# that a later reviewer can see WHY the tool accepts a file the captures were
+# not produced under.  The captured proof/source relationship is unchanged:
+# the four receipts of 2026-09-19 were made and verified by the OLD bytes, and
+# nothing was recaptured to move a pin.  Same discipline as
+# `zk60_native_terminal_polys.REPIN_HISTORY` (the `mle.rs` precedent of
+# commit 4bf1fa0) with one difference of form: BOTH digests stay ACCEPTED,
+# because the tree this tool runs in (lane `zk60-native-jointview`) still
+# carries the pre-4751b93 bytes while the integrator's main branch carries
+# the new ones, and the port must be usable, and refusable, in either.
+#
+# A digest outside this table is a refusal exactly as before.
+RepinRecord = collections.namedtuple(
+    "RepinRecord", "path captured_against repinned_at commit date reason items"
+)
+
+ALSO_ACCEPTED = {
+    # sha256 -> (git blob, one line saying which tree it is)
+    "hashline/src/zk.rs": {
+        "ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b": (
+            "bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5",
+            "main at 4751b93 (2026-09-20 20:52), the integrator's host/private "
+            "work: every item this port transcribes is byte-identical, see "
+            "REPIN_HISTORY",
+        ),
+    },
+}
+
+REPIN_HISTORY = (
+    RepinRecord(
+        path="hashline/src/zk.rs",
+        captured_against=(
+            "sha256 c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310, "
+            "git blob 28f32f184751d14188a45b830c42fde8811ca155"
+        ),
+        repinned_at=(
+            "sha256 ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b, "
+            "git blob bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5"
+        ),
+        commit=(
+            "4751b93 (perf/zk-batch-optimizations), 'Integrate validated "
+            "direct-plane uploads and private host reuse'"
+        ),
+        date="2026-09-20",
+        reason=(
+            "re-read under condition 7 of the toy profile's privacy statement "
+            "(register D22). The file grew by 365 lines in twelve hunks, ALL of "
+            "them at or below line 2275 -- the v3 FFN layer prover, which no "
+            "private-block or private-attention entry point reaches. Lines "
+            "1-2274, which contain every item this port transcribes, are "
+            "byte-identical (sha256 52e96335... of the prefix at both commits). "
+            "Evidence: results/zk60_native_d22_repin/{reread.txt,zk_rs_diff.txt}; "
+            "reading: docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md"
+        ),
+        items=(
+            # (item, verdict of the 2026-09-20 21:xx re-reading)
+            ("MASK_LOG_MSG / MASK_LOG_DOM / MASK_Q", "byte-identical (zk.rs:373-375)"),
+            ("MaskCommit / MaskFunctional / MaskOpening", "byte-identical"),
+            ("encode_coeffs_coset", "byte-identical; this port's coset encoding"),
+            (
+                "mask_commit",
+                "byte-identical, and with it the ORDER of every draw: per mask "
+                "row CfsMask::random, then MASK_Q pads, then b_re, b_im, u_re, "
+                "u_im, then one 32-byte salt per column",
+            ),
+            ("combined_weights", "byte-identical; the theta combination this port solves"),
+            ("weight_polys / poly_mul_512", "byte-identical"),
+            ("mask_open", "byte-identical; q, the proximity vector, the opened columns"),
+            ("mask_verify", "byte-identical; the replay the gate follows"),
+            ("pcs_hash_column", "byte-identical; the unsalted column digest"),
+            ("mask_challenge / masked_prove / extension", "byte-identical"),
+            (
+                "zkhostbuf (NEW), fsp_i8fold / fold_block_i8 (NEW)",
+                "a host staging pool and a fused int8 fold, reached only from "
+                "prepare_layer_zk_v3_inner / PendingV3::finish; no private-block "
+                "or private-attention entry point calls either, so no pooled "
+                "buffer is on this profile's path",
+            ),
+            (
+                "prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1 / "
+                "MR1_PROBE_PROFILE / zk_v3_committed_rows (NEW)",
+                "a PUBLIC-endpoint cost probe for the v3 FFN with its own "
+                "Fiat-Shamir separator b'hashline-zk-mr1/ffn-v3-mr1-probe/1', "
+                "distinct from this profile's; not reachable from it",
+            ),
+            (
+                "PendingV3::finish, prepare_layer_zk_v3_inner",
+                "CHANGED (pool take/give, the fused fold); both are v3 FFN "
+                "layer functions, off this profile's path",
+            ),
+        ),
+    ),
+)
+
 
 def _blob_id(raw: bytes) -> str:
     return hashlib.sha1(b"blob %d\0" % len(raw) + raw).hexdigest()
 
 
-def check_source_pins(root: str | None = None, pins=SOURCE_PINS) -> dict:
+def check_source_pins(root: str | None = None, pins=SOURCE_PINS,
+                      also=None) -> dict:
     """HARD ERROR if a pinned Rust source is missing or changed.
 
     Same discipline as `zk60_native_terminal_polys.check_source_pins`: this
     module is a transcription of code that lives elsewhere and silent drift is
     the failure mode that would matter, so every entry point calls this first.
+
+    A file whose digest is in `ALSO_ACCEPTED` is accepted as a SECOND read
+    value and the record says so; anything else is the same hard error it
+    always was.  Widening this table is only ever legitimate after the
+    changed file has been re-read item by item -- see `REPIN_HISTORY`.
     """
     root = root or os.path.dirname(HERE)
+    also = ALSO_ACCEPTED if also is None else also
     out = {}
     for pin in pins:
         path = os.path.join(root, pin.path)
@@ -184,17 +287,36 @@ def check_source_pins(root: str | None = None, pins=SOURCE_PINS) -> dict:
             raw = fh.read()
         got = hashlib.sha256(raw).hexdigest()
         blob = _blob_id(raw)
-        if got != pin.sha256:
+        second = also.get(pin.path, {})
+        if got != pin.sha256 and got not in second:
             raise SourcePinError(
                 f"source pin MISMATCH for {pin.path}:\n"
                 f"  pinned sha256 {pin.sha256} (git blob {pin.blob})\n"
-                f"  found  sha256 {got} (git blob {blob})\n"
+                + "".join(
+                    f"  also accepted {d} (git blob {b}) -- {w}\n"
+                    for d, (b, w) in second.items()
+                )
+                + f"  found  sha256 {got} (git blob {blob})\n"
                 "The Python port of the masking commitment was written against "
                 "the pinned bytes. Re-read the changed functions line by line, "
                 "update the port and only then re-pin. Do NOT re-pin to make "
                 "this pass."
             )
         out[pin.path] = {"sha256": got, "git_blob": blob, "ported": pin.why}
+        if got != pin.sha256:
+            out[pin.path]["accepted_as"] = second[got][1]
+            out[pin.path]["pin_of_record"] = pin.sha256
+    for rec in REPIN_HISTORY:
+        if rec.path in out:
+            out[rec.path] = dict(
+                out[rec.path],
+                captured_against=rec.captured_against,
+                repinned_at=rec.repinned_at,
+                repinned_by=rec.reason,
+                repinned_on=rec.date,
+                repinned_commit=rec.commit,
+                items_reread=[f"{n}: {v}" for n, v in rec.items],
+            )
     return out
 
 

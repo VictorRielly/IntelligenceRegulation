@@ -58,6 +58,82 @@ class ThePort(unittest.TestCase):
         with self.assertRaises(mc.SourcePinError):
             mc.check_source_pins(pins=missing)
 
+    # -- the D22 re-pin at 4751b93 (ZK60_NATIVE_D22_REPIN_4751B93.md) --------
+    #
+    # `hashline/src/zk.rs` is the one pin the integrator's 4751b93 moves. The
+    # file was re-read item by item, every item this port transcribes is
+    # byte-identical, and BOTH digests are now accepted: the one the four
+    # captures were produced under (the pin of record, which this worktree
+    # still carries) and the one at 4751b93. The three tests below are the
+    # guard on that widening: it must accept exactly those two and nothing
+    # else, and it must SAY which one it found.
+
+    def test_the_second_accepted_digest_of_zk_rs_is_the_4751b93_one(self):
+        second = mc.ALSO_ACCEPTED["hashline/src/zk.rs"]
+        self.assertEqual(len(second), 1)
+        (digest, (blob, why)), = second.items()
+        self.assertEqual(
+            digest,
+            "ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b")
+        self.assertEqual(blob, "bee92f46315ecca1c5c5c9ca30d2943e1a9ba6e5")
+        self.assertIn("4751b93", why)
+        # the record of the reading, and what it says about the captures
+        (rec,) = mc.REPIN_HISTORY
+        self.assertEqual(rec.path, "hashline/src/zk.rs")
+        self.assertIn(digest, rec.repinned_at)
+        self.assertIn("4751b93", rec.commit)
+        self.assertIn("c5b54753", rec.captured_against)
+        self.assertGreaterEqual(len(rec.items), 10)
+
+    def test_a_tree_at_4751b93_passes_and_the_record_names_it(self):
+        import hashlib
+        import subprocess
+        import tempfile
+        want = "ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b"
+        main = "/home/victor/IntelligenceRegulation"
+        if not os.path.isdir(os.path.join(main, ".git")):
+            self.skipTest("the main repository is not on this box")
+        with tempfile.TemporaryDirectory() as tmp:
+            for p in mc.SOURCE_PINS:
+                blob = subprocess.run(
+                    ["git", "--no-pager", "-C", main, "show", f"4751b93:{p.path}"],
+                    capture_output=True)
+                if blob.returncode != 0:
+                    self.skipTest("commit 4751b93 is not in the main repository")
+                d = os.path.join(tmp, os.path.dirname(p.path))
+                os.makedirs(d, exist_ok=True)
+                with open(os.path.join(tmp, p.path), "wb") as fh:
+                    fh.write(blob.stdout)
+            with open(os.path.join(tmp, "hashline/src/zk.rs"), "rb") as fh:
+                got = hashlib.sha256(fh.read()).hexdigest()
+            self.assertEqual(
+                got, want, "4751b93's zk.rs is not the bytes that were read")
+            pins = mc.check_source_pins(root=tmp)
+            self.assertEqual(pins["hashline/src/zk.rs"]["sha256"], want)
+            self.assertIn("4751b93", pins["hashline/src/zk.rs"]["accepted_as"])
+            self.assertEqual(pins["hashline/src/zk.rs"]["pin_of_record"][:8], "c5b54753")
+            # every OTHER pin is at its pin of record at 4751b93 too
+            for p in mc.SOURCE_PINS:
+                if p.path != "hashline/src/zk.rs":
+                    self.assertEqual(pins[p.path]["sha256"], p.sha256, p.path)
+                    self.assertNotIn("accepted_as", pins[p.path], p.path)
+
+    def test_a_third_digest_is_still_refused(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            for p in mc.SOURCE_PINS:
+                d = os.path.join(tmp, os.path.dirname(p.path))
+                os.makedirs(d, exist_ok=True)
+                with open(os.path.join(ROOT, p.path), "rb") as src:
+                    raw = src.read()
+                with open(os.path.join(tmp, p.path), "wb") as fh:
+                    fh.write(raw)
+            with open(os.path.join(tmp, "hashline/src/zk.rs"), "ab") as fh:
+                fh.write(b"\n// a third tree\n")
+            with self.assertRaises(mc.SourcePinError) as cm:
+                mc.check_source_pins(root=tmp)
+            self.assertIn("also accepted", str(cm.exception))
+
     def test_the_two_cfsmask_weight_formulas(self):
         # CfsMask::len, sum_weights (sumcheck.rs:197-227)
         self.assertEqual(mc.mask_len(10, 3), 32)
