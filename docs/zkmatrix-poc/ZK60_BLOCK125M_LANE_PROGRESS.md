@@ -8711,3 +8711,25 @@ including all eighteen files this stage newly PINS.
   (§12 has the eight-line Python). Everything else a `/4-run` loader does is
   unchanged, including refusing a schema it does not know — which is what a
   `/4-run` loader will correctly do to a `/5-run` bundle until it is taught.
+
+## Stage 28 — the 125M prover, faster WITHOUT MOVING A BYTE (2026-09-21, 09:0x–)
+
+**The rule of this stage, before anything else.** Nothing a verifier can see
+may move: not one byte of any receipt, not the order of a transcript absorb,
+not the number or the order of the challenges drawn, and not which attempt is
+refused, when, or with what message. Every change here is an arithmetic or a
+memory change inside the prover, and the acceptance is byte identity at the
+frozen toy and at every shape with a deterministic receipt pin.
+
+Ledger sections of this stage, filled as the work lands:
+
+* **Task 0 — the post-repair baseline at the tip.** (below)
+* **Task 1 — the LogUp helper inverses by table**, and the refusal finding.
+* **Task 2 — the big zero-check slots**, attributed and, where the lane owns
+  the code, made faster.
+* **Task 3 — the 125M re-measurement**, before/after, high-water mark.
+* **Task 4 — the gates**, and the integrator requests.
+
+### Task 0 — the baseline, at the tip `79f0726` [MEASURED, one run, shared box]
+
+TO BE FILLED.
