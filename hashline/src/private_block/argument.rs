@@ -274,8 +274,20 @@ pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
 /// built by filling one block and doubling it, so the cube is memory traffic
 /// and not one index computation per entry. The words are the same words.
 pub(super) fn eq_cube(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
+    // **STAGE 29 (finding S28-R7).** The precondition, asserted rather than
+    // assumed. The triple `(|point|, start, n_vars)` is SCHEDULE-DRIVEN and
+    // PUBLIC — no frame and no witness can choose it — and every triple the
+    // schedule builds satisfies this. On a violated one the old gather
+    // produced a wrong but in-bounds cube and this build computes a wrapped
+    // shift, so the two forms DIVERGE there; a panic on a public-shape
+    // invariant is acceptable and a silent divergence is not.
+    let bits = e.len().trailing_zeros() as usize;
+    assert!(
+        start + bits <= n_vars,
+        "private block: eq_cube precondition start + |point| <= n_vars violated (start {start}, |point| {bits}, n_vars {n_vars})"
+    );
     let len = 1usize << n_vars;
-    let shift = n_vars - start - e.len().trailing_zeros() as usize;
+    let shift = n_vars - start - bits;
     let mut out: Vec<Fp2> = Vec::with_capacity(len);
     for v in e {
         out.resize(out.len() + (1usize << shift), *v);
@@ -305,6 +317,26 @@ fn table_of_taking(tab: &mut Tab, n_vars: usize, pd: &ProverData) -> Vec<Fp2> {
         Tab::Pub(v) => std::mem::take(v),
         other => table_of(other, n_vars, pd),
     }
+}
+
+/// **STAGE 29 (finding S28-R1).** The word count above which a slot's tables
+/// are built in parallel, as stage 28 chose it. It is a constant of the
+/// PRODUCTION call and an ARGUMENT of [`build_tables_at`], so that a test can
+/// drive both branches on the same input without changing which branch any
+/// other test takes.
+pub(super) const TABLES_PAR_MIN: usize = 1 << 17;
+
+/// **STAGE 29 (finding S28-R1).** The slot's table set, built once per table
+/// in table order. The parallel iterator is INDEXED, so the set is the same
+/// set in the same order whatever the thread count is; `par_min` is the only
+/// thing that differs between the two branches and the production call passes
+/// [`TABLES_PAR_MIN`].
+pub(super) fn build_tables_at(tabs: &mut [Tab], n_vars: usize, pd: &ProverData, par_min: usize) -> Vec<Vec<Fp2>> {
+    if tabs.len() > 1 && (tabs.len() << n_vars) >= par_min {
+        use rayon::prelude::*;
+        return tabs.par_iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect();
+    }
+    tabs.iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect()
 }
 
 /// **FINDING S12-F2 (S12a), fixed here.** The ROW WIDTH a claim's reserved
@@ -354,6 +386,11 @@ fn build_claim(sh: &Shape, p: &Priv, point: &[Fp2], cd: Fp2, cm: Fp2, value: Fp2
     ZClaim { parts, value }
 }
 
+/// **STAGE 29 (finding S28-R1).** The cube size above which the claimed sum is
+/// chunked and reduced on rayon, as stage 28 chose it: a constant of the
+/// PRODUCTION call and an ARGUMENT of [`total_at`].
+pub(super) const TOTAL_PAR_MIN: usize = 1 << 14;
+
 /// The claimed sum over the slot's whole cube.
 ///
 /// **STAGE 28 (performance, no byte moves).** The sum is over a FIELD: it is
@@ -364,6 +401,12 @@ fn build_claim(sh: &Shape, p: &Priv, point: &[Fp2], cd: Fp2, cm: Fp2, value: Fp2
 /// thread, where a rayon region costs more than the work, and that threshold
 /// is the only thing the parallel form decides.
 fn total(tables: &[Vec<Fp2>], poly: &Poly) -> Fp2 {
+    total_at(tables, poly, TOTAL_PAR_MIN)
+}
+
+/// [`total`] with the threshold as an argument, so a test can drive both
+/// branches on the same cube.
+pub(super) fn total_at(tables: &[Vec<Fp2>], poly: &Poly, par_min: usize) -> Fp2 {
     let len = tables[0].len();
     let part = |lo: usize, hi: usize| -> Fp2 {
         let mut row = vec![Fp2::ZERO; tables.len()];
@@ -376,7 +419,7 @@ fn total(tables: &[Vec<Fp2>], poly: &Poly) -> Fp2 {
         }
         acc
     };
-    if len <= 1 << 14 {
+    if len <= par_min {
         return part(0, len);
     }
     use rayon::prelude::*;
@@ -445,14 +488,8 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             // crate's own rayon style. The iterator is INDEXED, so the table
             // set is the same set in the same order whatever the thread count
             // is; no randomness is drawn here, so no draw order can move.
-            let mut tables: Vec<Vec<Fp2>> = super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || {
-                if def.tabs.len() > 1 && (def.tabs.len() << n) >= 1 << 17 {
-                    use rayon::prelude::*;
-                    def.tabs.par_iter_mut().map(|t| table_of_taking(t, n, pd)).collect()
-                } else {
-                    def.tabs.iter_mut().map(|t| table_of_taking(t, n, pd)).collect()
-                }
-            });
+            let mut tables: Vec<Vec<Fp2>> =
+                super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || build_tables_at(&mut def.tabs, n, pd, TABLES_PAR_MIN));
             if tables.iter().any(|t| t.len() != 1usize << n) {
                 return Err(format!("private block: slot {s} table length"));
             }
