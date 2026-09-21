@@ -1,0 +1,377 @@
+{
+ "ok": true,
+ "prediction": {
+  "a_groups": 36,
+  "blocks": 2,
+  "cols": 16384,
+  "encoded_cols": 65536,
+  "h_groups": 9,
+  "hash_layer": {
+   "column_bytes": 52867072,
+   "columns": 2304,
+   "largest_column_bytes": 56960,
+   "openings": 9,
+   "tree_depth": 16
+  },
+  "head_dim": 64,
+  "hidden": 2048,
+  "joint": {
+   "identified_row_pairs": 128,
+   "sum_of_the_parts": 4,
+   "whole_run_generators": 206,
+   "whole_run_joint": 4
+  },
+  "kv_heads": 4,
+  "lkv": 2,
+  "masking": {
+   "coefficient_unknowns_fp": 2478,
+   "functionals": 34,
+   "largest_L": 117,
+   "largest_L_slot": 17,
+   "mask_msg": 512,
+   "mask_q": 256,
+   "q_entries_per_stage": 1024,
+   "rows": 50,
+   "ruling_C4_headroom": 139,
+   "slot_lengths": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ]
+  },
+  "n_slots": 23,
+  "opened_cols": 256,
+  "per_commitment": [
+   {
+    "claims": 122,
+    "data_rows_declared": 5435,
+    "groups": 36,
+    "key": "A@0",
+    "kind": "block",
+    "non_data_rows_by_row_roles": 246,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 74,
+    "predicted_non_data_rows": 246,
+    "rows": 5681
+   },
+   {
+    "claims": 51,
+    "data_rows_declared": 7018,
+    "groups": 9,
+    "key": "H@0",
+    "kind": "block",
+    "non_data_rows_by_row_roles": 104,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 2,
+    "predicted_generators": 20,
+    "predicted_non_data_rows": 104,
+    "rows": 7120
+   },
+   {
+    "claims": 1,
+    "data_rows_declared": 32,
+    "groups": 1,
+    "key": "E-Input",
+    "kind": "external-endpoint",
+    "non_data_rows_by_row_roles": 5,
+    "non_data_rows_match": false,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 4,
+    "predicted_non_data_rows": 4,
+    "rows": 37
+   },
+   {
+    "claims": 122,
+    "data_rows_declared": 5435,
+    "groups": 36,
+    "key": "A@1",
+    "kind": "block",
+    "non_data_rows_by_row_roles": 246,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 74,
+    "predicted_non_data_rows": 246,
+    "rows": 5681
+   },
+   {
+    "claims": 51,
+    "data_rows_declared": 7018,
+    "groups": 9,
+    "key": "H@1",
+    "kind": "block",
+    "non_data_rows_by_row_roles": 104,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 2,
+    "predicted_generators": 20,
+    "predicted_non_data_rows": 104,
+    "rows": 7120
+   },
+   {
+    "claims": 2,
+    "data_rows_declared": 32,
+    "groups": 2,
+    "key": "B0",
+    "kind": "internal-boundary",
+    "non_data_rows_by_row_roles": 6,
+    "non_data_rows_match": true,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 6,
+    "predicted_non_data_rows": 6,
+    "rows": 38
+   },
+   {
+    "claims": 1,
+    "data_rows_declared": 32,
+    "groups": 1,
+    "key": "E-Output",
+    "kind": "external-endpoint",
+    "non_data_rows_by_row_roles": 5,
+    "non_data_rows_match": false,
+    "predicted_disclosed_dimension": 0,
+    "predicted_generators": 4,
+    "predicted_non_data_rows": 4,
+    "rows": 37
+   }
+  ],
+  "q_heads": 12,
+  "replay": {
+   "bilinear_definition_draws_derived_and_compared": [
+    {
+     "captured": 22,
+     "derived": 22,
+     "slot": 8
+    },
+    {
+     "captured": 19,
+     "derived": 19,
+     "slot": 9
+    }
+   ],
+   "challenges_checked": 27828,
+   "definition_draws_are_read_from_the_capture": true,
+   "definition_draws_per_stage": 446,
+   "m_proximity_rhos_per_stage": [
+    48,
+    48
+   ],
+   "positions_checked": 251,
+   "segment_position_tags": 4,
+   "sumcheck_rounds_per_stage": 361
+  },
+  "shape": "125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
+  "shape_independent": {
+   "a_disclosed": 0,
+   "a_groups": 36,
+   "boundary_disclosed": 0,
+   "boundary_reserved_rank": 6,
+   "channels": 28,
+   "endpoint_disclosed": 0,
+   "h_disclosed": 2,
+   "h_groups": 9,
+   "m_disclosed": 0,
+   "m_functionals": 34,
+   "m_rows": 50,
+   "n_slots": 23,
+   "three_role_generators": 154
+  },
+  "shape_independent_why": {
+   "a_disclosed": "A commits witness data under 36 opening groups whose blinding block is 246 rows at every shape so far; the disclosed dimension is a rank of the BLINDING structure, not of the data",
+   "a_groups": "read from the shape, not assumed -- but equal at all three shapes so far",
+   "boundary_disclosed": "ruling M-8's figure on the reserved rows",
+   "boundary_reserved_rank": "2*sites + 2 = 6 reserved columns over 2(G+1) = 6 generators, full rank",
+   "channels": "the channel array is a property of the gate, not of the shape",
+   "endpoint_disclosed": "one singleton group, 2(G+1) = 4 generators",
+   "h_disclosed": "the public LogUp identity, and the gate checks that it IS that identity rather than assuming it",
+   "h_groups": "likewise",
+   "m_disclosed": "M commits no witness data, so its part over the commitments' coordinates is 0",
+   "m_functionals": "layout.rs: N_FUNCTIONALS = 34, likewise",
+   "m_rows": "layout.rs: M_ROWS = 2 * N_SLOTS + 4, a constant of the slot table and not of the shape",
+   "n_slots": "the block's slot table",
+   "three_role_generators": "74 + 6 + 74: A's 2(36+1), the boundary's 2(2+1) and A's again"
+  },
+  "terminals": {
+   "slot_checks_expected": 46,
+   "why": "public_tables_included is True, so every slot's tables are carried and all 23 can be evaluated"
+  },
+  "tokens": 512,
+  "what_this_is": "a PREDICTION, computed from run.json[\"shape\"] and the capture's declared per-opening geometry, before the gate was run at this shape.  Every figure the gate reports that this does not name, or names wrongly, is the round's headline",
+  "what_this_is_not": "a privacy statement, and not a check: nothing here reads a published value",
+  "width": 768
+ },
+ "validated_on": [
+  "run-g-dense-s20",
+  "run-i-dense-k4"
+ ],
+ "validation": [
+  {
+   "bundle": "run-g-dense-s20",
+   "figures": [
+    {
+     "equal": true,
+     "figure": "replay.positions_checked",
+     "predicted": 375,
+     "recorded": 375
+    },
+    {
+     "equal": true,
+     "figure": "replay.challenges_checked",
+     "predicted": 6092,
+     "recorded": 6092
+    },
+    {
+     "equal": true,
+     "figure": "hash_layer.openings",
+     "predicted": 13,
+     "recorded": 13
+    },
+    {
+     "equal": true,
+     "figure": "hash_layer.columns",
+     "predicted": 3328,
+     "recorded": 3328
+    },
+    {
+     "equal": true,
+     "figure": "hash_layer.column_bytes",
+     "predicted": 7751680,
+     "recorded": 7751680
+    },
+    {
+     "equal": true,
+     "figure": "terminals.slot_checks_expected",
+     "predicted": 69,
+     "recorded": 69
+    },
+    {
+     "equal": true,
+     "figure": "masking.rows",
+     "predicted": 50,
+     "recorded": 50
+    },
+    {
+     "equal": true,
+     "figure": "joint.whole_run_joint",
+     "predicted": 6,
+     "recorded": 6
+    },
+    {
+     "equal": true,
+     "figure": "joint.sum_of_the_parts",
+     "predicted": 6,
+     "recorded": 6
+    },
+    {
+     "equal": true,
+     "figure": "joint.whole_run_generators",
+     "predicted": 308,
+     "recorded": 308
+    },
+    {
+     "equal": true,
+     "figure": "joint.identified_row_pairs",
+     "predicted": 24,
+     "recorded": 24
+    }
+   ],
+   "mismatches": [],
+   "ok": true,
+   "record": "run-g-dense-s20.json"
+  },
+  {
+   "bundle": "run-i-dense-k4",
+   "figures": [
+    {
+     "equal": true,
+     "figure": "replay.positions_checked",
+     "predicted": 375,
+     "recorded": 375
+    },
+    {
+     "equal": true,
+     "figure": "replay.challenges_checked",
+     "predicted": 6854,
+     "recorded": 6854
+    },
+    {
+     "equal": true,
+     "figure": "hash_layer.openings",
+     "predicted": 13,
+     "recorded": 13
+    },
+    {
+     "equal": true,
+     "figure": "hash_layer.columns",
+     "predicted": 3328,
+     "recorded": 3328
+    },
+    {
+     "equal": true,
+     "figure": "hash_layer.column_bytes",
+     "predicted": 9275392,
+     "recorded": 9275392
+    },
+    {
+     "equal": true,
+     "figure": "terminals.slot_checks_expected",
+     "predicted": 69,
+     "recorded": 69
+    },
+    {
+     "equal": true,
+     "figure": "masking.rows",
+     "predicted": 50,
+     "recorded": 50
+    },
+    {
+     "equal": true,
+     "figure": "joint.whole_run_joint",
+     "predicted": 6,
+     "recorded": 6
+    },
+    {
+     "equal": true,
+     "figure": "joint.sum_of_the_parts",
+     "predicted": 6,
+     "recorded": 6
+    },
+    {
+     "equal": true,
+     "figure": "joint.whole_run_generators",
+     "predicted": 308,
+     "recorded": 308
+    },
+    {
+     "equal": true,
+     "figure": "joint.identified_row_pairs",
+     "predicted": 24,
+     "recorded": 24
+    }
+   ],
+   "mismatches": [],
+   "ok": true,
+   "record": "run-i-dense-k4.json"
+  }
+ ],
+ "validation_ok": true
+}

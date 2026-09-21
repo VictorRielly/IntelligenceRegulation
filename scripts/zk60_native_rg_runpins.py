@@ -249,6 +249,155 @@ NOT_PINNABLE_FROM_A_BUNDLE = {
         "counterpart.  (b) The writer does not pin it",
 }
 
+# **DATED CORRECTION, 2026-09-21 (round 9).**  Reason (b) above -- "the
+# writer does not pin it" -- was true of every bundle up to `3247a89` and is
+# FALSE of a bundle written at `f4697f9`.  Stage 27 grew
+# `run_capture.rs::SOURCE_FILES` (8) into `OWN_SOURCE_FILES` (15) and
+# `SHARED_SOURCE_FILES` (23), so all four files named above, and the eight
+# shared ones the mask port could not pin either, are now in a bundle's
+# `source_pins`.  That is the writer-side ask of R6.8 item 1 and R8.9 item 4,
+# GRANTED by the Rust lane.  Reason (a) -- no port depends on them -- is
+# unchanged and is still what keeps them out of `DEPENDS`.  Nothing above is
+# rewritten; `SHARED_LAYER_PINS` below is what the new pins buy, and
+# `WRITER_SIDE_ASK_GRANTED` says it in the record.
+WRITER_SIDE_ASK_GRANTED = {
+    "when": "2026-09-21, lane stage 27, commit f4697f9",
+    "what": "`source_pins` grew from 15 entries to 38: `OWN_SOURCE_FILES` "
+    "(15 `private_block` files, up from 8 -- `wire.rs`, `run_sink.rs`, "
+    "`endpoint_g.rs`, `hash_domain.rs`, `private_block.rs`, `witness.rs` and "
+    "`pad.rs` joined) and `SHARED_SOURCE_FILES` (23: `hashline/src/zk.rs`, "
+    "`tables_attn.rs`, `causal_oracle.rs`, `private_seam.rs`, `export_v3.rs`, "
+    "the seven one-line re-export adapters, and the eleven `zkp-core` "
+    "modules behind them).  `timing.rs` is named in `NOT_ON_THE_RUNS_PATH` "
+    "with its reason rather than left absent",
+    "which_asks": ["R6.8 item 1 (round 6)", "R8.9 item 4 (round 8)"],
+    "what_it_does_not_change": "no port's DEPENDS list grows because a file "
+    "became pinnable; a pin is added here only after the file is read, and "
+    "reason (a) of `NOT_PINNABLE_FROM_A_BUNDLE` -- that no run-gate port "
+    "transcribes these four -- is unchanged",
+    "applies_to": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+}
+
+# --------------------------------------------------------------------------
+# 1b.  THE SHARED FILES, NEWLY PINNED (ROUND 9)
+# --------------------------------------------------------------------------
+# The 23 `SHARED_SOURCE_FILES` a `/5-run` bundle pins.  Three facts per
+# entry, and each was COMPUTED on 2026-09-21 in the read-only Rust lane
+# rather than carried over:
+#
+#   * does a run-gate port depend on it, and which one;
+#   * is the digest the bundle declares the same as the blob at `3247a89`,
+#     the last capture commit any earlier round accepted;
+#   * is it the digest the MASK port recorded as
+#     `at_the_capture_commits` in its own `NOT_PINNABLE_FROM_A_BUNDLE` --
+#     that is, the bytes round 8 read.
+#
+# `git diff --numstat 3247a89 f4697f9 -- hashline/src zkp-core/src` touches
+# no file in this table, so the second answer is "yes" for all 23 and the
+# third is "yes" for all eight the mask port names.  The eight are therefore
+# now CHECKABLE from a bundle at exactly the bytes round 8 read, which is
+# the whole of what the writer-side ask was for.
+SHARED_LAYER_PINS = {
+    "src/zk.rs": {
+        "sha256": "d4280962af3a89b61b3af69f35650d21f79dc9f51600dcf130442e44a50f1849",
+        "depended_on_by": "zk60_native_rg_mask (the mask row model: "
+        "`mask_commit`, `encode_coeffs_coset`, `combined_weights`, "
+        "`weight_polys`, `poly_mul_512`, `mask_open`, `mask_verify` and the "
+        "three constants), through the imported `zk60_native_mask_commit`",
+        "same_as_the_mask_port_read": True,
+    },
+    "../zkp-core/src/sumcheck.rs": {
+        "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+        "depended_on_by": "zk60_native_rg_mask (`CfsMask::len / sum_weights / "
+        "eval_weights / round`) and zk60_native_rg_replay (the sumcheck "
+        "round absorbs)",
+        "same_as_the_mask_port_read": True,
+    },
+    "../zkp-core/src/ntt.rs": {
+        "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+        "depended_on_by": "zk60_native_rg_mask (the forward / inverse "
+        "convention the coset encoding rests on)",
+        "same_as_the_mask_port_read": True,
+    },
+    "../zkp-core/src/field.rs": {
+        "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+        "depended_on_by": "every port, through zk60_native_jv_field (P, the "
+        "nonresidue 7, the byte encodings)",
+        "same_as_the_mask_port_read": True,
+    },
+    "../zkp-core/src/rng.rs": {
+        "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+        "depended_on_by": "zk60_native_rg_mask (the DRAW ORDER of every pad, "
+        "mask row and salt of M)",
+        "same_as_the_mask_port_read": True,
+    },
+    "../zkp-core/src/pcs.rs": {
+        "sha256": "6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a",
+        "depended_on_by": "zk60_native_rg_pcs and zk60_native_rg_hashlayer "
+        "(`coset_powers`, `hash_column` / `salt_leaf` and their keyed forms, "
+        "and `verify_zk_tagged`'s path-length rule)",
+        "same_as_the_mask_port_read": True,
+    },
+    "../zkp-core/src/merkle.rs": {
+        "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+        "depended_on_by": "zk60_native_rg_hashlayer (the leaf salting and "
+        "the inner-node fold that every opened column is re-authenticated "
+        "along)",
+        "same_as_the_mask_port_read": True,
+    },
+    "../zkp-core/src/transcript.rs": {
+        "sha256": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+        "depended_on_by": "zk60_native_rg_replay and zk60_native_rg_hashrule "
+        "(absorb, squeeze and the keyed form D19 selects)",
+        "same_as_the_mask_port_read": True,
+    },
+    # The remaining fifteen: pinned, read for nothing, and named so that a
+    # later reader can see the whole list rather than the useful half.
+    "src/tables_attn.rs": {"sha256": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/causal_oracle.rs": {"sha256": "758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/private_seam.rs": {"sha256": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/export_v3.rs": {"sha256": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/field.rs": {"sha256": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/merkle.rs": {"sha256": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/mle.rs": {"sha256": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/ntt.rs": {"sha256": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/pcs.rs": {"sha256": "f16932674e49dcf9d2426b89978aa33be9d71665b19f47c527ca4183cdad8789", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/sumcheck.rs": {"sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "src/transcript.rs": {"sha256": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "../zkp-core/src/lib.rs": {"sha256": "388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "../zkp-core/src/hashtag.rs": {"sha256": "71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "../zkp-core/src/mle.rs": {"sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e", "depended_on_by": None, "same_as_the_mask_port_read": None},
+    "../zkp-core/src/pcs/backend.rs": {"sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499", "depended_on_by": None, "same_as_the_mask_port_read": None},
+}
+
+# The seven `private_block` files stage 27 added to the bundle's OWN pins,
+# with what this gate reads from each.  Four of them are exactly the four
+# `NOT_PINNABLE_FROM_A_BUNDLE` names above; the other three were pinned by
+# `zk60_native_rg_terminals.ALSO_READ` as digests only, with no bundle to
+# compare against.
+NEWLY_PINNED_OWN_FILES = {
+    "src/private_block/wire.rs": "no port decodes a segment (reason (a) of "
+    "NOT_PINNABLE_FROM_A_BUNDLE, unchanged)",
+    "src/private_block/run_sink.rs": "no port reads a segment file "
+    "(unchanged)",
+    "src/private_block/endpoint_g.rs": "no port transcribes MASK_ROWS "
+    "(unchanged).  Its stage-26 diff is the generator-domain change: "
+    "`EndpointRole`, `seed_domain(spec, role)` and `prepare` taking the "
+    "role, so the endpoint's OS-seeded blinding stream is separated by its "
+    "bytes and not only by its entropy read.  Nothing absorbed moves",
+    "src/private_block/hash_domain.rs": "the one guard the gate computes, "
+    "the path length, is ported from `pcs::verify_zk_tagged` (unchanged).  "
+    "Its stage-25/26 diff adds `RunFacts`, the four seed-domain builders "
+    "and the role bytes -- refusal sets and generator domains, neither of "
+    "them a published byte",
+    "src/private_block.rs": "the module root; nothing is transcribed",
+    "src/private_block/witness.rs": "read by no port -- a capture carries "
+    "no witness, which is the whole reason this gate exists",
+    "src/private_block/pad.rs": "the pad rule, read by "
+    "`zk60_native_rg_terminals.ALSO_READ` as a digest and transcribed "
+    "nowhere",
+}
+
 # --------------------------------------------------------------------------
 # 2.  THE PIN TABLE
 # --------------------------------------------------------------------------
@@ -280,6 +429,13 @@ RUN_LAYER_PINS = {
                         "run-i-dense-k4", "run-j-zero-k4"),
             "bytes": 67932,
         },
+        # [ROUND 9] stage 27: the /5-run array store and the shared pins.
+        "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6": {
+            "blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
+            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",),
+            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+            "bytes": 85434,
+        },
     },
     "src/private_block/run.rs": {
         "02f7ee7e922d83f66d77aa64540ee141305b3fe7a6c1127aca55739884cde6bb": {
@@ -308,6 +464,13 @@ RUN_LAYER_PINS = {
             "bundles": ("run-i-dense-k4", "run-j-zero-k4"),
             "bytes": 41659,
         },
+        # [ROUND 9] stages 25 and 26.
+        "f24676c4bb38f0c498849e4af3f9caf3cfd0a0ea3d8fe529ae514128259bae35": {
+            "blob": "adecd02dbab0f4f5b9b0d91dea7843c6f63da25e",
+            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",),
+            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+            "bytes": 44863,
+        },
     },
     "src/private_block/boundary.rs": {
         "9860c35d4db93afa52ba4287ac949209dc3d93957da51a6aeee91b0951a215e6": {
@@ -327,6 +490,13 @@ RUN_LAYER_PINS = {
                         "run-g-dense-s20", "run-h-zero-s20",
                         "run-i-dense-k4", "run-j-zero-k4"),
             "bytes": 33954,
+        },
+        # [ROUND 9] stage 26.
+        "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581": {
+            "blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
+            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",),
+            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+            "bytes": 36123,
         },
     },
 }
@@ -466,6 +636,76 @@ READINGS = {
         "`data_rows`, `commitment_rows`, `site_rows`, `prox_row`, "
         "`mask_row`, `MAX_SITES` and ruling M-1's refusal are byte-identical, "
         "and the ports read only those",
+    # ---------------------------------------------------------- ROUND 9
+    ("src/private_block/run_capture.rs",
+     "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6"):
+        "`git diff 3247a89 f4697f9`: **368 added, 23 removed, 36 hunks**, and "
+        "this file has no test module (its tests are `run_capture_tests.rs`, "
+        "which no bundle pins), so the whole diff is production.  STAGE 27, "
+        "and it is two changes.  (1) **The `/5-run` array store**: "
+        "`SCHEMA_V5`, `ARRAY_MIN = 256`, `CaptureOpts`, `schema_of(arrays)`, "
+        "an `ArrayStore` that appends an array's little-endian image to one "
+        "blob, deduplicates by SHA-256 and returns "
+        "`{array, elem, len, offset, bytes}`, and the six emission sites "
+        "that now route through it -- an opened column's `values`, an "
+        "opening group's `vector`, `proximity_rhos`, `proximity_vector`, "
+        "the M opening's `q` and `prox`, and a public table's `values`.  "
+        "The 23 removed lines are those same six `write!`s and the "
+        "`SOURCE_FILES` constant, each re-emitted.  **Not one field name, "
+        "member order, kind, coverage string or transcript label moves**, "
+        "and `ALLOWED_KEYS` gains exactly two entries, `array` and `elem` "
+        "(format 12: `offset`, `len`, `bytes` and `sha256` were already on "
+        "it).  A `/4-run` bundle is still written when "
+        "`HL_RUN_CAPTURE_ARRAYS=store` is absent, and the writer's own "
+        "`the_array_store_and_the_classic_encoding_carry_the_same_values` "
+        "captures one run twice in one process and asserts byte-for-byte "
+        "equality of the expanded store with the classic encoding.  "
+        "`zk60_native_rg_arrays` is this lane's reader for it, proved "
+        "against a re-encoded development bundle (round 9, item N1).  "
+        "(2) **`SOURCE_FILES` 8 -> `OWN_SOURCE_FILES` 15 + "
+        "`SHARED_SOURCE_FILES` 23 = 38 pins**, plus `NOT_ON_THE_RUNS_PATH` "
+        "naming `timing.rs` with its reason.  That is the writer-side ask "
+        "R6.8 item 1 and R8.9 item 4, GRANTED: see `SHARED_LAYER_PINS` "
+        "below",
+    ("src/private_block/run.rs",
+     "f24676c4bb38f0c498849e4af3f9caf3cfd0a0ea3d8fe529ae514128259bae35"):
+        "`git diff 3247a89 f4697f9`: **50 added, 2 removed, 3 hunks**, and "
+        "read hunk by hunk it is **three statements of production code and "
+        "forty lines of comment**.  (1) The run-level hash-length guard now "
+        "takes a `hash_domain::RunFacts { profile, l, parameter_line }` "
+        "instead of the bare parameter line (stage 25, W-4), so the "
+        "statement class goes into the imposed set: `let facts = ...;` added "
+        "and the `imposed_at_shape_with` call re-emitted.  It is a REFUSAL "
+        "SET and absorbs nothing.  (2) `ZkRng::from_os(profile.as_bytes())` "
+        "becomes `ZkRng::from_os(&hash_domain::run_seed_domain(profile))` "
+        "(stage 26, the ruling on finding B-1): the OS-seeded BLINDING "
+        "stream's domain now carries a versioned use literal and the run "
+        "prover's role byte beside the profile string.  **That stream is not "
+        "the transcript.**  No absorb, no label, no squeeze and no "
+        "verifier-visible byte moves, and a replay cannot see it -- which is "
+        "why the round-9 replay reproduces every challenge of a bundle "
+        "written under it.  (3) A 35-line doc comment, ruling H-1 on what a "
+        "production caller owes.  **The header's six absorbs and their "
+        "order, the seven-word shape, `position_tag`, the stage loop, the "
+        "boundary-before-A rule, `BOUNDARY_SITES` and the opening order are "
+        "byte-identical**, and those are the whole of what "
+        "`zk60_native_rg_replay` transcribes",
+    ("src/private_block/boundary.rs",
+     "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581"):
+        "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split "
+        "**production +22 / -0** and `#[cfg(test)] mod tests` **+22 / -6**.  "
+        "STAGE 26 again.  In production: one accessor, `index() -> u64` (the "
+        "boundary's own index, a PUBLIC word of the run statement), and a "
+        "16-line doc comment saying that a boundary is the one commitment on "
+        "the path with no generator of its own -- it is handed the run's "
+        "single stream -- and naming the domain it WOULD use "
+        "(`hash_domain::boundary_seed_domain(index, spec.digest())`) without "
+        "calling it.  In the tests: a `test_generator(spec)` helper and six "
+        "call sites that now seed from that domain instead of the module's "
+        "`DOMAIN` label.  **Not one geometry accessor moved**: `data_rows`, "
+        "`commitment_rows`, `site_rows`, `prox_row`, `mask_row`, `MAX_SITES` "
+        "and ruling M-1's refusal are byte-identical, and the ports read "
+        "only those",
 }
 
 # --------------------------------------------------------------------------
@@ -525,6 +765,72 @@ AFFECTED_STAGES = {
 # --------------------------------------------------------------------------
 # 5.  THE CHECK
 # --------------------------------------------------------------------------
+def check_shared_pins(bundle) -> dict:
+    """[ROUND 9] The SHARED files a `/5-run` bundle pins, against the table
+    above.  Never a refusal that suspends a stage: a bundle that does not
+    pin them (every bundle before `f4697f9`) reports `pinned: false` and
+    that is the state rounds 1-8 were in.  A bundle that pins one at a
+    digest this gate has NOT read is named -- the gate says which port
+    depends on it, so a reader can see at once whether the difference
+    reaches a figure."""
+    pins = {p["file"]: p["sha256"]
+            for p in bundle.manifest.get("source_pins", [])}
+    present = [f for f in SHARED_LAYER_PINS if f in pins]
+    if not present:
+        return {
+            "pinned": False,
+            "what": "this bundle's writer pins no shared file; the eight the "
+            "mask port transcribes are checked by reading only "
+            "(zk60_native_rg_mask.NOT_PINNABLE_FROM_A_BUNDLE), which is "
+            "where rounds 1-8 left them",
+            "files_pinned": 0,
+            "of": len(SHARED_LAYER_PINS),
+            "ok": True,
+        }
+    at_read, moved, depended = [], [], []
+    for f in sorted(present):
+        want = SHARED_LAYER_PINS[f]
+        got = pins[f]
+        dep = want["depended_on_by"]
+        if dep:
+            depended.append(f)
+        if got == want["sha256"]:
+            at_read.append(f)
+        else:
+            moved.append(
+                f"{f}: the bundle pins {got[:12]}, this gate read "
+                f"{want['sha256'][:12]}"
+                + (f" -- and {dep} depends on it" if dep else
+                   " -- no run-gate port depends on it")
+            )
+    return {
+        "pinned": True,
+        "what": "the 23 SHARED files stage 27 added to a bundle's "
+        "source_pins, the writer-side ask of R6.8 item 1 and R8.9 item 4",
+        "writer_side_ask_granted": WRITER_SIDE_ASK_GRANTED,
+        "newly_pinned_own_files": NEWLY_PINNED_OWN_FILES,
+        "files_pinned": len(present),
+        "of": len(SHARED_LAYER_PINS),
+        "at_a_digest_this_gate_read": len(at_read),
+        "depended_on_by_a_port": sorted(depended),
+        "equal_to_the_bytes_round_8_read": sorted(
+            f for f in at_read
+            if SHARED_LAYER_PINS[f]["same_as_the_mask_port_read"]
+        ),
+        "pins_that_moved": moved,
+        "per_file": [
+            {"file": f, "declared": pins[f], **SHARED_LAYER_PINS[f]}
+            for f in sorted(present)
+        ],
+        "what_this_is_not": "a pin is a statement about which bytes this "
+        "gate has read, not that the Rust is right, and a shared file's "
+        "pin suspends no stage: the ports that depend on these eight were "
+        "already checked against them by READING in round 8, and this "
+        "makes the reading checkable from the bundle",
+        "ok": not moved,
+    }
+
+
 def check_run_layer_pins(bundle) -> dict:
     """The bundle's own `source_pins` for the RUN LAYER against the digests
     this gate has READ.  A digest outside the table is a refusal by name; it
@@ -588,6 +894,7 @@ def check_run_layer_pins(bundle) -> dict:
         "pinned_elsewhere": PINNED_ELSEWHERE,
         "on_the_run_layer_but_not_pinnable_from_a_bundle":
             NOT_PINNABLE_FROM_A_BUNDLE,
+        "shared_files": check_shared_pins(bundle),
         "per_file": detail,
         "pins_at_a_read_digest": accepted,
         "pins_that_moved": moved,

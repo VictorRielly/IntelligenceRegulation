@@ -222,12 +222,37 @@ ALSO_ACCEPTED = {
             "stage 16/17/18: the shape-free half of the C-H4 row-count set "
             "moved into `hash_domain` and takes a HashTag; nothing this port "
             "reads changed",
+        # [ROUND 9] the 125M capture commit.
+        "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30":
+            "stage 23 (ruling S-1), at commit f4697f9.  "
+            "`git diff 3247a89 f4697f9 -- .../layout.rs` is **34 added, 0 "
+            "removed, ONE hunk, and every added line is a `///` doc "
+            "comment** on `domain_log_at`: the invariant "
+            "`log(Dom::Tab) == log_cols`, why the privacy argument's Fact 1 "
+            "is false on `H` without it, and that `Shape::new` now refuses a "
+            "shape that breaks it.  **Not one byte of code moved**, so "
+            "`N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, every plane order and "
+            "every row count this port reads are byte-identical",
     },
     "src/private_block/protocol.rs": {
         "e012450bdc4d7eb933e1d034960a87388385f0daa18ff631da395172e1201dda":
             "stage 16/17/18: `tagged_transcript`, `endpoint_pcs_params` and "
             "the tagged verify / commit call sites; the slot loop, the "
             "(beta, gamma, alpha) draw and the row counts are unchanged",
+        # [ROUND 9] the 125M capture commit.
+        "9e24fd2e1cf2e52a40762a506a39e0db82dbd4f3eb07320af15f7897a9c1bdc6":
+            "stage 26 (the ruling on finding B-1), at commit f4697f9.  "
+            "`git diff 3247a89 f4697f9 -- .../protocol.rs` is **10 added, 1 "
+            "removed, ONE hunk**, and nine of the ten added lines are a "
+            "comment.  The one statement: the single-block prover's "
+            "OS-seeded blinding generator takes "
+            "`hash_domain::single_block_seed_domain(sh)` -- a versioned use "
+            "literal, the prover's role byte and the profile string -- "
+            "instead of the bare profile bytes, at every UNFROZEN profile.  "
+            "**That generator is not the transcript**: no absorb, no "
+            "squeeze, no label and no published byte moves, and the slot "
+            "loop, the `(beta, gamma, alpha)` draw, `tagged_transcript`, "
+            "`endpoint_pcs_params` and every row count are byte-identical",
     },
 }
 
@@ -275,6 +300,27 @@ PINNED_IF_PRESENT = {
             "and the new shape's numbers are derived here from "
             "`run.json[\"shape\"]` and compared with the shape's own `slots` "
             "array, so this port takes nothing from the file on trust",
+        # [ROUND 9] the 125M capture commit.
+        "14ea01ee5a68986da8d1647afa97638dbeb4fea48a96fe74c1e81fa19705636c":
+            "stages 23, 24 and 27, at commit f4697f9.  "
+            "`git diff 3247a89 f4697f9 -- .../shape.rs` is **123 added, 0 "
+            "removed, two hunks -- ADDITIONS ONLY**, and they are of two "
+            "kinds.  (i) `Shape::m125()`, one constructor delegating to the "
+            "UNCHANGED `Shape::new` (512 tokens, width 768, hidden 2048, 12 "
+            "query heads of 64 over 4 key-value heads, log_cols 14, inverse "
+            "rate 4, f_e 9, endpoint_rows 37).  (ii) THREE NAMED REFUSALS in "
+            "`Shape::new`, each of which would have been a silent wrongness "
+            "at a bigger shape: ruling S-1, `log(Dom::Tab) == log_cols` (the "
+            "invariant `layout.rs`'s new comment explains); ruling S-3, "
+            "`head_dim < 2^log_cols`, or the score slot's two private "
+            "factors would share their whole tail and their column keys "
+            "would collide; and ruling C-4, `L_s + MASK_Q <= MASK_MSG` for "
+            "every slot -- exactly the assertion `zk.rs::mask_commit` makes, "
+            "lifted to the shape so a shape that cannot carry its own masks "
+            "is refused before a proof.  **Not one geometry function this "
+            "port reads moved**, and every dimension is re-derived here "
+            "from `run.json[\"shape\"]` and compared with the shape's own "
+            "`slots` array",
     },
 }
 

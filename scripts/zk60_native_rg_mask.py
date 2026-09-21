@@ -286,9 +286,14 @@ MASK_LAYER_PINS = {
     "src/private_block/argument.rs": {
         "dd8469cb0279281e1ea7fcc92c0d14ec23a29b8f6bed8a28b10b704bd15ff08f": {
             "commits": ("0426ad258cd5d1f77cd62760f29ae186dc43e624",
-                        "3247a89762248cfb43f9fdd9cd9147251d69d1df"),
+                        "3247a89762248cfb43f9fdd9cd9147251d69d1df",
+                        # [ROUND 9] byte-identical at the 125M capture
+                        # commit: `git diff --numstat 3247a89 f4697f9`
+                        # does not list argument.rs at all.
+                        "f4697f9ccad82304c56dee8c53da3bf107d98b1e"),
             "bundles": ("run-g-dense-s20", "run-h-zero-s20",
-                        "run-i-dense-k4", "run-j-zero-k4"),
+                        "run-i-dense-k4", "run-j-zero-k4",
+                        "m125-capture-dense-l2", "m125-capture-zero-l2"),
             "reading": "the DECLARED functional order.  READ 2026-09-21 "
             "against the toy port's pinned bytes "
             "(e62f46c2..., `zk60_native_mask_commit.SOURCE_PINS`): "
@@ -327,6 +332,19 @@ MASK_LAYER_PINS = {
             "None of the three is a function of the shape, which is why M has "
             "fifty rows and thirty-four functionals at BOTH rungs",
         },
+        # [ROUND 9] the 125M capture commit.
+        "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30": {
+            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",),
+            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+            "reading": "READ 2026-09-21.  `git diff 3247a89 f4697f9 -- "
+            ".../layout.rs` is 34 added lines, 0 removed, ONE hunk, and "
+            "every added line is a `///` doc comment on `domain_log_at` "
+            "(ruling S-1's invariant).  **Not one byte of code moved**, so "
+            "`N_SLOTS = 23`, `N_FUNCTIONALS = 34` and "
+            "`M_ROWS = 2 * N_SLOTS + 4` are the same constants this port's "
+            "row model rests on -- which is why M has fifty rows and "
+            "thirty-four functionals at the 125M shape too",
+        },
     },
     "src/private_block/shape.rs": {
         "8f7344221ad7a783caaadfa768611fb927ac6320d5b02c1e6adeb658c7900a2a": {
@@ -354,6 +372,24 @@ MASK_LAYER_PINS = {
             "bundles": ("run-e-tame-tagged", "run-f-zero-tagged"),
             "reading": "the pre-stage-20 `Shape::slots`; accepted for the "
             "superseded bundles only, as for `argument.rs` above",
+        },
+        # [ROUND 9] the 125M capture commit.
+        "14ea01ee5a68986da8d1647afa97638dbeb4fea48a96fe74c1e81fa19705636c": {
+            "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",),
+            "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2"),
+            "reading": "READ 2026-09-21.  `git diff 3247a89 f4697f9 -- "
+            ".../shape.rs` is 123 added lines and 0 removed -- ADDITIONS "
+            "ONLY.  `Shape::slots` (the source of every `(n_s, d_s)` this "
+            "port turns into `L_s`) is byte-identical; what is new is "
+            "`Shape::m125()` and three named refusals in `Shape::new`, one "
+            "of which is DIRECTLY this port's own feasibility condition: "
+            "ruling C-4 refuses any shape with `L_s + MASK_Q > MASK_MSG` "
+            "for some slot, which is the assertion `zk.rs::mask_commit` "
+            "makes, lifted to the shape.  So the 125M shape existing at all "
+            "is the Rust's own statement that its masks fit, and "
+            "`derive_mask_domain` here checks the domain the bundle "
+            "declares rather than assuming it -- R8.9 item 5's question, "
+            "answered by the file rather than by this port",
         },
     },
 }

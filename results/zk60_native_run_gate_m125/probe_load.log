@@ -1,0 +1,14 @@
+Running scope as unit: run-rcd6a4b2bfa84443a882f5f45bd2727a7.scope
+load 0.6 s  rss 341 MB
+integrity 0.2 s  rss 600 MB  ok=True
+array store: {"file": "arrays.bin", "bytes": 271163424, "references_resolved": 1189, "distinct_arrays_verified_by_sha256": 1166, "bytes_verified_by_sha256": 271163424, "refusals": [], "ok": true, "references_resolved_per_stage": {"stage-00.json": 593, "stage-01.json": 596}, "references_resolved_in_run_json": 0}
+shape: 512 768 2048 12 4 64 cols 16384 opened 256 a_groups 36 h_groups 9 slots 23 mask_log_dom 12
+stage 0: roles [('A', 'block', 5681, 5435, 36, 122), ('H', 'block', 7120, 7018, 9, 51), ('Input', 'external-endpoint', 37, 32, 1, 1)]
+stage 1: roles [('A', 'block', 5681, 5435, 36, 122), ('H', 'block', 7120, 7018, 9, 51), ('Input', 'internal-boundary', 38, 32, 2, 2), ('Output', 'external-endpoint', 37, 32, 1, 1)]
+boundaries: [(0, 38, 32, [32, 33, 34, 35], 36)]
+run-layer pins ok: True accepted: ['src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9', 'src/private_block/run.rs: f24676c4bb38 -- read at f4697f9', 'src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9']
+moved: [] missing: []
+shared: True 23 / 23 at read digest 23 moved []
+depended on by a port: ['../zkp-core/src/field.rs', '../zkp-core/src/merkle.rs', '../zkp-core/src/ntt.rs', '../zkp-core/src/pcs.rs', '../zkp-core/src/rng.rs', '../zkp-core/src/sumcheck.rs', '../zkp-core/src/transcript.rs', 'src/zk.rs']
+hash rule refusals: []
+final rss 600 MB

@@ -1,0 +1,98 @@
+Running scope as unit: run-r79debb1aec134fdcb248aec97b4d37fe.scope
+validated on run-g-dense-s20: OK
+validated on run-i-dense-k4: OK
+{
+ "shape_independent": {
+  "a_disclosed": 0,
+  "h_disclosed": 2,
+  "endpoint_disclosed": 0,
+  "boundary_disclosed": 0,
+  "m_disclosed": 0,
+  "boundary_reserved_rank": 6,
+  "m_rows": 50,
+  "m_functionals": 34,
+  "n_slots": 23,
+  "a_groups": 36,
+  "h_groups": 9,
+  "channels": 28,
+  "three_role_generators": 154
+ },
+ "replay": {
+  "positions_checked": 251,
+  "challenges_checked": 27828,
+  "definition_draws_per_stage": 446,
+  "definition_draws_are_read_from_the_capture": true,
+  "bilinear_definition_draws_derived_and_compared": [
+   {
+    "slot": 8,
+    "captured": 22,
+    "derived": 22
+   },
+   {
+    "slot": 9,
+    "captured": 19,
+    "derived": 19
+   }
+  ],
+  "sumcheck_rounds_per_stage": 361,
+  "m_proximity_rhos_per_stage": [
+   48,
+   48
+  ],
+  "segment_position_tags": 4
+ },
+ "hash_layer": {
+  "openings": 9,
+  "columns": 2304,
+  "column_bytes": 52867072,
+  "largest_column_bytes": 56960,
+  "tree_depth": 16
+ },
+ "masking": {
+  "rows": 50,
+  "functionals": 34,
+  "slot_lengths": [
+   82,
+   82,
+   32,
+   62,
+   94,
+   24,
+   24,
+   24,
+   32,
+   41,
+   24,
+   24,
+   24,
+   26,
+   102,
+   102,
+   74,
+   117,
+   86,
+   47,
+   32,
+   42,
+   42
+  ],
+  "largest_L": 117,
+  "largest_L_slot": 17,
+  "mask_msg": 512,
+  "mask_q": 256,
+  "ruling_C4_headroom": 139,
+  "coefficient_unknowns_fp": 2478,
+  "q_entries_per_stage": 1024
+ },
+ "terminals": {
+  "slot_checks_expected": 46,
+  "why": "public_tables_included is True, so every slot's tables are carried and all 23 can be evaluated"
+ },
+ "joint": {
+  "identified_row_pairs": 128,
+  "sum_of_the_parts": 4,
+  "whole_run_joint": 4,
+  "whole_run_generators": 206
+ }
+}
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_m125/prediction_m125.json
