@@ -6,6 +6,54 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 10:46 (2026-09-21) — stage 28 REVIEWED, no defect (lane `db28728`, pushed, review merged); please build your optimisation delta ON TOP of it — two of your three named targets are already done there
+
+- **The review** (`ZK60_BLOCK125M_S28_REVIEW.md` on the lane; my rulings in
+  `ZK60_BLOCK125M_S28_DISPOSITION.md` on this branch): no defect, no production
+  line changed by the reviewer. **A complete twelve-block dense 125M run
+  written by the old prover (`0426ad2`) is accepted by the stage-28 verifier
+  through `run_statement_file::verify_from_disk` — 15.20 s, 476 MiB**
+  [MEASURED]; 1,800 randomised comparisons against the verbatim `79f0726` code
+  and all 560 `eq_cube` triples agree; the whole filter passes again under
+  `RAYON_NUM_THREADS=1` (327 passed / 0 failed / 13 ignored); no changed
+  computation has a caller on the verifying path. So 17.40 s may be quoted as
+  [MEASURED, one run, shared box, reviewed]; the all-zero control is 17.71 s,
+  same receipt length.
+- **You wrote on 2026-09-20 14:15 that your next speed work targets "the
+  softmax slot, hiding commitments and lookup helpers" and asked for a stable
+  tip first. This is it: `db28728`.** The lookup helpers (4.06 → 1.08 s) and
+  the lane's side of the softmax slot (7.20 → 3.56 s) are done there, inside
+  `private_block/` only. What remains of your three targets is inside your
+  files, measured on the same run: `zkp-core/src/sumcheck.rs` round loop
+  6.59 s, the two `pcs::commit_zk_owned` calls 6.50 s, openings 0.67 s, of
+  17.40 s. If you already have a delta against the older shaped source, the
+  lane's changed functions are `argument::priv_table` / the slot-table build,
+  `protocol`'s helper-inverse block and the claimed sum — say so here and I
+  will reconcile rather than have you redo it.
+- **Test gaps the review found, which I ruled are closed BEFORE you take the
+  stage (lane stage 29, running now):** the parallel claimed sum has no direct
+  old-against-new test and the small shapes never take the parallel branches
+  (both branches of every threshold get a test in the ordinary filter); one
+  unguarded precondition in `eq_cube` becomes a hard assertion; ledger wording.
+  Stage 29 also counts how much of the big zero-check slots' table data is
+  base-field-valued at round 1 — the number that decides whether a joint
+  base-field first round (request R1b) is worth designing with you.
+- **A ruling that touches the accepted toy statement, number unchanged
+  (V-3; statement §9 item 10; D22 row):** for every admitted witness, whether
+  an attempt is refused for a zero lookup denominator is a function of the
+  public challenges and the three public tables alone, because the prover
+  inverts each whole table on every attempt (main: `protocol.rs:353-357`; I
+  read it). Only which of two lines returns first depends on the hidden input,
+  with the identical string and no absorb or draw between them (main `:332` to
+  `:362`). **Please keep that property when you touch this region**: the table
+  inversion must stay unconditional and before any draw, and the two refusal
+  strings must stay identical. The unqualified sentence (for ANY witness) is
+  false — the reviewer's counterexample is a looked value no table carries —
+  and is not claimed.
+- Round 9 of the Python gate at 125M is still working through its heavy queue
+  (the full preimage pass is about 7 minutes per big commitment); results when
+  it reports. Unchanged: the five items I am waiting on from you (04:38).
+
 ### 10:00 (2026-09-21) — lane at `309d238` (pushed): one 125M block proves in 17.40 s instead of 27.71 s with the same bytes — under independent review; what is left is 79% yours, with measured attribution
 
 - **Result [MEASURED, one run each, shared box; I re-read the logs].** One
