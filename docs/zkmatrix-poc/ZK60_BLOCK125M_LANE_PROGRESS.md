@@ -6999,3 +6999,40 @@ against `823d86d` touches 29 files and only
   Rust's; what changed is that the independent model now reaches two of them
   by itself. A model that agrees is evidence about the COUNT, not about the
   construction.
+
+---
+
+## Stage 24 — the enforcement batch of tonight's three rulings (2026-09-21, 01:3x–)
+
+**Status: `OPEN` (skeleton).** Opened 2026-09-21 01:34 PDT on the lane tip
+`8c5922b`. Nine small items that three of tonight's dispositions leave on
+this lane:
+
+* `ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md` — **H-1**, **H-4**,
+  **H-5**, **H-8**;
+* `ZK60_SLOT_CLOSURES_SHAPED_DISPOSITION.md` — **C-2**, **C-3**, **C-4**,
+  **C-7**;
+* `ZK60_NATIVE_RUN_GATE.md` §10.2 / §10.8 — round 6's ask to the capture
+  writer (four run-layer files it does not pin).
+
+**Nothing an existing profile proves may move by a byte.** Every refusal
+added here is asserted FALSE at all five shapes (toy, rung, rung-G, rung-K4,
+125M); the toy's 2,816,472 and the four shaped receipt sizes are in the pass
+list; the forbidden-file trees stay byte-identical to `8c5922b` (proof at the
+end).
+
+**No heavy run, no GPU, nothing at 125M proved.**
+
+**No privacy or soundness acceptance is claimed.**
+
+| item | ruling | what | state |
+|---|---|---|---|
+| 1 | H-4 | every tagged profile's four keys, enumerated from the source registry, pairwise distinct | PENDING |
+| 2 | H-5 | the trailer/next-header PROPERTY pinned at rung-K4 | PENDING |
+| 3 | H-8 | no registered profile's constructor input has the squeeze length | PENDING |
+| 4 | run gate §10 | the capture writer pins every run-layer source it depends on | PENDING |
+| 5 | C-2 | ruling S-3's refusal also protects slots 15 and 16 | PENDING |
+| 6 | C-3 | host discipline checked at every shape, against `HOSTS` | PENDING |
+| 7 | C-4 | the mask budget `L_s + 256 <= 512` becomes a named `Shape::new` refusal | PENDING |
+| 8 | C-7 | the closure polynomial vanishes on extension-round-supported vectors (gap S-C1) | PENDING |
+| 9 | H-1 | an inadmissible chain is refused BEFORE any segment when the endpoints are sealed by the witness builder's own pass | PENDING |
