@@ -343,6 +343,49 @@ impl Shape {
                 sh.head_dim, sh.log_cols
             ));
         }
+        // **STAGE 33, RULING S-6: the dead arm of `Shape::a_groups`, as a
+        // named refusal.**
+        //
+        // `a_groups` fixes the `A` opening's column-weight GROUP STRUCTURE,
+        // which is the structure the privacy argument's opening accounting
+        // counts. Its `SC_TZC` term has two arms: the live one deduplicates
+        // the limb sub-slices' column offsets `k * t_pad mod 2^log_cols`, and
+        // the FIRST one returns the constant 1 when the padded token count
+        // reaches the row width. Stages 31 and 32 established that **no
+        // registered shape reaches the first arm** — 125M's `Dom::T` is 2^9
+        // against a row width of 2^14, rung-W14's is 2^6 against 2^14 — and
+        // the cheapest shape that would reach it prices at a 39 MB receipt,
+        // because `Dom::S = h_pad * t_pad^2` grows quadratically in the
+        // tokens. An arm no shape reaches is code nobody tests, inside the
+        // one function that fixes the opening groups.
+        //
+        // The ruling is to REFUSE THE FAMILY rather than to grow a test for
+        // it: a shape whose padded token count is at or above the row width
+        // is refused here, by name, so after validation the arm is
+        // unreachable rather than merely unreached, and every shape that
+        // proves anything takes one branch.
+        //
+        // It is neither a privacy nor a soundness condition, and no value
+        // moves: on the refused family the two arms AGREE. `t_pad` is a power
+        // of two (T-2), so `t_pad >= 2^log_cols` makes every offset
+        // `k * t_pad` a multiple of the row width and the live arm's
+        // deduplicated set is `{0}` — the first arm's own 1
+        // (`s33_tests::the_refused_arm_and_the_live_arm_agree_wherever_both_are_defined`).
+        // The arm is a shortcut, not a second behaviour.
+        //
+        // **What the refused family IS, in plain words**: token counts at or
+        // above the row width — at the toy's row width of 2^8, 129 tokens and
+        // up. **Lifting the refusal later takes a shape of that family in the
+        // ORDINARY filter**, proved, tampered and censused like any other, not
+        // an edit here.
+        if sh.natural_log(Dom::T) >= sh.log_cols {
+            return Err(format!(
+                "private block shape: ruling S-6 — the padded token count 2^{} ({} tokens) is at or above the row width 2^{}, which is the family that reaches `Shape::a_groups`'s unreached first arm; the A opening's group structure would then be decided by a branch no registered shape takes and no test covers",
+                sh.natural_log(Dom::T),
+                sh.tokens,
+                sh.log_cols
+            ));
+        }
         // **STAGE 24, RULING C-4 (the slot-closure check's findings B-4 and
         // B-5): THE MASK BUDGET, AS A NAMED CONSTRUCTION REFUSAL.**
         //
@@ -1160,8 +1203,22 @@ impl Shape {
     /// wrap (and so collide) only when `T_pad * (3 * LIMBS_ISQRT)` exceeds the
     /// row width. Both limb planes are row aligned, so the two norms raise the
     /// same offsets.
+    ///
+    /// **THE FIRST ARM IS UNREACHABLE AFTER VALIDATION (stage 33, ruling
+    /// S-6).** `natural_log(Dom::T) >= log_cols` is a REFUSED family: a shape
+    /// with a padded token count at or above the row width does not leave
+    /// `Shape::new`. The arm is kept, rather than removed or turned into a
+    /// panic, for two reasons: it is a defensive, panic-free return on a
+    /// function the prover calls, and it does not decide anything — on exactly
+    /// that family `t_pad` is a multiple of the row width (`t_pad` is a power
+    /// of two by T-2), so every offset `k * t_pad mod n` is zero and the arm
+    /// below returns the same 1. Deleting it would change no value at any
+    /// shape, reachable or refused; what it must never become is a second
+    /// behaviour.
     pub(crate) fn a_groups(&self) -> usize {
         let tzc = if self.natural_log(Dom::T) >= self.log_cols {
+            // unreachable after validation (ruling S-6); equal to the arm
+            // below on the refused family, never a panic
             1
         } else {
             let n = 1usize << self.log_cols;

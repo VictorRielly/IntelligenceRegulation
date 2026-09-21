@@ -382,8 +382,8 @@ fn no_registered_shape_reaches_the_first_arm_of_a_groups() {
 /// `Dom::Tab` is exactly at it so ruling S-1 does not, the head dimension is
 /// five bits below it so ruling S-3 does not, and its longest mask is far
 /// inside ruling C-4's budget — and before this stage `Shape::new` returned it
-/// happily, with `a_groups()` reading its `SC_TZC` group count out of the
-/// FIRST arm (the failing-first log prints the value).
+/// happily, with `a_groups()` reading **28** out of the FIRST arm (the toy's
+/// own count is 35, out of the second).
 #[test]
 fn a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name() {
     // the toy's axes at 256 tokens: `t_pad = 2^8`, the row width
@@ -412,7 +412,16 @@ fn a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name() {
     let e2 = Shape::new("S-33 probe: one token above the control", "hashline-zk-mr1/private-block-s33-probe/1", 129, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None)
         .expect_err("129 tokens pad to 256 and must be refused");
     assert!(e2.contains("ruling S-6"), "the padded count is not what the refusal reads: {e2}");
-    eprintln!("S33 S-6 refusal: 256 tokens at a row width of 2^8 is refused by name, 129 too (it pads to 256), 128 constructs");
+    // **WHERE THE REFUSAL SITS IN THE ORDER, and the one test it moved.**
+    // Stage 24's mask-budget probe (2^20 − 1 tokens at a row width of 2^14)
+    // was in this family, its CONTROL first of all, so stage 33 moved that
+    // probe's row width to 2^21 and left its `Dom::S` alone. The geometry it
+    // had until today is refused here, by ruling S-6 and not by ruling C-4,
+    // which is the order: S-6 is checked before the mask budget.
+    let old = Shape::new("S-33: stage 24's mask probe as it used to be", "hashline-zk-mr1/private-block-s33-probe/1", (1 << 20) - 1, 16_384, 16_384, 2_048, 8, 1, 14, 4, 9, 37, None, None, None, None)
+        .expect_err("stage 24's old mask-budget geometry is in the refused family");
+    assert!(old.contains("ruling S-6"), "the old mask-budget geometry is refused by something else: {old}");
+    eprintln!("S33 S-6 refusal: 256 tokens at a row width of 2^8 is refused by name, 129 too (it pads to 256), 128 constructs; stage 24's old mask probe is refused by S-6 before C-4");
 }
 
 /// **WHERE THE BOUNDARY IS, and which refusal owns each side.** A sweep of the

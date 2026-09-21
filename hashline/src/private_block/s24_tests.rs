@@ -708,16 +708,26 @@ fn the_mask_budget_holds_at_every_shape() {
 /// 8 — every other construction check satisfied (`d_pad = h_pad · head_dim`,
 /// the three bilinear domains far above the row width so ruling F-2 does not
 /// fire, `Dom::Tab` lifted onto the row width so S-1 does not, a head
-/// dimension 11 bits below the row width so S-3 does not) — and before this
+/// dimension far below the row width so S-3 does not) — and before this
 /// commit `Shape::new` returned it happily. Its CONTROL, the same geometry
 /// with one bit fewer of tokens, sits at 252 + 256 and constructs.
+///
+/// **STAGE 33: the probe's ROW WIDTH moved from 2^14 to 2^21, and nothing
+/// else.** Ruling S-6 refuses a padded token count at or above the row width,
+/// and at 2^20 tokens the old probe and its control were both in that family
+/// — the control, which has to CONSTRUCT, first of all. A wider row puts both
+/// back outside it without touching `Dom::S`, which is what this test is
+/// about: `log(Dom::S) = log2(h_pad) + 2·log2(t_pad)` has no `log_cols` in it,
+/// so the two mask lengths are still 262 and 252 and both are asserted below.
 #[test]
 fn a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name() {
     // 2^20 - 1 tokens: `t_pad = 2^20`, `Dom::S = 2^(11 + 20 + 20) = 2^51`, and
     // `Dom::S` PADS (the true size is `q_heads · tokens^2 < 2^51`), so the
     // support indicator takes `SC_SZC`'s degree to 5 and its mask to
-    // `(51 + 1)·5 + 2 = 262`.
-    let probe = |tokens: usize| Shape::new("S-24 probe: the mask budget", "hashline-zk-mr1/private-block-s24-probe/1", tokens, 16_384, 16_384, 2_048, 8, 1, 14, 4, 9, 37, None, None, None, None);
+    // `(51 + 1)·5 + 2 = 262`. The row width is 2^21, one bit above the padded
+    // token count, so ruling S-6 does not fire at either the probe or the
+    // control (stage 33).
+    let probe = |tokens: usize| Shape::new("S-24 probe: the mask budget", "hashline-zk-mr1/private-block-s24-probe/1", tokens, 16_384, 16_384, 2_048, 8, 1, 21, 4, 9, 37, None, None, None, None);
     let e = probe((1 << 20) - 1).expect_err("a shape whose mask leaves no room for the masking pads was accepted");
     assert!(e.contains("ruling C-4"), "the refusal does not name the ruling: {e}");
     assert!(e.contains("masking commitment"), "the refusal does not name what is short: {e}");
