@@ -138,7 +138,7 @@ CLASSES_ROUND_9 = (
      "the dated correction inside NOT_PINNABLE_FROM_A_BUNDLE (round 9: at "
      "f4697f9 the writer does pin those four)"),
 )
-CLASSES = CLASSES + CLASSES_ROUND_9
+CLASSES = CLASSES + CLASSES_ROUND_9  # tool hashes fall under the round-1 class
 NOTE_ROUND_9 = (
     "  Round 9 adds three classes: the `array_store` block of the /5-run "
     "loader, the `shared_files` block of the extended pin table, and the "

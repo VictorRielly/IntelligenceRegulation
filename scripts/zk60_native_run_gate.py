@@ -113,6 +113,11 @@ from zk60_native_jv_joint import JointSystem  # noqa: E402
 TOOLS = [
     "zk60_native_run_gate.py",
     "zk60_native_rg_bundle.py",
+    # [ROUND 9] the /5-run binary array store.  `rg_bundle` delegates every
+    # array resolution to it, so a record that pinned `rg_bundle` and not
+    # this file would name the loader's front door and not the room the
+    # bundle's bytes are actually read in -- the shape of finding K4-F2.
+    "zk60_native_rg_arrays.py",
     "zk60_native_rg_replay.py",
     "zk60_native_rg_runpins.py",
     "zk60_native_rg_pcs.py",
