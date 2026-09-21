@@ -7446,3 +7446,33 @@ The whole diff against `8c5922b` is **17 files**: this ledger,
   adaptive source; what is written is the rule and what is tested is a caller
   that follows it. Tightening the trait waits for the production caller, and
   rule M-9 still has no production code behind it (ruling H-2).
+
+---
+
+## Stage 25 — the lane's share of the query-class work list (2026-09-21, 04:0x–)
+
+**Status: `SKELETON`.** Opened 2026-09-21 04:03 PDT on the lane tip `5758b95`.
+The items of `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md` §8 that its "whose
+file" column marks **the lane**, as rulings J-3, J-5, J-6 and J-7 leave them
+(`…_DISPOSITION.md`): **W-2** (generalised), **W-3**, **W-4**, **W-5**,
+**W-6** (as changed by J-7), **W-7** (confirm), **W-8 assertions 5 and 7**,
+**W-11**. W-1, W-8's assertions 1–4 and 6, W-9's GPU side and W-10 are
+another engineer's files and are NOT touched here.
+
+**Nothing an existing profile proves may move by a byte.** One guard set
+grows (W-4, legacy-rule profiles only); everything else is a test or a
+document.
+
+**No heavy run, no GPU, nothing at 125M proved. No privacy or soundness
+acceptance is claimed.**
+
+| item | what | state |
+|---|---|---|
+| W-2 | every hash input kind of every registered profile, printed with its length; per hash FUNCTION no two different kinds are equal unless declared; every pair within one byte listed | `PENDING` |
+| W-3 | the refusal replay re-issues the live chain's next points and leaves the live transcript untouched | `PENDING` |
+| W-4 | the legacy length guard gains the statement digests and the seed derivations | `PENDING` |
+| W-5 | `ZK60_HASH_FUNCTION_SEPARATION_TABLE.md` | `PENDING` |
+| W-6 | the per-slot `pb-term` lengths, printed and RECORDED (not guarded) | `PENDING` |
+| W-7 | stage 24's twelve-key test still covers every tagged profile | `PENDING` |
+| W-8 | assertions 5 and 7 of the memo's §3.1 (the two that need no accessor) | `PENDING` |
+| W-11 | the source scan extended from absorb LABELS to hash CALL SITES | `PENDING` |
