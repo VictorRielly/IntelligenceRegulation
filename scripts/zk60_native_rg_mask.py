@@ -883,7 +883,7 @@ def _entries(rec: dict) -> dict:
 
     An Fp2 entry counts once, as in round 7's table.
     """
-    v = rec["preimage"]["verification"] or {}
+    v = (rec.get("preimage") or {}).get("verification") or {}
     cv = (rec.get("cfs") or {}).get("verification") or {}
     fv = (rec.get("cfs") or {}).get("functional_values") or {}
     hl = rec.get("hash_layer") or {}

@@ -24,6 +24,17 @@ E=$W/results/zk60_native_run_gate_mask
 /usr/bin/time -v python3 $G --full-preimage --mask-cfs --bundle $B/run-j-zero-k4 --other $B/run-i-dense-k4 --old $B/run-b-zero --cross-profile $B/run-h-zero-s20 --evidence $E 2> $E/time-run-j-zero-k4.log
 python3 $W/scripts/zk60_native_rg_mask.py --toy $W/results/zk60_native_captures_20260919/captures --evidence $E
 bash $W/results/zk60_native_run_gate_preimage/refresh.sh
+# ROUND 7's OWN evidence, re-taken under the current tools.  Round 8 moved
+# the gate, so the tool digests round 7's records pin no longer name any
+# file in the tree, and `zk60_native_rg_ahpreimage`'s own test says so.
+# Every stage-11 figure is unchanged by this; what moves is the tool
+# hashes and the channel table (25 -> 28, the three added entries OPEN
+# because --mask-cfs is off here on purpose).
+P=$W/results/zk60_native_run_gate_preimage
+python3 $G --full-preimage --bundle $B/run-g-dense-s20 --other $B/run-h-zero-s20 --old $B/run-a-tame --cross-profile $B/run-i-dense-k4 --evidence $P
+python3 $G --full-preimage --bundle $B/run-h-zero-s20 --other $B/run-g-dense-s20 --old $B/run-b-zero --cross-profile $B/run-j-zero-k4 --evidence $P
+python3 $G --full-preimage --bundle $B/run-i-dense-k4 --other $B/run-j-zero-k4 --old $B/run-a-tame --cross-profile $B/run-g-dense-s20 --evidence $P
+python3 $G --full-preimage --bundle $B/run-j-zero-k4 --other $B/run-i-dense-k4 --old $B/run-b-zero --cross-profile $B/run-h-zero-s20 --evidence $P
 bash $E/diff.sh
 bash $E/tests.sh
 cp $E/tests_mask.log $E/tests_mask.final.log

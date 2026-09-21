@@ -342,9 +342,15 @@ class TestTheRecord(unittest.TestCase):
     def test_the_channel_table_moved_three_channels_and_no_more(self):
         for name, rec in self.recs.items():
             ch = rec["stage7_channels"]
-            self.assertEqual(ch["total"], 25, name)
+            # [ROUND 8] round 7's evidence was re-taken under round 8's
+            # gate, which grades M's q, M's proximity vector and M's own
+            # opened columns as three separate channels: 25 -> 28, and all
+            # three are OPEN here because `--mask-cfs` is off in this
+            # directory on purpose.  Round 7's own five stay CONSTRUCTED and
+            # no stage-11 figure moved.
+            self.assertEqual(ch["total"], 28, name)
             self.assertEqual(ch["counts"],
-                             {"constructed": 5, "derived": 5, "argued": 4, "open": 11},
+                             {"constructed": 5, "derived": 5, "argued": 4, "open": 14},
                              name)
             self.assertEqual(ch["grading_failures"], [], name)
             moved = [c["channel"] for c in ch["channels"]
