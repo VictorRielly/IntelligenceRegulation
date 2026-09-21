@@ -23,6 +23,27 @@ and repaired private-IO P1/P3 checks. Dense synthetic folds improve
 2.32–2.42x; sparse cases are mixed. Full-model proving time remains
 unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 
+> **CORRECTION, 2026-09-20 18:40 — read this before the 125M paragraphs
+> below.** A defect was found today in the private block at every shape with
+> more than one key-value head (both development sizes and the 125M shape;
+> **not** the small accepted test block, whose acceptance D22 stands). **The
+> verifier refuses an honest proof as soon as the hidden data differs between
+> attention heads.** Every 125M result below — one block, two blocks, twelve
+> blocks, tagged and untagged — was obtained on a synthetic input in which
+> every head sees the same data, where the defect does not show. **So those
+> results are true of the input they proved, and the 125M private block is NOT
+> yet a working proof for general inputs.** The cause is understood (two
+> attention steps treat a shared index as fixed where it must be summed over —
+> the security owner's own construction error in generalising to grouped
+> heads, missed by the design's checker and the code review because nobody
+> proved a generic honest input); it costs completeness, and as far as argued
+> not soundness: nothing false was accepted. The fix is being written now; it
+> will change the proof bytes and sizes of the shaped profiles, and the 125M
+> figures will be re-measured on dense weights and a generic input. The
+> feed-forward half held up under the same test: dense weights, generic data,
+> tampering at the wide hidden indices rejected. Found by the dense-weights
+> test added this afternoon (finding S19-F1, lane `zk60-private-block-125m`).
+
 **Latest on the fast line's private block (added 2026-09-20 07:10 by the
 security owner's session):** one **complete transformer block with hidden
 input, hidden output and hidden activations now proves and verifies at a real
