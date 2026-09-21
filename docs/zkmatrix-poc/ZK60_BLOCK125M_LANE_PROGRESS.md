@@ -9270,11 +9270,11 @@ filter takes a different branch than it did at `db28728`.
 
 | task | what | state |
 |---|---|---|
-| 1 | **S28-R1 / S28-R6** — both branches of every stage-28 size threshold crossed in the ORDINARY filter, each against an old-against-new oracle | (below) |
-| 2 | **S28-R7** — `eq_cube`'s precondition a hard `assert!`, with the agreement test and the panic test | (below) |
-| 3 | **S28-R8, S28-R4, S28-R5, ruling V-3** — the ledger corrections, dated, in place | (below) |
-| 4 | **integrator request R1(b)** — the base-field census at the 125M shape and at rung-K4, and the second 125M prove-time sample | (below) |
-| 5 | the gates | (below) |
+| 1 | **S28-R1 / S28-R6** — both branches of every stage-28 size threshold crossed in the ORDINARY filter, each against an old-against-new oracle | **DONE** (`33d44e2`, `b6ff9d4`, `5f6be16`) |
+| 2 | **S28-R7** — `eq_cube`'s precondition a hard `assert!`, with the agreement test and the panic test | **DONE** (`b6ff9d4`, `5f6be16`) |
+| 3 | **S28-R8, S28-R4, S28-R5, ruling V-3** — the ledger corrections, dated, in place | **DONE** (`6717899`) |
+| 4 | **integrator request R1(b)** — the base-field census at the 125M shape and at rung-K4, and the second 125M prove-time sample | instrument + rung-K4 **DONE** (`b512b83`); the 125M run's state is its `.done` marker, below |
+| 5 | the gates | **DONE** (`f1f6173`): 336 passed / 0 failed / 13 ignored, exit 0 |
 
 ### Task 1 — both branches of every stage-28 threshold, against the text at `79f0726` (findings S28-R1 and S28-R6)
 
