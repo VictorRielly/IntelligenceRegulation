@@ -1,0 +1,41 @@
+C1/C2  the path identity and the exact lemma, on (field, hash) protocols
+  salted-leaf          omegas=384    chi=4  path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  random-masked-2      omegas=1152   chi=64  path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  random-masked-3      omegas=1152   chi=64  path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  random-masked-4      omegas=1152   chi=64  path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  random-masked-5      omegas=1152   chi=64  path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+  random-masked-6      omegas=1152   chi=64  path-identity mismatches=0  max per-rho TV=0  max adaptive TV=0
+
+C3  a hash part keeps every marginal witness-free while the joint law is not
+  over all 256 public functions H on a 4-element domain:
+    witness-dependent MARGINAL  : 0
+    witness-dependent JOINT law : 252  (hypothesis (iv) fails on exactly these)
+    some chi distinguishes      : 252  (max adaptive TV = 1)
+
+C4/C5  the naive approximate form is FALSE; the identical-until-bad form holds
+  |C|=2   per-rho TV=1/2      steering chi: TV=1    Pr[BAD]=1    | constant chi: TV=1/2      Pr[BAD]=1/2      | blow-up x2
+  |C|=4   per-rho TV=1/4      steering chi: TV=1    Pr[BAD]=1    | constant chi: TV=1/4      Pr[BAD]=1/4      | blow-up x4
+  |C|=8   per-rho TV=1/8      steering chi: TV=1    Pr[BAD]=1    | constant chi: TV=1/8      Pr[BAD]=1/8      | blow-up x8
+  |C|=16  per-rho TV=1/16     steering chi: TV=1    Pr[BAD]=1    | constant chi: TV=1/16     Pr[BAD]=1/16     | blow-up x16
+  |C|=32  per-rho TV=1/32     steering chi: TV=1    Pr[BAD]=1    | constant chi: TV=1/32     Pr[BAD]=1/32     | blow-up x32
+  => per-rho TV is NOT a bound on the adaptive TV: the blow-up is exactly |C|.
+  => Pr[BAD] measured in the ADAPTIVE experiment IS a bound, in every row.
+
+C6  one witness-dependent refusal class, steered by a constant challenge function
+  |C|=4   worst chi: TV=1      random chi (200 draws): mean TV=0.6575  (2/|C| = 0.5000)
+  |C|=8   worst chi: TV=1      random chi (200 draws): mean TV=0.3212  (2/|C| = 0.2500)
+  |C|=16  worst chi: TV=1      random chi (200 draws): mean TV=0.1634  (2/|C| = 0.1250)
+  => for ARBITRARY chi the conclusion is FALSE whenever one refusal is
+     witness-dependent; for an oracle chi the distance is ~1/|C|.
+
+C7  separation of the challenge class from the prover's own oracle class
+  shared query point (challenge oracle = generator oracle): max TV = 1
+  separated classes, every one of 256 challenge functions:   max TV = 0
+
+C8  a q-query distinguisher against one hidden salted leaf
+  |S|=2 q=0  exact advantage=0         memo bound q*N/|S|=0       OK
+  |S|=2 q=1  exact advantage=1/4       memo bound q*N/|S|=1       OK
+  |S|=2 q=2  exact advantage=1/4       memo bound q*N/|S|=2       OK
+  |S|=4 q=0  exact advantage=0         memo bound q*N/|S|=0       OK
+  |S|=4 q=1  exact advantage=1/8       memo bound q*N/|S|=1/2     OK
+  |S|=4 q=2  exact advantage=1/8       memo bound q*N/|S|=1       OK

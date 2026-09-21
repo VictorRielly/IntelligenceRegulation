@@ -1,0 +1,196 @@
+{
+  "C1_C2": [
+    {
+      "challenge_functions": 4,
+      "exhaustive": true,
+      "lemma_conclusion_holds": true,
+      "max_adaptive_tv": "0",
+      "max_per_rho_tv": "0",
+      "omegas": 384,
+      "path_identity_mismatches": 0,
+      "protocol": "salted-leaf"
+    },
+    {
+      "challenge_functions": 64,
+      "exhaustive": true,
+      "lemma_conclusion_holds": true,
+      "max_adaptive_tv": "0",
+      "max_per_rho_tv": "0",
+      "omegas": 1152,
+      "path_identity_mismatches": 0,
+      "protocol": "random-masked-2"
+    },
+    {
+      "challenge_functions": 64,
+      "exhaustive": true,
+      "lemma_conclusion_holds": true,
+      "max_adaptive_tv": "0",
+      "max_per_rho_tv": "0",
+      "omegas": 1152,
+      "path_identity_mismatches": 0,
+      "protocol": "random-masked-3"
+    },
+    {
+      "challenge_functions": 64,
+      "exhaustive": true,
+      "lemma_conclusion_holds": true,
+      "max_adaptive_tv": "0",
+      "max_per_rho_tv": "0",
+      "omegas": 1152,
+      "path_identity_mismatches": 0,
+      "protocol": "random-masked-4"
+    },
+    {
+      "challenge_functions": 64,
+      "exhaustive": true,
+      "lemma_conclusion_holds": true,
+      "max_adaptive_tv": "0",
+      "max_per_rho_tv": "0",
+      "omegas": 1152,
+      "path_identity_mismatches": 0,
+      "protocol": "random-masked-5"
+    },
+    {
+      "challenge_functions": 64,
+      "exhaustive": true,
+      "lemma_conclusion_holds": true,
+      "max_adaptive_tv": "0",
+      "max_per_rho_tv": "0",
+      "omegas": 1152,
+      "path_identity_mismatches": 0,
+      "protocol": "random-masked-6"
+    }
+  ],
+  "C3": {
+    "adaptively_distinguishable": 252,
+    "functions": 256,
+    "joint_witness_dependent": 252,
+    "marginal_witness_dependent": 0,
+    "max_adaptive_tv": "1"
+  },
+  "C4_C5": [
+    {
+      "adaptive_tv_constant_chi": "1/2",
+      "adaptive_tv_steering_chi": "1",
+      "bad_prob_adaptive_constant": "1/2",
+      "bad_prob_adaptive_steering": "1",
+      "blowup_factor": "2",
+      "nc": 2,
+      "per_rho_tv": "1/2"
+    },
+    {
+      "adaptive_tv_constant_chi": "1/4",
+      "adaptive_tv_steering_chi": "1",
+      "bad_prob_adaptive_constant": "1/4",
+      "bad_prob_adaptive_steering": "1",
+      "blowup_factor": "4",
+      "nc": 4,
+      "per_rho_tv": "1/4"
+    },
+    {
+      "adaptive_tv_constant_chi": "1/8",
+      "adaptive_tv_steering_chi": "1",
+      "bad_prob_adaptive_constant": "1/8",
+      "bad_prob_adaptive_steering": "1",
+      "blowup_factor": "8",
+      "nc": 8,
+      "per_rho_tv": "1/8"
+    },
+    {
+      "adaptive_tv_constant_chi": "1/16",
+      "adaptive_tv_steering_chi": "1",
+      "bad_prob_adaptive_constant": "1/16",
+      "bad_prob_adaptive_steering": "1",
+      "blowup_factor": "16",
+      "nc": 16,
+      "per_rho_tv": "1/16"
+    },
+    {
+      "adaptive_tv_constant_chi": "1/32",
+      "adaptive_tv_steering_chi": "1",
+      "bad_prob_adaptive_constant": "1/32",
+      "bad_prob_adaptive_steering": "1",
+      "blowup_factor": "32",
+      "nc": 32,
+      "per_rho_tv": "1/32"
+    }
+  ],
+  "C6": [
+    {
+      "max_adaptive_tv_arbitrary_chi": "1",
+      "mean_adaptive_tv_random_chi": "263/400",
+      "mean_float": 0.6575,
+      "nc": 4,
+      "two_over_nc": 0.5
+    },
+    {
+      "max_adaptive_tv_arbitrary_chi": "1",
+      "mean_adaptive_tv_random_chi": "257/800",
+      "mean_float": 0.32125,
+      "nc": 8,
+      "two_over_nc": 0.25
+    },
+    {
+      "max_adaptive_tv_arbitrary_chi": "1",
+      "mean_adaptive_tv_random_chi": "523/3200",
+      "mean_float": 0.1634375,
+      "nc": 16,
+      "two_over_nc": 0.125
+    }
+  ],
+  "C7": {
+    "challenge_functions": 256,
+    "separated_tv": "0",
+    "shared_tv": "1"
+  },
+  "C8": [
+    {
+      "advantage": "0",
+      "advantage_float": 0.0,
+      "bound": "0",
+      "bound_float": 0.0,
+      "q": 0,
+      "salts": 2
+    },
+    {
+      "advantage": "1/4",
+      "advantage_float": 0.25,
+      "bound": "1",
+      "bound_float": 1.0,
+      "q": 1,
+      "salts": 2
+    },
+    {
+      "advantage": "1/4",
+      "advantage_float": 0.25,
+      "bound": "2",
+      "bound_float": 2.0,
+      "q": 2,
+      "salts": 2
+    },
+    {
+      "advantage": "0",
+      "advantage_float": 0.0,
+      "bound": "0",
+      "bound_float": 0.0,
+      "q": 0,
+      "salts": 4
+    },
+    {
+      "advantage": "1/8",
+      "advantage_float": 0.125,
+      "bound": "1/2",
+      "bound_float": 0.5,
+      "q": 1,
+      "salts": 4
+    },
+    {
+      "advantage": "1/8",
+      "advantage_float": 0.125,
+      "bound": "1",
+      "bound_float": 1.0,
+      "q": 2,
+      "salts": 4
+    }
+  ]
+}
