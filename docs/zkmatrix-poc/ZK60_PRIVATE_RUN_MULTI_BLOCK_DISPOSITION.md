@@ -533,6 +533,36 @@ bundles unless labelled otherwise.
   `results/zk60_native_run_gate_m125/`), so the 125M records of record
   carry the channel table at **2 constructed / 5 derived / 4 argued / 17
   open** — NOT the development shapes' 10 / 5 / 4 / 9 — until they land.
+- **ADDED 12:49 the same day — the preimage step is now COMPLETE at 125M**
+  (`zk60-native-jointview` at `51f74b2`, pushed; I read the figures out of the
+  committed record `m125-dense-full.json` myself). **All seven hiding
+  commitments of a two-block run, on BOTH bundles, have blinding constructed
+  for all-zero data that reproduces the captured view: dense 8,263,736
+  published entries, all-zero 8,256,579, none differing, 1,792 salted leaves
+  re-authenticated each; round 7's six controls fire.** And **one joint
+  assignment for the whole run holds at 125M on both: 8,296,654 and 8,289,497
+  entries, none differing** (the masking layer's 32,918 entries and 512 leaves
+  included; 2,304 leaves in all), the four couplings between commitments
+  checked, 128 identified row pairs, all data rows, **none touching a blinding
+  row**. Cost: about 21.5 minutes a bundle (an `A` about 315 s, an `H` about
+  260 s) at 5.5 GB — the advance estimate was 3.8 times too high, the second
+  time the cost estimate for this construction was the thing that was wrong.
+  Ten development records re-run and leaf-diffed with nothing unclassified;
+  the native suite is 474 tests. Two more findings in the gate's own tools
+  (M-F3's first repair was partial; M-F4, a controls-off pass words a closed
+  arm as not closed — recorded, not repaired). **The 2 / 5 / 4 / 17 channel
+  count above is therefore superseded for the full-arm records; round 9b
+  states the table from the tool's own array.** Ruling R-3's sentence stays
+  beside every joint figure: a joint preimage shows the published values are
+  CONSISTENT with all-zero data; the LAW of the blinding on that fibre is the
+  lemma's and the composition's job. *Orchestration note: the round-9 agent
+  and its successor wrote the same worktree for about half an hour (my error:
+  the first was re-woken by its own finished jobs). By the first agent's own
+  check everything committed through `51f74b2` is free of the successor's
+  tool-byte changes — the full-arm record I read finished at 11:37, before the
+  successor started — and the successor, now the single writer, re-verifies
+  that, treats later job output as scratch and regenerates the records once
+  its tools are final.*
 - **Prediction before measurement.** 180 figures predicted from the shape and
   validated on both development shapes first: 55 shape-independent figures
   identical at all three shapes, 61 block-count figures, 64 scaling figures as
