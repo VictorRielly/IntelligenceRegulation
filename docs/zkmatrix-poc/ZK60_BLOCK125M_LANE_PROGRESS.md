@@ -9130,9 +9130,30 @@ records their old digests. Nothing re-verifies those pins against the working
 tree today; a capture taken after this stage simply pins the new text. It is
 noted here so that a later reader does not read the difference as tampering.
 
-**An all-zero-input control at 125M** (`q28-m125-final-zero.log`,
-`HL_PB_INPUT=zero`, the degenerate witness of the privacy case) was run with
-the fourth of this stage's five 125M budget: it was launched chained behind the gate and is ENQUEUED on the heavy lock behind another lane's Python run-gate jobs (the kernel releases the lock, so it self-starts). Its evidence is `q28-m125-final-zero.log` with the exit code in `q28-m125-final-zero.done`: a later session reads them and, if the figures matter to it, adds them here. The pre-repair all-zero run at the same shape (`m125-one-block-zero.log`, tame weights, 2026-09-20 19:28) proved in 26.98 s with a 9.99 GiB high-water mark, so that is the number this control is to be read against. Nothing in this stage's changes can depend on the hidden input: the table path is chosen by a value's RANGE, never by its value, and the parallel thresholds are functions of the public shape.
+**An all-zero-input control at 125M** (`q28-m125-final-zero.log`, exit 0,
+`HL_PB_INPUT=zero` with the default tame weights — the degenerate witness of
+the privacy case U-4), the fourth of this stage's five 125M runs, run after
+the gate once another lane's Python jobs released the heavy lock
+[MEASURED, one run, shared box]:
+
+| figure | pre-repair all-zero (`m125-one-block-zero.log`, 2026-09-20 19:28) | **after stage 28** |
+|---|---|---|
+| prove, s | 26.98 | **17.71** |
+| verify from bytes, s | 1.23 | 1.14 |
+| receipt, B | 40,783,352 | **40,783,352** |
+| peak RSS, GiB | 9.99 | **9.91** |
+| `H: LogUp helper inverses`, s | 4.531 | **1.088** |
+| `A: lookup values + the byte histogram`, s | 0.492 | **0.097** |
+| slot 17, s | 6.564 | **3.769** |
+| slot 14, s | 2.981 | **2.012** |
+
+**The control says what it was run to say**: the degenerate witness pays the
+same 17.7 s as the fully dense one (17.40 s), phase for phase, so nothing
+this stage did made the prover's cost depend on the hidden input. It could
+not: the table path is chosen by a value's RANGE and never by its value, and
+every parallel threshold is a function of the public shape. The all-zero run
+also carries the same receipt length, which is what the frame-length pin
+asserts on both witnesses.
 
 **What a reader should check first, in one line each.** (1) The receipt
 length is the same number before and after, at every shape, and every honest
