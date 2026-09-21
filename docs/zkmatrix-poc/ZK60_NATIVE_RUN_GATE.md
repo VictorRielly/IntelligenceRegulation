@@ -2264,11 +2264,13 @@ degree gains one when `lkv > 0`.
 | slot 08 (`SC_SCORE`) `L` | **23** | **23** |
 | slot 09 (`SC_PV`) `L` | **26** | **29** |
 | largest `L` | **72** (slots 17, 18) | **77** (slot 17) |
-| coefficient unknowns | **1,718 `Fp`** (859 `Fp2`) | **1,772 `Fp`** |
+| coefficient unknowns | **1,718 `Fp`** (859 `Fp2`) | **1,742 `Fp`** (871 `Fp2`) |
+| disclosed / `M`'s fibre | **2 `Fp`** / 1,716 | **2 `Fp`** / 1,740 |
+| the CFS fibre per stage | **46 `Fp`** (2 per slot) | **46 `Fp`** |
 | blinding unknowns in `M` | **15,870 `Fp`** | 15,870 `Fp` |
 | published round entries / scalars per stage | **1,055** / 23 | **1,070** / 23 |
 | `q` / `prox` / opened column entries per stage | 1,024 / 1,024 / **12,800** | the same |
-| distinct opened columns `D` / pad margin | 246–254 / **2–10** | see §12.5 |
+| distinct opened columns `D` / pad margin | 246–254 / **2–10** | 248–251 / **5–8** |
 
 **The functionals and their declared order**, taken from the code and not
 from a memo: for each slot `s` in slot order, a **Standalone** slot's

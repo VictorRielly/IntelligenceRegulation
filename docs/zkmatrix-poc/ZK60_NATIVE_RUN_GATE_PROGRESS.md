@@ -1480,7 +1480,30 @@ records this lane does not edit. Round 8 does not edit them: a test asserts
 
 ## R8.7 The controls
 
-(pending)
+Six, all fire, on every bundle; report §12.6 has the two that say more than
+was asked. The mechanics worth recording here:
+
+* **Nothing is written.** Each perturbation builds a `_Shadow` of the stage
+  — a shallow copy of `arguments` and `mask` with exactly one field
+  replaced — and a test re-reads the bundle directory afterwards and
+  compares `run.json`'s and every stage file's sha256 with the ones the
+  loaded bundle carries.
+* **M-1 names the ROUND by arithmetic, not by knowledge.** The solver's own
+  refusal names the slot ("slot 0: no solution"). The round is found by
+  re-solving the slot's system with each round's `degree + 1` equations
+  dropped in turn and reporting which removals restore feasibility: exactly
+  one does, and it is the round the control moved. A control that named the
+  round from its own perturbation would be measuring nothing.
+* **M-4 refuses three ways at each of slots 08 and 09**, and all three are
+  worth having: the shape check `weights_vanish_above_L` goes false (and
+  that check is the whole of the argument that the pads drop out of `V(a)`);
+  `b` becomes inadmissible because a coefficient moved into the pad region
+  changes `V(a)`; and a spec one VARIABLE short trips `combined_weights`'s
+  own length assert, which is the Rust's own — "functional 9: 23 weights for
+  a mask of 20 coefficients" at rung-G.
+* **M-5's two coordinates are computed.** The free one and the forced one
+  are found from the two slots' kernels; at rung-G and at rung-K4 the forced
+  index is 3.
 
 ## R8.8 The channel table, the evidence and the suite
 
@@ -1488,4 +1511,33 @@ records this lane does not edit. Round 8 does not edit them: a test asserts
 
 ## R8.9 NEXT after round 8
 
-(pending)
+1. **The joint LAW** — obligation O-R2 / gap G-R4, and now the single
+   largest thing between this gate and a privacy argument. Rounds 7 and 8
+   between them exhibit a preimage for the whole run's linear view; what no
+   gate can supply is that the honest prover's draws are UNIFORM on that
+   fibre. It is a Rust-lane and lemma question, not a Python one.
+2. **The hash layer's HIDING** (M-2, M-3), still ARGUED, and now the second
+   largest. Every OPENED column of every commitment including `M` is
+   re-hashed and re-authenticated; an unopened leaf is a salted digest of
+   data nothing publishes and no preimage reaches it.
+3. **The honest unmasked rounds of one slot on a synthetic public
+   fixture**, the writer-side ask of `ZK60_PRIVACY_CASE_FIRST_MVP.md` §4.3.
+   Without it the masking layer's fixed data stays a NAMED element of the
+   channel's data space rather than the zero witness's own transcript, and
+   that is the one honest gap in §12.5.
+4. **A writer-side pin for `zk.rs` and the seven `zkp-core` files.**
+   `run_capture.rs::SOURCE_FILES` pins eight `private_block` files and no
+   others, so the mask port's dependence on `zk.rs`, `sumcheck.rs`,
+   `ntt.rs`, `field.rs`, `rng.rs`, `pcs.rs`, `merkle.rs` and
+   `transcript.rs` cannot be checked from a bundle at all. Three of those
+   are checked by computation instead; five are not. This is R6.8 item 1
+   with a longer list.
+5. **The 125M shape.** `M` keeps fifty rows there, but every `L_s` grows
+   and `mask_commit` itself asserts `L_s + MASK_Q <= 512`. Whether that
+   survives at 125M is a Rust-lane question; `derive_mask_domain` refuses
+   rather than assumes, so a bundle at a shape that moved it would leave
+   the stage NOT CHECKED by name instead of quietly wrong.
+6. **The attention profile's 18-slot masking layer** is untouched here, as
+   is R6.8 item 2 (the attention profile's path pins).
+7. Nothing in this round moves D8/D11 or ruling M-8's decision, and nothing
+   in it is a privacy acceptance.
