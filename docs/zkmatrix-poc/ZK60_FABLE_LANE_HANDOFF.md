@@ -6,6 +6,79 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 02:04 (2026-09-21) — night report: lane at `5758b95` (pushed), Python gate at `eacdddc` (pushed); three more rulings; five things that touch YOUR side, two of them soundness
+
+**The lane since 00:04 — stage 24, tests and one new refusal; nothing an
+existing profile proves moved** (receipts 2,816,472 / 4,218,600 / 4,234,984 /
+4,743,128 / 40,783,352 B; filter `private_` 285 passed, none failing; shared
+and frozen files untouched since the two tag commits).
+
+**What touches you:**
+1. **Soundness — host discipline was checked by nothing at the shaped
+   layouts** (ruling C-3 of `ZK60_SLOT_CLOSURES_SHAPED_DISPOSITION.md`): no
+   test and no production check compared the hosted-claim lists written
+   literally in the slot definitions with the host table; the old assertions
+   were against the toy's constants. **Now a test at all five shapes — 6
+   hosts, 12 hosted claims, each hosted exactly once by a host that runs after
+   it; no mismatch found.** If you restructure a slot for speed, that test is
+   the one that tells you a hosted claim went missing.
+2. **Soundness — the model behind the hash tag (proposed D19b).** An
+   independent check found that my register entry D19a mislabelled its own
+   assumption: the leaf and node functions are one BLAKE3 mode under two
+   *published* keys, which is not the designers' mode-separation claim; the
+   honest model is an ideal compression function at a chaining value the
+   adversary chooses. It is on Victor's page with my recommendation to accept;
+   nothing accepted rests on it. It bears on your soundness accounting of the
+   tagged profiles exactly as on my privacy accounting. **Also corrected: the
+   randomness generator's stream is plain unkeyed BLAKE3 over key ‖ counter —
+   only its key derivation is keyed; the doc comment at
+   `zkp-core/src/hashtag.rs:22-33` says otherwise and should be fixed at
+   integration** (a comment; I did not touch your crate for it). And
+   `zkp-core`'s pairwise-distinct key test covers 8 of the 12 keys that exist
+   (the four-group rung is missing); the lane now covers all 12 from the
+   profile registry.
+3. **For your run wrapper — the hidden input is fixed by the header, and the
+   forward pass is already done before it** (ruling H-1 of
+   `ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md`): the run header absorbs
+   both external endpoint roots before any challenge, so a caller has computed
+   the final output before stage 0. **Rule: seal the endpoints with the
+   witness builder's own pass, refusals included** — then an inadmissible
+   input is refused before any segment exists (tested on the lane: no
+   directory, no segment). The rule is written into `RunWitnessSource`'s doc
+   comment. Rule M-9 stays as the second line — and note that **M-9 has no
+   production code behind it today**: the verify-then-publish writer is
+   test-only and `prove_run` has no production caller. That is your wrapper.
+4. **A one-byte margin to know about:** the 125M **run** profile's transcript
+   constructor input is 46 bytes; a squeeze input is 47. They cannot collide
+   (a constructor input would have to spell `squeeze` at a fixed offset after
+   a hash state), and a lane test now watches every registered profile's
+   length. If you add a profile string, run that test.
+5. **The capture writer now lists 15 source files** (was 8): the four the
+   Python gate asked for plus three the enumeration found — the parent
+   `private_block.rs` (whose `ExpectedIo::to_bytes` the run header absorbs),
+   `witness.rs` and `pad.rs`. Future bundles only; committed ones untouched.
+
+**Also new on the lane:** a named `Shape::new` refusal for the mask budget
+(a violating shape *was* constructible: 2^20 − 1 tokens over 2,048 heads); the
+head-dimension refusal now documented and tested as protecting the rotary
+slots' two claims on one plane as well; the closure polynomial evaluated on
+extension-round-supported vectors with arbitrary values at every shape — 375
+evaluations, all zero, and both mechanisms observed separately (at the toy,
+slots 08 / 09 rely on the other private factor; at the shaped layouts every
+monomial carries a public factor); the trailer-equals-next-header-tag property
+of the stage loop pinned.
+
+**On paper, since 00:04** (all committed, each drafted, attacked and ruled):
+the slot closures at the shaped layouts (holds with changes; masking tight at
+1,120 checks; no verifier-side panic reachable from a receipt); the hash layer
+and lift for a run (every hash term at least 37 bits below the sampler's
+2^-69.3); and a **draft, under check now, of the one lemma never closed — the
+sequential composition for (field, hash) messages.** One thing in that draft
+you may care about even unchecked: the project's own phrasing "for arbitrary
+challenge functions" is false for this protocol — a constant challenge
+function would steer the one input-dependent refusal to certainty — so that
+term genuinely needs oracle-like challenges.
+
 ### 00:04 (2026-09-21) — end-of-day state for you: lane at `8c5922b` (pushed), Python gate at `6667aba` (pushed); what is yours to pick up, what is mine next
 
 **The lane since the tip I named at 21:03 (`e6b612f`): additions and two
