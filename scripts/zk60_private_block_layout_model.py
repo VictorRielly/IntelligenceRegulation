@@ -649,6 +649,21 @@ RUNG_K4 = Shape("development rung, four key-value heads (T24 / d96 / f192, 12 he
                      "head axis is the only thing that moves, and it doubles Dom::S (h_pad 16 "
                      "against 8), which is where the extra receipt bytes come from")
 
+RUNG_P2 = Shape("development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)",
+                tokens=32, width=96, hidden=256, q_heads=12, head_dim=8, kv_heads=4,
+                log_cols=10, inv_rate=4, f_e=12,
+                note="LANE STAGE 30: rung-K4's PADDED layout exactly — t_pad 32, d_pad 128, h_pad 16, "
+                     "f_pad 256, the same nine domain logs and helper counts, the same 9-row "
+                     "generalised endpoint — with two true sizes moved onto their pads: 32 tokens "
+                     "instead of 24 and hidden 256 instead of 192. So Dom::T (2^5), Dom::Kv "
+                     "(32*4*8 = 2^10) and Dom::F (32*256 = 2^13) DO NOT PAD while Ht, L, D, Q, S and "
+                     "Tab still do — which is 125M's own padded-domain set at a size the Rust test "
+                     "filter runs in seconds. Ruling P-1's pad-zero term is therefore absent from "
+                     "host slots 02 (SC_TZC), 16 (SC_KVZC) and 18 (SC_FZC), and the last two lose "
+                     "the support indicator and one degree with it: 4,742,728 B against rung-K4's "
+                     "4,743,128, the 400-byte difference being (10 + 1) + (13 + 1) = 25 published "
+                     "round values of 16 B")
+
 M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
              tokens=512, width=768, hidden=2048, q_heads=12, head_dim=64, kv_heads=4,
              log_cols=14, inv_rate=4, f_e=9,
@@ -659,7 +674,7 @@ M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 o
                   "512 x 768 = 393,216-word plane, which is not a power of two and is not what "
                   "SC_IO_IN / SC_IO_OUT claim (finding S11b-F1)")
 
-SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "m125": M125}
+SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "rung_p2": RUNG_P2, "m125": M125}
 
 # What the module's own Rust asserts at the toy (`layout.rs:523-526`, `:700-749`,
 # `:778-780`, `tests.rs:106-108`).  The model must reproduce every one of these.
@@ -918,7 +933,7 @@ def report(out=sys.stdout):
         w(f"  {'OK ' if ok else 'XX '} {k:28s} model {str(got[k]):>28s}   rust {str(want):>28s}\n")
     w(f"  -> {'ALL TOY NUMBERS REPRODUCED EXACTLY' if bad == 0 else str(bad) + ' TOY MISMATCHES'}\n\n")
 
-    for name in ("rung", "rung_g", "rung_k4", "m125"):
+    for name in ("rung", "rung_g", "rung_k4", "rung_p2", "m125"):
         m = models[name]
         w(f"-- 2. {m['shape']['name']} --\n")
         w(f"  padded domains: {', '.join(m['padded_domains'])}\n")
