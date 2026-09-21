@@ -1,0 +1,59 @@
+Running scope as unit: run-rbc76aa00bc6f46568245b795270d4bb1.scope
+
+running 1 test
+test private_block::run_tests::private_run_125m_twelve_blocks ... 125M RUN L=12 [HL_PB_WEIGHTS=dense]: segments go to /home/victor/zk60-artifacts/m125-run-l12-dense; MALLOC_MMAP_THRESHOLD_=131072 (pinned: every large buffer is mapped and returned to the system on free)
+125M RUN L=12 [dense]: block 00 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 01 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 02 upper hidden half gate 97.9% / activation 97.9% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 03 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 04 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 05 upper hidden half gate 97.9% / activation 97.9% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 06 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 07 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 08 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 09 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 10 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: block 11 upper hidden half gate 98.0% / activation 98.0% nonzero, 12/12 head slots live, 4/4 key-value groups live, groups differ true
+125M RUN L=12 [dense]: chain built (12 witnesses, each dropped) in 63.95 s, high-water mark so far 0.81 GiB
+125M RUN L=12: block 0: stage 32.27 s, segment 40033896 B (the counted length), high-water mark 10.14 GiB (+9.337 GiB, +1156.83%)  HWM-RISE
+125M RUN L=12: block 1: stage 33.70 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.001 GiB, +0.01%)
+125M RUN L=12: block 2: stage 33.24 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 3: stage 33.64 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 4: stage 33.30 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 5: stage 33.73 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 6: stage 34.66 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 7: stage 33.06 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 8: stage 32.78 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 9: stage 32.44 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 10: stage 32.40 s, segment 40302184 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12: block 11: stage 32.47 s, segment 41051720 B (the counted length), high-water mark 10.15 GiB (+0.000 GiB, +0.00%)
+125M RUN L=12 [dense]: the PUBLIC run statement is retained at /home/victor/zk60-artifacts/m125-run-l12-dense/statement/run-statement.json — 12437 B, sha256 57b271f7a8b9c509df6eb7e3547d2ff049b4d73d1b4c078801b7b0247d52fd6a, recipe "private_block::dense_tests::dense_run_case(<block profile's Shape>), the same fully dense public words for every block: SplitMix64 seeded 0xD15EED1900000001, read in the fixed order [Wq, Wk, Wv, Wo, gamma_a, gamma_m, Wg, Wu, Wd, x]; Wq/Wk/Wv/Wo uniform on [-56,-1] u [1,56]; gamma_a/gamma_m uniform on [40,127]; Wg/Wu uniform on [-96,-1] u [1,96]; Wd uniform on [-B,-1] u [1,B] with B = band_down_run(shape) (47 at the rungs, 1 at 125M); hidden input uniform on [-6000,-1] u [1,6000]"
+125M RUN L=12: segment-000.bin 40033896 B sha256 6d4c427182fe8dbebf23d3b0dc1aeb908343eee437c5eea4a89ab380cce2c918
+125M RUN L=12: segment-001.bin 40302184 B sha256 211fe9365e95b8f34dff1b807201bbb97d6e3e6435172f62bc9db1c0b36dd2b9
+125M RUN L=12: segment-002.bin 40302184 B sha256 0b49fba6f6cadbbf120348988bc7848272333872f6d355ed1daa01e1107dc5cc
+125M RUN L=12: segment-003.bin 40302184 B sha256 3b6f9a18175f3ed6adb36641c87fc5f370150dd8153017216f963b74e147f221
+125M RUN L=12: segment-004.bin 40302184 B sha256 5dd86dd67229aeea1fc7cf59aa7257f05f07b0556e0d7120955fea57af58ed16
+125M RUN L=12: segment-005.bin 40302184 B sha256 c55fbc585f6c7e9309f6556d5fd1457dda2f966811370b46564d582269743ecc
+125M RUN L=12: segment-006.bin 40302184 B sha256 8734a8d00a3d2da0aa5d56ba04eb8c97af066e8c4393a7e904d64291e5159438
+125M RUN L=12: segment-007.bin 40302184 B sha256 f6dba7bef660d2b79504c2b1e95f49eeca27ca2771b3421d7bc0120df05cba08
+125M RUN L=12: segment-008.bin 40302184 B sha256 43c4cc77db4bff3cc8e97385ae7eac8fd85cb2358865d4d6808efba727e9ddb3
+125M RUN L=12: segment-009.bin 40302184 B sha256 40b9166bfba40d3dc01157eae7f809e3235785060bf1b1e8d11f755655e410ad
+125M RUN L=12: segment-010.bin 40302184 B sha256 d969311df68c2ac11e923aa329818dbb859f328552b65e0174c8b8d03bb3e7d6
+125M RUN L=12: segment-011.bin 41051720 B sha256 7c4fa48bd1481abbd7d894ce0e230ecf38efd26fd5dbfb714834df68f2e6f3a1
+125M RUN L=12: block 0: high-water mark 10387.8 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 1: high-water mark 10389.1 MiB (+1.3 MiB, +0.01%)
+125M RUN L=12: block 2: high-water mark 10389.5 MiB (+0.4 MiB, +0.00%)
+125M RUN L=12: block 3: high-water mark 10389.5 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 4: high-water mark 10389.5 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 5: high-water mark 10389.8 MiB (+0.4 MiB, +0.00%)
+125M RUN L=12: block 6: high-water mark 10389.8 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 7: high-water mark 10389.8 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 8: high-water mark 10389.8 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 9: high-water mark 10389.8 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 10: high-water mark 10389.8 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12: block 11: high-water mark 10389.8 MiB (+0.0 MiB, +0.00%)
+125M RUN L=12 [dense] RESULT: prove 397.71 s ([32.27, 33.7, 33.24, 33.64, 33.3, 33.73, 34.66, 33.06, 32.78, 32.44, 32.4, 32.47] per block), verify by streaming 14.45 s, receipt 484107456 B in 12 files (counted 484,100,736 pre-repair), peak RSS 10.15 GiB, MALLOC_MMAP_THRESHOLD_=131072 (pinned: every large buffer is mapped and returned to the system on free) — a CORRECTNESS result, not a privacy one
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 330 filtered out; finished in 476.82s
+
