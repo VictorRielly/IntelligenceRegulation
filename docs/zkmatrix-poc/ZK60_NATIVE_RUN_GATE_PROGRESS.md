@@ -1915,3 +1915,77 @@ has read is not a figure.
    (R8.9 item 3) is unchanged.
 5. Nothing in this round moves D8/D11 or ruling M-8's decision, and nothing
    in it is a privacy acceptance.
+
+## R9b.0 Why there is a round 9b
+
+Round 9's finding **M-F1** — three zero-check slots whose hosted domain is
+an exact power of two draw two definition challenges fewer, and every port
+hardcoded `n_pad = 1` — could only be found at 125M, and its control
+**M9-3** exists only there. A finding whose regression costs three minutes
+and 281 MB of bundle is a finding that will be re-broken. Lane stage 30
+(`baea9b2` … `b923d07`) built the shape that fixes that: **`rung-P2`**, 32
+tokens / width 96 / hidden 256, 12 query heads of 8 over 4 key-value heads,
+in which `T`, `Kv` and `F` sit exactly on their pads and `Ht`, `L`, `D`,
+`Q`, `S`, `Tab` pad — the same split as 125M, at a shape the ordinary test
+suite can run in seconds.
+
+The second half of the round is bookkeeping with a deadline: round 9 closed
+with eight detached jobs on `/tmp/zk-heavy.lock` (R9.10), and the ones that
+have landed have to be read, leaf-diffed and integrated before the next
+round writes over them.
+
+## R9b.1 Input (READ-ONLY, never copied into this repository)
+
+| bundle | witness | bytes | source commit |
+|---|---|---|---|
+| `run-k-dense-p2` | dense generic input at `rung-P2` | pending | `4ccbad1` |
+| `run-l-zero-p2` | the all-zero input at `rung-P2` | pending | `4ccbad1` |
+
+Both in the LANE's worktree at
+`/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/`, the
+same directory every development bundle of rounds 1–8 is read from and the
+same way the tests reach them.
+
+## R9b.2 Status
+
+| # | item | state |
+|---|---|---|
+| P0 | ledger skeleton, round 9b opened | done |
+| P1 | the pins between `f4697f9` (round 9's accepted commit) and `4ccbad1`, hunk by hunk, with a verdict on the lane's "nothing sent, absorbed or drawn changed" | pending |
+| P2 | `rung-P2` added to the prediction module and the figures written BEFORE the gate is run there | pending |
+| P3 | the whole gate on both bundles, every arm, against rung-K4 | pending |
+| P4 | M9-3's development-shape twin, in the ordinary suite | pending |
+| P5 | the landed 125M jobs of R9.10 read, leaf-diffed and integrated | pending |
+| P6 | report section "Round 9b", the suite | pending |
+
+## R9b.3 Commands and logs (round 9b)
+
+pending
+
+## R9b.4 Results — P1, the pins at `4ccbad1`
+
+pending
+
+## R9b.5 Results — P2, the prediction
+
+pending
+
+## R9b.6 Results — P3, the gate at `rung-P2`
+
+pending
+
+## R9b.7 Results — P4, the controls and M9-3's twin
+
+pending
+
+## R9b.8 Results — P5, the 125M jobs that landed
+
+pending
+
+## R9b.9 The suite
+
+pending
+
+## R9b.10 NEXT after round 9b
+
+pending
