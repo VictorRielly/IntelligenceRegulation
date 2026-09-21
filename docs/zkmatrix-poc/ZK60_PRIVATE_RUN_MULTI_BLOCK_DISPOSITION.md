@@ -275,6 +275,60 @@ Still: linear channels, two runs, one development shape, nothing about the
 125M shape, a captured weight fold is checked against the capture and never
 against a weight matrix. **No privacy claim about any run.**
 
+**Correction to rounds 1–3 (ruling R-3 of the run's composition disposition,
+2026-09-20):** wherever "joint = sum of parts" appears above, read it as a
+**consistency check of the model's coordinate classes, not evidence of
+independence**. Two distinct blinding rows whose values coincide would score
+exactly like an honest run. Independence across commitments rests on the
+generator and the draw discipline and is still to be machine-asserted.
+
+**Round 4 (21:35, 2026-09-20): the repaired attention slots, and the first
+NON-DEGENERATE witness.** [MEASURED by the lane; I re-ran its 29 new tests,
+all passing; `zk60-native-jointview` at `50fab1c`, pushed; suite 290, all
+passing; no toy gate file's bytes moved.] Every bundle the gate had seen
+before (a–f) used a fixture whose hidden state is identical in every attention
+head, or the all-zero input; the afternoon's finding S19-F1 showed what that
+can hide (`ZK60_BLOCK125M_S19F1_DISPOSITION.md`). The lane re-took two
+three-block bundles at the development shape on the repaired argument:
+`run-g-dense-s20` (fully dense public weights, a generic hidden input) and
+`run-h-zero-s20` (the all-zero input).
+- **Replay**: 375 positions, 6,092 challenges (round 3's 6,086 plus one group
+  challenge per repaired slot per stage), 6 of 6 position tags, none left
+  over; both private factors' whole coordinate lists re-derived and compared.
+  The gate derives the public `eq` factor from the challenges *it* re-derived
+  and only compares with the bundle's; the comparison is two-sided.
+- **Terminal identity: 23 slots of 23, 69 of 69, on both bundles**, the two
+  repaired slots under their new definition.
+- **Dense against zero: 173 figures compared, 153 identical, and the 20 that
+  differ are all counts of distinct sampled columns or what is computed from
+  them** — they move with the transcript's randomness, not with the witness.
+  **No disclosure figure, rank, boundary figure, joint figure, preimage
+  figure, pad budget or hash-layer count differs between a generic input and
+  the all-zero one**: `A` 0, `H` 2, boundaries, endpoints and the masking
+  commitment 0; each boundary 6 of 6, disclosed 0; whole run 308 × 3,761,
+  joint 6 = sum 6. That is what the linear model predicts — it ranks the
+  blinding structure, which does not depend on the data rows' values — and it
+  is now a measurement and not only a prediction.
+- **What the gate cannot see, stated by the lane and accepted by me:** the
+  defect S19-F1 is invisible from the gate's side **on every witness**, not
+  only a degenerate one. Evaluated on the captured terminals, the repaired
+  definition holds 6 of 6 and the pre-repair one 0 of 6 on both new bundles;
+  but the defect was a disagreement between the prover's claim and the true
+  sum over groups, and no capture carries a witness. **A privacy gate checks
+  the verifier's view; it is no test of completeness.** The acceptance rule of
+  the S19-F1 disposition (a generic honest witness against an independent
+  reference) is what covers that.
+- Controls all fire (a perturbed terminal in each repaired slot fails at
+  exactly that slot and stage; a changed `eq` point is refused by name from
+  either side; the other definition forced is refused in every stage).
+  Bundles a–f stay readable under the definition their own source pin
+  selects, marked superseded; their records re-run with no unclassified
+  difference. Channels: 25, **14 open**, unmoved.
+- Limits: every group figure was taken with ONE group bit (two key-value
+  heads); a shape with more group bits — 125M has two — has never been through
+  the gate. Linear channels, two runs, one development shape. **No privacy
+  claim about any run.**
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external
