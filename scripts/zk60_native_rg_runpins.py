@@ -195,7 +195,9 @@ DEPENDS = {
         ),
         (
             "zk60_native_rg_terminals",
-            "the slot push order the per-slot terminal identity needs",
+            "the per-slot push order the terminal identity needs: which "
+            "plane each of a slot's private tables is, in the order the "
+            "prover pushed them",
             "check_terminals (`structural_push_order_check`)",
         ),
     ),

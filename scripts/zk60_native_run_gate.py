@@ -344,6 +344,15 @@ def stage8(bundle, replay, old=None, do_controls=True):
             "findings": terms["findings"],
             "what": terms["what"],
             "ok": terms["ok"],
+            # [ROUND 6, finding R6-F1] K4-F1 made the moved-pin arm return
+            # every key a caller reads, and one of them -- the sentence
+            # saying the zeros are the ABSENCE of a check and not a passing
+            # one -- was not copied into the record here, so a reader of the
+            # JSON saw zeros with no explanation.  Present only on a
+            # refusal, so no healthy record gains a leaf.
+            **({"refused_before_any_slot_was_evaluated":
+                terms["refused_before_any_slot_was_evaluated"]}
+               if "refused_before_any_slot_was_evaluated" in terms else {}),
         },
         "controls": ctl,
         "channel_status": "derived" if covered_ok else "open",
