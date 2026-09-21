@@ -1875,7 +1875,7 @@ should do is `ls *.done`, read the exit codes, and integrate.
 
 | marker | what it adds | what to do with it |
 |---|---|---|
-| `zero-full` | the ZERO bundle's full arm and stage 13 | compare with the dense bundle's 8,296,654 / 0 differing; the witness comparison should gain nothing but sampled-column counts |
+| `zero-full` | **LANDED**: the arm in 1,293.8 s (dense: 1,292.7), all seven exhibited, 8,256,579 entries / 0 differing / 1,792 leaves; masking 32,918 / 0 / 512; stage 13 **8,289,497 / 0 differing / 2,304 leaves**, four couplings respected, C1 128 pairs all data rows. Every figure differs from the dense bundle's by exactly **7,157**, the sampled-column difference | integrated in report §13.8, with **finding M-F4** beside it |
 | `dense-everything` | ONE 125M record carrying every stage | the only record that can read **28 at 10 / 5 / 4 / 9**; report §13.8 says explicitly that no record does until it lands |
 | `dense-controls2` | the CT / GQ / C1–C6 / CH families after the M-F3 repair | the count of controls that fire at 125M, which §13.7 currently gives only for M9-1..3 and round 8's M1–M6 |
 | `dense-final`, `zero-final` | the two (a)–(d) records re-taken on FROZEN bytes | these supersede the committed `m125-dense.json` / `m125-zero.json` for their tool pins; every figure must be identical |
@@ -1888,11 +1888,22 @@ has read is not a figure.
 
 ## R9.11 NEXT after round 9
 
-1. **The zero bundle's full arm, and a single all-stage record** — both
-   enqueued above. The dense bundle's is done: all seven PCS commitments
-   constructed and verified (8,263,736 entries, none differing) and
-   §12.7's JOINT run-wide preimage holding at 125M (8,296,654 entries, 0
-   differing, C1's 128 pairs all data rows).
+0. **FINDING M-F4 — repair `zk60_native_rg_mjoint`'s message.** On a pass
+   run without `--controls`, stage 12's `ok` is false purely because its
+   controls were not requested, and stage 13 then says *"round 8's arm is
+   off or did not close, so there is nothing to join on the masking
+   side"* — when the arm closed and only its controls were not asked for.
+   Every figure in `m125-zero-full` is computed and correct; the sentence
+   about them is not. It is K4-F1 and R8-F1 one level further out: a
+   message that does not distinguish "did not run" from "did not close".
+   Deliberately not repaired inside round 9, because
+   `m125-dense-everything` is running against these bytes and a record must
+   pin bytes still in the tree.
+1. **A single all-stage record** — enqueued above. Both bundles' full arms
+   are done: all seven PCS commitments constructed and verified (dense
+   8,263,736 entries, zero 8,256,579, none differing either way) and
+   §12.7's JOINT run-wide preimage holding at 125M on both (8,296,654 and
+   8,289,497 entries, 0 differing, C1's 128 pairs all data rows).
 2. **More than two blocks at 125M.** `L = 2` has one internal boundary; the
    model has twelve blocks and eleven. Nothing in the gate depends on `L`,
    but nothing has exercised it at this shape either.

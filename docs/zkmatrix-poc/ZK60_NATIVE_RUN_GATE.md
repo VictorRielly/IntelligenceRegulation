@@ -3112,6 +3112,32 @@ blinding row.** That count is the entire difference between "each part has
 a preimage" and "the run has one", and P-5 — which fires here too — is why
 it has to be earned.
 
+**The ZERO bundle, and a wart in the record's own bookkeeping.**
+`m125-zero-full` ran the arm in **1,293.8 s** — within a second of the
+dense bundle's 1,292.7, which is itself the result, because the two runs
+were proved on a fully dense generic hidden input and on the all-zero one
+and the construction costs the same either way. All seven commitments
+exhibited: **8,256,579 entries, 0 differing, 1,792 salted leaves**; the
+masking layer **32,918, 0 differing, 512 leaves**; stage 13 **8,289,497
+entries, 0 differing, 2,304 leaves, all four couplings respected, C1's 128
+pairs all data rows and none touching a blinding row**. Against the dense
+bundle every one of those is larger or smaller by exactly **7,157**, which
+is the sampled-column difference and nothing else.
+
+> **FINDING M-F4, recorded and NOT repaired in round 9.** That pass was run
+> without `--controls`, and the record's `ok` flags say so in a misleading
+> way: stage 12's `ok` is false purely because its controls were not
+> requested, and stage 13 then reports *"round 8's arm is off or did not
+> close, so there is nothing to join on the masking side"* — when the arm
+> closed perfectly and only its controls were not asked for. **Every figure
+> in that record is computed and correct; the sentence about them is not.**
+> It is the same family as K4-F1 and R8-F1 one more level out: a message
+> that does not distinguish "did not run" from "did not close". The fix
+> belongs in `zk60_native_rg_mjoint`, and it is deliberately NOT made here
+> because `m125-dense-everything` is running against these bytes and a
+> record must pin bytes that are still in the tree. It is round 10's first
+> item.
+
 **The channel table, and a distinction worth keeping.** The full-arm pass
 reads **28 at 10 / 3 / 4 / 11**, and the records of record for (a)–(d) read
 **28 at 2 / 5 / 4 / 17**. Neither is round 8's 10 / 5 / 4 / 9, and the
