@@ -933,10 +933,66 @@ class SlotCtx:
             )
         return v[self.eq_idx[0]]
 
+    # --------------------------------------------- [ROUND 9] finding M-F1
+    def pad_on(self, *doms: str) -> bool:
+        """`pad_on` of `argument.rs:936` -- whether this slot's batched
+        pad-zero term EXISTS, and therefore whether the slot draws the extra
+        `mu` entry and the `zeta`.
+
+        `pad_on = !pad_doms.is_empty()`, and `pad_doms` keeps a domain only
+        when `pad::zero_rule_a_planes(sh, ids, d)` is non-empty -- which that
+        function's own doc line says is "empty when the profile carries no
+        pad rule OR THE DOMAIN DOES NOT PAD" (pad.rs:361-369, and `a_rule`:
+        "planes on unpadded domains carry no rule").  So it is exactly
+        `any(Shape::pads(d))` over the domains this slot HOSTS
+        (`pad::pad_zero_host`).
+
+        **Until round 9 every port hardcoded this true**, because at the toy
+        and at both development rungs every domain pads.  At the 125M shape
+        three do not -- `Dom::T` (512 tokens), `Dom::Kv` (512*4*64 = 2^17)
+        and `Dom::F` (512*2048 = 2^20) are exact powers of two -- and their
+        three host slots consume two definition draws fewer each.  That is
+        finding **M-F1**, and it is the reason this method exists.
+        """
+        return any(self.g.geom.pads(d) for d in doms)
+
+    def pad_draws(self, lt: int, n_base: int, n_nu: int, *doms: str):
+        """The slot's `(mu, nu, zeta)` at `argument.rs`'s own arithmetic:
+        `mu(n_base + n_pad)`, `nu(n_nu)`, and `zeta` ONLY when `pad_on`.
+
+        It also REFUSES by name when the capture does not declare exactly
+        the draws the port consumes.  Before round 9 a mismatch here was an
+        `IndexError` that the per-slot arm turned into "not checked: list
+        index out of range" -- true, and useless.  A refusal that does not
+        say what is wrong is the failure mode findings K4-F1 and R8-F1 are
+        about, one level further in."""
+        on = self.pad_on(*doms)
+        n_pad = 1 if on else 0
+        want = lt + n_base + n_pad + n_nu + n_pad
+        if len(self.dc) != want:
+            raise ValueError(
+                f"slot {self.slot}: this slot consumes {want} definition "
+                f"draws (tau {lt} + mu {n_base}+{n_pad} + nu {n_nu}"
+                + (" + zeta 1" if on else " + no zeta, the domains "
+                   f"{list(doms)} do not pad")
+                + f") and the capture declares {len(self.dc)}"
+            )
+        mu = self.dc[lt:lt + n_base + n_pad]
+        nu = self.dc[lt + n_base + n_pad:lt + n_base + n_pad + n_nu]
+        zeta = self.dc[want - 1] if on else None
+        return mu, nu, zeta, on
+
     def zero_planes(self, dom: str) -> list[int]:
         """`pad::zero_rule_a_planes(sh, ids, dom)` (pad.rs:365) mapped through
         `B::tab`: every `A` plane of the domain, in plane order, except
-        `A_E` (the one EXEMPT plane, pad.rs:299)."""
+        `A_E` (the one EXEMPT plane, pad.rs:299).
+
+        **[ROUND 9]** and EMPTY on a domain that does not pad, which is the
+        other half of the same sentence of pad.rs and the other half of
+        finding M-F1: on an unpadded domain the port would otherwise have
+        built a pad term the prover never built."""
+        if not self.g.geom.pads(dom):
+            return []
         return [self.t(nm) for nm in self.g.a_plane_names_by_domain[dom]
                 if nm != "A_E"]
 
@@ -970,7 +1026,7 @@ def sc_tzc(v, cx):
     cx.expect(["A_D", "A_DSQ"] + ["A_LIMB"] * n_limbs
               + ["A_DM", "A_DSQM"] + ["A_LIMBM"] * n_limbs)
     lt = cx.g.log("T")
-    mu, nu, zeta = cx.dc[lt:lt + 7], cx.dc[lt + 7:lt + 9], cx.dc[lt + 9]
+    mu, nu, zeta, pad_on = cx.pad_draws(lt, 6, 2, "T")
     gi = cx.p("supp", "T")
     i_tau, i_rt, i_rt2 = cx.eq(0), cx.eq(1), cx.eq(2)
     lim = [cx.t("A_LIMB", j) for j in range(n_limbs)]
@@ -990,7 +1046,7 @@ def sc_tzc(v, cx):
                  mul(mu[4], sub(dm, dlm))),
              mul(mu[5], sub(sub(double(dm), a1m), a2m)))
     pz = PadTerm()
-    if gi is not None:
+    if pad_on and gi is not None:
         pz.mu = mu[6]
         pz.add(gi, cx.zero_planes("T"), zeta)
     g = gate_at(gi, v)
@@ -1006,11 +1062,11 @@ def sc_lzc(v, cx):
     `|v| v[0].mul(helper_sum(v, &lks, h0, alpha, &mu).add(pz.eval(v)))`"""
     cx.expect(["A_LIMB", "A_LIMBM", "H_L0"])
     lt = cx.g.log("L")
-    mu_pad, zeta = cx.dc[lt], cx.dc[lt + 1]
+    mu_p, _nu, zeta, pad_on = cx.pad_draws(lt, 0, 0, "L")
     gi = cx.p("supp", "L")
     pz = PadTerm()
-    if gi is not None:
-        pz.mu = mu_pad
+    if pad_on and gi is not None:
+        pz.mu = mu_p[0]
         pz.add(gi, cx.zero_planes("L"), zeta)
     lks = cx.g.lk_tables(cx, "L")
     mu = [ONE] * cx.g.n_helpers("L")
@@ -1085,10 +1141,7 @@ def sc_szc(v, cx):
               + ["A_MX", "A_SUM"]
               + [f"H_S{j}" for j in range(n_help)] + ["H_SEXP"])
     lt = cx.g.log("S")
-    n_mu = 5 + n_help + 1 + 1
-    mu = cx.dc[lt:lt + n_mu]
-    nu = cx.dc[lt + n_mu:lt + n_mu + 2]
-    zeta = cx.dc[lt + n_mu + 2]
+    mu, nu, zeta, pad_on = cx.pad_draws(lt, 5 + n_help + 1, 2, "Ht", "S")
     im = cx.p("causal", None)
     ght, gs = cx.p("supp", "Ht"), cx.p("supp", "S")
     imx, isum = cx.t("A_MX"), cx.t("A_SUM")
@@ -1096,7 +1149,7 @@ def sc_szc(v, cx):
     i_sr = [cx.t(f"A_SR{j}") for j in range(ls)]
     i_sg = [cx.t(f"A_SG{j}") for j in range(ls)]
     pz = PadTerm()
-    if gs is not None:
+    if pad_on and gs is not None:
         pz.mu = mu[5 + n_help + 1]
         pz.add(ght, [imx, isum], zeta)
         pz.add(gs, cx.zero_planes("S"), zeta)
@@ -1136,13 +1189,10 @@ def sc_fzc(v, cx):
                "A_H16", "A_HL0", "A_HL1", "A_RH0", "A_RH1"]
               + [f"H_F{j}" for j in range(n_help)] + ["H_FACT"])
     lt = cx.g.log("F")
-    n_mu = 4 + n_help + 1
-    mu = cx.dc[lt:lt + n_mu]
-    nu = cx.dc[lt + n_mu:lt + n_mu + 2]
-    zeta = cx.dc[lt + n_mu + 2]
+    mu, nu, zeta, pad_on = cx.pad_draws(lt, 4 + n_help, 2, "F")
     gi = cx.p("supp", "F")
     pz = PadTerm()
-    if gi is not None:
+    if pad_on and gi is not None:
         pz.mu = mu[4 + n_help]
         pz.add(gi, cx.zero_planes("F"), zeta)
     lks = cx.g.lk_tables(cx, "F")
@@ -1274,10 +1324,7 @@ def sc_dzc(v, cx):
               + ["A_D", "A_DM"]
               + [f"H_D{j}" for j in range(n_help)])
     lt = cx.g.log("D")
-    n_mu = 11 + n_help + 1
-    mu = cx.dc[lt:lt + n_mu]
-    nu = cx.dc[lt + n_mu:lt + n_mu + 2]
-    zeta = cx.dc[lt + n_mu + 2]
+    mu, nu, zeta, pad_on = cx.pad_draws(lt, 11 + n_help, 2, "D")
     gi = cx.p("supp", "D")
     ig, igm = cx.c("gamma_a"), cx.c("gamma_m")
 
@@ -1308,7 +1355,7 @@ def sc_dzc(v, cx):
     c9 = sub(sub(x2, x1), z16)
     c10 = sub(add(z16, k(32768)), l2("A_ZL0", "A_ZL1"))
     pz = PadTerm()
-    if gi is not None:
+    if pad_on and gi is not None:
         pz.mu = mu[11 + n_help]
         pz.add(gi, cx.zero_planes("D"), zeta)
     lks = cx.g.lk_tables(cx, "D")
@@ -1346,10 +1393,7 @@ def _zc_rope(v, cx, q):
         src, rot, rem, hp = "A_K8", "A_KR8", "A_RKRL", "H_KV"
     cx.expect(rng + [src] + [f"{hp}{j}" for j in range(n_help)])
     lt = cx.g.log(dom)
-    n_mu = 1 + n_help + 1
-    mu = cx.dc[lt:lt + n_mu]
-    nu = cx.dc[lt + n_mu:lt + n_mu + 2]
-    zeta = cx.dc[lt + n_mu + 2]
+    mu, nu, zeta, pad_on = cx.pad_draws(lt, 1 + n_help, 2, dom)
     gi = cx.p("supp", dom)
     ic, isin = cx.c("rope_cos"), cx.c("rope_sin")
     i_src, iflip = cx.t(src, 0), cx.t(src, 1)
@@ -1362,7 +1406,7 @@ def _zc_rope(v, cx, q):
                    v[cx.t(rem)]),
                k(1 << (SH_ROPE - 1)))
     pz = PadTerm()
-    if gi is not None:
+    if pad_on and gi is not None:
         pz.mu = mu[1 + n_help]
         pz.add(gi, cx.zero_planes(dom), zeta)
     lks = cx.g.lk_tables(cx, dom)
@@ -1410,7 +1454,7 @@ def sc_tab(v, cx):
     everywhere else."""
     cx.expect(["A_MU8", "H_GU8", "A_MEXP", "H_GEXP", "A_MACT", "H_GACT"])
     lt = cx.g.log("Tab")
-    mu, zeta = cx.dc[lt:lt + 4], cx.dc[lt + 4]
+    mu, _nu, zeta, pad_on = cx.pad_draws(lt, 3, 0, "Tab")
     i_u8 = cx.p("u8", None)
     triples = [
         (cx.t("A_MU8"), cx.t("H_GU8"), i_u8),
@@ -1428,7 +1472,7 @@ def sc_tab(v, cx):
         rel.append(sub(mul(v[i_h], sub(cx.alpha, v[i_v])), v[i_m]))
     pz = PadTerm()
     si = cx.p("supp", "Tab")
-    if si is not None:
+    if pad_on and si is not None:
         pz.mu = mu[3]
         pz.add(si, [t[0] for t in triples], zeta)
         pz.add(si, [t[1] for t in triples], zeta)
