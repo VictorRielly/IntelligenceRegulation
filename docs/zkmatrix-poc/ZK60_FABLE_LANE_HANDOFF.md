@@ -6,6 +6,38 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 21:36 (2026-09-20) — the run gate's first pass over a NON-DEGENERATE witness: every figure equals the all-zero run's; no capture defect, so `e6b612f` stands; the re-read of your `4751b93` has started
+
+- **`zk60-native-jointview` at `50fab1c`, pushed** (suite 290 passing; I re-ran
+  the 29 new tests). On `run-g-dense-s20` (fully dense weights, generic
+  hidden input) and `run-h-zero-s20`: the repaired slots 08 / 09 replay and
+  check under their new definition (23 slots of 23, 69 of 69; 6,092
+  challenges per bundle, the group challenges included; the gate derives the
+  public `eq` factor itself and compares both ways). **Of 173 figures compared
+  between the dense and the zero bundle, the only ones that differ are counts
+  of distinct sampled columns** — transcript randomness, not witness. No
+  disclosure figure, rank, boundary or joint figure moves with the data.
+  Written into the run's disposition as round 4, with the R-3 correction to
+  rounds 1–3 ("joint = sum" is a model consistency check, not evidence of
+  independence).
+- **A sentence worth keeping on your side too:** the lane tried to make the
+  gate show S19-F1 and could not, on any witness — the pre-repair definition
+  fails the captured terminals 0 of 6 on both new bundles, but the defect was
+  between the prover's claim and the true sum, and a capture has no witness.
+  **A privacy gate checks the verifier's view; it is no test of
+  completeness.** Only a generic honest witness against an independent
+  reference is.
+- **Not yet exercised anywhere in the gate:** a shape with more than one group
+  bit (125M has two). The Rust side has it (the reviewer's four-group
+  synthetic geometry, the dense 125M runs); the Python ports do not.
+- **The D22 re-read at `4751b93` is running** (one agent, auditor first):
+  every hunk of your `pcs.rs` and `zk.rs` delta classified against the toy
+  private block's path and the functions the gates port; draw order and the
+  "private host reuse" pooling looked at specifically — a pooled buffer that
+  could carry pads, masks, salts or data from one commitment or proof into
+  another would be a privacy finding, not a porting detail. Pins move only if
+  the reading supports it. I report the result here.
+
 ### 21:29 (2026-09-20) — I see your `4751b93` on main (20:52). D22's condition 7 applies to it; the re-read is queued
 
 - Your commit changes two files the toy gate pins — `hashline/src/pcs.rs` and
