@@ -198,7 +198,8 @@ def main(argv=None):
     out = {
         "what": "the DECODER of zk60_native_rg_arrays against the format "
         "document, on a whole development-shape run",
-        "what_this_is_not": "a test of the Rust encoder.  The Rust lane's own "
+        "what_this_is_not": "NOT a test of the Rust encoder.  The Rust "
+        "lane's own "
         "run_capture_tests::the_array_store_and_the_classic_encoding_carry_"
         "the_same_values captures one run twice in one process and asserts "
         "byte-for-byte equality of the expanded /5-run bundle with the /4-run "

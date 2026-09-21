@@ -59,7 +59,8 @@ FROM_THE_GATE = ("stage3", "stage4", "stage8", "stage10", "stage11",
                  "stage12", "channels", "tool_hashes")
 
 ORDER = ("load", "replay", "hash", "terminals", "commitments", "boundary",
-         "preimage", "fullpreimage", "mask", "joint", "channels")
+         "preimage", "fullpreimage", "mask", "joint", "runcontrols",
+         "channels")
 
 
 def rss_mb() -> float:
@@ -68,8 +69,9 @@ def rss_mb() -> float:
 
 class Driver:
     def __init__(self, bundle_dir, evidence, name, other_dir=None,
-                 controls=False, only=()):
+                 controls=False, only=(), cross_dir=None):
         self.only = tuple(only)
+        self.cross_dir = cross_dir
         self.dir = bundle_dir
         self.evidence = evidence
         self.name = name
@@ -167,10 +169,18 @@ class Driver:
         return out
 
     def commitments(self):
-        note = dict(self.rec["stage8_plane_index_and_terminals"]
-                    ["terminal_identity"])
-        note["status"] = self.rec["stage8_plane_index_and_terminals"][
-            "channel_status"]
+        # Stage 8 need not have been run: a preimage probe does not want to
+        # pay 105 s for the terminal identity first.  Without it the note is
+        # the gate's own "open" default, which is what a record with no
+        # stage 8 must say.
+        s8 = self.rec.get("stage8_plane_index_and_terminals")
+        if s8 and "terminal_identity" in s8:
+            note = dict(s8["terminal_identity"])
+            note["status"] = s8["channel_status"]
+        else:
+            note = dict(G.PER_SLOT_TERMINAL_OPEN)
+            note["why_open"] = ("stage 8 was not run in this pass; see the "
+                                "record of record for this bundle")
         out, self.views = G.stage3(self.bundle, self.replay, pad_rank=True,
                                    terminal_note=note)
         return out
@@ -232,6 +242,32 @@ class Driver:
             self.rec.get("stage11_full_preimage") or dict(G.FULL_PREIMAGE_OFF),
             self.rec.get("stage12_mask_and_cfs") or dict(G.MASK_CFS_OFF))
 
+    def runcontrols(self):
+        """C1-C6 (round 1), CH-1..CH-7 (rounds 3 and 5) and round 9's own
+        M9-1..M9-3.  The stage-8 and stage-10 control families (CT-1..CT-8,
+        GQ-1..GQ-7) are fired by `--controls` inside their own stages."""
+        from zk60_native_rg_controls import controls as run_controls
+        from zk60_native_rg_hcontrols import hash_rule_controls
+        from zk60_native_rg_m125controls import m125_controls
+        out = {}
+        other = RunBundle(self.other_dir) if self.other_dir else None
+        out["run_controls"] = (
+            run_controls(self.bundle, other, self.views, self.replay,
+                         self.shared)
+            if other is not None else
+            {"skipped": "the swapped-stage control needs a second bundle",
+             "ok": False})
+        cross = None
+        if self.cross_dir:
+            cross = RunBundle(self.cross_dir)
+        out["hash_rule_controls"] = hash_rule_controls(
+            self.bundle, legacy_bundle=None, cross_profile_bundle=cross)
+        out["round_9_controls"] = m125_controls(
+            self.bundle, index=self.index, replay=self.replay)
+        out["ok"] = all(v.get("ok") for v in out.values()
+                        if isinstance(v, dict))
+        return out
+
     def channels(self):
         for k, default in (("stage11_full_preimage", G.FULL_PREIMAGE_OFF),
                            ("stage12_mask_and_cfs", G.MASK_CFS_OFF)):
@@ -251,6 +287,7 @@ class Driver:
         "fullpreimage": ("stage11_full_preimage", "fullpreimage"),
         "mask": ("stage12_mask_and_cfs", "mask"),
         "joint": ("stage13_joint_run_preimage", "joint"),
+        "runcontrols": ("stage6_negative_controls", "runcontrols"),
         "channels": ("stage7_channels", "channels"),
     }
 
@@ -285,6 +322,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--bundle", required=True)
     ap.add_argument("--other")
+    ap.add_argument("--cross-profile",
+                    help="a bundle of a DIFFERENT tagged profile, for CH-7")
     ap.add_argument("--evidence", required=True)
     ap.add_argument("--name", required=True)
     ap.add_argument("--stages", default=",".join(ORDER[:7]))
@@ -299,7 +338,8 @@ def main(argv=None):
         raise SystemExit(f"unknown stage(s): {bad}; the list is {list(ORDER)}")
     d = Driver(args.bundle, args.evidence, args.name, other_dir=args.other,
                controls=args.controls,
-               only=[x.strip() for x in args.only.split(",") if x.strip()])
+               only=[x.strip() for x in args.only.split(",") if x.strip()],
+               cross_dir=args.cross_profile)
     rec = d.run(stages)
     print(f"record: {d.path}   total {rec['total_seconds']} s   "
           f"peak RSS {rec['peak_rss_mb']} MB   ok={rec['ok']}")

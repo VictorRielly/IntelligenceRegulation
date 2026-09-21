@@ -191,7 +191,16 @@ class ArrayStore:
         self._mm = mmap.mmap(self._fh.fileno(), 0, access=mmap.ACCESS_READ)
         self._buf = memoryview(self._mm)
         self.declared_sha256 = declared_sha256
-        # resolution book-keeping, all public counts
+        # resolution book-keeping, all public counts.
+        #
+        # **The cache is keyed on the RANGE, not on the digest.**  Keying it
+        # on the digest alone was the first form of this code and control
+        # M9-1 caught it: a reference that claims an ALREADY-SEEN digest at
+        # a DIFFERENT offset would have skipped the re-hash and been
+        # accepted, which is exactly the check the digest is in the
+        # reference for.  A round-9 finding against round 9's own loader,
+        # written down here so the shape of the mistake stays visible.
+        self.verified_ranges: set[tuple[int, int, str]] = set()
         self.verified_digests: set[str] = set()
         self.resolutions = 0
         self.distinct_arrays_verified = 0
@@ -199,15 +208,32 @@ class ArrayStore:
         self.refusals: list[str] = []
 
     # ------------------------------------------------------------- lifetime
-    def close(self):
+    def close(self) -> bool:
+        """Unmap if nothing still holds a view, and NEVER raise.
+
+        Every resolved member is a zero-copy `numpy` view into this mapping,
+        so while one is alive the mapping cannot be unmapped -- `mmap.close`
+        raises `BufferError: cannot close exported pointers exist`.  That is
+        a correct refusal by CPython and not an error here: closing a store
+        whose arrays are still in use would be the bug.  The file handle is
+        released either way and the mapping goes with the process.  Returns
+        whether the mapping was actually unmapped."""
+        unmapped = False
         try:
             self._buf.release()
-        except Exception:
+        except (BufferError, ValueError):
             pass
         try:
             self._mm.close()
+            unmapped = True
+        except (BufferError, ValueError):
+            pass
         finally:
-            self._fh.close()
+            try:
+                self._fh.close()
+            except Exception:  # noqa: BLE001 -- close must not raise
+                pass
+        return unmapped
 
     def __enter__(self):
         return self
@@ -265,7 +291,7 @@ class ArrayStore:
         elem, n, off, nb = self.check_reference(ref, where)
         raw = self._buf[off : off + nb]
         digest = ref["array"]
-        if digest not in self.verified_digests:
+        if (off, nb, digest) not in self.verified_ranges:
             got = hashlib.sha256(raw).hexdigest()
             if got != digest:
                 raise ArrayRefused(
@@ -273,9 +299,11 @@ class ArrayStore:
                     f"{self.name} is {got[:16]}..., the reference says "
                     f"{digest[:16]}..."
                 )
-            self.verified_digests.add(digest)
-            self.distinct_arrays_verified += 1
-            self.bytes_verified += nb
+            self.verified_ranges.add((off, nb, digest))
+            if digest not in self.verified_digests:
+                self.verified_digests.add(digest)
+                self.distinct_arrays_verified += 1
+                self.bytes_verified += nb
         a = np.frombuffer(raw, dtype="<u8")
         if a.shape[0] != nb // 8:
             raise ArrayRefused(f"{where}: {nb} bytes do not decode to whole u64")

@@ -428,7 +428,7 @@ class TheLoaderEquivalence(unittest.TestCase):
         self.assertEqual(r["encoder"]["distinct_arrays"], 1683)
         self.assertEqual(r["field_elements_behind_the_references"], 1133619)
         self.assertEqual(r["array_store"]["refusals"], [])
-        self.assertIn("not a test of the Rust encoder", r["what_this_is_not"])
+        self.assertIn("NOT a test of the Rust encoder", r["what_this_is_not"])
 
     def test_the_whole_gate_reports_the_same_figures_through_the_new_loader(self):
         d = _record("loader_equivalence_gate.diff.json")

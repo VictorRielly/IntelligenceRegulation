@@ -11,8 +11,8 @@
    "path": "bundle_dir"
   },
   {
-   "new": 18.2,
-   "old": 21.0,
+   "new": 20.5,
+   "old": 19.7,
    "path": "seconds"
   },
   {
@@ -71,13 +71,13 @@
    "path": "stage2_transcript_replay/bundle"
   },
   {
-   "new": 3.4,
-   "old": 3.6,
+   "new": 3.9,
+   "old": 4.1,
    "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
   },
   {
-   "new": 1.0,
-   "old": 1.1,
+   "new": 1.2,
+   "old": 1.3,
    "path": "stage4_the_boundary/whole_run/seconds"
   },
   {
@@ -101,9 +101,9 @@
    "path": "stage9_hash_layer/controls/bundle"
   }
  ],
- "identical_leaves": 4041,
- "leaves_new": 4066,
- "leaves_old": 4062,
+ "identical_leaves": 4046,
+ "leaves_new": 4071,
+ "leaves_old": 4067,
  "only_in_the_new_record": [
   "stage1_integrity/array_store/bytes",
   "stage1_integrity/array_store/bytes_verified_by_sha256",

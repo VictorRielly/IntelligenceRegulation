@@ -116,6 +116,38 @@ CLASSES_ROUND_8 = (
      "when BOTH arms are on)"),
 )
 CLASSES = CLASSES + CLASSES_ROUND_8
+
+# **ROUND 9 (2026-09-21).**  The loader learned schema `/5-run`, so
+# `stage1_integrity` gains an `array_store` block -- on a `/4-run` bundle it
+# says there is no store to resolve -- and `run_layer_source_pins` gains a
+# `shared_files` block, which on a bundle written before lane commit
+# `f4697f9` says `pinned: false`.  Finding M-F1's repair moved
+# `zk60_native_rg_terminals`, whose hash falls under the existing "tool
+# hashes" class, and NOT ONE slot check at a development shape moved with
+# it, because every domain pads there.  Everything else stays UNCLASSIFIED
+# on purpose.
+CLASSES_ROUND_9 = (
+    (lambda p: p.startswith("stage1_integrity/array_store"),
+     "the new array_store block (round 9's /5-run loader; on a /4-run "
+     "bundle it reports that there is no binary store to resolve)"),
+    (lambda p: p.startswith("run_layer_source_pins/shared_files"),
+     "the new shared_files block (round 9; a bundle written before lane "
+     "commit f4697f9 pins no shared file and the block says so)"),
+    (lambda p: p.startswith("run_layer_source_pins/on_the_run_layer_but_"
+                            "not_pinnable_from_a_bundle"),
+     "the dated correction inside NOT_PINNABLE_FROM_A_BUNDLE (round 9: at "
+     "f4697f9 the writer does pin those four)"),
+)
+CLASSES = CLASSES + CLASSES_ROUND_9
+NOTE_ROUND_9 = (
+    "  Round 9 adds three classes: the `array_store` block of the /5-run "
+    "loader, the `shared_files` block of the extended pin table, and the "
+    "dated correction inside NOT_PINNABLE_FROM_A_BUNDLE.  Finding M-F1's "
+    "repair to the seven zero-check ports moved a tool hash and NOT ONE "
+    "SLOT CHECK at a development shape, because every domain pads there -- "
+    "which is the whole reason the finding waited for the 125M shape."
+)
+
 NOTE_ROUND_8 = (
     "  Round 8 adds two classes: the new `stage12_mask_and_cfs` block, which "
     "on a default run carries only the sentence saying the arm was not "
@@ -164,7 +196,8 @@ def summarise(diffs: dict) -> dict:
     out = {
         "what": "the superseded bundles re-run under the current tools and "
         "diffed leaf by leaf against their previous round's records",
-        "note": NOTE + NOTE_ROUND_4 + NOTE_ROUND_6 + NOTE_ROUND_7 + NOTE_ROUND_8,
+        "note": (NOTE + NOTE_ROUND_4 + NOTE_ROUND_6 + NOTE_ROUND_7
+                 + NOTE_ROUND_8 + NOTE_ROUND_9),
         "per_bundle": [],
         "unclassified": [],
     }

@@ -73,7 +73,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 74,
     "predicted_non_data_rows": 246,
-    "rows": 5681
+    "rows": 5681,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 51,
@@ -86,7 +88,9 @@
     "predicted_disclosed_dimension": 2,
     "predicted_generators": 20,
     "predicted_non_data_rows": 104,
-    "rows": 7120
+    "rows": 7120,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 1,
@@ -95,11 +99,13 @@
     "key": "E-Input",
     "kind": "external-endpoint",
     "non_data_rows_by_row_roles": 5,
-    "non_data_rows_match": false,
+    "non_data_rows_match": true,
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 4,
-    "predicted_non_data_rows": 4,
-    "rows": 37
+    "predicted_non_data_rows": 5,
+    "rows": 37,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 122,
@@ -112,7 +118,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 74,
     "predicted_non_data_rows": 246,
-    "rows": 5681
+    "rows": 5681,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 51,
@@ -125,7 +133,9 @@
     "predicted_disclosed_dimension": 2,
     "predicted_generators": 20,
     "predicted_non_data_rows": 104,
-    "rows": 7120
+    "rows": 7120,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 2,
@@ -138,7 +148,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 6,
     "predicted_non_data_rows": 6,
-    "rows": 38
+    "rows": 38,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 1,
@@ -147,11 +159,13 @@
     "key": "E-Output",
     "kind": "external-endpoint",
     "non_data_rows_by_row_roles": 5,
-    "non_data_rows_match": false,
+    "non_data_rows_match": true,
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 4,
-    "predicted_non_data_rows": 4,
-    "rows": 37
+    "predicted_non_data_rows": 5,
+    "rows": 37,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    }
   ],
   "q_heads": 12,

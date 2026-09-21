@@ -1,0 +1,2747 @@
+{
+  "what": "every measured figure of each record, side by side, so a DENSE witness can be read against a DEGENERATE one",
+  "labels": [
+    "rung-G (3 blocks)",
+    "rung-K4 (3 blocks)",
+    "125M (2 blocks)"
+  ],
+  "witnesses": [
+    "fully dense generic",
+    "fully dense generic",
+    "fully dense generic"
+  ],
+  "sources": [
+    "results/zk60_native_run_gate_s20/run-g-dense-s20.json",
+    "results/zk60_native_run_gate_k4/run-i-dense-k4.json",
+    "results/zk60_native_run_gate_m125/m125-dense.json"
+  ],
+  "the_witness_is_not_in_the_bundle": "no capture carries a witness, so the witness column is a claim about the Rust lane's test that made the bundle (its README), not something this tool measured",
+  "figures_compared": 180,
+  "figures_identical": 57,
+  "figures_that_differ": [
+    {
+      "figure": "replay/transcript positions",
+      "values": [
+        375,
+        375,
+        251
+      ]
+    },
+    {
+      "figure": "replay/challenges re-derived",
+      "values": [
+        6092,
+        6854,
+        27828
+      ]
+    },
+    {
+      "figure": "replay/final transcript counter",
+      "values": [
+        6924,
+        7686,
+        28404
+      ]
+    },
+    {
+      "figure": "replay/segment position tags ok",
+      "values": [
+        3,
+        3,
+        2
+      ]
+    },
+    {
+      "figure": "integrity/segment byte lengths",
+      "values": [
+        [
+          4067160,
+          4089688,
+          4257592
+        ],
+        [
+          4575304,
+          4597832,
+          4765736
+        ],
+        [
+          40033896,
+          41051720
+        ]
+      ]
+    },
+    {
+      "figure": "rows/0:A",
+      "values": [
+        623,
+        727,
+        5681
+      ]
+    },
+    {
+      "figure": "distinct opened columns/0:A",
+      "values": [
+        252,
+        250,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/0:A",
+      "values": [
+        4,
+        6,
+        0
+      ]
+    },
+    {
+      "figure": "rows/0:H",
+      "values": [
+        576,
+        720,
+        7120
+      ]
+    },
+    {
+      "figure": "distinct opened columns/0:H",
+      "values": [
+        250,
+        247,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/0:H",
+      "values": [
+        6,
+        9,
+        0
+      ]
+    },
+    {
+      "figure": "rows/0:Input",
+      "values": [
+        9,
+        9,
+        37
+      ]
+    },
+    {
+      "figure": "distinct opened columns/0:Input",
+      "values": [
+        246,
+        247,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/0:Input",
+      "values": [
+        10,
+        9,
+        0
+      ]
+    },
+    {
+      "figure": "rows/1:A",
+      "values": [
+        623,
+        727,
+        5681
+      ]
+    },
+    {
+      "figure": "distinct opened columns/1:A",
+      "values": [
+        248,
+        250,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/1:A",
+      "values": [
+        8,
+        6,
+        0
+      ]
+    },
+    {
+      "figure": "rows/1:H",
+      "values": [
+        576,
+        720,
+        7120
+      ]
+    },
+    {
+      "figure": "distinct opened columns/1:H",
+      "values": [
+        246,
+        247,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/1:H",
+      "values": [
+        10,
+        9,
+        0
+      ]
+    },
+    {
+      "figure": "rows/1:Input",
+      "values": [
+        10,
+        10,
+        38
+      ]
+    },
+    {
+      "figure": "distinct opened columns/1:Input",
+      "values": [
+        249,
+        246,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/1:Input",
+      "values": [
+        7,
+        10,
+        1
+      ]
+    },
+    {
+      "figure": "disclosed/2:A",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rank_P1/2:A",
+      "values": [
+        74,
+        74,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rows/2:A",
+      "values": [
+        623,
+        727,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "distinct opened columns/2:A",
+      "values": [
+        251,
+        253,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad count/2:A",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad margin/2:A",
+      "values": [
+        5,
+        3,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "k0/2:A",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "disclosed/2:H",
+      "values": [
+        2,
+        2,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rank_P1/2:H",
+      "values": [
+        20,
+        20,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rows/2:H",
+      "values": [
+        576,
+        720,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "distinct opened columns/2:H",
+      "values": [
+        245,
+        244,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad count/2:H",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad margin/2:H",
+      "values": [
+        11,
+        12,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "k0/2:H",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "disclosed/2:Input",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rank_P1/2:Input",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rows/2:Input",
+      "values": [
+        10,
+        10,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "distinct opened columns/2:Input",
+      "values": [
+        242,
+        249,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad count/2:Input",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad margin/2:Input",
+      "values": [
+        14,
+        7,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "k0/2:Input",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "disclosed/2:Output",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rank_P1/2:Output",
+      "values": [
+        4,
+        4,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rows/2:Output",
+      "values": [
+        9,
+        9,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "distinct opened columns/2:Output",
+      "values": [
+        247,
+        250,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad count/2:Output",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad margin/2:Output",
+      "values": [
+        9,
+        6,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "k0/2:Output",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "disclosed/M@2",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "rows/M@2",
+      "values": [
+        50,
+        50,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "opened columns/M@2",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pad block/distinct columns",
+      "values": [
+        249,
+        246,
+        255
+      ]
+    },
+    {
+      "figure": "pad block/exact rank",
+      "values": [
+        249,
+        246,
+        255
+      ]
+    },
+    {
+      "figure": "boundary 0/reserved rows",
+      "values": [
+        10,
+        10,
+        38
+      ]
+    },
+    {
+      "figure": "boundary 1/reserved rows",
+      "values": [
+        10,
+        10,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/generators on the reserved block",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/rank on the reserved block",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/rank over all rows",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/full row rank",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/disclosed on the reserved block",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/three-role parts",
+      "values": [
+        {
+          "A@1": 0,
+          "A@2": 0,
+          "B1": 0
+        },
+        {
+          "A@1": 0,
+          "A@2": 0,
+          "B1": 0
+        },
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/three-role sum",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/three-role joint",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/three-role generators",
+      "values": [
+        154,
+        154,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "boundary 1/aliasing lost to the identification",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "whole run/generators x classes",
+      "values": [
+        "308 x 3761",
+        "308 x 4505",
+        "206 x 25686"
+      ]
+    },
+    {
+      "figure": "whole run/sum of parts",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "whole run/joint",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "whole run/identified rows",
+      "values": [
+        24,
+        24,
+        128
+      ]
+    },
+    {
+      "figure": "pair/stages 1 and 2 with boundary 1/joint",
+      "values": [
+        4,
+        4,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "pair/stages 1 and 2 with boundary 1/sum",
+      "values": [
+        4,
+        4,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "preimage/attempted",
+      "values": [
+        [
+          "B0",
+          "B1",
+          "E-Input",
+          "E-Output"
+        ],
+        [
+          "B0",
+          "B1",
+          "E-Input",
+          "E-Output"
+        ],
+        [
+          "B0",
+          "E-Input",
+          "E-Output"
+        ]
+      ]
+    },
+    {
+      "figure": "preimage/commitments exhibited",
+      "values": [
+        4,
+        4,
+        3
+      ]
+    },
+    {
+      "figure": "terminals/checks equal",
+      "values": [
+        69,
+        69,
+        46
+      ]
+    },
+    {
+      "figure": "terminals/checks expected",
+      "values": [
+        69,
+        69,
+        46
+      ]
+    },
+    {
+      "figure": "terminals/matching the stored terminal_polynomial",
+      "values": [
+        69,
+        69,
+        46
+      ]
+    },
+    {
+      "figure": "terminals/public tables rebuilt",
+      "values": [
+        16,
+        16,
+        13
+      ]
+    },
+    {
+      "figure": "terminals/public table structure checks",
+      "values": [
+        45,
+        45,
+        30
+      ]
+    },
+    {
+      "figure": "terminals/derived group points used",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "terminals/controls that fire",
+      "values": [
+        8,
+        8,
+        0
+      ]
+    },
+    {
+      "figure": "terminals/controls total",
+      "values": [
+        8,
+        8,
+        0
+      ]
+    },
+    {
+      "figure": "public tables/carried",
+      "values": [
+        93,
+        93,
+        56
+      ]
+    },
+    {
+      "figure": "public tables/length checked",
+      "values": [
+        93,
+        93,
+        56
+      ]
+    },
+    {
+      "figure": "public tables/digest checked",
+      "values": [
+        93,
+        93,
+        56
+      ]
+    },
+    {
+      "figure": "hash layer/openings",
+      "values": [
+        13,
+        13,
+        9
+      ]
+    },
+    {
+      "figure": "hash layer/columns checked",
+      "values": [
+        3328,
+        3328,
+        2304
+      ]
+    },
+    {
+      "figure": "hash layer/columns authenticated",
+      "values": [
+        3328,
+        3328,
+        2304
+      ]
+    },
+    {
+      "figure": "hash layer/bytes hashed",
+      "values": [
+        7751680,
+        9275392,
+        52867072
+      ]
+    },
+    {
+      "figure": "hash layer/controls that fire",
+      "values": [
+        7,
+        7,
+        0
+      ]
+    },
+    {
+      "figure": "group factor/lkv",
+      "values": [
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "figure": "group factor/coordinate_entries_compared",
+      "values": [
+        135,
+        138,
+        150
+      ]
+    },
+    {
+      "figure": "group factor/coordinate_lists_rederived_and_compared",
+      "values": [
+        12,
+        12,
+        8
+      ]
+    },
+    {
+      "figure": "group factor/definition_challenge_counts_compared",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "group factor/dimension_sets_derived_and_compared",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "group factor/fixed_coordinates_compared_with_a_rederived_challenge",
+      "values": [
+        69,
+        66,
+        74
+      ]
+    },
+    {
+      "figure": "group factor/group_point_entries_compared",
+      "values": [
+        6,
+        12,
+        8
+      ]
+    },
+    {
+      "figure": "group factor/group_points_derived_and_compared",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "group factor/slots_examined",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "group factor/slots with a derived point",
+      "values": [
+        6,
+        6,
+        4
+      ]
+    },
+    {
+      "figure": "group factor/controls that fire",
+      "values": [
+        8,
+        13,
+        null
+      ]
+    },
+    {
+      "figure": "group factor/controls total",
+      "values": [
+        9,
+        13,
+        null
+      ]
+    },
+    {
+      "figure": "group factor/the repaired polynomial holds",
+      "values": [
+        6,
+        6,
+        null
+      ]
+    },
+    {
+      "figure": "group factor/the pre-repair polynomial holds",
+      "values": [
+        0,
+        0,
+        null
+      ]
+    },
+    {
+      "figure": "group factor/group factors equal to one",
+      "values": [
+        0,
+        0,
+        null
+      ]
+    },
+    {
+      "figure": "group factor/terminal products that are zero",
+      "values": [
+        0,
+        0,
+        null
+      ]
+    },
+    {
+      "figure": "run controls/named",
+      "values": [
+        [
+          "C1_two_claims_share_one_reserved_pair",
+          "C2_a_single_proximity_row",
+          "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+          "C4_a_claim_whose_source_stage_is_wrong",
+          "C5_a_stage_file_swapped_between_the_two_bundles",
+          "C6_one_pad_fewer_than_the_distinct_opened_columns"
+        ],
+        [
+          "C1_two_claims_share_one_reserved_pair",
+          "C2_a_single_proximity_row",
+          "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+          "C4_a_claim_whose_source_stage_is_wrong",
+          "C5_a_stage_file_swapped_between_the_two_bundles",
+          "C6_one_pad_fewer_than_the_distinct_opened_columns"
+        ],
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "run controls/all fire",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "run controls/C1_two_claims_share_one_reserved_pair",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "run controls/C2_a_single_proximity_row",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "run controls/C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "run controls/C4_a_claim_whose_source_stage_is_wrong",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "run controls/C5_a_stage_file_swapped_between_the_two_bundles",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "run controls/C6_one_pad_fewer_than_the_distinct_opened_columns",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ]
+    },
+    {
+      "figure": "disclosed/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        0
+      ]
+    },
+    {
+      "figure": "rank_P1/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        4
+      ]
+    },
+    {
+      "figure": "rows/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        37
+      ]
+    },
+    {
+      "figure": "distinct opened columns/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        256
+      ]
+    },
+    {
+      "figure": "pad count/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        0
+      ]
+    },
+    {
+      "figure": "k0/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        0
+      ]
+    }
+  ],
+  "all_identical": false,
+  "per_figure": [
+    {
+      "figure": "replay/run binding reproduced",
+      "values": [
+        true,
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/transcript positions",
+      "values": [
+        375,
+        375,
+        251
+      ],
+      "identical": false
+    },
+    {
+      "figure": "replay/challenges re-derived",
+      "values": [
+        6092,
+        6854,
+        27828
+      ],
+      "identical": false
+    },
+    {
+      "figure": "replay/final transcript counter",
+      "values": [
+        6924,
+        7686,
+        28404
+      ],
+      "identical": false
+    },
+    {
+      "figure": "replay/segment position tags ok",
+      "values": [
+        3,
+        3,
+        2
+      ],
+      "identical": false
+    },
+    {
+      "figure": "replay/challenges NOT re-derived",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/hash rule",
+      "values": [
+        "blake3-keyed/1",
+        "blake3-keyed/1",
+        "blake3-keyed/1"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "integrity/findings",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "integrity/segment byte lengths",
+      "values": [
+        [
+          4067160,
+          4089688,
+          4257592
+        ],
+        [
+          4575304,
+          4597832,
+          4765736
+        ],
+        [
+          40033896,
+          41051720
+        ]
+      ],
+      "identical": false
+    },
+    {
+      "figure": "disclosed/0:A",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:A",
+      "values": [
+        74,
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:A",
+      "values": [
+        623,
+        727,
+        5681
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/0:A",
+      "values": [
+        252,
+        250,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:A",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:A",
+      "values": [
+        4,
+        6,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:A",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:H",
+      "values": [
+        2,
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:H",
+      "values": [
+        20,
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:H",
+      "values": [
+        576,
+        720,
+        7120
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/0:H",
+      "values": [
+        250,
+        247,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:H",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:H",
+      "values": [
+        6,
+        9,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:H",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:Input",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:Input",
+      "values": [
+        4,
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:Input",
+      "values": [
+        9,
+        9,
+        37
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/0:Input",
+      "values": [
+        246,
+        247,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:Input",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:Input",
+      "values": [
+        10,
+        9,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:Input",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/1:A",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/1:A",
+      "values": [
+        74,
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/1:A",
+      "values": [
+        623,
+        727,
+        5681
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/1:A",
+      "values": [
+        248,
+        250,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/1:A",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/1:A",
+      "values": [
+        8,
+        6,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/1:A",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/1:H",
+      "values": [
+        2,
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/1:H",
+      "values": [
+        20,
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/1:H",
+      "values": [
+        576,
+        720,
+        7120
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/1:H",
+      "values": [
+        246,
+        247,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/1:H",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/1:H",
+      "values": [
+        10,
+        9,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/1:H",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/1:Input",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/1:Input",
+      "values": [
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/1:Input",
+      "values": [
+        10,
+        10,
+        38
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/1:Input",
+      "values": [
+        249,
+        246,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/1:Input",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/1:Input",
+      "values": [
+        7,
+        10,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/1:Input",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/2:A",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rank_P1/2:A",
+      "values": [
+        74,
+        74,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rows/2:A",
+      "values": [
+        623,
+        727,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/2:A",
+      "values": [
+        251,
+        253,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/2:A",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad margin/2:A",
+      "values": [
+        5,
+        3,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/2:A",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "disclosed/2:H",
+      "values": [
+        2,
+        2,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rank_P1/2:H",
+      "values": [
+        20,
+        20,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rows/2:H",
+      "values": [
+        576,
+        720,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/2:H",
+      "values": [
+        245,
+        244,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/2:H",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad margin/2:H",
+      "values": [
+        11,
+        12,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/2:H",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "disclosed/2:Input",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rank_P1/2:Input",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rows/2:Input",
+      "values": [
+        10,
+        10,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/2:Input",
+      "values": [
+        242,
+        249,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/2:Input",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad margin/2:Input",
+      "values": [
+        14,
+        7,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/2:Input",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "disclosed/2:Output",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rank_P1/2:Output",
+      "values": [
+        4,
+        4,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rows/2:Output",
+      "values": [
+        9,
+        9,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/2:Output",
+      "values": [
+        247,
+        250,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/2:Output",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad margin/2:Output",
+      "values": [
+        9,
+        6,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/2:Output",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "disclosed/M@0",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@0",
+      "values": [
+        50,
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@0",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@1",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@1",
+      "values": [
+        50,
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@1",
+      "values": [
+        256,
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@2",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rows/M@2",
+      "values": [
+        50,
+        50,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "opened columns/M@2",
+      "values": [
+        256,
+        256,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad block/distinct columns",
+      "values": [
+        249,
+        246,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad block/exact rank",
+      "values": [
+        249,
+        246,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad block/full rank",
+      "values": [
+        true,
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/reserved rows",
+      "values": [
+        10,
+        10,
+        38
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 0/generators on the reserved block",
+      "values": [
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/rank on the reserved block",
+      "values": [
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/rank over all rows",
+      "values": [
+        6,
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/full row rank",
+      "values": [
+        true,
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/disclosed on the reserved block",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role parts",
+      "values": [
+        {
+          "A@0": 0,
+          "A@1": 0,
+          "B0": 0
+        },
+        {
+          "A@0": 0,
+          "A@1": 0,
+          "B0": 0
+        },
+        {
+          "A@0": 0,
+          "A@1": 0,
+          "B0": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role sum",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role joint",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role generators",
+      "values": [
+        154,
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/aliasing lost to the identification",
+      "values": [
+        0,
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/reserved rows",
+      "values": [
+        10,
+        10,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/generators on the reserved block",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/rank on the reserved block",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/rank over all rows",
+      "values": [
+        6,
+        6,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/full row rank",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/disclosed on the reserved block",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/three-role parts",
+      "values": [
+        {
+          "A@1": 0,
+          "A@2": 0,
+          "B1": 0
+        },
+        {
+          "A@1": 0,
+          "A@2": 0,
+          "B1": 0
+        },
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/three-role sum",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/three-role joint",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/three-role generators",
+      "values": [
+        154,
+        154,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "boundary 1/aliasing lost to the identification",
+      "values": [
+        0,
+        0,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "whole run/generators x classes",
+      "values": [
+        "308 x 3761",
+        "308 x 4505",
+        "206 x 25686"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "whole run/sum of parts",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "whole run/joint",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "whole run/identified rows",
+      "values": [
+        24,
+        24,
+        128
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pair/stages 0 and 1 with boundary 0/joint",
+      "values": [
+        4,
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 0 and 1 with boundary 0/sum",
+      "values": [
+        4,
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 1 and 2 with boundary 1/joint",
+      "values": [
+        4,
+        4,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pair/stages 1 and 2 with boundary 1/sum",
+      "values": [
+        4,
+        4,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "preimage/attempted",
+      "values": [
+        [
+          "B0",
+          "B1",
+          "E-Input",
+          "E-Output"
+        ],
+        [
+          "B0",
+          "B1",
+          "E-Input",
+          "E-Output"
+        ],
+        [
+          "B0",
+          "E-Input",
+          "E-Output"
+        ]
+      ],
+      "identical": false
+    },
+    {
+      "figure": "preimage/half",
+      "values": [
+        "message only",
+        "message only",
+        "message only"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/commitments exhibited",
+      "values": [
+        4,
+        4,
+        3
+      ],
+      "identical": false
+    },
+    {
+      "figure": "preimage/free field elements per position",
+      "values": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/slots covered",
+      "values": [
+        23,
+        23,
+        23
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/checks equal",
+      "values": [
+        69,
+        69,
+        46
+      ],
+      "identical": false
+    },
+    {
+      "figure": "terminals/checks expected",
+      "values": [
+        69,
+        69,
+        46
+      ],
+      "identical": false
+    },
+    {
+      "figure": "terminals/matching the stored terminal_polynomial",
+      "values": [
+        69,
+        69,
+        46
+      ],
+      "identical": false
+    },
+    {
+      "figure": "terminals/public tables rebuilt",
+      "values": [
+        16,
+        16,
+        13
+      ],
+      "identical": false
+    },
+    {
+      "figure": "terminals/public tables taken from the capture",
+      "values": [
+        15,
+        15,
+        15
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/public table structure checks",
+      "values": [
+        45,
+        45,
+        30
+      ],
+      "identical": false
+    },
+    {
+      "figure": "terminals/derived group points used",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "terminals/controls that fire",
+      "values": [
+        8,
+        8,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "terminals/controls total",
+      "values": [
+        8,
+        8,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "public tables/carried",
+      "values": [
+        93,
+        93,
+        56
+      ],
+      "identical": false
+    },
+    {
+      "figure": "public tables/length checked",
+      "values": [
+        93,
+        93,
+        56
+      ],
+      "identical": false
+    },
+    {
+      "figure": "public tables/digest checked",
+      "values": [
+        93,
+        93,
+        56
+      ],
+      "identical": false
+    },
+    {
+      "figure": "hash layer/openings",
+      "values": [
+        13,
+        13,
+        9
+      ],
+      "identical": false
+    },
+    {
+      "figure": "hash layer/columns checked",
+      "values": [
+        3328,
+        3328,
+        2304
+      ],
+      "identical": false
+    },
+    {
+      "figure": "hash layer/columns authenticated",
+      "values": [
+        3328,
+        3328,
+        2304
+      ],
+      "identical": false
+    },
+    {
+      "figure": "hash layer/bytes hashed",
+      "values": [
+        7751680,
+        9275392,
+        52867072
+      ],
+      "identical": false
+    },
+    {
+      "figure": "hash layer/controls that fire",
+      "values": [
+        7,
+        7,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/definition in force",
+      "values": [
+        "repaired",
+        "repaired",
+        "repaired"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/lkv",
+      "values": [
+        1,
+        2,
+        2
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/coordinate_entries_compared",
+      "values": [
+        135,
+        138,
+        150
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/coordinate_lists_rederived_and_compared",
+      "values": [
+        12,
+        12,
+        8
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/definition_challenge_counts_compared",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/dimension_sets_derived_and_compared",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/fixed_coordinates_compared_with_a_rederived_challenge",
+      "values": [
+        69,
+        66,
+        74
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/group_point_entries_compared",
+      "values": [
+        6,
+        12,
+        8
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/group_points_derived_and_compared",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/slots_examined",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/slots with a derived point",
+      "values": [
+        6,
+        6,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/controls that fire",
+      "values": [
+        8,
+        13,
+        null
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/controls total",
+      "values": [
+        9,
+        13,
+        null
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/the repaired polynomial holds",
+      "values": [
+        6,
+        6,
+        null
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/the pre-repair polynomial holds",
+      "values": [
+        0,
+        0,
+        null
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/group factors equal to one",
+      "values": [
+        0,
+        0,
+        null
+      ],
+      "identical": false
+    },
+    {
+      "figure": "group factor/terminal products that are zero",
+      "values": [
+        0,
+        0,
+        null
+      ],
+      "identical": false
+    },
+    {
+      "figure": "channels/total",
+      "values": [
+        28,
+        28,
+        28
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/argued",
+      "values": [
+        4,
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/constructed",
+      "values": [
+        2,
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/derived",
+      "values": [
+        5,
+        5,
+        5
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/open",
+      "values": [
+        17,
+        17,
+        17
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/named",
+      "values": [
+        [
+          "C1_two_claims_share_one_reserved_pair",
+          "C2_a_single_proximity_row",
+          "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+          "C4_a_claim_whose_source_stage_is_wrong",
+          "C5_a_stage_file_swapped_between_the_two_bundles",
+          "C6_one_pad_fewer_than_the_distinct_opened_columns"
+        ],
+        [
+          "C1_two_claims_share_one_reserved_pair",
+          "C2_a_single_proximity_row",
+          "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+          "C4_a_claim_whose_source_stage_is_wrong",
+          "C5_a_stage_file_swapped_between_the_two_bundles",
+          "C6_one_pad_fewer_than_the_distinct_opened_columns"
+        ],
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "run controls/all fire",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "run controls/C1_two_claims_share_one_reserved_pair",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "run controls/C2_a_single_proximity_row",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "run controls/C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "run controls/C4_a_claim_whose_source_stage_is_wrong",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "run controls/C5_a_stage_file_swapped_between_the_two_bundles",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "run controls/C6_one_pad_fewer_than_the_distinct_opened_columns",
+      "values": [
+        true,
+        true,
+        "(absent)"
+      ],
+      "identical": false
+    },
+    {
+      "figure": "disclosed/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rank_P1/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "rows/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        37
+      ],
+      "identical": false
+    },
+    {
+      "figure": "distinct opened columns/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad margin/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/1:Output",
+      "values": [
+        "(absent)",
+        "(absent)",
+        0
+      ],
+      "identical": false
+    }
+  ],
+  "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+  "this_is_not_a_privacy_result": true
+}

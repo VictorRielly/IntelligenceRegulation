@@ -1,0 +1,33 @@
+Running scope as unit: run-r215e7403384144d4a02e13493f8d32a5.scope
+[load          ]      1.0 s   peak RSS     586 MB   ok
+[replay        ]      1.2 s   peak RSS     586 MB   ok
+[hash          ]      0.7 s   peak RSS     586 MB   ok
+[terminals     ]    103.3 s   peak RSS    1451 MB   ok
+[commitments   ]     63.2 s   peak RSS    1451 MB   ok
+[boundary      ]      5.6 s   peak RSS    1451 MB   ok
+[preimage      ]      1.0 s   peak RSS    1451 MB   ok
+[channels      ]      0.0 s   peak RSS    1451 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_m125/m125-zero.json   total 176.0 s   peak RSS 1451 MB   ok=True
+	Command being timed: "systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0 python3 -u /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/m125-capture-zero-l2 --other /home/victor/zk60-artifacts/m125-capture-dense-l2 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_m125 --name m125-zero --stages load,replay,hash,terminals,commitments,boundary,preimage,channels"
+	User time (seconds): 170.16
+	System time (seconds): 7.46
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:56.15
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1485436
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 3536256
+	Voluntary context switches: 47
+	Involuntary context switches: 16505
+	Swaps: 0
+	File system inputs: 532592
+	File system outputs: 1608
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

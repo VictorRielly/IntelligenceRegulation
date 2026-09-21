@@ -180,6 +180,12 @@ The model is `zk60_native_jv_pcs`'s, stated there in full:
 `disclosed = dim_Fp(F ∩ T)`, which under H-pad, H-pair and H-prox — each
 CHECKED — reduces to `n·k0 + (u-row term)`. Here `n = 1,024`.
 
+> **DATED NOTE, 2026-09-21 (round 9).** `n = 1,024` is this section's
+> development rung. At the **125M** shape `n = 16,384` and `Q = 256`, so a
+> published vector is 16,640 entries; the split below is unchanged and the
+> verifier's own sampled-column identity reproduces there on every
+> commitment with **0 failures** as well (§13.4).
+
 **One thing the toy conflated and this shape separates.** A committed row is
 `z_i = (msg_i, pad_i)` in `Fp^n × Fp^Q`. At the toy profile `n = Q = 256`; at
 the rung `n = 1,024` and `Q = 256`, so a published vector is 1,280 entries
@@ -496,6 +502,12 @@ One thing the bundle LACKS that the gate needs, and does not guess at:
 * **It says nothing about the 125M shape.** There, exact rank over thousands
   of rows per commitment is a different computation, and this gate has not
   been run on it: the largest matrix ranked here is 308 × 3,761.
+  > **DATED CORRECTION, 2026-09-21 (round 9): SUPERSEDED BY §13.** The gate
+  > has now been run at the 125M shape, on two two-block captures. The
+  > largest matrix ranked there is **206 × 25,686** and it takes 2.1 s;
+  > `A`'s 5,681 rows and `H`'s 7,120 are ranked inside a 65.7 s stage, and
+  > the whole default gate is 179.1 s at 1,459 MB. The sentence above is
+  > kept as the first round's statement.
 * **The hash layer is ARGUED, not computed.** The Merkle roots, the leaf
   salts and the authentication paths are hash objects; they rest on M-2 and
   M-3, and no linear algebra covers them.
@@ -1599,6 +1611,11 @@ asserted unchanged.
   of it: 24 tokens against 512, width 96 against 768, three blocks against
   twelve. The exact-rank computation over thousands of rows per commitment
   is still untried, and a 484 MB run is still more than this gate ingests.
+  > **DATED CORRECTION, 2026-09-21 (round 9): BOTH HALVES CLOSED, §13.**
+  > The exact-rank computation is tried and the whole per-commitment stage
+  > is 65.7 s; and a 281 MB `/5-run` bundle is ingested in 0.6 s at 600 MB.
+  > The 484 MB figure was for the `/4-run` text encoding, which lane stage
+  > 27 replaced with a binary array store.
 * **`lkv = 2` is not `lkv > 2`.** The 125M shape's `lkv` is 2 as well, so
   what is now exercised is the case that shape needs; a shape with eight or
   more key-value groups is still unread.
@@ -2108,6 +2125,12 @@ hidden input; their views have a preimage at zero all the same.
   reproduce.
 * **anything at the 125M shape**, where `A` has thousands of rows, nor
   anything nonlinear, nor anything about the four out-of-band channels.
+  > **DATED NOTE, 2026-09-21 (round 9), §13.8.** Partly closed: at 125M the
+  > three SINGLETON-group commitments have a constructed and verified
+  > preimage (145,118 entries, none differing, 768 salted leaves, 44 s
+  > each). `A` and `H` are **estimated at 22–23 minutes apiece** from round
+  > 7's own measurements and are OPEN at that shape, so §12.7's JOINT
+  > run-wide preimage is not established there either.
 * **and it is not a privacy acceptance.** Both bundles carry
   `privacy_review_complete: false`, and so does every record round 7 wrote.
 
@@ -2151,6 +2174,10 @@ the gate.
 * **It does not generalise to the 125M shape by arithmetic.** The solve is
   `O(rows · d²)` in the pads and `O(G · n · rows)` in the verification; at
   125M both grow, and nobody has measured it.
+  > **DATED NOTE, 2026-09-21 (round 9).** Measured for the three
+  > singleton-group commitments: **16×** the rung's cost, which is the
+  > message-width ratio 16,384 / 1,024 and NOT the row ratio. §13.8 has the
+  > estimate for `A` and `H` and the reason it is an estimate.
 
 ---
 
@@ -2522,6 +2549,13 @@ four couplings enumerated and each checked.
 * **anything at the 125M shape.** Nothing here was measured there, and
   `L_s + 256 ≤ 512` is a constraint a bigger shape could break — which is
   exactly why `derive_mask_domain` refuses rather than assumes.
+  > **DATED CORRECTION, 2026-09-21 (round 9): CLOSED, §13.4.** The masking
+  > layer and the CFS channel are constructed and verified at 125M —
+  > **32,918 entries over the two stages, none differing, 512 salted leaves
+  > re-authenticated**, at 9.4 s a stage. `L_s + 256` is **373** at its
+  > largest (slot 17), so the headroom is **139** of 512; and lane stage 27
+  > made it a NAMED REFUSAL in `Shape::new` (ruling C-4), so the guarantee
+  > is the Rust's and not this port's.
 * **and it is not a privacy acceptance.** Both bundles carry
   `privacy_review_complete: false`, and so does every record round 8 wrote.
 
@@ -2594,3 +2628,457 @@ instead.
   rows there, but every `L_s` grows with the shape and `L_s + 256 ≤ 512` is
   an assertion in `mask_commit` itself; whether it survives at 125M is a
   question for the Rust lane, and nobody has measured the solve there.
+  > **DATED NOTE, 2026-09-21 (round 9): answered both ways.** The Rust lane
+  > answered the question with ruling C-4 (`Shape::new` refuses a shape
+  > whose masks do not fit), and the solve is measured at **9.4 s a stage**
+  > at 125M. `M` does keep 50 rows and 34 functionals there.
+
+---
+
+# 13. 2026-09-21, ninth round: the gate at the **125M shape** — the first time anything is measured there
+
+**Written 2026-09-21 on the same lane.** New modules:
+`scripts/zk60_native_rg_arrays.py` (the `/5-run` binary array store),
+`scripts/zk60_native_rg_reencode.py` (the decoder's equivalence proof),
+`scripts/zk60_native_rg_predict.py` (what the gate must report, computed
+before it is run), `scripts/zk60_native_rg_m125.py` (the staged driver),
+`scripts/zk60_native_rg_m125controls.py` (three new controls),
+`scripts/zk60_native_rg_m125table.py` (the classified comparison table).
+Evidence: `results/zk60_native_run_gate_m125/`. Tests:
+`tests/test_zk60_native_run_gate_m125.py`.
+
+Every round so far closes with the same sentence. §5: "**It says nothing
+about the 125M shape.**" §9.11: "**Nothing at the 125M shape** … the exact-rank
+computation over thousands of rows per commitment is still untried, and a
+484 MB run is still more than this gate ingests." §11.8: "anything at the
+125M shape, where `A` has thousands of rows". §12.8: "**anything at the 125M
+shape.** Nothing here was measured there." Round 9 is the round those
+sentences were waiting for, and §13.9 corrects each of them in place.
+
+> **STILL NOT A PRIVACY ACCEPTANCE AND STILL NO PRIVACY PROPERTY.** Two
+> captured runs of TWO blocks at one production shape are two captured runs
+> of two blocks at one production shape. Both bundles carry
+> `privacy_review_complete: false` and so does every record.
+
+## 13.1 The headline, in one line each
+
+1. **The gate runs at 125M, and it is three minutes.** The whole default
+   gate on the dense bundle is **179.1 s** at a peak resident set of
+   **1,459 MB**, inside an 8 GB ceiling, on the two-block 512-token run.
+   §13.5 is the stage-by-stage table. Nothing was skipped for cost in
+   (a)–(d).
+2. **FINDING M-F1, and it is the round's reason for existing.** The first
+   pass was **40 of 46** slot checks, with slots 02 (`SC_TZC`), 16
+   (`SC_KVZC`) and 18 (`SC_FZC`) reporting `list index out of range` in both
+   stages. Every zero-check port hardcoded `n_pad = 1`; at 125M three
+   domains are exact powers of two and their host slots draw **two fewer
+   definition challenges each**. No development shape could have caught it.
+   §13.3.
+3. **Every figure the report's laws call shape-independent came out
+   identical**, and every figure that scales scaled as predicted. The
+   prediction was written and validated BEFORE the gate was run at 125M:
+   **180 figures, 55 invariant and all 55 identical at all three shapes, 61
+   a matter of two blocks against three, 64 scaling, and ZERO
+   unexplained.** §13.6.
+4. **Dense against zero at 125M: 128 figures, 124 identical**, and all four
+   that differ are a distinct-sampled-column count or the pad margin that
+   derives from it — the same classes, and the same reading, rounds 4 and 5
+   found at the development shapes.
+5. **The masking layer and the CFS channel work at 125M too**, at
+   **9.4 s a stage**: 32,918 entries recomputed over the two stages with
+   none differing and 512 salted leaves re-authenticated. Ruling C-4's
+   headroom is **139** of 512 (§13.4).
+6. **The `/5-run` loader is proved two ways** on a development bundle
+   (§13.2), and the 281 MB bundle loads in **0.6 s** at 600 MB.
+7. **Round 7's full preimage is the one thing measured and then
+   REDUCED IN SCOPE, honestly.** §13.8: the three singleton-group
+   commitments are constructed and verified at 125M (145,118 entries, none
+   differing, 768 salted leaves, 44 s each); `A` and `H` are estimated at
+   **22–23 minutes apiece** from round 7's own measurements and the one
+   measured attempt is reported with its real cost, not hidden behind a
+   skip.
+
+## 13.2 The input, the new schema, and the loader
+
+Two two-block runs at the 125M shape — 512 tokens, width 768, hidden 2048,
+12 query heads of 64 over 4 key-value heads (`lkv = 2`), 2^14 columns at
+inverse rate 4 (2^16 encoded), 256 opened columns, `a_groups` 36, `h_groups`
+9, 23 slots — captured by the Rust lane at commit `f4697f9`, with the public
+tables' VALUES:
+
+| bundle | witness | bytes | `arrays.bin` |
+|---|---|---:|---:|
+| `m125-capture-dense-l2` | fully dense public weights, generic hidden input | 281,106,431 | 271,163,424 over 1,166 distinct arrays |
+| `m125-capture-zero-l2` | the all-zero hidden input | 272,660,458 | 262,717,856 over 1,164 |
+
+Both live OUTSIDE the repository and are never copied into it; only records,
+logs, manifest hashes and small evidence are committed.
+
+**Schema `hashline-native-capture/5-run`** (lane stage 27) differs from
+`/4-run` in one thing: a field-element array of at least 256 entries is a
+reference `{"array", "elem", "len", "offset", "bytes"}` into one
+`arrays.bin`, little-endian `u64`, `c0` then `c1` for an `fp2`, identical
+arrays stored once. `zk60_native_rg_arrays` resolves one into a zero-copy
+`numpy` view that indexes, iterates and measures exactly like the JSON list
+it replaces, so **no module downstream of the loader knows which schema it
+is reading**. Every resolution is checked before it is handed out — exactly
+the five defined keys, `elem` in `{fp, fp2}`, `bytes == len * width`, the
+range inside the file, the SHA-256 of exactly those bytes, every decoded
+`u64` reduced — and a failure is an `ArrayRefused` naming the member's path,
+collected into the bundle's findings. A reference under any other member is
+refused too (format §12: "Nothing else, ever"). Rounds 5 and 8 each found a
+refusal path in this lane that crashed; **thirteen refusal cases are
+exercised by test**, each asserted to be the named refusal and not a
+`KeyError`, a `struct.error` or a slice off the end.
+
+**The equivalence proof, built the other way round.** The lane's rehearsal
+wrote no `/5-run` bundle at a development shape into any repository, so the
+decoder is proved against a `/4-run` bundle re-encoded by this lane's own
+encoder:
+
+| | |
+|---|---:|
+| members externalised from `run-g-dense-s20` | **1,771** (2,560 column `values`, 141 group `vector`s, 10 `proximity_vector`, 10 `proximity_rhos`, 3 `q`, 3 `prox`) |
+| distinct arrays, bytes | **1,683**, 11,581,400 |
+| field elements behind the references | **1,133,619** |
+| JSON leaves compared over `run.json` and three stage files | **3,430,417** |
+| **differences** | **0** |
+| the WHOLE GATE on the `/4-run` original and the `/5-run` copy, identical leaves | **4,041** |
+| changed or added leaves, all classified | 26 — a bundle name, a directory, a wall clock, the manifest's file count and total, the schema string, the new `array_store` block |
+| rank, disclosed dimension, challenge count, slot check, control figure or channel count that moved | **none** |
+
+> **This does NOT test the Rust encoder and the record says so.** The Rust
+> lane's `run_capture_tests::the_array_store_and_the_classic_encoding_carry_
+> the_same_values` captures one run twice in one process, expands the
+> `/5-run` bundle's references back into text and asserts byte-for-byte
+> equality with the `/4-run` bundle. That is the writer's test; this is the
+> reader's.
+
+## 13.3 Finding M-F1: three slots no development shape could have tested
+
+The first terminal pass at 125M was **40 of 46**, with three slots failing
+identically in both stages and every other figure of the round already
+holding. The three are `SC_TZC` (02), `SC_KVZC` (16) and `SC_FZC` (18), and
+what they have in common is not a plane, a table or a degree.
+
+`argument.rs:936` computes, per slot,
+
+```rust
+let n_pad = usize::from(pad_on);
+let mu   = tr.challenge_fp2_vec(6 + n_pad);
+let nu   = nonzero(tr.challenge_fp2_vec(2))?;
+let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
+```
+
+with `pad_on = !pad_doms.is_empty()`, and `pad::zero_rule_a_planes`'s own
+doc line says it is "empty when the profile carries no pad rule **or the
+domain does not pad**". So a slot whose hosted domain is an exact power of
+two draws **two fewer** definition challenges — no extra `mu`, and no
+`zeta` at all.
+
+**At the toy and at both development rungs every domain pads**, so the
+hardcoded `1` in every zero-check port was right everywhere it had ever
+been run. At 125M three domains are exact:
+
+| domain | true size at 125M | domain log | pads | host slot |
+|---|---:|---:|---|---|
+| `Dom::T` | 512 tokens | 9 | **no** | 02 `SC_TZC` |
+| `Dom::Kv` | 512·4·64 = 131,072 | 17 | **no** | 16 `SC_KVZC` |
+| `Dom::F` | 512·2048 = 1,048,576 | 20 | **no** | 18 `SC_FZC` |
+| `Dom::L`, `D`, `Q`, `S`, `Ht`, `Tab` | — | — | yes | 03, 14, 15, 17, 17, 19 |
+
+Three unpadded domains, three host slots, three failures. Nothing else.
+
+**Repaired by deriving it rather than by widening a slice.** `Ctx.pad_on`
+is `any(Shape::pads(d))` over the domains the slot hosts
+(`pad::pad_zero_host`); `Ctx.pad_draws` returns `(mu, nu, zeta, pad_on)` at
+`argument.rs`'s own arithmetic; and `Ctx.zero_planes` now returns `[]` on an
+unpadded domain, which is the other half of the same sentence of `pad.rs`
+and the half under which the port would otherwise have built a pad term the
+prover never built. Applied at all seven sites (`TZC`, `LZC`, `SZC`, `FZC`,
+`DZC`, `QZC`/`KVZC`, `TAB`).
+
+**And the refusal is now a refusal.** A mismatch between what the slot
+consumes and what the capture declares says so, with both numbers:
+
+> `slot 2: this slot consumes 19 definition draws (tau 9 + mu 6+1 + nu 2 +
+> zeta 1) and the capture declares 17`
+
+Before round 9 the same case was an `IndexError` that the per-slot arm
+reported as "not checked: list index out of range" — true, and useless.
+That is findings K4-F1 and R8-F1 one level further in, and control **M9-3**
+(§13.7) exists so it can never quietly become one again.
+
+**Both development shapes are unchanged at 69 of 69**, which is what the
+repair had to leave alone and what the refreshed records show leaf by leaf.
+
+## 13.4 What was measured, stage by stage
+
+`m125-capture-dense-l2`, staged, each stage timed with the process's peak
+resident set, detached under `flock /tmp/zk-heavy.lock` inside
+`systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0`:
+
+| stage | what | seconds | peak RSS |
+|---|---|---:|---:|
+| load + integrity | 5 files, 1,189 array references over 1,166 distinct arrays, 271,163,424 bytes verified by SHA-256, 38 source pins | **0.9** | 603 MB |
+| **(a)** transcript replay | **251 positions and 27,828 challenges**, none not re-derived, 4 of 4 segment position tags, run binding reproduced, rule `blake3-keyed/1` | **1.2** | 603 MB |
+| **(b)** the hash layer | **9 openings, 2,304 columns, 52,867,072 bytes**, every column re-hashed under the derived keys and authenticated, 0 findings, columns up to 56,960 bytes, 16-level paths | **0.6** | 603 MB |
+| **(c)** the terminal identity | **46 of 46** slot checks, 13 public tables rebuilt from the shape and digest-matched, 15 taken from the capture, 30 structure checks, 0 digest failures, 4 derived group points | **104.5** | 1,459 MB |
+| **(d)** per commitment | the table below, plus H-pad as an exact 255×255 rank (48.6 s of the 65.7) | **65.7** | 1,459 MB |
+| the boundary | ruling M-8: 6 of 6, three roles, the whole run | **5.3** | 1,459 MB |
+| round 1's preimage | the three singleton-group commitments, message half | **0.9** | 1,459 MB |
+| channels | 28 at 2 / 5 / 4 / 17, `grading_failures` empty | **0.0** | 1,459 MB |
+| **total** | | **179.1** | **1,459 MB** |
+
+`m125-capture-zero-l2` is **176.0 s** at **1,451 MB** with the same figures.
+
+**(d) per commitment**, dense bundle (the zero bundle differs only in two
+sampled-column counts):
+
+| commitment | rows | data | non-data | groups | claims | `2(G+1)` | disclosed | expected | distinct / pads |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| `A@0`, `A@1` | 5,681 | 5,435 | **246** | 36 | 122 | **74** | **0** | 0 | 256 / 256 |
+| `H@0`, `H@1` | 7,120 | 7,016 | **104** | 9 | 51 | **20** | **2** | 2 | 256 / 256 |
+| `E-Input`, `E-Output` | 37 | 32 | 5 | 1 | 1 | 4 | **0** | 0 | 256 / 256 |
+| `B0` | 38 | 32 | 6 | 2 | 2 | 6 | **0** | 0 | 255 / 256 |
+| `M@0`, `M@1` | **50** | 0 | — | — | — | 2 | **0** | 0 | 256 mask columns |
+
+Every certifying minor is nonsingular, every column identity reproduces with
+**0 failures**, and every group-claim identity likewise.
+
+**The boundary (ruling M-8).** `B0` restricted to its reserved rows: rank
+**6 of 6**, disclosed **0**, determinant nonzero. The three roles of the
+plane (`A@0`, `B0`, `A@1`): 64 identified rows, 11,336 coordinate classes,
+**154 generators**, parts 0 / 0 / 0, joint **0**. The whole run: one
+**206 × 25,686** system, 128 identified rows, sum of the parts **4**, joint
+**4**, the non-data block diagonal by role, **2.1 s**.
+
+**The masking layer (round 8's arm) at 125M**, 9.4 s a stage, 19.0 s for the
+two:
+
+| | per stage | the two stages |
+|---|---:|---:|
+| masked round entries | **1,554** | 3,108 |
+| mask-bearing scalars | 23 | 46 |
+| functional values (34 of 34 by position, value and weights) | 34 | 68 |
+| `q` / `prox` entries | 1,024 / 1,024 | 4,096 |
+| opened column entries | 12,800 | 25,600 |
+| **total recomputed and compared** | **16,459** | **32,918** |
+| **differing** | **0** | **0** |
+| salted leaves re-authenticated, 12 levels | 256 | **512** |
+| disclosed | 2 `Fp` computed = 2 predicted | |
+| coefficient unknowns / CFS fibre | 2,478 `Fp` / 46 `Fp` | |
+| largest `L_s` (slot 17) + `MASK_Q` against `MASK_MSG` | **117 + 256 = 373 of 512**, headroom **139** | |
+| pad margin | 8 (stage 0), 6 (stage 1) | |
+
+R8.9 item 5 asked whether `L_s + MASK_Q <= 512` survives at 125M. It does,
+with 139 to spare — **and the answer does not rest on this port**: lane
+stage 27 added ruling **C-4** to `Shape::new`, which refuses by name any
+shape with `L_s + MASK_Q > MASK_MSG` for some slot. The 125M shape existing
+at all is the Rust's own statement that its masks fit; `derive_mask_domain`
+checks the domain the bundle declares rather than assuming it.
+
+## 13.5 The pins at `f4697f9`, and a writer-side ask GRANTED
+
+All **38** digests the two bundles pin were recomputed from the committed
+blob at `f4697f9` and every one matches. Six had moved since `3247a89`, the
+last capture commit any earlier round accepted, and each diff was read hunk
+by hunk with the production / `#[cfg(test)]` split counted:
+
+| file | numstat | read |
+|---|---|---|
+| `run_capture.rs` | **368 / 23**, 36 hunks, no test module in the file | the `/5-run` store (six emission sites re-routed, `ALLOWED_KEYS` +2: `array`, `elem`) and `SOURCE_FILES` 8 → 15 own + 23 shared. **No field name, member order, kind, coverage string or transcript label moves** |
+| `run.rs` | **50 / 2**, 3 hunks = **three statements and forty comment lines** | the run's hash-length refusal set takes `hash_domain::RunFacts` (stage 25, W-4); the OS-seeded BLINDING generator takes `run_seed_domain(profile)` (stage 26, finding B-1). **That stream is not the transcript** — no absorb, squeeze or label moves, which is why the replay reproduces every challenge of a bundle written under it. The header's six absorbs, the seven-word shape, `position_tag`, the stage loop, `BOUNDARY_SITES` and the opening order are byte-identical |
+| `boundary.rs` | **44 / 6** = production **+22 / −0**, tests **+22 / −6** | one `index()` accessor and a doc comment; the tests seed from the boundary's own domain. **Not one geometry accessor moved** |
+| `layout.rs` | **34 / 0**, ONE hunk | every added line a `///` comment on `domain_log_at` (ruling S-1's invariant). **Not one byte of code** |
+| `protocol.rs` | **10 / 1**, ONE hunk | nine comment lines and one statement: `single_block_seed_domain`. A generator, not a transcript |
+| `shape.rs` | **123 / 0**, ADDITIONS ONLY | `Shape::m125()` delegating to the unchanged `Shape::new`, and three named refusals — **S-1** (`log(Dom::Tab) == log_cols`), **S-3** (`head_dim <` the row width) and **C-4** (`L_s + MASK_Q <= MASK_MSG`) |
+
+`argument.rs` and `plane_index.rs` — the two files that decide what a slot's
+polynomial IS and where each terminal lives — are **byte-identical** at
+`f4697f9`, so no ported polynomial is in question.
+
+**The shared files.** Stage 27 grew `source_pins` from 15 entries to 38:
+`OWN_SOURCE_FILES` (15) and `SHARED_SOURCE_FILES` (23). That is **R6.8 item 1
+and R8.9 item 4, granted by the writer**, and it is the first time this gate
+can check them from a bundle at all. All 23 are byte-identical to `3247a89`,
+and every one of the **eight a port depends on** — `hashline/src/zk.rs` and
+`zkp-core`'s `sumcheck`, `ntt`, `field`, `rng`, `pcs`, `merkle`,
+`transcript` — is pinned at **exactly the digest round 8 recorded as
+`at_the_capture_commits`**, so the reading round 8 did by hand is now
+checkable from the bundle. The fifteen no port depends on are named with
+their digests rather than left out.
+
+> **DATED CORRECTION, 2026-09-21 (round 9).** §10.2's
+> `NOT_PINNABLE_FROM_A_BUNDLE` gives two reasons for each of `wire.rs`,
+> `run_sink.rs`, `endpoint_g.rs` and `hash_domain.rs`, and the second —
+> "the writer does not pin it" — was true of every bundle up to `3247a89`
+> and is **false** of a bundle written at `f4697f9`: all four are pinned
+> now. Reason (a), that no run-gate port transcribes them, is unchanged and
+> is still what keeps them out of `DEPENDS`. Nothing in §10.2 is rewritten.
+
+## 13.6 The comparison table, and the prediction that came first
+
+**The prediction was written before the gate was run at 125M**, computed
+from `run.json["shape"]` and the capture's declared per-opening geometry by
+`zk60_native_rg_predict`, and **VALIDATED** by reproducing the committed
+rung-G and rung-K4 records to the unit on every figure it names. One term is
+honestly not derived and the record says so: a slot's DEFINITION draw count
+is a property of its composition and not of the shape, so it is read from
+the capture; the two bilinear slots, where the port really does derive it,
+agree (22 and 19).
+
+| predicted before | recorded |
+|---|---|
+| 251 transcript positions | **251** |
+| 27,828 challenges | **27,828** |
+| 9 openings, 2,304 columns, 52,867,072 bytes, tree depth 16 | **all four** |
+| 46 slot checks expected | **46** |
+| `M` 50 rows, 34 functionals, largest `L_s` 117 at slot 17, C-4 headroom 139 | **all four** |
+| 128 identified row pairs, whole-run joint 4 = sum 4, 206 generators | **all three** |
+| `A` 246 non-data rows / 122 claims, `H` 104 / 51 (non-data = 2·claims + 2) | **both** |
+
+`comparison_table_m125.json` then classifies **every** figure of the 125M
+record against both development records:
+
+| class | figures | verdict |
+|---|---:|---|
+| **INVARIANT** — a law of this report says it must not move | **55** | **55 of 55 identical at all three shapes** |
+| **BLOCK COUNT** — exists only because the development runs are `L = 3` | 61 | not a shape effect |
+| **SCALES** — a size the shape must change | 64 | 5 of them were predicted by name and **5 of 5 held** |
+| **UNEXPLAINED** | **0** | — |
+| **BROKEN INVARIANTS** | **0** | — |
+
+The 55 invariants include every disclosed dimension (`A` 0, `H` 2,
+endpoints 0, boundary 0, `M` 0), `A`'s `rank_P1` 74 and `H`'s 20, `M`'s 50
+rows and 256 mask columns, 256 pads per row, the boundary's 6 generators
+and rank 6 of 6 and disclosed 0, the three-role 154 generators with parts
+0/0/0 and joint 0, the adjacent-pair joint 4 = sum 4, `k0 = 0` everywhere,
+23 slots covered, the 15 statement-dependent public tables, the repaired
+bilinear definition in force, and the channel table 28 at 2 / 5 / 4 / 17.
+
+**The one figure that moved and no law predicted, and it is benign.** The
+pad margin is **0** on six of the seven PCS commitments (255 of 256 on
+`B0`), against 2 to 14 at the development shapes. The cause is arithmetic:
+256 indices drawn with replacement out of **65,536** encoded columns
+collide about once in two runs, where out of 4,096 they collide several
+times. H-pad therefore holds with **equality** here, and — this is the part
+worth writing down — at this shape it **cannot fail**: the distinct count is
+at most 256 and the pad count is exactly 256. Control C6 (one pad fewer)
+still fires.
+
+**Dense against zero at 125M**
+(`witness_comparison_m125_dense_vs_zero.json`): **128 figures compared, 124
+identical**, and all four that differ are `distinct opened columns` on
+`H@0` and `E-Input` (256 against 255) and the two pad margins that derive
+from them. **The same two classes, and the same reading, rounds 4 and 5
+found at the development shapes.** Not one disclosed dimension, rank,
+boundary figure, joint figure, terminal check, mask figure or channel count
+differs between a run proved on a fully dense generic hidden input and a run
+proved on the all-zero one — which is the result, and which is also exactly
+what §9.9 says the gate cannot see: **the gate cannot see the witness**, and
+"dense" and "zero" are claims about the Rust lane's test, read from each
+capture's README.
+
+## 13.7 The controls at 125M
+
+Every control of rounds 1–8 that the shape admits is fired at 125M
+unchanged, and round 9 adds three that could not exist before. Each is
+shown to PASS on the honest bundle first; nothing on disk is written and the
+record carries the bundle's file digests before and after.
+
+| control | what moves | what fires |
+|---|---|---|
+| **M9-1** *(new)* | one array reference's byte range moved by 8 bytes in memory — the same length, the same element type, real bytes of the same `arrays.bin` | the loader REFUSES BY NAME on the SHA-256 the reference itself carries. This is the control for the one new trust assumption `/5-run` introduces |
+
+> **FINDING M-F2, and M9-1 is what found it — in round 9's own loader.**
+> The first form of `ArrayStore.resolve` remembered a verified array by its
+> **digest**, so that the writer's dedup would not be paid for twice on this
+> side. M9-1 did not fire against it: the moved reference keeps the same
+> digest STRING, the digest was already in the set, and the re-hash was
+> skipped — so a reference naming an already-seen digest at a DIFFERENT
+> OFFSET would have been accepted, which is exactly what the digest is in
+> the reference for. The cache is now keyed on the **range** `(offset,
+> bytes, digest)` and the counters still report distinct arrays, so the
+> dedup is still not paid for twice and a moved range is still re-hashed.
+> M9-1 fires. The control was written to test the schema's new trust
+> assumption and it tested the reader instead, which is the better outcome
+> of the two.
+| **M9-2** *(new)* | one entry of one opened column, moved by one, in memory | that column's leaf no longer authenticates under the bundle's own derived keyed rule — one column of 2,304, and no other |
+| **M9-3** *(new)* | each domain that does NOT pad at 125M, made to look padded to the port, one at a time | its host slot refuses **by name**, with the draws it consumes and the draws the capture declares in the message. Finding M-F1's own control, and it **does not exist at any development shape** — which is why rounds 1–8 could not run it |
+
+## 13.8 The full preimage at 125M: measured, then reduced in scope and said so
+
+Round 7's arm is the one place where 125M costs more than this round could
+pay in full, and the honest form of that is a measurement and an estimate,
+not a skip.
+
+**Measured.** The three singleton-group commitments, both halves, every
+opened column and the salted leaves of the opened columns:
+
+| commitment | rows | seconds | |
+|---|---:|---:|---|
+| `E-Input` | 37 | **44.2** | |
+| `B0` | 38 | **45.3** | |
+| `E-Output` | 37 | **43.5** | |
+| **total** | | **133.0** | **145,118 view entries recomputed and compared, 0 differing, 768 salted leaves re-authenticated** |
+
+Round 7 measured 2.7–2.9 s for the same three at the development rungs, so
+the cost went up **16×** — exactly the message-width ratio 16,384 / 1,024,
+and not the row ratio. Peak resident set for the arm: **1,008 MB**.
+
+**Estimated, from round 7's own measured figures and the verification's
+`(G+1) · rows · (n+Q)` term**: an `A` is **≈ 1,400 s** and an `H` is
+**≈ 1,330 s**, so the four large commitments of one two-block run are
+**≈ 91 minutes** and both bundles ≈ 3 hours. That is affordable on a
+quiesced box and was not affordable inside this round beside everything
+else; §13.10 says so as an open item rather than as a closed one.
+
+**So at 125M the PCS preimage channel is CONSTRUCTED for three of the seven
+commitments and OPEN for four**, and the record says which and why, with the
+measured seconds beside the estimate. The channel table at 125M is
+therefore **28 at 2 / 5 / 4 / 17** — the arms-off count — and not round 8's
+10 / 5 / 4 / 9, which is a figure about the development shapes and stays
+one.
+
+## 13.9 Every sentence that said "nothing at 125M", corrected in place
+
+Nothing above is rewritten; each correction is dated.
+
+| where | said | says, from 2026-09-21 |
+|---|---|---|
+| §5, third bullet | "It says nothing about the 125M shape. There, exact rank over thousands of rows per commitment is a different computation, and this gate has not been run on it: the largest matrix ranked here is 308 × 3,761" | **superseded by §13**: the gate has been run on it. The largest matrix ranked is 206 × 25,686 and it takes 2.1 s; `A`'s 5,681 rows and `H`'s 7,120 are ranked in 65.7 s for the whole stage |
+| §9.11, "Nothing at the 125M shape" | "The exact-rank computation over thousands of rows per commitment is still untried, and a 484 MB run is still more than this gate ingests" | **both halves closed**: the exact-rank computation is tried and is 65.7 s, and a 281 MB `/5-run` bundle is ingested in 0.6 s at 600 MB. The 484 MB figure was for the `/4-run` encoding, which stage 27 replaced |
+| §11.8, last bullet | "anything at the 125M shape, where `A` has thousands of rows" | **partly closed, §13.8**: three of the seven PCS commitments are constructed and verified there; `A` and `H` are estimated at 22–23 minutes each and are OPEN at 125M |
+| §11.10, last bullet | "It does not generalise to the 125M shape by arithmetic … at 125M both grow, and nobody has measured it" | **measured**: the small commitments cost 16× the rung's, which is the message-width ratio and not the row ratio; §13.8 has the estimate for the large ones |
+| §12.8, sixth bullet | "anything at the 125M shape. Nothing here was measured there, and `L_s + 256 ≤ 512` is a constraint a bigger shape could break" | **closed**: the masking layer is constructed and verified at 125M, 32,918 entries with none differing; `L_s + 256` is 373 at its largest, headroom 139, and ruling C-4 now refuses a shape that breaks it |
+| §12.10, last bullet | "`M` keeps 50 rows there, but every `L_s` grows … whether it survives at 125M is a question for the Rust lane, and nobody has measured the solve there" | **answered both ways**: the Rust lane answered it with ruling C-4, and the solve is measured at 9.4 s a stage |
+| §2.3, "Here `n = 1,024`" | — | a dated note: at 125M `n = 16,384` and `Q = 256`, so a published vector is 16,640 entries; the split of the column functional's two halves is the same and the identity reproduces with 0 failures |
+
+## 13.10 What this round is NOT
+
+* **Not a privacy claim, and not a privacy acceptance.** A production shape
+  is not a privacy argument. Both bundles carry
+  `privacy_review_complete: false` and so does every record round 9 wrote.
+* **Still LINEAR channels.** Every disclosure figure is a rank of the same
+  explicitly stated linear model at one run's real challenges.
+* **Two runs of TWO blocks.** The 125M model is twelve blocks; these runs
+  are two. Two runs are not a distribution, and `L = 2` exercises one
+  internal boundary where `L = 12` has eleven.
+* **The law of the blinding is not the gate's job** (obligation O-R2 / gap
+  G-R4), and it is untouched here.
+* **Ruling R-3 applies wherever a joint figure appears**, including §13.4's
+  `joint 4 = sum 4`: *`joint == sum of the parts` is a consistency check of
+  this model's coordinate classes, not evidence that the commitments'
+  blinding is independent.*
+* **`A` and `H`'s preimage is OPEN at 125M** (§13.8), estimated and not
+  constructed, and with it the JOINT run-wide preimage of §12.7 — which
+  needs every commitment — is **not** established at this shape.
+* **The hash layer's HIDING is still ARGUED** (M-2, M-3). Every OPENED
+  column of every commitment including `M` is re-hashed and
+  re-authenticated at 125M; an unopened leaf is a salted digest of data
+  nothing publishes.
+* **The gate still cannot see the witness.** "Dense" and "zero" are claims
+  about the Rust lane's test, read from each capture's README; §8.6 and
+  §9.9 stand in full.
+* **Nothing here moves D8/D11 or ruling M-8's decision.**

@@ -156,13 +156,21 @@ def predict(bundle) -> dict:
             disc, gen = SHAPE_INDEPENDENT["h_disclosed"][0], 2 * (sh.h_groups + 1)
         else:
             disc, gen = 0, 2 * (r["groups"] + 1)
+        # The law: one reserved PAIR per claim, plus the proximity pair --
+        # and an EXTERNAL ENDPOINT has one SPARE mask row on top (report 3,
+        # finding 3, ruling M-7's "a pair, a proximity pair and a spare"),
+        # while a derived boundary has none.
+        spare = 1 if r["kind"] == "external-endpoint" else 0
         per_role.append({
             **r,
             "predicted_disclosed_dimension": disc,
             "predicted_generators": gen,
-            "predicted_non_data_rows": 2 * r["claims"] + 2,
+            "spare_mask_rows": spare,
+            "predicted_non_data_rows": 2 * r["claims"] + 2 + spare,
             "non_data_rows_match": r["non_data_rows_by_row_roles"]
-            == 2 * r["claims"] + 2,
+            == 2 * r["claims"] + 2 + spare,
+            "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) "
+            "+ 1 for an external endpoint's spare mask row",
         })
 
     return {

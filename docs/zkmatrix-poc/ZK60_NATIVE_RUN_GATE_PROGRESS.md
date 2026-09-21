@@ -1652,23 +1652,173 @@ logs, manifest hashes and small evidence are committed.
 | # | item | state |
 |---|---|---|
 | N0 | ledger skeleton, round 9 opened | done |
-| N1 | a `/5-run` loader: lazy array resolution with length, digest and element-type checks; refuse by name, never crash; equivalence proved against a `/4-run` development bundle re-encoded by this lane's own encoder | open |
-| N2 | the source pins at `f4697f9` read and the pin tables extended; the newly pinned shared files classified | open |
-| N3 | the gate at 125M, stage by stage, with time and peak RSS: (a) replay, (b) hash layer, (c) terminals, (d) disclosure and ranks, (e) the preimages | open |
-| N4 | the comparison table against the development shapes, predicted BEFORE the record is read | open |
-| N5 | controls at 125M | open |
-| N6 | records, report section, dated corrections to every "nothing at 125M" sentence, tests, whole native suite | open |
+| N1 | a `/5-run` loader: lazy array resolution with length, digest and element-type checks; refuse by name, never crash; equivalence proved against a `/4-run` development bundle re-encoded by this lane's own encoder | done — commit `adfd9c4`, §R9.4, report §13.2 |
+| N2 | the source pins at `f4697f9` read and the pin tables extended; the newly pinned shared files classified | done — commit `00cf269`, §R9.5, report §13.5 |
+| N3 | the gate at 125M, stage by stage, with time and peak RSS: (a) replay, (b) hash layer, (c) terminals, (d) disclosure and ranks, (e) the preimages | (a)-(d) done, (e) PARTIAL and said so — §R9.6, report §13.4 and §13.8 |
+| N4 | the comparison table against the development shapes, predicted BEFORE the record is read | done — §R9.7, report §13.6 |
+| N5 | controls at 125M | done — §R9.8, report §13.7 |
+| N6 | records, report section, dated corrections to every "nothing at 125M" sentence, tests, whole native suite | done — §R9.9, report §13 and its seven dated corrections |
 
 ## R9.3 Commands and logs (round 9)
 
-| what | command | log |
+Every heavy run is DETACHED under `flock /tmp/zk-heavy.lock` inside
+`systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0`, with a
+`.done` marker holding the exit code — the orchestrator's amendment of
+2026-09-21, because a Rust 125M proof of about 10 GiB may be queued on the
+same lock and the two do not fit in 15 GB together.
+
+| what | command | log / marker |
 |---|---|---|
-| *(filled in as each lands)* | | |
+| the loader's equivalence, both ways | `TMP5RUN=<scratch> bash results/zk60_native_run_gate_m125/loader_equivalence.sh` | `…/m125/loader_equivalence*.json` |
+| the load probe (time, memory, pins) | `python3 scripts/…` under the lock | `…/m125/probe_load.log`, `.done` |
+| the prediction, validated on both development shapes | `python3 scripts/zk60_native_rg_predict.py --bundle <dense> --validate <dev>:<record> --validate <dev>:<record>` | `…/m125/predict.log`, `prediction_m125.json` |
+| the dense bundle, (a)-(d) + channels | `python3 scripts/zk60_native_rg_m125.py --bundle <dense> --other <zero> --stages load,replay,hash,terminals,commitments,boundary,preimage,channels` | `…/m125/dense-c.log`, `m125-dense.json` |
+| the zero bundle, the same | the same with the bundles swapped | `…/m125/zero-a.log`, `m125-zero.json` |
+| the masking arm | `--stages load,replay,mask` | `…/m125/dense-mask.log`, `m125-dense-maskprobe.json` |
+| the full preimage, the three singleton-group commitments | `--stages load,replay,commitments,fullpreimage --only E-Input,E-Output,B0` | `…/m125/dense-pre-small.log` |
+| the full preimage, `A@0` alone (the measurement §13.8 rests on) | `--only A@0` | `…/m125/dense-pre-a0.log` |
+| the whole control set | `--stages …,mask,runcontrols,channels --controls --cross-profile <run-i-dense-k4>` | `…/m125/dense-controls.log` |
+| the comparisons | `zk60_native_rg_witcmp.py`, `zk60_native_rg_m125table.py` | `…/m125/{witness,shape}_comparison_*.json`, `comparison_table_m125.json` |
 
-## R9.4 Results
+## R9.4 Results — N1, the `/5-run` loader
 
-*(filled in as each item lands)*
+Report §13.2 has the table. Three things belong here.
 
-## R9.5 NEXT after round 9
+1. **The decoder is a SEQUENCE, not a converter.** `FpArray` and `Fp2Array`
+   wrap a `numpy` view into the memory-mapped `arrays.bin` and implement
+   `__len__`, `__getitem__` (including slices), `__iter__` and `__eq__`
+   against a list, so a resolved member reads exactly like the JSON list
+   `/4-run` writes in its place. **Not one module downstream of the loader
+   changed**, which is why the whole-gate equivalence run is a leaf diff
+   with nothing measured moving.
+2. **Thirteen refusal cases, each asserted to be the NAMED refusal.** A
+   missing reference key, an undefined one, an unknown `elem`,
+   `bytes != len * width`, a negative or non-integer field, a malformed
+   digest, a range past the end, the wrong digest for the right bytes, an
+   unreduced `u64`, an absent store, a store whose length is not the
+   manifest's, a reference under a member the schema never externalises,
+   and a reference as a list element. Rounds 5 and 8 each found a refusal
+   path in this lane that raised instead of reporting; this is the
+   discipline written as tests rather than as a comment.
+3. **The equivalence is the READER's test and says so in its own record.**
+   The lane's rehearsal wrote no `/5-run` bundle at a development shape into
+   any repository, so it is built the other way round — re-encode, load
+   both, compare. The writer has its own byte-for-byte test and this does
+   not stand in for it.
 
-*(filled in at the close)*
+## R9.5 Results — N2, the pins
+
+Report §13.5 has the table of the six moved files. Two things belong here.
+
+**The generator-domain change is the one that needed the most care, and it
+is invisible to the gate by construction.** Lane stage 26 (the ruling on
+finding B-1) moved four OS-seeded generators onto domains that name what
+they are for: the single-block prover (`protocol.rs`), the run prover
+(`run.rs`), the two external endpoints (`endpoint_g.rs`) and — written but
+deliberately not called — a boundary (`boundary.rs`). Every one of those is
+the BLINDING stream, not the transcript. No absorb, no squeeze, no label and
+no published byte moves, and the round-9 replay reproducing all 27,828
+challenges of a bundle written under the new domains is the machine
+statement of that.
+
+**The writer-side ask is granted and the correction is dated.** R6.8 item 1
+and R8.9 item 4 asked for `zk.rs` and the `zkp-core` files to be pinned by
+the writer. Stage 27 did it: 15 own files and 23 shared, 38 in all. All 23
+shared files are byte-identical to `3247a89` and the eight a port depends on
+are at exactly the digests round 8 recorded, so §10.2's reason (b) — "the
+writer does not pin it" — is now false for the four run-layer files it names
+and carries a dated correction. Reason (a), that no port transcribes them,
+is unchanged.
+
+## R9.6 Results — N3, the gate at 125M
+
+Report §13.4 has the stage table and §13.8 the preimage. Three things belong
+here.
+
+**FINDING M-F1 is the round's result and its full reading is report §13.3.**
+In one line: every zero-check port hardcoded `n_pad = 1`, three domains at
+125M do not pad, and their three host slots draw two fewer definition
+challenges each. Repaired by deriving `pad_on` the way `argument.rs` does,
+with a named refusal in place of the `IndexError`. Both development shapes
+are unchanged at 69 of 69.
+
+**What (e) cost, and why it is partial rather than skipped.** The three
+singleton-group commitments are constructed and verified at 125M in 133.0 s
+(44 s each, 16× the rung's, which is the message-width ratio and not the row
+ratio), 145,118 entries with none differing and 768 salted leaves. `A` and
+`H` are estimated at 1,400 s and 1,330 s apiece from round 7's own measured
+figures and the verification's `(G+1)·rows·(n+Q)` term; one `A@0` was run as
+the measurement the estimate is checked against, and §R9.6b records what it
+did. **Partial, measured, and said so** — not "skipped, not faked" without a
+number.
+
+**The masking arm is cheap at 125M and that was not obvious.** `M` keeps 50
+rows and 34 functionals because `layout.rs` sets both as constants of the
+slot table; what grows is every `L_s`, and the mask domain (`log_dom` 12,
+`MASK_Q` 256, `MASK_MSG` 512) does not move at all. So the arm costs 9.4 s a
+stage at 125M against 6 s at the rung, and R8.9 item 5's question is
+answered with 139 of headroom.
+
+## R9.7 Results — N4, the comparison
+
+`comparison_table_m125.json`: **180 figures — 55 INVARIANT and all 55
+identical at all three shapes, 61 a matter of `L = 2` against `L = 3`, 64
+SCALING with 5 predicted by name and 5 of 5 holding, and ZERO
+UNEXPLAINED and ZERO BROKEN INVARIANTS.**
+
+The prediction came first and was validated first: `zk60_native_rg_predict`
+reproduces the committed rung-G and rung-K4 records to the unit on every
+figure it names, and only then was it run at 125M. One term is honestly not
+derived — a slot's definition-draw count is a property of its composition,
+not of the shape — and the record says so rather than letting a number that
+happened to come out right stand for a derivation.
+
+Dense against zero at 125M: **128 compared, 124 identical**, the four that
+differ being two distinct-sampled-column counts and the two pad margins that
+derive from them. The same classes rounds 4 and 5 found.
+
+## R9.8 Results — N5, the controls
+
+**FINDING M-F2: control M9-1 found a hole in round 9's own loader.** The
+first form of `ArrayStore.resolve` cached a verified array by its DIGEST, so
+the writer's dedup would not be paid for twice here. M9-1 moves a
+reference's byte range by eight bytes and keeps everything else — including
+the digest string — and it did not fire: the digest was already in the set,
+the re-hash was skipped, and a reference naming a seen digest at a different
+OFFSET was accepted. That is precisely the check the digest is in the
+reference for. The cache is now keyed on `(offset, bytes, digest)`; the
+distinct-array counters are unchanged, so the dedup still costs one hash,
+and a moved range is re-hashed and refused. Written down because the shape
+of the mistake — a cache key that is a proper subset of what the check is
+about — is reusable.
+
+
+Report §13.7. Three new ones, and the third could not exist before:
+**M9-3** makes each unpadded domain look padded to the port and requires its
+host slot to refuse BY NAME with both numbers in the message. At every
+development shape every domain pads, so the control has nothing to perturb
+there and is skipped by name — which is exactly why finding M-F1 waited for
+this round.
+
+## R9.9 Results — N6, the records and the report
+
+Seven sentences of the report that said nothing can be or has been measured
+at 125M now carry a dated correction in place (§5, §9.11, §11.8, §11.10,
+§12.8, §12.10 and §2.3's `n = 1,024`). Nothing is rewritten.
+
+## R9.10 NEXT after round 9
+
+1. **`A` and `H`'s full preimage at 125M** — estimated at 22–23 minutes
+   apiece and about three hours for both bundles. Affordable on a quiesced
+   box; it closes the PCS preimage channel at the production shape and with
+   it §12.7's JOINT run-wide preimage there.
+2. **More than two blocks at 125M.** `L = 2` has one internal boundary; the
+   model has twelve blocks and eleven. Nothing in the gate depends on `L`,
+   but nothing has exercised it at this shape either.
+3. **The joint LAW** (O-R2 / G-R4) and **the hash layer's HIDING** (M-2,
+   M-3) are exactly where round 8 left them, and they remain the two
+   largest things between this gate and a privacy argument.
+4. **The honest unmasked rounds of one slot on a synthetic public fixture**
+   (R8.9 item 3) is unchanged.
+5. Nothing in this round moves D8/D11 or ruling M-8's decision, and nothing
+   in it is a privacy acceptance.
