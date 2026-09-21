@@ -1357,3 +1357,81 @@ that no captured file was written).
 5. R6.8 items 1–3 (the writer-side pin ask, the attention profile's path, a
    shape with `lkv > 2`) are untouched and still open.
 6. Nothing in this round moves D8/D11 or ruling M-8's decision.
+
+---
+
+# Round 8 — the masking commitment `M` and the masked-sumcheck (CFS) channel at the SHAPED layouts (R7.9 item 2)
+
+**Opened 2026-09-21 06:08 PDT** on lane `zk60-native-jointview`, same sole
+writer, Python only. Nothing here is a privacy acceptance and no statement
+here establishes a privacy property.
+
+## R8.0 Why there is a round 8
+
+R7.9 item 2, and the report's own §11.7: after round 7 the masked sumcheck /
+CFS channel is **the largest open channel a port could close**. The run
+gate's channel 7 — "the masked sumcheck round messages and the published
+scalars" — has carried the same reason since round 1:
+
+> the CFS analysis (`zk60_native_jv_cfs`) and the mask-row port
+> (`zk60_native_mask_commit`) are written at the toy's row layout and slot
+> specs; at the rung they would have to be re-derived from the shape.
+
+The TOY gate closed three channels for `M` (`ZK60_NATIVE_JOINT_VIEW.md` §14:
+`M`'s `q`, `M`'s proximity vector, `M`'s own 256 opened columns, 10 OPEN →
+7) and a fourth for the masked rounds (`zk60_native_pg_cfs`). At the shaped
+layouts all four are open. Round 8 is the port.
+
+## R8.1 Input (READ-ONLY, never written)
+
+| bundle | witness | rung | source |
+|---|---|---|---|
+| `run-g-dense-s20` | fully dense generic | G | `…/wt-zk60-block125m/results/zk60_run_captures_20260920/` |
+| `run-h-zero-s20` | all zero | G | the same |
+| `run-i-dense-k4` | fully dense generic | K4 | the same |
+| `run-j-zero-k4` | all zero | K4 | the same |
+
+Plus one tracked TOY capture for the equivalence run:
+`results/zk60_native_captures_20260919/captures/40083e7a….json`.
+
+## R8.2 Status
+
+| # | item | state |
+|---|---|---|
+| M0 | ledger skeleton, round 8 opened | done |
+| M1 | the `M` system restated at the shaped layouts from the Rust at the bundles' pinned commits; what in the toy port is layout-specific | pending |
+| M2 | the shape-driven port, proved equal to the toy module at the toy's widths | pending |
+| M3 | run on all four bundles, every stage: rank, preimage, hash layer, pad budget | pending |
+| M4 | controls | pending |
+| M5 | stretch: a JOINT run-wide preimage | pending |
+| M6 | channel table, evidence, report section, tests, whole native suite | pending |
+
+## R8.3 Commands and logs (round 8)
+
+| what | command | log |
+|---|---|---|
+| (filled as the round runs) | | |
+
+## R8.4 Results — the `M` system at the shaped layouts
+
+(pending)
+
+## R8.5 Results — the port is the toy module's construction
+
+(pending)
+
+## R8.6 Results — what was constructed and verified
+
+(pending)
+
+## R8.7 The controls
+
+(pending)
+
+## R8.8 The channel table, the evidence and the suite
+
+(pending)
+
+## R8.9 NEXT after round 8
+
+(pending)
