@@ -5046,7 +5046,10 @@ survive the parity sweep.
 
 **The defect.** At a shape with more than one key-value head, the honest
 prover and the honest verifier disagree as soon as the KEY-VALUE heads carry
-different activations. The verifier's message is always
+different NONZERO activations. (The one measured exception is the case where
+a key-value head's planes requantize to identically zero — see the table
+below; it is also what stops the mechanism from being settled here.) The
+verifier's message is always
 
 ```
 slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
