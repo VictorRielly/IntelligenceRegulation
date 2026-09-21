@@ -5461,27 +5461,288 @@ gates). **The diagnostics' own runs are NOT retained under `results/`**: they
 print counts and plane values' provenance, and the capture rule keeps them
 out. Re-run them with `--ignored --nocapture` to see them.
 
-## Stage 20 — FIXING S19-F1: the key-value group bits become sumcheck variables (2026-09-20, 18:4x–)
+## Stage 20 — FIXING S19-F1: the key-value group bits become sumcheck variables (2026-09-20, 18:4x–19:5x)
 
-**Status: `OPEN` (skeleton).** The security owner's ruling on finding S19-F1
-is implemented here: in the two bilinear attention slots `SC_SCORE` and
-`SC_PV`, the key-value GROUP bits stop being FIXED coordinates of both
-private factors and become SUMCHECK VARIABLES carrying a public
-`eq(r_g, ·)` factor. This is the first PRODUCTION change this lane has made
-since `caa9b9a`.
+**Status: `LANDED`.** The security owner's ruling on finding S19-F1 is
+implemented. This is the FIRST PRODUCTION CHANGE this lane has made since
+`caa9b9a`: two slot definitions in `argument.rs`, one new builder method, and
+two lines of the slot schedule in `shape.rs`. Everything else is tests, the
+counted re-pins the change forces, this ledger and `results/`.
 
-### The plan, item by item
+**No heavy run.** Nothing proved at the 125M shape, no `--ignored` 125M test,
+no GPU, no capture bundle re-taken. **No privacy or soundness acceptance is
+claimed**; the rung profiles are development grade (ruling P-7).
 
-| # | item | state |
+Commits: the skeleton `c8f1c31`, the repair `5155d5b`, the counted re-pins
+and the capture-format note `2f692bb`, and this ledger.
+
+### THE DEFECT, IN ONE PARAGRAPH
+
+`SC_SCORE` claims `score~(r_h, r_t, r_j)`, the multilinear extension of the
+POINTWISE PRODUCT `score[h,t,j] = sum_c q[t,h,c] k[j,g(h),c]`, where `g(h)` —
+the key-value group of head slot `h` — is the top `lkv = log2(kv_heads)` bits
+of `h`. Until stage 20 the slot summed over the head dimension `c` ALONE and
+took the group as a FIXED coordinate `r_h[..lkv]` of BOTH private factors,
+which computes the PRODUCT OF THE TWO EXTENSIONS. Those two are not equal:
+the product is quadratic in the shared group bits, and they agree only when
+one factor does not vary across groups. `SC_PV` had the same shape. The
+honest prover and the honest verifier therefore disagreed as soon as the
+key-value groups carried different activations — a COMPLETENESS failure,
+reproduced by the security owner on the production fixture with one word of
+the hidden input moved.
+
+### THE REPAIR, AS BUILT
+
+`r_h` splits into `r_g` (the top `lkv` entries, the group) and `r_hj` (the
+query head WITHIN its group). The group becomes SUMCHECK VARIABLES, under a
+PUBLIC `eq(r_g, .)`:
+
+```text
+SC_SCORE:  score~(r_h,r_t,r_j) = sum_{g in {0,1}^lkv} sum_{c in {0,1}^ldh}
+                                   eq(r_g,g) . q~(r_t,(g,r_hj),c) . k~(r_j,g,c)
+SC_PV:     o~(r_t,r_h,r_i)     = sum_{g}          sum_{s in {0,1}^lt}
+                                   eq(r_g,g) . P~((g,r_hj),r_t,s) . V~(s,g,r_i)
+```
+
+which is an identity because `k` / `V` do not depend on `hj` and `q` / `P`
+are multilinear in those bits, so `sum_hj eq(r_hj,hj) X~(..,(g,hj),..) =
+X~(..,(g,r_hj),..)`.
+
+**The variable order, exactly as built.** Variables `0 .. lkv` are the group
+`g`; variables `lkv ..` are the slot's own inner axis (`c` for `SC_SCORE`,
+the source token `s` for `SC_PV`). Coordinates are most-significant-first
+throughout, and the public factor is `Tab::Eq { point: r_g, start: 0 }`,
+which reads the LEADING `lkv` variables.
+
+| slot | plane | domain order | coordinates as built |
+|---|---|---|---|
+| `SC_SCORE` | `A_QR8` | `Dom::Q = (t, head slot, c)` | `fixed(r_t)` ‖ `rho(0..lkv)` ‖ `fixed(r_hj)` ‖ `rho(lkv..lkv+ldh)` |
+| `SC_SCORE` | `A_KR8` | `Dom::Kv = (j, group, c)` | `fixed(r_j)` ‖ `rho(0..lkv)` ‖ `rho(lkv..lkv+ldh)` |
+| `SC_PV` | `A_P` | `Dom::S = (head slot, t, s)` | `rho(0..lkv)` ‖ `fixed(r_hj)` ‖ `fixed(r_t)` ‖ `rho(lkv..lkv+lt)` |
+| `SC_PV` | `A_V8` | `Dom::Kv = (s, group, i)` | `rho(lkv..lkv+lt)` ‖ `rho(0..lkv)` ‖ `fixed(r_i)` |
+
+The group coordinate of BOTH factors of a slot is the SAME variable list
+`0 .. lkv` — that is trap T-3, restated for the repaired construction, and it
+is asserted in `grow_tests::the_slot_definitions_are_built_from_the_shape`
+together with the fact that the `eq` carries the head challenge's OWN group
+bits (read back through the claim point `p_s` / `p_o`) and not a point of its
+own. The "two private factors, `qr` masked in extension round 0 and `kr` in
+round 1" mechanism is untouched, and the construction premise at the head of
+`argument.rs` still holds: each extension round has exactly one nonzero
+entry, so `poly(extensions) = 0`.
+
+**THE TOY PAYS NOTHING.** `kv_heads = 1` gives `lkv = 0`, an EMPTY `r_g`, and
+the new `B::group_eq` returns `None` — no variable, no table, no degree, no
+transcript byte. The closure gates on it through the module's own `Gate`,
+whose `None` arm is the constant `ONE`, so the toy's slot polynomial is the
+product of its two private factors and nothing else. The frozen gates are
+green: **2,816,472 B**, `the_toy_schedule_digest_is_frozen`,
+`the_toy_parameter_line_is_the_frozen_literal`, and the four pre-lane
+receipts.
+
+**One shape of the code is deliberate and would otherwise be an `if`.** The
+committed leak-checking driver `scripts/zk60_private_block_inventory.py`
+PARSES `define`'s arms; its condition evaluator knows `slot == SC_X` and
+boolean locals and nothing else, and `if lkv > 0 { .. }` broke it (measured:
+four errors). The arms therefore carry no `if`: the public factor comes from
+`B::group_eq` (a call the parser ignores, exactly as it ignores `b.eq`), and
+the shifted `rho` segments are built as `rho(0..lkv + inner)` followed by
+`split_off(lkv)`, which is a no-op at the toy and so leaves the parser's own
+value equal to the real one. That driver's forty tests pass again.
+
+### Round counts, mask lengths and every number that moved
+
+| shape | `lkv` | `SC_SCORE` (main, ext, deg, L) | `SC_PV` (main, ext, deg, L) |
+|---|---:|---|---|
+| toy | 0 | (3, 2, 2, 12) → **unchanged** | (5, 2, 2, 16) → **unchanged** |
+| rung / rung-G | 1 | (4, 2, 2, 14) → **(5, 2, 3, 23)** | (5, 2, 2, 16) → **(6, 2, 3, 26)** |
+| 125M | 2 | (6, 2, 2, 18) → **(8, 2, 3, 32)** | (9, 2, 2, 24) → **(11, 2, 3, 41)** |
+
+| figure | toy | rung / rung-G | 125M |
+|---|---|---|---|
+| main rounds, whole block | 159 → 159 | 215 → **217** | 332 → **336** |
+| extension rounds | 25 → 25 | 25 → 25 | 25 → 25 |
+| published round VALUES `sum (main+ext)(deg+1)` | 721 → 721 | 1,034 → **1,055** | 1,519 → **1,554** |
+| sumcheck challenge DRAWS per block | 184 → 184 | 240 → **242** | 357 → **361** |
+| private terminals per block | 173 → 173 | 176 → 176 | 174 → 174 |
+| worst `L_s` (and where) | 50 (`SC_SZC`) | 72 (`SC_FZC`, `SC_SZC` ties) | 117 (`SC_SZC`) |
+| masking commitment `M` rows | 50 | 50 | 50 |
+| `A` / `H` claim sites, opening groups | unchanged | unchanged | unchanged |
+
+`L_s + 256 <= 512` holds with room everywhere; the worst slot did not move
+and the two repaired slots are far below it. The declared degree reaches 3,
+which is inside `Shape::degree_range()`'s `2 ..= 5`, so the T-3 hash-length
+table stays complete — now asserted at all four shapes by
+`pad::tests::the_declared_degrees_are_inside_the_declared_range`.
+
+**Receipt and segment bytes, old → new.** The repair moves exactly one part
+of a frame — the slot vector — so every figure below is the pre-repair one
+plus `16 * sum_{SC_SCORE, SC_PV} [(main'+ext)(deg'+1) - (main+ext)(deg+1)]`,
+which is **+336 B** at both rungs and **+560 B** at 125M. **No figure in the
+Rust is a pasted new number**: `grow_tests::s20_bilinear_delta` counts the
+delta from the shape's axes and every pin is `old + delta`.
+
+| receipt | old | new |
+|---|---:|---:|
+| toy, one block | 2,816,472 | **2,816,472** (unmoved) |
+| rung (frozen seam), one block | 4,218,264 | **4,218,600** |
+| rung-G, one block | 4,234,648 | **4,234,984** |
+| 125M, one block | 40,782,792 | **40,783,352** (its `slots` part 27,456 → 28,016) |
+| rung-G run, `L = 3` (segments) | 12,413,432 | **12,414,440** |
+| rung-G run, `L = 12` (segments) | 49,217,600 | **49,221,632** |
+| 125M run, `L = 12` (segments) | 484,100,736 | **484,107,456** |
+
+### The acceptance tests
+
+| test | before stage 20 | now |
 |---|---|---|
-| 0 | this skeleton | |
-| 1 | the two slot definitions in `argument.rs`, and the schedule in `shape.rs` | |
-| 2 | the toy must not move: 2,816,472 B, the schedule digest, the parameter line, the four pre-lane receipts | |
-| 3 | the acceptance tests of stage 19 un-ignored (reproducer, fully dense block, the grouped-query control, the three diagnostics) | |
-| 4 | the fully dense THREE-BLOCK run at `rung_g` | |
-| 5 | the INDEPENDENT identity check that does not go through `define` | |
-| 6 | the negative controls on the fully dense witness | |
-| 7 | the re-pinned shaped receipt sizes, from a counted derivation | |
-| 8 | the Python layout / inventory model | |
-| 9 | the 125M launch commands, prepared and NOT run | |
+| `dense_tests::s19_f1_..._one_input_word_moved_is_accepted` (renamed from `..._is_rejected`) | `#[ignore]`d, FAILING on purpose — the finding itself | **PASSES.** Same witness, same assertions; only the name, the `#[ignore]` and two `expect` messages changed |
+| `dense_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g` (FULLY dense) | `#[ignore]`d, FAILING | **PASSES** |
+| `dense_tests::a_shared_kv_head_perturbation_..._is_rejected_at_the_rung_g` (the grouped-query control) | `#[ignore]`d, confounded | **PASSES** — the honest control is accepted, so each of the three rejections is the tamper |
+| `dense_tests::stage19_bisect_the_dense_failure` | `#[ignore]`d diagnostic | **REGRESSION TEST**: no honest variant may be rejected by the verifier (a witness-builder or prover refusal stays allowed — some bands really do leave `int16`) |
+| `dense_tests::stage19_bisect_the_hidden_input` | `#[ignore]`d diagnostic; **five of its eight inputs were REJECTED** | **REGRESSION TEST**: all eight must VERIFY, and do |
+| `dense_tests::stage19_bisect_the_head_axis` | `#[ignore]`d diagnostic; **three of its five cases REJECTED** | **THE ACCEPTANCE MATRIX**: all five VERIFY, and the review's `distinct_kv_case` is accepted at both rung profiles |
+| `run_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments` | did not exist — S19-F1 forbade it | **NEW, PASSES** |
+
+### The INDEPENDENT check of the two identities (the one that does not go through `define`)
+
+Prover and verifier share ONE definition, which is exactly why the defect
+survived nineteen stages of prove-and-verify tests. Two new tests evaluate
+both sides of each identity with plain loops over the Boolean cube, from the
+RAW planes, touching no `Layout`, no transcript and no sumcheck:
+
+* `the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_g`
+  — on the real rung-G witnesses. On the **FULLY DENSE (generic)** witness:
+  `NEW == LHS` for both slots and `OLD != LHS` for both. On **`tame_case`
+  (the degenerate fixture)**: `NEW == LHS` and **`OLD == LHS`** — which is
+  the mechanism of the defect's nineteen-stage invisibility, stated as a
+  test.
+* `the_two_bilinear_identities_hold_at_a_synthetic_four_key_value_head_geometry`
+  — RANDOM planes (a stronger test of an algebraic identity than a witness,
+  which has structure that could hide a mistake) at `T8/H4/dh4/KV4`,
+  `T8/H8/dh4/KV4`, `T8/H4/dh4/KV2` and `T8/H2/dh4/KV1`. `lkv = 2` is the
+  first case where the group is more than one bit; `KV1` asserts the
+  opposite, that the OLD formula IS the identity when there is one key-value
+  head, which is the toy's exemption written algebraically.
+
+### The negative controls the repair makes possible
+
+On the FULLY dense witness at rung-G, where both key-value groups carry real
+and DIFFERENT data — the regime S19-F1 rejected outright, so none of this
+could be asked before. The honest control is asserted ACCEPTED first in each.
+
+| control | outcome |
+|---|---|
+| `+1` in `A_QR8` at a non-first head of the SECOND group, in `A_KR8` and `A_V8` at the second group, and in `A_P` at a causally live position of a non-first head of the second group | **4 of 4 rejected, 0 accepted** (`a_perturbation_in_the_second_key_value_group_..._is_rejected_at_the_rung_g`) |
+| exchanging the two groups' whole KEY family (`A_K8`, `A_RKL`, `A_KR8`, `A_RKRL`), values untouched | **rejected BY THE VERIFIER** (`exchanging_the_two_key_value_groups_keys_is_rejected_at_the_rung_g`) |
+| the review's attack 3 (`a_query_head_reading_the_other_key_value_head_is_rejected_at_the_rung`), unchanged | still rejected by the VERIFIER; its honest control is accepted as before, and the dense swap above is the case its own fixture could not make, because `distinct_kv_case`'s second key-value head requantizes to identically zero (stage 19's surprise 3) |
+
+### The Python layout model and the inventory driver
+
+* `scripts/zk60_private_block_layout_model.py` is **outside this lane's write
+  set** and still declares the OLD bilinear schedule. It was re-run with the
+  repaired schedule through a probe that monkey-patches `slots` and edits
+  nothing (`results/zk60_block125m_lane/v6-s20-model-probe.py` / `.log`), and
+  it reproduces the Rust's deltas exactly: +336 B at the rung, +560 B at
+  125M, `main_round_total` 215 → 217 and 332 → 336, nothing else moving. Its
+  own 25 tests still pass, because they compare the model with the memo and
+  not with the Rust. **The model owes the same two-line change** (`SC_SCORE`
+  and `SC_PV` gain `log2(kv_heads)` main rounds and, when the shape groups,
+  one degree); `grow_tests`' `Expected` constants stay the model's PRE-repair
+  figures and are compared through the counted delta, exactly as S11a and
+  S11b already do for the endpoint.
+* `scripts/zk60_private_block_inventory.py` PARSES the real `define` and
+  speaks about the TOY alone. **Its forty tests pass** (51.8 s) and every
+  figure it derives is unchanged — the toy is byte-frozen — including its own
+  gate "the toy profile read out of the shaped Rust equals the independent
+  layout model's" and its 74-of-74 paper comparison. The first shape of the
+  repair (an `if lkv > 0`) broke its parser with four errors; the arms were
+  rewritten to carry no `if`, which is why.
+
+### THE 125M COMMANDS, PREPARED AND NOT LAUNCHED
+
+**Re-read the binary's mtime before launching**: the target directory is
+shared with another worktree.
+
+```
+/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-<hash>
+```
+
+The DENSE FEED-FORWARD one-block 125M run (still the one worth having: the
+first 125M measurement whose weight-fold phase is not optimistic):
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 HL_PB_WEIGHTS=dense-ff <BIN> --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> results/zk60_block125m_lane/m125-one-block-dense-ff.log 2>&1; echo $? > results/zk60_block125m_lane/m125-one-block-dense-ff.done' >/dev/null 2>&1 &
+```
+
+The FULLY DENSE one-block 125M run — **newly possible**: S19-F1 is what made
+`HL_PB_WEIGHTS=dense` un-runnable at 125M (four key-value heads carrying
+different activations), and the witness was already known admissible there:
+
+```
+... HL_PB_TIMING=1 HL_PB_WEIGHTS=dense <BIN> --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block ...
+```
+
+The ALL-ZERO-input one-block 125M run (task 9(b)):
+
+```
+... HL_PB_TIMING=1 HL_PB_INPUT=zero <BIN> --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block ...
+```
+
+All three take the HEAVY lock, so enqueuing them together is right: each
+blocks on the lock and self-starts.
+
+**Does a fully dense admissible RUN recipe exist?** At **rung-G, YES, and it
+is measured**: `first_admissible_dense_run_band` searches the
+down-projection band DOWNWARDS from the recipe's own and takes the first at
+which the witness builder accepts all three blocks, with every other band —
+attention included — left at the recipe's. The band is printed by the test.
+A run needs a smaller down band than a block because block `k+1`'s hidden
+input IS block `k`'s `xres2 = xres1 + z16`, so `z16`'s spread compounds and
+the residual leaves `int16`. **At 125M it is NOT determined here**: the same
+search costs up to twelve 125M witness builds (~11 s and 725 MiB each), which
+is a heavy run. It is left as one ignored command:
+
+```
+... <BIN> --ignored --exact --nocapture --test-threads=1 private_block::run_tests::the_first_admissible_fully_dense_run_band_at_125m
+```
+
+### Files this stage wrote
+
+| file | what |
+|---|---|
+| `private_block/argument.rs` | **PRODUCTION.** The two bilinear arms; `B::group_eq`; a `#[cfg(test)]` accessor for the two claim points |
+| `private_block/shape.rs` | **PRODUCTION.** `slots()`: `lkv` more main rounds and one more degree for the two bilinear slots when the shape groups |
+| `private_block/grow_tests.rs` | the repaired T-3 statement, `s20_bilinear_delta` / `s20_frame_bytes`, and the counted re-pins |
+| `private_block/pad.rs` | the two bilinear slot lengths recomputed from the axes, and the degree-range test |
+| `private_block/dense_tests.rs` | the acceptance tests, the independent identity check, the second-group and key-swap controls |
+| `private_block/run_tests.rs` | the fully dense three-block run, the band search, the 125M band probe, the counted re-pins |
+| `private_block/rulings_tests.rs`, `private_block/rung_tests.rs` | counted re-pins |
+| `docs/…/ZK60_RUN_CAPTURE_FORMAT.md` | the stage-20 note: what a capture of a grouped profile now looks like |
+| `docs/…/ZK60_BLOCK125M_LANE_PROGRESS.md` | this ledger |
+| `results/zk60_block125m_lane/` | `v?-s20-*.log`, and the model probe |
+
+### FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat d4742ce -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs hashline/src/gpu private-block-kernel \
+  private-model-kernel private-block-kernel-shaped zkvm-block
+```
+
+prints NOTHING: every one of those trees is byte-identical to `d4742ce`.
+
+### Tests and commands of stage 20
+
+| command | log | result |
+|---|---|---|
+| `--lib private_block::grow_tests::the_slot_definitions` (the first build) | `v1-s20-defs.log` | 1 passed, exit 0 |
+| `--lib --no-run` | `v3-s20-build.log` | exit 0, **13 warnings** (the baseline's 13) |
+| the structural filter (grow / pad / layout / hash-domain / rulings) | `v4-s20-struct.log` | the two stale pins found and corrected |
+| **the gate**: `--lib private_` | `v5-s20-private.log`, `v7-s20-private.log` | see below |
+| the Python layout model | — | 25 passed |
+| the Python inventory driver | `v8-s20-inventory.log` | 40 passed |
+| the model probe with the repaired schedule | `v6-s20-model-probe.log` | the deltas reproduce the Rust's |
 
