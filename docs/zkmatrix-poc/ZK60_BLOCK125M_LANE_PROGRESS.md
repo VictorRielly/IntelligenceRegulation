@@ -7004,9 +7004,8 @@ against `823d86d` touches 29 files and only
 
 ## Stage 24 — the enforcement batch of tonight's three rulings (2026-09-21, 01:3x–)
 
-**Status: `OPEN` (skeleton).** Opened 2026-09-21 01:34 PDT on the lane tip
-`8c5922b`. Nine small items that three of tonight's dispositions leave on
-this lane:
+**Status: `LANDED`.** Opened 2026-09-21 01:34 PDT on the lane tip `8c5922b`.
+Nine small items that three of tonight's dispositions leave on this lane:
 
 * `ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md` — **H-1**, **H-4**,
   **H-5**, **H-8**;
@@ -7025,14 +7024,425 @@ end).
 
 **No privacy or soundness acceptance is claimed.**
 
+Commits: the skeleton `4b2a6ea`, the code and the ten tests `68e8769`, and
+this ledger.
+
 | item | ruling | what | state |
 |---|---|---|---|
-| 1 | H-4 | every tagged profile's four keys, enumerated from the source registry, pairwise distinct | PENDING |
-| 2 | H-5 | the trailer/next-header PROPERTY pinned at rung-K4 | PENDING |
-| 3 | H-8 | no registered profile's constructor input has the squeeze length | PENDING |
-| 4 | run gate §10 | the capture writer pins every run-layer source it depends on | PENDING |
-| 5 | C-2 | ruling S-3's refusal also protects slots 15 and 16 | PENDING |
-| 6 | C-3 | host discipline checked at every shape, against `HOSTS` | PENDING |
-| 7 | C-4 | the mask budget `L_s + 256 <= 512` becomes a named `Shape::new` refusal | PENDING |
-| 8 | C-7 | the closure polynomial vanishes on extension-round-supported vectors (gap S-C1) | PENDING |
-| 9 | H-1 | an inadmissible chain is refused BEFORE any segment when the endpoints are sealed by the witness builder's own pass | PENDING |
+| 1 | H-4 | every tagged profile's four keys, enumerated from the source registry, pairwise distinct | **DONE** |
+| 2 | H-5 | the trailer/next-header PROPERTY pinned at rung-K4 | **DONE** |
+| 3 | H-8 | no registered profile's constructor input has the squeeze length | **DONE**, and the margin is ONE BYTE |
+| 4 | run gate §10 | the capture writer pins every run-layer source it depends on | **DONE**, 8 pins → 15 |
+| 5 | C-2 | ruling S-3's refusal also protects slots 15 and 16 | **DONE** |
+| 6 | C-3 | host discipline checked at every shape, against `HOSTS` | **DONE** |
+| 7 | C-4 | the mask budget `L_s + 256 <= 512` becomes a named `Shape::new` refusal | **DONE**, failing-first recorded |
+| 8 | C-7 | the closure polynomial vanishes on extension-round-supported vectors (gap S-C1) | **DONE**, both mechanisms observed |
+| 9 | H-1 | an inadmissible chain is refused BEFORE any segment when the endpoints are sealed by the witness builder's own pass | **DONE**, with a measurement that differs from 125M's |
+
+**The one new refusal is C-4's.** Ruling C-2 asked for ruling S-3's refusal to
+be EXTENDED, not for a second one: its message and its doc comment now say
+that it protects slots 15 and 16 as well as slot 08, and the reading is a
+test. So this stage adds one named `Shape::new` refusal and widens one.
+
+---
+
+### Item 1 — ruling H-4: the keys of every tagged profile, from a registry
+### that cannot go stale
+
+**WHY A HAND LIST WAS THE PROBLEM.** `zkp-core`'s
+`all_eight_keys_are_pairwise_distinct` pins eight keys by hex literal —
+rung-G's four and 125M's four — which was every tagged profile the day it was
+written. Stage 22 added a third (rung-K4) and nothing failed. The
+disposition's H-4 asks for the test to be extended "to every tagged profile",
+and a second hand list would go stale the same way.
+
+**THE REGISTRY IS READ OUT OF THE SOURCE.** The test scans
+`src/private_block/shape.rs` and `src/private_block/run.rs` for
+`"hashline-zk-mr1/…"` STRING LITERALS (the opening quote is part of the
+pattern, so a profile named in a comment is not picked up) and compares that
+set with what the constructors give: the five shapes' `profile` fields and the
+three `RUN_PROFILE_*` constants. **A profile added to either file without
+being covered fails there, before a key is derived.** The stale hand list this
+replaces — everything but rung-K4's two strings — is kept in the test as a
+permanent non-vacuity assertion.
+
+**WHAT IT FOUND AND ASSERTS** (`r3-s24-all.log`):
+
+* **8 profiles registered, 2 legacy, 3 tagged.** The two legacy-rule profiles
+  (the frozen toy, the frozen-seam rung) carry no key in any role;
+* **12 live keys, pairwise distinct** across the four roles and the three
+  tagged profiles;
+* **CONFIRMED, and measured rather than read: a run uses its BLOCK shape's
+  keys and derives none of its own.** `RunStatement::transcript` calls
+  `protocol::tagged_transcript(sh, run_profile)`, which keys the transcript
+  with `sh.hash_tag()` — the BLOCK shape's — and passes the run profile string
+  as the transcript's DOMAIN. The test builds the state three ways and asserts
+  the live one equals the block-keyed one and differs from what the run
+  profile's own key set would give. So the answer to the disposition's
+  "confirm" is: **there are twelve keys in this lane, not twenty-four**;
+* and as a FORWARD GUARD the twelve are checked pairwise distinct together
+  with the twelve the run profile strings WOULD derive, so a later decision to
+  tag a run in its own right cannot collide silently.
+
+---
+
+### Item 2 — ruling H-5: the property, not the coincidence
+
+The disposition measured on all ten bundles that a segment's 32-byte trailer
+equals the next segment's 32-byte header, ruled that the wire format stays,
+and ruled that **what is pinned is the property**: no transcript operation
+occurs between a segment's end position tag and the next segment's start tag.
+
+**PINNED AS A PROPERTY OF THE STAGE LOOP** — `run.rs:586` (`let end_tag =
+position_tag(&tr);`) and `run.rs:527` (`let start_tag = position_tag(&tr);`),
+with nothing between them but `wire::encode_segment`, the sink call and three
+pushes into `RunStats`, none of which touches the transcript. The test's doc
+comment says so and says the consequence: if a later change absorbed something
+there, THIS test fails and the format does not — the verifier would recompute
+both tags the same way and still accept. Nothing may be made to depend on the
+equality.
+
+**MEASURED** on a GENERIC three-block rung-K4 run (the fully dense recipe, a
+non-constant hidden input, four live key-value groups), VERIFIED before the
+tags are compared: end tag of stage k = start tag of stage k+1 for k = 0, 1;
+the last stage's end tag equals no other tag in the receipt; and — the
+non-vacuity — no stage begins and ends at the same position and no two stages
+begin at the same one.
+
+**WHAT THE OBSERVATION IS.** The 32-byte tag itself. A tag is two `Fp2`
+squeezed from a DISCARDED clone, and `Transcript::clone_state` copies the
+state AND the squeeze counter, both of which are hashed into every squeeze, so
+equal tags mean an equal (state, counter) pair up to a hash collision.
+`zkp-core` publishes no counter accessor and is a file this lane does not
+edit; that is finding U-3, and it is why the tag is the strongest observation
+available here.
+
+---
+
+### Item 3 — ruling H-8: and the margin is ONE BYTE
+
+A constructor hashes `b"hashline-v1/" ‖ domain`, so its input is
+`12 + profile.len()`; a squeeze hashes `state ‖ b"squeeze" ‖ counter`, so its
+input is `32 + 7 + 8 = 47` bytes. **Both layouts are reproduced from outside
+`Transcript`** — the state after construction and the state after one
+challenge are recomputed from the updates and compared — so a change to either
+fails at the reproduction and not at the arithmetic.
+
+**THE EIGHT LENGTHS, against the squeeze's 47:**
+
+| length | profile |
+|---:|---|
+| **46** | `hashline-zk-mr1/private-run-m125/1` |
+| 48 | `hashline-zk-mr1/private-block-m125/1` |
+| 51 | `hashline-zk-mr1/private-block-t32-poc/1` |
+| 56 | `hashline-zk-mr1/private-block-rung-t24-dev/1` |
+| 56 | `hashline-zk-mr1/private-run-rung-g-t24-dev/1` |
+| 57 | `hashline-zk-mr1/private-run-rung-k4-t24-dev/1` |
+| 58 | `hashline-zk-mr1/private-block-rung-g-t24-dev/1` |
+| 59 | `hashline-zk-mr1/private-block-rung-k4-t24-dev/1` |
+
+**The 125M RUN profile is at 46 — one byte below the squeeze class**, which is
+the draft's finding F-2, now watched by a test rather than argued. A
+35-character profile string would land exactly on 47, and that arithmetic is
+asserted so the check cannot become vacuous.
+
+---
+
+### Item 4 — round 6's ask: the capture writer pins the whole run path
+
+**THE ASK.** `ZK60_NATIVE_RUN_GATE.md` §10.2: the run gate's pin mechanism is
+bundle-side — "a file can be pinned there only if the WRITER pins it" — and
+four run-layer files were in no bundle's `source_pins`: `wire.rs`,
+`run_sink.rs`, `endpoint_g.rs`, `hash_domain.rs`. §10.8 records it as a
+Rust-lane ask.
+
+**`SOURCE_FILES` 8 → 15.** The four the round named, and **three the
+enumeration itself turned up**:
+
+| added | why it is on the run's path |
+|---|---|
+| `wire.rs` | the segment frame: its lengths, both position tags, and the bytes a stage file's `segment_bytes` / `segment_sha256` are taken over |
+| `run_sink.rs` | where a segment goes and what a run directory may hold |
+| `endpoint_g.rs` | the generalised endpoint's `MASK_ROWS` and commitment construction — the external endpoints' row roles in every bundle |
+| `hash_domain.rs` | the T-3 / T-4 hash-length and path-depth guards a run must pass before any of it is captured |
+| **`src/private_block.rs`** | **the PARENT module.** `ExpectedIo::to_bytes`, `IoSpec` and `calibration_identity` live here, and the run header absorbs those very bytes — the ones ruling H-1 rests on |
+| `witness.rs` | the witness type and builder, which decide every value a verifier then observes |
+| `pad.rs` | the support indicators and pad-zero plane groups `argument.rs` reads into the slot definitions a bundle records |
+
+**One production module is excused BY NAME**, in a new
+`NOT_ON_THE_RUNS_PATH` constant with its reason: `timing.rs`, the phase clock,
+which is write-only on the run's path and decides no byte.
+`the_capture_writer_pins_every_run_layer_source_it_depends_on` PARSES the
+production `mod` list out of `private_block.rs` and asserts the two lists
+partition it, so a module added later cannot slip through undecided; it also
+reads `run.rs` to check that the four named files really are reached from it.
+
+**PURE ADDITION, and the schema name is kept.** `source_pins` is a list of
+`{"file","sha256"}` objects; entries are added, no field, order or existing
+entry moves, and a loader written for eight reads fifteen. **The ten committed
+bundles are NOT re-taken and not edited** — each still carries the eight-entry
+list its own `manifest.json` pins. `ZK60_RUN_CAPTURE_FORMAT.md` §9 item 7
+carries the dated note.
+
+**FOR THE INTEGRATOR AND THE GATE LANE**:
+`tests/test_zk60_native_run_gate_runpins.py::test_the_four_unpinnable_files_are_really_not_in_source_files`
+reads `git show 3247a89:src/private_block/run_capture.rs`, a FIXED historical
+commit, so it does not break — but `NOT_PINNABLE_FROM_A_BUNDLE`'s prose
+becomes out of date for bundles taken after this change.
+
+---
+
+### Item 5 — ruling C-2: S-3 protects three slots, not one
+
+**WHAT THE CHECKER FOUND.** Clause C1 of the closure property — "every private
+plane raises exactly one claim" — is false for slots 15 (`SC_QZC`) and 16
+(`SC_KVZC`): the RoPE partner makes the SAME plane raise TWO claims, at points
+differing in ONE FLIPPED COORDINATE (`cf[log - log2(head_dim)] =
+Coord::Flip(..)`, trap T-8). Everything still holds, but only because the two
+claims' COLUMN KEYS separate, and they separate only because
+`log2(head_dim) <= log_cols`.
+
+**WHY THAT IS RULING S-3.** A column key is the LAST `log_cols` entries of a
+claim's point (`protocol::part_key_at`), so the flipped coordinate is inside
+the key exactly when `log2(head_dim) <= log_cols`. S-3 enforces the strictly
+stronger `head_dim < 2^log_cols`. Its refusal MESSAGE and its doc comment now
+say so, and the test reads it off the real definitions:
+
+| shape | the flipped coordinate | the column-key tail | margin |
+|---|---|---|---|
+| toy | `log - 3` | last 8 | 5 bits |
+| rung / rung-G | `log - 4` | last 10 | 6 bits |
+| rung-K4 | `log - 3` | last 10 | 7 bits |
+| 125M | `log - 6` | last 14 | 8 bits |
+
+Nothing is assumed: the two tables are found by their `slices` (the same
+plane), their coordinate lists are compared entry by entry, and the test
+requires that they differ in EXACTLY the partner position and that that
+position is inside the tail. Both violating geometries — a head dimension AT
+the row width and above it — are refused by S-3 by name.
+
+**THE ONE MARGIN NOTHING COVERS, recorded rather than repaired**: at a
+challenge with `rho_k = 1/2` the flipped and unflipped coordinates are equal AS
+FIELD ELEMENTS and the two keys coincide for that draw. That is a 2^-128
+liveness event on an honest run, not a structural collision, and it is in the
+refusal's doc comment.
+
+---
+
+### Item 6 — ruling C-3: host discipline, at every shape
+
+**WHAT WAS CHECKED BY NOTHING.** No test and no production check compared the
+hosted lists written LITERALLY in the slot definitions with `layout::HOSTS`;
+the existing assertions are test-only and against the toy's constants. A
+mismatch is a SOUNDNESS defect — a hosted claim consumed twice or never.
+
+**THE HOOK USED, AND NO PRODUCTION CHANGE.** `argument::define` returns the
+list it built (`SlotDef::hosted`), so the literals are observable through the
+existing test path — the same `define` walk the stage-20 reviewer built. The
+test runs all 23 slots at all five shapes and compares the whole map in both
+directions: every slot's list is exactly the table's entry for it in order,
+every non-host slot hosts nothing, every private slot is hosted exactly once,
+every standalone slot never, and every host runs AFTER what it hosts.
+
+**RESULT: 6 hosts, 12 hosted claims, at all five shapes**, with the counts
+equal to the table's. A host table with two hosted slots exchanged
+(`SC_PV` and `SC_VMM` swapped between slots 15 and 16 — same counts, same
+kinds, only who consumes what) is detected, in test code alone, which is what
+says the comparison is one.
+
+---
+
+### Item 7 — ruling C-4: the mask budget becomes a named refusal
+
+**THE DEFECT.** Every slot's masked message is `L_s = (main + ext)·degree + 2`
+field elements and lives in ONE row of the masking commitment: 512 positions
+of which 256 are the random pads that hide it (`zk.rs:442`). `L_s + 256 <= 512`
+is therefore a condition on the SHAPE, and the only thing enforcing it was
+that line — a prover-side `assert!`, a PANIC, deep in a numeric helper, on a
+shape the caller had already been handed and after the witness had been built.
+Shape validation had ten refusals and none was this.
+
+**THE REFUSAL**, in `Shape::new` beside rulings S-1 and S-3, with the budget
+taken from `zk.rs`'s own `MASK_LOG_MSG` / `MASK_Q` and not retyped:
+
+```
+private block shape: ruling C-4 — slot 17's masked sumcheck message is 262
+field elements (51 main + 1 extension rounds at degree 5, plus 2), and the
+masking commitment gives each slot ONE 512-position row of which 256 are its
+random pads; 262 + 256 > 512, so the mask would not fit
+```
+
+**WAS A VIOLATING SHAPE CONSTRUCTIBLE? YES — recorded failing-first**
+(`r1-s24-c4-failing-first.log`, exit 101, the shape printed in full).
+`SC_SZC`'s main rounds are `log(Dom::S) = log2(h_pad) + 2·log2(t_pad)` and its
+degree is 5 where that domain pads, so `L` passes 256 at `log(Dom::S) = 51`:
+**2^20 − 1 tokens over 2,048 query heads of 8** satisfies every other check —
+`d_pad = h_pad · head_dim`, the three bilinear domains far above the row width
+(F-2 silent), `Dom::Tab` lifted onto it (S-1 silent), a head dimension 11 bits
+below it (S-3 silent) — and constructed happily. Its CONTROL, one bit fewer of
+tokens, is `L = 252` and constructs.
+
+**EVERY EXISTING SHAPE PASSES, and the longest mask is always slot 17**
+(`06 softmax zero-check`): 50 / 72 / 72 / 77 / **117**, plus 256, of 512 — the
+disposition's own worst case.
+
+---
+
+### Item 8 — ruling C-7 (gap S-C1): the closure, and WHICH mechanism
+
+**WHAT IS EVALUATED.** For each slot, the vector `run_slot` builds for
+extension round `m` — every table that is not a private table of that round
+hard-zeroed (`argument.rs`'s `exts`) — with **ARBITRARY** field values in the
+private positions, three seeds, every declared round, every shape. **75
+evaluations per shape, 375 in all, every one ZERO.**
+
+**AND WHICH OF THE TWO MECHANISMS PRODUCES IT — separated and observed.**
+Zeroing only the PUBLIC tables and giving every private table an arbitrary
+value tells them apart: if every monomial carries a public factor the closure
+is still zero; if a monomial is a product of private factors alone it is not.
+
+| shape | slots surviving the public-only probe | the mechanism the test observed |
+|---|---|---|
+| toy | **08 and 09** | the OTHER PRIVATE FACTOR: at `lkv = 0` the two bilinear slots have no group `eq`, and the premise holds because the partner factor is zeroed in this round |
+| rung, rung-G, rung-K4, 125M | **none** | A PUBLIC FACTOR IN EVERY MONOMIAL — so the closure is the ZERO POLYNOMIAL in the prover's values, not merely zero at each honest one |
+
+That is exactly the split the disposition predicts ("the second mechanism is
+needed at exactly one place in the whole module: slots 08 and 09 at the frozen
+toy"), reproduced in Rust on the real definitions, and the toy's two non-zero
+values are what make the first half non-vacuous.
+
+---
+
+### Item 9 — ruling H-1: the sealing pass, and where the chain really breaks
+
+**THE RULE.** The run header absorbs the expected-IO bytes, which carry both
+external endpoint roots, before any challenge exists, so the prover has
+already run the whole forward pass before the header. The ruling's new rule
+for a production caller: **the pass that seals the endpoints is the witness
+builder's own, with its refusals**, and then an inadmissible chain is refused
+before the header and no partial run directory can arise from that cause.
+
+**WRITTEN WHERE THE CODE IS.** `RunWitnessSource`'s doc comment (`run.rs`)
+now carries the ruling: why the adaptive-source worry is answered by the code
+rather than by a promise, the two consequences (the sealing pass is the
+witness builder's; a source must be a pure function of the committed input),
+that ruling R-1.3's pre-pass costing is withdrawn, and that tightening the
+interface is an item for when the production caller is written.
+
+**EXERCISED.** A three-block rung-G chain at the single-block dense band —
+one band above the measured chain band — sealed by a source that builds every
+block through `witness::build_shaped`: the pass returns `fixed oracle range
+refusal: residual 2`, `prove_run` is never entered (the flag set on the line
+before the call is still false), and the run directory does not exist. The
+positive control is the SAME function at the measured band: it reaches the
+prover and leaves exactly three segment files of the counted lengths
+(4,067,160 / 4,089,688 / 4,257,592 B, 1.61 s).
+
+**FINDING S24-F1: at rung-G the chain breaks at the THIRD block of three, not
+the second.** Stage 21's 125M band search was refused "always by the SECOND
+block"; at rung-G band 48 it is the last one. The test PARSES the block index
+out of the refusal rather than assuming it, requires only that it is not the
+FIRST (the point being that only a pass over the whole chain can see it), and
+pins the measured 3. At rung-G the refusing block is the one whose output
+plane the external output endpoint seals, which makes the ruling's point more
+sharply: a caller that had not run the whole pass could not even have formed
+the statement.
+
+---
+
+### Tests and commands of stage 24
+
+All through the shared build lock,
+`CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`.
+
+| command | log | result |
+|---|---|---|
+| the new module's first build | `r0-s24-compile.log` | 1 compile error (a redundant format argument), 13 warnings |
+| item 7, **FAILING FIRST** (the C-4 refusal not yet written) | `r1-s24-c4-failing-first.log` | **1 failed**, exit 101 — the violating shape CONSTRUCTED and is printed in full |
+| the nine items, first pass | `r2-s24-all.log` | **8 passed / 2 failed** — both failures REAL and both reported above (finding S24-F1, and a non-vacuity inequality that the toy's own `Dom::Q` log makes an equality) |
+| the nine items, green, `--nocapture` | `r3-s24-all.log` | **10 passed / 0 failed**, 4.63 s, exit 0 |
+| **THE GATE**: `--lib private_` | `r4-s24-private.log:409` | **285 passed / 0 failed / 11 ignored**, 67 filtered out, **413.13 s**, exit 0, **13 warnings** |
+
+**Against the stage-23 baseline of 275 passed / 0 failed / 11 ignored and 13
+warnings**: **285 / 0 / 11**, 13 warnings. **Ten tests are new** — the ten of
+`s24_tests.rs`, one per item and two for ruling C-4 — and **not one existing
+test was weakened, removed or changed**: the whole diff to existing Rust is
+one `mod` line, two doc comments, one refusal message, one new refusal and
+seven entries in a list.
+
+**The frozen gates are in the pass list**: the toy's **2,816,472 B**
+(`tests.rs:108`, `zero_witness_tests.rs:172`),
+`the_toy_schedule_digest_is_frozen`,
+`the_toy_parameter_line_is_the_frozen_literal` and
+`a_toy_receipt_made_before_the_lane_still_verifies`. The four shaped receipt
+sizes are unmoved — **4,218,600 / 4,234,984 / 4,743,128 / 40,783,352** — in
+`grow_tests`' `MODEL_*` totals, `k4_tests`' frame constant and
+`the_125m_receipt_is_reproduced_part_by_part`, all in the pass list.
+
+**No Python is touched by this stage** (no `scripts/` or `tests/` file is
+edited, and both lane-owned Python files are byte-identical to the stage
+start), so the Python side stands exactly where stage 23 left it: the lane's
+own 82 passed, and the same ten pre-existing results outside this lane.
+
+`r3-s24-all.log` is the one log of this stage taken WITH `--nocapture`, and
+what it carries is the evidence table of every item above: profile counts and
+lengths, slot indices, host counts, mask lengths, evaluation counts and
+segment lengths. **No witness value, no position and no count of hidden words
+is printed by any test in this stage** (the capture rule); the one run it
+proves prints only its segment lengths and its wall clock.
+
+### FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 8c5922b -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs hashline/src/gpu private-block-kernel \
+  private-model-kernel private-block-kernel-shaped zkvm-block scripts tests
+```
+
+prints NOTHING: every one of those trees, `scripts/` and `tests/` included, is
+byte-identical to the stage start. (Against the hand-back tip `e6b612f` the
+same command prints the two lane-owned Python files
+`scripts/zk60_private_block_layout_model.py` and
+`tests/test_zk60_private_block_layout_model.py`, which are **stage 23's**
+endpoint-derivation repair and not this stage's — stage 24 touches no Python
+at all.) `zkp-core/src/hashtag.rs` in particular is untouched: ruling H-3's
+correction of its doc comment is the INTEGRATOR's, in the integrator's crate,
+and is deliberately not made here.
+
+The whole diff against `8c5922b` is 15 files: this ledger,
+`ZK60_RUN_CAPTURE_FORMAT.md`, `hashline/src/private_block{.rs,/run.rs,
+/run_capture.rs,/shape.rs,/s24_tests.rs}` and eight files under
+`results/zk60_block125m_lane/`.
+
+### WHAT STAGE 24 DOES NOT ESTABLISH
+
+* **No privacy property, and no privacy acceptance.** Eight things that were
+  true are now checked and one shape condition is refused by name. The
+  arguments themselves are unchanged: gap **G-R2**'s remaining enforcement is
+  narrowed by C-3, C-4 and C-7, and everything else the two dispositions
+  leave open stands where they leave it — **O-4 / G-R5**, the sequential
+  composition for field-and-hash message pairs, is untouched and is the paper
+  task; nothing has been evaluated on a 125M receipt (GS-1); the joint law
+  across commitments (G-R4) and the non-linear channel (GS-13) are untouched.
+  Register entry D22 is untouched.
+* **C-7 is a check of the PREMISE, not of the theorem.** It says the closure
+  vanishes on extension-round-supported vectors at every shape, which is one
+  hypothesis (H4) of the composition theorem. It says nothing about the rest
+  of it.
+* **The new refusal is liveness, not soundness.** A shape that broke the mask
+  budget would produce no receipt at all; it is the same kind of cliff as
+  ruling S-3's, refused by name in the same place.
+* **H-5 pins a property of the stage loop, not a wire-format guarantee.**
+  Nothing may be made to depend on the trailer equalling the next header, and
+  the disposition's ruling that the 32·(L−1) bytes stay is not reopened here.
+* **Item 4 does not make any existing bundle better.** The ten committed
+  bundles carry the eight-entry pin list; only bundles taken after this change
+  carry the fifteen. The run gate's own ports still depend on four files, as
+  round 6 says.
+* **H-1's interface item is not closed.** `RunWitnessSource` still PERMITS an
+  adaptive source; what is written is the rule and what is tested is a caller
+  that follows it. Tightening the trait waits for the production caller, and
+  rule M-9 still has no production code behind it (ruling H-2).
