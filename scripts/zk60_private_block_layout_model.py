@@ -684,6 +684,30 @@ RUNG_C6 = Shape("development rung, full top norm byte (T32 / d384 / f512, 12 hea
                      "two, so this shape ALSO carries stage 30's unpadded arm, on 125M's own "
                      "padded-domain set")
 
+RUNG_W14 = Shape("development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
+                 tokens=64, width=768, hidden=1024, q_heads=12, head_dim=64, kv_heads=4,
+                 log_cols=14, inv_rate=4, f_e=12,
+                 note="LANE STAGE 32: the first development shape at the 125M ROW WIDTH "
+                      "(log_cols 14, encoded 2^16 at inverse rate 4, a 16-deep Merkle tree), the "
+                      "125M HEAD SIZE (12 query heads of 64 over 4 key-value heads, so width 768 "
+                      "and d_pad 1024 exactly as at 125M) and the 125M ENDPOINT LOG "
+                      "(endpoint_log_n 14). tokens = 64 is the SMALLEST admissible count and the "
+                      "refusal that forces it is F-2: Dom::Kv = tokens * kv_heads * head_dim = "
+                      "256 * tokens must reach the row width or the P-3 lift makes the bilinear "
+                      "slots unserveable, so tokens >= 64, and at 64 Dom::Kv sits exactly at 2^14. "
+                      "hidden = 1024 is the smallest power of two above the width, which keeps "
+                      "Dom::F unpadded and keeps an upper hidden half for the dense fixture; "
+                      "f_e = 12 is the rungs' calibration and at 64 tokens it gives wrho_s = 18, "
+                      "which is 125M's own softmax window (125M reaches it as clog2(512) + 9), so "
+                      "limbs_sigma_s is 3 and the plane lists and per-position lookup counts are "
+                      "125M's exactly. The width 768 also makes D_max 908,065 and norm_wrho 32 — "
+                      "125M's values — so correction C-6 applies here too. What it does NOT reach "
+                      "is 125M's endpoint ROW COUNT: the padded Dom::D cube is 64 * 1024 = 2^16 "
+                      "words, which at endpoint_log_n 14 is 4 data rows and 9 commitment rows "
+                      "against 125M's 32 and 37; 32 data rows at that log need a 2^19-word cube, "
+                      "and with the width capped at 1,024 by the four-norm-limb refusal that means "
+                      "512 tokens, which is 125M itself")
+
 M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
              tokens=512, width=768, hidden=2048, q_heads=12, head_dim=64, kv_heads=4,
              log_cols=14, inv_rate=4, f_e=9,
@@ -695,7 +719,7 @@ M125 = Shape("125M complete private block (T512 / d768 / f2048, 12 heads of 64 o
                   "SC_IO_IN / SC_IO_OUT claim (finding S11b-F1)")
 
 SHAPES = {"toy": TOY, "rung": RUNG, "rung_g": RUNG_G, "rung_k4": RUNG_K4, "rung_p2": RUNG_P2,
-          "rung_c6": RUNG_C6, "m125": M125}
+          "rung_c6": RUNG_C6, "rung_w14": RUNG_W14, "m125": M125}
 
 # What the module's own Rust asserts at the toy (`layout.rs:523-526`, `:700-749`,
 # `:778-780`, `tests.rs:106-108`).  The model must reproduce every one of these.
@@ -954,7 +978,7 @@ def report(out=sys.stdout):
         w(f"  {'OK ' if ok else 'XX '} {k:28s} model {str(got[k]):>28s}   rust {str(want):>28s}\n")
     w(f"  -> {'ALL TOY NUMBERS REPRODUCED EXACTLY' if bad == 0 else str(bad) + ' TOY MISMATCHES'}\n\n")
 
-    for name in ("rung", "rung_g", "rung_k4", "rung_p2", "rung_c6", "m125"):
+    for name in ("rung", "rung_g", "rung_k4", "rung_p2", "rung_c6", "rung_w14", "m125"):
         m = models[name]
         w(f"-- 2. {m['shape']['name']} --\n")
         w(f"  padded domains: {', '.join(m['padded_domains'])}\n")

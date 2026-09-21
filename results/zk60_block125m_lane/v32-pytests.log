@@ -1,0 +1,78 @@
+test_every_endpoint_is_derived_from_the_padded_cube_and_the_mask_rows (test_zk60_private_block_layout_model.DerivedEndpoints) ... ok
+test_no_shape_declares_its_endpoint_row_count_any_more (test_zk60_private_block_layout_model.DerivedEndpoints)
+The regression guard on the defect itself: an `endpoint_rows` ... ok
+test_the_frozen_seam_is_selected_by_the_same_derivation_the_rust_uses (test_zk60_private_block_layout_model.DerivedEndpoints)
+`Shape::new` derives `endpoint_general` from three conditions and ... ok
+test_the_model_totals_are_the_rusts_at_every_shape (test_zk60_private_block_layout_model.DerivedEndpoints) ... ok
+test_Kv_and_F_do_not_pad_at_125M_so_their_zero_checks_carry_no_indicator (test_zk60_private_block_layout_model.M125) ... ok
+test_the_bilinear_slots_carry_two_group_bits_at_125M (test_zk60_private_block_layout_model.M125) ... ok
+test_the_counted_totals_of_sections_2_and_7 (test_zk60_private_block_layout_model.M125) ... ok
+test_the_generalised_endpoint_is_derived_and_is_the_rusts (test_zk60_private_block_layout_model.M125)
+**Stage 23, finding B-12.** What an endpoint commits is the PADDED ... ok
+test_the_lift_is_what_makes_the_sum_claim_instantiable (test_zk60_private_block_layout_model.M125) ... ok
+test_the_only_difference_against_the_memo_is_the_S20_slot_line (test_zk60_private_block_layout_model.M125)
+**Stage 21, review finding F-1.** The model reproduced the memo to ... ok
+test_the_receipt_is_the_memos_final_figure_part_by_part (test_zk60_private_block_layout_model.M125)
+Every part but the slot line and the endpoint line is the memo's to ... ok
+test_the_real_tally (test_zk60_private_block_layout_model.PadTable) ... ok
+test_the_summary_figures_each_count_a_different_population (test_zk60_private_block_layout_model.PadTable)
+62 / 61 / 35 do not add up because they are not one tally: 62 and 61 ... ok
+test_the_table_covers_exactly_the_planes_the_model_puts_on_padded_domains (test_zk60_private_block_layout_model.PadTable)
+'Planes not classified here: none.' — checked against the model's own ... ok
+test_M_is_shape_independent (test_zk60_private_block_layout_model.Rules) ... ok
+test_padding_and_logs (test_zk60_private_block_layout_model.Rules) ... ok
+test_the_Q_D_coincidence_holds_at_all_three_shapes (test_zk60_private_block_layout_model.Rules)
+`d_pad = H_pad * d_h`, which the Wo matmul depends on (§2.3). ... ok
+test_the_mask_budget_holds_at_all_three_shapes (test_zk60_private_block_layout_model.Rules) ... ok
+test_the_two_integer_windows_are_derived_not_assumed (test_zk60_private_block_layout_model.Rules)
+NORM_WRHO and WRHO_S come from the shape: the toy's 29/14, the ... ok
+test_every_one_of_the_nine_domains_pads (test_zk60_private_block_layout_model.Rung) ... ok
+test_the_512_bytes_are_SC_KVZCs_indicator_plus_the_S20_group_rounds (test_zk60_private_block_layout_model.Rung)
+The rung's Dom::Kv pads (768 of 1,024), so the model gives SC_KVZC ... ok
+test_the_bilinear_slots_carry_the_group_rounds_and_the_group_eq (test_zk60_private_block_layout_model.Rung)
+F-1: derived by the MODEL from `kv_heads`, not copied from Rust. ... ok
+test_the_counted_totals_of_section_9a (test_zk60_private_block_layout_model.Rung) ... ok
+test_the_frozen_seam_endpoint_is_derived_and_is_the_rusts (test_zk60_private_block_layout_model.Rung)
+**Stage 23, finding B-12.** Nothing about the rung's endpoint is ... ok
+test_the_lift_is_what_makes_the_sum_claim_instantiable (test_zk60_private_block_layout_model.Rung)
+B-3: without the P-3 lift the rung's H domains raise THREE distinct ... ok
+test_the_only_difference_against_the_memo_is_the_diagnosed_receipt_line (test_zk60_private_block_layout_model.Rung)
+**Stage 21, review finding F-1.** The delta was 176 B while the model ... ok
+test_only_the_endpoint_line_differs_from_the_frozen_seam_rung (test_zk60_private_block_layout_model.RungG) ... ok
+test_the_rows_and_groups_are_the_rungs (test_zk60_private_block_layout_model.RungG) ... ok
+test_the_schedule_is_the_rungs_and_carries_the_group_rounds (test_zk60_private_block_layout_model.RungG) ... ok
+test_the_geometry (test_zk60_private_block_layout_model.RungK4) ... ok
+test_the_rows_groups_and_receipt (test_zk60_private_block_layout_model.RungK4) ... ok
+test_the_summary_figures (test_zk60_private_block_layout_model.RungK4) ... ok
+test_two_group_bits_move_exactly_the_two_bilinear_slots (test_zk60_private_block_layout_model.RungK4) ... ok
+test_C6_drops_four_lookups_and_two_helpers_and_nothing_else (test_zk60_private_block_layout_model.TheFullTopByteShape)
+THE EXPLICIT DIFFERENCE the stage exists to pin, against ... ok
+test_it_also_keeps_the_three_unpadded_domains (test_zk60_private_block_layout_model.TheFullTopByteShape) ... ok
+test_the_geometry (test_zk60_private_block_layout_model.TheFullTopByteShape) ... ok
+test_the_rows_groups_and_receipt (test_zk60_private_block_layout_model.TheFullTopByteShape) ... ok
+test_the_width_is_what_turns_the_flag_on (test_zk60_private_block_layout_model.TheFullTopByteShape)
+The threshold, walked: at this head axis the width is `12 * ... ok
+test_F2_is_what_forces_sixty_four_tokens (test_zk60_private_block_layout_model.TheRowWidthShape)
+`Dom::Kv = tokens * kv_heads * head_dim = 256 * tokens` must reach ... ok
+test_the_geometry (test_zk60_private_block_layout_model.TheRowWidthShape) ... ok
+test_the_rows_groups_and_receipt (test_zk60_private_block_layout_model.TheRowWidthShape) ... ok
+test_what_it_does_not_share_and_why (test_zk60_private_block_layout_model.TheRowWidthShape)
+Everything that scales with the TOKEN COUNT: the domain sizes, the ... ok
+test_what_it_shares_with_125M_exactly (test_zk60_private_block_layout_model.TheRowWidthShape)
+Every quantity that is a function of the head axis, the row ... ok
+test_the_repair_is_a_pure_function_of_kv_heads (test_zk60_private_block_layout_model.TheToyPaysNothing)
+One key-value head: nothing moves. More: exactly the two bilinear ... ok
+test_the_toy_has_no_group_bits_and_no_group_eq (test_zk60_private_block_layout_model.TheToyPaysNothing) ... ok
+test_every_number_the_rust_asserts_about_itself (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_only_Dom_L_pads_at_the_toy_and_no_slot_carries_an_indicator (test_zk60_private_block_layout_model.ToyReproduction)
+Every toy AXIS is already a power of two (T 32, d 16, f 16, 2 heads), ... ok
+test_the_claim_sites_are_the_rusts_slot_for_slot (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_nine_domain_logs_are_the_rusts (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_slot_schedule_is_the_rusts_slot_for_slot (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_toy_needs_no_P3_lift_and_its_sum_claim_has_one_key (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+test_the_toy_receipt_is_the_measured_2816472_bytes (test_zk60_private_block_layout_model.ToyReproduction) ... ok
+
+----------------------------------------------------------------------
+Ran 52 tests in 0.049s
+
+OK

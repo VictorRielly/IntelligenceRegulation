@@ -507,6 +507,124 @@ class TheFullTopByteShape(unittest.TestCase):
                           self.m["slots"][M.SC_FZC]["degree"]), (4, 4))
 
 
+class TheRowWidthShape(unittest.TestCase):
+    """**LANE STAGE 32 — the 125M ROW WIDTH, HEAD SIZE and ENDPOINT LOG,
+    reached by a small shape.**
+
+    `rung_w14` is 125M's head axis — twelve query heads of 64 over four
+    key-value heads, so width 768 — at the smallest token count the row
+    width admits.  The model is the independent oracle for what that buys:
+    which of 125M's numbers this shape SHARES (everything that is a
+    function of the head axis, the row geometry or the calibration windows)
+    and which it does not (everything that is a function of the token
+    count)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.w = M.model(M.RUNG_W14)
+        cls.m = M.model(M.M125)
+
+    def test_the_geometry(self):
+        sh = M.RUNG_W14
+        self.assertEqual((sh.tokens, sh.width, sh.hidden), (64, 768, 1024))
+        self.assertEqual((sh.q_heads, sh.head_dim, sh.kv_heads), (12, 64, 4))
+        self.assertEqual((sh.t_pad, sh.d_pad, sh.h_pad, sh.f_pad), (64, 1024, 16, 1024))
+        self.assertEqual(sh.d_pad, sh.h_pad * sh.head_dim)
+        self.assertEqual(sh.width, sh.q_heads * sh.head_dim)
+        self.assertEqual(M.group_sumcheck_bits(sh), 2)
+        self.assertEqual((sh.log_cols, sh.inv_rate, sh.opened_cols), (14, 4, 256))
+        # the bilinear domains are not P-3 lifted (ruling F-2) and the table
+        # domain sits AT the row width (ruling S-1)
+        for dom in ("Q", "Kv", "S"):
+            with self.subTest(domain=dom):
+                self.assertFalse(sh.lifted(dom))
+        self.assertEqual((sh.log("Q"), sh.log("Kv"), sh.log("S")), (16, 14, 16))
+        self.assertEqual(sh.log("Tab"), sh.log_cols)
+        self.assertLess(sh.head_dim, 1 << sh.log_cols)
+
+    def test_F2_is_what_forces_sixty_four_tokens(self):
+        """`Dom::Kv = tokens * kv_heads * head_dim = 256 * tokens` must reach
+        the row width 2^14, or the P-3 lift makes the bilinear slots
+        unserveable (the Rust refuses such a shape BY NAME).  So the token
+        count cannot go below 64, and at 64 the domain sits exactly at the
+        row width."""
+        for tokens, lifted in ((16, True), (32, True), (64, False), (128, False)):
+            with self.subTest(tokens=tokens):
+                s = M.Shape("probe", tokens=tokens, width=768, hidden=1024, q_heads=12,
+                            head_dim=64, kv_heads=4, log_cols=14, inv_rate=4, f_e=12)
+                self.assertEqual(s.true_size("Kv"), 256 * tokens)
+                self.assertEqual(s.lifted("Kv"), lifted)
+        self.assertEqual(M.RUNG_W14.size("Kv"), 1 << 14)
+
+    def test_what_it_shares_with_125M_exactly(self):
+        """Every quantity that is a function of the head axis, the row
+        geometry or the calibration windows — and NOT of the token count."""
+        w, m = M.RUNG_W14, M.M125
+        self.assertEqual((w.q_heads, w.head_dim, w.kv_heads), (m.q_heads, m.head_dim, m.kv_heads))
+        self.assertEqual((w.width, w.d_pad, w.h_pad), (m.width, m.d_pad, m.h_pad))
+        self.assertEqual((w.log_cols, w.inv_rate, w.opened_cols), (m.log_cols, m.inv_rate, m.opened_cols))
+        self.assertEqual((w.d_max, w.norm_wrho, w.limbs_norm), (m.d_max, m.norm_wrho, m.limbs_norm))
+        self.assertEqual((w.wrho_s, w.limbs_sigma_s, w.limbs_p), (m.wrho_s, m.limbs_sigma_s, m.limbs_p))
+        self.assertEqual(w.norm_top_is_full_byte, m.norm_top_is_full_byte)
+        self.assertEqual(M.lookup_counts(w), M.lookup_counts(m))
+        self.assertEqual(M.helpers(w), M.helpers(m))
+        self.assertEqual(len(M.a_planes(w)), len(M.a_planes(m)))
+        self.assertEqual(len(M.h_planes(w)), len(M.h_planes(m)))
+        self.assertEqual([s["degree"] for s in M.slots(w)], [s["degree"] for s in M.slots(m)])
+        self.assertEqual(M.padded_domains(w), M.padded_domains(m))
+        self.assertEqual(M.opening_groups(w)["a_groups"], M.opening_groups(m)["a_groups"])
+        self.assertEqual((self.w["rows"]["a_sites"], self.w["rows"]["h_sites"], self.w["rows"]["m_rows"]),
+                         (self.m["rows"]["a_sites"], self.m["rows"]["h_sites"], self.m["rows"]["m_rows"]))
+        # the P-3 table lift is 125M's OWN distance: 2^8 -> 2^14, a factor
+        # of 64, where every other shape lifts by 4 or less
+        self.assertEqual((w.natural_log("Tab"), w.log("Tab")), (8, 14))
+        self.assertEqual((m.natural_log("Tab"), m.log("Tab")), (8, 14))
+        self.assertEqual((w.endpoint_log_n, w.endpoint_inv_rate, w.endpoint_general),
+                         (m.endpoint_log_n, m.endpoint_inv_rate, m.endpoint_general))
+
+    def test_what_it_does_not_share_and_why(self):
+        """Everything that scales with the TOKEN COUNT: the domain sizes, the
+        row counts, the lookup work, the endpoint's data rows and the
+        receipt."""
+        w, m = M.RUNG_W14, M.M125
+        self.assertEqual((w.tokens, m.tokens), (64, 512))
+        self.assertEqual([w.log(d) for d in M.ALL_DOMS], [6, 10, 14, 16, 16, 14, 16, 16, 14])
+        self.assertEqual([m.log(d) for d in M.ALL_DOMS], [9, 13, 14, 19, 19, 17, 22, 20, 14])
+        self.assertEqual((self.w["rows"]["a_rows"], self.m["rows"]["a_rows"]), (527, 5681))
+        self.assertEqual((self.w["rows"]["h_rows"], self.m["rows"]["h_rows"]), (436, 7120))
+        self.assertEqual((self.w["lookups"]["u8_total"], self.m["lookups"]["u8_total"]),
+                         (4_882_432, 98_598_912))
+        # the endpoint: 125M's LOG over a quarter of 125M's cube, so four
+        # data rows and nine commitment rows against 32 and 37
+        self.assertEqual((w.endpoint_words, w.endpoint_data_rows, w.endpoint_rows), (65_536, 4, 9))
+        self.assertEqual((m.endpoint_words, m.endpoint_data_rows, m.endpoint_rows), (524_288, 32, 37))
+        # 32 data rows at an endpoint log of 14 need a 2^19-word padded cube,
+        # and the width is capped at 1,024 by the four-norm-limb refusal
+        # (norm_wrho reaches 33 at width 1,025), so that means 512 tokens —
+        # 125M itself
+        self.assertEqual(m.t_pad * m.d_pad, 1 << 19)
+        self.assertEqual(M.Shape("probe", tokens=32, width=1025, hidden=1024, q_heads=1025,
+                                 head_dim=1, kv_heads=1, log_cols=14, inv_rate=4, f_e=12).norm_wrho, 33)
+
+    def test_the_rows_groups_and_receipt(self):
+        r = self.w["rows"]
+        self.assertEqual((r["a_data_rows"], r["h_data_rows"], r["a_rows"], r["h_rows"]),
+                         (281, 334, 527, 436))
+        self.assertEqual((r["a_sites"], r["h_sites"], r["m_rows"]), (122, 50, 50))
+        self.assertEqual((self.w["opening_groups"]["a_groups"],
+                          self.w["opening_groups"]["h_groups"]), (36, 9))
+        self.assertEqual(self.w["lookups"]["u8_total"], 4_882_432)
+        self.assertEqual(self.w["receipt_bytes"]["total"], 16_421_048)
+        self.assertEqual(self.w["slot_summary"]["largest_L"], 87)
+        self.assertTrue(self.w["slot_summary"]["L_plus_256_within_512"])
+        # it keeps both earlier arms: the unpadded one (slots 16 and 18 carry
+        # no support indicator) and C-6 (Dom::D at 34 lookups, 17 helpers)
+        carriers = [s["slot"] for s in self.w["slots"] if s["carries_support_indicator"]]
+        self.assertNotIn(M.SC_KVZC, carriers)
+        self.assertNotIn(M.SC_FZC, carriers)
+        self.assertEqual((M.lookup_counts(M.RUNG_W14)["D"], M.helpers(M.RUNG_W14)["D"]), (34, 17))
+
+
 class TheToyPaysNothing(unittest.TestCase):
     """**Stage 21, review finding F-1.** The repaired model must leave the
     BYTE-FROZEN toy profile alone, which is the whole reason the repair is
@@ -595,13 +713,19 @@ class Rules(unittest.TestCase):
         # drops the FOUR redundant `scaled` lookups (C-6). Before stage 31
         # the True column of this census had one entry and it belonged to a
         # shape no ordinary test proves at.
-        every = (M.TOY, M.RUNG, M.RUNG_G, M.RUNG_K4, M.RUNG_P2, M.RUNG_C6, M.M125)
+        # **LANE STAGE 32** adds `rung_w14`, whose width is 125M's own 768,
+        # so its norm window is 125M's 32 and it is on the C-6 arm too; its
+        # softmax window is 125M's 18 as well, by the other route
+        # (clog2(64) + 12 against clog2(512) + 9).
+        self.assertEqual((M.RUNG_W14.norm_wrho, M.RUNG_W14.wrho_s), (32, 18))
+        self.assertEqual(M.RUNG_W14.d_max, M.M125.d_max)
+        every = (M.TOY, M.RUNG, M.RUNG_G, M.RUNG_K4, M.RUNG_P2, M.RUNG_C6, M.RUNG_W14, M.M125)
         self.assertEqual([s.norm_top_is_full_byte for s in every],
-                         [False, False, False, False, False, True, True])
-        self.assertEqual([s.norm_wrho for s in every], [29, 31, 31, 31, 31, 32, 32])
+                         [False, False, False, False, False, True, True, True])
+        self.assertEqual([s.norm_wrho for s in every], [29, 31, 31, 31, 31, 32, 32, 32])
         self.assertEqual([M.lookup_counts(s)["D"] for s in every],
-                         [38, 38, 38, 38, 38, 34, 34])
-        self.assertEqual([M.helpers(s)["D"] for s in every], [19, 19, 19, 19, 19, 17, 17])
+                         [38, 38, 38, 38, 38, 34, 34, 34])
+        self.assertEqual([M.helpers(s)["D"] for s in every], [19, 19, 19, 19, 19, 17, 17, 17])
         self.assertEqual([M.lookup_counts(s)["S"] for s in (M.TOY, M.RUNG, M.M125)], [13, 15, 15])
 
     def test_the_Q_D_coincidence_holds_at_all_three_shapes(self):
@@ -648,6 +772,7 @@ class DerivedEndpoints(unittest.TestCase):
         "rung_k4": 4_743_128,
         "rung_p2": 4_742_728,
         "rung_c6": 7_452_040,
+        "rung_w14": 16_421_048,
         "m125": 40_783_352,
     }
 
@@ -664,6 +789,11 @@ class DerivedEndpoints(unittest.TestCase):
         # own row width, and twenty-one commitment rows. That is the frozen
         # seam's row count reached on the GENERALISED endpoint.
         "rung_c6": (16_384, 10, 4, True, 16, 21),
+        # LANE STAGE 32: 125M's endpoint LOG at a quarter of 125M's cube.
+        # The padded Dom::D cube is 64 * 1024 = 2^16 words, so at
+        # endpoint_log_n = 14 it is FOUR data rows and nine commitment rows
+        # — the row count of the three 10-log rungs, at 125M's log.
+        "rung_w14": (65_536, 14, 4, True, 4, 9),
         "m125": (524_288, 14, 4, True, 32, 37),
     }
 
