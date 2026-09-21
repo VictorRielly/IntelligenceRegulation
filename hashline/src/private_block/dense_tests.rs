@@ -315,10 +315,19 @@ pub(super) fn dense_ff_case(s: &Shape) -> (AttentionPublic, FeedForwardPublic, V
 /// axis, so it needs its own MEASURED band
 /// (`k4_tests::the_pinned_rung_k4_chain_band_is_the_first_admissible_one`);
 /// the two rungs' 47 and 125M's 1 are the stage-21 values, unchanged.
+/// **STAGE 30: `(256, 4)` is `Shape::rung_p2`'s**, measured the same way by
+/// `p2_tests::the_pinned_rung_p2_chain_band_is_the_first_admissible_one`:
+/// the recipe's own single-block band there is 41 (the band scales as
+/// `1/sqrt(hidden)`, and this shape's hidden axis is 256 against the rungs'
+/// 192), and the first band at which the witness builder accepts all three
+/// blocks of the chain is **39** — bands 41 and 40 are refused by the second
+/// block at the same site as everywhere else, `fixed oracle range refusal:
+/// residual 2`.
 pub(super) fn band_down_run(s: &Shape) -> i64 {
     match (s.hidden, s.kv_heads) {
         (192, 2) => 47,
         (192, 4) => 47,
+        (256, 4) => 39,
         (2048, 4) => 1,
         // any other geometry has not been measured; fall back to the
         // single-block band, which is the recipe's own and is honest about

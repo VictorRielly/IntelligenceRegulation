@@ -1,0 +1,86 @@
+
+running 11 tests
+test private_block::p2_tests::a_padded_style_round_message_at_an_unpadded_slot_is_refused_by_the_frame_check_at_the_rung_p2 ... P2 PADDED-STYLE FRAME slot 16 [05 KV zero-check (hosts 09K, 09V)]: refused by the frame check — private block wire: argument shape
+P2 PADDED-STYLE FRAME slot 16: the encoder refuses it: private block wire: argument shape
+P2 PADDED-STYLE FRAME slot 18 [14 F zero-check (hosts 13G, 13U)]: refused by the frame check — private block wire: argument shape
+P2 PADDED-STYLE FRAME slot 18: the encoder refuses it: private block wire: argument shape
+ok
+test private_block::p2_tests::a_tamper_inside_an_unpadded_domain_is_rejected_at_that_domains_zero_check_at_the_rung_p2 ... P2 UNPADDED TAMPER Dom::T, the norm square A_DSQ at the LAST index of the domain (31): verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::T, the norm square A_DSQ at index 0 (0): verifier rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::Kv, the key A_K8 at the LAST index of the domain (1023): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::Kv, the key A_K8 at index 0 (0): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::F, the gate A_G8 at the LAST index of the domain (8191): verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER Dom::F, the gate A_G8 at index 0 (0): verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+P2 UNPADDED TAMPER SWEEP: 6 of 6 rejected by the VERIFIER, each at its own domain's zero-check, 0 by the prover, 0 accepted
+ok
+test private_block::p2_tests::a_tampered_round_message_of_an_unpadded_zero_check_is_rejected_at_the_rung_p2 ... P2 ROUND-MESSAGE TAMPER slot 16 [05 KV zero-check (hosts 09K, 09V)]: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+P2 ROUND-MESSAGE TAMPER slot 18 [14 F zero-check (hosts 13G, 13U)]: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::p2_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_p2 ... S30 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+rung-P2 DENSE one block: prove 0.63 s, verify from bytes 0.10 s, frame 4742728 B
+ok
+test private_block::p2_tests::an_honest_three_block_fully_dense_run_verifies_from_its_segments_at_the_rung_p2 ... S30 CENSUS [run block 0]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+S30 CENSUS [run block 1]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+S30 CENSUS [run block 2]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the last position of T / Kv / F inside the true support
+P2 FULLY DENSE RUN L=3 (down band 39): prove 1.81 s, verify from segments 0.35 s, segments [4574904, 4597432, 4765336] B (total 13937672 B), boundary 10 rows
+ok
+test private_block::p2_tests::only_the_125m_shape_and_the_new_one_reach_the_unpadded_arm_of_the_pad_rule ... S30 GAP CENSUS: toy = no rule; rung / rung-G / rung-K4 = 8 of 8 host slots on the PADDED arm; 125M and rung-P2 = 5 of 8, the unpadded three being slots 02, 16, 18 (Dom::T, Dom::Kv, Dom::F)
+ok
+test private_block::p2_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_p2 ... rung-P2 ALL-ZERO (degenerate) one block: frame 4742728 B, verified
+ok
+test private_block::p2_tests::the_draw_census_is_the_rules_count_and_differs_from_rung_k4_only_where_the_pad_rule_does ... S30 DRAW CENSUS slot 02 [02 norm squares zero-check (hosts 01, 01m)] rung-P2  13 (pad_on false) | rung-K4  15 (pad_on true)
+S30 DRAW CENSUS slot 03 [08 limb zero-check          ] rung-P2  12 (pad_on true) | rung-K4  12 (pad_on true)
+S30 DRAW CENSUS slot 14 [03 D zero-check (hosts 12, 13D)] rung-P2  46 (pad_on true) | rung-K4  46 (pad_on true)
+S30 DRAW CENSUS slot 15 [04 Q zero-check (hosts 09Q, 11)] rung-P2  24 (pad_on true) | rung-K4  24 (pad_on true)
+S30 DRAW CENSUS slot 16 [05 KV zero-check (hosts 09K, 09V)] rung-P2  19 (pad_on false) | rung-K4  21 (pad_on true)
+S30 DRAW CENSUS slot 17 [06 softmax zero-check (hosts 07, 10)] rung-P2  32 (pad_on true) | rung-K4  32 (pad_on true)
+S30 DRAW CENSUS slot 18 [14 F zero-check (hosts 13G, 13U)] rung-P2  24 (pad_on false) | rung-K4  26 (pad_on true)
+S30 DRAW CENSUS slot 19 [TAB table helper zero-check ] rung-P2  15 (pad_on true) | rung-K4  15 (pad_on true)
+ok
+test private_block::p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move ... S30 PER-DOMAIN TABLE  dom | natural size -> padded size, pad_on, host slot, n_pad
+S30   development T    true        32 padded        32 (log  5) pad_on false host slot 02 n_pad 0
+S30   development T    true        24 padded        32 (log  5) pad_on true  host slot 02 n_pad 1
+S30   125M     T    true       512 padded       512 (log  9) pad_on false host slot 02 n_pad 0
+S30   development Ht   true       384 padded       512 (log  9) pad_on true  host slot 17 n_pad 1
+S30   development Ht   true       288 padded       512 (log  9) pad_on true  host slot 17 n_pad 1
+S30   125M     Ht   true      6144 padded      8192 (log 13) pad_on true  host slot 17 n_pad 1
+S30   development L    true       288 padded      1024 (log 10, P-3 lifted) pad_on true  host slot 03 n_pad 1
+S30   development L    true       216 padded      1024 (log 10, P-3 lifted) pad_on true  host slot 03 n_pad 1
+S30   125M     L    true      4608 padded     16384 (log 14, P-3 lifted) pad_on true  host slot 03 n_pad 1
+S30   development D    true      3072 padded      4096 (log 12) pad_on true  host slot 14 n_pad 1
+S30   development D    true      2304 padded      4096 (log 12) pad_on true  host slot 14 n_pad 1
+S30   125M     D    true    393216 padded    524288 (log 19) pad_on true  host slot 14 n_pad 1
+S30   development Q    true      3072 padded      4096 (log 12) pad_on true  host slot 15 n_pad 1
+S30   development Q    true      2304 padded      4096 (log 12) pad_on true  host slot 15 n_pad 1
+S30   125M     Q    true    393216 padded    524288 (log 19) pad_on true  host slot 15 n_pad 1
+S30   development Kv   true      1024 padded      1024 (log 10) pad_on false host slot 16 n_pad 0
+S30   development Kv   true       768 padded      1024 (log 10) pad_on true  host slot 16 n_pad 1
+S30   125M     Kv   true    131072 padded    131072 (log 17) pad_on false host slot 16 n_pad 0
+S30   development S    true     12288 padded     16384 (log 14) pad_on true  host slot 17 n_pad 1
+S30   development S    true      6912 padded     16384 (log 14) pad_on true  host slot 17 n_pad 1
+S30   125M     S    true   3145728 padded   4194304 (log 22) pad_on true  host slot 17 n_pad 1
+S30   development F    true      8192 padded      8192 (log 13) pad_on false host slot 18 n_pad 0
+S30   development F    true      4608 padded      8192 (log 13) pad_on true  host slot 18 n_pad 1
+S30   125M     F    true   1048576 padded   1048576 (log 20) pad_on false host slot 18 n_pad 0
+S30   development Tab  true       256 padded      1024 (log 10, P-3 lifted) pad_on true  host slot 19 n_pad 1
+S30   development Tab  true       256 padded      1024 (log 10, P-3 lifted) pad_on true  host slot 19 n_pad 1
+S30   125M     Tab  true       256 padded     16384 (log 14, P-3 lifted) pad_on true  host slot 19 n_pad 1
+S30 rung-P2: T32/d96/f256, 12 heads of 8 over 4 KV heads, pads (32, 128, 16, 256), lkv 2, unpadded domains T/Kv/F, largest L 77, receipt 4742728 B (rung-K4's 4743128 - 400)
+ok
+test private_block::p2_tests::the_pinned_rung_p2_chain_band_is_the_first_admissible_one ... P2 DENSE RUN band 41: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+P2 DENSE RUN band 40: the witness builder refused a block of the chain: fixed oracle range refusal: residual 2
+P2 DENSE RUN: the first admissible three-block down band is 39 (the recipe's single-block band is 41)
+ok
+test private_block::p2_tests::the_verifiers_own_draw_census_at_the_rung_p2_is_the_provers ... S30 VERIFIER DRAW CENSUS slot 02 [02 norm squares zero-check (hosts 01, 01m)]  13 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS slot 03 [08 limb zero-check          ]  12 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS slot 14 [03 D zero-check (hosts 12, 13D)]  46 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS slot 15 [04 Q zero-check (hosts 09Q, 11)]  24 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS slot 16 [05 KV zero-check (hosts 09K, 09V)]  19 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS slot 17 [06 softmax zero-check (hosts 07, 10)]  32 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS slot 18 [14 F zero-check (hosts 13G, 13U)]  24 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS slot 19 [TAB table helper zero-check ]  15 challenges in every stage of the run
+S30 VERIFIER DRAW CENSUS: 2 of 2 stages agree with the definition walk on all 23 slots
+ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 418 filtered out; finished in 11.67s
+

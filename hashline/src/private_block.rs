@@ -232,6 +232,12 @@ mod s28_review_tests;
 // admitted triple and panicking by name on a violated one.
 #[cfg(test)]
 mod s29_tests;
+// STAGE 30: the UNPADDED arm of ruling P-1's pad rule. `Shape::rung_p2` is
+// 125M's own padded-domain set — `Dom::T`, `Dom::Kv` and `Dom::F` unpadded,
+// the other six padded — at a size the ordinary filter runs in seconds, so
+// the arm that only an `#[ignore]`d 125M test used to reach is tested here.
+#[cfg(test)]
+mod p2_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
