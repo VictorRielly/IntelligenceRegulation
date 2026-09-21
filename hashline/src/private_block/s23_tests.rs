@@ -233,3 +233,74 @@ fn the_source_token_axis_and_the_feed_forward_slots_carry_no_such_trap() {
         assert_eq!(sites[slot], 2, "{name} is no longer the two-private-factor slot the rulings reason about");
     }
 }
+
+// ---------------------------------------------------------------------------
+// ITEM 4 (gap GS-2), the half that is not about one opening's challenges:
+// WHICH of `check_opening`'s three checks wins when several hold at once
+// ---------------------------------------------------------------------------
+
+/// **GAP GS-2, the outer order.** `check_opening` runs three checks and the
+/// privacy tools replay them in one order; nothing pinned which. It is
+/// **claim audit, then the exact opening-group count, then the challenge
+/// refusals**, and the challenge refusals are the only one that draws
+/// anything — the transcript is not touched until the first two have passed
+/// (`protocol.rs`'s `check_opening`: `audit_claims(..)?`, the group-count
+/// comparison, then `Transcript::clone_state`).
+///
+/// This is forced rather than read: each case below violates SEVERAL
+/// conditions at once and the message says which was evaluated first. It is
+/// the same device the disposition's ruling S-2 leans on when it strikes
+/// finding N-2 — "`check_opening` runs the claim audit FIRST, and on a
+/// two-site boundary the audit forces exactly two claims, so the many-group
+/// case is unreachable". That reasoning is only sound if the order is what it
+/// says, so the order is pinned here.
+#[test]
+fn check_openings_three_checks_fire_in_the_audit_count_challenges_order() {
+    use crate::field::{Fp, Fp2};
+    use crate::pcs::{Slice, ZClaim, ZPart};
+    use crate::transcript::Transcript;
+
+    const LOG_N: usize = 8;
+    const N: usize = 1 << LOG_N;
+    // rows: data 0..4, reserved pairs (4,5) and (6,7), proximity pair (8,9)
+    let sites = [4usize, 5, 6, 7];
+    let (rows, prox) = (10usize, 8usize);
+    let pt = |k: u64| -> Vec<Fp2> { (0..LOG_N as u64).map(|i| Fp2::new(Fp::new(11 + i + 7 * k), Fp::new(3 + 2 * i))).collect() };
+    let part = |row: usize, coef: Fp2, k: u64| ZPart { slice: Slice { offset: row * N, log_size: LOG_N as u32 }, coef, point: pt(k) };
+    // an honest claim: its data row, then its own reserved pair
+    let claim = |data: usize, pair: usize, k: u64| ZClaim {
+        parts: vec![part(data, Fp2::ONE, k), part(pair, Fp2::U, k), part(pair + 1, Fp2::U.mul(Fp2::U), k)],
+        value: Fp2::ZERO,
+    };
+    let tr = Transcript::new(b"stage 23: the refusal order of check_opening");
+    let check = |claims: &[ZClaim], want_groups: usize| super::protocol::check_opening(claims, LOG_N, rows, &sites, None, prox, want_groups, &tr);
+
+    // THE CONTROL. Two claims at two DIFFERENT points, so two column keys and
+    // two opening groups, each pair used exactly once. It passes, which is
+    // what makes every refusal below attributable.
+    let honest = [claim(0, 4, 0), claim(1, 6, 1)];
+    check(&honest, 2).expect("the honest two-claim opening is accepted");
+
+    // 1. THE AUDIT WINS over a wrong group count. Both claims share the
+    //    reserved pair (4, 5) — an audit failure — AND the declared group
+    //    count is wrong. The audit's message is what comes back.
+    let shared = [claim(0, 4, 0), claim(1, 4, 1)];
+    let e = check(&shared, 99).expect_err("a shared reserved pair was accepted");
+    assert!(e.contains("mask schedule audit"), "the group count was checked before the audit: {e}");
+
+    // 2. THE COUNT WINS over the challenge refusals. The audit passes, the
+    //    declared count is wrong, and the transcript is untouched — so
+    //    whatever the challenges would have said, the count's message is
+    //    what comes back, at every declared count but the true one.
+    for want in [0usize, 1, 3, 36] {
+        let e = check(&honest, want).expect_err("a wrong group count was accepted");
+        assert!(e.contains("opening groups, the schedule declares"), "count {want}: {e}");
+        assert!(!e.contains("coefficient") && !e.contains("proximity"), "count {want}: a challenge refusal preceded the count check: {e}");
+    }
+
+    // 3. And the two claims really do form two groups, at this point set, so
+    //    the count check is testing what it looks like it is testing.
+    let groups = super::protocol::opening_groups_at(&honest, LOG_N).expect("the honest claims group");
+    assert_eq!(groups.len(), 2, "the control's two claims do not form two opening groups");
+    assert!(groups.iter().all(|(_, c)| *c == 1), "each group has one member");
+}

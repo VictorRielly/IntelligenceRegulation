@@ -18,6 +18,9 @@ use super::run_capture::{self, Bundle};
 use super::shape::Shape;
 use super::witness::{self, Witness};
 use super::{prepare_endpoints, AttentionPublic, BlockPublic, Endpoints, FeedForwardPublic, IoSpec};
+// STAGE 23 (gap GS-2): the refusal replay is driven over recorded field
+// elements, so the test half of this module needs the base field.
+use crate::field::{Fp, Fp2};
 use crate::merkle::Digest;
 use std::path::{Path, PathBuf};
 
@@ -955,4 +958,255 @@ fn write_the_k4_gate_bundles() {
         );
     }
     eprintln!("K4 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
+}
+
+// ===========================================================================
+// STAGE 23, GAP GS-2 — THE REFUSAL REPLAY ORDER, PINNED ON A REAL BLOCK
+// ===========================================================================
+
+/// One integer field of a capture record, read where it is written.
+fn cap_int(rec: &str, key: &str) -> usize {
+    let pat = format!("\"{key}\":");
+    let i = rec.find(&pat).unwrap_or_else(|| panic!("the capture record carries no `{key}`"));
+    let after = &rec[i + pat.len()..];
+    let j = after.find(|c: char| !c.is_ascii_digit()).unwrap_or(after.len());
+    after[..j].parse().unwrap_or_else(|_| panic!("`{key}` is not an integer"))
+}
+
+/// The record of ONE opening of one stage file, from `{"role":"<role>",` to
+/// the next role record (`run_capture::write_pcs` writes them in the order the
+/// verifier performs them).
+fn cap_role<'a>(stage: &'a [u8], role: &str) -> &'a str {
+    let s = std::str::from_utf8(stage).expect("a capture stage file is ASCII JSON");
+    let head = format!("{{\"role\":\"{role}\",");
+    let start = s.find(&head).unwrap_or_else(|| panic!("the stage carries no `{role}` opening"));
+    let rest = &s[start + 1..];
+    let end = rest.find("{\"role\":\"").map(|i| start + 1 + i).unwrap_or(s.len());
+    &s[start..end]
+}
+
+/// The member count of every opening group of one record, IN THE ORDER the
+/// recorder's independent replay formed them — which is the order
+/// `pcs::open_zk` and `pcs::verify_zk_tagged` draw their lambdas in
+/// (`zkp-core/src/pcs.rs:947,961`: one `challenge_fp2_vec(members.len())` per
+/// group, then one `challenge_fp2_vec(rows)` for the proximity coefficients).
+fn cap_group_members(rec: &str) -> Vec<usize> {
+    let mut out = Vec::new();
+    let mut rest = rec;
+    while let Some(i) = rest.find("\"members\":[") {
+        let after = &rest[i + "\"members\":[".len()..];
+        let j = after.find(']').expect("a members list");
+        let body = after[..j].trim();
+        out.push(if body.is_empty() { 0 } else { body.matches(',').count() + 1 });
+        rest = &after[j..];
+    }
+    out
+}
+
+/// How many `Fp2` entries a recorded list of field elements holds (each is
+/// written as `[c0, c1]`).
+fn cap_fp2_list_len(rec: &str, key: &str) -> usize {
+    let pat = format!("\"{key}\":[");
+    let i = rec.find(&pat).unwrap_or_else(|| panic!("the capture record carries no `{key}`"));
+    let mut depth = 1usize;
+    let mut n = 0usize;
+    for ch in rec[i + pat.len()..].chars() {
+        match ch {
+            '[' => {
+                depth += 1;
+                if depth == 2 {
+                    n += 1;
+                }
+            }
+            ']' => {
+                depth -= 1;
+                if depth == 0 {
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    n
+}
+
+/// A deterministic sequence of pairwise-independent nonzero `Fp2` draws.
+/// `(i + 1, 1)` and `(j + 1, 1)` have determinant `i - j`, so no two of them
+/// are dependent and no honest prefix is ever refused by accident.
+fn stand_in_draws(n: usize) -> Vec<Fp2> {
+    (0..n).map(|i| Fp2::new(Fp::new(i as u64 + 1), Fp::new(1))).collect()
+}
+
+/// Run the prover's own refusal replay over a fixed draw list, and report the
+/// verdict together with **how many draws it consumed**. The consumption
+/// count is the observable: `check_opening_challenges` draws each challenge
+/// immediately before testing it, so the number of draws taken before a
+/// refusal says at which position in the challenge stream the condition was
+/// evaluated.
+fn replay_with(draws: &[Fp2], groups: &[usize], rows: usize, prox: usize) -> (Result<(), String>, usize) {
+    let mut used = 0usize;
+    let mut it = draws.iter().copied();
+    let r = super::protocol::check_opening_challenges(groups, rows, prox, || {
+        used += 1;
+        it.next().expect("the replay drew past the recorded challenge stream")
+    });
+    (r, used)
+}
+
+/// **STAGE 23 — GAP GS-2 of the shaped generic-rank lemma: the refusal replay
+/// order, pinned against the order the opening's challenges are drawn.**
+///
+/// **What the gap is.** The Python privacy tools replay the prover's refusal
+/// checks in the order the opening's challenges are drawn, and the argument's
+/// reading of a refused run depends on that order. Nothing in Rust pinned it.
+///
+/// **What is observable today, and through which existing hook.** The run
+/// capture recorder (`run_capture::Recorder::attach`, a `#[cfg(test)]`
+/// facility that already exists and is not touched here) records, for every
+/// opening of every stage, the transcript state BEFORE the opening and its
+/// own INDEPENDENT replay of that opening's challenges from that state:
+/// the lambdas of each group in group order, then the `rows` proximity
+/// coefficients (`run_capture::replay`, whose own comment names the source
+/// order). That replay is the prover's and the verifier's draw order, because
+/// the recorder re-verifies the opening on its own transcript and the whole
+/// bundle is refused on the first mismatch. So the recorded record IS the
+/// challenge order, and this test drives the prover's refusal logic
+/// (`protocol::check_opening_challenges`, whose injectable draw exists for
+/// deterministic negative controls) over exactly that partition.
+///
+/// **What is pinned, on a real two-block fully dense rung-G run — generic
+/// weights, a non-constant hidden input, both key-value groups live.**
+///
+/// 1. **The partition.** The `A` and `H` openings of the first block draw
+///    `sum(members) + rows` challenges, partitioned as one per group member in
+///    GROUP ORDER and then one per commitment row; the recorder's own record
+///    of that opening has exactly that shape, and the group count is the
+///    schedule's `a_groups()` / `h_groups()`.
+/// 2. **The honest path consumes the whole partition and no more.**
+/// 3. **Every group member's coefficient is tested for zero, in order, and
+///    the check SHORT-CIRCUITS.** A zero at stream position `i` of the group
+///    block refuses with `zero group member coefficient` after exactly
+///    `i + 1` draws — so the proximity coefficients are never drawn on a run
+///    discarded for a zero lambda.
+/// 4. **The proximity determinant reads exactly two positions**, the ones at
+///    offsets `prox` and `prox + 1` of the row block, i.e. stream positions
+///    `sum(members) + prox` and `+ prox + 1`. A zero at either refuses with
+///    `dependent proximity mask coefficients`; a zero at any other row
+///    position is accepted. Both are swept over every row position.
+/// 5. **Precedence.** When a zero group coefficient and a degenerate
+///    proximity pair hold at once, the GROUP message wins — the group block
+///    is drawn first.
+/// 6. **The external endpoint's opening** replays the same way with a single
+///    one-member group, at its own row count and proximity row.
+///
+/// **What is NOT pinned, and the hook that is missing.** Nothing here reads
+/// the refusal checks' order from inside a live `prove_core` / `verify_core`:
+/// `check_opening` clones the transcript and discards the clone, so a session
+/// that wanted to observe the live evaluation order would need a test-only
+/// observer inside `protocol::check_opening_challenges` — a
+/// `#[cfg(test)] fn observe(condition: &str, draw_index: usize)` beside the
+/// two refusals, called on every evaluation and not only on a refusal. That
+/// is a PRODUCTION-FILE change (`protocol.rs`) and ruling GS-2's instruction
+/// is not to add one. What replaces it is the equality above: the partition
+/// this test drives is read out of a real block's real capture, not declared.
+#[test]
+fn the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn() {
+    let sh = Shape::rung_g();
+    let (_segs, bundle) = prove_and_capture_dense(2);
+    let stage = &bundle.stages[0];
+    let lay = super::layout::Layout::for_shape(&sh).expect("the rung-G layout");
+
+    for (role, want_groups, want_rows, want_prox) in [
+        ("A", sh.a_groups(), lay.a_rows, lay.a_prox),
+        ("H", sh.h_groups(), lay.h_rows, lay.h_prox),
+    ] {
+        let rec = cap_role(stage, role);
+        // (1) the recorded partition IS the schedule's
+        let members = cap_group_members(rec);
+        let rows = cap_int(rec, "rows");
+        let prox = cap_int(rec, "prox_row");
+        assert_eq!(members.len(), want_groups, "{role}: the capture records {} opening groups, the schedule declares {want_groups}", members.len());
+        assert_eq!(rows, want_rows, "{role}: the capture's commitment row count");
+        assert_eq!(prox, want_prox, "{role}: the capture's proximity row");
+        assert_eq!(cap_fp2_list_len(rec, "proximity_rhos"), rows, "{role}: the replay drew one proximity coefficient per commitment row");
+        let lambdas: usize = rec.matches("\"lambdas\":[").count();
+        assert_eq!(lambdas, members.len(), "{role}: one lambda list per group");
+        let total: usize = members.iter().sum();
+        assert!(total > members.len(), "{role}: no group has more than one member, so group order is untested here");
+
+        // (2) the honest path consumes the whole partition and no more
+        let good = stand_in_draws(total + rows);
+        let (verdict, used) = replay_with(&good, &members, rows, prox);
+        verdict.expect("the honest replay is accepted");
+        assert_eq!(used, total + rows, "{role}: the replay consumes one draw per group member and one per row, and nothing else");
+
+        // (3) every group position is tested for zero, in order, short-circuiting
+        for i in 0..total {
+            let mut d = good.clone();
+            d[i] = Fp2::ZERO;
+            let (verdict, used) = replay_with(&d, &members, rows, prox);
+            let e = verdict.expect_err(&format!("{role}: a zero group coefficient at stream position {i} was accepted"));
+            assert!(e.contains("zero group member coefficient"), "{role}: position {i}: {e}");
+            assert_eq!(used, i + 1, "{role}: the replay did not stop at the zero coefficient's own draw");
+        }
+
+        // (4) the determinant reads exactly the two rows at `prox`, `prox + 1`
+        for r in 0..rows {
+            let mut d = good.clone();
+            d[total + r] = Fp2::ZERO;
+            let (verdict, used) = replay_with(&d, &members, rows, prox);
+            assert_eq!(used, total + rows, "{role}: a zero row coefficient must not short-circuit the row block");
+            if r == prox || r == prox + 1 {
+                let e = verdict.expect_err(&format!("{role}: a zero proximity coefficient at row {r} was accepted"));
+                assert!(e.contains("dependent proximity mask coefficients"), "{role}: row {r}: {e}");
+            } else {
+                verdict.unwrap_or_else(|e| panic!("{role}: row {r} is not a proximity row but was refused: {e}"));
+            }
+        }
+        // and a DEPENDENT (not zero) pair is refused too, which is what says
+        // the check is the determinant and not a zero test
+        let mut dep = good.clone();
+        dep[total + prox] = Fp2::new(Fp::new(2), Fp::new(4));
+        dep[total + prox + 1] = Fp2::new(Fp::new(1), Fp::new(2));
+        let (verdict, used) = replay_with(&dep, &members, rows, prox);
+        assert!(verdict.expect_err("a dependent proximity pair was accepted").contains("dependent proximity"), "{role}: the dependent pair");
+        assert_eq!(used, total + rows);
+
+        // (5) precedence: the group block is drawn first, so its message wins
+        let mut both = good.clone();
+        both[total - 1] = Fp2::ZERO;
+        both[total + prox] = Fp2::ZERO;
+        let (verdict, used) = replay_with(&both, &members, rows, prox);
+        let e = verdict.expect_err("two refusal conditions held and neither fired");
+        assert!(e.contains("zero group member coefficient"), "{role}: the proximity message won over the group message: {e}");
+        assert_eq!(used, total, "{role}: the replay reached the row block although a group coefficient was zero");
+    }
+
+    // (6) the external endpoint: one group of one member, at its own geometry
+    let rec = cap_role(stage, "Input");
+    let members = cap_group_members(rec);
+    let rows = cap_int(rec, "rows");
+    let prox = cap_int(rec, "prox_row");
+    assert_eq!(members, vec![1], "the endpoint opening is one group of one claim");
+    assert_eq!(rows, sh.endpoint_rows, "the endpoint's commitment rows");
+    assert_eq!((rows, prox), (9, 6), "the rung-G endpoint geometry (rows, prox) of `protocol::endpoint_geometry`");
+    assert_eq!(cap_fp2_list_len(rec, "proximity_rhos"), rows);
+    let good = stand_in_draws(1 + rows);
+    let (verdict, used) = replay_with(&good, &members, rows, prox);
+    verdict.expect("the honest endpoint replay is accepted");
+    assert_eq!(used, 1 + rows);
+    let mut zero_lambda = good.clone();
+    zero_lambda[0] = Fp2::ZERO;
+    let (verdict, used) = replay_with(&zero_lambda, &members, rows, prox);
+    assert!(verdict.expect_err("a zero endpoint lambda was accepted").contains("zero group member coefficient"));
+    assert_eq!(used, 1, "the endpoint replay drew its rows although its single lambda was zero");
+
+    eprintln!(
+        "GS-2 (rung-G, two-block fully dense run, stage 0): A = {} groups over {} rows, H = {} groups over {} rows, endpoint = 1 group over {} rows; every group position and every row position swept",
+        sh.a_groups(),
+        lay.a_rows,
+        sh.h_groups(),
+        lay.h_rows,
+        sh.endpoint_rows
+    );
 }
