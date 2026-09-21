@@ -20,7 +20,9 @@ of them a hole: the sharpest are that **one changed computation (`total`, the
 claimed sum) has no equality gate at all and its parallel branch is crossed by
 no test that is not `#[ignore]`d**, and that **the second half of finding
 S28-F1 is false as written** — a counterexample is exhibited and passes as a
-test.
+test. The strongest positive result this review could obtain: **a complete
+twelve-block 125M private run proved before stage 28 is accepted by the
+stage-28 verifier**, in 15.20 s at 476 MiB (§9.3).
 
 ---
 
@@ -463,7 +465,6 @@ one.
 | **S28-R5** | **wording (trivial)** | the ledger says "Nine such tests" in the pins section and "ten tests" in the gate table; `s28_tests.rs` has ten `#[test]`s | the file | one word |
 | **S28-R6** | **incompleteness** | the frozen-toy byte pins — the stage's headline byte evidence — cross **none** of the five parallel thresholds (toy `lookup_words` = 61,440 < 2^17; every domain < 2^14; every cube < 2^14). The parallel branches are covered by the rung / rung-G / rung-K4 / 125M proofs instead, which is adequate but is not what "byte identity at the frozen toy" buys | this review's census, pinned as a test | say in the ledger which shape covers which branch; the census test now pins it so a shape change cannot silently move a branch out of reach |
 | **S28-R7** | **robustness (not reachable)** | on a violated precondition (`start + point.len() > n_vars`) old and new `eq_cube` diverge: the old gather produced a wrong but in-bounds cube, the new one computes a wrapped shift and `resize`s by `1 << (shift mod 64)` — a very large allocation. The triple is schedule-driven and public, and `run_slot`'s "table length" check would reject whatever came out, so nothing reachable changes | reading `argument.rs:276-291` against the `79f0726` arm | a `debug_assert!(start + e.len().trailing_zeros() as usize <= n_vars)`, or nothing, with the reason recorded |
-
 | **S28-R8** | **wording (completeness)** | the stage says no refusal moved and none was added; `helper_pair_inverses_u8` does add one, `"private block: paired lookup columns of different lengths"`. It is unreachable (every column of a domain is `size(dom)` long by construction), but it is a new refusal string on the proving path and the ledger does not list it | `protocol.rs:502-504` | one sentence in the ledger, or a `debug_assert!` instead of an `Err` |
 
 **No finding is a hole.** Nothing in this review found an input on which the
@@ -486,15 +487,15 @@ decision, or writes a different word from the code at `79f0726`.
 
 ## 12. What this review did not do
 
-* It did not re-prove the 125M shape. The 17.40 s and the 10,156 MiB are the
+* It did not run a 125M PROVE at all — only a 125M verify (§9.3). It did not
+  re-prove the 125M shape. The 17.40 s and the 10,156 MiB are the
   stage's own single runs on a shared box; this review checked that they are
   in the logs, that both runs are the same test with the same env and witness,
   and that every derived figure reproduces — not that they replicate.
 * It did not test **byte identity of a receipt**, because no such test can be
   built on this path (S28-F2) and building one was out of scope.
 * It did not review `zk.rs`, `pcs.rs`, `sumcheck.rs` or anything else stage 28
-  did not touch, and it did not re-check the forbidden-files proof beyond
-  confirming the diff's file list.
+  did not touch. (It DID re-run the forbidden-files proof: §1.)
 * It did not exercise the parallel SLOT-TABLE build or the moved public table
   through a unit oracle (no constructor for `SlotDef` is reachable from a test
   module); they are covered here only by the end-to-end proofs at the rungs
