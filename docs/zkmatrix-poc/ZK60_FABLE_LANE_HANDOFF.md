@@ -6,6 +6,55 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:20 (2026-09-21) — lane at `d282dd6` (pushed): `rung-C6` puts correction C-6 in the ordinary filter, no soundness finding; the 125M prove figure is now a RANGE (17.4–19.4 s, two runs); the gate's preimage step is complete at 125M; stage 32 (row width 2^14, head_dim 64, the 14-log endpoint) running
+
+- **`Shape::rung_c6`** — 32 tokens, width 384, hidden 512, 12 heads of 32 over
+  4 key-value heads (`lkv = 2`), `log_cols` 10; it also keeps rung-P2's three
+  unpadded domains, so it carries both pad branches AND `norm_top_is_full_byte`.
+  Additive only. Filter 362 passed / 0 failed / 15 ignored. Receipt 7,452,040 B
+  = the Python model's count. **The soundness question of C-6 — what enforces
+  the norm's top limb's range once four lookups are dropped — has an answer:**
+  on that arm the dropped scaled lookup is term for term the `byte(top)` lookup
+  that is emitted unconditionally (shown statically by the lookup multiset,
+  rung-P2 minus rung-C6 being exactly those four, and dynamically: a carry
+  moved between the top limb and the one below keeps every arithmetic clause
+  true and is rejected by the verifier at `H`'s group 8, the value-0 LogUp
+  identity, for all four remainders; the same tamper at rung-K4, which keeps
+  the scaled lookup, gives the same refusal).
+- **Two message-only findings for you, same family:** S31-F1 (that LogUp
+  refusal names neither slot nor lookup) and T30-F1 (the wire refusal of a
+  padded-style frame does not name the slot). One line each if you touch those
+  messages; not security matters.
+- **A dead arm, not a heavy one:** `Shape::a_groups`'s
+  `natural_log(Dom::T) >= log_cols` arm is reached by NO registered shape,
+  125M included. Worth a named refusal or a deletion when you integrate; I
+  will rule if you want one.
+- **Second sample of the stage-28 prover at 125M: 19.36 s** (same receipt
+  length; one run, shared box, with a counting diagnostic on that costs
+  0.05 s). Quote **17.4–19.4 s, two runs**, against 27.7 s. The base-field
+  census at 125M is 62.1% of round-1 table words (61.5% at the rung) — a
+  property of the schedule; my recommendation on R1b is unchanged (not first).
+- **The Python gate at 125M, completed since 11:20** (joint-view `51f74b2`,
+  pushed): all seven commitments of both two-block captures reproduced from
+  all-zero data (8,263,736 and 8,256,579 published entries, none differing)
+  and one joint assignment per run (8,296,654 / 8,289,497, none differing, no
+  coupling touching a blinding row); about 21 minutes a run at 5.5 GB. Round
+  9b is reading the rung-P2 bundles now; the rung-C6 bundles
+  (`run-m-dense-c6`, `run-n-zero-c6`) are next.
+- **Stage 32 is running:** the smallest admitted shape with `log_cols = 14`,
+  `head_dim = 64` and the 14-log endpoint (candidate: 64 tokens, width 768,
+  hidden 1,024), so that a change to the shared commitment or sumcheck code
+  can be validated at 125M's row width in seconds, not in a 10 GiB run. If it
+  is too slow for the filter it becomes a documented medium tier with one
+  command. After it, only what scales with 512 tokens and twelve blocks stays
+  heavy-only.
+- **Housekeeping, my side:** twice today a finished agent was re-woken by its
+  own queued job and committed into a worktree I had already handed to the
+  next writer (joint-view around 12:30, this lane around 12:55; ledger and
+  evidence commits only, no source collision). Contained; I now stop an agent
+  before its worktree gets a new writer. If you see interleaved commit authorship
+  in those two branches, that is why.
+
 ### 12:26 (2026-09-21) — lane at `b923d07` (pushed): a new small profile `rung-P2` puts the UNPADDED branch of the pad rule into the ordinary filter; one wire-contract suggestion for you; stage 31 (the C-6 branch) running
 
 - **`Shape::rung_p2`** — 32 tokens, width 96, hidden 256, 12 query heads of 8
