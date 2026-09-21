@@ -373,6 +373,15 @@ pub(super) fn check_endpoint_opening(claims: &[ZClaim], sh: &Shape, tr: &Transcr
 /// integer lookup values per lookup of a domain, over the domain's PADDED
 /// extent at this layout's shape (`Dom::len()` is the toy's)
 pub(super) fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i64>> {
+    lookup_values_at(lay, wit, dom, LOOKUP_PAR_MIN)
+}
+
+/// **STAGE 29 (finding S28-R1).** The word count above which the looked
+/// columns of a domain are built in parallel, as stage 28 chose it: a constant
+/// of the PRODUCTION call and an ARGUMENT of [`lookup_values_at`].
+pub(super) const LOOKUP_PAR_MIN: usize = 1 << 17;
+
+pub(super) fn lookup_values_at(lay: &Layout, wit: &Witness, dom: Dom, par_min: usize) -> Vec<Vec<i64>> {
     let len = lay.shape().size(dom);
     let lks = lay.lookups(dom);
     let col = |l: &Lk| -> Vec<i64> { (0..len).map(|x| l.terms.iter().fold(l.cst, |a, (p, c)| a.wrapping_add(c.wrapping_mul(wit.planes[*p][x])))).collect() };
@@ -380,11 +389,65 @@ pub(super) fn lookup_values(lay: &Layout, wit: &Witness, dom: Dom) -> Vec<Vec<i6
     // integer arithmetic. The parallel iterator is INDEXED, so the columns
     // come back in their own order with their own words; small domains stay
     // on one thread.
-    if lks.len() > 1 && lks.len() * len >= 1 << 17 {
+    if lks.len() > 1 && lks.len() * len >= par_min {
         use rayon::prelude::*;
         return lks.par_iter().map(&col).collect();
     }
     lks.iter().map(col).collect()
+}
+
+/// **STAGE 29 (finding S28-R1).** The word count above which the byte
+/// histogram is summed in chunks, as stage 28 chose it: a constant of the
+/// PRODUCTION call and an ARGUMENT of [`byte_histogram_at`].
+pub(super) const HISTOGRAM_PAR_MIN: u64 = 1 << 17;
+
+/// **STAGE 28, extracted in STAGE 29.** The `U8_LEN` byte multiplicities of
+/// every looked column of every lookup domain.
+///
+/// A histogram is a sum of integers: partitioning the words changes no bin,
+/// and the bins are added back in a fixed order, so the chunked form is the
+/// serial form's vector. The serial form stays for small shapes. (A value
+/// outside the table counts into entry 0, exactly as before: only the LogUp
+/// identity can catch it.) `lookup_words` is the PUBLIC word count of the
+/// shape, which is what chooses the branch — never a witness value.
+pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64, par_min: u64) -> Vec<u64> {
+    let bin = |v: &i64| -> usize {
+        if (0..U8_LEN as i64).contains(v) {
+            *v as usize
+        } else {
+            0
+        }
+    };
+    if lookup_words >= par_min {
+        use rayon::prelude::*;
+        let cols: Vec<&Vec<i64>> = looked.iter().flat_map(|(_, cols)| cols.iter()).collect();
+        return cols
+            .par_iter()
+            .flat_map(|c| c.par_chunks(1 << 16))
+            .map(|chunk| {
+                let mut b = vec![0u64; U8_LEN];
+                for v in chunk {
+                    b[bin(v)] += 1;
+                }
+                b
+            })
+            .reduce(
+                || vec![0u64; U8_LEN],
+                |mut a, b| {
+                    for (x, y) in a.iter_mut().zip(b.iter()) {
+                        *x += *y;
+                    }
+                    a
+                },
+            );
+    }
+    let mut m_u8 = vec![0u64; U8_LEN];
+    for (_, cols) in looked {
+        for v in cols.iter().flatten() {
+            m_u8[bin(v)] += 1;
+        }
+    }
+    m_u8
 }
 
 /// the activation lookup's index column `g8 + 128` over the `Dom::F` cube
@@ -468,22 +531,40 @@ pub(super) fn u8_denominator_inverses(alpha: Fp2, g_u8: Fp2) -> Vec<Option<Fp2>>
 /// and is INDEXED, so the output vector is the same whatever the thread count
 /// is; no randomness is drawn here, so no draw order can move.
 pub(super) fn helper_inverses_u8(col: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<Vec<Fp2>, String> {
-    let one = |v: &i64| -> Result<Fp2, String> {
-        match usize::try_from(*v) {
-            Ok(k) if k < U8_LEN => tbl[k].ok_or_else(|| ZERO_DENOMINATOR.to_string()),
-            _ => {
-                let d = alpha.sub(Fp2::from_i64(*v).add(g_u8));
-                if d.is_zero() {
-                    Err(ZERO_DENOMINATOR.to_string())
-                } else {
-                    Ok(d.inv())
-                }
+    helper_inverses_u8_at(col, alpha, g_u8, tbl, HELPER_PAR_MIN)
+}
+
+/// **STAGE 29 (finding S28-R1).** The column length above which a helper
+/// column is built in parallel, as stage 28 chose it: a constant of the
+/// PRODUCTION calls and an ARGUMENT of the two `_at` forms below. Small
+/// columns stay on one thread, where a rayon region costs more than the work
+/// (the house style of `sumcheck::prove`'s own `small` branch).
+pub(super) const HELPER_PAR_MIN: usize = 1 << 14;
+
+/// one word of a helper column: the table entry when the value is a byte, the
+/// old arithmetic otherwise. Written once and called by both forms, which is
+/// why the single and the paired helper cannot drift apart.
+fn helper_one(v: i64, alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<Fp2, String> {
+    match usize::try_from(v) {
+        Ok(k) if k < U8_LEN => tbl[k].ok_or_else(|| ZERO_DENOMINATOR.to_string()),
+        _ => {
+            let d = alpha.sub(Fp2::from_i64(v).add(g_u8));
+            if d.is_zero() {
+                Err(ZERO_DENOMINATOR.to_string())
+            } else {
+                Ok(d.inv())
             }
         }
-    };
-    // small columns stay on one thread: a rayon region costs more than the
-    // work, in the house style of `sumcheck::prove`'s own `small` branch
-    if col.len() < 1 << 14 {
+    }
+}
+
+/// **STAGE 29.** [`helper_inverses_u8`] with the threshold as an argument, so
+/// a test can drive BOTH branches on the same column. The production wrapper
+/// passes [`HELPER_PAR_MIN`], so the production call path is the one stage 28
+/// measured.
+pub(super) fn helper_inverses_u8_at(col: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>], par_min: usize) -> Result<Vec<Fp2>, String> {
+    let one = |v: &i64| helper_one(*v, alpha, g_u8, tbl);
+    if col.len() < par_min {
         return col.iter().map(one).collect();
     }
     use rayon::prelude::*;
@@ -499,24 +580,17 @@ pub(super) fn helper_inverses_u8(col: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Opti
 /// [`helper_inverses_u8`]'s, unchanged: the first column is asked before the
 /// second at every index, and both must answer.
 pub(super) fn helper_pair_inverses_u8(a: &[i64], b: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<Vec<Fp2>, String> {
+    helper_pair_inverses_u8_at(a, b, alpha, g_u8, tbl, HELPER_PAR_MIN)
+}
+
+/// **STAGE 29.** The paired form with the threshold as an argument; the
+/// production wrapper passes [`HELPER_PAR_MIN`].
+pub(super) fn helper_pair_inverses_u8_at(a: &[i64], b: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>], par_min: usize) -> Result<Vec<Fp2>, String> {
     if a.len() != b.len() {
         return Err("private block: paired lookup columns of different lengths".into());
     }
-    let one = |v: &i64| -> Result<Fp2, String> {
-        match usize::try_from(*v) {
-            Ok(k) if k < U8_LEN => tbl[k].ok_or_else(|| ZERO_DENOMINATOR.to_string()),
-            _ => {
-                let d = alpha.sub(Fp2::from_i64(*v).add(g_u8));
-                if d.is_zero() {
-                    Err(ZERO_DENOMINATOR.to_string())
-                } else {
-                    Ok(d.inv())
-                }
-            }
-        }
-    };
-    let pair = |(x, y): (&i64, &i64)| -> Result<Fp2, String> { Ok(one(x)?.add(one(y)?)) };
-    if a.len() < 1 << 14 {
+    let pair = |(x, y): (&i64, &i64)| -> Result<Fp2, String> { Ok(helper_one(*x, alpha, g_u8, tbl)?.add(helper_one(*y, alpha, g_u8, tbl)?)) };
+    if a.len() < par_min {
         return a.iter().zip(b.iter()).map(pair).collect();
     }
     use rayon::prelude::*;
@@ -733,53 +807,11 @@ pub(crate) fn prove_core(
     // `N` (trap T-1). The two guards that index `public.exp` (256 words) and
     // `ff.act` (`[i16; 256]`) are what stops a widened `N` from turning a
     // graceful bucket-0 fallback into an out-of-bounds panic (missed pin M-4).
-    let mut m_u8 = vec![0u64; U8_LEN];
     let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect();
     // a public count: how many lookup words the six lookup domains carry at
     // THIS shape. It is a function of the geometry and of nothing private.
     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
-    // **STAGE 28.** The same counts, added up in chunks. A histogram is a sum
-    // of integers: partitioning the words changes no bin, and the bins are
-    // added back in a fixed order. The serial form stays for small domains.
-    // (A value outside the table counts into entry 0, exactly as before: only
-    // the LogUp identity can catch it.)
-    let bin = |v: &i64| -> usize {
-        if (0..U8_LEN as i64).contains(v) {
-            *v as usize
-        } else {
-            0
-        }
-    };
-    if lookup_words >= 1 << 17 {
-        use rayon::prelude::*;
-        let cols: Vec<&Vec<i64>> = looked.iter().flat_map(|(_, cols)| cols.iter()).collect();
-        let bins = cols
-            .par_iter()
-            .flat_map(|c| c.par_chunks(1 << 16))
-            .map(|chunk| {
-                let mut b = vec![0u64; U8_LEN];
-                for v in chunk {
-                    b[bin(v)] += 1;
-                }
-                b
-            })
-            .reduce(
-                || vec![0u64; U8_LEN],
-                |mut a, b| {
-                    for (x, y) in a.iter_mut().zip(b.iter()) {
-                        *x += *y;
-                    }
-                    a
-                },
-            );
-        m_u8 = bins;
-    } else {
-        for (_, cols) in &looked {
-            for v in cols.iter().flatten() {
-                m_u8[bin(v)] += 1;
-            }
-        }
-    }
+    let mut m_u8 = byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN);
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
     let deltas = exp_deltas(&lay, &wit);
     let mut m_exp = vec![0u64; U8_LEN];
