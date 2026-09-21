@@ -204,6 +204,13 @@ mod s24_tests;
 // scan extended from absorb LABELS to hash CALL SITES.
 #[cfg(test)]
 mod s25_tests;
+// STAGE 26: the STRUCTURAL SEPARATION of the generators' seed derivations at
+// every UNFROZEN profile — the ruling on finding B-1 of
+// `ZK60_TOY_ROUTE_A_REEXAMINATION.md` and item 6 of the toy statement's §9.
+// A domain says what its generator is for; the two frozen legacy-rule
+// profiles keep theirs byte for byte.
+#[cfg(test)]
+mod s26_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
@@ -769,7 +776,15 @@ pub fn prepare_endpoints(spec: IoSpec, input: &[i16], output: &[i16]) -> Result<
     let (input, output) = if spec.general {
         let [si, so] = spec.endpoints_g()?;
         let ntt = NttTables::new(si.enc_log().max(so.enc_log()));
-        (EndpointOwner::General(endpoint_g::prepare(&si, &words(input), &ntt, &spec.hash_tag)?), EndpointOwner::General(endpoint_g::prepare(&so, &words(output), &ntt, &spec.hash_tag)?))
+        // **STAGE 26 (finding B-1).** The two endpoint generators are told
+        // WHICH endpoint they are seeding. The role byte is the only thing
+        // that separates their two key-derivation inputs when the two spec
+        // digests agree; before this stage the two inputs were byte-identical
+        // and the two `/dev/urandom` reads were the whole separation.
+        (
+            EndpointOwner::General(endpoint_g::prepare(&si, &words(input), &ntt, &spec.hash_tag, endpoint_g::EndpointRole::Input)?),
+            EndpointOwner::General(endpoint_g::prepare(&so, &words(output), &ntt, &spec.hash_tag, endpoint_g::EndpointRole::Output)?),
+        )
     } else {
         let [si, so] = spec.seams()?;
         let ntt = NttTables::new(12);

@@ -44,6 +44,46 @@ use zkp_core::hashtag::HashTag;
 /// citation in a comment is indistinguishable from a label).
 const DOMAIN: &[u8] = b"hashline/private-block/general-endpoint/v1";
 
+/// **STAGE 26 (the ruling on finding B-1).** Which of a profile's two
+/// external endpoints this is. It exists for ONE reason: a proof makes both
+/// endpoint generators from the same code, and the two geometries can have
+/// equal spec digests, so something in the generator's domain has to say
+/// which endpoint it is seeding. That something is one byte
+/// ([`super::hash_domain::ROLE_ENDPOINT_IN`] / `…_OUT`), and it is PUBLIC —
+/// which endpoint is which is a fact of the statement, not of the witness.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum EndpointRole {
+    /// the block's / the run's external INPUT plane
+    Input,
+    /// the block's / the run's external OUTPUT plane
+    Output,
+}
+
+impl EndpointRole {
+    /// the fixed-width role byte that goes into the generator's domain
+    pub(crate) fn byte(self) -> u8 {
+        match self {
+            EndpointRole::Input => super::hash_domain::ROLE_ENDPOINT_IN,
+            EndpointRole::Output => super::hash_domain::ROLE_ENDPOINT_OUT,
+        }
+    }
+}
+
+/// **The generator domain of ONE endpoint of ONE statement** — the bytes
+/// `endpoint_g::prepare` hands `ZkRng::from_os`, and therefore the only
+/// thing besides the fresh `/dev/urandom` read that decides the generator's
+/// key.
+///
+/// Every field is PUBLIC: a versioned use literal, the role byte, and this
+/// endpoint's own [`EndpointSpecG::digest`] — a function of the context, the
+/// two plane axes, the two slot indices, the PCS parameters and the scale.
+/// **Nothing computed from the plane's words is in it**, which is what
+/// `s26_tests::the_endpoint_domain_is_a_function_of_the_public_statement_
+/// alone` measures on two commitments to different planes.
+pub(crate) fn seed_domain(spec: &EndpointSpecG, role: EndpointRole) -> Vec<u8> {
+    super::hash_domain::endpoint_seed_domain(role.byte(), &spec.digest())
+}
+
 /// `private_seam.rs:36`'s mask budget, unchanged and for the same reason:
 /// two terminal masks give a full `Fp2`-valued row and three further base
 /// rows are reserved for the separate random proximity combination. This is
@@ -216,12 +256,17 @@ fn check_ntt(spec: &EndpointSpecG, ntt: &NttTables) -> Result<(), String> {
 /// is one of the profile's five commitments, so it hashes under the same rule
 /// as the rest of them — a profile is wholly legacy or wholly tagged, never a
 /// mixture (ruling T-2 as amended).
-pub(crate) fn prepare(spec: &EndpointSpecG, values: &[Fp], ntt: &NttTables, tag: &HashTag) -> Result<PreparedPlaneG, String> {
+pub(crate) fn prepare(spec: &EndpointSpecG, values: &[Fp], ntt: &NttTables, tag: &HashTag, role: EndpointRole) -> Result<PreparedPlaneG, String> {
     check_ntt(spec, ntt)?;
     if values.len() != spec.len() || values.iter().any(|x| x.0 >= P) {
         return Err("general endpoint: wrong length or noncanonical input words".into());
     }
-    let mut rng = ZkRng::from_os(DOMAIN).map_err(|_| "general endpoint: secret entropy unavailable")?;
+    // **STAGE 26 (finding B-1).** The generator's domain is [`seed_domain`]:
+    // a versioned use literal, this endpoint's ROLE byte and its own public
+    // spec digest. Before this stage both endpoints of a statement were
+    // seeded under the byte-identical constant `DOMAIN`, and the two
+    // `/dev/urandom` reads were the only thing separating them.
+    let mut rng = ZkRng::from_os(&seed_domain(spec, role)).map_err(|_| "general endpoint: secret entropy unavailable")?;
     // the frozen seam's `prepare_with_rng` layout, word for word
     // (`private_seam.rs:200-223`), at this spec's parameters
     let n = 1usize << spec.log_n;
@@ -377,7 +422,7 @@ mod tests {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
         let values = plane(spec.len(), 1);
-        let p = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("the generalised endpoint commits");
+        let p = prepare(&spec, &values, &ntt, &HashTag::legacy(), EndpointRole::Input).expect("the generalised endpoint commits");
         let cm = p.commitment();
         assert_eq!((cm.rows, cm.log_cols), (9, 10), "the committed geometry is not the declared one");
         let committed = p.into_endpoint(&spec).expect("the owner opens against its own statement");
@@ -387,7 +432,7 @@ mod tests {
         assert_eq!(&committed.data[..spec.len()], &values[..], "the plane's words are not at the front");
         assert_eq!(committed.zk.q_pad, 256, "the pad count is not the opened-column count");
         // fresh OS entropy per call: the same plane, two different roots
-        let q = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("a second commitment to the same plane");
+        let q = prepare(&spec, &values, &ntt, &HashTag::legacy(), EndpointRole::Input).expect("a second commitment to the same plane");
         assert_ne!(q.commitment().root, cm.root, "two commitments to one plane share a root");
     }
 
@@ -400,10 +445,10 @@ mod tests {
         let values = plane(spec.len(), 1);
         // the same secret stream cannot be replayed, so the honest root is
         // compared against itself through the data, not through two calls
-        let honest = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("honest").into_endpoint(&spec).expect("owner");
+        let honest = prepare(&spec, &values, &ntt, &HashTag::legacy(), EndpointRole::Input).expect("honest").into_endpoint(&spec).expect("owner");
         let mut tampered = values.clone();
         tampered[7] = tampered[7].add(Fp::ONE);
-        let other = prepare(&spec, &tampered, &ntt, &HashTag::legacy()).expect("tampered").into_endpoint(&spec).expect("owner");
+        let other = prepare(&spec, &tampered, &ntt, &HashTag::legacy(), EndpointRole::Input).expect("tampered").into_endpoint(&spec).expect("owner");
         assert_ne!(honest.data[7], other.data[7], "the tampered word is not in the committed matrix");
         assert_ne!(honest.cm.commitment().root, other.cm.commitment().root, "a changed plane word left the root alone");
     }
@@ -423,7 +468,7 @@ mod tests {
             // `the_digest_is_its_own_and_moves_with_every_parameter`
             ("another row width", EndpointSpecG::new(ctx(), 32, 128, 0, 41, 42, 11, 4, 256)),
         ] {
-            let p = prepare(&spec, &values, &ntt, &HashTag::legacy()).expect("the owner commits");
+            let p = prepare(&spec, &values, &ntt, &HashTag::legacy(), EndpointRole::Input).expect("the owner commits");
             // neither `CommittedZk` nor `PreparedPlaneG` is `Debug` (no data
             // getter of any kind), so the refusals are matched, not unwrapped
             let e = match p.into_endpoint(&other.expect("a well-formed other statement")) {
@@ -440,12 +485,12 @@ mod tests {
     fn the_prepare_refusals_fire() {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
-        assert!(prepare(&spec, &plane(spec.len() - 1, 3), &ntt, &HashTag::legacy()).is_err(), "a short plane was committed");
+        assert!(prepare(&spec, &plane(spec.len() - 1, 3), &ntt, &HashTag::legacy(), EndpointRole::Input).is_err(), "a short plane was committed");
         let mut bad = plane(spec.len(), 3);
         bad[0] = Fp(P);
-        assert!(prepare(&spec, &bad, &ntt, &HashTag::legacy()).is_err(), "a noncanonical word was committed");
+        assert!(prepare(&spec, &bad, &ntt, &HashTag::legacy(), EndpointRole::Input).is_err(), "a noncanonical word was committed");
         let small = NttTables::new(spec.enc_log() - 1);
-        let e = match prepare(&spec, &plane(spec.len(), 3), &small, &HashTag::legacy()) {
+        let e = match prepare(&spec, &plane(spec.len(), 3), &small, &HashTag::legacy(), EndpointRole::Input) {
             Ok(_) => panic!("a short NTT table was accepted"),
             Err(e) => e,
         };
@@ -455,6 +500,6 @@ mod tests {
         let seam = SeamSpec::new(ctx(), 32, 128, 0, 41, 42).expect("the frozen spec");
         let wide = NttTables::new(16);
         assert!(private_seam::prepare(&seam, Side::Right, &plane(4_096, 4), &wide).is_err(), "the frozen seam accepted a 2^16 table");
-        assert!(prepare(&spec, &plane(spec.len(), 4), &wide, &HashTag::legacy()).is_ok(), "the generalised endpoint refused a wider canonical table");
+        assert!(prepare(&spec, &plane(spec.len(), 4), &wide, &HashTag::legacy(), EndpointRole::Input).is_ok(), "the generalised endpoint refused a wider canonical table");
     }
 }

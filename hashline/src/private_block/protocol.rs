@@ -483,7 +483,16 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     let lay = Layout::for_shape(sh)?;
     let [ein, eout] = check_endpoints(sh, expected, endpoints)?;
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
-    let mut rng = ZkRng::from_os(sh.profile.as_bytes()).map_err(|e| format!("private block randomness: {e}"))?;
+    //
+    // **STAGE 26 (the ruling on finding B-1).** The domain is
+    // `hash_domain::single_block_seed_domain(sh)`: at a TAGGED profile a
+    // versioned use literal, the single-block prover's role byte and this
+    // profile's string, so that the stream is separated from the two
+    // endpoint generators' by its bytes and not only by its entropy read; at
+    // the two FROZEN legacy-rule profiles (the byte-frozen toy and the
+    // frozen-seam rung) it is the bare profile string this line has always
+    // passed, unchanged. Every field of it is PUBLIC.
+    let mut rng = ZkRng::from_os(&super::hash_domain::single_block_seed_domain(sh)).map_err(|e| format!("private block randomness: {e}"))?;
     ph.mark(Half::Setup, "setup: layout, endpoint owners, OS randomness", (lay.a_rows + lay.h_rows) as u64, "A+H rows");
     let ntt = NttTables::new(ntt_log_at(sh));
     ph.mark(Half::Setup, "setup: NTT tables", 1u64 << ntt_log_at(sh), "domain");

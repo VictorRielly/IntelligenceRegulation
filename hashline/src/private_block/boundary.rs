@@ -168,6 +168,12 @@ impl BoundarySpec {
     pub(crate) fn sites(&self) -> usize {
         self.sites
     }
+    /// Which internal boundary of the run this is (`1 ..= L - 1`) — a PUBLIC
+    /// word of the run's statement. **STAGE 26** reads it here so that a
+    /// boundary's generator domain can carry it as a fixed-width index.
+    pub(crate) fn index(&self) -> u64 {
+        self.index
+    }
     pub(crate) fn scale(&self) -> i32 {
         self.scale
     }
@@ -312,6 +318,22 @@ fn check_ntt(spec: &BoundarySpec, ntt: &NttTables) -> Result<(), String> {
 /// by `run::prove_run` from its own statement. An internal boundary is one of
 /// the run's commitments, so it hashes under the same rule as the rest of
 /// them (ruling T-2 as amended: no mixtures within a profile).
+///
+/// **STAGE 26 (the ruling on finding B-1), and why this function is the ONE
+/// commitment on the path with no generator of its own.** The ruling gives
+/// every generator a domain that says what it is for, and a boundary has
+/// none to give a domain to: `rng` is the caller's, by the design above, and
+/// `s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_
+/// from_the_operating_system` fails if this file ever grows a generator
+/// construction of its own — which is why the call is NOT spelled in this
+/// comment, exactly as `endpoint_g.rs` does not spell the frozen seam's
+/// domain label: the scans read this file's source and a citation is
+/// indistinguishable from a call. The domain a boundary WOULD use is written
+/// anyway — `hash_domain::boundary_seed_domain(index, spec.digest())`, the
+/// use literal, the boundary index as a `u64` and the public spec digest —
+/// so that the day a boundary needs its own stream the domain exists, is
+/// separated from every other one in the run, and cannot be improvised out
+/// of the nearest constant.
 pub(crate) fn prepare(spec: &BoundarySpec, values: &[Fp], ntt: &NttTables, rng: &mut ZkRng, tag: &HashTag) -> Result<PreparedBoundary, String> {
     check_ntt(spec, ntt)?;
     if values.len() != spec.len() || values.iter().any(|x| x.0 >= P) {
@@ -356,6 +378,22 @@ mod tests {
 
     fn plane(len: usize, seed: u64) -> Vec<Fp> {
         (0..len).map(|i| Fp::from_i64(((i as u64).wrapping_mul(2_654_435_761).wrapping_add(seed) % 4_096) as i64 - 2_048)).collect()
+    }
+
+    /// **STAGE 26.** The generator these tests hand [`prepare`], seeded under
+    /// this boundary's OWN domain
+    /// ([`super::super::hash_domain::boundary_seed_domain`]: the use literal,
+    /// the boundary index and the public spec digest).
+    ///
+    /// Until this stage the six sites below seeded the generator with
+    /// `DOMAIN`, the module's spec-digest domain LABEL — the same 43 bytes at
+    /// every boundary of every run, and a second use of a string that means
+    /// something else. In PRODUCTION nothing is affected either way: a
+    /// boundary never makes a generator, it is handed the run's one stream
+    /// (`prepare`'s doc comment), which is why this builder has no production
+    /// call site and is exercised here.
+    fn test_generator(spec: &BoundarySpec) -> ZkRng {
+        ZkRng::from_os(&super::super::hash_domain::boundary_seed_domain(spec.index(), &spec.digest())).expect("secret entropy")
     }
 
     /// **THE DERIVED GEOMETRY, at both shapes the run will use.**
@@ -460,7 +498,7 @@ mod tests {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
         let values = plane(spec.len(), 1);
-        let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
+        let mut rng = test_generator(&spec);
         let p = prepare(&spec, &values, &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let cm = p.commitment();
         assert_eq!((cm.rows, cm.log_cols), (10, 10), "the committed geometry is not the derived one");
@@ -478,7 +516,7 @@ mod tests {
     fn a_prepared_boundary_refuses_a_different_statement() {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
-        let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
+        let mut rng = test_generator(&spec);
         let other = BoundarySpec::new(ctx(), 32, 128, 0, 2, 2, 10, 4, 256, 10).expect("the next boundary of the same run");
         let p = prepare(&spec, &plane(spec.len(), 2), &ntt, &mut rng, &HashTag::legacy()).expect("the owner commits");
         let mut tr = Transcript::new(b"boundary test: a foreign statement");
@@ -495,7 +533,7 @@ mod tests {
     fn the_prepare_refusals_fire() {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
-        let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
+        let mut rng = test_generator(&spec);
         assert!(prepare(&spec, &plane(spec.len() - 1, 3), &ntt, &mut rng, &HashTag::legacy()).is_err(), "a short plane was committed");
         let mut bad = plane(spec.len(), 3);
         bad[0] = Fp(P);
@@ -546,7 +584,7 @@ mod tests {
     fn one_opening_carries_two_claims_at_two_points_and_verifies() {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
-        let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
+        let mut rng = test_generator(&spec);
         let values = plane(spec.len(), 5);
         let owner = prepare(&spec, &values, &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let cm = owner.commitment();
@@ -581,7 +619,7 @@ mod tests {
     fn two_boundary_claims_at_one_point_trip_the_declared_group_count() {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
-        let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
+        let mut rng = test_generator(&spec);
         let owner = prepare(&spec, &plane(spec.len(), 6), &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let p = test_point(&spec, 3);
         let claims = vec![true_claim(&spec, owner.data(), 0, &p, Fp2::ONE), true_claim(&spec, owner.data(), 1, &p, Fp2::U)];
@@ -597,7 +635,7 @@ mod tests {
     fn a_boundary_opening_on_a_shared_pair_is_refused() {
         let spec = rung_g_spec();
         let ntt = NttTables::new(spec.enc_log());
-        let mut rng = ZkRng::from_os(DOMAIN).expect("secret entropy");
+        let mut rng = test_generator(&spec);
         let owner = prepare(&spec, &plane(spec.len(), 7), &ntt, &mut rng, &HashTag::legacy()).expect("the boundary commits");
         let (p0, p1) = (test_point(&spec, 4), test_point(&spec, 5));
         let claims = vec![true_claim(&spec, owner.data(), 0, &p0, Fp2::ONE), true_claim(&spec, owner.data(), 0, &p1, Fp2::U)];

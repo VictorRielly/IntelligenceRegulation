@@ -513,7 +513,14 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
     let mut eout = Some(eout);
     // ONE OS stream per run; an entropy failure aborts the run, at any stage,
     // before anything of that stage is public.
-    let mut rng = ZkRng::from_os(st.rs.profile.as_bytes()).map_err(|e| format!("private run randomness: {e}"))?;
+    //
+    // **STAGE 26 (the ruling on finding B-1).** The domain is
+    // `hash_domain::run_seed_domain(profile)`: a versioned use literal that
+    // says what the stream is (ONE stream for the whole run, handed to every
+    // stage and every internal boundary), the run prover's role byte and the
+    // RUN profile string — all public, and separated by their bytes from the
+    // two endpoint generators' domains and from a single block's.
+    let mut rng = ZkRng::from_os(&super::hash_domain::run_seed_domain(st.rs.profile)).map_err(|e| format!("private run randomness: {e}"))?;
     // STAGE 17 (ruling T-1): this run's hash tag, from its own shape.
     let tag = sh.hash_tag();
     let ntt = NttTables::new(st.rs.ntt_log());

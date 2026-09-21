@@ -135,6 +135,144 @@ const SEAM_SPEC_INPUT: usize = SEAM_DOMAIN + DIGEST + 8 * 8 + 4;
 /// and then one 32-byte block digest per block — `run.rs:220-228` (D4).
 const RUN_PUBLIC_FIXED: usize = 29;
 
+// ------------------------------------------- STAGE 26: the GENERATORS' seed
+// derivation DOMAINS, one per use.
+//
+// **THE RULING** (`ZK60_TOY_ROUTE_A_REEXAMINATION.md` finding **B-1**,
+// `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` §9 item 6). A generator is
+// `ZkRng::from_os(domain)`, whose seed is `blake3_keyed(entropy32,
+// b"hashline-zk-os-rng/v1/" ‖ domain)` (`zkp-core/src/rng.rs:44-51`, which
+// this lane does not edit and only CALLS). At the frozen toy the two
+// ENDPOINT generators are handed a BYTE-IDENTICAL domain, so the two
+// `/dev/urandom` reads are the only thing separating them: if the two reads
+// ever agreed, the two endpoint commitments would share every pad, salt and
+// mask row. The ruling is that **at every UNFROZEN profile the domain
+// carries what the generator is for** —
+//
+// ```text
+// domain = <versioned use literal> ‖ <role byte or index, fixed width>
+//          ‖ <a PUBLIC spec digest, or the profile string>
+// ```
+//
+// so that the independence assumption has a structural backstop, and (a side
+// benefit) the generalised endpoint's derivation input stops being exactly
+// **64** bytes — the length of a Merkle node and of a salted leaf.
+//
+// **THE CAPTURE RULE, stated where the bytes are built.** Every field of
+// every domain below is PUBLIC: a fixed literal, a role byte or a boundary
+// index, a profile string, or a STATEMENT digest (`EndpointSpecG::digest`,
+// `BoundarySpec::digest`) which is a function of the context, the shape
+// numbers and the scale and of nothing else. **No witness value, no
+// committed plane and no commitment ROOT enters a domain** — a root is a
+// function of hidden data, and a domain is not a place to put one.
+//
+// **WHAT IS FROZEN AND STAYS SO.** The frozen toy and the frozen-seam
+// development rung ([`Shape::hashes_under_the_legacy_rule`]) keep the bare
+// profile string they pass today, and `private_seam.rs`'s own 28-byte
+// `DOMAIN` is in a file this lane may not edit. The split is therefore
+// exactly legacy-rule (frozen) against tagged (unfrozen), which is also why
+// the legacy length guard's seed rows below cannot move.
+
+/// role `0x00` — the EXTERNAL INPUT endpoint's generator.
+pub(crate) const ROLE_ENDPOINT_IN: u8 = 0x00;
+/// role `0x01` — the EXTERNAL OUTPUT endpoint's generator. The ONE byte that
+/// separates the two endpoints of a geometry whose two spec digests agree.
+pub(crate) const ROLE_ENDPOINT_OUT: u8 = 0x01;
+/// role `0x02` — the single-block prover's one stream (`protocol.rs`).
+pub(crate) const ROLE_SINGLE_BLOCK_PROVER: u8 = 0x02;
+/// role `0x03` — the multi-block run prover's one stream (`run.rs`), which
+/// every stage and every internal boundary of the run draws from.
+pub(crate) const ROLE_RUN_PROVER: u8 = 0x03;
+
+/// 44 bytes. `‖ role(1) ‖ EndpointSpecG::digest()(32)` = a 77-byte domain and
+/// a **99**-byte derivation input.
+const SEED_USE_ENDPOINT_G: &[u8] = b"hashline-zk-rng/private-block/endpoint-g/v1/";
+/// 46 bytes. `‖ index(8, u64 LE) ‖ BoundarySpec::digest()(32)` = an 86-byte
+/// domain and a **108**-byte derivation input.
+const SEED_USE_BOUNDARY: &[u8] = b"hashline-zk-rng/private-block/run-boundary/v1/";
+/// 47 bytes. `‖ role(1) ‖ the block profile string` — 116 / 117 / 106 bytes
+/// of derivation input at the rung-G, rung-K4 and 125M profiles.
+const SEED_USE_SINGLE_BLOCK: &[u8] = b"hashline-zk-rng/private-block/single-prover/v1/";
+/// 58 bytes, and it says what the stream is: ONE stream for the whole run,
+/// handed to every stage and every boundary. `‖ role(1) ‖ the run profile
+/// string` — 125 / 126 / 115 bytes of derivation input.
+const SEED_USE_RUN: &[u8] = b"hashline-zk-rng/private-block/one-stream-per-whole-run/v1/";
+
+/// **The generalised endpoint's generator domain** (`endpoint_g::prepare`).
+/// `role` is [`ROLE_ENDPOINT_IN`] or [`ROLE_ENDPOINT_OUT`]; `spec_digest` is
+/// [`super::endpoint_g::EndpointSpecG::digest`], a public function of the
+/// context, the plane's two axes, the two slot indices, the PCS parameters
+/// and the scale. The role byte is what separates the two endpoints of a
+/// geometry whose digests agree — which is finding B-1's whole point.
+pub(crate) fn endpoint_seed_domain(role: u8, spec_digest: &[u8; 32]) -> Vec<u8> {
+    // STAGE 26, STEP 1 — the bytes the call site passes TODAY, so that the
+    // stage's tests measure the code before the ruling is applied rather than
+    // a description of it. Step 2 replaces this body.
+    let _ = (role, spec_digest, SEED_USE_ENDPOINT_G);
+    b"hashline/private-block/general-endpoint/v1".to_vec()
+}
+
+/// **An internal boundary's generator domain.** `index` is the boundary's own
+/// `1 ..= L - 1` (`BoundarySpec::index`) and `spec_digest` is
+/// [`super::boundary::BoundarySpec::digest`].
+///
+/// **There is NO production generator behind this today, deliberately.**
+/// `boundary::prepare` takes `&mut ZkRng` from the caller so that a run draws
+/// its `L - 1` boundaries from the ONE stream `prove_run` makes (the memo's
+/// A-20 item 2, pinned by `s25_tests::no_profile_on_this_path_can_obtain_a_
+/// generator_other_than_from_the_operating_system`). This builder is what a
+/// boundary that ever seeds its own generator must use, and it is what the
+/// module's own tests use in place of reusing the spec-digest domain label.
+pub(crate) fn boundary_seed_domain(index: u64, spec_digest: &[u8; 32]) -> Vec<u8> {
+    // STAGE 26, STEP 1 — today's bytes (the module's spec-digest domain
+    // label, which its own tests reuse as a generator domain). Step 2
+    // replaces this body.
+    let _ = (index, spec_digest, SEED_USE_BOUNDARY);
+    b"hashline/private-block/internal-boundary/v1".to_vec()
+}
+
+/// **The single-block prover's generator domain** (`protocol::prove_inner_at`).
+///
+/// **FROZEN PROFILES ARE RETURNED UNCHANGED**: the byte-frozen toy and the
+/// frozen-seam development rung get the bare profile string they have always
+/// been given, so not one byte of their derivation input moves. Every tagged
+/// profile gets the use literal, the role byte and the same profile string.
+pub(crate) fn single_block_seed_domain(sh: &Shape) -> Vec<u8> {
+    // STAGE 26, STEP 1 — today's bytes at EVERY profile. Step 2 replaces this
+    // body and keeps the two frozen profiles on this line.
+    let _ = (SEED_USE_SINGLE_BLOCK, ROLE_SINGLE_BLOCK_PROVER);
+    sh.profile.as_bytes().to_vec()
+}
+
+/// **The run prover's generator domain** (`run::prove_run`): the ONE stream a
+/// run makes, under the RUN profile string and never the block's. Every
+/// registered run profile is tagged — there is no legacy-rule run — and
+/// `s26_tests::the_two_frozen_profiles_keep_the_domains_they_have` asserts it,
+/// so this needs no frozen branch.
+pub(crate) fn run_seed_domain(run_profile: &str) -> Vec<u8> {
+    // STAGE 26, STEP 1 — today's bytes. Step 2 replaces this body.
+    let _ = (SEED_USE_RUN, ROLE_RUN_PROVER);
+    run_profile.as_bytes().to_vec()
+}
+
+/// The generalised endpoint's seed-derivation INPUT length, taken from the
+/// domain builder itself so that the two can never drift apart.
+pub(crate) fn endpoint_seed_input_len() -> usize {
+    SEED_FIXED + endpoint_seed_domain(ROLE_ENDPOINT_IN, &[0u8; 32]).len()
+}
+/// An internal boundary's seed-derivation input length, ditto.
+pub(crate) fn boundary_seed_input_len() -> usize {
+    SEED_FIXED + boundary_seed_domain(0, &[0u8; 32]).len()
+}
+/// The single-block prover's seed-derivation input length at this shape.
+pub(crate) fn single_block_seed_input_len(sh: &Shape) -> usize {
+    SEED_FIXED + single_block_seed_domain(sh).len()
+}
+/// The run prover's seed-derivation input length at this run profile.
+pub(crate) fn run_seed_input_len(run_profile: &str) -> usize {
+    SEED_FIXED + run_seed_domain(run_profile).len()
+}
+
 /// The run facts a RUN's hash-input set needs and a block's does not: the
 /// transcript domain its generator is seeded from, how many blocks its public
 /// statement digests, and its own `parameters` line.
@@ -175,17 +313,19 @@ fn statement_class(sh: &Shape, run: Option<&RunFacts<'_>>) -> Vec<(usize, String
     // the check's B-9.2 as ruling J-7 records it, re-derived here from the
     // two call sites.
     if run.is_none() {
-        out.push((SEED_FIXED + sh.profile.len(), format!("the generator's seed derivation at profile `{}` (R1, protocol.rs:486)", sh.profile)));
+        // STAGE 26: the length is taken from the DOMAIN BUILDER, so the guard
+        // cannot drift from the bytes `protocol.rs` passes.
+        out.push((single_block_seed_input_len(sh), format!("the generator's seed derivation at profile `{}` (R1, protocol.rs)", sh.profile)));
     }
     if sh.endpoint_general {
         out.push((ENDPOINT_SPEC_INPUT, "the generalised endpoint's spec digest (D6, endpoint_g.rs:157)".to_string()));
-        out.push((SEED_FIXED + ENDPOINT_G_DOMAIN, "the generator's seed derivation at the generalised endpoint (R1, endpoint_g.rs:224)".to_string()));
+        out.push((endpoint_seed_input_len(), "the generator's seed derivation at the generalised endpoint (R1, endpoint_g.rs)".to_string()));
     } else {
         out.push((SEAM_SPEC_INPUT, "the frozen seam's spec digest (D8, private_seam.rs:115)".to_string()));
         out.push((SEED_FIXED + SEAM_DOMAIN, "the generator's seed derivation at the frozen seam (R1, private_seam.rs:196)".to_string()));
     }
     if let Some(r) = run {
-        out.push((SEED_FIXED + r.profile.len(), format!("the generator's seed derivation at run profile `{}` (R1, run.rs:510)", r.profile)));
+        out.push((run_seed_input_len(r.profile), format!("the generator's seed derivation at run profile `{}` (R1, run.rs)", r.profile)));
         out.push((RUN_PUBLIC_FIXED + DIGEST * r.l, format!("the run's public statement digest over {} blocks (D4, run.rs:220)", r.l)));
         if r.l > 1 {
             out.push((BOUNDARY_SPEC_INPUT, "an internal boundary's spec digest (D7, boundary.rs:210)".to_string()));
@@ -434,7 +574,7 @@ pub(crate) fn full_shape_free() -> HashInputs {
     h.add(ENDPOINT_SPEC_INPUT, "the generalised endpoint's spec digest (D6, endpoint_g.rs:157)".to_string());
     h.add(BOUNDARY_SPEC_INPUT, "an internal boundary's spec digest (D7, boundary.rs:210)".to_string());
     h.add(SEED_FIXED + SEAM_DOMAIN, "the generator's seed derivation at the frozen seam (R1, private_seam.rs:196)".to_string());
-    h.add(SEED_FIXED + ENDPOINT_G_DOMAIN, "the generator's seed derivation at the generalised endpoint (R1, endpoint_g.rs:224)".to_string());
+    h.add(endpoint_seed_input_len(), "the generator's seed derivation at the generalised endpoint (R1, endpoint_g.rs)".to_string());
     h
 }
 
