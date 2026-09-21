@@ -728,6 +728,86 @@ fn the_dense_witness_equals_the_reference_kernel_at_the_rung_p2() {
     eprintln!("private block DENSE reference agreement at {}: every kernel-backed plane agrees element for element, and the block output agrees on all {} words", s.name, out.len());
 }
 
+/// **STAGE 31: THE REFERENCE AGREEMENT AT `Shape::rung_c6`, WHERE THE NORM
+/// WINDOW FILLS ITS TOP BYTE LIMB.**
+///
+/// The same independent `private-block-kernel-shaped` crate, unchanged,
+/// takes 32 tokens of width 384 and hidden 512 over twelve query heads of
+/// THIRTY-TWO in four key-value groups. It is the GENERIC honest witness
+/// the security owner's acceptance rule asks for at this shape — fully
+/// dense public weights, a non-constant hidden input, four key-value groups
+/// carrying pairwise different rotated keys — checked plane by plane
+/// against an implementation that shares no line with the lane's witness
+/// builder.
+///
+/// **What is new here and nowhere else.** At this width the norm's own
+/// arithmetic is different: `D_max = isqrt(1 + 384 * 32767^2) = 642,099`
+/// needs 20 bits, so `norm_wrho` is 32 and the remainder fills all four of
+/// its byte limbs. The reference kernel computes the remainder from the
+/// shape's window with no knowledge of limbs at all, and the witness
+/// builder decomposes it into four; **`compare_shaped` is therefore the
+/// statement that the four-limb decomposition at a FULL top byte still
+/// reconstructs the kernel's own `rho` and `sigma`** — the completeness
+/// side of correction C-6, beside the soundness side that
+/// `c6_tests::the_lookup_c6_drops_is_a_duplicate_of_one_that_stays` makes.
+/// This is also the filter's first agreement at `head_dim = 32`, so the
+/// RoPE partner bit sits at `log - 5` rather than `log - 3`.
+#[test]
+fn the_dense_witness_equals_the_reference_kernel_at_the_rung_c6() {
+    let s = Shape::rung_c6();
+    assert_eq!((s.tokens, s.width, s.hidden), (32, 384, 512), "this test is about the full-top-byte geometry");
+    assert_eq!((s.q_heads, s.kv_heads, s.head_dim), (12, 4, 32), "this test is about the widened head axis");
+    assert!(s.norm_top_is_full_byte(), "this test is about the arm where the norm window fills its top limb");
+    assert_eq!((s.norm_wrho, s.limbs_norm()), (32, 4), "the norm window and its limb count");
+    let (d, f) = (s.width, s.hidden);
+    let (words, input) = super::dense_tests::dense_words(&s);
+    let c = shaped_case_from_words(&s, words, input);
+    let (kernel, tbuf) = run_kernel_shaped(&s, &c);
+    let wit = witness::build_shaped(&s, &c.public, &c.ff, &c.input);
+    let (out, w) = match (kernel, wit) {
+        (Ok(out), Ok(w)) => (out, w),
+        (Err(e), Ok(_)) => panic!("the rung-C6 dense witness was accepted where the reference kernel refused ({e})"),
+        (Ok(_), Err(m)) => panic!("the rung-C6 dense witness refused (`{m}`) where the reference kernel accepted"),
+        (Err(e), Err(m)) => panic!("both refused the rung-C6 dense recipe: kernel `{e}`, witness `{m}`"),
+    };
+    let ksh = kernel_shape(&s);
+    for (p, name) in [(kshaped::Part::G8, "g8"), (kshaped::Part::U16, "u16"), (kshaped::Part::A16, "a16"), (kshaped::Part::H16, "h16")] {
+        let (o, n) = ksh.part(p);
+        let nz = (0..n).filter(|k| k % f >= d && tbuf[o + k] != 0).count();
+        assert!(nz > 0, "the reference kernel's {name} is identically zero on the upper hidden half [{d}, {f})");
+    }
+    {
+        let (o, n) = ksh.part(kshaped::Part::Kr8);
+        let kvw = s.kv_heads * s.head_dim;
+        assert_eq!(n, s.tokens * kvw, "the kernel's kr8 buffer is not (tokens, kv_heads * head_dim)");
+        for a in 0..s.kv_heads {
+            for b in a + 1..s.kv_heads {
+                let differs = (0..s.tokens).flat_map(|t| (0..s.head_dim).map(move |i| (t, i))).any(|(t, i)| tbuf[o + t * kvw + a * s.head_dim + i] != tbuf[o + t * kvw + b * s.head_dim + i]);
+                assert!(differs, "the reference kernel's key-value groups {a} and {b} carry identical rotated keys");
+            }
+        }
+    }
+    compare_shaped(&s, &w, &tbuf, 0);
+    // THE C-6 STATEMENT ON THE WITNESS: the four-limb decomposition really
+    // uses its top limb, and it recomposes to a value inside the window
+    let ids = Ids::new(&s).expect("the rung-C6 plane map");
+    let sup = Geom::new(&s).support(Dom::D);
+    let ln = s.limbs_norm();
+    for (name, planes) in [("norm_a rho", (0..ln).map(|k| ids.nr(k)).collect::<Vec<usize>>()), ("norm_a sigma", (0..ln).map(|k| ids.ns(k)).collect()), ("norm_m rho", (0..ln).map(|k| ids.mr(k)).collect()), ("norm_m sigma", (0..ln).map(|k| ids.ms(k)).collect())] {
+        let top = planes[ln - 1];
+        assert!(sup.iter().any(|i| w.planes[top][*i] != 0), "{name}'s TOP limb is identically zero, so this shape does not exercise C-6's obligation");
+        for i in sup.iter().take(4096) {
+            let v: i128 = planes.iter().enumerate().map(|(k, p)| i128::from(w.planes[*p][*i]) * 256i128.pow(k as u32)).sum();
+            assert!((0..1i128 << s.norm_wrho).contains(&v), "{name} recomposes to {v}, outside the 2^{} window", s.norm_wrho);
+            assert!(planes.iter().all(|p| (0..256).contains(&w.planes[*p][*i])), "{name} has a limb outside its byte range on an honest witness");
+        }
+    }
+    let dmap = Geom::new(&s).support(Dom::D);
+    let mine: Vec<i16> = dmap.iter().map(|i| w.planes[A_X2][*i] as i16).collect();
+    assert_eq!(&mine[..], &out[..], "the rung-C6 dense block output differs from the reference kernel's");
+    eprintln!("private block DENSE reference agreement at {}: every kernel-backed plane agrees element for element, the block output agrees on all {} words, and all four norm remainders use their top byte limb", s.name, out.len());
+}
+
 /// THE GROUP STRUCTURE IN THE WITNESS, as a property and not a literal
 /// (step S7's permanent regression test).
 ///
