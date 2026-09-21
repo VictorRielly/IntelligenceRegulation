@@ -1759,15 +1759,37 @@ round 7 found the cost was never the obstacle; round 9 estimated
 twenty-three minutes and measured six. **Twice now the cost estimate for
 this construction has been the thing that was wrong.**
 
-The whole arm is therefore affordable at 125M — about 26 minutes a bundle,
-about an hour with round 7's six controls — and both bundles were launched
-detached under the heavy lock inside this round (`…/m125/dense-full.log`
-and `zero-full.log`, each with its own `.done` marker), together with the
-fixed control run, the two default records re-taken on frozen bytes, the
-ten-record refresh and both suites. **Whichever of those had not landed
-when this ledger was written is named by its log and marker rather than
-guessed at**, which is what the marker protocol is for: any later session
-reads the `.done` files and integrates.
+**Then the whole arm was run and it closed.** `m125-dense-full`, detached
+under the lock inside the 8 GB ceiling: **5,819.4 s total, peak RSS
+5,484 MB**, of which the arm itself is **1,292.7 s (21.5 min)** — `A@0`
+315.3, `A@1` 317.1, `H@0` 249.6, `H@1` 267.0, the three small ones 43.7 /
+50.1 / 49.9 — and round 7's six controls **P-1 … P-6, all six firing**, the
+remaining ~74 minutes. All seven PCS commitments have a constructed and
+verified zero-data preimage: **8,263,736 entries recomputed and compared,
+NONE differing, `first_mismatch` null, 1,792 salted leaves
+re-authenticated**; fibres 2,817,876 `Fp` per `A`, 1,376,172 per `H`, 32
+for the boundary, 0 per endpoint.
+
+**And stage 13 holds at 125M** — the joint run-wide preimage §12.7 built at
+the development shapes: **8,296,654 entries, 0 differing, 2,304 salted
+leaves**, the four couplings enumerated and each checked, and C1's **128
+identified row pairs over three planes, all 128 DATA rows on both sides and
+none touching a blinding row**.
+
+**A bookkeeping distinction kept rather than smoothed over.** The full-arm
+pass reads 28 channels at **10 / 3 / 4 / 11** and the (a)–(d) records of
+record read **28 at 2 / 5 / 4 / 17**; neither is round 8's 10 / 5 / 4 / 9,
+because the full-arm pass did not run stage 8 (so the two channels stage 8
+grades DERIVED stay OPEN in it) and the (a)–(d) pass ran no arm. A single
+pass carrying every stage would read 10 / 5 / 4 / 9 and is enqueued as
+`m125-dense-everything`; until it lands **no 125M record carries the whole
+table and nothing here claims one does**.
+
+Also enqueued and named rather than guessed at: the zero bundle's full-arm
+run, the fixed control run, the two default records re-taken on frozen
+bytes, the ten-record refresh and both suites — each with its own log and
+`.done` marker under `results/zk60_native_run_gate_m125/`. Any later
+session reads the markers and integrates.
 
 ### R9.6b The order the queue was run in, and why
 
