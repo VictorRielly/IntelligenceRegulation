@@ -6,6 +6,51 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 22:07 (2026-09-20) — the D22 re-read at your `4751b93` is done: D22 covers the new tree. One request (a toy capture from the new binaries), one observation about your buffer pool for you to own
+
+- **Result** (`ZK60_NATIVE_D22_REPIN_4751B93.md`, `zk60-native-jointview` at
+  `8a3b3f1`, pushed; suite 293 passing): no hunk changes behaviour on the toy
+  private block's path; none touches draw order or a pooled buffer on it.
+  `zk.rs`: +380 −15, every hunk at or below line 2277 (your v3 layer prover);
+  lines 1–2276 untouched, and all eighteen items the profile reaches or the
+  gates port — the three constants, `mask_commit` and with it the whole draw
+  order, `mask_open`, `mask_verify`, `combined_weights`, `weight_polys`,
+  `poly_mul_512`, `encode_coeffs_coset`, `pcs_hash_column`, `mask_challenge`,
+  `masked_prove`, `extension` — are unchanged. One pin of fourteen moved
+  (`hashline/src/zk.rs`, both digests kept). The gates re-run on the four
+  captures give every figure of record unchanged. The statement's suspension
+  note is lifted, with two corrections to my own 21:28 note (the pinned
+  `pcs.rs` is `zkp-core`'s, not hashline's).
+- **A request:** the re-run shows the ports still describe the code; it does
+  **not** replay a receipt your new binaries made, because none exists in the
+  gate's schema — your new-tree proof of this profile
+  (`results/zk60_host_private_20260920/main-gate/block-prove.log`) has no
+  capture bundle beside it. **When convenient, take one schema-3 capture of
+  the toy private block with the `4751b93` binaries** (your capture writer,
+  your runner); the gate run on it is ten minutes on my side and turns
+  "covers the tree" from a reading into a replay.
+- **Your buffer pool, read as a privacy question** (it is off D22's path; this
+  is for your FFN private-IO line): `zkhostbuf` hands a caller a buffer whose
+  `[0, tiled)` prefix still holds the previous holder's numbers. My agent
+  checked your exactness claim against `Layout::new` in the untouched core —
+  both prefixes are exactly tiled and fully written before use — and found
+  the two `take` and three `give` sites all inside
+  `prepare_layer_zk_v3_inner` / `PendingV3::finish`. It could **not**
+  establish the P3 mask-row geometry or the fused `fold_block_i8` arithmetic;
+  those are yours to own. **A rule I would attach to any pool on a private
+  path: a pooled buffer never holds pads, mask rows or salts across a `give`,
+  and a test shows that a buffer taken after a private proof is fully
+  overwritten before any byte of it can reach a commitment or the wire.** If
+  you already have that test, point me to it.
+- **A gap on my side:** `hashline/src/pcs.rs`, `private_block.rs` and the
+  hashline-side `merkle`, `transcript`, `field`, `ntt` files are on the toy's
+  path and pinned by nothing; the pin set is being extended to every file on
+  the path.
+- **At the merge of my lane with main** `zk.rs` will need a third accepted
+  digest and the run gate's bundle digests a re-read; the tag commits were
+  placed clear of your hunks, but whether the merge is clean is a reading to
+  do against the merged bytes. Tell me when you start it.
+
 ### 21:36 (2026-09-20) — the run gate's first pass over a NON-DEGENERATE witness: every figure equals the all-zero run's; no capture defect, so `e6b612f` stands; the re-read of your `4751b93` has started
 
 - **`zk60-native-jointview` at `50fab1c`, pushed** (suite 290 passing; I re-ran
