@@ -90,6 +90,110 @@ const RUN_SHAPE_BYTES: usize = 7 * 8;
 /// One `Fp2` on the wire and in a transcript is 16 bytes.
 const FP2: usize = 16;
 
+// ------------------------------------------- STAGE 25 (W-4): the STATEMENT
+// class and the GENERATOR's seed derivation. Every length below is a hash
+// input on this path that is NOT a transcript operation and NOT a column
+// digest — the statement digests D1 … D8 of
+// `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md` §5 and the generator's seed
+// derivation R1 — and none of them was in the set stage 16 computed. Ruling
+// **J-7** keeps work-list item W-4 although the check's B-9.3 narrows the
+// hazard to a frozen legacy geometry: *cheap and right*.
+//
+// The literals are RETYPED here, because two of the three modules that spell
+// them (`private_seam.rs` in particular) are outside this lane's write set
+// and a sibling module cannot see a private `const`. Each one is pinned to
+// its source TEXT by `s25_tests::the_statement_class_lengths_are_the_ones_
+// the_code_hashes`, exactly as the three `zkp-core` hasher bodies are.
+
+/// `ZkRng::from_entropy_reader` hashes `b"hashline-zk-os-rng/v1/" ‖ domain`
+/// under a key of 32 raw `/dev/urandom` bytes — `zkp-core/src/rng.rs:47-49`.
+/// So a seed derivation's input is `22 + |domain|` bytes.
+const SEED_FIXED: usize = 22;
+
+/// `calibration_identity()` hashes the 30-byte literal
+/// `b"B3 public fixed calibration v1"` — `private_block.rs:229` (D1).
+const CALIBRATION_INPUT: usize = 30;
+
+/// `EndpointSpecG::digest` — `endpoint_g.rs:157-165` (D6): a 42-byte `DOMAIN`,
+/// a 32-byte context, eight `u64` and one `i32`.
+const ENDPOINT_G_DOMAIN: usize = 42;
+const ENDPOINT_SPEC_INPUT: usize = ENDPOINT_G_DOMAIN + DIGEST + 8 * 8 + 4;
+
+/// `BoundarySpec::digest` — `boundary.rs:210-222` (D7): a 43-byte `DOMAIN`, a
+/// 32-byte context, NINE `u64` and one `i32`.
+const BOUNDARY_DOMAIN: usize = 43;
+const BOUNDARY_SPEC_INPUT: usize = BOUNDARY_DOMAIN + DIGEST + 9 * 8 + 4;
+
+/// `SeamSpec::digest` — `private_seam.rs:115-132` (D8): a 28-byte `DOMAIN`, a
+/// 32-byte context, eight `u64` and one `i32`. **This is the 128 that makes a
+/// 16-row commitment dangerous under the legacy rule** (the check's B-9, as
+/// narrowed by J-7).
+const SEAM_DOMAIN: usize = 28;
+const SEAM_SPEC_INPUT: usize = SEAM_DOMAIN + DIGEST + 8 * 8 + 4;
+
+/// `RunStatement::public_statement` hashes `b"hashline/private-run-blocks/1"`
+/// and then one 32-byte block digest per block — `run.rs:220-228` (D4).
+const RUN_PUBLIC_FIXED: usize = 29;
+
+/// The run facts a RUN's hash-input set needs and a block's does not: the
+/// transcript domain its generator is seeded from, how many blocks its public
+/// statement digests, and its own `parameters` line.
+pub(crate) struct RunFacts<'a> {
+    pub profile: &'a str,
+    pub l: usize,
+    pub parameter_line: &'a str,
+}
+
+/// **STAGE 25, W-4.** The statement-class and generator-class hash inputs of
+/// one profile's path, each with a plain-words description. Everything here
+/// is a PUBLIC length: a digest's input layout and a profile string's length.
+///
+/// **What is in it**: D1 the calibration identity; D6/D7/D8 the three spec
+/// digests (which one is live depends on the endpoint the shape carries and
+/// on whether this is a run); D4 the run's public statement; R1 the seed
+/// derivation at every `ZkRng::from_os` domain on the path — the block
+/// prover's (`protocol.rs:486`), the run's (`run.rs:510`), the generalised
+/// endpoint's (`endpoint_g.rs:224`, the **64** the memo's B-2(a) is about)
+/// and the frozen seam's (`private_seam.rs:196`).
+///
+/// **What is deliberately NOT in it, with the reason.** Three statement
+/// digests have a VARIABLE input whose length is not knowable where the guard
+/// is imposed: **D2** the block's public/weights digest (`31 + w`, about 9 MB
+/// at 125M — the weights do not exist at `Layout::for_shape`), **D3** the
+/// block schedule digest and **D5** the run schedule digest (`33 + Σ` and
+/// `31 + Σ` over the layout's own description lines, which would need the
+/// Layout this guard is called from the middle of). They are computed and
+/// checked instead by `s25_tests::every_hash_input_kind_on_every_registered_
+/// profiles_path_is_printed_with_its_length`, which asserts at EVERY
+/// registered profile that no real commitment's column has their length.
+fn statement_class(sh: &Shape, run: Option<&RunFacts<'_>>) -> Vec<(usize, String)> {
+    let mut out = vec![(CALIBRATION_INPUT, "the calibration identity digest (D1, private_block.rs:229)".to_string())];
+    // **WHICH GENERATOR EXISTS HERE.** A single block's prover makes one
+    // (`protocol.rs:486`, under the BLOCK profile). In a run the block prover
+    // makes NONE — `prove_run` makes one for the whole run under the RUN
+    // profile (`run.rs:510`) and hands `prove_core` a `&mut ZkRng` — which is
+    // the check's B-9.2 as ruling J-7 records it, re-derived here from the
+    // two call sites.
+    if run.is_none() {
+        out.push((SEED_FIXED + sh.profile.len(), format!("the generator's seed derivation at profile `{}` (R1, protocol.rs:486)", sh.profile)));
+    }
+    if sh.endpoint_general {
+        out.push((ENDPOINT_SPEC_INPUT, "the generalised endpoint's spec digest (D6, endpoint_g.rs:157)".to_string()));
+        out.push((SEED_FIXED + ENDPOINT_G_DOMAIN, "the generator's seed derivation at the generalised endpoint (R1, endpoint_g.rs:224)".to_string()));
+    } else {
+        out.push((SEAM_SPEC_INPUT, "the frozen seam's spec digest (D8, private_seam.rs:115)".to_string()));
+        out.push((SEED_FIXED + SEAM_DOMAIN, "the generator's seed derivation at the frozen seam (R1, private_seam.rs:196)".to_string()));
+    }
+    if let Some(r) = run {
+        out.push((SEED_FIXED + r.profile.len(), format!("the generator's seed derivation at run profile `{}` (R1, run.rs:510)", r.profile)));
+        out.push((RUN_PUBLIC_FIXED + DIGEST * r.l, format!("the run's public statement digest over {} blocks (D4, run.rs:220)", r.l)));
+        if r.l > 1 {
+            out.push((BOUNDARY_SPEC_INPUT, "an internal boundary's spec digest (D7, boundary.rs:210)".to_string()));
+        }
+    }
+    out
+}
+
 // ------------------------------------------------------------- the label table
 
 /// One transcript label on this profile's path, with every `data` length its
@@ -296,6 +400,44 @@ pub(crate) fn at_shape(sh: &Shape) -> HashInputs {
     at_shape_with(sh, None)
 }
 
+/// **STAGE 25 (W-4): the whole set, TRANSCRIPT class plus STATEMENT class.**
+/// [`at_shape_with`] is the transcript half stage 16 computed — the
+/// constructor, every absorb, the squeeze, the refill and the node — and
+/// [`statement_class`] is the half it never had: the statement digests and
+/// the generator's seed derivation. This is the set the legacy rule now
+/// imposes, and the one every stage-25 test pins.
+pub(crate) fn full_at_shape_with(sh: &Shape, run: Option<&RunFacts<'_>>) -> HashInputs {
+    let mut h = at_shape_with(sh, run.map(|r| r.parameter_line));
+    for (len, what) in statement_class(sh, run) {
+        h.add(len, what);
+    }
+    h
+}
+
+/// [`full_at_shape_with`] for a SINGLE BLOCK.
+pub(crate) fn full_at_shape(sh: &Shape) -> HashInputs {
+    full_at_shape_with(sh, None)
+}
+
+/// **The shape-free half of the whole set** — what the two bare statement
+/// constructors, which hold no profile string, can check for themselves.
+/// [`shape_free`] plus the statement-class lengths that are the same at every
+/// profile: the calibration identity's 30, the three spec digests' 128 / 142 /
+/// 151, and the two constant seed-derivation domains' 50 and 64. The only new
+/// DANGEROUS row count it contributes is **16** (the frozen seam's 128-byte
+/// spec digest); 64 was already the node's and the other four are not
+/// multiples of eight.
+pub(crate) fn full_shape_free() -> HashInputs {
+    let mut h = shape_free();
+    h.add(CALIBRATION_INPUT, "the calibration identity digest (D1, private_block.rs:229)".to_string());
+    h.add(SEAM_SPEC_INPUT, "the frozen seam's spec digest (D8, private_seam.rs:115)".to_string());
+    h.add(ENDPOINT_SPEC_INPUT, "the generalised endpoint's spec digest (D6, endpoint_g.rs:157)".to_string());
+    h.add(BOUNDARY_SPEC_INPUT, "an internal boundary's spec digest (D7, boundary.rs:210)".to_string());
+    h.add(SEED_FIXED + SEAM_DOMAIN, "the generator's seed derivation at the frozen seam (R1, private_seam.rs:196)".to_string());
+    h.add(SEED_FIXED + ENDPOINT_G_DOMAIN, "the generator's seed derivation at the generalised endpoint (R1, endpoint_g.rs:224)".to_string());
+    h
+}
+
 /// **T-3 AS AMENDED (2026-09-20, 15:01): the completed guard is IMPOSED on
 /// legacy-rule profiles only.** [`at_shape_with`] above stays the honest
 /// DESCRIPTION of a profile's non-column hash lengths at every shape, and the
@@ -317,9 +459,18 @@ pub(crate) fn at_shape(sh: &Shape) -> HashInputs {
 /// It stays ON, whole, for the two profiles that hash under the legacy rule:
 /// the byte-frozen toy, where it is the only separation there is, and the
 /// frozen-seam development rung. Both pass it at their accepted geometries.
-pub(crate) fn imposed_at_shape_with(sh: &Shape, run_parameter_line: Option<&str>) -> HashInputs {
+///
+/// **STAGE 25 (W-4).** What is imposed is now [`full_at_shape_with`] — the
+/// transcript class AND the statement class — so a 16-row commitment, whose
+/// column is the frozen seam's 128-byte spec digest, is refused at a legacy
+/// profile by name. The imposition is still legacy-only (ruling T-3 as
+/// amended, which J-7 does not reopen): at a tagged profile a transcript
+/// absorb, a column digest and a statement digest are `F_T`, `F_C` and `F_U`,
+/// three different functions, and a coincidence of their input LENGTHS
+/// separates nothing.
+pub(crate) fn imposed_at_shape_with(sh: &Shape, run: Option<&RunFacts<'_>>) -> HashInputs {
     if sh.hashes_under_the_legacy_rule() {
-        at_shape_with(sh, run_parameter_line)
+        full_at_shape_with(sh, run)
     } else {
         HashInputs { by_len: BTreeMap::new() }
     }
@@ -350,9 +501,16 @@ pub(crate) fn imposed_at_shape(sh: &Shape) -> HashInputs {
 /// transcript absorb, a column digest, a salted leaf and a Merkle node are
 /// four different members of the BLAKE3 family, so a coincidence of their
 /// input LENGTHS separates nothing and costs real geometry.
+///
+/// **STAGE 25 (W-4)**: the shape-free half now carries the statement class
+/// too ([`full_shape_free`]), so these two constructors refuse a 16-row
+/// commitment under the legacy rule. No accepted geometry moves: the
+/// generalised endpoint's reachable counts are 6, 7, 9, 13, 21, 37 … and an
+/// internal boundary's are `data + 2·sites + 2`; 16 is neither of the two
+/// profiles' own.
 pub(crate) fn imposed_shape_free(tag: &HashTag) -> HashInputs {
     if tag.is_legacy() {
-        shape_free()
+        full_shape_free()
     } else {
         HashInputs { by_len: BTreeMap::new() }
     }

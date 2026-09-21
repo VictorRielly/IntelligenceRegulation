@@ -196,6 +196,14 @@ mod s23_tests;
 // into something that is CHECKED.
 #[cfg(test)]
 mod s24_tests;
+// STAGE 25: the lane's share of the QUERY-CLASS work list of
+// `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md` §8 (W-2, W-3, W-4, W-6, W-7,
+// W-8's assertions 5 and 7, W-11). Every hash input kind of every registered
+// profile with its length, the refusal replay's two properties on real
+// openings, the statement digests in the legacy length guard, and the source
+// scan extended from absorb LABELS to hash CALL SITES.
+#[cfg(test)]
+mod s25_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

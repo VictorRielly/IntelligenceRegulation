@@ -183,7 +183,13 @@ impl RunStatement {
         // column; that is why this check is at the run and not at the shape.
         let line = st.parameter_line()?;
         // STAGE 17, T-3 AS AMENDED: imposed on legacy-rule profiles only.
-        let set = super::hash_domain::imposed_at_shape_with(&st.rs.sh, Some(line.as_str()));
+        // STAGE 25 (W-4): the set the run checks against now carries the
+        // STATEMENT class as well — its own public-statement digest, the
+        // boundary spec digest, the calibration identity and the seed
+        // derivation its generator is made with — so the run's facts, and
+        // not only its parameter line, go into it.
+        let facts = super::hash_domain::RunFacts { profile: st.rs.profile, l: st.rs.l, parameter_line: line.as_str() };
+        let set = super::hash_domain::imposed_at_shape_with(&st.rs.sh, Some(&facts));
         let lay = Layout::for_shape(&st.rs.sh)?;
         let mut commitments = vec![("A", lay.a_rows), ("H", lay.h_rows), ("M", super::layout::M_ROWS), ("external endpoint", st.rs.sh.endpoint_rows)];
         if st.rs.l > 1 {
