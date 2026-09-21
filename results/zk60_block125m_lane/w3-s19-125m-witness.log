@@ -1,0 +1,9 @@
+Running scope as unit: run-r314ce70e068049db8d1848890325fbe7.scope
+
+running 2 tests
+test private_block::dense_tests::the_dense_recipes_are_admissible_and_non_trivial_at_125m ... ok
+test private_block::zero_witness_tests::the_all_zero_hidden_input_is_admitted_by_the_witness_builder_at_125m ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 311 filtered out; finished in 22.03s
+
+WALL 22.03 s PEAK 743980 KB

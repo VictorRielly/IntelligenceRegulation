@@ -4977,53 +4977,483 @@ default-profile (`lto = "fat"`, one codegen unit) build.
 3. **The integrator reviews** stage 17's two shared commits and takes the
    keyed CUDA path and the `pcs::verify_zk` path-length fix.
 
-## Stage 19 — TEST-ONLY: dense public weights and a numerically non-trivial witness at the shaped geometries (2026-09-20, 17:4x–)
+## Stage 19 — TEST-ONLY: dense public weights and a numerically non-trivial witness at the shaped geometries (2026-09-20, 17:3x–18:4x)
 
-**SKELETON, being filled.** `IN PROGRESS`.
+**Status: `LANDED`, every gate green — and it FOUND A PRODUCTION DEFECT.**
+Five commits: the skeleton `59d85bd`, item 2 `7792471`, items 3-6 and the
+finding `1d2f8d2`, item 7 and task 9 `7a5ea87`, and this ledger.
 
 **The production source is FINAL from this lane's side** (handed to the
-integrator at `caa9b9a`). This stage changes **no non-test code path**: only
+integrator at `caa9b9a`). This stage changed **no non-test code path**: only
 `#[cfg(test)]` modules under `hashline/src/private_block/`, the one
 `#[cfg(test)] mod` registration line a new test module needs, this ledger and
-`results/zk60_block125m_lane/`. The forbidden-files proof is at the end.
+`results/zk60_block125m_lane/`. The forbidden-files proof is below.
 
-**No heavy run from here**: nothing proves at the 125M shape, no `--ignored`
-125M test, no GPU.
+**No heavy run from here**: nothing proved at the 125M shape, no `--ignored`
+125M test, no GPU. The two 125M tests that DO run build a WITNESS and stop,
+and they were measured (22.0 s, 727 MiB, under a 12 GB ceiling).
 
 **No privacy or soundness acceptance is claimed or implied by any of it.**
+The rung profiles are development grade (ruling P-7).
+
+**THE HEADLINE: finding S19-F1 — an HONEST proof is rejected by the
+verifier** at every shaped profile with more than one key-value head, as soon
+as the hidden state varies between heads. The reproducer is the production
+fixture with ONE WORD of the hidden input changed. The toy is structurally
+exempt. Details below; NOT fixed here.
 
 ### Why this stage exists
 
-placeholder
+A read-only investigation on 2026-09-20 established, with `file:line` and by
+arithmetic on a captured public table, that the only weights recipe the shaped
+tests use — `grow_tests::tame_case` (`grow_tests.rs:581`) — is DIAGONAL:
+`diag(outer, inner)` is 64 where `row == col` and 0 elsewhere, `Wg` and `Wu`
+are `diag(d, f)` and `Wd` is `diag(f, d)`. `row == col` has no solution above
+`d`, so at every shape with `f > d` — rung and rung-G (`d = 96`, `f = 192`),
+125M (`d = 768`, `f = 2048`) — hidden unit `j >= d` has **zero input weight
+and zero output weight**, and the whole upper half of every `Dom::F` plane
+(`g8`, `u16`, `a16`, `h16` and their limbs) is identically zero in every
+honest shaped proof this lane has ever made. The toy has `d = f = 16` and can
+show neither this nor a genuine axis mix-up.
 
-### Item 1 — the survey
+This stage is TEST-ONLY. It builds a DENSE public-weight recipe, shows the
+witness it produces is admissible and numerically non-trivial exactly where
+the fixture is empty, and drives it through the proof, the run and the
+perturbation battery. **It found a production defect** — recorded as S19-F1
+below, not fixed here.
 
-placeholder
+### Item 1 — the survey, and a correction to the brief's premise
+
+| recipe | where | shapes it drives | reaches hidden `[d, f)`? | what it feeds |
+|---|---|---|---|---|
+| `grow_tests::tame_case`, `grow_tests.rs:581` | `rung_tests`, `review_tests::honest_rung`, `rulings_tests` (incl. the heavy 125M tests), `run_tests::Chain::honest` and `blocks_of`, `run_capture_tests`, `run_statement_file`, `hash_tag_tests`, `norm_alias`, `pad.rs` | toy, rung, rung-G, 125M | **NO** | **every** proof, run, capture, tamper battery and heavy test in the lane |
+| `review_tests::distinct_kv_case`, `review_tests.rs:489` | `review_tests` attack 3, `rulings_tests` | rung | **NO** — its `kv_diag` varies the ATTENTION rows per key-value head; the feed-forward matrices are `tame_case`'s diagonals | the grouped-query attacks |
+| `parity::shaped_case`, `parity.rs:374` | `parity`'s rung sweep (160 cases) and its group-structure test | **`Shape::rung()` only** | **YES** — `matrix(r, d, f, 64, ffn_mag)` is diagonal-plus-band, so every column `j in [d, f)` of `Wg` / `Wu` and every row `j in [d, f)` of `Wd` is pure band, for 7 of the 8 swept band classes | witness-vs-reference-kernel parity **at the WITNESS LEVEL ONLY: no layout, no proof, no verifier** |
+| `pad.rs`'s `the_folded_weight_vectors_vanish_off_support`, `pad.rs:822` | that one test | `Shape::rung()` | **YES**, fully dense band | four MLE folds; **no witness and no proof** |
+
+**The brief's premise was slightly too strong and the correction sharpens the
+risk.** Weights that are nonzero into hidden indices `>= d` DO exist in two
+places, but neither of them PROVES: one compares the witness with the
+reference kernel, the other folds matrices. So the accurate statement is that
+**no proof, no run, no capture and no verifier in this lane had ever seen a
+weight nonzero into a hidden index `>= d`, at any shape** — the entire proof
+path (the plane index map, the support indicators, the slot claims, the LogUp
+tables, the weight folds) was untested there — while a wrong definition
+SHARED by the witness builder and the reference kernel would in any case
+survive the parity sweep.
+
+### FINDING S19-F1 — AN HONEST PROOF IS REJECTED BY THE VERIFIER
+
+**The defect.** At a shape with more than one key-value head, the honest
+prover and the honest verifier disagree as soon as the KEY-VALUE heads carry
+different activations. The verifier's message is always
+
+```
+slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+```
+
+and, at some recipes, `slot 17 [06 softmax zero-check (hosts 07, 10)]`
+instead. It is a COMPLETENESS failure, the class of failure that cannot be
+argued away: the witness builder accepts the case, every relation
+`pad::every_checkable_relation_holds` can evaluate holds, the independent
+reference kernel agrees with the witness plane for plane — and the receipt
+does not verify.
+
+**The reproducer is the production fixture with ONE WORD of the hidden input
+changed**: `grow_tests::tame_case(&Shape::rung_g())`, `input[0] = 0`. Test
+`dense_tests::s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_rejected`,
+`#[ignore]`d and FAILING on purpose.
+
+**Why nothing saw it.** With `tame_case`'s input the norm output is EXACTLY
+`+3` at even width indices and `-3` at odd ones, at every token and at every
+shape (the norm is scale-invariant, and the fixture's `|x| = 24,000` ramp
+never moves the floor). So the hidden state is the SAME in every head, the
+two key-value heads carry identical keys and values, and `A_RQL` — the Q
+requantization remainder — is identically `0`. The all-zero input is the same
+degeneracy taken further. Those two inputs are the only ones this lane has
+ever PROVED at a shaped profile.
+
+**Which axis does it, measured** (`stage19_bisect_the_head_axis`, diagonal
+weights scaled per head and per key-value head, on the fixture's own input):
+
+| case, diagonal weights scaled per head / per key-value head, fixture input | verdict |
+|---|---|
+| query heads FLAT, key-value heads FLAT — **the fixture's own regime** | **VERIFIED** |
+| query heads VARY WITHIN a group, key-value heads FLAT | **VERIFIED** |
+| query heads FLAT, key-value heads VARY | **REJECTED**, slot 15 |
+| query heads vary only BETWEEN groups, key-value heads VARY | **REJECTED**, slot 15 |
+| query heads VARY WITHIN a group, key-value heads VARY | **REJECTED**, slot 15 |
+| the review's own `distinct_kv_case`, at `Shape::rung()` AND at `Shape::rung_g()` — key-value head 1's `k8` / `v8` requantize to identically zero | **ACCEPTED** |
+
+and, on the HIDDEN INPUT alone with `tame_case`'s own diagonal weights
+(`stage19_bisect_the_hidden_input`), `|x| = 24,000` throughout:
+
+| sign pattern of the hidden input | verdict |
+|---|---|
+| the fixture's own, and the fixture's with `x[0] + 1` (which does not move the norm quotient) | **VERIFIED** |
+| alternating by width-index parity, no ramp | **VERIFIED** |
+| every sign `+` | **VERIFIED** |
+| blocks of HALF a head — the two RoPE partner halves disagree | **VERIFIED** |
+| blocks of a WHOLE head — the pattern differs BETWEEN heads | **REJECTED**, slot 15 |
+| from a seeded stream | **REJECTED**, slot 15 |
+| the fixture's with `x[0] = 0` | **REJECTED**, slot 15 |
+
+
+**Where to look, and what is NOT established.** Slot 15 hosts the claims of
+`SC_QMM` (09Q) and `SC_PV` (11). `SC_QMM` reads `A_Y` and `Wq` and knows
+nothing of the head axis, so the head-sensitivity enters through `SC_PV`
+(`argument.rs:1074`) — and `SC_SZC`'s failure at one recipe points the same
+way at `SC_SCORE` (`argument.rs:1057`). Those are the only two slots that
+read the head axis in TWO DIFFERENT WAYS: the query head is the whole of the
+challenge `r_h`, the key-value head is its top `log2(kv_heads)` entries
+(`cv.extend(fixed(&r_h[..lkv]))`, `ck.extend(fixed(&r_h[..lkv]))`, trap T-3).
+Each raises a PRODUCT of two multilinear extensions at that shared point,
+while the value slot 15 / slot 17 must supply from the committed planes is
+the extension of the pointwise PRODUCT; those two agree only under
+conditions, and `kv_heads = 1` — the toy — makes the condition
+unconditional, which is consistent with the toy being untouched.
+
+**That is a direction, not a derivation, and the first form of it is already
+contradicted by the data.** The simplest version of the argument predicts
+that any case with two DIFFERENT key-value heads fails; but the independent
+review's own `distinct_kv_case` (`review_tests.rs:489`, `Wk` / `Wv` weighting
+the second group's rows at a third of the first's) is **ACCEPTED at both
+`Shape::rung()` and `Shape::rung_g()`**, measured. What distinguishes it from
+case (iii) above, which is the same construction with different scales, is
+that at `21/64` the second key-value head's `k8` and `v8` requantize to
+IDENTICALLY ZERO, so that group's whole attention output is zero — while at
+`40/64` both groups carry nonzero, different values. **The mechanism is
+therefore NOT established by this stage.** What is established is the
+trigger, the reproducer, the two candidate slots and the toy's exemption.
+
+**What it means for what has been claimed.** Nothing about the toy profile
+moves. At the rung, rung-G and 125M profiles it means the honest proofs
+measured so far were made on the one class of input that hides the defect, so
+they do not establish that the shaped prover and verifier agree in general.
+The independent review's attack 3 (`ZK60_BLOCK125M_RUNG_CODE_REVIEW.md` §3)
+concluded "trap T-3 is closed in the code" from the STRUCTURAL fact that the
+key-value coordinate is a fixed function of `r_h`; that is true, and it is
+not the question this finding raises. Its WITNESS half — the key-value swap
+on `distinct_kv_case` — still stands as written, because that case's honest
+control is accepted (measured, above); but its rejection message is `slot
+15`, the same message S19-F1 produces, so the day the defect is fixed that
+test should be re-read to confirm it is the SWAP and not the defect that
+the verifier was objecting to.
+
+**Not fixed here.** The production source is final from this lane's side; the
+fix is the integrator's and the security owner's. No production file was
+edited.
 
 ### Item 2 — the one-sided fold check, tightened
 
-placeholder
+`pad.rs`'s `the_folded_weight_vectors_vanish_off_support` folded the four
+attention matrices and the three feed-forward matrices and asserted that each
+fold vanishes off its inner axis's support. The ATTENTION branch also
+asserted that the fold is not identically zero, so that "vanishes" says
+something; the FEED-FORWARD branch did not. It now does, and the test also
+makes the statement the `f > d` geometry needs and no test had: along the
+HIDDEN axis the feed-forward weights must reach into `[d, f)` and stop at
+`f`. `Wd`'s own slot fold is already a hidden-axis vector; `Wg` and `Wu` fold
+the other way, so their hidden-axis support is read with the mirror fold,
+labelled in the test as an instrument for the support statement and not a
+fold any slot performs. The test now runs at BOTH `Shape::rung()` and
+`Shape::rung_g()`. Nothing existing was weakened.
 
 ### Item 3 — the dense recipe
 
-placeholder
+**The public description, in full.** A SplitMix64 stream seeded with the
+single constant `DENSE_SEED = 0xD15E_ED19_0000_0001`, read in a fixed order,
+so the same shape gives the same bytes forever. No OS randomness, no time, no
+real model, nothing read from disk.
+
+| word | shape | distribution |
+|---|---|---|
+| `Wq`, `Wk`, `Wv`, `Wo` | `(d, d)`, `(kvw, d)`, `(kvw, d)`, `(d, d)` | uniform on `[-56, -1] u [1, 56]` |
+| `gamma_a`, `gamma_m` | `(d)` | uniform on `[40, 127]` |
+| `Wg`, `Wu` | `(d, f)` | uniform on `[-96, -1] u [1, 96]` |
+| `Wd` | `(f, d)` | uniform on `[-B, -1] u [1, B]`, `B = isqrt(48^2 * 192 / f)`: **48** at both rungs, **14** at 125M |
+| hidden input | `(tokens, d)` | uniform on `[-6000, -1] u [1, 6000]` |
+
+**Every entry is nonzero** — the draw excludes zero by construction, so
+"dense" is a literal statement the test asserts, entry by entry, on all nine
+words and on the input. The one shape-dependent band is the down projection:
+`z16` is requantized into `int16` and then ADDED to `xres1`, which is also
+`int16`, so it is the one site with no headroom to spare, and its band is
+scaled as `48 * sqrt(192 / f)` to keep `z16`'s spread the same at every
+shape. Every other band is shape-free because the pipeline is already
+scale-invariant in `d` (the norm divides by `sqrt(d)`, the matmul multiplies
+by it).
+
+**THE PROVABLE HALF, `dense_ff_case`.** Because of S19-F1 the fully dense
+recipe cannot be PROVED at any shape with more than one key-value head. So
+every proving test of this stage uses the dense FEED-FORWARD words
+(`gamma_m`, `Wg`, `Wu`, `Wd`) on `tame_case`'s attention words and
+`tame_case`'s input. The feed-forward half has no head axis — `Dom::F` is
+`(t, j)` — so this leaves the attention side in exactly the regime every
+earlier stage proved in, and makes the feed-forward numerically non-trivial
+where the fixture is empty.
+
+**Admissibility and non-triviality, measured at `rung_g`** (asserted in the
+tests as floors; the measured fractions are a function of the hidden input
+and are NOT recorded here — they are in the stage's hand-back and reachable
+by re-running the test with `--nocapture`). The tests assert: at least 90 per
+cent of the gate and up planes and at least 40 per cent of the activation and
+product planes are nonzero on `[d, f) = [96, 192)`; the padded tail
+`[f, f_pad)` is still all zero; every LIVE head slot has a nonzero attention
+output and every PADDED head slot has none. Both the fully dense recipe and
+the provable one clear the floors.
 
 ### Item 4 — reference agreement
 
-placeholder
+`parity.rs` already held the only harness that compares this module's witness
+with the independent `private-block-kernel-shaped` crate at a shaped
+geometry: `shaped_case` / `run_kernel_shaped` / `compare_shaped`, driven by
+`the_whole_block_witness_equals_the_reference_kernel_at_the_rung`. It was
+reused, not rebuilt: `shaped_case` was split so that its second half
+(`shaped_case_from_words`) takes ANY nine true-sized public words, and the
+new test `the_dense_witness_equals_the_reference_kernel_at_the_rung_g` drives
+it with the FULLY dense recipe at `Shape::rung_g()`. `compare_shaped` walks
+every `Dom::F` position of the true support, the upper half included, so the
+agreement IS an agreement about `[d, f)`; the test adds one assertion that
+the reference kernel's own `g8` / `u16` / `a16` / `h16` buffers are not
+identically zero there, without which the comparison would be a comparison of
+zeros. The block output is compared word for word as well.
+
+This is the test that would catch a wrong definition SHARED by nothing — the
+two implementations are separate, one of them `no_std`, allocation-free and
+written against the shape rather than the plane table.
 
 ### Item 5 — prove and verify, dense
 
-placeholder
+| what | result |
+|---|---|
+| one block at `rung_g`, `dense_ff_case` | proves and verifies **from bytes**, frame **4,234,648 B** — the pinned rung-G length, unmoved, because a receipt's length is a function of the shape alone. A one-byte truncation is still refused |
+| a THREE-block run at `rung_g`, `dense_ff_case`, tagged rule | verifies **from its segments**, and every segment is the **counted** length (`counted_segment_bytes`, the same function the tame run asserts against). The test also checks that the upper hidden half is live in EVERY block of the run, not only the first — each block's input is the previous block's output, so this is also the statement that the chaining does not collapse it |
+| one block at `rung_g`, FULLY dense | **REJECTED — finding S19-F1.** `#[ignore]`d and failing |
 
 ### Item 6 — negative controls on the dense witness
 
-placeholder
+The harness is `review_tests`' own (attack 9's `outcome` / `clone_witness`),
+unchanged. On the provable recipe, at token 1 and hidden index `d + 7 = 103`
+— a TRUE position in the upper half — one perturbation of `+1` per committed
+`Dom::F` plane:
 
-### Item 7 — the dense option for the heavy 125M test
+| planes | outcome |
+|---|---|
+| all **eleven** `Dom::F` planes (`A_G8`, `A_RGL`, `A_A16`, `A_U16`, `A_UL0`, `A_UL1`, `A_H16`, `A_HL0`, `A_HL1`, `A_RH0`, `A_RH1`) | **11 of 11 REJECTED BY THE VERIFIER**, 0 refused by the prover only, 0 accepted. Ten fail at `slot 18 [14 F zero-check (hosts 13G, 13U)]`; the `A_H16` perturbation fails at `slot 14 [03 D zero-check (hosts 12, 13D)]`, which is the down projection noticing it first |
 
-placeholder
+The honest control is asserted ACCEPTED first, under the same harness, or the
+rejections would say nothing. This is the brief's five named planes (gate, up,
+activation, product, down-projection input) and six more.
 
-### Tests, commands and the forbidden-files proof
+**The grouped-query control is BLOCKED and `#[ignore]`d.** An off-diagonal
+score perturbation of a query head in a shared group, and one perturbation
+each of the shared key-value head's rotated key and value planes, all make
+the key-value heads carry different activations — which is exactly the
+condition under which S19-F1 rejects an HONEST proof. A rejection would not
+distinguish the tamper from the defect, and the honest control the test opens
+with is itself rejected. It becomes a real control the day S19-F1 is fixed.
 
-placeholder
+### Item 7 — the recipe option on the heavy 125M tests
+
+`rulings_tests::private_block_125m_one_block` now takes its case from two
+environment variables, both defaulting to what every earlier stage measured,
+so nothing that has been measured moves:
+
+* `HL_PB_WEIGHTS` — `tame` (default), `dense-ff` (the provable recipe), or
+  `dense` (fully dense, **expected to be REJECTED by S19-F1**). Any other
+  value is refused by name.
+* `HL_PB_INPUT` — `fixture` (default) or `zero` (task 9(b)).
+
+The weight fold is the one phase whose COST this changes: `fold_cols_i8` and
+`fold_rows_i8` skip zero weights, so every published 125M timing taken on the
+diagonal fixture has an optimistic weight-fold phase, and `dense-ff` is the
+first measurement that does not.
+
+### Task 9 — the ALL-ZERO hidden input at the 125M shape (the security owner's addition)
+
+**(a) It is ADMITTED, under BOTH weights recipes, and the two zero-headroom
+boundary facts the privacy case rests on still hold at 125M.** The witness
+builder accepts it; the test pins, at the shape's own constants
+(`limbs_sigma_s = 3`, `wrho_s = 18`, `f_e = 9`, `tokens = 512`, against the
+toy's 2 / 14 / 9 / 32):
+
+| fact | at 125M |
+|---|---|
+| `NORM_CEPS = 1`, so both norm denominators are positive at the zero input | every `norm_a` and `norm_m` denominator is `isqrt(1) = 1` |
+| `exp[0] = 2^f_e`, pinned on the PUBLIC STATEMENT by the constructor | `512` |
+| **boundary 1**: the softmax remainder complement against the EXCLUSIVE window `2^wrho_s` | **262,143 of an allowed 262,144 — HEADROOM EXACTLY ZERO** |
+| **boundary 2**: the softmax quotient against the INCLUSIVE bound `2^F_P` | `512` of `512`, on the bound |
+| **boundary 3** (new, and only tight at a power-of-two token count): the softmax denominator against its INCLUSIVE upper bound `tokens << f_e` | `262,144` of `262,144`, on the bound |
+| the masked exponent difference stays inside the exp table's 256 rows | `-MASK_SCORE = 127` |
+| the zero chain | `x_in` and the block output are identically zero |
+
+Boundary 1 is tight exactly when `tokens` is a power of two (the toy's 32 and
+125M's 512); at both rungs `tokens = 24` and no row is tight, so the test
+asserts the zero-headroom form BY SHAPE rather than unconditionally. That is
+the one place the toy's pinned constant does not transfer.
+
+**The zero witness does not depend on the public weights.** Every weight is
+multiplied by zero, so the witness of the all-zero input is a function of the
+SHAPE and the tables alone. The test asserts it by fingerprinting all planes
+of the tame witness, dropping it, building the dense one and comparing — so
+only one 125M witness is ever resident. This is itself worth pinning: it is
+why the fixed input of the privacy argument does not have to be re-argued for
+every weights recipe.
+
+**Cost, measured** (`w?-s19-zero125m.log`, under the heavy lock,
+`systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0`): **13.40 s
+wall, peak 742,096 KB (725 MiB)** for BOTH witnesses. Cheap, because the zero
+witness never writes most of its pages and the kernel never faults them in.
+So the test is a NORMAL test, not `#[ignore]`d, and it is in the `private_`
+gate.
+
+**(c) does not apply**: the all-zero input is not refused at 125M.
+
+**(b)** `rulings_tests::private_block_125m_one_block` under `HL_PB_INPUT=zero`
+proves and verifies one 125M block on the all-zero hidden input. NOT RUN from
+this lane; the command is below.
+
+### What this stage did NOT do
+
+* **No production code path was changed.** Only `#[cfg(test)]` modules under
+  `hashline/src/private_block/`, one `#[cfg(test)] mod dense_tests;`
+  registration line in `hashline/src/private_block.rs`, this ledger and
+  `results/`.
+* **S19-F1 was NOT fixed.** The production source is final from this lane's
+  side.
+* **No heavy run.** Nothing proved at the 125M shape, no `--ignored` 125M
+  test, no GPU, no timing. The two 125M witness-builder tests that DO run are
+  normal tests, measured, and cost 13.4 s / 725 MiB and the figures below.
+* **No privacy or soundness acceptance**, and no statement about any run. The
+  rung profiles are development grade (ruling P-7).
+
+### THE TWO HEAVY 125M COMMANDS, PREPARED AND NOT LAUNCHED
+
+The binary is built and is newer than every source file of this lane
+(`w2-s19-norun.log`). **Re-read its mtime before launching**: the target
+directory is shared with another worktree.
+
+```
+/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5
+```
+
+**The DENSE FEED-FORWARD one-block 125M run** (item 7). This is the one worth
+having: it is the first 125M measurement whose weight-fold phase is not
+optimistic, and it does not meet S19-F1.
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 HL_PB_WEIGHTS=dense-ff /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-one-block-dense.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-one-block-dense.done' >/dev/null 2>&1 &
+```
+
+**The ALL-ZERO-input one-block 125M run** (task 9(b)).
+
+```
+setsid nohup bash -c 'flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0 env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_TIMING=1 HL_PB_INPUT=zero /home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5 --ignored --exact --nocapture --test-threads=1 private_block::rulings_tests::private_block_125m_one_block >> /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-one-block-zero.log 2>&1; echo $? > /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/m125-one-block-zero.done' >/dev/null 2>&1 &
+```
+
+Both take the HEAVY lock, so enqueuing the second behind the first is right:
+it blocks on the lock and self-starts. **`HL_PB_WEIGHTS=dense` (the FULLY
+dense recipe) is expected to be REJECTED at 125M by S19-F1** — 125M has four
+key-value heads and the dense attention words make them carry different
+activations — so it is not offered as a run to make; the witness-builder test
+above already establishes that its witness is admissible there, which is the
+part that was worth knowing.
+
+### Files this stage wrote, and the shared-file list
+
+**Shared files touched: NONE. Production code paths touched: NONE.**
+
+| file | what |
+|---|---|
+| `private_block/dense_tests.rs` | **new, `#[cfg(test)]`.** The dense recipe, the provable half, the admissibility and non-triviality tests, the one-block proof, the upper-hidden-half battery, the S19-F1 reproducer and the three bisection diagnostics |
+| `private_block.rs` | **one line**, `#[cfg(test)] mod dense_tests;` (plus its comment). This is the single registration line the brief allows, and it is the only edit to a file that also holds production code |
+| `private_block/pad.rs` | inside its `#[cfg(test)] mod tests`: the fold test tightened and run at both rungs. Plus `every_checkable_relation_holds` (already `#[cfg(test)]`) widened from private to `pub(super)` so the diagnostics can call it |
+| `private_block/parity.rs` | (`#[cfg(test)]` module) `shaped_case` split into `shaped_case_from_words`, and the dense reference-agreement test |
+| `private_block/run_tests.rs` | (`#[cfg(test)]` module) `Chain::from_parts`, `blocks_from`, and the three-block dense feed-forward run |
+| `private_block/rulings_tests.rs` | (`#[cfg(test)]` module) `HL_PB_WEIGHTS` and `HL_PB_INPUT` on the heavy 125M test |
+| `private_block/zero_witness_tests.rs` | (`#[cfg(test)]` module) the all-zero input at 125M and at both rungs (task 9(a)) |
+| docs | this ledger |
+| results | `results/zk60_block125m_lane/w*-s19-*.log` |
+
+### THE FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat caa9b9a -- \
+  hashline/src zkp-core private-block-kernel-shaped
+```
+
+prints seven paths and nothing under `zkp-core` or
+`private-block-kernel-shaped`:
+
+```
+ hashline/src/private_block.rs                    |   5 +
+ hashline/src/private_block/dense_tests.rs        | 845 +++++++++++++++
+ hashline/src/private_block/pad.rs                |  88 ++-
+ hashline/src/private_block/parity.rs             |  63 +-
+ hashline/src/private_block/rulings_tests.rs      |  54 +-
+ hashline/src/private_block/run_tests.rs          |  61 +-
+ hashline/src/private_block/zero_witness_tests.rs | 128 ++++
+```
+
+Five of the seven are WHOLE `#[cfg(test)]` modules — `dense_tests`,
+`parity`, `rulings_tests`, `run_tests`, `zero_witness_tests` are each
+declared `#[cfg(test)] mod …;` in `private_block.rs:112-174`, so nothing in
+them enters the library or the binary. The other two are files that also hold
+production code, and each of their hunks sits inside `#[cfg(test)]`:
+
+| file | hunk | why it is test code |
+|---|---|---|
+| `private_block.rs` | `@@ -111,6 +111,11 @@` | the whole addition is three comment lines and `#[cfg(test)]` + `mod dense_tests;`. The item carries the attribute. This is the one registration line the brief allows |
+| `pad.rs` | `@@ -423,13 +423,13 @@` | one word: `fn every_checkable_relation_holds` becomes `pub(super) fn`. The line DIRECTLY ABOVE it in the diff context is its own `#[cfg(test)]` attribute (`pad.rs:428`), unchanged |
+| `pad.rs` | `@@ -810,42 +810,78 @@ mod tests {` | inside `#[cfg(test)] mod tests` (`pad.rs:489-490`); the hunk header itself names the module |
+
+The whole diff against `caa9b9a` is those seven files plus this ledger and
+`results/zk60_block125m_lane/`.
+
+### RECEIPT SIZES DO NOT MOVE
+
+| profile | receipt bytes | asserted by |
+|---|---:|---|
+| rung-G, one block, dense feed-forward | **4,234,648** | `an_honest_dense_feed_forward_block_proves_and_verifies_from_bytes_at_the_rung_g`, and by the S19-F1 reproducer before it reaches the verifier |
+| rung-G, three-block run, dense feed-forward | the counted segment lengths | `an_honest_three_block_dense_run_verifies_from_its_segments`, against `counted_segment_bytes`, the same function the tame run asserts against |
+
+Both are the tame fixture's own figures, which is the point: a receipt's
+length is a function of the shape and of nothing else.
+
+### NEXT, in order
+
+1. **S19-F1 is the integrator's and the security owner's.** It is a
+   completeness failure at every shape with more than one key-value head, on
+   the ordinary inputs a real model produces; the toy is exempt. Until it is
+   fixed, no shaped proof of a realistic hidden state can be made, and the
+   grouped-query soundness controls cannot be run.
+2. The two prepared 125M runs above (`dense-ff`, and the all-zero input).
+3. The rest of stage 18's NEXT list is unchanged.
+
+### Tests and commands of stage 19
+
+All through the shared build lock,
+`CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`, and **without
+`--nocapture`** — which is what keeps the per-witness COUNTS, which are
+functions of the hidden input, out of the retained logs.
+
+| command | log | result |
+|---|---|---|
+| `--lib private_block::dense_tests::the_dense_recipe` (the first build) | `w1-s19-recipe.log` | 1 passed / 0 failed, exit 0 |
+| `--lib --no-run` | `w2-s19-norun.log` | exit 0, **13 warnings**; `hashline-70a7a72f73401de5` |
+| the two 125M WITNESS-BUILDER tests, run from the binary under `flock /tmp/zk-heavy.lock systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0` | `w3-s19-125m-witness.log` | 2 passed / 0 failed, **22.03 s wall, peak 743,980 KB = 727 MiB** for all four 125M witness builds |
+| **the gate**: `--lib private_` | `w4-s19-private.log` | **233 passed / 0 failed / 13 ignored**, 67 filtered out, **344.57 s**, exit 0, **13 warnings** |
+
+Against the stage-18 baseline of **222 / 0 / 7** and 13 warnings: eleven new
+passing tests and six new ignored ones. **Not one existing test was changed,
+weakened or removed**, and the toy's frozen tests are untouched.
+
+The six ignored tests are: the S19-F1 reproducer and the fully dense
+one-block proof (**both FAIL, on purpose, and are the finding**), the
+grouped-query control (blocked by S19-F1), and the three bisection
+diagnostics (each proves several rung-G blocks; they are diagnostics, not
+gates). **The diagnostics' own runs are NOT retained under `results/`**: they
+print counts and plane values' provenance, and the capture rule keeps them
+out. Re-run them with `--ignored --nocapture` to see them.
