@@ -1742,15 +1742,41 @@ challenges each. Repaired by deriving `pad_on` the way `argument.rs` does,
 with a named refusal in place of the `IndexError`. Both development shapes
 are unchanged at 69 of 69.
 
-**What (e) cost, and why it is partial rather than skipped.** The three
+**What (e) cost, and the estimate that was wrong.** The three
 singleton-group commitments are constructed and verified at 125M in 133.0 s
 (44 s each, 16× the rung's, which is the message-width ratio and not the row
 ratio), 145,118 entries with none differing and 768 salted leaves. `A` and
-`H` are estimated at 1,400 s and 1,330 s apiece from round 7's own measured
-figures and the verification's `(G+1)·rows·(n+Q)` term; one `A@0` was run as
-the measurement the estimate is checked against, and §R9.6b records what it
-did. **Partial, measured, and said so** — not "skipped, not faked" without a
-number.
+`H` were ESTIMATED at 1,400 s and 1,330 s apiece from round 7's measured
+figures and the verification's `(G+1)·rows·(n+Q)` term. Then `A@0` was run
+alone as the measurement the estimate is checked against: **365.1 s at
+2,539 MB, 2,070,138 entries recomputed and compared with none differing,
+256 salted leaves, a fibre of 2,817,876 Fp over 5,484,800 blinding
+unknowns, and the solve only 73.2 s of the 365.** The estimate was 3.8×
+pessimistic, and the reason is that the `(G+1)·rows·(n+Q)` term bounds the
+VERIFICATION pass and not the solve, which still decomposes at 5,681 rows
+exactly as report §11.3 says. Round 1 skipped `A` and `H` for cost and
+round 7 found the cost was never the obstacle; round 9 estimated
+twenty-three minutes and measured six. **Twice now the cost estimate for
+this construction has been the thing that was wrong.**
+
+The whole arm is therefore affordable at 125M — about 26 minutes a bundle,
+about an hour with round 7's six controls — and both bundles were launched
+detached under the heavy lock inside this round (`…/m125/dense-full.log`
+and `zero-full.log`, each with its own `.done` marker), together with the
+fixed control run, the two default records re-taken on frozen bytes, the
+ten-record refresh and both suites. **Whichever of those had not landed
+when this ledger was written is named by its log and marker rather than
+guessed at**, which is what the marker protocol is for: any later session
+reads the `.done` files and integrates.
+
+### R9.6b The order the queue was run in, and why
+
+Every heavy run took `/tmp/zk-heavy.lock`, so they serialise; follow-ups
+were ENQUEUED on the same lock while an earlier one still held it, and each
+self-starts when the lock frees, session or no session. The tool bytes were
+frozen before the last batch (`dense-final`, `zero-final`, `refresh2`,
+`tests_final`) was enqueued, so those are the passes of record for anything
+whose record pins a tool digest — round 8's three-pass discipline, kept.
 
 **The masking arm is cheap at 125M and that was not obvious.** `M` keeps 50
 rows and 34 functionals because `layout.rs` sets both as constants of the

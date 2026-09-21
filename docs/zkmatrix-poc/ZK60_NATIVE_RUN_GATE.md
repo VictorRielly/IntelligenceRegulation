@@ -2690,13 +2690,13 @@ sentences were waiting for, and §13.9 corrects each of them in place.
    headroom is **139** of 512 (§13.4).
 6. **The `/5-run` loader is proved two ways** on a development bundle
    (§13.2), and the 281 MB bundle loads in **0.6 s** at 600 MB.
-7. **Round 7's full preimage is the one thing measured and then
-   REDUCED IN SCOPE, honestly.** §13.8: the three singleton-group
-   commitments are constructed and verified at 125M (145,118 entries, none
-   differing, 768 salted leaves, 44 s each); `A` and `H` are estimated at
-   **22–23 minutes apiece** from round 7's own measurements and the one
-   measured attempt is reported with its real cost, not hidden behind a
-   skip.
+7. **Round 7's full preimage is affordable at 125M, and the estimate
+   that said otherwise was wrong by 3.8×.** §13.8: the three
+   singleton-group commitments are constructed and verified (145,118
+   entries, none differing, 768 salted leaves, 44 s each), and **`A@0`
+   alone is 365.1 s at 2,539 MB with 2,070,138 entries recomputed and none
+   differing** — against an estimate of 1,400 s. Twice now the cost
+   estimate for this construction has been the thing that was wrong.
 
 ## 13.2 The input, the new schema, and the loader
 
@@ -3049,19 +3049,48 @@ Round 7 measured 2.7–2.9 s for the same three at the development rungs, so
 the cost went up **16×** — exactly the message-width ratio 16,384 / 1,024,
 and not the row ratio. Peak resident set for the arm: **1,008 MB**.
 
-**Estimated, from round 7's own measured figures and the verification's
-`(G+1) · rows · (n+Q)` term**: an `A` is **≈ 1,400 s** and an `H` is
-**≈ 1,330 s**, so the four large commitments of one two-block run are
-**≈ 91 minutes** and both bundles ≈ 3 hours. That is affordable on a
-quiesced box and was not affordable inside this round beside everything
-else; §13.10 says so as an open item rather than as a closed one.
+**Estimated first, and the estimate was wrong — which is worth recording
+because it was wrong the same way round 1's was.** From round 7's measured
+figures and the verification's `(G+1) · rows · (n+Q)` term an `A` came out
+at **≈ 1,400 s** and an `H` at ≈ 1,330 s, so the four large commitments of
+one run looked like ninety minutes.
 
-**So at 125M the PCS preimage channel is CONSTRUCTED for three of the seven
-commitments and OPEN for four**, and the record says which and why, with the
-measured seconds beside the estimate. The channel table at 125M is
-therefore **28 at 2 / 5 / 4 / 17** — the arms-off count — and not round 8's
-10 / 5 / 4 / 9, which is a figure about the development shapes and stays
-one.
+**Then `A@0` was measured, alone, and it is 365.1 s** — six minutes, not
+twenty-three, at a peak resident set of **2,539 MB**, inside the same 8 GB
+ceiling. **2,070,138 view entries recomputed and compared, none differing,
+256 salted leaves re-authenticated**, a fibre of 2,817,876 `Fp` over
+5,484,800 blinding unknowns, and the solve itself only 73.2 s of the 365
+(49.1 s layout, 23.4 s the group solves, 1.1 s the proximity pair, 48.8 s
+the pads; the rest is the verification, which is the part worth the time).
+The estimate was **3.8× pessimistic**, and the reason is round 7's own §11.3
+sentence — "no dense elimination over 600+ rows appears anywhere" — which is
+still true at 5,681 rows: the system decomposes, and the `(G+1)·rows·(n+Q)`
+term is a bound on the verification pass and not on the solve.
+
+Round 1 skipped `A` and `H` "for cost" and round 7 found the cost was never
+the obstacle. Round 9 estimated them at twenty-three minutes and measured
+six. **Twice now the cost estimate for this construction has been the thing
+that was wrong**, and the lesson is to measure one before believing an
+extrapolation of the others.
+
+**So the whole arm is affordable at 125M**: four large commitments at about
+six minutes each plus three small ones at forty-five seconds is **≈ 26
+minutes a bundle**, and with round 7's six controls (each a further solve of
+`A@0` or `H@0`) about an hour. Those runs were launched detached under the
+heavy lock inside this round — `…/m125/dense-full.log` and
+`…/m125/zero-full.log`, each with its own `.done` marker — and whichever of
+them had not landed when this section was written is named there rather than
+guessed at here.
+
+**What §13 therefore claims about the preimage at 125M is exactly this**:
+three of the seven PCS commitments CONSTRUCTED and verified (145,118
+entries), plus `A@0` CONSTRUCTED and verified on its own (2,070,138
+entries), all with none differing; the remaining three large commitments
+measured as affordable and running. The channel table in the records of
+record for this shape is therefore **28 at 2 / 5 / 4 / 17** — the arms-off
+count — and NOT round 8's 10 / 5 / 4 / 9, which is a figure about the
+development shapes and stays one until a 125M record carries every
+commitment and its controls.
 
 ## 13.9 Every sentence that said "nothing at 125M", corrected in place
 
@@ -3071,8 +3100,8 @@ Nothing above is rewritten; each correction is dated.
 |---|---|---|
 | §5, third bullet | "It says nothing about the 125M shape. There, exact rank over thousands of rows per commitment is a different computation, and this gate has not been run on it: the largest matrix ranked here is 308 × 3,761" | **superseded by §13**: the gate has been run on it. The largest matrix ranked is 206 × 25,686 and it takes 2.1 s; `A`'s 5,681 rows and `H`'s 7,120 are ranked in 65.7 s for the whole stage |
 | §9.11, "Nothing at the 125M shape" | "The exact-rank computation over thousands of rows per commitment is still untried, and a 484 MB run is still more than this gate ingests" | **both halves closed**: the exact-rank computation is tried and is 65.7 s, and a 281 MB `/5-run` bundle is ingested in 0.6 s at 600 MB. The 484 MB figure was for the `/4-run` encoding, which stage 27 replaced |
-| §11.8, last bullet | "anything at the 125M shape, where `A` has thousands of rows" | **partly closed, §13.8**: three of the seven PCS commitments are constructed and verified there; `A` and `H` are estimated at 22–23 minutes each and are OPEN at 125M |
-| §11.10, last bullet | "It does not generalise to the 125M shape by arithmetic … at 125M both grow, and nobody has measured it" | **measured**: the small commitments cost 16× the rung's, which is the message-width ratio and not the row ratio; §13.8 has the estimate for the large ones |
+| §11.8, last bullet | "anything at the 125M shape, where `A` has thousands of rows" | **partly closed, §13.8**: four of the seven PCS commitments are constructed and verified there — the three singleton-group ones and `A@0`, whose 5,681 rows are exactly "thousands" — with 2,215,256 entries recomputed and none differing. The other three are measured as affordable (about six minutes each) and running |
+| §11.10, last bullet | "It does not generalise to the 125M shape by arithmetic … at 125M both grow, and nobody has measured it" | **measured**: the small commitments cost 16× the rung's, which is the message-width ratio and not the row ratio, and `A@0` is 365.1 s against an `O(G·n·rows)` extrapolation of 1,400 s. The arithmetic bound is a bound on the VERIFICATION pass, not on the solve, which still decomposes at 5,681 rows |
 | §12.8, sixth bullet | "anything at the 125M shape. Nothing here was measured there, and `L_s + 256 ≤ 512` is a constraint a bigger shape could break" | **closed**: the masking layer is constructed and verified at 125M, 32,918 entries with none differing; `L_s + 256` is 373 at its largest, headroom 139, and ruling C-4 now refuses a shape that breaks it |
 | §12.10, last bullet | "`M` keeps 50 rows there, but every `L_s` grows … whether it survives at 125M is a question for the Rust lane, and nobody has measured the solve there" | **answered both ways**: the Rust lane answered it with ruling C-4, and the solve is measured at 9.4 s a stage |
 | §2.3, "Here `n = 1,024`" | — | a dated note: at 125M `n = 16,384` and `Q = 256`, so a published vector is 16,640 entries; the split of the column functional's two halves is the same and the identity reproduces with 0 failures |
@@ -3093,9 +3122,10 @@ Nothing above is rewritten; each correction is dated.
   `joint 4 = sum 4`: *`joint == sum of the parts` is a consistency check of
   this model's coordinate classes, not evidence that the commitments'
   blinding is independent.*
-* **`A` and `H`'s preimage is OPEN at 125M** (§13.8), estimated and not
-  constructed, and with it the JOINT run-wide preimage of §12.7 — which
-  needs every commitment — is **not** established at this shape.
+* **The PCS preimage is CONSTRUCTED at 125M for four of the seven
+  commitments and not yet for three** (§13.8), and until a record carries
+  all seven with round 7's controls the JOINT run-wide preimage of §12.7 —
+  which needs every commitment — is **not** established at this shape.
 * **The hash layer's HIDING is still ARGUED** (M-2, M-3). Every OPENED
   column of every commitment including `M` is re-hashed and
   re-authenticated at 125M; an unopened leaf is a salted digest of data
