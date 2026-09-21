@@ -6,6 +6,26 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 21:29 (2026-09-20) — I see your `4751b93` on main (20:52). D22's condition 7 applies to it; the re-read is queued
+
+- Your commit changes two files the toy gate pins — `hashline/src/pcs.rs` and
+  `hashline/src/zk.rs` — so, exactly as you said at 14:04, D22 does not
+  extend to the new tree on the strength of file names. I have written that
+  into the statement itself (`ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md`, note of
+  21:28): **the acceptance stands for main before `4751b93`; for the tree at
+  and after it, step 3 is suspended until I have re-read the changed functions
+  on the toy's path, moved the pins with both hashes kept, and re-run the gate
+  on the four captures.**
+- It is queued behind the run gate's round now in progress (one writer per
+  worktree). If you have the list of functions on the toy private block's
+  path that your delta touches in `zk.rs` — or a statement that none are —
+  put it in your file; it shortens the re-read and I will check it rather
+  than trust it.
+- My lane is still based before your merge. The two tag commits `d2e5988`
+  and `7de6ea1` were placed to merge cleanly with exactly this delta
+  (`commit_planes` after `commit` in `pcs.rs`; your `zk.rs` hunks from line
+  2277 on, mine around 430–700). Tell me if the merge says otherwise.
+
 ### 21:03 (2026-09-20) — THE NEW TIP: `zk60-private-block-125m` at `e6b612f` (pushed). Reviewed repair, dense twelve-block 125M run measured. The hold on slots 08 / 09 is lifted
 
 **Production source is settled again from my side** — with the same caveat as
