@@ -1,0 +1,425 @@
+{
+ "bundle": "run-i-dense-k4",
+ "stage": 0,
+ "rows": [
+  {
+   "slot": 0,
+   "name": "01 SS row sums norm_a (private)",
+   "main": 12,
+   "ext": 1,
+   "degree": 4,
+   "rounds_published": 13,
+   "round_widths": [
+    5
+   ],
+   "terminals": 1,
+   "words_counted": 67,
+   "words_formula": 67,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 3
+  },
+  {
+   "slot": 1,
+   "name": "01m SS row sums norm_m (private)",
+   "main": 12,
+   "ext": 1,
+   "degree": 4,
+   "rounds_published": 13,
+   "round_widths": [
+    5
+   ],
+   "terminals": 1,
+   "words_counted": 67,
+   "words_formula": 67,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 3
+  },
+  {
+   "slot": 2,
+   "name": "02 norm squares zero-check (hosts 01, 01m)",
+   "main": 5,
+   "ext": 1,
+   "degree": 3,
+   "rounds_published": 6,
+   "round_widths": [
+    4
+   ],
+   "terminals": 22,
+   "words_counted": 47,
+   "words_formula": 47,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 2,
+   "tables": 26
+  },
+  {
+   "slot": 3,
+   "name": "08 limb zero-check",
+   "main": 10,
+   "ext": 1,
+   "degree": 4,
+   "rounds_published": 11,
+   "round_widths": [
+    5
+   ],
+   "terminals": 3,
+   "words_counted": 59,
+   "words_formula": 59,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 5
+  },
+  {
+   "slot": 4,
+   "name": "07 masked row sums + selector (private)",
+   "main": 14,
+   "ext": 1,
+   "degree": 4,
+   "rounds_published": 15,
+   "round_widths": [
+    5
+   ],
+   "terminals": 2,
+   "words_counted": 78,
+   "words_formula": 78,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 5
+  },
+  {
+   "slot": 5,
+   "name": "09Q matmul (private)",
+   "main": 7,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 8,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 26,
+   "words_formula": 26,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 6,
+   "name": "09K matmul (private)",
+   "main": 7,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 8,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 26,
+   "words_formula": 26,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 7,
+   "name": "09V matmul (private)",
+   "main": 7,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 8,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 26,
+   "words_formula": 26,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 8,
+   "name": "10 score matmul (private, bilinear)",
+   "main": 5,
+   "ext": 2,
+   "degree": 3,
+   "rounds_published": 7,
+   "round_widths": [
+    4
+   ],
+   "terminals": 2,
+   "words_counted": 31,
+   "words_formula": 31,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 3
+  },
+  {
+   "slot": 9,
+   "name": "11 PV matmul (private, bilinear)",
+   "main": 7,
+   "ext": 2,
+   "degree": 3,
+   "rounds_published": 9,
+   "round_widths": [
+    4
+   ],
+   "terminals": 2,
+   "words_counted": 39,
+   "words_formula": 39,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 3
+  },
+  {
+   "slot": 10,
+   "name": "12 Wo matmul (private)",
+   "main": 7,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 8,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 26,
+   "words_formula": 26,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 11,
+   "name": "13G gate matmul (private)",
+   "main": 7,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 8,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 26,
+   "words_formula": 26,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 12,
+   "name": "13U up matmul (private)",
+   "main": 7,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 8,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 26,
+   "words_formula": 26,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 13,
+   "name": "13D down matmul (private)",
+   "main": 8,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 9,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 29,
+   "words_formula": 29,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 14,
+   "name": "03 D zero-check (hosts 12, 13D)",
+   "main": 12,
+   "ext": 1,
+   "degree": 5,
+   "rounds_published": 13,
+   "round_widths": [
+    6
+   ],
+   "terminals": 56,
+   "words_counted": 135,
+   "words_formula": 135,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 2,
+   "tables": 62
+  },
+  {
+   "slot": 15,
+   "name": "04 Q zero-check (hosts 09Q, 11)",
+   "main": 12,
+   "ext": 1,
+   "degree": 5,
+   "rounds_published": 13,
+   "round_widths": [
+    6
+   ],
+   "terminals": 15,
+   "words_counted": 94,
+   "words_formula": 94,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 2,
+   "tables": 21
+  },
+  {
+   "slot": 16,
+   "name": "05 KV zero-check (hosts 09K, 09V)",
+   "main": 10,
+   "ext": 1,
+   "degree": 5,
+   "rounds_published": 11,
+   "round_widths": [
+    6
+   ],
+   "terminals": 13,
+   "words_counted": 80,
+   "words_formula": 80,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 2,
+   "tables": 19
+  },
+  {
+   "slot": 17,
+   "name": "06 softmax zero-check (hosts 07, 10)",
+   "main": 14,
+   "ext": 1,
+   "degree": 5,
+   "rounds_published": 15,
+   "round_widths": [
+    6
+   ],
+   "terminals": 24,
+   "words_counted": 115,
+   "words_formula": 115,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 2,
+   "tables": 30
+  },
+  {
+   "slot": 18,
+   "name": "14 F zero-check (hosts 13G, 13U)",
+   "main": 13,
+   "ext": 1,
+   "degree": 5,
+   "rounds_published": 14,
+   "round_widths": [
+    6
+   ],
+   "terminals": 17,
+   "words_counted": 102,
+   "words_formula": 102,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 2,
+   "tables": 21
+  },
+  {
+   "slot": 19,
+   "name": "TAB table helper zero-check",
+   "main": 10,
+   "ext": 1,
+   "degree": 3,
+   "rounds_published": 11,
+   "round_widths": [
+    4
+   ],
+   "terminals": 6,
+   "words_counted": 51,
+   "words_formula": 51,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 11
+  },
+  {
+   "slot": 20,
+   "name": "ZS zero-sum row",
+   "main": 10,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 11,
+   "round_widths": [
+    3
+   ],
+   "terminals": 1,
+   "words_counted": 35,
+   "words_formula": 35,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 2
+  },
+  {
+   "slot": 21,
+   "name": "IO-in endpoint equality",
+   "main": 12,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 13,
+   "round_widths": [
+    3
+   ],
+   "terminals": 2,
+   "words_counted": 42,
+   "words_formula": 42,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 3
+  },
+  {
+   "slot": 22,
+   "name": "IO-out endpoint equality",
+   "main": 12,
+   "ext": 1,
+   "degree": 2,
+   "rounds_published": 13,
+   "round_widths": [
+    3
+   ],
+   "terminals": 2,
+   "words_counted": 42,
+   "words_formula": 42,
+   "match": true,
+   "chain_and_terminal_identity": true,
+   "hosted": 0,
+   "tables": 3
+  }
+ ],
+ "total_slot_words": 1269,
+ "total_slot_bytes": 20304,
+ "segment_bytes": 4575304,
+ "schedule_matches": 23,
+ "chain_ok": 23
+}

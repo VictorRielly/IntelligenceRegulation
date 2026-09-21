@@ -1,0 +1,159 @@
+{
+ "toy": {
+  "padded_domains": [],
+  "pad_zero_hosting_slots": [],
+  "zeta_draws_per_proof": 0,
+  "mu_pad_entries_per_proof": 0,
+  "indicator_degree_rise_slots": [],
+  "degree_rise_cost_fp2": 0,
+  "of_which_the_closure_needs": 0,
+  "of_which_buys_nothing": 0,
+  "wasted_bytes_per_block": 0
+ },
+ "rung_g": {
+  "padded_domains": [
+   "D",
+   "F",
+   "Ht",
+   "Kv",
+   "L",
+   "Q",
+   "S",
+   "T",
+   "Tab"
+  ],
+  "pad_zero_hosting_slots": [
+   2,
+   3,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19
+  ],
+  "zeta_draws_per_proof": 8,
+  "mu_pad_entries_per_proof": 8,
+  "indicator_degree_rise_slots": [
+   0,
+   1,
+   4,
+   14,
+   15,
+   16,
+   17,
+   18
+  ],
+  "degree_rise_cost_fp2": 105,
+  "of_which_the_closure_needs": 54,
+  "of_which_buys_nothing": 51,
+  "wasted_bytes_per_block": 816
+ },
+ "rung_k4": {
+  "padded_domains": [
+   "D",
+   "F",
+   "Ht",
+   "Kv",
+   "L",
+   "Q",
+   "S",
+   "T",
+   "Tab"
+  ],
+  "pad_zero_hosting_slots": [
+   2,
+   3,
+   14,
+   15,
+   16,
+   17,
+   18,
+   19
+  ],
+  "zeta_draws_per_proof": 8,
+  "mu_pad_entries_per_proof": 8,
+  "indicator_degree_rise_slots": [
+   0,
+   1,
+   4,
+   14,
+   15,
+   16,
+   17,
+   18
+  ],
+  "degree_rise_cost_fp2": 107,
+  "of_which_the_closure_needs": 56,
+  "of_which_buys_nothing": 51,
+  "wasted_bytes_per_block": 816
+ },
+ "m125": {
+  "padded_domains": [
+   "D",
+   "Ht",
+   "L",
+   "Q",
+   "S",
+   "Tab"
+  ],
+  "pad_zero_hosting_slots": [
+   3,
+   14,
+   15,
+   17,
+   19
+  ],
+  "zeta_draws_per_proof": 5,
+  "mu_pad_entries_per_proof": 5,
+  "indicator_degree_rise_slots": [
+   0,
+   1,
+   4,
+   14,
+   15,
+   17
+  ],
+  "degree_rise_cost_fp2": 126,
+  "of_which_the_closure_needs": 86,
+  "of_which_buys_nothing": 40,
+  "wasted_bytes_per_block": 640
+ },
+ "flip_partner_key_separation": [
+  {
+   "shape": "rung_g",
+   "log2_head_dim": 4,
+   "log_cols": 10,
+   "flip_inside_the_claim_tail": true,
+   "margin_to_the_cliff": 6,
+   "ruling_S3_refuses_at": "head_dim >= 2^10",
+   "this_cliff_would_bite_at": "head_dim > 2^10",
+   "covered_by_S3": true
+  },
+  {
+   "shape": "rung_k4",
+   "log2_head_dim": 3,
+   "log_cols": 10,
+   "flip_inside_the_claim_tail": true,
+   "margin_to_the_cliff": 7,
+   "ruling_S3_refuses_at": "head_dim >= 2^10",
+   "this_cliff_would_bite_at": "head_dim > 2^10",
+   "covered_by_S3": true
+  },
+  {
+   "shape": "m125",
+   "log2_head_dim": 6,
+   "log_cols": 14,
+   "flip_inside_the_claim_tail": true,
+   "margin_to_the_cliff": 8,
+   "ruling_S3_refuses_at": "head_dim >= 2^14",
+   "this_cliff_would_bite_at": "head_dim > 2^14",
+   "covered_by_S3": true
+  }
+ ],
+ "shapes_where_S_pads_but_Ht_does_not": {
+  "searched": "q_heads x h_pad x tokens x t_pad x log_cols, F-2-legal only",
+  "found": [],
+  "conclusion": "none: under ruling F-2 (no P-3 lift of Dom::S) Dom::Ht pads if and only if Dom::S does, so the refusal at argument.rs:1449-1451 is unreachable"
+ }
+}

@@ -1,0 +1,843 @@
+{
+ "per_shape": {
+  "toy": [
+   {
+    "slot": 0,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 1,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 2,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 3,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 4,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 5,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 6,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 7,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 8,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 9,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 10,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 11,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 12,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 13,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 14,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 15,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 16,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 17,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 18,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 19,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 20,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 21,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 22,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   }
+  ],
+  "rung_g": [
+   {
+    "slot": 0,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 1,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 2,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 3,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 4,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 5,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 6,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 7,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 8,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": true,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 9,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": true,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 10,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 11,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 12,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 13,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 14,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 15,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 16,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 17,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 18,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 19,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 20,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 21,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 22,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   }
+  ],
+  "rung_k4": [
+   {
+    "slot": 0,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 1,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 2,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 3,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 4,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 5,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 6,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 7,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 8,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": true,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 9,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": true,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 10,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 11,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 12,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 13,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 14,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 15,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 16,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 17,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 18,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 19,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 20,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 21,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 22,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   }
+  ],
+  "m125": [
+   {
+    "slot": 0,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 1,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 2,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 3,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 4,
+    "gated": true,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 5,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 6,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 7,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 8,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": true,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 9,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": true,
+    "ext_rounds": 2,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 10,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 11,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 12,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 13,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 14,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 15,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 16,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 17,
+    "gated": true,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 18,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 19,
+    "gated": false,
+    "pad_zero": true,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": true
+   },
+   {
+    "slot": 20,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 21,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   },
+   {
+    "slot": 22,
+    "gated": false,
+    "pad_zero": false,
+    "group_eq": false,
+    "ext_rounds": 1,
+    "premise_zero": true,
+    "control_pz_outside_eq_breaks_it": null
+   }
+  ]
+ },
+ "evaluations": 600,
+ "failures": [],
+ "controls_that_caught_the_break": 21
+}

@@ -1,0 +1,117 @@
+[
+ {
+  "seed": 4045078529,
+  "checks": {
+   "F1_premise_every_pi": true,
+   "F2_chain_every_pi": true,
+   "F2b_masked_chain": true,
+   "F3_g_val_is_mask_eval": true,
+   "F4_terminal_decomposition": true,
+   "cd_nonzero": true,
+   "cm_nonzero": true,
+   "F5_pairs_disjoint": true,
+   "F5_same_plane_same_offset": true,
+   "F5_one_key_per_claim": true,
+   "F5_keys_differ": true,
+   "F6_words": 30,
+   "F6_formula": 30,
+   "F6_match": true,
+   "F7_rank_R": 21,
+   "F7_dim_C": 21,
+   "F7_all_diffs_in_im_R": true,
+   "F7_diff_rank": 3
+  }
+ },
+ {
+  "seed": 4045078530,
+  "checks": {
+   "F1_premise_every_pi": true,
+   "F2_chain_every_pi": true,
+   "F2b_masked_chain": true,
+   "F3_g_val_is_mask_eval": true,
+   "F4_terminal_decomposition": true,
+   "cd_nonzero": true,
+   "cm_nonzero": true,
+   "F5_pairs_disjoint": true,
+   "F5_same_plane_same_offset": true,
+   "F5_one_key_per_claim": true,
+   "F5_keys_differ": true,
+   "F6_words": 30,
+   "F6_formula": 30,
+   "F6_match": true,
+   "F7_rank_R": 21,
+   "F7_dim_C": 21,
+   "F7_all_diffs_in_im_R": true,
+   "F7_diff_rank": 3
+  }
+ },
+ {
+  "seed": 4045078531,
+  "checks": {
+   "F1_premise_every_pi": true,
+   "F2_chain_every_pi": true,
+   "F2b_masked_chain": true,
+   "F3_g_val_is_mask_eval": true,
+   "F4_terminal_decomposition": true,
+   "cd_nonzero": true,
+   "cm_nonzero": true,
+   "F5_pairs_disjoint": true,
+   "F5_same_plane_same_offset": true,
+   "F5_one_key_per_claim": true,
+   "F5_keys_differ": true,
+   "F6_words": 30,
+   "F6_formula": 30,
+   "F6_match": true,
+   "F7_rank_R": 21,
+   "F7_dim_C": 21,
+   "F7_all_diffs_in_im_R": true,
+   "F7_diff_rank": 3
+  }
+ },
+ {
+  "seed": 4045078532,
+  "checks": {
+   "F1_premise_every_pi": true,
+   "F2_chain_every_pi": true,
+   "F2b_masked_chain": true,
+   "F3_g_val_is_mask_eval": true,
+   "F4_terminal_decomposition": true,
+   "cd_nonzero": true,
+   "cm_nonzero": true,
+   "F5_pairs_disjoint": true,
+   "F5_same_plane_same_offset": true,
+   "F5_one_key_per_claim": true,
+   "F5_keys_differ": true,
+   "F6_words": 30,
+   "F6_formula": 30,
+   "F6_match": true,
+   "F7_rank_R": 21,
+   "F7_dim_C": 21,
+   "F7_all_diffs_in_im_R": true,
+   "F7_diff_rank": 3
+  }
+ },
+ {
+  "seed": 4045078533,
+  "checks": {
+   "F1_premise_every_pi": true,
+   "F2_chain_every_pi": true,
+   "F2b_masked_chain": true,
+   "F3_g_val_is_mask_eval": true,
+   "F4_terminal_decomposition": true,
+   "cd_nonzero": true,
+   "cm_nonzero": true,
+   "F5_pairs_disjoint": true,
+   "F5_same_plane_same_offset": true,
+   "F5_one_key_per_claim": true,
+   "F5_keys_differ": true,
+   "F6_words": 30,
+   "F6_formula": 30,
+   "F6_match": true,
+   "F7_rank_R": 21,
+   "F7_dim_C": 21,
+   "F7_all_diffs_in_im_R": true,
+   "F7_diff_rank": 3
+  }
+ }
+]

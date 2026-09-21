@@ -1,0 +1,933 @@
+{
+ "per_shape": {
+  "toy": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   }
+  ],
+  "rung_g": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 5,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   }
+  ],
+  "rung_k4": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 5,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   }
+  ],
+  "m125": [
+   {
+    "slot": 0,
+    "name": "01 SS row sums norm_a",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 1,
+    "name": "01m SS row sums norm_m",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 2,
+    "name": "02 norm squares zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 3,
+    "name": "08 limb zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 4,
+    "name": "07 masked row sums + selector",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 5,
+    "name": "09Q matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 6,
+    "name": "09K matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 7,
+    "name": "09V matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 8,
+    "name": "10 score matmul",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 9,
+    "name": "11 PV matmul",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 10,
+    "name": "12 Wo matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 11,
+    "name": "13G gate matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 12,
+    "name": "13U up matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 13,
+    "name": "13D down matmul",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 14,
+    "name": "03 D zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 15,
+    "name": "04 Q zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 4,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 1
+   },
+   {
+    "slot": 16,
+    "name": "05 KV zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 17,
+    "name": "06 softmax zero-check",
+    "declared": 5,
+    "maxplus_upper_bound": 5,
+    "gated": true,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 18,
+    "name": "14 F zero-check",
+    "declared": 4,
+    "maxplus_upper_bound": 4,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 19,
+    "name": "TAB table helper zero-check",
+    "declared": 3,
+    "maxplus_upper_bound": 3,
+    "gated": false,
+    "pad_zero_term": true,
+    "slack": 0
+   },
+   {
+    "slot": 20,
+    "name": "ZS zero-sum row",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 21,
+    "name": "IO-in endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   },
+   {
+    "slot": 22,
+    "name": "IO-out endpoint equality",
+    "declared": 2,
+    "maxplus_upper_bound": 2,
+    "gated": false,
+    "pad_zero_term": false,
+    "slack": 0
+   }
+  ]
+ },
+ "under_declared_SOUNDNESS": [],
+ "over_declared": [
+  {
+   "shape": "rung_g",
+   "slot": 14,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 13,
+   "wasted_fp2_words": 13
+  },
+  {
+   "shape": "rung_g",
+   "slot": 15,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 13,
+   "wasted_fp2_words": 13
+  },
+  {
+   "shape": "rung_g",
+   "slot": 16,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 11,
+   "wasted_fp2_words": 11
+  },
+  {
+   "shape": "rung_g",
+   "slot": 18,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 14,
+   "wasted_fp2_words": 14
+  },
+  {
+   "shape": "rung_k4",
+   "slot": 14,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 13,
+   "wasted_fp2_words": 13
+  },
+  {
+   "shape": "rung_k4",
+   "slot": 15,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 13,
+   "wasted_fp2_words": 13
+  },
+  {
+   "shape": "rung_k4",
+   "slot": 16,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 11,
+   "wasted_fp2_words": 11
+  },
+  {
+   "shape": "rung_k4",
+   "slot": 18,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 14,
+   "wasted_fp2_words": 14
+  },
+  {
+   "shape": "m125",
+   "slot": 14,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 20,
+   "wasted_fp2_words": 20
+  },
+  {
+   "shape": "m125",
+   "slot": 15,
+   "declared": 5,
+   "actual_ub": 4,
+   "N": 20,
+   "wasted_fp2_words": 20
+  }
+ ],
+ "wasted_fp2_words_per_block": {
+  "rung_g": 51,
+  "rung_k4": 51,
+  "m125": 40
+ },
+ "wasted_bytes_per_block": {
+  "rung_g": 816,
+  "rung_k4": 816,
+  "m125": 640
+ }
+}
