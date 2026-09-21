@@ -60,6 +60,62 @@ use std::io::Write;
 /// version rather than mis-read a stage as a proof.
 pub(super) const SCHEMA: &str = "hashline-native-capture/4-run";
 
+/// **STAGE 27: the schema a bundle carries when its large homogeneous field
+/// arrays live in a binary side file.** `/5-run` differs from [`SCHEMA`] in
+/// exactly one way and in no other: a field-element array of at least
+/// [`ARRAY_MIN`] entries is written as the OBJECT
+/// `{"array":"<sha256>","elem":"fp"|"fp2","len":N,"offset":O,"bytes":B}`
+/// instead of a JSON list, and the `B` bytes at offset `O` of the bundle's
+/// one `arrays.bin` are that array little-endian — eight bytes per `Fp`,
+/// sixteen per `Fp2` (`c0` then `c1`). Every other field, every key, every
+/// order and every small array is byte for byte what `/4-run` writes, so a
+/// reader of `/4-run` needs only the array resolver to read `/5-run`.
+/// Written only when the writer is asked for it (`HL_RUN_CAPTURE_ARRAYS=store`
+/// or the explicit argument of [`begin_run_with`]); the default stays
+/// `/4-run` and every bundle committed before this stage stays readable.
+pub(super) const SCHEMA_V5: &str = "hashline-native-capture/5-run";
+
+/// An array of at least this many field elements goes to `arrays.bin` when
+/// the store is on. Below it the classic inline list is written, so the small
+/// per-slot vectors (`rho`, `terminals`, the sumcheck rounds, an endpoint's
+/// nine-row column) read exactly as they always have.
+pub(super) const ARRAY_MIN: usize = 256;
+
+/// Does the environment ask for the binary array store? The default is NO:
+/// every existing test, gate bundle and Python loader keeps the `/4-run`
+/// encoding unless a caller says otherwise.
+pub(super) fn array_store_wanted() -> bool {
+    std::env::var("HL_RUN_CAPTURE_ARRAYS").map(|v| v == "store").unwrap_or(false)
+}
+
+/// **What a capture is asked for, decided ONCE at `begin_run` and never
+/// re-read from the environment inside a run.** Both choices change what a
+/// bundle contains, so a caller that wants a particular bundle says so
+/// outright and a test can capture one run two ways in one process.
+#[derive(Clone, Copy)]
+pub(super) struct CaptureOpts {
+    /// large homogeneous arrays go to `arrays.bin` (schema `/5-run`)
+    pub arrays: bool,
+    /// a public table carries its VALUES, not only its length and digest
+    pub public_tables: bool,
+}
+
+impl CaptureOpts {
+    pub(super) fn from_env() -> CaptureOpts {
+        CaptureOpts { arrays: array_store_wanted(), public_tables: public_tables_wanted() }
+    }
+}
+
+/// Which schema string a bundle declares, decided once by whether its arrays
+/// are in `arrays.bin`.
+pub(super) fn schema_of(arrays: bool) -> &'static str {
+    if arrays {
+        SCHEMA_V5
+    } else {
+        SCHEMA
+    }
+}
+
 /// Every Rust file whose bytes decide what a bundle contains. Their SHA-256 at
 /// capture time is the bundle's source pin, so a bundle can be tied to the
 /// code that produced it without trusting a commit id.
@@ -82,7 +138,64 @@ pub(super) const SCHEMA: &str = "hashline-native-capture/4-run";
 /// existing entry. The bundles already committed are NOT re-taken; they carry
 /// the eight-entry list they were written with, which is what their own
 /// manifests pin.
-pub(super) const SOURCE_FILES: [&str; 15] = [
+/// **STAGE 27, the Python gate's open item: the SHARED files are pinned too.**
+/// Until this stage the list was `private_block`'s own path and nothing else,
+/// so a bundle said nothing about the code that actually builds its
+/// transcript, its commitments and its openings — `hashline/src/zk.rs`, the
+/// six thin re-export adapters, and the `zkp-core` modules behind them. A
+/// gate could therefore not tell two bundles apart that were written by the
+/// same `private_block` over a changed `zkp-core`.
+///
+/// The list below is the `use` graph of the run's prover and verifier, read
+/// off the sources: `private_block.rs` and its modules reach
+/// `crate::{field, merkle, mle, ntt, pcs, sumcheck, transcript}` (each a
+/// one-line `pub use zkp_core::<m>::*` adapter), `crate::zk` (the masking
+/// commitment, `ZkRng`, `CfsMask`), `crate::tables_attn`,
+/// `crate::causal_oracle`, `crate::private_seam` (reached by `endpoint_g.rs`),
+/// `crate::export_v3` (the SHA-256 helper this writer itself uses) and
+/// `zkp_core::hashtag`; and `zkp-core` itself carries the canonical
+/// `field / merkle / mle / ntt / pcs (+ pcs/backend) / rng / sumcheck /
+/// transcript / hashtag` and its `lib.rs`.
+///
+/// **LISTING A FILE IS NOT EDITING IT.** A pin reads the file at capture time
+/// and records its SHA-256; nothing here writes to a shared or frozen file,
+/// and no byte of any profile moves.
+///
+/// **PURE ADDITION, so the schema name does not move for this.** `source_pins`
+/// is a list of `(file, sha256)` objects; adding entries renames nothing,
+/// reorders nothing a loader reads by name and removes nothing. Bundles
+/// already committed keep the shorter list their own manifests pin.
+pub(super) const SHARED_SOURCE_FILES: [&str; 23] = [
+    // hashline's own shared modules on the run's path
+    "src/zk.rs",
+    "src/tables_attn.rs",
+    "src/causal_oracle.rs",
+    "src/private_seam.rs",
+    "src/export_v3.rs",
+    // the thin adapters: one line each today, and the line says which
+    // zkp-core module a name resolves to
+    "src/field.rs",
+    "src/merkle.rs",
+    "src/mle.rs",
+    "src/ntt.rs",
+    "src/pcs.rs",
+    "src/sumcheck.rs",
+    "src/transcript.rs",
+    // and the canonical implementations behind them
+    "../zkp-core/src/lib.rs",
+    "../zkp-core/src/field.rs",
+    "../zkp-core/src/hashtag.rs",
+    "../zkp-core/src/merkle.rs",
+    "../zkp-core/src/mle.rs",
+    "../zkp-core/src/ntt.rs",
+    "../zkp-core/src/pcs.rs",
+    "../zkp-core/src/pcs/backend.rs",
+    "../zkp-core/src/rng.rs",
+    "../zkp-core/src/sumcheck.rs",
+    "../zkp-core/src/transcript.rs",
+];
+
+pub(super) const OWN_SOURCE_FILES: [&str; 15] = [
     "src/private_block/run_capture.rs",
     "src/private_block/run.rs",
     "src/private_block/boundary.rs",
@@ -121,7 +234,7 @@ pub(super) const SOURCE_FILES: [&str; 15] = [
 ];
 
 /// **The production modules of `private_block` that are NOT source pins, with
-/// the reason** (stage 24). `SOURCE_FILES` plus this list is the whole module
+/// the reason** (stage 24). [`OWN_SOURCE_FILES`] plus this list is the whole module
 /// list, and a test asserts that partition, so a new production module cannot
 /// be added without a decision about it being recorded here.
 pub(super) const NOT_ON_THE_RUNS_PATH: [(&str, &str); 1] = [(
@@ -209,6 +322,107 @@ pub(super) struct Geom {
     pub claim_sources: Vec<(usize, usize, usize)>,
 }
 
+// ---------------------------------------------------------------- the array side store
+
+/// **STAGE 27: the binary side store for the large homogeneous arrays.**
+///
+/// **Why it exists.** Rendered as decimal JSON a uniformly random `Fp` costs
+/// 21.4 bytes and an `Fp2` 44.8 (MEASURED on the committed rung bundles), so
+/// at the 125M shape one stage's opened columns and opening vectors alone
+/// are 112 MB of text and the twenty-three slots' public tables are another
+/// 213 MB. The same values little-endian are 8 and 16 bytes, and — this is
+/// the larger saving — the shape-only public tables (the causal mask and the
+/// pad indicators) are BYTE-IDENTICAL between slots and between stages, so
+/// content addressing writes each of them once for the whole bundle.
+///
+/// **It keeps every value.** Nothing is dropped, summarised or rounded: the
+/// store holds exactly the numbers the classic encoding would have printed,
+/// and `the_array_store_and_the_classic_encoding_carry_the_same_values`
+/// decodes a bundle written both ways and compares them entry by entry.
+///
+/// **It is IN MEMORY until the run is accepted.** Ruling D21 / M-9 says no
+/// bundle is written for a run the verifier did not accept, so the blob is
+/// held and handed to [`write_bundle`] with the rest; nothing reaches the
+/// disk before `take` has refused or succeeded. At the 125M shape the blob
+/// is about 258 MB with the public tables and 82 MB without — two orders of
+/// magnitude under the run's own working set, which is why this writer needs
+/// no streaming and none was built.
+pub(super) struct ArrayStore {
+    on: bool,
+    blob: Vec<u8>,
+    /// content digest -> (offset, bytes) inside `blob`
+    index: std::collections::HashMap<String, (usize, usize)>,
+    /// how many arrays were stored, and how many of those were already there
+    stored: usize,
+    deduped: usize,
+    inline: usize,
+}
+
+impl ArrayStore {
+    fn new(on: bool) -> ArrayStore {
+        ArrayStore { on, blob: Vec::new(), index: std::collections::HashMap::new(), stored: 0, deduped: 0, inline: 0 }
+    }
+    pub(super) fn is_on(&self) -> bool {
+        self.on
+    }
+    pub(super) fn blob(&self) -> &[u8] {
+        &self.blob
+    }
+    /// `(distinct arrays, arrays written, arrays deduplicated, arrays left inline, blob bytes)`
+    pub(super) fn stats(&self) -> (usize, usize, usize, usize, usize) {
+        (self.index.len(), self.stored, self.deduped, self.inline, self.blob.len())
+    }
+    /// Append one array's bytes, or reuse an identical array already stored,
+    /// and write the JSON reference that names it.
+    fn put(&mut self, out: &mut Vec<u8>, elem: &str, len: usize, bytes: &[u8]) {
+        let sha = crate::export_v3::sha256_hex(bytes);
+        self.stored += 1;
+        let (offset, n) = match self.index.get(&sha) {
+            Some(&at) => {
+                self.deduped += 1;
+                at
+            }
+            None => {
+                let at = (self.blob.len(), bytes.len());
+                self.blob.extend_from_slice(bytes);
+                self.index.insert(sha.clone(), at);
+                at
+            }
+        };
+        write!(out, "{{\"array\":{sha:?},\"elem\":{elem:?},\"len\":{len},\"offset\":{offset},\"bytes\":{n}}}").expect("write to a Vec");
+    }
+}
+
+/// A base-field array: the store when it is on and the array is large, the
+/// classic decimal list otherwise.
+fn fp_array(out: &mut Vec<u8>, st: &mut ArrayStore, v: &[Fp]) {
+    if st.on && v.len() >= ARRAY_MIN {
+        let mut bytes = Vec::with_capacity(v.len() * 8);
+        for x in v {
+            bytes.extend_from_slice(&x.to_bytes());
+        }
+        st.put(out, "fp", v.len(), &bytes);
+    } else {
+        st.inline += 1;
+        write!(out, "{:?}", v.iter().map(|x| x.0).collect::<Vec<_>>()).expect("write to a Vec");
+    }
+}
+
+/// An extension-field array, the same rule. Sixteen bytes an entry, `c0`
+/// then `c1`, each a little-endian `u64`.
+fn fp2_array(out: &mut Vec<u8>, st: &mut ArrayStore, v: &[Fp2]) {
+    if st.on && v.len() >= ARRAY_MIN {
+        let mut bytes = Vec::with_capacity(v.len() * 16);
+        for x in v {
+            bytes.extend_from_slice(&x.to_bytes());
+        }
+        st.put(out, "fp2", v.len(), &bytes);
+    } else {
+        st.inline += 1;
+        write!(out, "{:?}", fp2s(v)).expect("write to a Vec");
+    }
+}
+
 // ---------------------------------------------------------------- the recorder
 
 struct StageRec {
@@ -252,6 +466,11 @@ struct Rec {
     /// `run.json`'s one copy is a statement about every stage of the run.
     index: Option<PlaneIndex>,
     index_json: Vec<u8>,
+    /// **STAGE 27.** The binary side store for the large homogeneous arrays,
+    /// held in memory until the run is accepted.
+    store: ArrayStore,
+    /// **STAGE 27.** Whether a public table carries its values, taken once.
+    public_tables: bool,
 }
 
 thread_local! {
@@ -306,6 +525,13 @@ fn at(r: &mut Rec, site: &str, tr: &Transcript) {
 /// absorbs them — and its state is compared with the verifier's binding. A
 /// header the recorder cannot rebuild is a capture that never starts.
 pub(super) fn begin_run(header: RunHeader, binding: Digest) {
+    begin_run_with(header, binding, CaptureOpts::from_env())
+}
+
+/// The same, with both capture choices stated outright instead of read from
+/// the environment — so a test can capture one run BOTH ways in one process
+/// without touching a process-global.
+pub(super) fn begin_run_with(header: RunHeader, binding: Digest, opts: CaptureOpts) {
     REC.with(|s| {
         let mut cell = s.borrow_mut();
         assert!(cell.is_none(), "a run recorder is already seeded");
@@ -325,7 +551,7 @@ pub(super) fn begin_run(header: RunHeader, binding: Digest) {
         tr.absorb(b"parameters", header.parameter_line.as_bytes());
         tr.absorb(b"calibration", &header.calibration);
         tr.absorb(b"schedule", &header.schedule_digest);
-        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new() };
+        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new(), store: ArrayStore::new(opts.arrays), public_tables: opts.public_tables };
         if r.own.state() != r.binding {
             fail(&mut r, "replay: the rebuilt run header is not the verifier's binding".into());
         }
@@ -560,6 +786,7 @@ pub(super) fn slot(def: &SlotDef, acc: &Acc, proof: &SlotProof, rho: &[Fp2], c: 
             write!(out, "{{\"slot\":{hs},\"coefficient\":{:?}}}", fp2(*coefficient)).expect("write to a Vec");
         }
         write!(out, "],\"tables\":[").expect("write to a Vec");
+        let public_tables = r.public_tables;
         let mut counts = [0usize; 4];
         for t in &def.tabs {
             if let Tab::Priv(v) = t {
@@ -573,7 +800,7 @@ pub(super) fn slot(def: &SlotDef, acc: &Acc, proof: &SlotProof, rho: &[Fp2], c: 
             }
             match table {
                 Tab::Eq { point, start } => write!(out, "{{\"kind\":\"eq\",\"start\":{start},\"point\":{:?}}}", fp2s(point)).expect("write to a Vec"),
-                Tab::Pub(v) => write_public_table(&mut out, v),
+                Tab::Pub(v) => write_public_table(&mut out, &mut r.store, v, public_tables),
                 Tab::Priv(v) => {
                     let role = ["A", "H", "Input", "Output"][v.cm as usize];
                     let ci = &mut indices[v.cm as usize];
@@ -660,8 +887,12 @@ pub(super) fn mask(specs: &[(usize, usize)], root: &Digest, fs: &[MaskFunctional
             }
             write!(out, "]}}").expect("write to a Vec");
         }
-        write!(out, "],\"q\":{:?},\"prox\":{:?},\"columns\":", fp2s(&op.q), fp2s(&op.prox)).expect("write to a Vec");
-        columns(&mut out, &op.columns);
+        write!(out, "],\"q\":").expect("write to a Vec");
+        fp2_array(&mut out, &mut r.store, &op.q);
+        write!(out, ",\"prox\":").expect("write to a Vec");
+        fp2_array(&mut out, &mut r.store, &op.prox);
+        write!(out, ",\"columns\":").expect("write to a Vec");
+        columns(&mut out, &mut r.store, &op.columns);
         write!(out, "}}").expect("write to a Vec");
         site(r, "M opening", &before, after);
         let cur = r.cur.as_mut().expect("an open stage");
@@ -701,7 +932,7 @@ pub(super) fn pcs(g: Geom, claims: &[ZClaim], opening: &OpeningZk, ntt: &NttTabl
             return;
         }
         let mut out = Vec::new();
-        write_pcs(&mut out, &g, claims, opening, &replayed, &before, after);
+        write_pcs(&mut out, &mut r.store, &g, claims, opening, &replayed, &before, after);
         site(r, &format!("{} opening", g.role), &before, after);
         let cur = r.cur.as_mut().expect("an open stage");
         cur.roles.push(out);
@@ -751,6 +982,9 @@ pub(super) struct Bundle {
     pub stages: Vec<Vec<u8>>,
     pub profile: String,
     pub l: usize,
+    /// **STAGE 27.** The bundle's `arrays.bin`, empty under the `/4-run`
+    /// encoding.
+    pub arrays: ArrayStore,
 }
 
 pub(super) fn take() -> Result<Bundle, String> {
@@ -769,7 +1003,7 @@ pub(super) fn take() -> Result<Bundle, String> {
         return Err("run capture: no plane index table was built; no bundle is written without one".into());
     }
     let run_json = write_run(&r);
-    Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l })
+    Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store })
 }
 
 /// Detach and discard, whatever state the recorder is in. A rejected run must
@@ -808,13 +1042,15 @@ fn state(out: &mut Vec<u8>, name: &str, tr: &Transcript) {
     write!(out, "{name:?}:{{\"state\":{:?},\"next\":{:?}}}", tr.state(), fp2(Transcript::clone_state(tr).challenge_fp2())).expect("write to a Vec");
 }
 
-fn columns(out: &mut Vec<u8>, cols: &[(usize, Vec<Fp>, [u8; 32], Vec<[u8; 32]>)]) {
+fn columns(out: &mut Vec<u8>, st: &mut ArrayStore, cols: &[(usize, Vec<Fp>, [u8; 32], Vec<[u8; 32]>)]) {
     write!(out, "[").expect("write to a Vec");
     for (i, (index, values, salt, path)) in cols.iter().enumerate() {
         if i > 0 {
             write!(out, ",").expect("write to a Vec");
         }
-        write!(out, "{{\"index\":{index},\"values\":{:?},\"salt\":{salt:?},\"path\":{path:?}}}", values.iter().map(|x| x.0).collect::<Vec<_>>()).expect("write to a Vec");
+        write!(out, "{{\"index\":{index},\"values\":").expect("write to a Vec");
+        fp_array(out, st, values);
+        write!(out, ",\"salt\":{salt:?},\"path\":{path:?}}}").expect("write to a Vec");
     }
     write!(out, "]").expect("write to a Vec");
 }
@@ -847,19 +1083,30 @@ fn strings(out: &mut Vec<u8>, records: &[String]) {
 /// development rung the values of the twenty-three slots' public cubes are the
 /// largest thing in a bundle by a wide margin, and the Python side can rebuild
 /// any of them from the statement it already has.
-fn write_public_table(out: &mut Vec<u8>, v: &[Fp2]) {
+fn write_public_table(out: &mut Vec<u8>, st: &mut ArrayStore, v: &[Fp2], values: bool) {
     let mut bytes = Vec::with_capacity(v.len() * 16);
     for x in v {
         bytes.extend_from_slice(&x.to_bytes());
     }
     write!(out, "{{\"kind\":\"public\",\"len\":{},\"sha256\":{:?}", v.len(), crate::export_v3::sha256_hex(&bytes)).expect("write to a Vec");
-    if public_tables_wanted() {
-        write!(out, ",\"values\":{:?}", fp2s(v)).expect("write to a Vec");
+    if values {
+        write!(out, ",\"values\":").expect("write to a Vec");
+        // **STAGE 27.** The bytes are already here and they are exactly the
+        // ones the `sha256` above is taken over, so a stored public table's
+        // `array` digest and its `sha256` are the SAME string — the one place
+        // in a bundle where a reader can check the store against a field the
+        // classic encoding already carried.
+        if st.on && v.len() >= ARRAY_MIN {
+            st.put(out, "fp2", v.len(), &bytes);
+        } else {
+            st.inline += 1;
+            write!(out, "{:?}", fp2s(v)).expect("write to a Vec");
+        }
     }
     write!(out, "}}").expect("write to a Vec");
 }
 
-fn public_tables_wanted() -> bool {
+pub(super) fn public_tables_wanted() -> bool {
     std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").map(|v| v == "1").unwrap_or(false)
 }
 
@@ -867,7 +1114,8 @@ pub(super) fn segments_wanted() -> bool {
     std::env::var("HL_RUN_CAPTURE_SEGMENTS").map(|v| v == "1").unwrap_or(false)
 }
 
-fn write_pcs(out: &mut Vec<u8>, g: &Geom, claims: &[ZClaim], opening: &OpeningZk, r: &Replayed, before: &Transcript, after: &Transcript) {
+#[allow(clippy::too_many_arguments)]
+fn write_pcs(out: &mut Vec<u8>, st: &mut ArrayStore, g: &Geom, claims: &[ZClaim], opening: &OpeningZk, r: &Replayed, before: &Transcript, after: &Transcript) {
     write!(
         out,
         "{{\"role\":{:?},\"commitment_kind\":{:?},\"params\":{{\"log_cols\":{},\"inv_rate\":{},\"num_col_checks\":{}}},\"commitment\":{{\"root\":{:?},\"rows\":{}}},\"data_rows\":{},\"site_rows\":{:?},\"prox_row\":{},\"sum_rows\":{},\"boundary\":{},\"claim_sources\":[",
@@ -920,10 +1168,16 @@ fn write_pcs(out: &mut Vec<u8>, g: &Geom, claims: &[ZClaim], opening: &OpeningZk
         if i > 0 {
             write!(out, ",").expect("write to a Vec");
         }
-        write!(out, "{{\"members\":{:?},\"lambdas\":{:?},\"key\":{{\"tail\":{:?},\"offset\":{},\"len\":{}}},\"vector\":{:?}}}", group.members, fp2s(&group.lambdas), fp2s(&group.key.tail), group.key.offset, group.key.len, fp2s(&opening.group_vecs[i])).expect("write to a Vec");
+        write!(out, "{{\"members\":{:?},\"lambdas\":{:?},\"key\":{{\"tail\":{:?},\"offset\":{},\"len\":{}}},\"vector\":", group.members, fp2s(&group.lambdas), fp2s(&group.key.tail), group.key.offset, group.key.len).expect("write to a Vec");
+        fp2_array(out, st, &opening.group_vecs[i]);
+        write!(out, "}}").expect("write to a Vec");
     }
-    write!(out, "],\"proximity_rhos\":{:?},\"proximity_vector\":{:?},\"columns\":", fp2s(&r.proximity_rhos), fp2s(&opening.prox_vec)).expect("write to a Vec");
-    columns(out, &opening.columns);
+    write!(out, "],\"proximity_rhos\":").expect("write to a Vec");
+    fp2_array(out, st, &r.proximity_rhos);
+    write!(out, ",\"proximity_vector\":").expect("write to a Vec");
+    fp2_array(out, st, &opening.prox_vec);
+    write!(out, ",\"columns\":").expect("write to a Vec");
+    columns(out, st, &opening.columns);
     write!(out, ",\"q_pad\":{},\"row_roles\":[", g.params.num_col_checks).expect("write to a Vec");
     for row in 0..g.rows {
         if row > 0 {
@@ -958,9 +1212,10 @@ fn row_kind(g: &Geom, row: usize) -> &'static str {
 fn write_stage(r: &Rec, cur: &StageRec) -> Vec<u8> {
     let mut out = Vec::new();
     let sh = &r.header.sh;
+    let schema = schema_of(r.store.is_on());
     write!(
         out,
-        "{{\"schema\":{SCHEMA:?},\"kind\":\"zk60-run-stage-observations\",\"stage\":{},\"blocks\":{},\"block_digest\":{:?},\"segment_bytes\":{},\"segment_sha256\":{:?},\"start_tag\":{:?},\"end_tag\":{:?},\"boundary_committed\":{},\"a_root\":{:?},\"a_rows\":{},\"h_root\":{:?},\"h_rows\":{},\"mask_root\":{:?},\"log_cols\":{},\"logup_challenges\":{:?},\"layout_digest\":{:?},\"opening_order\":{},",
+        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-stage-observations\",\"stage\":{},\"blocks\":{},\"block_digest\":{:?},\"segment_bytes\":{},\"segment_sha256\":{:?},\"start_tag\":{:?},\"end_tag\":{:?},\"boundary_committed\":{},\"a_root\":{:?},\"a_rows\":{},\"h_root\":{:?},\"h_rows\":{},\"mask_root\":{:?},\"log_cols\":{},\"logup_challenges\":{:?},\"layout_digest\":{:?},\"opening_order\":{},",
         cur.k,
         r.header.l,
         r.header.block_digests[cur.k],
@@ -1032,9 +1287,10 @@ fn write_run(r: &Rec) -> Vec<u8> {
     let h = &r.header;
     let sh = &h.sh;
     let mut out = Vec::new();
+    let schema = schema_of(r.store.is_on());
     write!(
         out,
-        "{{\"schema\":{SCHEMA:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}}},",
+        "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}}},",
         h.profile,
         h.profile,
         sh.profile,
@@ -1042,7 +1298,7 @@ fn write_run(r: &Rec) -> Vec<u8> {
         h.boundaries.len(),
         crate::field::P,
         crate::field::NONRESIDUE,
-        public_tables_wanted(),
+        r.public_tables,
         std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into()),
         r.binding,
         h.context,
@@ -1214,6 +1470,10 @@ const TRANSCRIPT_PROGRAM: [&str; 10] = [
 pub(super) fn stage_file(k: usize) -> String {
     format!("stage-{k:02}.json")
 }
+
+/// **STAGE 27.** The bundle's one binary side file, present only under
+/// `/5-run`.
+pub(super) const ARRAYS_FILE: &str = "arrays.bin";
 
 // ---------------------------------------------------------------- the PCS grouping replay
 
@@ -1538,6 +1798,15 @@ pub(super) const ALLOWED_KEYS: &[&str] = &[
     // opened columns
     "salt",
     "path",
+    // STAGE 27: an array that lives in `arrays.bin`. PUBLIC BOOK-KEEPING
+    // ONLY — the content digest, the element type, the entry count and where
+    // the bytes are. The VALUES behind it are the same verifier-view values
+    // the classic encoding printed inline; nothing new is published by moving
+    // them, and nothing that was not already in a bundle can be referenced.
+    // (`offset`, `len`, `bytes` and `sha256` are already on the list above,
+    // from the private-table slices, the public tables and the manifest.)
+    "array",
+    "elem",
     // the manifest
     "file",
     "bytes",
@@ -1596,9 +1865,17 @@ pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8
         files.push((name, bytes.len(), crate::export_v3::sha256_hex(bytes)));
         Ok(())
     };
+    let schema = schema_of(b.arrays.is_on());
     put("run.json".into(), &b.run_json, &mut files)?;
     for (k, s) in b.stages.iter().enumerate() {
         put(stage_file(k), s, &mut files)?;
+    }
+    // **STAGE 27: the one binary side file.** Every `{"array":...}` reference
+    // in the JSON names an offset and a length in it, and the manifest pins
+    // the whole file by length and SHA-256 like any other. Under the `/4-run`
+    // encoding the store is empty and no such file exists.
+    if b.arrays.is_on() {
+        put(ARRAYS_FILE.into(), b.arrays.blob(), &mut files)?;
     }
     // **THE SEGMENTS ARE OPT-IN.** They are the receipt, and every stage file
     // already carries its own segment's length and SHA-256, so a bundle
@@ -1612,8 +1889,16 @@ pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8
         }
     }
     let payload: usize = files.iter().map(|(_, n, _)| n).sum();
+    let (distinct, stored, deduped, inline, blob) = b.arrays.stats();
+    let arrays_note = if b.arrays.is_on() {
+        format!(
+            "THE ARRAYS ARE IN `{ARRAYS_FILE}` (schema `{SCHEMA_V5}`). A field-element\narray of at least {ARRAY_MIN} entries is written in the JSON as\n`{{\"array\":\"<sha256>\",\"elem\":\"fp\"|\"fp2\",\"len\":N,\"offset\":O,\"bytes\":B}}` and its\nvalues are the B bytes at offset O of that file, little-endian: eight bytes\nper `fp`, sixteen per `fp2` (`c0` then `c1`). Identical arrays are stored\nONCE and every reference to them names the same offset, which is why the\nshape-only public tables cost one copy for the whole bundle rather than one\nper slot per stage. Here: {stored} references over {distinct} distinct arrays\n({deduped} resolved to an array already stored), {inline} small arrays left\ninline as plain JSON lists, {blob} bytes of `{ARRAYS_FILE}`. Everything else\nis byte for byte what schema `{SCHEMA}` writes."
+        )
+    } else {
+        format!("Every array is an inline JSON list (schema `{SCHEMA}`); this bundle has no `{ARRAYS_FILE}`.")
+    };
     let readme = format!(
-        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{SCHEMA}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here.\n\n{payload} bytes of run file, stage files and segments.\n",
+        "# ZK60 run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private run of {} blocks under one\ntranscript, profile `{}`, written by `hashline/src/private_block/run_capture.rs`\n(schema `{schema}`). It is the INPUT to the privacy gate of ruling M-8 and it\nis NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, the external endpoints and the\n{} internal boundaries) and `stage-NN.json` (per stage: the roots, the\ntwenty-three slot transcripts, the M opening, and the A, H and IO openings).\nEach stage file carries its segment's length and SHA-256, so the bundle is\npinned to the exact receipt bytes that were verified; the segments themselves\nare written into `segments/` only when `HL_RUN_CAPTURE_SEGMENTS=1` asks for\nthem, because they are a third of a bundle and the gate reads only the JSON.\n`manifest.json` lists every file with its SHA-256 and pins the source files.\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value. The list is in `run.json` under\n`not_in_a_capture`, and `every_key_of_a_bundle_is_on_the_allow_list` fails if\nthe writer ever emits a field outside its declared allow-list. The weights are\nsynthetic and public; the hidden input came from the lane's fixture generator\nand is not here.\n\n{payload} bytes of run file, stage files and segments.\n",
         b.l,
         b.profile,
         b.l.saturating_sub(1)
@@ -1621,7 +1906,7 @@ pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8
     put("README.md".into(), readme.as_bytes(), &mut files)?;
     let pins = source_pins()?;
     let mut manifest = Vec::new();
-    write!(manifest, "{{\"schema\":{SCHEMA:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())).expect("write to a Vec");
+    write!(manifest, "{{\"schema\":{schema:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())).expect("write to a Vec");
     for (i, (name, sha)) in pins.iter().enumerate() {
         if i > 0 {
             write!(manifest, ",").expect("write to a Vec");
@@ -1643,11 +1928,19 @@ pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8
     Ok(())
 }
 
+/// **Every file a bundle pins**: `private_block`'s own path first, in the
+/// order stage 24 fixed, then the shared files stage 27 added. The order is
+/// part of the format — a reader may index into `source_pins` — so new
+/// entries are appended and nothing is re-sorted.
+pub(super) fn source_files() -> Vec<&'static str> {
+    OWN_SOURCE_FILES.iter().copied().chain(SHARED_SOURCE_FILES.iter().copied()).collect()
+}
+
 /// SHA-256 of every source file that decides what a bundle contains.
 pub(super) fn source_pins() -> Result<Vec<(String, String)>, String> {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut out = Vec::new();
-    for name in SOURCE_FILES {
+    for name in source_files() {
         let path = root.join(name);
         let bytes = std::fs::read(&path).map_err(|e| format!("run capture: source pin {}: {e}", path.display()))?;
         out.push((name.to_string(), crate::export_v3::sha256_hex(&bytes)));

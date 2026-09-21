@@ -437,7 +437,7 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
         ],
         "the production module list of private_block has moved"
     );
-    let pinned: Vec<&str> = super::run_capture::SOURCE_FILES.to_vec();
+    let pinned: Vec<&str> = super::run_capture::source_files();
     let excused: Vec<&str> = super::run_capture::NOT_ON_THE_RUNS_PATH.iter().map(|(f, _)| *f).collect();
     // (a) the partition: every production file on exactly one side
     for f in &production {

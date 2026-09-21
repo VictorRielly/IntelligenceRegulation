@@ -799,3 +799,115 @@ whole run first, so a failed run leaves no statement file and no `statement/`
 directory. The full member list, and the trace of each member to the line of
 `run.rs` at which the verifier consumes it, is in the stage 18 section of
 `ZK60_BLOCK125M_LANE_PROGRESS.md`.
+
+---
+
+## 12. Schema `hashline-native-capture/5-run`: the arrays in a binary side file (stage 27, 2026-09-21)
+
+**This is the one schema change since `/4-run` was written, and it is the
+only one.** `/4-run` is unchanged, every bundle already committed stays
+readable, and a reader of `/4-run` needs exactly one new thing — an array
+resolver — to read `/5-run`.
+
+### Why
+
+Rendered as decimal JSON a uniformly random `Fp` costs **21.4 bytes** and an
+`Fp2` **44.8** (MEASURED on the committed rung bundles), against 8 and 16
+bytes little-endian. At the development shapes that is a 38 MB bundle and
+nobody minded. At the **125M shape** one stage's opened columns and opening
+vectors are 112 MB of text and the twenty-three slots' public tables another
+213 MB, so a two-block bundle would be about **653 MB** — and the arrays the
+Python gate wants to read are exactly the ones it would have to parse out of
+that text. Under `/5-run` the same two-block bundle is about **350 MB**, and
+about 258 MB of it is one `arrays.bin` the gate can `mmap` or read with
+`numpy.frombuffer`.
+
+### What differs, exactly
+
+A homogeneous field-element array of **at least 256 entries**
+(`run_capture::ARRAY_MIN`) is written as an OBJECT where `/4-run` writes a
+JSON list:
+
+```json
+{"array":"<sha256 hex>","elem":"fp","len":5681,"offset":0,"bytes":45448}
+```
+
+* `elem` is `"fp"` (8 bytes an entry) or `"fp2"` (16 bytes an entry, `c0`
+  then `c1`), each a little-endian `u64`;
+* `bytes` is always `len * width`, and the `bytes` bytes at `offset` of the
+  bundle's one `arrays.bin` are the array;
+* `array` is the SHA-256 of exactly those bytes. **Identical arrays are
+  stored once** and every reference to them names the same offset, which is
+  what makes the shape-only public tables cost one copy for the whole bundle
+  instead of one per slot per stage.
+
+Arrays **below** 256 entries are the classic inline list, unchanged — so an
+endpoint's 37-row column, a slot's `rho`, its `terminals`, its
+`definition_challenges` and its sumcheck rounds read exactly as they always
+have. Which fields can be external: an opened column's `values`, an opening
+group's `vector`, `proximity_vector`, `proximity_rhos`, the M opening's `q`
+and `prox`, and a public table's `values`. Nothing else, ever.
+
+**A public table's `array` digest IS its `sha256`**, because both are taken
+over the same 16-bytes-an-entry image. That is the one place a reader can
+check the store against a field `/4-run` already carried.
+
+`arrays.bin` is listed in `manifest.json` with its length and SHA-256 like
+any other file, and a `/4-run` bundle has no such file.
+
+### What does NOT differ
+
+Every key, every member order, every small array, every digest rendering
+(still a JSON array of 32 ints), every transcript position, the plane index
+table, the allow-list discipline and the source pins. The test
+`run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values`
+captures ONE run twice in one process — once each way — expands the `/5-run`
+bundle's array references back into text and asserts the result is **byte for
+byte** the `/4-run` bundle. So the store is an encoding and nothing else.
+
+Three new allow-list keys, all public book-keeping: `array`, `elem` (and
+`offset`, `len`, `bytes`, `sha256` were already on the list). No new
+quantity is published by moving an array: the values are the same
+verifier-view values `/4-run` printed inline.
+
+### Ruling D21 is unchanged
+
+The store is held **in memory** until the run is accepted and is written by
+`write_bundle` with the rest, so nothing reaches the disk before `take` has
+succeeded, and a run the verifier did not accept still leaves nothing at all.
+No streaming writer was built and none is needed: at 125M the blob is about
+258 MB with the public tables and 82 MB without, and the per-stage JSON is
+about 5.5 MB.
+
+### Reading one, in Python
+
+```python
+blob = open(d/"arrays.bin","rb").read()          # or mmap
+def resolve(v):
+    if not isinstance(v, dict) or "array" not in v:
+        return v                                  # an inline list, as in /4-run
+    w = 8 if v["elem"] == "fp" else 16
+    assert v["bytes"] == v["len"] * w
+    raw = blob[v["offset"]:v["offset"] + v["bytes"]]
+    assert hashlib.sha256(raw).hexdigest() == v["array"]
+    a = numpy.frombuffer(raw, dtype="<u8")
+    return a if v["elem"] == "fp" else a.reshape(-1, 2)
+```
+
+A loader should refuse a bundle whose `schema` it does not know, as today,
+and should re-hash every array it resolves — the digest is in the reference
+for that reason.
+
+### Also in stage 27, and NOT a schema change: the shared source pins
+
+`source_pins` grew from 15 entries to 38. The 15 were `private_block`'s own
+path; the 23 added are the SHARED files the run's prover and verifier
+actually reach — `hashline/src/zk.rs`, `tables_attn.rs`, `causal_oracle.rs`,
+`private_seam.rs`, `export_v3.rs`, the seven one-line re-export adapters
+(`field`, `merkle`, `mle`, `ntt`, `pcs`, `sumcheck`, `transcript`), and the
+`zkp-core` modules behind them (`lib`, `field`, `hashtag`, `merkle`, `mle`,
+`ntt`, `pcs`, `pcs/backend`, `rng`, `sumcheck`, `transcript`). This is a
+**pure addition**: `source_pins` is a list of `(file, sha256)` objects, new
+entries are appended, nothing is renamed, reordered or removed, and the
+schema string does not move for it. Bundles committed before this stage keep
+the shorter list their own manifests pin.

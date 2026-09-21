@@ -341,7 +341,7 @@ fn a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent() {
         assert!(contains(&manifest, &format!("{{\"file\":\"{name}\",\"bytes\":{},\"sha256\":\"{sha}\"}}", bytes.len())), "{name} is not in the manifest with its own length and digest");
         total += bytes.len();
     }
-    assert_eq!(count(&manifest, "\"sha256\":"), names.len() + run_capture::SOURCE_FILES.len(), "the manifest does not pin every file and every source file");
+    assert_eq!(count(&manifest, "\"sha256\":"), names.len() + run_capture::source_files().len(), "the manifest does not pin every file and every source file");
     assert_eq!(dir.path().join("segments").exists(), run_capture::segments_wanted(), "the segments are written exactly when they are asked for");
     eprintln!(
         "RUN CAPTURE L=3 at the rung-G shape: run.json {} B, stages {:?} B, bundle on disk {total} B ({:.1} MB); segments {} B ({}); public tables carried as length + digest only",
@@ -479,7 +479,7 @@ fn a_run_verifies_the_same_with_and_without_a_recorder() {
 #[test]
 fn the_bundle_pins_every_source_file_that_decides_its_contents() {
     let pins = run_capture::source_pins().expect("the source pins");
-    assert_eq!(pins.len(), run_capture::SOURCE_FILES.len());
+    assert_eq!(pins.len(), run_capture::source_files().len());
     for (name, sha) in &pins {
         assert_eq!(sha.len(), 64, "{name}'s pin is not a SHA-256");
         assert!(sha.bytes().all(|b| b.is_ascii_hexdigit()));
@@ -1209,4 +1209,519 @@ fn the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn()
         lay.h_rows,
         sh.endpoint_rows
     );
+}
+
+// ===========================================================================
+// STAGE 27 — A RUN CAPTURE MADE POSSIBLE AT THE 125M SHAPE
+// ===========================================================================
+//
+// **The problem.** The Python privacy gate has read a private run's every
+// linear channel on real bytes at two DEVELOPMENT shapes and its standing
+// limit is that nothing has been measured at 125M. A capture records the
+// VERIFIER'S VIEW, which is small beside a 40 MB-per-block receipt — but not
+// if the writer renders multi-million-element field arrays as decimal JSON.
+// MEASURED on the committed rung bundles: a uniformly random `Fp` costs 21.4
+// bytes of text and an `Fp2` 44.8, against 8 and 16 bytes little-endian.
+//
+// **What this section adds**: the `/5-run` array store's tests, one shared
+// capture body, the development-shape dress rehearsal that runs here, and
+// the `#[ignore]`d 125M capture the security owner launches himself.
+
+/// Prove an honest `l`-block run at ANY shape on either recipe and capture
+/// its verification, with the array encoding stated outright. The body of
+/// every capture from stage 27 on, including the heavy one.
+fn prove_and_capture_any(sh: &Shape, rs: RunShape, l: usize, dense: bool, opts: run_capture::CaptureOpts) -> (Vec<Vec<u8>>, Bundle, Digest) {
+    let (public, ff, x0) = if dense {
+        super::dense_tests::dense_run_case(sh)
+    } else {
+        let (p, f, _) = super::grow_tests::tame_case(sh);
+        (p, f, vec![0i16; sh.tokens * sh.width])
+    };
+    let blocks = blocks_from(&public, &ff, l);
+    let mut c = Chain::from_parts(sh, l, public, ff, x0);
+    let (st, owners) = statement_of_at(&c, l, &blocks, rs);
+    let segs = prove_to_vec(&st, &blocks, &mut c, owners);
+    let binding = st.binding().expect("the run binding");
+    let guard = run_capture::Recorder::attach();
+    run_capture::begin_run_with(st.capture_header().expect("the capture header"), binding, opts);
+    run::verify_run(&st, &blocks, &segs).expect("the honest run verifies");
+    let bundle = run_capture::take().expect("a bundle for an accepted run");
+    drop(guard);
+    (segs, bundle, binding)
+}
+
+// -------------------------------------------------- resolving `arrays.bin`
+
+/// One `{"array":…}` reference, read where the writer wrote it.
+#[derive(Debug, PartialEq)]
+struct ArrayRef {
+    sha: String,
+    elem: String,
+    len: usize,
+    offset: usize,
+    bytes: usize,
+    /// the reference's own span in the file
+    at: (usize, usize),
+}
+
+/// Every array reference of a file, in order of appearance. The writer emits
+/// the five members in this fixed order with no whitespace, so a scan is
+/// exact and needs no JSON parser.
+fn array_refs(bytes: &[u8]) -> Vec<ArrayRef> {
+    let head = b"{\"array\":\"";
+    let mut out = Vec::new();
+    let mut i = 0usize;
+    while i + head.len() < bytes.len() {
+        if !bytes[i..].starts_with(head) {
+            i += 1;
+            continue;
+        }
+        let end = i + bytes[i..].iter().position(|b| *b == b'}').expect("an array reference is closed");
+        let body = std::str::from_utf8(&bytes[i..=end]).expect("an array reference is ASCII");
+        let field = |k: &str| -> String {
+            let p = format!("\"{k}\":");
+            let s = body.find(&p).unwrap_or_else(|| panic!("the array reference {body} has no {k}")) + p.len();
+            let rest = &body[s..];
+            let t = rest.trim_start_matches('"');
+            let n = t.find(['"', ',', '}']).expect("a terminated field");
+            t[..n].to_string()
+        };
+        out.push(ArrayRef {
+            sha: field("array"),
+            elem: field("elem"),
+            len: field("len").parse().expect("len is an integer"),
+            offset: field("offset").parse().expect("offset is an integer"),
+            bytes: field("bytes").parse().expect("bytes is an integer"),
+            at: (i, end + 1),
+        });
+        i = end + 1;
+    }
+    out
+}
+
+/// The JSON key an array reference is the value of: the nearest `"<key>":`
+/// that ends where the reference begins. The writer emits no whitespace, so
+/// this is exact.
+fn ref_owner(file: &[u8], at: usize) -> String {
+    assert_eq!(file[at - 1], b':', "an array reference is not a member's value");
+    let close = at - 2;
+    assert_eq!(file[close], b'"', "an array reference is not a member's value");
+    let open = (0..close).rev().find(|i| file[*i] == b'"').expect("a quoted key");
+    String::from_utf8_lossy(&file[open + 1..close]).into_owned()
+}
+
+/// **THE PER-MEMBER STORE TABLE.** For every JSON key whose value is an
+/// array in `arrays.bin`: how many references, how many DISTINCT arrays
+/// behind them, and how many bytes those distinct arrays take. This is the
+/// table the 125M size model is built from, measured here at a development
+/// shape so the model has something to be wrong against.
+fn store_breakdown(files: &[&[u8]]) -> std::collections::BTreeMap<String, (usize, std::collections::BTreeSet<String>, usize)> {
+    let mut out: std::collections::BTreeMap<String, (usize, std::collections::BTreeSet<String>, usize)> = std::collections::BTreeMap::new();
+    let mut seen: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+    for file in files {
+        for r in array_refs(file) {
+            let e = out.entry(ref_owner(file, r.at.0)).or_default();
+            e.0 += 1;
+            if e.1.insert(r.sha.clone()) && seen.insert(r.sha.clone()) {
+                e.2 += r.bytes;
+            }
+        }
+    }
+    out
+}
+
+/// How many bytes one entry of an element type takes.
+fn elem_width(elem: &str) -> usize {
+    match elem {
+        "fp" => 8,
+        "fp2" => 16,
+        other => panic!("the array store wrote an element type this reader does not know: {other:?}"),
+    }
+}
+
+/// Rewrite a `/5-run` file into the `/4-run` text it would have been: every
+/// array reference replaced by the inline JSON list of the values it names,
+/// rendered exactly as Rust's `{:?}` renders a `Vec<u64>` / `Vec<[u64; 2]>`.
+/// Byte-for-byte equality with the classic bundle is then the statement that
+/// the store changed the ENCODING and nothing else.
+fn expand_arrays(file: &[u8], blob: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(file.len());
+    let mut cut = 0usize;
+    for r in array_refs(file) {
+        out.extend_from_slice(&file[cut..r.at.0]);
+        let w = elem_width(&r.elem);
+        assert_eq!(r.bytes, r.len * w, "the reference {} says {} entries and {} bytes", r.sha, r.len, r.bytes);
+        assert!(r.offset + r.bytes <= blob.len(), "the reference {} points past the end of arrays.bin", r.sha);
+        let raw = &blob[r.offset..r.offset + r.bytes];
+        assert_eq!(crate::export_v3::sha256_hex(raw), r.sha, "the bytes at offset {} are not the array the reference names", r.offset);
+        let word = |j: usize| u64::from_le_bytes(raw[j * 8..j * 8 + 8].try_into().expect("eight bytes"));
+        let text = if r.elem == "fp" {
+            format!("{:?}", (0..r.len).map(word).collect::<Vec<u64>>())
+        } else {
+            format!("{:?}", (0..r.len).map(|j| [word(2 * j), word(2 * j + 1)]).collect::<Vec<[u64; 2]>>())
+        };
+        out.extend_from_slice(text.as_bytes());
+        cut = r.at.1;
+    }
+    out.extend_from_slice(&file[cut..]);
+    out
+}
+
+// -------------------------------------------------- the bundle on disk
+
+/// Read a written bundle back and check it against itself, exactly as the
+/// development capture tests do, plus the array store: the manifest's
+/// lengths and digests, the plane index table, the hash tag, the rebuilt run
+/// binding, every stage's segment pin, the allow-list, and every array
+/// reference resolved and re-hashed. Returns the bundle's size on disk.
+fn check_bundle_on_disk(dir: &Path, l: usize, binding: Digest, segs: &[Vec<u8>], arrays_on: bool) -> usize {
+    let manifest = std::fs::read(dir.join("manifest.json")).expect("a manifest");
+    let mut names: Vec<String> = vec!["run.json".into()];
+    names.extend((0..l).map(|k| run_capture::stage_file(k)));
+    if arrays_on {
+        names.push(run_capture::ARRAYS_FILE.into());
+    }
+    names.push("README.md".into());
+    if run_capture::segments_wanted() {
+        names.extend((0..l).map(|k| format!("segments/segment-{k:02}.bin")));
+    }
+    let mut total = 0usize;
+    for name in &names {
+        let bytes = std::fs::read(dir.join(name)).unwrap_or_else(|e| panic!("{name}: {e}"));
+        let sha = crate::export_v3::sha256_hex(&bytes);
+        assert!(
+            contains(&manifest, &format!("{{\"file\":\"{name}\",\"bytes\":{},\"sha256\":\"{sha}\"}}", bytes.len())),
+            "{name} is not in the manifest with its own length and digest"
+        );
+        total += bytes.len();
+    }
+    assert_eq!(count(&manifest, "\"sha256\":"), names.len() + run_capture::source_files().len(), "the manifest does not pin every file and every source file");
+    assert!(contains(&manifest, &format!("\"total_bytes\":{total}")), "the manifest's total is not the bytes on disk");
+    let blob = if arrays_on { std::fs::read(dir.join(run_capture::ARRAYS_FILE)).expect("arrays.bin") } else { Vec::new() };
+    let schema = if arrays_on { "hashline-native-capture/5-run" } else { "hashline-native-capture/4-run" };
+    // the run file
+    let run = std::fs::read(dir.join("run.json")).expect("run.json");
+    assert!(contains(&run, &format!("\"schema\":\"{schema}\"")), "run.json does not declare {schema}");
+    assert!(contains(&run, &format!("\"blocks\":{l},")), "run.json does not declare {l} blocks");
+    assert!(contains(&run, &format!("\"run_binding\":{binding:?}")), "run.json does not carry the run binding the statement computed");
+    assert_eq!(count(&run, "\"plane_index\":"), 1, "the plane index table belongs in the run file exactly once");
+    assert!(contains(&run, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "run.json does not name the keyed hash rule");
+    assert!(!contains(&run, "\"rule\":\"legacy\""), "a tagged bundle claims the legacy rule");
+    // the stage files
+    for k in 0..l {
+        let stage = std::fs::read(dir.join(run_capture::stage_file(k))).expect("a stage file");
+        assert!(contains(&stage, &format!("\"schema\":\"{schema}\"")), "stage {k} does not declare {schema}");
+        assert!(!contains(&stage, "\"plane_index\":"), "stage {k} carries its own copy of the plane index");
+        assert!(contains(&stage, &format!("\"segment_bytes\":{}", segs[k].len())), "stage {k} does not carry its segment's length");
+        assert!(contains(&stage, &format!("\"segment_sha256\":\"{}\"", crate::export_v3::sha256_hex(&segs[k]))), "stage {k} is not pinned to the bytes that were verified");
+        assert_eq!(count(&stage, "\"definition_challenges\":"), N_SLOTS, "stage {k} does not carry twenty-three slot transcripts");
+    }
+    // the allow-list, over every JSON file of the bundle
+    let mut checked = 0usize;
+    for name in names.iter().filter(|n| n.ends_with(".json")).cloned().chain(std::iter::once("manifest.json".to_string())) {
+        let bytes = std::fs::read(dir.join(&name)).expect("a bundle file");
+        for key in run_capture::keys_of(&bytes) {
+            assert!(run_capture::ALLOWED_KEYS.contains(&key.as_str()), "{name} carries the field {key:?}, which is not on the capture allow-list");
+            checked += 1;
+        }
+    }
+    assert!(checked > 1000, "only {checked} fields were scanned; the scanner is not reading the bundle");
+    // every array reference resolves, and its bytes hash to the digest that
+    // names them (`expand_arrays` asserts both, one reference at a time)
+    let mut refs = 0usize;
+    for name in names.iter().filter(|n| n.ends_with(".json")) {
+        let bytes = std::fs::read(dir.join(name)).expect("a bundle file");
+        refs += array_refs(&bytes).len();
+        let _ = expand_arrays(&bytes, &blob);
+    }
+    assert_eq!(refs > 0, arrays_on, "the array references and the declared encoding disagree ({refs} references, store {arrays_on})");
+    total
+}
+
+/// `HL_PB_CAPTURE_DIR`, refused unless it is an absolute path OUTSIDE the
+/// repository: a 125M bundle is hundreds of megabytes and is never a
+/// committed artifact.
+fn capture_dir_from_env() -> PathBuf {
+    let raw = std::env::var("HL_PB_CAPTURE_DIR").expect("HL_PB_CAPTURE_DIR is not set: this test writes a bundle of evidence and will not choose a directory for you");
+    capture_dir_checked(&raw)
+}
+
+/// The check itself, over a path given outright, so the refusal has a test.
+fn capture_dir_checked(raw: &str) -> PathBuf {
+    let dir = PathBuf::from(raw);
+    assert!(dir.is_absolute(), "HL_PB_CAPTURE_DIR must be an absolute path, not {raw:?}");
+    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("the crate has a parent").to_path_buf();
+    let repo = std::fs::canonicalize(&repo).unwrap_or(repo);
+    // judge where the directory WOULD be, so a path that does not exist yet
+    // is still refused for being inside the tree
+    let mut probe = dir.clone();
+    let resolved = loop {
+        if let Ok(c) = std::fs::canonicalize(&probe) {
+            break c.join(dir.strip_prefix(&probe).expect("a path is a prefix of itself"));
+        }
+        match probe.parent() {
+            Some(p) => probe = p.to_path_buf(),
+            None => break dir.clone(),
+        }
+    };
+    assert!(
+        !resolved.starts_with(&repo),
+        "HL_PB_CAPTURE_DIR={} is inside the repository at {}; a run capture bundle is written outside the tree and never committed",
+        resolved.display(),
+        repo.display()
+    );
+    dir
+}
+
+/// `HL_PB_CAPTURE_BLOCKS`, defaulting to two.
+fn capture_blocks_from_env(default: usize) -> usize {
+    match std::env::var("HL_PB_CAPTURE_BLOCKS") {
+        Ok(v) => v.parse().unwrap_or_else(|_| panic!("HL_PB_CAPTURE_BLOCKS={v:?} is not a number")),
+        Err(_) => default,
+    }
+}
+
+/// `HL_PB_INPUT`: `dense` (the fully dense recipe with its non-constant
+/// hidden input — the GENERIC witness, and the one that matters) or `zero`
+/// (the all-zero hidden input, the named degenerate partner).
+fn capture_dense_from_env() -> bool {
+    match std::env::var("HL_PB_INPUT").unwrap_or_else(|_| "dense".into()).as_str() {
+        "dense" => true,
+        "zero" => false,
+        other => panic!("HL_PB_INPUT={other:?} is not a witness this test knows; it is `dense` (the default) or `zero`"),
+    }
+}
+
+/// The one capture body both the rehearsal and the 125M run go through:
+/// prove, verify with a recorder, WRITE ONLY THEN, report, check.
+#[allow(clippy::too_many_arguments)]
+fn capture_a_run_into(tag: &str, sh: &Shape, rs: RunShape, l: usize, dense: bool, public_tables: bool, dir: &Path, note: &str, command: &str) -> usize {
+    let opts = run_capture::CaptureOpts { arrays: true, public_tables };
+    let t0 = std::time::Instant::now();
+    let (segs, bundle, binding) = prove_and_capture_any(sh, rs, l, dense, opts);
+    let capture_s = t0.elapsed().as_secs_f64();
+    let (distinct, stored, deduped, inline, blob) = bundle.arrays.stats();
+    eprintln!(
+        "CAPTURE {tag}: L={l}, witness={}, public tables={}, prove+verify+record {capture_s:.2} s, high-water mark {:.2} GiB",
+        if dense { "dense (generic)" } else { "all-zero (degenerate)" },
+        if public_tables { "values" } else { "length + digest only" },
+        run::peak_rss_mib() / 1024.0
+    );
+    eprintln!("CAPTURE {tag}: run.json {} B, stage files {:?} B", bundle.run_json.len(), bundle.stages.iter().map(|s| s.len()).collect::<Vec<_>>());
+    eprintln!("CAPTURE {tag}: arrays.bin {blob} B over {distinct} distinct arrays; {stored} references ({deduped} deduplicated), {inline} small arrays inline");
+    eprintln!("CAPTURE {tag}: segments {} B (pinned by digest, written only with HL_RUN_CAPTURE_SEGMENTS=1)", segs.iter().map(|s| s.len()).sum::<usize>());
+    run_capture::write_bundle(dir, &bundle, &segs, note, command).unwrap_or_else(|e| panic!("{tag}: {e}"));
+    let total = check_bundle_on_disk(dir, l, binding, &segs, true);
+    eprintln!("CAPTURE {tag}: {total} B on disk ({:.1} MB) in {}, self-consistent, every key on the allow-list, every array reference resolved", total as f64 / 1e6, dir.display());
+    total
+}
+
+// -------------------------------------------------- the three tests that run here
+
+/// **THE ENCODING CHANGED AND NOTHING ELSE DID.** One run, captured TWICE in
+/// one process — once with the classic inline lists and once with the array
+/// store — and the store bundle EXPANDED back into text is byte for byte the
+/// classic bundle. Two captures of one set of segments are comparable
+/// because a recorder only observes: the same bytes verify the same way and
+/// the recorder re-derives every challenge from them, so the only difference
+/// between the two bundles is how their arrays are written.
+#[test]
+fn the_array_store_and_the_classic_encoding_carry_the_same_values() {
+    let sh = Shape::rung_k4();
+    let l = 2usize;
+    let (public, ff, x0) = super::dense_tests::dense_run_case(&sh);
+    let blocks = blocks_from(&public, &ff, l);
+    let mut c = Chain::from_parts(&sh, l, public, ff, x0);
+    let (st, owners) = statement_of_at(&c, l, &blocks, RunShape::rung_k4(l).expect("the rung-K4 run shape"));
+    let segs = prove_to_vec(&st, &blocks, &mut c, owners);
+    let take_one = |arrays: bool| -> Bundle {
+        let guard = run_capture::Recorder::attach();
+        let opts = run_capture::CaptureOpts { arrays, public_tables: true };
+        run_capture::begin_run_with(st.capture_header().expect("the capture header"), st.binding().expect("the run binding"), opts);
+        run::verify_run(&st, &blocks, &segs).expect("the honest run verifies");
+        let b = run_capture::take().expect("a bundle for an accepted run");
+        drop(guard);
+        b
+    };
+    let classic = take_one(false);
+    let stored = take_one(true);
+    assert!(!classic.arrays.is_on() && stored.arrays.is_on());
+    assert_eq!(classic.arrays.blob().len(), 0, "the classic encoding wrote an array store");
+    let blob = stored.arrays.blob();
+    assert!(blob.len() > 1_000_000, "the store holds only {} B at a shape whose openings are megabytes", blob.len());
+    // the schema strings differ, and that is the ONLY textual difference
+    // outside the arrays themselves
+    assert!(contains(&stored.run_json, "\"schema\":\"hashline-native-capture/5-run\""));
+    assert!(contains(&classic.run_json, "\"schema\":\"hashline-native-capture/4-run\""));
+    let unschema = |v: &[u8]| String::from_utf8_lossy(v).replace("hashline-native-capture/5-run", "hashline-native-capture/4-run").into_bytes();
+    assert_eq!(expand_arrays(&unschema(&stored.run_json), blob), classic.run_json, "run.json differs between the two encodings");
+    let mut total_refs = 0usize;
+    for k in 0..l {
+        let refs = array_refs(&stored.stages[k]);
+        total_refs += refs.len();
+        assert!(!refs.is_empty(), "stage {k} externalised no array at all");
+        assert_eq!(expand_arrays(&unschema(&stored.stages[k]), blob), classic.stages[k], "stage {k} differs between the two encodings");
+    }
+    // and the store really is smaller, by the factor the model rests on
+    let (big, small) = (classic.stages.iter().map(|s| s.len()).sum::<usize>(), stored.stages.iter().map(|s| s.len()).sum::<usize>() + blob.len());
+    assert!(small < big, "the store made the bundle bigger: {small} B against {big} B");
+    let (distinct, stored_n, deduped, _inline, _blob) = stored.arrays.stats();
+    eprintln!(
+        "ARRAY STORE at rung-K4, L={l}: {total_refs} references in the stage files, {stored_n} arrays stored over {distinct} distinct ({deduped} deduplicated), {} B of arrays.bin; stage JSON {big} B classic -> {} B + arrays = {small} B ({:.2}x)",
+        blob.len(),
+        stored.stages.iter().map(|s| s.len()).sum::<usize>(),
+        big as f64 / small as f64
+    );
+    let mut files: Vec<&[u8]> = vec![&stored.run_json];
+    files.extend(stored.stages.iter().map(|s| s.as_slice()));
+    let table = store_breakdown(&files);
+    let mut sum = 0usize;
+    for (key, (refs, shas, bytes)) in &table {
+        sum += bytes;
+        eprintln!("ARRAY STORE  member {key:<20} {refs:5} references, {:5} distinct, {bytes:10} B", shas.len());
+    }
+    assert_eq!(sum, blob.len(), "the per-member table does not add up to arrays.bin");
+    assert_eq!(table.keys().cloned().collect::<Vec<String>>(), ["prox", "proximity_rhos", "proximity_vector", "q", "values", "vector"], "the set of externalised members moved");
+}
+
+/// **THE DRESS REHEARSAL: the heavy test's own code path, at a development
+/// shape.** `capture_a_run_into` is what the 125M capture runs; here it runs
+/// at `Shape::rung_k4` with three blocks, into a scratch directory outside
+/// the repository that is removed when the test ends. What it establishes is
+/// that the path the security owner will launch — prove, verify with the
+/// recorder attached, write only after the run has verified, read the bundle
+/// back and check it against itself and against the allow-list — works end
+/// to end, so the only thing the 125M run adds is the shape.
+#[test]
+fn the_heavy_captures_code_path_works_at_a_development_shape() {
+    let dir = TempDir::new("s27-rehearsal");
+    let l = 3usize;
+    let sh = Shape::rung_k4();
+    let total = capture_a_run_into(
+        "rehearsal rung-K4",
+        &sh,
+        RunShape::rung_k4(l).expect("the rung-K4 run shape"),
+        l,
+        true,
+        true,
+        &dir.path().join("m125-rehearsal"),
+        "A dress rehearsal of the 125M capture path at the four-key-value-head development shape; deleted when the test ends.",
+        "cargo test --release --lib private_block::run_capture_tests::the_heavy_captures_code_path_works_at_a_development_shape",
+    );
+    assert!(total > 1_000_000, "a three-block rung-K4 bundle is {total} B; the writer is not writing");
+}
+
+/// **THE CAPTURE DIRECTORY IS REFUSED INSIDE THE REPOSITORY.** The one guard
+/// that cannot be tested by running the heavy test.
+#[test]
+fn a_capture_directory_inside_the_repository_is_refused() {
+    let repo = Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("the crate has a parent").to_path_buf();
+    let inside = repo.join("results").join("zk60_block125m_lane").join("would-be-a-bundle");
+    let hushed = std::panic::take_hook();
+    std::panic::set_hook(Box::new(|_| {}));
+    let refused = std::panic::catch_unwind(|| capture_dir_checked(inside.to_str().expect("an ASCII path")));
+    let relative = std::panic::catch_unwind(|| capture_dir_checked("some/relative/place"));
+    let accepted = std::panic::catch_unwind(|| capture_dir_checked("/home/victor/zk60-artifacts/s27-guard-probe"));
+    std::panic::set_hook(hushed);
+    let msg = |e: Box<dyn std::any::Any + Send>| e.downcast_ref::<String>().map(|s| s.clone()).unwrap_or_default();
+    let m = msg(refused.expect_err("a directory inside the repository was accepted"));
+    assert!(m.contains("inside the repository"), "the refusal does not say why: {m}");
+    let m = msg(relative.expect_err("a relative path was accepted"));
+    assert!(m.contains("absolute"), "the relative-path refusal does not say why: {m}");
+    accepted.expect("a directory outside the repository is accepted although it does not exist yet");
+    let _ = repo;
+}
+
+// -------------------------------------------------- the heavy one, written and NOT run
+
+/// **STAGE 27: CAPTURE ONE PRIVATE RUN AT THE 125M SHAPE.**
+///
+/// **Why this test exists.** The Python privacy gate has replayed every
+/// challenge, re-hashed every opened column, closed every per-slot terminal
+/// identity and constructed a per-commitment and a joint preimage — on real
+/// bytes, at two DEVELOPMENT shapes. Its standing limit is one sentence:
+/// nothing has been measured at the 125M shape. That was assumed out of
+/// reach because a 125M receipt is 40 MB a block, but a capture is not the
+/// receipt: it is the VERIFIER'S VIEW, and the gate's per-commitment work
+/// scales with the message length `2^14`, not with the 45 KB columns.
+///
+/// **This lane does not run it.** It is `#[ignore]`d, it must be launched
+/// detached under the heavy lock inside a memory ceiling on a quiesced box,
+/// and the security owner launches it himself. The exact commands are in the
+/// lane ledger's stage 27 section.
+///
+/// **What it does, in order.** Builds the chain, PROVES the run with the
+/// production prover, VERIFIES it with the production verifier through the
+/// capture's verifier-side hooks exactly as every development capture does,
+/// and writes the bundle **only after the run has verified** (ruling D21 /
+/// M-9: `take` refuses unless `L` stages closed, the replay never failed and
+/// the run's closing check passed, and nothing reaches the disk before that).
+/// It then reads the bundle back and checks it against itself: the manifest's
+/// lengths and SHA-256, the plane index table present once in `run.json` and
+/// in no stage file, the hash tag, the rebuilt run binding, each stage's
+/// segment pin, every key on the allow-list, and every `arrays.bin`
+/// reference resolved and re-hashed.
+///
+/// **The environment it reads.**
+///
+/// | variable | what | default |
+/// |---|---|---|
+/// | `HL_PB_CAPTURE_DIR` | where the bundle goes | **required**, absolute, and refused inside the repository |
+/// | `HL_PB_CAPTURE_BLOCKS` | `L` | 2 |
+/// | `HL_PB_INPUT` | `dense` (the generic witness) or `zero` (the degenerate partner) | `dense` |
+/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` carries the public tables' values, `0` their length and digest only | **required**, no default |
+/// | `HL_TEST_SOURCE_COMMIT` | the commit the bundle records | `uncommitted-test` |
+///
+/// The array store is always on here: it is the whole reason a 125M capture
+/// is possible, and `the_array_store_and_the_classic_encoding_carry_the_same_values`
+/// is what says it costs nothing in content.
+///
+/// **What to expect** (all [MODEL], from the committed rung bundles' measured
+/// per-element costs and the shape's own counts — the ledger's stage 27
+/// table has the per-member breakdown): with the public tables' values,
+/// about 350 MB for `L = 2`, of which about 258 MB is `arrays.bin` and
+/// about 256 MB of that is the shape-only public tables, which are stored
+/// ONCE for the whole bundle — so a third block costs about 46 MB, not 175.
+/// Without them, about 92 MB for `L = 2`. Proving is about 2 x 31 s and
+/// verifying about 2 s; the capture adds a few hundred megabytes of
+/// resident memory during the verify, against a proving peak of 10.05 GiB.
+#[test]
+#[ignore = "captures a 125M run; heavy. set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES"]
+fn capture_a_125m_run() {
+    let sh = Shape::m125();
+    let l = capture_blocks_from_env(2);
+    let dense = capture_dense_from_env();
+    let dir = capture_dir_from_env();
+    let public_tables = match std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref() {
+        Ok("1") => true,
+        Ok("0") => false,
+        _ => panic!(
+            "HL_RUN_CAPTURE_PUBLIC_TABLES is not set to 1 or 0: whether a bundle carries the public tables' VALUES decides both what the run gate can close and how large the bundle is (about 350 MB with them at L = 2, about 92 MB without), so this test will not pick for you"
+        ),
+    };
+    assert!(!sh.hashes_under_the_legacy_rule(), "the 125M profile is meant to be TAGGED and this shape is not");
+    eprintln!("CAPTURE 125M: {}", if std::env::var("MALLOC_MMAP_THRESHOLD_").is_ok() { "MALLOC_MMAP_THRESHOLD_ is pinned" } else { "MALLOC_MMAP_THRESHOLD_ is NOT SET (expect the high-water mark to rise across blocks)" });
+    let note = format!(
+        "Bundle: one honest {l}-block private run at the **125M shape**\n(`Shape::m125`: 512 tokens, width 768, hidden 2048, 12 query heads of 64 over\n4 key-value heads, row width 2^14, rate 4, 256 opened columns, a generalised\nendpoint of 37 rows over the padded Dom::D cube), under the D19 separating\nhash tag, profile `hashline-zk-mr1/private-run-m125/1`.\n\nWHY IT EXISTS. Every capture before this one is at a DEVELOPMENT shape. The\nPython privacy gate's standing limit is that nothing has been measured at the\n125M shape; this bundle is the first object at that shape a gate can read.\n\nHidden input and public weights: {}\n\nTHE ENCODING IS NEW (schema `hashline-native-capture/5-run`). Every\nfield-element array of at least 256 entries is written in the JSON as\n`{{\"array\":\"<sha256>\",\"elem\":\"fp\"|\"fp2\",\"len\":N,\"offset\":O,\"bytes\":B}}` and its\nvalues are the B bytes at offset O of `arrays.bin`, little-endian: eight bytes\nper `fp`, sixteen per `fp2` (`c0` then `c1`). Identical arrays are stored once.\nEverything else is byte for byte what `hashline-native-capture/4-run` writes,\nand a Rust test decodes one run captured BOTH ways and compares the two\nbundles byte for byte. Format note: `docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md` §12.\n\nWHAT IS NOT HERE, as in every bundle: no witness value, no pad, no mask\ncoefficient, no unopened column, no unpublished salt, no unmasked sumcheck\nround, no prover log and no timing of a witness-dependent step. The verifier's\nview and nothing else.\n\nDevelopment-grade nothing: the 125M profile is the real one, but a capture is\nthe INPUT to the privacy gate of ruling M-8 and is NOT a privacy result. No\ngate has read this.",
+        if dense {
+            "the FULLY DENSE run recipe (`private_block::dense_tests::dense_run_case`) at 125M's measured chain band (down band 1): every entry of all nine public words nonzero, a non-constant hidden input from its own unpublished stream, the upper hidden half live, twelve of sixteen head slots live and all four key-value groups carrying different data. THE GENERIC WITNESS"
+        } else {
+            "the ALL-ZERO hidden plane on the lane's synthetic tame fixture - the fixed input the privacy case is stated at, and the named DEGENERATE partner of the dense run"
+        }
+    );
+    let total = capture_a_run_into(
+        "125M",
+        &sh,
+        RunShape::m125(l).expect("the 125M run shape"),
+        l,
+        dense,
+        public_tables,
+        &dir,
+        &note,
+        "HL_PB_CAPTURE_DIR=<dir> HL_PB_INPUT=<dense|zero> HL_PB_CAPTURE_BLOCKS=<L> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib private_block::run_capture_tests::capture_a_125m_run -- --ignored --nocapture",
+    );
+    // a runaway guard, an order of magnitude above the modelled 350 MB: a
+    // bundle this large means the encoding did not do what it was built for
+    assert!(total < 2_000_000_000, "the 125M bundle is {total} B, past the 2 GB runaway ceiling");
+    eprintln!("CAPTURE 125M RESULT: {total} B ({:.1} MB) at {} — a CAPTURE, not a privacy result; no gate has read it", total as f64 / 1e6, dir.display());
 }

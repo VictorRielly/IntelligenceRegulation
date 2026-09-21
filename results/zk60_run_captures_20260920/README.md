@@ -350,3 +350,25 @@ length and SHA-256, so editing one would break that bundle's
 self-consistency). This parent file carries every note instead. 411,912,646
 bytes in TEN bundles is the cost of keeping the record of what each stage
 produced.
+
+## Stage 27 (2026-09-21): all ten bundles here are schema `hashline-native-capture/4-run`
+
+The writer gained a second encoding, `hashline-native-capture/5-run`, in
+which a field-element array of at least 256 entries is written in the JSON as
+`{"array":"<sha256>","elem":"fp"|"fp2","len":N,"offset":O,"bytes":B}` and its
+values are the B bytes at offset O of the bundle's one `arrays.bin`,
+little-endian. **None of the ten bundles here uses it**: the default is
+unchanged, nothing here was re-taken, and everything above still reads as
+written.
+
+It exists because a 125M bundle does not fit in decimal JSON — a uniformly
+random `Fp` costs 21.4 bytes of text against 8 in binary, and the 125M shape's
+five `2^22`-entry public tables per stage are 409 MB raw — while the same
+bundle with the store, whose shape-only tables are stored ONCE for the whole
+bundle, is about 350 MB for two blocks. The format is in
+`docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md` §12, and a Rust test captures
+one run BOTH ways and compares the two bundles byte for byte.
+
+**125M bundles are written OUTSIDE the repository** (`HL_PB_CAPTURE_DIR` is
+refused inside the tree) and are never committed here. The launch commands
+are in stage 27 of `ZK60_BLOCK125M_LANE_PROGRESS.md`.
