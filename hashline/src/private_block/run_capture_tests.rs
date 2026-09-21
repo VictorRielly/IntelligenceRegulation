@@ -1229,6 +1229,94 @@ fn write_the_w14_gate_bundles() {
     eprintln!("W14 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
 }
 
+/// **STAGE 33: `run-q-dense-e32` and `run-r-zero-e32`.**
+///
+/// **Why they exist.** Every bundle this lane has written has an endpoint of
+/// 7, 9 or 21 commitment rows over 2, 4 or 16 DATA rows. At 125M the
+/// endpoint commits a 2^19-word cube in 32 data rows and 37 commitment rows,
+/// and its internal boundary is 38 — a geometry no gate has ever read,
+/// because a 125M run capture is 269 MB.
+///
+/// `Shape::rung_e32` is that ROW COUNT at 32 tokens and a row width of 2^10:
+/// the cube is 2^15 words, so the endpoint is 32 data rows and 37 commitment
+/// rows exactly as at 125M, with a 296-byte endpoint column digest, while
+/// the endpoint's row WIDTH stays the rungs' (rung-W14 holds 125M's width).
+/// The pair is also a regression for the two earlier arms: `Dom::T`,
+/// `Dom::Kv` and `Dom::F` do not pad (finding M-F1's set) and the norm
+/// window fills its top byte limb at width 768 (correction C-6).
+///
+/// The array store is ON (schema `/5-run`) and the run is two blocks, as at
+/// stages 30, 31 and 32: one internal boundary is enough to exercise the run
+/// layer and the store halves the bytes. Nothing here deletes or rewrites a
+/// bundle — `write_bundle` creates every file with `create_new`.
+#[test]
+#[ignore = "writes the stage-33 rung-E32 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1"]
+fn write_the_e32_gate_bundles() {
+    let root = PathBuf::from(std::env::var("HL_RUN_CAPTURE_DIR").expect("HL_RUN_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    assert!(
+        std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").map(|v| v == "1").unwrap_or(false),
+        "HL_RUN_CAPTURE_PUBLIC_TABLES=1 is not set: these bundles exist so the run gate can close every slot's terminal identity at the 125M endpoint row count, which needs the public tables' VALUES"
+    );
+    let sh = Shape::rung_e32();
+    let l = capture_blocks_from_env(2);
+    assert!(!sh.hashes_under_the_legacy_rule(), "these bundles are meant to be TAGGED and this shape is not");
+    assert_eq!((sh.log_cols, sh.head_dim, sh.endpoint_log_n, sh.endpoint_rows), (10, 64, 10, 37), "this shape is not the 32-data-row endpoint these bundles exist for");
+    assert_eq!(std::cmp::max(1, (sh.t_pad * sh.d_pad) >> sh.endpoint_log_n), 32, "the endpoint does not have 32 data rows");
+    assert_eq!((sh.lookups_per_position(Dom::D), sh.helpers(Dom::D)), (34, 17), "this shape does not carry C-6's Dom::D counts");
+    let unpadded: Vec<Dom> = ALL_DOMS.into_iter().filter(|d| !sh.pads(*d)).collect();
+    assert_eq!(unpadded, vec![Dom::T, Dom::Kv, Dom::F], "this shape lost stage 30's unpadded arm");
+    let mut total = 0usize;
+    for (tag, dense) in [("run-q-dense-e32", true), ("run-r-zero-e32", false)] {
+        let dir = root.join(tag);
+        let note = format!(
+            "Bundle `{tag}`: one honest {l}-block run at the 32-DATA-ROW-ENDPOINT\ndevelopment shape (`Shape::rung_e32`: 32 tokens, width 768, hidden 1024, 12\nquery heads of 64 over 4 key-value heads, padded head slots {{3, 7, 11, 15}}),\nunder the D19 separating hash tag, with the public tables' values.\n\nWHY THIS PAIR EXISTS, AND WHAT IS NEW IN IT. Every bundle written before it\nhas an endpoint of 7, 9 or 21 commitment rows over 2, 4 or 16 data rows. The\nendpoint commits the PADDED Dom::D cube in rows of 2^endpoint_log_n, and at\n125M that is 2^19 / 2^14 = 32 data rows and 37 commitment rows. This pair is\nthe first a reader can ingest at that ROW COUNT:\n\n* an external endpoint of 32 data rows and 37 commitment rows, with a\n  296-byte opened-column digest -- 125M's own number;\n* an internal boundary of 38 rows, one more, which is the run layer's own\n  +1 for its second reserved IO tab row;\n* an endpoint data row per TOKEN: the cube is 2^15 words over a 2^10-wide\n  row, so row r is token r and rows 16..32 exist in no earlier bundle.\n\nWHAT IS THE SAME, deliberately, so that this pair is a regression as well as\nnew evidence: `Dom::T` (2^5), `Dom::Kv` (2^13) and `Dom::F` (2^15) are exact\npowers of two and DO NOT PAD while Ht, L, D, Q, S and Tab do (125M's own\npadded-domain set, finding M-F1), and the norm window fills its top byte limb\nat width 768, so correction C-6 drops the four `scaled` norm lookups and\nDom::D carries 34 lookups and 17 helpers. Slot 14 therefore carries 54\nterminals here too.\n\nWHAT IS NOT 125M's: the endpoint LOG (10 here, 14 there) and with it the\nendpoint's row width and Merkle depth, the row width of the A / H / M\ncommitments (2^10), and the token count. rung-W14 is the bundle pair that\nholds the row width; this one holds the row COUNT.\n\nHidden input and public weights: {}\n\nThis is a NEW PROFILE (D17): `hashline-zk-mr1/private-block-rung-e32-t32-dev/1`\nfor the block and `hashline-zk-mr1/private-run-rung-e32-t32-dev/1` for the run,\nwith their own hash-tag key set. No byte of any earlier profile moves.\n\nDevelopment grade (ruling P-7). Still not a privacy result: no gate has read\nthis.",
+            if dense {
+                "the FULLY DENSE recipe at this shape's chain band (down band 20, `private_block::dense_tests::dense_run_case`): every entry of all nine public words nonzero, a non-constant hidden input from its own unpublished stream, the upper hidden half of the feed-forward planes live, twelve of twelve true head slots live, all four key-value groups carrying PAIRWISE DIFFERENT rotated keys, and all sixteen upper endpoint data rows live. THE GENERIC WITNESS"
+            } else {
+                "the ALL-ZERO hidden plane on the lane's synthetic tame fixture — the fixed input the privacy case is stated at, and a DEGENERATE witness: every key-value group is identically zero, so it says nothing about the group bits and is kept as the pair's control"
+            }
+        );
+        let n = capture_a_run_into(
+            tag,
+            &sh,
+            RunShape::rung_e32(l).expect("the rung-E32 run shape"),
+            l,
+            dense,
+            true,
+            &dir,
+            &note,
+            "HL_RUN_CAPTURE_DIR=<dir> HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<commit> cargo test --release --lib private_block::run_capture_tests::write_the_e32_gate_bundles -- --ignored --nocapture",
+        );
+        // what the bundle must SAY, read back off the files it just wrote
+        let run_json = std::fs::read(dir.join("run.json")).expect("the run file");
+        assert!(contains(&run_json, "\"hash_tag\":{\"rule\":\"blake3-keyed/1\""), "{tag}: the run file does not name the keyed hash rule");
+        assert!(contains(&run_json, "\"public_tables_included\":true"), "{tag}: the run file does not declare that the public tables are included");
+        assert!(contains(&run_json, "hashline-zk-mr1/private-run-rung-e32-t32-dev/1"), "{tag}: the run file does not carry the rung-E32 run profile");
+        assert!(contains(&run_json, "\"endpoint_rows\":37,"), "{tag}: the run file does not report the 37-row endpoint");
+        let lay = Layout::for_shape(&sh).expect("the rung-E32 layout");
+        for k in 0..l {
+            let stage = std::fs::read(dir.join(run_capture::stage_file(k))).expect("a stage file");
+            assert!(contains(&stage, "\"a_rows\":2209,"), "{tag} stage {k}: the A commitment is not 2,209 rows");
+            assert!(contains(&stage, "\"h_rows\":2416,"), "{tag} stage {k}: the H commitment is not 2,416 rows");
+            assert!(contains(&stage, "\"log_cols\":10,"), "{tag} stage {k}: the stage does not report the 2^10 row width");
+            // and both earlier arms are still there
+            let (main, ext, degree) = sh.slots()[SC_DZC];
+            let head = format!("{{\"slot\":{SC_DZC},\"name\":{:?},\"kind\":\"Host\",\"main\":{main},\"extension\":{ext},\"degree\":{degree},", SLOT_NAMES[SC_DZC]);
+            assert!(contains(&stage, &head), "{tag} stage {k}: slot 14 does not report this shape's schedule ({main}, {ext}, {degree})");
+            assert_eq!(lay.slot_terms(SC_DZC), 54, "{tag}: slot 14's term list is not C-6's 54");
+            for s in [SC_KVZC, SC_FZC] {
+                let (m2, e2, d2) = sh.slots()[s];
+                let h2 = format!("{{\"slot\":{s},\"name\":{:?},\"kind\":\"Host\",\"main\":{m2},\"extension\":{e2},\"degree\":{d2},", SLOT_NAMES[s]);
+                assert!(contains(&stage, &h2), "{tag} stage {k}: slot {s} does not report the UNPADDED schedule ({m2}, {e2}, {d2})");
+            }
+        }
+        total += n;
+        assert!(n < 200_000_000, "{tag} is {n} B, past the 200 MB ceiling stage 32 gave itself");
+        eprintln!("E32 GATE BUNDLE {tag}: {n} B on disk ({:.1} MB)", n as f64 / 1e6);
+    }
+    eprintln!("E32 GATE BUNDLES total about {:.1} MB in {}", total as f64 / 1e6, root.display());
+}
+
 // ===========================================================================
 // STAGE 23, GAP GS-2 — THE REFUSAL REPLAY ORDER, PINNED ON A REAL BLOCK
 // ===========================================================================

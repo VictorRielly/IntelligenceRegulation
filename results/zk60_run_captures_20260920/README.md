@@ -561,3 +561,49 @@ source pin `11703c9` over 38 files.
 
 They are **not gate evidence** (ruling T-6) and not a privacy result: they
 are the INPUT to the independent Python run gate.
+
+## STAGE 33 — `run-q-dense-e32` and `run-r-zero-e32`: the 125M ENDPOINT ROW COUNT
+
+Two more bundles, IN this directory (32.8 and 32.4 MB, inside the ~40 MB a
+repository file should be — the rung-W14 pair above is outside only because
+it is 50 MB):
+
+| bundle | blocks | `run.json` | stage files | `arrays.bin` | on disk |
+|---|---:|---:|---:|---:|---:|
+| `run-q-dense-e32` (FULLY DENSE, generic) | 2 | 35,068 B | 3,478,050 / 4,201,171 B | 25,033,024 B | **32,752,273 B** |
+| `run-r-zero-e32` (all-zero, degenerate) | 2 | 35,074 B | 3,477,890 / 4,201,709 B | 24,611,408 B | **32,377,576 B** |
+
+**What is new in them.** Every bundle above has an external endpoint of 7, 9
+or 21 commitment rows over 2, 4 or 16 DATA rows. This pair is the first at
+**125M's own endpoint ROW COUNT**:
+
+* an external endpoint of **32 data rows and 37 commitment rows**, with a
+  **296-byte** opened-column digest — 125M's own number;
+* an internal boundary of **38 rows**, one more, the run layer's +1 for its
+  second reserved IO-tab row;
+* one endpoint data row per TOKEN (the cube is 2^15 words over a 2^10-wide
+  row), so rows 16..32 exist in no earlier bundle;
+* `"a_rows":2209` and `"h_rows":2416` — the largest of any development
+  bundle, which is what 125M's head axis costs at a narrow row.
+
+**What is deliberately the same**, so that the pair is a regression as well
+as new evidence: `Dom::T` (2^5), `Dom::Kv` (2^13) and `Dom::F` (2^15) do not
+pad while Ht, L, D, Q, S and Tab do — 125M's padded-domain set, finding
+**M-F1** — and the norm window fills its top byte at width 768, so
+correction **C-6** applies and slot 14 carries **54 terminals**, as in the
+rung-C6 and rung-W14 pairs.
+
+**What is NOT 125M's**: the endpoint LOG (10 here, 14 there) and with it the
+endpoint's row width and Merkle depth, and the A / H / M row width (2^10).
+The rung-W14 pair holds the row WIDTH; this pair holds the row COUNT.
+
+Both are schema `/5-run`, both carry the public tables' VALUES, both are
+tagged, both name `hashline-zk-mr1/private-run-rung-e32-t32-dev/1`, and each
+was written by
+`private_block::run_capture_tests::write_the_e32_gate_bundles` and checked
+off disk by the same run (`results/zk60_block125m_lane/w33-e32-bundles-repo.log`,
+exit 0: self-consistent, every key on the allow-list, every array reference
+resolved).
+
+They are **not gate evidence** (ruling T-6) and not a privacy result: they
+are the INPUT to the independent Python run gate.
