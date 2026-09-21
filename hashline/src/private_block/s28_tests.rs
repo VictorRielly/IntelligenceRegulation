@@ -214,7 +214,9 @@ use crate::mle::eq_table_msb;
 
 /// **THE OLD `priv_table`**, copied verbatim from the tip this stage opened
 /// at (`79f0726`), as the oracle the new one is compared against.
-fn priv_table_walked(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
+// STAGE 29: `pub(super)` so that `s29_tests`' `table_of_79f0726` can call the
+// SAME verbatim copy instead of taking a third one.
+pub(super) fn priv_table_walked(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
     let mut used = 0usize;
@@ -249,7 +251,7 @@ fn priv_table_walked(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
 }
 
 /// **THE OLD `eq` cube build**, likewise verbatim.
-fn eq_cube_gathered(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
+pub(super) fn eq_cube_gathered(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
     let shift = n_vars - start - e.len().trailing_zeros() as usize;
     (0..1usize << n_vars).map(|x| e[(x >> shift) & (e.len() - 1)]).collect()
 }

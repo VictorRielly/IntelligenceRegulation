@@ -1,0 +1,9 @@
+=== RAYON_NUM_THREADS=1
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 407 filtered out; finished in 0.12s
+
+=== RAYON_NUM_THREADS=2
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 407 filtered out; finished in 0.11s
+
+=== RAYON_NUM_THREADS=8
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 407 filtered out; finished in 0.13s
+

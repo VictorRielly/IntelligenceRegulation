@@ -225,6 +225,13 @@ mod s28_tests;
 // Report: `docs/zkmatrix-poc/ZK60_BLOCK125M_S28_REVIEW.md`.
 #[cfg(test)]
 mod s28_review_tests;
+// STAGE 29 (ruling V-4 of the security owner's disposition): both branches of
+// every size threshold stage 28 introduced, crossed in the ORDINARY filter
+// and each compared against the text at `79f0726`; and `eq_cube`'s
+// precondition, now a hard assertion, agreeing with the old gather on every
+// admitted triple and panicking by name on a violated one.
+#[cfg(test)]
+mod s29_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
