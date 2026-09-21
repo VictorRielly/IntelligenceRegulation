@@ -1,0 +1,17 @@
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask
++ python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p test_zk60_native_run_gate_mask.py -v
++ python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native_run_gate*.py' -v
++ python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native*.py' -v
++ tail -3 /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/tests_mask.log
+Ran 41 tests in 41.216s
+
+FAILED (errors=1)
++ tail -3 /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/tests_run_gate_all.log
+Ran 255 tests in 228.501s
+
+FAILED (failures=1, errors=1)
++ tail -3 /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/tests_native_all.log
+Ran 431 tests in 438.523s
+
+FAILED (failures=4, errors=1, skipped=1, expected failures=1)

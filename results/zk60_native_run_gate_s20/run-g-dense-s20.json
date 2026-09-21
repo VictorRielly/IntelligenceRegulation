@@ -135,7 +135,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 17.9,
+ "seconds": 18.1,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -701,6 +701,20 @@
   "what": "the FULL zero-data preimage -- A and H included, both halves, every opened column and the salted leaves of the opened columns",
   "why_off": "it is minutes of exact Fp arithmetic per bundle, not seconds, so it is opt-in (`--full-preimage`); the default gate stays a ~10 s tool and every figure of rounds 1-6 is taken at the same cost as before"
  },
+ "stage12_mask_and_cfs": {
+  "consequence": "the masked round messages and the three channels of M's own opening -- its q, its proximity vector and its 256 opened columns -- stay OPEN, with round 1's reason plus a sentence saying round 8 removed the assumption behind it",
+  "ok": true,
+  "requested": false,
+  "what": "the masking commitment M and the masked-sumcheck (CFS) channel at this run's shape: M's linear view, ONE coefficient vector that meets every slot's masked rounds and scalar AND M's whole opening, M's opened columns re-hashed and re-authenticated, and the pad budget",
+  "why_off": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before"
+ },
+ "stage13_joint_run_preimage": {
+  "consequence": "the channel 'the preimage construction for a RUN' stays OPEN, with the reason the two arms leave it",
+  "ok": true,
+  "requested": false,
+  "what": "one assignment reproducing the WHOLE run's linear view at once",
+  "why_off": "it is the union of round 7's arm and round 8's arm, so it is computed only when BOTH are on (`--full-preimage --mask-cfs`)"
+ },
  "stage1_integrity": {
   "any_root_opened_twice": false,
   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
@@ -1033,7 +1047,7 @@
    "exact_rank_of_the_pad_block": 249,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.4,
+   "seconds": 3.3,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -4106,10 +4120,45 @@
    {
     "assumption": null,
     "channel": "the masked sumcheck round messages and the published scalars",
+    "entries_recomputed_and_compared": null,
+    "how": null,
+    "joint_note": "the masking commitment IS carried in the joint system as a block with 2S+4 rows and no data row, and its part over the commitments' coordinates is computed as 0",
     "preimage_exhibited": false,
-    "reason": "the CFS analysis (zk60_native_jv_cfs) and the mask-row port (zk60_native_mask_commit) are written at the toy's row layout and slot specs; at the rung they would have to be re-derived from the shape.  The masking commitment IS carried in the joint system as a block with 2S+4 rows and no data row, and its part is computed as 0",
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
     "section": "run 2.1",
+    "status": "open",
+    "the_fixed_data_is_not_the_zero_witness_s_transcript": null
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's opening: the product polynomial q and the one batched functional value it pins",
+    "disclosed_fp_computed": null,
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
+    "section": "run 2.1 (NEW)",
     "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's proximity vector",
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
+    "section": "run 2.1 (NEW)",
+    "status": "open"
+   },
+   {
+    "assumption": null,
+    "channel": "the masking commitment M's own opened columns (and their salted leaves)",
+    "entries_recomputed_and_compared": null,
+    "how": null,
+    "preimage_exhibited": false,
+    "reason": "it is seconds per stage of exact Fp arithmetic and the controls are twenty more, so it is opt-in (`--mask-cfs`) exactly as round 7's arm is; the default gate keeps its cost and every figure of rounds 1-7 is taken as before",
+    "salted_leaves_authenticated": null,
+    "section": "run 2.1 (NEW)",
+    "status": "open",
+    "unopened_leaves": "NOT reproducible from any preimage and not claimed: M-2 / M-3, and that channel stays ARGUED"
    },
    {
     "assumption": null,
@@ -4266,11 +4315,14 @@
      "E-Input",
      "E-Output"
     ],
+    "how": null,
+    "joint": null,
     "per_commitment_not_joint": true,
     "preimage_exhibited": false,
     "reason": "exhibited here per commitment, message half only, for the 4 singleton-group commitments of the run.  A RUN preimage is a joint object: it must reproduce every stage's view at once with the boundary planes shared between three commitments, and it needs the pad half and the CFS channel first",
     "section": "run 2.2 (NEW)",
-    "status": "open"
+    "status": "open",
+    "still_not_shown": null
    },
    {
     "assumption": null,
@@ -4346,10 +4398,13 @@
    "argued": 4,
    "constructed": 2,
    "derived": 5,
-   "open": 14
+   "open": 17
   },
   "grading_failures": [],
   "new_for_a_run": [
+   "the masking commitment M's opening: the product polynomial q and the one batched functional value it pins",
+   "the masking commitment M's proximity vector",
+   "the masking commitment M's own opened columns (and their salted leaves)",
    "the derived mask evaluation per slot (the terminal identity) -- the slots whose public tables the bundle does not carry",
    "the hash RULE of the run: which BLAKE3 made every byte, and the four keys of a tagged profile",
    "the sequencing surface: the number of segments, their byte lengths and their position tags",
@@ -4358,7 +4413,7 @@
    "the boundary scale tags and the one calibration identity"
   ],
   "ok": true,
-  "total": 25
+  "total": 28
  },
  "stage8_plane_index_and_terminals": {
   "carried_public_tables": {
@@ -5513,6 +5568,8 @@
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
   "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
+  "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
+  "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
   "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
@@ -5524,6 +5581,9 @@
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
   "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
+  "zk60_native_rg_mask.py": "aeaf3499b8431eff8090e672b7ed2c52991b66a0ce4746066f385dfa6a348ae8",
+  "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
+  "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
@@ -5531,7 +5591,7 @@
   "zk60_native_rg_runpins.py": "24e3c391275b792b0f91d53450e459820d3a9214dcd16268149add299aee2dda",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
   "zk60_native_rg_terminals.py": "0a443e17648f3904519cedf223d68cc3af0a966c16838484b17c6d64a27a0c49",
-  "zk60_native_run_gate.py": "0e7674893377a13ffe20ee731dd77e08f9ed7ad1381e3404904edc0d44bd0fe7"
+  "zk60_native_run_gate.py": "344ae2b359a96531d22af772cab4da257f15f2a8acc4211c75299fade88cf542"
  },
  "version": 1,
  "what_it_does_not_show": [

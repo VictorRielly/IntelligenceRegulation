@@ -1558,7 +1558,29 @@ and diffed leaf by leaf against the committed bytes taken into `before/`
 first. The classifier gains two classes: the new `stage12_mask_and_cfs`
 block and the new `stage13_joint_run_preimage` block; the three added
 channel entries and the moved counts fall under the channel classes round 3
-established.
+established. **0 unclassified leaves on all ten**, with 2,326 leaves in the
+channel array, 110 in the counts, 50 in each new stage block, 60 tool
+hashes and 23 wall clocks.
+
+**Round 7's OWN evidence had to be re-taken.** Its four records pinned tool
+digests round 8 moved, and round 7's own
+`test_the_evidence_came_from_the_tool_bytes_now_in_the_tree` is the test
+that said so. Re-run under `--full-preimage` with the masking arm off:
+every stage-11 figure identical (1,097,847 / 1,103,569 / 1,282,025 /
+1,279,861 entries, 0 differing, 2,560 salted leaves each), the table
+25 → 28 at 5 / 5 / 4 / 14, and a dated note added above §11.7 of the report
+saying so while leaving §11.7 as written.
+
+**The suite.** `test_zk60_native_run_gate_mask.py` **42, OK**;
+`-p 'test_zk60_native_run_gate*.py'` **256, OK** (round 7: 214);
+`-p 'test_zk60_native*.py'` **432, OK**, 437.8 s, one skip and one recorded
+expected failure (round 7: 390). Logs: `…/mask/tests_*.final.log`, taken
+inside the run of record's own lock hold so that nothing could interleave
+between the records and the tests that read them.
+
+**Five assertions of earlier test files moved**, all channel counts, all
+about the record's SHAPE: `s20`, `planeindex`, `tagged`, `k4` and
+`ahpreimage`.
 
 ## R8.9 NEXT after round 8
 

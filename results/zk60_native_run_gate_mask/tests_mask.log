@@ -1,0 +1,52 @@
+test_the_record_says_every_figure_is_equal (test_zk60_native_run_gate_mask.TestEquivalenceRecord) ... ok
+test_every_figure_equals_the_toy_gate_s_committed_record (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate) ... ok
+test_the_join_also_works_at_the_toy (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate)
+The CFS-solved coefficients reproduce the toy's M opening too. ... ok
+test_the_toy_model_object_is_the_toy_module_s_class (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate) ... ok
+test_the_two_exhibited_randomness_digests_are_the_toy_s (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate) ... ok
+test_a_mask_domain_that_moved_is_refused_by_name (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_a_stage_that_refuses_zeroes_its_counts_and_does_not_crash (test_zk60_native_run_gate_mask.TestLive)
+A REFUSAL IS NEVER A CRASH -- round 5's finding K4-F1, kept. ... ok
+test_one_stage_is_constructed_and_verified (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_the_declared_order_is_thirty_four_of_thirty_four (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_the_fixed_transcript_is_named_and_is_not_the_witness_s (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_the_mask_domain_is_derived_from_the_bundle_and_agrees (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_the_pad_budget (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_the_pins_accept_this_bundle (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_the_slot_row_map_covers_every_row_of_M (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_the_specs_are_the_shape_s (test_zk60_native_run_gate_mask.TestLive) ... ok
+test_M1_names_the_round_from_the_arithmetic (test_zk60_native_run_gate_mask.TestLiveControls) ... ok
+test_M2_fires_on_the_b_and_u_rows_of_the_moved_column (test_zk60_native_run_gate_mask.TestLiveControls) ... ok
+test_M3_the_order_is_pinned_by_the_columns_not_only_the_sum (test_zk60_native_run_gate_mask.TestLiveControls) ... ok
+test_M4_hits_both_repaired_bilinear_slots (test_zk60_native_run_gate_mask.TestLiveControls) ... ok
+test_M5_is_the_masking_layer_s_P5 (test_zk60_native_run_gate_mask.TestLiveControls) ... ok
+test_M6_takes_the_pad_margin_away (test_zk60_native_run_gate_mask.TestLiveControls) ... ok
+test_all_six_fire_and_the_honest_case_passes (test_zk60_native_run_gate_mask.TestLiveControls) ... ok
+test_no_captured_byte_moved (test_zk60_native_run_gate_mask.TestLiveControls)
+The perturbations are in memory; the bundle directory is intact. ... ok
+test_the_bilinear_slots_move_and_M_keeps_fifty_rows (test_zk60_native_run_gate_mask.TestLiveK4) ... ok
+test_every_imported_object_is_the_toy_module_s_own (test_zk60_native_run_gate_mask.TestNotAFork) ... ok
+test_layout_specific_has_exactly_the_five (test_zk60_native_run_gate_mask.TestNotAFork) ... ok
+test_new_here_covers_every_public_function_this_module_defines (test_zk60_native_run_gate_mask.TestNotAFork) ... ok
+test_the_arm_is_off_by_default (test_zk60_native_run_gate_mask.TestNotAFork) ... ok
+test_the_gate_hashes_the_new_tools_and_the_two_toy_records (test_zk60_native_run_gate_mask.TestNotAFork) ... ok
+test_the_new_module_defines_none_of_those_names (test_zk60_native_run_gate_mask.TestNotAFork) ... ok
+test_the_pin_tables_carry_a_reading_for_every_digest (test_zk60_native_run_gate_mask.TestNotAFork) ... ok
+test_the_two_toy_records_are_not_edited_by_this_lane (test_zk60_native_run_gate_mask.TestNotAFork)
+Their bytes are what the whole 'not a fork' claim rests on. ... ok
+test_M_has_fifty_rows_and_thirty_four_functionals_at_both_rungs (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_every_control_fired_on_every_bundle (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_every_stage_of_every_bundle_was_exhibited_and_verified (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_four_bundles_with_the_arm_on (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_no_record_claims_a_privacy_property (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_the_channel_table_moved_and_by_how_much (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_the_disclosed_dimension_is_two_everywhere (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_mask.TestTheRecord)
+The record's `tool_sha256` must name files that still exist as ... ok
+test_the_joint_run_preimage_and_its_four_couplings (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+test_the_mask_lengths_are_the_shape_s (test_zk60_native_run_gate_mask.TestTheRecord) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 41.372s
+
+OK

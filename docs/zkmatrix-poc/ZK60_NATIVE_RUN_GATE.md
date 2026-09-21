@@ -2044,6 +2044,15 @@ evidence that the commitments' blinding is independent.
 25 channels: **5 constructed, 5 derived, 4 argued, 11 open** (round 6: 2 /
 5 / 4 / 14). Three moved, and only three:
 
+> **2026-09-21, later: this is the count of the table ROUND 7 had, and it
+> is history.** Round 8 grades `M`'s `q`, `M`'s proximity vector and `M`'s
+> own opened columns as three separate channels — as the TOY gate already
+> did — so the array is 28, and round 7's own evidence directory was
+> re-taken under round 8's gate and now reads **28 at 5 / 5 / 4 / 14**
+> (the three new entries are OPEN because `--mask-cfs` is off there).
+> **No stage-11 figure moved**: §12.9 has the four entry counts, unchanged.
+> The paragraph below is deliberately left as written.
+
 | channel | was | is | why |
 |---|---|---|---|
 | opening-group and proximity vectors of `A` and `H` | OPEN (`MSG == PAD` does not hold) | **CONSTRUCTED** | §11.3, verified §11.5 |
@@ -2456,6 +2465,29 @@ the terminals are met as claim VALUES by blinding, and whether a model input
 exists whose activations make them is a question about the block's
 arithmetic that no preimage argument answers (§11.8, second bullet).
 
+**The channel table, recounted.** 28 channels: **10 constructed, 5 derived,
+4 argued, 9 open** (round 7: 25 at 5 / 5 / 4 / 11), the same on all four
+bundles, with `grading_failures` empty. Three entries are NEW and two
+statuses MOVED; nothing else changed:
+
+| channel | was | is | why |
+|---|---|---|---|
+| `M`'s opening: the product polynomial `q` and the batched value it pins | *(not graded separately by this gate; the TOY gate has graded it since its §14)* | **CONSTRUCTED** | §12.3, §12.5; the disclosed dimension computed as an exact rank, the refusal one off the `V` plane exhibited |
+| `M`'s proximity vector | *(not graded separately)* | **CONSTRUCTED** | the same solve; reproduced BY CONSTRUCTION, and the record says so |
+| `M`'s own opened columns and their salted leaves | *(not graded separately)* | **CONSTRUCTED** | 153,600 entries over the twelve stages, 3,072 salted leaves re-authenticated |
+| the masked sumcheck round messages and the published scalars | OPEN (the port "is written at the toy's row layout and slot specs") | **CONSTRUCTED** | §12.5; 12,750 round entries and 276 scalars recomputed and compared, none differing |
+| the preimage construction for a RUN | OPEN (per-commitment existence is not joint existence, P-5) | **CONSTRUCTED** | §12.7; the four couplings enumerated and each checked, 4,954,912 entries over the four runs |
+
+**Nothing else moved.** In particular the Merkle roots, the leaf salts and
+the authentication paths are still ARGUED (M-2, M-3); the cross-block joint
+LAW, the boundary scale tags, the integer-range facts, any nonlinear
+functional and the four out-of-band channels are unchanged; and the run's
+`privacy_review_complete` is still `false`.
+
+When `--mask-cfs` is not passed, `stage12_mask_and_cfs` records that it was
+not requested and the four channels stay OPEN; when either arm is off,
+`stage13_joint_run_preimage` records that it needs both.
+
 ## 12.8 What this establishes, and what it does not
 
 **It establishes**, for these four captured runs, these two development
@@ -2502,14 +2534,15 @@ are disjoint in the honest layout — it is not evidence about the prover.
 ## 12.9 Timings, the refresh and the suite
 
 **The masking arm is cheap.** Stage 12 is **5.7–6.2 s per stage** and
-**17.8–18.3 s per bundle** for the three stages, plus the six controls; the
-joint stage 13 is bookkeeping over the two stage records and costs nothing
-measurable. The whole gate with BOTH arms on is **3:32–3:52 per bundle**
-against round 7's 170–193 s with one arm, so the masking layer adds roughly
-**20 %** to a run that was already dominated by the `A` and `H` solves. The
-gate PROCESS peaks at **780–850 MB** (round 7: 677–713 MB) — again four
-bundles held at once under `--other`, `--old` and `--cross-profile` — so the
-masking arm adds about **100–140 MB**. Measured with `/usr/bin/time -v`;
+**17.4–18.0 s per bundle** for the three stages, and its six controls are
+**22 s** more; the joint stage 13 is bookkeeping over the two stage records
+and costs nothing measurable. The whole gate with BOTH arms on is
+**207–230 s per bundle** (3:27–3:50 wall) against round 7's 170–193 s with
+one arm, so the masking layer adds roughly **20 %** to a run already
+dominated by the `A` and `H` solves. The gate PROCESS peaks at
+**780–851 MB** (round 7: 677–713 MB) — again four bundles held at once
+under `--other`, `--old` and `--cross-profile` — so the masking arm adds
+about **100–140 MB**. Measured with `/usr/bin/time -v`;
 `…/mask/time-<bundle>.log`.
 
 **The arm is off by default**, so the gate stays what it was and no earlier
@@ -2517,8 +2550,31 @@ figure changed cost. The ten records of record were nevertheless re-run,
 because the tool hashes moved and the record gained two stage blocks and
 three channel entries, and diffed **leaf by leaf** against the committed
 bytes: **0 unclassified leaves on all ten**, with every difference in one
-of six classes — the channel array, the channel counts, the two new stage
-blocks, the tool hashes and the wall clock.
+of six classes — the channel array (2,326 leaves), the channel counts
+(110), the two new stage blocks (50 each), the tool hashes (60) and the
+wall clock (23).
+
+**Round 7's own evidence had to be re-taken, and that is a cost round 8
+paid rather than hid.** `results/zk60_native_run_gate_preimage/`'s four
+records pinned tool digests that round 8 moved, and round 7's own test
+`test_the_evidence_came_from_the_tool_bytes_now_in_the_tree` said so. They
+were re-run under `--full-preimage` with `--mask-cfs` OFF: **every
+stage-11 figure is identical** — 1,097,847 / 1,103,569 / 1,282,025 /
+1,279,861 entries, 0 differing, 2,560 salted leaves each — and what moved
+is the tool hashes and the channel table, 25 → 28 at **5 / 5 / 4 / 14**,
+because the three new entries are OPEN when the masking arm is off. §11.7's
+"25 channels: 5 / 5 / 4 / 11" is left as written; it is the count of the
+table round 7 had.
+
+**The suite**: `test_zk60_native_run_gate_mask.py` **42 tests, OK**;
+`-p 'test_zk60_native_run_gate*.py'` **256 tests, OK** (round 7: 214);
+`-p 'test_zk60_native*.py'` **432 tests, OK**, 437.8 s, one skip and one
+recorded expected failure (round 7: 390). **Five assertions of earlier test
+files had to move** — the channel-count assertions in the `s20`,
+`planeindex`, `tagged`, `k4` and `ahpreimage` files — and each is about the
+record's SHAPE (three entries added) and not about any figure. Round 7 could
+say "no assertion of rounds 1–6 had to move"; round 8 cannot, and says so
+instead.
 
 ## 12.10 What this round is NOT
 

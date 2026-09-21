@@ -165,7 +165,7 @@
     }
    }
   },
-  "seconds": 6.28,
+  "seconds": 6.4,
   "shape": {
    "blinding_unknowns_fp": 15870,
    "coefficients_plus_pads_fit": true,
@@ -230,6 +230,7 @@
   "joined_coefficients",
   "mask_cfs_run",
   "mask_cfs_stage",
+  "shaped_mask_model",
   "slot_row_map",
   "toy_equivalence"
  ],
