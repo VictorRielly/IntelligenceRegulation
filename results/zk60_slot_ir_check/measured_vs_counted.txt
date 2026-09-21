@@ -1,0 +1,54 @@
+MEASURED masked-sumcheck seconds vs the COUNTED multiplication model, 125M
+(q28-m125-final-dense.log, one run, 17.401 s prove; the model is the memo's:
+ round loop + fold, in Fp multiplications)
+
+slot name        2^main  k   meas s   share  counted Fp    share   Fp/s (1e9)  ratio
+  17 SC_SZC      2^22    30   3.054   46.3%   10821301740   66.1%       3.543    1.43
+  14 SC_DZC      2^19    60   1.642   24.9%    2761943916   16.9%       1.682    0.68
+  18 SC_FZC      2^20    20   0.659   10.0%    1169161125    7.1%       1.774    0.71
+  15 SC_QZC      2^19    21   0.544    8.2%     828897747    5.1%       1.524    0.61
+  16 SC_KVZC     2^17    18   0.258    3.9%     135658485    0.8%       0.526    0.21
+   4 SC_RS       2^22     5   0.203    3.1%     524287875    3.2%       2.583    1.04
+   0 SC_SS       2^19     3   0.051    0.8%      47185830    0.3%       0.925    0.37
+  21 SC_IO_IN    2^19     3   0.049    0.7%      15728610    0.1%       0.321    0.13
+   1 SC_SSM      2^19     3   0.047    0.7%      47185830    0.3%       1.004    0.40
+  22 SC_IO_OUT   2^19     3   0.043    0.7%      15728610    0.1%       0.366    0.15
+  19 SC_TAB      2^14    11   0.035    0.5%       6143625    0.0%       0.176    0.07
+   3 SC_LZC      2^14     5   0.007    0.1%       4013835    0.0%       0.573    0.23
+     TOTAL (23 slots)          6.594 100.0%   16378328073 100.0%       2.484
+
+An exact multiplication model would give one Fp/s figure for every slot and
+a ratio of 1.00 everywhere.  It does not.
+
+Adding the table-proportional work the memo's unit does not count
+(per pair index and round: 2k word reads, k subtractions, degree*k
+ additions in the cur[t] += dif[t] walk, and the fold's k read-modify-writes).
+Model:  cost = Fp_muls + W * k * (2^main - 1) * (degree + 3)
+with W the Fp-multiplication-equivalent price of one such Fp2 slot-word step.
+Fitted over the six slots above 0.2 s: W = 6.4 Fp-mul-equivalents per
+table-word step.  Worst share error falls from 79% (multiplications only) to 78% (multiplications + traffic).
+
+slot   meas share   mul-only share   mul+traffic share   (of the six)
+  17        48.0%            66.6%               64.1%
+  14        25.8%            17.0%               16.2%
+  18        10.4%             7.2%                8.0%
+  15         8.6%             5.1%                5.2%
+  16         4.1%             0.8%                0.9%
+   4         3.2%             3.2%                5.7%
+
+Implied Fp multiplications per second, if the memo's unit were the whole cost:
+  over the twelve slots above 0.005 s: 0.18e9 (slot 19) to 3.54e9 (slot 17) -- a factor of 20
+  over the six slots above 0.2 s:      0.53e9 (slot 16) to 3.54e9 (slot 17) -- a factor of 6.7
+
+Ordering: the counted model puts slot 04 (3.2%) above slot 16 (0.8%);
+the measurement puts slot 16 (3.9%) above slot 04 (3.1%).  One inversion
+among the six, and the top-two weight ratio is 3.92 counted against 1.86
+measured -- the model over-weights slot 17 against slot 14 by 2.1x.
+
+Run-to-run spread on the two committed 125M samples, for the six big slots:
+  slot 17: 3.054 s and 3.107 s  (+1.7%)
+  slot 14: 1.642 s and 1.872 s  (+14.0%)
+  slot 18: 0.659 s and 0.673 s  (+2.1%)
+  slot 15: 0.544 s and 0.538 s  (-1.1%)
+  slot 16: 0.258 s and 0.266 s  (+3.1%)
+  slot  4: 0.203 s and 0.224 s  (+10.3%)

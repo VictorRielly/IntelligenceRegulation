@@ -1,0 +1,105 @@
+=== rung-W14 ===
+  t_pad 64 d_pad 1024 h_pad 16 f_pad 1024 log_cols 14 f_e 12
+  limbs_norm 4 full_top True limbs_sigma_s 3 limbs_p 2 lkv 2
+  pads: T=False, Ht=True, L=True, D=True, Q=True, Kv=False, S=True, F=False, Tab=True
+  helpers: L=1, D=17, Q=7, Kv=6, S=8, F=5
+slot name        main ext deg TRUEdeg tab base  mul mb  mul' mb'   Fp/eval        loop0         fold0        total0
+   0 SC_SS         16   1   4       4    3    2    3  0     3   0        15      4915125        983025        983040
+   1 SC_SSM        16   1   4       4    3    2    3  0     3   0        15      4915125        983025        983040
+   2 SC_TZC         6   1   3       3   25   22   28  0    13  12       140        35280          7875             0
+   3 SC_LZC        14   1   4       4    5    3    8  2     6   2        44      3604260        409575             0
+   4 SC_RS         16   1   4       4    5    4    4  0     4   0        20      6553500       1638375       1310720
+   5 SC_QMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+   6 SC_KMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+   7 SC_VMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+   8 SC_SCORE       8   2   3       3    3    0    2  0     2   0        10        10200          3825          2560
+   9 SC_PV          8   2   3       3    3    0    2  0     2   0        10        10200          3825          2560
+  10 SC_WO         10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+  11 SC_GMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+  12 SC_UMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+  13 SC_DMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+  14 SC_DZC        16   1   5       4   60   40  152 34   110  59       828    325577880      19660500             0
+  15 SC_QZC        16   1   5       4   21   11   44 13    39  17       246     96729660       6881175             0
+  16 SC_KVZC       14   1   4       4   18    9   33 12    26  15       189     15481935       1474470             0
+  17 SC_SZC        16   1   5       5   30   18   75 15    60  22       405    159250050       9830250             0
+  18 SC_FZC        16   1   4       4   20   11   37  9    26  14       203     66518025       6553500             0
+  19 SC_TAB        14   1   3       3   11    4   16  0    15   0        80      5242560        901065             0
+  20 SC_ZS         14   1   2       2    2    1    1  0     1   0         5       245745        163830             0
+  21 SC_IO_IN      16   1   2       2    3    2    1  0     1   0         5       983025        983025             0
+  22 SC_IO_OUT     16   1   2       2    3    2    1  0     1   0         5       983025        983025             0
+
+  tables total 229, wholly base-field 131
+  main rounds 292, extension rounds 25
+
+  form                       round loop           fold   claimed sum          total   marginal
+  baseline                   691163010       51531975       3317760      746012745          -
+  + (b)                      579298458       51531975       3317760      634148193      15.0%
+  + (a)                      485699226       42068103       3317760      531085089      13.8%
+  + (c)                      253730187       42068103       3317760      299116050      31.1%
+  all three: 59.9% of the baseline removed
+
+  the same rows, with the marginal read as a share of the PREVIOUS ROW
+  (the memo's convention -- its three figures do NOT sum to the total):
+    (b)  15.0%   (a)  16.3%   (c)  43.7%   -- sum 74.9%, total removed 59.9%
+  and as a share of the BASELINE (these do sum to the total):
+    (b)  15.0%   (a)  13.8%   (c)  31.1%
+
+  each lever ALONE, against the baseline:
+    (b) alone           634148193    15.0% removed
+  finite-difference additions (c) introduces: 111003813 Fp2 adds = 222007626 Fp adds per proof
+    with an Fp add priced at 0.25 of an Fp mul: (c) net 354617956, total saving 52.5%
+    with an Fp add priced at 0.5 of an Fp mul: (c) net 410119863, total saving 45.0%
+    with an Fp add priced at 1 of an Fp mul: (c) net 521123676, total saving 30.1%
+
+=== 125M ===
+  t_pad 512 d_pad 1024 h_pad 16 f_pad 2048 log_cols 14 f_e 9
+  limbs_norm 4 full_top True limbs_sigma_s 3 limbs_p 2 lkv 2
+  pads: T=False, Ht=True, L=True, D=True, Q=True, Kv=False, S=True, F=False, Tab=True
+  helpers: L=1, D=17, Q=7, Kv=6, S=8, F=5
+slot name        main ext deg TRUEdeg tab base  mul mb  mul' mb'   Fp/eval        loop0         fold0        total0
+   0 SC_SS         19   1   4       4    3    2    3  0     3   0        15     39321525       7864305       7864320
+   1 SC_SSM        19   1   4       4    3    2    3  0     3   0        15     39321525       7864305       7864320
+   2 SC_TZC         9   1   3       3   25   22   28  0    13  12       140       286160         63875             0
+   3 SC_LZC        14   1   4       4    5    3    8  2     6   2        44      3604260        409575             0
+   4 SC_RS         22   1   4       4    5    4    4  0     4   0        20    419430300     104857575      83886080
+   5 SC_QMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+   6 SC_KMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+   7 SC_VMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+   8 SC_SCORE       8   2   3       3    3    0    2  0     2   0        10        10200          3825          2560
+   9 SC_PV         11   2   3       3    3    0    2  0     2   0        10        81880         30705         20480
+  10 SC_WO         10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+  11 SC_GMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+  12 SC_UMM        10   1   2       2    2    0    1  0     1   0         5        15345         10230          5120
+  13 SC_DMM        11   1   2       2    2    0    1  0     1   0         5        30705         20470         10240
+  14 SC_DZC        19   1   5       4   60   40  152 34   110  59       828   2604657816     157286100             0
+  15 SC_QZC        19   1   5       4   21   11   44 13    39  17       246    773847612      55050135             0
+  16 SC_KVZC       17   1   4       4   18    9   33 12    26  15       189    123862095      11796390             0
+  17 SC_SZC        22   1   5       5   30   18   75 15    60  22       405  10192156290     629145450             0
+  18 SC_FZC        20   1   4       4   20   11   37  9    26  14       203   1064303625     104857500             0
+  19 SC_TAB        14   1   3       3   11    4   16  0    15   0        80      5242560        901065             0
+  20 SC_ZS         14   1   2       2    2    1    1  0     1   0         5       245745        163830             0
+  21 SC_IO_IN      19   1   2       2    3    2    1  0     1   0         5      7864305       7864305             0
+  22 SC_IO_OUT     19   1   2       2    3    2    1  0     1   0         5      7864305       7864305             0
+
+  tables total 229, wholly base-field 131
+  main rounds 336, extension rounds 25
+
+  form                       round loop           fold   claimed sum          total   marginal
+  baseline                 15282222978     1096105095      99678720    16478006793          -
+  + (b)                    12934129562     1096105095      99678720    14129913377      14.2%
+  + (a)                    10763786138      892009095      99678720    11755473953      14.4%
+  + (c)                     5617880459      892009095      99678720     6609568274      31.2%
+  all three: 59.9% of the baseline removed
+
+  the same rows, with the marginal read as a share of the PREVIOUS ROW
+  (the memo's convention -- its three figures do NOT sum to the total):
+    (b)  14.2%   (a)  16.8%   (c)  43.8%   -- sum 74.8%, total removed 59.9%
+  and as a share of the BASELINE (these do sum to the total):
+    (b)  14.2%   (a)  14.4%   (c)  31.2%
+
+  each lever ALONE, against the baseline:
+    (b) alone         14129913377    14.2% removed
+  finite-difference additions (c) introduces: 2472766117 Fp2 adds = 4945532234 Fp adds per proof
+    with an Fp add priced at 0.25 of an Fp mul: (c) net 7845951332, total saving 52.4%
+    with an Fp add priced at 0.5 of an Fp mul: (c) net 9082334391, total saving 44.9%
+    with an Fp add priced at 1 of an Fp mul: (c) net 11555100508, total saving 29.9%
