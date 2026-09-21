@@ -6106,7 +6106,8 @@ for gate purposes with the reason (`a`–`d` legacy-rule and no public tables;
 convention, the sanity results and the launch command. **Nothing was
 deleted, moved or rewritten**: the six older bundles stay byte for byte and
 their own per-bundle `README.md` files are not edited, because each
-`manifest.json` pins its own README. The directory now holds 309 MB.
+`manifest.json` pins its own README. The directory now holds 319,048,726
+bytes in eight bundles.
 
 **They are still not gate evidence** (ruling T-6): the Python run gate has
 to learn the D19 rule and the repaired schedule before a bundle is judged.

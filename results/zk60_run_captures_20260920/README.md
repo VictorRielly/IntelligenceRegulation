@@ -234,10 +234,11 @@ under `HL_RUN_CAPTURE_SEGMENTS=1` and are not here: every `stage-NN.json`
 carries its own segment's length and SHA-256, so each bundle is pinned to the
 exact bytes that were verified, and the gate's loader reads only JSON.
 
-## Nothing is deleted here, and the directory now holds 309 MB
+## Nothing is deleted here, and the directory now holds 319 MB
 
 The six older bundles stay byte for byte where they are and their own
 `README.md` files are NOT edited (each `manifest.json` pins its own README by
 length and SHA-256, so editing one would break that bundle's
-self-consistency). This parent file carries every note instead. 309 MB in
-eight bundles is the cost of keeping the record of what each stage produced.
+self-consistency). This parent file carries every note instead. 319,048,726
+bytes in eight bundles is the cost of keeping the record of what each stage
+produced.
