@@ -9511,3 +9511,23 @@ constants they passed at `db28728`, and the only new behaviour anywhere is a
 panic on a public-shape invariant that no frame and no witness can reach.
 Not a speed claim: nothing in this stage was written to make anything faster,
 and the base-field census is a COUNT with no time estimate attached to it.
+**The answer, plainly, and the form it takes at any shape.** At rung-K4,
+**[COUNTED] 85 of the 139 tables that round 1 of slots 17, 14, 18, 15 and 04
+reads are wholly base-field — 667,648 of 1,085,440 words, 61.5%** — and the
+other 54 are the three or so challenge-weighted `eq` tables per slot and the
+`H` LogUp helper columns. Two things follow, and neither is a time estimate.
+
+* **What a joint change could buy is CHEAPER MULTIPLICATIONS, not a
+  base-field round.** Every one of these five slots carries at least one
+  challenge-weighted `eq` factor, so no round-1 PRODUCT is wholly base-field;
+  what 61.5% of base-field operands buys is `Fp2::mul_base` (two base
+  multiplications) in place of a full extension multiplication (four base
+  multiplications and the non-residue fold) wherever a base-field operand
+  enters, plus half the memory traffic for those tables if `priv_table`
+  handed out `Fp` cubes instead of `Fp2` ones.
+* **It is a JOINT change or it is nothing.** The base-field side is exactly
+  the two classes this lane owns the construction of (`Priv cm=A` planes and
+  `Pub` tables); the operand type that reaches the multiplication is fixed by
+  `zkp-core::sumcheck::prove`'s `cur`/`dif` pair and the slot closures'
+  `&[Fp2]` signature, both in shared files. Neither side can take it alone.
+
