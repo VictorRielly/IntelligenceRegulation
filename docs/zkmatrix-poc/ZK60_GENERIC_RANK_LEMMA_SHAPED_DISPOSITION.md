@@ -97,6 +97,19 @@ Definitional note kept for anyone re-running: disclosure is
 `rank(all) − rank(non-data)`, not `generators − rank(non-data)`; they differ
 exactly on refused draws.
 
+**S-6 (added 2026-09-21 14:19; source: lane stages 31 and 32).**
+`Shape::a_groups` — the function that fixes `A`'s opening-group count, which
+this lemma's counts rest on — has an arm `natural_log(Dom::T) >= log_cols`
+(token count at or above the row width) that NO registered shape reaches, the
+125M shape included. An arm no shape reaches is code nobody has tested, in the
+one place the group structure comes from. **Ruling: such a shape is refused at
+shape validation by name, in the form of S-1 and S-3, and the Python layout
+model refuses the same family by the same name; the arm stays only as an
+unreachable defensive return.** Lifting the refusal later requires a shape of
+that family in the ordinary test filter and the lemma's counts redone for it.
+No registered shape is affected and no figure on this page moves. Being
+implemented as lane stage 33, failing test first.
+
 ## 3. Where gap G-R1 stands
 
 | Shape | State after this page |

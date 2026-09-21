@@ -144,6 +144,28 @@ accessor: five of the seven assertions of the draw-accounting test; the lane
 carries a test that fails the day the accessor lands, so it cannot be
 forgotten.
 
+**J-7a (2026-09-21 14:19) — a declared coincidence's separator must be
+CHECKED by a test, not stated in a comment.** Lane stage 32 added a profile
+whose 48-byte name makes the transcript constructor's input 60 bytes, the
+length of an absorb of the label `rows` — an eighth declared pair, both inputs
+to the transcript's function. The stage recorded it rather than renaming the
+profile to dodge it, which is right, and gave a separator that is stronger
+than "unlikely": at offset 32 the absorb carries a little-endian length field
+with six zero bytes, where the constructor carries bytes of the profile name,
+and a profile name is ASCII. **I accept the separator and I do not accept its
+premise as a comment.** Ruling: a test over the whole registry asserts that
+every profile name, every key-derivation context and every transcript label is
+printable ASCII with no zero byte, and — since a new profile length will raise
+the same question again — that for EVERY registered profile length the
+constructor input cannot equal any absorb input of the same length, by
+exhibiting for each absorb layout a byte position forced to zero inside a
+length field where the constructor has a name byte; the positions are
+computed, and a test-local bad name shows the test bites. A (length, layout)
+pair with no such position is a finding. Being implemented as lane stage 33.
+The table of record stays the code-derived one (J-8); it now covers fourteen
+registered profiles (eight block shapes and six run profiles; I counted them
+in the test's registry at lane `f8b926f`).
+
 ## 3. What the composition step rests on after tonight
 
 Real prover → (generator assumption, or `ε_gen`) → uniform stream →
