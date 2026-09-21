@@ -39,7 +39,7 @@
 
 use super::hash_domain::{self, RunFacts};
 use super::layout::{Layout, M_ROWS, N_SLOTS, SC_IO_IN, SC_TAB};
-use super::run::{RunShape, RunStatement, RUN_PROFILE_M125, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2};
+use super::run::{RunShape, RunStatement, RUN_PROFILE_M125, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_W14};
 use super::shape::Shape;
 use super::{BlockPublic, ExpectedIo, IoSpec};
 use crate::field::{Fp, Fp2};
@@ -74,7 +74,7 @@ fn profile_literals(text: &str) -> Vec<String> {
 
 /// the five shapes this module builds
 fn every_shape() -> Vec<Shape> {
-    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::m125()]
+    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::rung_c6(), Shape::rung_w14(), Shape::m125()]
 }
 
 /// The three RUN profiles and the `L` each is registered at: the two
@@ -86,6 +86,7 @@ fn every_run() -> Vec<(&'static str, Shape, usize)> {
         (RUN_PROFILE_RUNG_K4, Shape::rung_k4(), 3),
         (RUN_PROFILE_RUNG_P2, Shape::rung_p2(), 3),
         (RUN_PROFILE_RUNG_C6, Shape::rung_c6(), 3),
+        (RUN_PROFILE_RUNG_W14, Shape::rung_w14(), 3),
         (RUN_PROFILE_M125, Shape::m125(), 12),
     ]
 }
@@ -110,6 +111,8 @@ fn run_statement(sh: &Shape, profile: &str, l: usize) -> RunStatement {
         RunShape::rung_p2(l).expect("the rung-P2 run shape")
     } else if profile == RUN_PROFILE_RUNG_C6 {
         RunShape::rung_c6(l).expect("the rung-C6 run shape")
+    } else if profile == RUN_PROFILE_RUNG_W14 {
+        RunShape::rung_w14(l).expect("the rung-W14 run shape")
     } else {
         RunShape::rung_g(l).expect("the rung-G run shape")
     };
@@ -536,7 +539,19 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
     // than the 11,584 that nineteen helpers would give. Its endpoint column
     // is 168 — the frozen-seam rung's number, at sixteen data rows of a
     // GENERALISED endpoint rather than sixteen of the seam's.
-    let want: [(&str, usize, usize, usize, usize, usize, usize); 7] = [
+    // **STAGE 32 adds the rung-W14 row**, and it is the first row whose
+    // `pcs-vec` block is not a rung's: that absorb is
+    // `48 + 7 + 16 (2^log_cols + Q)` and knows nothing else about the shape,
+    // so at `log_cols = 14` with 256 opened columns it is 125M's own
+    // **266,295**. Its profile string is 48 bytes — one longer than the
+    // three 47-byte ones — so the constructor input is 60 and the block seed
+    // 118. The A and H column digests are `8 · rows`, and the ROW COUNT is
+    // what a wider row makes small: 527 and 436 against rung-C6's 1,337 and
+    // 1,408 and 125M's 5,681 and 7,120, hence 4,216 and 3,488 — the smallest
+    // of any shape but the toy, at the largest row width. The endpoint
+    // column is 72: nine commitment rows, four of them data, because the
+    // padded `Dom::D` cube is 2^16 words at an endpoint log of 14.
+    let want: [(&str, usize, usize, usize, usize, usize, usize); 8] = [
         // (name, constructor, A column, H column, endpoint column, block seed, pcs-vec block)
         ("toy", 51, 3640, 3072, 56, 61, 8247),
         ("rung", 56, 4984, 4608, 168, 66, 20535),
@@ -544,6 +559,7 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
         ("rung-k4", 59, 5816, 5760, 72, 117, 20535),
         ("rung-p2", 59, 5816, 5760, 72, 117, 20535),
         ("rung-c6", 59, 10696, 11264, 168, 117, 20535),
+        ("rung-w14", 60, 4216, 3488, 72, 118, 266295),
         ("m125", 48, 45448, 56960, 296, 106, 266295),
     ];
     for (sh, (name, ctor, a, h, e, seed, vec_len)) in every_shape().into_iter().zip(want) {
@@ -570,7 +586,11 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
     // two profile strings are the same length, and its public statement
     // digest input is the same 125 at `L = 3` — that input is `29 + 32 L`
     // and knows nothing about the shape.
-    for ((p, _, l), (ctor, public)) in every_run().into_iter().zip([(56usize, 125usize), (57, 125), (57, 125), (57, 125), (46, 413)]) {
+    // **STAGE 32**: the rung-W14 run's constructor input is 58, one more
+    // than the three 45-byte run profiles', and its public statement digest
+    // input is again 125 — that input is `29 + 32 L` and knows nothing about
+    // the shape.
+    for ((p, _, l), (ctor, public)) in every_run().into_iter().zip([(56usize, 125usize), (57, 125), (57, 125), (57, 125), (58, 125), (46, 413)]) {
         assert_eq!(12 + p.len(), ctor, "{p}: the run transcript constructor's input");
         assert_eq!(29 + 32 * l, public, "{p}: the run public statement digest's input");
     }
@@ -1098,6 +1118,7 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
         assert_eq!(absorb("pb-term", 16 * 15), 295, "a fifteen-terminal absorb is not 295 bytes");
         let mut hits: Vec<usize> = Vec::new();
         let mut lens: Vec<usize> = Vec::new();
+        let mut rows_at: Vec<usize> = Vec::new();
         for l in 1..=12usize {
             let st = run_statement(&sh, p, l);
             let line = st.capture_header().expect("the run's header").parameter_line;
@@ -1106,31 +1127,44 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
                 hits.push(l);
             }
             lens.push(len);
+            rows_at.push(if l > 1 { st.boundary_spec(0).expect("the run's first boundary").commitment_rows() } else { 0 });
         }
         let base = lens[0];
-        let want: Vec<usize> = (1..=12usize).map(|l| base + if l == 1 { 0 } else if l <= 9 { 1 } else { 2 }).collect();
-        assert_eq!(lens, want, "{p}: the parameters absorb is not base / base + 1 / base + 2 across L = 1 / 2..9 / 10..12");
+        // **STAGE 32 makes the curve fully derived.** Stage 31 wrote it as
+        // `base / base + 1 / base + 2`, which silently assumed the boundary
+        // row count is TWO decimal digits — true of every shape then
+        // registered (9 or 21 rows, and `0` at `L = 1`). rung-W14 has NINE
+        // boundary rows, one digit, so its line does not grow at all between
+        // `L = 1` and `L = 2` and the old literal curve was wrong at it. The
+        // honest statement is the one below: exactly two quantities of the
+        // line move with `L` — the boundary row count (`0` at `L = 1`) and
+        // `L` itself — so the absorb grows by their DECIMAL WIDTHS and by
+        // nothing else.
+        let digits = |v: usize| v.to_string().len();
+        let want: Vec<usize> = (1..=12usize).map(|l| base + (digits(rows_at[l - 1]) - digits(0)) + (digits(l) - digits(1))).collect();
+        assert_eq!(lens, want, "{p}: the parameters absorb is not the decimal width of the boundary row count plus that of L");
         if base == 294 {
             assert_eq!(hits, (2..=9).collect::<Vec<usize>>(), "{p}: the 295-byte parameters absorb is not exactly at 2 <= L <= 9");
             assert_eq!((lens[0], lens[11]), (294, 296), "{p}: the one- and twelve-block absorbs");
             narrow += 1;
         } else {
-            assert_eq!(base, 298, "{p}: an unrecorded parameter-line length; this test knows 294 (the 96-wide runs) and 298 (rung-C6)");
+            assert!([297, 298].contains(&base), "{p}: an unrecorded parameter-line length {base}; this test knows 294 (the 96-wide runs), 297 (rung-W14) and 298 (rung-C6)");
             assert!(hits.is_empty(), "{p}: a 295-byte parameters absorb appeared at a shape whose base is {base}: {hits:?}");
             wide += 1;
         }
-        eprintln!("    {p}: parameters absorb {base} / {} / {} at L = 1 / 2..9 / 10..12; 295 collisions at L = {hits:?}", base + 1, base + 2);
+        eprintln!("    {p}: parameters absorb {base} at L = 1, boundary rows {}, span {:?}; 295 collisions at L = {hits:?}", rows_at[1], (lens[0], lens[11]));
     }
     // every registered run but 125M's (stage 31: four of them, three narrow
-    // and one wide), derived from the registry and never a literal
+    // and one wide; stage 32: five, three and two), derived from the registry
+    // and never a literal
     assert_eq!(narrow + wide, every_run().len() - 1, "the 295-byte coincidence was checked at fewer than every development run");
-    assert_eq!((narrow, wide), (3, 1), "the split between the runs that CAN collide at 295 and the one that cannot moved");
+    assert_eq!((narrow, wide), (3, 2), "the split between the runs that CAN collide at 295 and those that cannot moved");
     // and what separates them, at a fixed offset inside the input
     let a = [&(10u64).to_le_bytes()[..], b"parameters"].concat();
     let b = [&(7u64).to_le_bytes()[..], b"pb-term"].concat();
     assert_ne!(a[..8], b[..8], "the two labels' length prefixes are equal");
     assert_ne!(a, b, "the two label literals do not differ");
-    eprintln!("S25 W-6: slot 19 carries six terminals at every shape (151 B, = the boundary spec digest's input, never in one function inside one profile); the 295-byte `parameters`/`pb-term`(15) pair is live at {narrow} of the {} development runs for 2 <= L <= 9 and cannot arise at the other {wide} (rung-C6's parameter line is four bytes longer)", narrow + wide);
+    eprintln!("S25 W-6: slot 19 carries six terminals at every shape (151 B, = the boundary spec digest's input, never in one function inside one profile); the 295-byte `parameters`/`pb-term`(15) pair is live at {narrow} of the {} development runs for 2 <= L <= 9 and cannot arise at the other {wide} (rung-C6's parameter line is four bytes longer than the 96-wide runs', rung-W14's three)", narrow + wide);
 }
 
 // ---------------------------------------------------------------------------

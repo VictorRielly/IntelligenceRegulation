@@ -659,6 +659,85 @@ impl Shape {
         .expect("the rung-C6 shape is well formed")
     }
 
+    /// **THE 125M-ROW-WIDTH DEVELOPMENT SHAPE (stage 32, "rung-W14").**
+    ///
+    /// **Why it exists.** Three of the four branches stage 31 left on the
+    /// heavy-only list are properties of the ROW GEOMETRY and the HEAD SIZE,
+    /// and one shape reaches all three: `log_cols = 14` (a 2^14-word message
+    /// encoded to 2^16, with it the PCS column geometry, `rows_of` for every
+    /// domain, the `Dom::Tab` P-3 lift distance, the NTT log and the tagged
+    /// hash lengths), `head_dim = 64` (the S-3 / C-2 margin and the RoPE
+    /// partner bit at `log − 6`) and `endpoint_log_n = 14`. Every other
+    /// development shape is at `log_cols` 8 or 10 and at a head dimension of
+    /// 8, 16 or 32; the only shape with 14 and 64 is 125M, whose proofs are
+    /// `#[ignore]`d 10 GiB tests, and it is exactly the shape the integrator
+    /// is about to optimise the shared commitment and sumcheck code at.
+    ///
+    /// **The geometry, and why every number is forced.**
+    ///
+    /// * `head_dim = 64` and `q_heads = 12` over `kv_heads = 4` are 125M's own
+    ///   head axis, so `width = q_heads · head_dim = 768` is 125M's width
+    ///   exactly — and with it `D_max = isqrt(1 + 768 · 32767²) = 908,065`,
+    ///   `norm_wrho = 32` and correction C-6, all three 125M's own values.
+    ///   `h_pad = 16` and `d_pad = h_pad · head_dim = 1,024` follow;
+    /// * **`tokens = 64` is the SMALLEST admissible token count at this head
+    ///   axis and row width, and the refusal that forces it is F-2**:
+    ///   `Dom::Kv = tokens · kv_heads · head_dim = 256 · tokens` must reach the
+    ///   row width 2^14 or the P-3 lift makes the bilinear slots unserveable,
+    ///   so `tokens ≥ 64`. At 64 it sits EXACTLY at the row width — the toy's
+    ///   case, not a lift — and `Dom::Q` (2^16), `Dom::S` (2^16) and `Dom::F`
+    ///   (2^16) are above it;
+    /// * `hidden = 1,024` is the smallest power of two above the width. A
+    ///   power of two keeps `Dom::F = tokens · hidden` unpadded, and it must
+    ///   EXCEED the width or the dense fixture has no upper hidden half to be
+    ///   live on (the S19-F1 census);
+    /// * `f_e = 12` is the rungs' calibration, and at 64 tokens it gives
+    ///   `wrho_s = clog2(64) + 12 = 18`, which is **125M's own softmax
+    ///   window** and so 125M's `limbs_sigma_s = 3`. (125M reaches 18 the
+    ///   other way, `clog2(512) + 9`.) That is what keeps this shape's plane
+    ///   lists 125M's: 83 `A` planes and 50 `H` planes, and the per-position
+    ///   lookup counts `2 / 34 / 9 / 13 / 12 / 15` domain for domain;
+    /// * `inv_rate = 4` and `opened_cols = 256` are 125M's, so the encoded row
+    ///   is 2^16 words and the Merkle tree is 16 deep, as at 125M.
+    ///
+    /// **What it does NOT reach, and cannot.** The endpoint commits the padded
+    /// `Dom::D` cube, `t_pad · d_pad = 2^16` words, which at
+    /// `endpoint_log_n = 14` is **4 data rows and 9 commitment rows** against
+    /// 125M's 32 and 37: 32 data rows at this endpoint log need a 2^19-word
+    /// cube, and with the width capped at 1,024 by the four-norm-limb refusal
+    /// that means 512 tokens — 125M itself. The endpoint LOG and the
+    /// generalised endpoint's geometry at that log are reached here; the row
+    /// COUNT is not, and it is reachable separately at `log_cols = 10`
+    /// (stage 31's item 3).
+    ///
+    /// It keeps stage 30's unpadded arm on 125M's own set — `Dom::T` (2^6),
+    /// `Dom::Kv` (2^14) and `Dom::F` (2^16) do not pad, `Ht`, `L`, `D`, `Q`,
+    /// `S` and `Tab` do — and stage 31's C-6 arm, both for free.
+    ///
+    /// Development grade, never a deliverable (ruling P-7), its OWN profile
+    /// (D17) and therefore its own hash-tag key set. No existing shape moves.
+    pub(crate) fn rung_w14() -> Shape {
+        Shape::new(
+            "development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
+            "hashline-zk-mr1/private-block-rung-w14-t64-dev/1",
+            64,
+            768,
+            1024,
+            12,
+            64,
+            4,
+            14,
+            4,
+            12,
+            9,
+            None,
+            None,
+            None,
+            None,
+        )
+        .expect("the rung-W14 shape is well formed")
+    }
+
     /// THE 125M-CLASS BLOCK (memo §2). A counted layout only, at this step.
     ///
     /// **S11b: 37 endpoint rows, not the 29 of memo §6.** The memo costed the

@@ -245,6 +245,13 @@ mod p2_tests;
 // heavy-only list that a small shape could reach.
 #[cfg(test)]
 mod c6_tests;
+// STAGE 32: the 125M ROW GEOMETRY. `Shape::rung_w14` is the first
+// development shape at the 125M row width (`log_cols = 14`, encoded 2^16),
+// the 125M head size (`head_dim = 64`) and the 125M endpoint log
+// (`endpoint_log_n = 14`) — the three branches stage 31 left that one small
+// shape could reach, at the smallest token count refusal F-2 admits.
+#[cfg(test)]
+mod w14_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
