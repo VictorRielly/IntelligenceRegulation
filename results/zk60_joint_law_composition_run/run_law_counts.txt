@@ -1,0 +1,106 @@
+==========================================================================
+A. METHOD CHECKS (published figures reproduced first)
+==========================================================================
+toy slot table equals layout.rs:815 SLOTS : True
+toy dim C = sum (N_s d_s + 1)             : 560   (memo: 560)
+toy published round values (Fp2)          : 721   (memo: 721)
+toy published terminals                   : 173   (memo: 173)
+toy field draws A/H/M/2xEnd               : 178432 / 125438 / 17038 / 6144
+toy field draws, total                    : 327052   (privacy case: 327,052)
+toy sampler residual  draws * 2^-96       : 2^-77.7   (D9: 2^-77.7)
+125M worst slot length L_s                : 117 at slot 17   (layout memo: 117 at SC_SZC=17)
+rung-G A data rows (83 planes)            : 377   (run gate: 377)
+rung-G terminals per stage                : 176   (run gate: 176 = 176)
+125M   terminals per stage                : 174   (H has 50 planes, not 52)
+rung-G T24/d96/f192    receipt = 4234648   (grow_tests.rs: 4234648)  OK
+125M T512/d768/f2048   receipt = 40782792   (grow_tests.rs: 40782792)  OK
+
+==========================================================================
+B. SHAPE rung-G T24/d96/f192
+==========================================================================
+padded domains (Shape::pads)   : D*, F*, Ht*, Kv*, L*, Q*, S*, T*, Tab*
+domain logs                    : D 12, F 13, Ht 8, Kv 10, L 10, Q 12, S 13, T 5, Tab 10
+slots (main, ext, degree)      : [(12, 1, 4), (12, 1, 4), (5, 1, 3), (10, 1, 4), (13, 1, 4), (7, 1, 2), (7, 1, 2), (7, 1, 2), (4, 2, 2), (5, 2, 2), (7, 1, 2), (7, 1, 2), (7, 1, 2), (8, 1, 2), (12, 1, 5), (12, 1, 5), (10, 1, 5), (13, 1, 5), (13, 1, 5), (10, 1, 3), (10, 1, 2), (12, 1, 2), (12, 1, 2)]
+slots that gained a degree     : [0, 1, 4, 14, 15, 16, 17, 18]
+main / extension rounds        : 215 / 25
+published round values (Fp2)   : 1034
+published scalars              : 23
+published terminals            : 176
+dim C (Fp2)                    : 817
+sum L_s (mask coefficients)    : 840
+largest L_s (budget L+256<=512): 72
+free mask coeffs sum L_s       : 840 ; consumed dim C = 817 ; ker = 23
+boundary rows data+2*2+2       : 10
+external endpoint rows data+5  : 9
+field draws  A / H / M         : 411392 / 258046 / 17552
+field draws  block (A+H+M)     : 686990
+field draws  one boundary      : 8704
+field draws  one ext endpoint  : 7424
+RUN L=3  draws        2093226   residual 2^-75.0
+RUN L=12 draws        8354472   residual 2^-73.0
+
+==========================================================================
+B. SHAPE 125M T512/d768/f2048
+==========================================================================
+padded domains (Shape::pads)   : D*, F, Ht*, Kv, L*, Q*, S*, T, Tab*
+domain logs                    : D 19, F 20, Ht 13, Kv 17, L 14, Q 19, S 22, T 9, Tab 14
+slots (main, ext, degree)      : [(19, 1, 4), (19, 1, 4), (9, 1, 3), (14, 1, 4), (22, 1, 4), (10, 1, 2), (10, 1, 2), (10, 1, 2), (6, 2, 2), (9, 2, 2), (10, 1, 2), (10, 1, 2), (10, 1, 2), (11, 1, 2), (19, 1, 5), (19, 1, 5), (17, 1, 4), (22, 1, 5), (20, 1, 4), (14, 1, 3), (14, 1, 2), (19, 1, 2), (19, 1, 2)]
+slots that gained a degree     : [0, 1, 4, 14, 15, 17]
+main / extension rounds        : 332 / 25
+published round values (Fp2)   : 1519
+published scalars              : 23
+published terminals            : 174
+dim C (Fp2)                    : 1185
+sum L_s (mask coefficients)    : 1208
+largest L_s (budget L+256<=512): 117
+free mask coeffs sum L_s       : 1208 ; consumed dim C = 1185 ; ker = 23
+boundary rows data+2*2+2       : 38
+external endpoint rows data+5  : 37
+field draws  A / H / M         : 5484800 / 3526654 / 18288
+field draws  block (A+H+M)     : 9029742
+field draws  one boundary      : 108032
+field draws  one ext endpoint  : 91392
+RUN L=3  draws       27488074   residual 2^-71.3
+RUN L=12 draws      109728040   residual 2^-69.3
+
+==========================================================================
+C. THE RUN'S PUBLISHED FIELD VALUES (Fp words; Fp2 counts twice)
+==========================================================================
+rung-G T24/d96/f192      L=3   Fp words published = 1375206
+rung-G T24/d96/f192      L=12  Fp words published = 5487000
+  per stage (Fp words) 446626 ; per boundary 10240 ; per external endpoint 7424
+125M T512/d768/f2048     L=3   Fp words published = 14955832
+125M T512/d768/f2048     L=12  Fp words published = 59695840
+  per stage (Fp words) 4861544 ; per boundary 109568 ; per external endpoint 76032
+
+==========================================================================
+D. REFUSALS -- liveness (challenge-only) and the one input-dependent class
+==========================================================================
+The challenge-only rate is DOMINATED by the vanishing-proximity-determinant
+refusal (protocol.rs:289-290), one per PCS opening, each about 1/p over the
+BASE field.  Zero-Fp2-challenge classes (c_s, e in {0,1}, nu, zeta, a zero
+group coefficient) are O(2^-128) each and are negligible beside it.
+toy block: 4 openings (A, H, In, Out) -> 4/p = 2^-62.00   (ruling L-4: 2^-62.0)
+run L=3  : 10 openings -> 10/p = 2^-60.68
+run L=12 : 37 openings -> 37/p = 2^-58.79
+
+The one INPUT-DEPENDENT class is the zero LogUp denominator
+(protocol.rs:403).  Its probability is (number of inverted denominators)
+/ |Fp2| and therefore MOVES WITH THE SHAPE; 2^-112.0 is a TOY figure.
+toy      denominators        64768 = 2^15.98 -> per block 2^-112.02
+            run L=3   3 x that = 2^-110.43
+            run L=12  12 x that = 2^-108.43
+rung-G   denominators       439296 = 2^18.74 -> per block 2^-109.26
+            run L=3   3 x that = 2^-107.67
+            run L=12  12 x that = 2^-105.67
+125M     denominators    103890944 = 2^26.63 -> per block 2^-101.37
+            run L=3   3 x that = 2^-99.78
+            run L=12  12 x that = 2^-97.78
+
+==========================================================================
+E. RECEIPT FRAMING (code vs design memo)
+==========================================================================
+wire.rs:263 RUN_HEADER = 8+32+8+8+32 = 88
+wire.rs:265 RUN_TRAILER = 32
+framing per segment, code = 120 B ; design memo section 4.2 = 136 B
+12 segments: code total 484,100,736 B ; memo 484,100,928 B ; difference 192 = 12 x 16
