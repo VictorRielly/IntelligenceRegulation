@@ -407,7 +407,12 @@ manifest. Evidence in `results/zk60_block125m_s28_review/`.
 |---|---|---|
 | `gate-ambient.log` / `.done` | ambient rayon pool | **327 passed / 0 failed / 13 ignored, 414.59 s, exit 0** (the stage's 319 + 12, plus this review's 8 + 1) |
 | `gate-rayon1.log` / `.done` | **`RAYON_NUM_THREADS=1`** | **327 passed / 0 failed / 13 ignored, 255.35 s, exit 0** |
-| `gate-final.log` / `.done` | ambient, final review code | *(filled in below)* |
+| `gate-final.log` / `.done` | ambient, **final** review code | **327 passed / 0 failed / 13 ignored, 412.62 s, exit 0** |
+
+**This is the final gate: 327 / 0 / 13, exit 0**, with every test of this
+review in it — the stage's 319 passed and 12 ignored, plus this review's eight
+passing tests and its one `#[ignore]`d cross-version gate, which §9.3 then ran
+by name.
 
 The `RAYON_NUM_THREADS=1` run is the thread-count control at the level that
 matters: it re-proves and re-verifies every honest proof of the filter — at

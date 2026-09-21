@@ -1,0 +1,31 @@
+Running scope as unit: run-rae3f6cec510c4c3fa3617c0ae8c23654.scope
+
+running 1 test
+test private_block::s28_review_tests::a_run_directory_written_before_stage_28_verifies_under_the_stage_28_verifier ... S28-REVIEW cross-version: /home/victor/zk60-artifacts/m125-run-l12-dense VERIFIES under the stage-28 verifier in 15.20 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 406 filtered out; finished in 15.20s
+
+	Command being timed: "env MALLOC_MMAP_THRESHOLD_=131072 HL_PB_S28_REVIEW_RUN_DIR=/home/victor/zk60-artifacts/m125-run-l12-dense /tmp/claude-1000/-home-victor-IntelligenceRegulation/e277dbc7-36bc-4ae1-8184-db91a6d569e4/scratchpad/hashline-s28review-final --ignored --exact --nocapture --test-threads=1 private_block::s28_review_tests::a_run_directory_written_before_stage_28_verifies_under_the_stage_28_verifier"
+	User time (seconds): 41.51
+	System time (seconds): 23.83
+	Percent of CPU this job got: 429%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:15.20
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 487804
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 3283682
+	Voluntary context switches: 776728
+	Involuntary context switches: 2273210
+	Swaps: 0
+	File system inputs: 945576
+	File system outputs: 0
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
