@@ -242,10 +242,17 @@ impl Chain {
     /// the honest chain of `l` blocks from the shape's tame fixture
     fn honest(sh: &Shape, l: usize, zero: bool) -> Chain {
         let (public, ff, tame) = super::grow_tests::tame_case(sh);
+        Chain::from_parts(sh, l, public, ff, if zero { vec![0i16; sh.tokens * sh.width] } else { tame })
+    }
+    /// **STAGE 19.** The same honest chain from ANY public weights and any
+    /// first hidden input, so that the dense recipe drives a real run through
+    /// this module's harness rather than a second one. `honest` is this at
+    /// the tame fixture.
+    fn from_parts(sh: &Shape, l: usize, public: AttentionPublic, ff: FeedForwardPublic, x0: Vec<i16>) -> Chain {
         let ids = Ids::new(sh).expect("the shape has a plane map");
         let mut inputs = Vec::with_capacity(l);
         let mut planes = Vec::with_capacity(l + 1);
-        let mut x = if zero { vec![0i16; sh.tokens * sh.width] } else { tame };
+        let mut x = x0;
         for k in 0..l {
             let w = witness::build_shaped(sh, &public, &ff, &x).expect("an honest witness of the chain");
             if k == 0 {
@@ -295,6 +302,13 @@ fn blocks_of(sh: &Shape, l: usize) -> Vec<BlockPublic> {
             BlockPublic::new(public, ff)
         })
         .collect()
+}
+
+/// **STAGE 19.** The run's `L` public blocks from ONE pair of statements —
+/// what a run of the same layer repeated is — so that the dense recipe's
+/// blocks are built without regenerating its weights `L` times.
+fn blocks_from(public: &AttentionPublic, ff: &FeedForwardPublic, l: usize) -> Vec<BlockPublic> {
+    (0..l).map(|_| BlockPublic::new(public.clone(), ff.clone())).collect()
 }
 
 /// the run profile of a shape: the rung-G development profile, or 125M's
@@ -384,6 +398,51 @@ fn an_honest_two_block_run_verifies_from_its_segments() {
         stats.segment_bytes,
         stats.segment_bytes.iter().sum::<usize>(),
         run::peak_rss_mib()
+    );
+}
+
+/// **STAGE 19: AN HONEST THREE-BLOCK *DENSE FEED-FORWARD* RUN VERIFIES FROM
+/// ITS SEGMENTS.** The same harness, the same tagged rule, the same counted
+/// segment lengths — and feed-forward weights that are nonzero everywhere, so
+/// that for the first time in this lane a RUN is composed of blocks whose
+/// hidden units above `d` carry real values. Receipt lengths are a function
+/// of the shape alone, so the counted segment bytes must not move by one
+/// byte.
+///
+/// The attention words are the fixture's, not the dense recipe's: finding
+/// S19-F1 rejects any honest proof whose key-value heads carry different
+/// activations, so a fully dense run cannot be made until it is fixed.
+///
+/// A CORRECTNESS milestone, not a privacy one.
+#[test]
+fn an_honest_three_block_dense_run_verifies_from_its_segments() {
+    let sh = Shape::rung_g();
+    let (d, f, fp) = (sh.width, sh.hidden, sh.f_pad);
+    let (public, ff, input) = super::dense_tests::dense_ff_case(&sh);
+    let blocks = blocks_from(&public, &ff, 3);
+    let mut c = Chain::from_parts(&sh, 3, public, ff, input);
+    // the upper hidden half is live in EVERY block of the run, not only the
+    // first: each block's input is the previous block's output, so this is
+    // also the statement that the chaining does not collapse it
+    let ids = Ids::new(&sh).expect("plane map");
+    for k in 0..3 {
+        let w = witness::build_shaped(&sh, &c.public, &c.ff, &c.inputs[k]).expect("a dense witness of the chain");
+        let live = (0..sh.tokens).flat_map(|t| (d..f).map(move |j| t * fp + j)).filter(|i| w.planes[ids.at(A_G8)][*i] != 0).count();
+        assert!(live > 0, "block {k}: the gate plane is identically zero on the upper hidden half [{d}, {f})");
+    }
+    let (st, owners) = statement_of(&c, 3, &blocks);
+    let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
+    let t0 = std::time::Instant::now();
+    let (segs, stats) = prove_to_vec(&st, &blocks, &mut c, owners).expect("the honest three-block dense run proves");
+    let prove_s = t0.elapsed().as_secs_f64();
+    assert_eq!(stats.segment_bytes, counted_segment_bytes(&sh, 3, rows), "a dense segment is not the counted length");
+    let t1 = std::time::Instant::now();
+    run::verify_run(&st, &blocks, &segs).expect("the honest three-block dense run verifies from its segments");
+    eprintln!(
+        "DENSE RUN L=3 at the rung-G shape: prove {prove_s:.2} s, verify from segments {:.2} s, segments {:?} B (total {} B), boundary {rows} rows",
+        t1.elapsed().as_secs_f64(),
+        stats.segment_bytes,
+        stats.segment_bytes.iter().sum::<usize>()
     );
 }
 

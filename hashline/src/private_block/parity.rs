@@ -382,9 +382,6 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
     let gain = [8i64, 24, 64, 127][(idx / 8) % 4];
     let xmag = [1i64, 4, 32, 512, 32_767][(idx / 32) % 5];
     let ffn_mag = BAND[(idx / 3) % 8];
-    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
-    let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
-    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member (-3, -11)");
     let words = [
         matrix(&mut r, d, d, 64, mag),
         matrix(&mut r, kvw, d, 64, mag),
@@ -397,6 +394,17 @@ fn shaped_case(s: &Shape, idx: usize) -> ShapedCase {
         matrix(&mut r, f, d, 64, ffn_mag),
     ];
     let input: Vec<i16> = (0..s.tokens * d).map(|_| r.pick(-xmag, xmag) as i16).collect();
+    shaped_case_from_words(s, words, input)
+}
+
+/// **STAGE 19.** The same case from ANY nine true-sized public words and any
+/// hidden input, so that a second recipe — the dense one — reaches this
+/// module's kernel comparison without a second harness. `shaped_case` is this
+/// with its own generated words.
+fn shaped_case_from_words(s: &Shape, words: [Vec<i8>; 9], input: Vec<i16>) -> ShapedCase {
+    let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
+    let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
+    let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member (-3, -11)");
     // the module takes the PADDED, head-permuted statement (ruling P-2); the
     // kernel keeps the TRUE-sized `words`, so the parity comparison is still
     // against the same arithmetic
@@ -549,6 +557,55 @@ fn the_whole_block_witness_equals_the_reference_kernel_at_the_rung() {
     for (site, count) in &sites {
         eprintln!("  rung refusal site `{site}`: {count}");
     }
+}
+
+/// **STAGE 19: THE REFERENCE AGREEMENT ON THE DENSE RECIPE, at `rung_g`.**
+///
+/// This is the test that would catch a SHARED wrong definition: the lane's
+/// witness builder and the independent `private-block-kernel-shaped` crate
+/// are compared element for element on the recipe whose weights actually
+/// reach the upper hidden half. An indexing error confined to hidden indices
+/// `>= d`, or to off-diagonal weights, has to be present in BOTH to survive
+/// it — and the two are separate implementations, one of them `no_std`,
+/// allocation-free and written against the shape rather than the plane
+/// table.
+///
+/// `compare_shaped` walks every `Dom::F` position of the true support, the
+/// upper half included, so the agreement below is an agreement ABOUT the
+/// upper half; the extra assertion is only that those positions are not all
+/// zero, without which the comparison would say nothing.
+#[test]
+fn the_dense_witness_equals_the_reference_kernel_at_the_rung_g() {
+    let s = Shape::rung_g();
+    let (d, f) = (s.width, s.hidden);
+    assert!(f > d, "this test is about the f > d geometry");
+    let (words, input) = super::dense_tests::dense_words(&s);
+    let c = shaped_case_from_words(&s, words, input);
+    let (kernel, tbuf) = run_kernel_shaped(&s, &c);
+    let wit = witness::build_shaped(&s, &c.public, &c.ff, &c.input);
+    let (out, w) = match (kernel, wit) {
+        (Ok(out), Ok(w)) => (out, w),
+        (Err(e), Ok(_)) => panic!("the dense witness was accepted where the reference kernel refused ({e})"),
+        (Ok(_), Err(m)) => panic!("the dense witness refused (`{m}`) where the reference kernel accepted"),
+        (Err(e), Err(m)) => panic!("both refused the dense recipe: kernel `{e}`, witness `{m}` — the recipe is not admissible"),
+    };
+    // the kernel's OWN buffers must be non-trivial on the upper hidden half,
+    // or the comparison is a comparison of zeros
+    let ksh = kernel_shape(&s);
+    for (p, name) in [(kshaped::Part::G8, "g8"), (kshaped::Part::U16, "u16"), (kshaped::Part::A16, "a16"), (kshaped::Part::H16, "h16")] {
+        let (o, n) = ksh.part(p);
+        let buf = &tbuf[o..o + n];
+        assert_eq!(n, s.tokens * f, "the kernel's {name} buffer is not (tokens, f)");
+        let nz = (0..n).filter(|k| k % f >= d && buf[*k] != 0).count();
+        assert!(nz > 0, "the reference kernel's {name} is identically zero on the upper hidden half [{d}, {f})");
+    }
+    // every plane with a kernel counterpart, element for element, and the
+    // block output
+    compare_shaped(&s, &w, &tbuf, 0);
+    let dmap = Geom::new(&s).support(Dom::D);
+    let mine: Vec<i16> = dmap.iter().map(|i| w.planes[A_X2][*i] as i16).collect();
+    assert_eq!(&mine[..], &out[..], "the dense block output differs from the reference kernel's");
+    eprintln!("private block DENSE reference agreement at {}: every kernel-backed plane agrees element for element, and the block output agrees on all {} words", s.name, out.len());
 }
 
 /// THE GROUP STRUCTURE IN THE WITNESS, as a property and not a literal

@@ -111,6 +111,11 @@ mod witness;
 
 #[cfg(test)]
 mod grow_tests;
+// STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+// witness at the shaped geometries, where the diagonal fixture leaves every
+// hidden unit above `d` with no input and no output weight.
+#[cfg(test)]
+mod dense_tests;
 #[cfg(test)]
 mod norm_alias;
 #[cfg(test)]
