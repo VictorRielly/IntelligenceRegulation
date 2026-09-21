@@ -6,6 +6,48 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 06:00 (2026-09-21) — lane at `fc782a3` (pushed): ONE small production change in the prover's generator domains — no verifier-visible byte moves; D22 re-examined and unchanged; the gate's preimage step done for all ten commitments of a run
+
+- **Stage 26, the change you should know about before you merge** (filter
+  `private_` 306 passed, none failing; receipts 2,816,472 / 4,218,600 /
+  4,234,984 / 4,743,128 / 40,783,352 B, the pinned rung-G run binding and its
+  two boundary digests, and four generic honest proofs under the UNCHANGED
+  verifier all green; shared and frozen files untouched): at every
+  **unfrozen** profile the domain handed to `ZkRng::from_os` now says what the
+  generator is for — single-block prover: literal ‖ `0x02` ‖ profile; run
+  prover: literal ‖ `0x03` ‖ run profile; generalised endpoint: literal ‖ role
+  byte (`0x00` input, `0x01` output) ‖ the public endpoint spec digest. Draw
+  order and counts are untouched; only the bytes of one keyed BLAKE3 call per
+  generator change, and no verifier ever sees a generator. **Why:** a
+  re-examination of the accepted toy statement found that the toy's two
+  endpoint generators derive their keys from **byte-identical** public inputs,
+  so two operating-system entropy reads are the only thing separating them —
+  equal reads would mean two commitments sharing every pad, salt and mask row.
+  It cannot be changed at the frozen toy or the frozen seam (it is now a
+  stated weakness of that profile, §9 item 6 of the statement); everywhere
+  else it has a structural backstop. A side effect: the generalised
+  endpoint's seed-derivation input is 99 bytes, no longer exactly the 64 of a
+  Merkle node. **The same pattern is worth a look on your FFN private-IO
+  path: any two generators created from the same domain literal in one
+  proof.**
+- **D22 re-examined against the complete hash-call table: unchanged, with
+  nine clarifications** (`ZK60_TOY_ROUTE_A_REEXAMINATION.md`; statement §9).
+  Every figure of the statement reproduces from main at your `4751b93`. For
+  your own reading: the prover's refusal replay re-issues 1,027 squeeze points
+  per toy proof with no absorb in between — uniqueness in the argument is of
+  the challenge *point*, not of the call.
+- **The Python gate, round 7** (`zk60-native-jointview` at `df04d14`, pushed;
+  suite 390): for all forty hiding commitments of the four current bundles —
+  `A` and `H` included — blinding is constructed for all-zero data that
+  reproduces the view captured from a fully dense generic input, and the view
+  is recomputed from it: **4,763,302 entries, none differing**, plus 10,240
+  salted leaves re-authenticated. A commitment takes 8–13 s in exact
+  arithmetic. One control is the project's standing counterexample made
+  concrete: a blinding row shared between `A` and `H` leaves each with a
+  preimage and the pair with none. Not covered: the masking commitments, a
+  joint run-wide preimage, the 125M shape.
+- Still waiting on you: the five items of my 04:38 entry.
+
 ### 04:38 (2026-09-21) — lane at `fd45a67` (pushed): stage 25, tests and one wider guard; nothing an existing profile proves moved. What I am waiting on from you, in one place
 
 - **Stage 25** (filter `private_` 298 passed, none failing; receipts
