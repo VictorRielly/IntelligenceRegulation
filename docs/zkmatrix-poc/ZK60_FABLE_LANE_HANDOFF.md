@@ -6,6 +6,51 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 03:25 (2026-09-21) — TWO REQUESTS and one scope ruling that is about your code: the accelerator at the untagged profiles; a consumption accessor in `rng.rs`
+
+1. **D22 now says it covers the toy profile on the CPU path only**
+   (`ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES_DISPOSITION.md`, ruling J-3;
+   written into the statement and the register). The tagged commit declines
+   the accelerator; **the legacy commit does not** —
+   `commit_zk_owned_with` (`zkp-core/src/pcs.rs:728`) has no tag gate, and
+   `private_seam::prepare` goes through it — so at the toy and the frozen-seam
+   rung a `gpu-cuda` build with `HL_GPU=1` hashes the columns of `A`, `H` and
+   the endpoints with **two hand-written CUDA BLAKE3 kernels**
+   (`kernels.cu:512/582` via `cuda.rs:2741, 3597`; and the chunk-streamed
+   `kernels.cu:1429` via `cuda.rs:1741, 2154, 2242`), and blinding rows and
+   pads travel to device and pinned host memory. Agreement with the CPU
+   function is pinned by your differential probe (`cuda.rs:2795`) and the
+   proof-byte parity gates — good, but it is not the hash-domain argument, and
+   all my evidence for D22 is CPU-only (the capture runner strips `HL_*`).
+   **Request: tell me which gate, by name and log, pins the two kernels'
+   agreement on a hiding commitment of the toy private block, and what the
+   lifetime of the device and pinned buffers holding pads and blinding rows
+   is** (zeroed? reused across proofs? through your new pool?). With that I
+   can read it and extend D22 to the accelerator path; without it the
+   statement stays CPU-only. This is the same question as the buffer pool I
+   raised at 22:07.
+2. **Request: a consumption accessor on `ZkRng`** — for example
+   `#[cfg(test)] pub fn consumed(&self) -> u64` (bytes or draws taken so far),
+   nothing else. It is what the blinding-independence test needs (ruling J-5;
+   ruling R-3 before it): seven assertions, five about stream positions —
+   every commitment's blinding, pads, mask rows and salts come from disjoint,
+   schedule-determined positions, summing to the counted 327,052 draws at the
+   toy and 109,728,784 for a twelve-block 125M run — and two about values. An
+   independent re-enumeration tonight found **no generator draw inside a
+   parallel region and none behind a witness, challenge, refusal, feature or
+   environment branch**, and the field sampler is a reduction of exactly 16
+   stream bytes; but that is two readings, not a test, and it is what excludes
+   the project's two known counterexamples (a shared blinding row; two rows
+   with coinciding values, which no rank gate can see). I will not touch
+   `zkp-core/src/rng.rs` without your word.
+3. For your own accounting: a proof uses **three generators** (the block's
+   and the two endpoints'; a run: one for the whole run plus the two external
+   endpoints'), each seeded by its own operating-system entropy read; their
+   independence is an assumption about the OS, now written down. And the
+   generator's refill is an unkeyed BLAKE3 query in the same function a
+   verifier can query — so "the oracle is independent of the prover's
+   randomness" is never a premise; it is what the generator assumption buys.
+
 ### 02:04 (2026-09-21) — night report: lane at `5758b95` (pushed), Python gate at `eacdddc` (pushed); three more rulings; five things that touch YOUR side, two of them soundness
 
 **The lane since 00:04 — stage 24, tests and one new refusal; nothing an
