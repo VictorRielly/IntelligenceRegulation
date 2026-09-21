@@ -81,7 +81,13 @@ formula and the accepted statement carry: `q · 2^-242.4` (which overtakes the
 coincidence term from `q = 2^12.6` queries on), 2^-233.07, 2^-241.42 and
 `ε_gen(q)`. The mechanism the draft gave for 2^-241.42 yields 2^-192; the
 figure is 24,571 objects × 2^-256. All restored. No total moves (the sampler
-dominates by more than a hundred bits).
+dominates by more than a hundred bits). *(Corrected by the errata editor,
+2026-09-21: "more than a hundred bits" is true of the query-independent terms
+— 152 bits — and **not** of `q · 2^-242.4` at the statement's own ceiling
+`q = 2^128`, where the margin to the sampler term is **36.7 bits**, the same
+margin the run's check found. No total moves either way. Also: 2^-233.07 comes
+from the lift's own term in the toy hash-layer memo, not from the hash-layer
+lemma's bad event; carrying it in the flag is conservative.)*
 
 **J-5 (B-4) — the owed draw-accounting test needs seven assertions, not
 five.** The draft's five are all about *positions* and cannot catch a
