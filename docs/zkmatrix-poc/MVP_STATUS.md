@@ -74,6 +74,32 @@ unmeasured. [Evidence and limits](ZK60_ROWFOLD_INTEGRATION_20260919.md).
 > gate has not yet been run on a non-degenerate input (in progress at the
 > development size), and **no privacy is claimed for any of this.**
 
+**Where the privacy of the 125M-shape block and of a twelve-block run stands
+(added 2026-09-21 00:06).** Privacy is **accepted for one artifact only**, the
+small test block (register D22); it was re-confirmed last night against the
+integrator's newly merged code, and its checks now watch every source file on
+its path. For the shaped block and a run, **nothing is accepted**, and this is
+the honest state of the five-step argument:
+
+| Step | Development sizes (two head geometries) | The 125M shape |
+|---|---|---|
+| The all-zero reference input proves and verifies | done | one block done; a twelve-block all-zero run not run |
+| Per commitment, the verifier's linear view discloses nothing | argument checked by an independent implementation and ruled; measured on fully dense inputs | argument and counts only — **nothing measured, and the tools cannot measure at this size** |
+| The gate constructs matching blinding values | done for boundaries and endpoints; not for the two big commitments | nothing |
+| All published values jointly do not depend on the input | accepted as a reduction; three named gaps being drafted or tested | the same |
+| The hash layer and the step to the real (hashed) protocol | computed for what a proof opens; the argument for a run is being drafted | nothing |
+
+Sized terms so far for a twelve-block 125M run [COUNTED, each recounted
+independently]: the blinding sampler's bias about 2^-69.3 (decision D9); a
+refusal that could depend on the input about 2^-114.8; a refusal on unlucky
+challenges about 2^-58.8 per run, which costs a failed run and discloses
+nothing. **What this means in plain words: the
+construction has survived every attack thrown at it on the privacy side, one
+of yesterday's attacks found a real completeness bug that is now fixed, and
+the remaining work is argument and measurement, not redesign — but it is not
+finished, and at the 125M size part of it will rest on argument plus
+measurements at smaller sizes that share its geometry.**
+
 **Latest on the fast line's private block (added 2026-09-20 07:10 by the
 security owner's session):** one **complete transformer block with hidden
 input, hidden output and hidden activations now proves and verifies at a real
