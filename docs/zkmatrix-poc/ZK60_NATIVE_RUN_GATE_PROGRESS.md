@@ -455,7 +455,7 @@ control working: a control with no input is not a passed control.
 | round 4's controls | **six, all fire** on both new bundles (four on a pre-repair one) |
 | the older rounds' controls on the new bundles | CT-1…CT-8, CH-1…CH-6, C1…C6 — all fire |
 | channels | **25**, 2 constructed, 5 derived, 4 argued, **14 open** — unmoved; round 4 added no channel and closed none |
-| the six superseded bundles | **0** unclassified differing leaves; 2,512 / 2,512 / 3,159 / 3,160 / 3,480 / 3,479 identical |
+| the six superseded bundles | **0** unclassified differing leaves; 2,512 / 2,512 / 3,159 / 3,159 / 3,480 / 3,480 identical |
 
 ### R4.4b The one question this round could not answer
 

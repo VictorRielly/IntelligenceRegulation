@@ -1148,8 +1148,8 @@ is a statement about what the profile produces today.
 
 All six were re-run under round 4's tools and diffed leaf by leaf against
 their committed records (`old/old_bundles_unchanged.json`): **0
-unclassified differing leaves**, with 2,512 / 2,512 / 3,159 / 3,160 /
-3,480 / 3,479 identical leaves. Every difference is a wall clock, a tool
+unclassified differing leaves**, with 2,512 / 2,512 / 3,159 / 3,159 /
+3,480 / 3,480 identical leaves. Every difference is a wall clock, a tool
 SHA-256, the new stage-10 block, ruling R-3's note beside a joint figure,
 the terminal port naming which definition is in force, the one channel
 reason that gained R-3's sentence, or the `what_it_does_not_show` wording.

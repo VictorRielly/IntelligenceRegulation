@@ -227,7 +227,7 @@ a capture reader can reach.
 ## The six older bundles
 
 `old/old_bundles_unchanged.json`: **0 unclassified differing leaves** on
-all six, with 2,512 / 2,512 / 3,159 / 3,160 / 3,480 / 3,479 identical
+all six, with 2,512 / 2,512 / 3,159 / 3,159 / 3,480 / 3,480 identical
 leaves. Every difference is a wall clock, a tool SHA-256, the new stage 10
 block, ruling R-3's note beside a joint figure, the terminal port naming
 which definition is in force, the one channel reason that gained R-3's
