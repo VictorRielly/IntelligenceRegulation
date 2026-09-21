@@ -614,11 +614,19 @@ impl Shape {
                 _ => return None,
             })
         };
+        // **STAGE 20, the fix of finding S19-F1.** The two BILINEAR slots also
+        // sum over the key-value GROUP bits. Those bits are a coordinate of
+        // BOTH private factors, and the multilinear extension of a product
+        // that shares a variable is not the product of the extensions, so they
+        // cannot be fixed on both sides; they are sumcheck variables with a
+        // public `eq(r_g, .)` over them. `kv_heads == 1` gives `lkv == 0` and
+        // the toy's schedule is untouched, byte for byte.
+        let lkv = clog2(self.kv_heads);
         let inner = |s: usize| -> usize {
             match s {
                 SC_QMM | SC_KMM | SC_VMM | SC_WO | SC_GMM | SC_UMM => clog2(self.d_pad),
-                SC_SCORE => clog2(self.head_dim),
-                SC_PV => clog2(self.t_pad),
+                SC_SCORE => lkv + clog2(self.head_dim),
+                SC_PV => lkv + clog2(self.t_pad),
                 SC_DMM => clog2(self.f_pad),
                 _ => unreachable!(),
             }
@@ -635,7 +643,12 @@ impl Shape {
             // the two bilinear matmuls mask two private factors, in extension
             // rounds 0 and 1; every other slot has one extension round
             let ext = if s == SC_SCORE || s == SC_PV { 2 } else { 1 };
-            out[s] = (main, ext, BASE_DEGREE[s] + usize::from(indicator));
+            // STAGE 20: the group `eq` is a THIRD factor of the bilinear
+            // slots' monomial, so their degree is 3 — and only when there is
+            // more than one key-value head, so the toy keeps its 2 and its
+            // transcript.
+            let group_eq = (s == SC_SCORE || s == SC_PV) && lkv > 0;
+            out[s] = (main, ext, BASE_DEGREE[s] + usize::from(indicator) + usize::from(group_eq));
         }
         out
     }
@@ -651,6 +664,12 @@ impl Shape {
     /// hash-length guard the degrees contribute. The guard takes the WHOLE
     /// range rather than the degrees one shape happens to use — see
     /// `hash_domain::fixed_labels`.
+    ///
+    /// **STAGE 20.** The group `eq` of the S19-F1 fix adds one degree to the
+    /// two bilinear slots, whose base is the table's MINIMUM 2, so it reaches
+    /// 3 and the range does not move. `the_declared_degrees_are_inside_the_
+    /// declared_range` asserts that at every shape this module builds, so the
+    /// hash-length table cannot silently go incomplete.
     pub(crate) fn degree_range() -> (usize, usize) {
         let lo = *BASE_DEGREE.iter().min().expect("the degree table is not empty");
         let hi = *BASE_DEGREE.iter().max().expect("the degree table is not empty") + 1;

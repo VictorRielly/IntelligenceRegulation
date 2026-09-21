@@ -27,7 +27,20 @@ use super::*;
 /// and `grow_tests::MODEL_RUNG` all agree on it): the Python model's 4,173,208
 /// plus the 45,056 B the frozen seam's PADDED `(32, 128)` endpoint costs over
 /// the model's TRUE `(24, 96)` pricing (finding S11-F4).
-const RUNG_BYTES: usize = 4_218_264;
+/// **STAGE 20 (the S19-F1 repair) moves both of these**, and by an amount
+/// that is COUNTED from the shape's axes in `grow_tests::s20_bilinear_delta`
+/// and never pasted: the two bilinear attention slots gain `log2(kv_heads)`
+/// main rounds and one degree, which at both rungs (`kv_heads = 2`) is
+/// `+336 B` — the only part of a frame the repair touches.
+fn rung_bytes() -> usize {
+    super::grow_tests::s20_frame_bytes(&Shape::rung(), RUNG_BYTES_BEFORE_S20)
+}
+
+fn rung_g_bytes() -> usize {
+    super::grow_tests::s20_frame_bytes(&Shape::rung_g(), RUNG_G_BYTES_BEFORE_S20)
+}
+
+const RUNG_BYTES_BEFORE_S20: usize = 4_218_264;
 
 /// **S11b: the RUNG-G profile's counted frame.** The same block at the same
 /// shape with the GENERALISED endpoint: the rung's 4,218,264 B less the
@@ -35,7 +48,7 @@ const RUNG_BYTES: usize = 4_218_264;
 /// 8) plus the generalised ones (335,872 B, 9 rows at row width 2^10 and
 /// rate 4). `Shape::receipt_bytes`, `wire::encoded_len` and
 /// `the_codec_length_is_the_models_at_every_shape` all agree on it.
-const RUNG_G_BYTES: usize = 4_234_648;
+const RUNG_G_BYTES_BEFORE_S20: usize = 4_234_648;
 
 /// Peak resident memory of this process, in MiB — Linux `VmHWM`, read for the
 /// record only. It is a whole-process high-water mark on a SHARED box, so it
@@ -108,7 +121,7 @@ fn prove_rung(sh: &Shape, blk: &BlockPublic, w: Witness) -> Result<(ExpectedIo, 
 /// fresh verifier call, and its frame is the counted length.
 #[test]
 fn the_honest_rung_proof_verifies_from_bytes() {
-    the_honest_proof_verifies_from_bytes_at(&Shape::rung(), RUNG_BYTES);
+    the_honest_proof_verifies_from_bytes_at(&Shape::rung(), rung_bytes());
 }
 
 /// **S11b's ACCEPTANCE.** The same, on the RUNG-G profile: the generalised
@@ -116,7 +129,7 @@ fn the_honest_rung_proof_verifies_from_bytes() {
 /// geometry with four data rows per endpoint as 125M will have thirty-two.
 #[test]
 fn the_honest_rung_g_proof_verifies_from_bytes() {
-    the_honest_proof_verifies_from_bytes_at(&Shape::rung_g(), RUNG_G_BYTES);
+    the_honest_proof_verifies_from_bytes_at(&Shape::rung_g(), rung_g_bytes());
 }
 
 fn the_honest_proof_verifies_from_bytes_at(shape: &Shape, want: usize) {
@@ -159,7 +172,7 @@ fn a_proof_made_with_the_phase_clock_on_verifies_with_it_off() {
     super::timing::force(Some(false));
     let (expected, receipt, on) = clocked.expect("the rung-G prover with the clock on");
     assert_eq!(on.len(), off.len(), "the phase clock moved the frame length");
-    assert_eq!(on.len(), RUNG_G_BYTES, "the clocked frame is not the counted length");
+    assert_eq!(on.len(), rung_g_bytes(), "the clocked frame is not the counted length");
     verify_inner_at(&sh, &blk, &expected, &receipt).expect("a clocked receipt is refused by an unclocked verifier in typed form");
     verify_bytes_at(&sh, &blk, &expected, &on).expect("a clocked receipt is refused by an unclocked verifier from bytes");
     assert!(verify_bytes_at(&sh, &blk, &expected, &on[..on.len() - 1]).is_err(), "a short clocked frame was accepted");
@@ -172,13 +185,13 @@ fn a_proof_made_with_the_phase_clock_on_verifies_with_it_off() {
 /// A precondition of the privacy argument, not a privacy result.
 #[test]
 fn the_all_zero_hidden_input_proves_and_verifies_at_the_rung() {
-    the_all_zero_hidden_input_proves_at(&Shape::rung(), RUNG_BYTES);
+    the_all_zero_hidden_input_proves_at(&Shape::rung(), rung_bytes());
 }
 
 /// The same on the RUNG-G profile.
 #[test]
 fn the_all_zero_hidden_input_proves_and_verifies_at_the_rung_g() {
-    the_all_zero_hidden_input_proves_at(&Shape::rung_g(), RUNG_G_BYTES);
+    the_all_zero_hidden_input_proves_at(&Shape::rung_g(), rung_g_bytes());
 }
 
 fn the_all_zero_hidden_input_proves_at(shape: &Shape, want: usize) {
@@ -403,7 +416,7 @@ fn an_endpoint_that_seals_a_different_plane_is_rejected() {
         // rejection above is the tamper and not the machinery
         let (expected, receipt, bytes) = prove_rung(&sh, &blk, w).expect("the honest prover");
         verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the honest endpoints verify");
-        assert_eq!(bytes.len(), if sh.endpoint_general { RUNG_G_BYTES } else { RUNG_BYTES }, "{}: frame length", sh.name);
+        assert_eq!(bytes.len(), if sh.endpoint_general { rung_g_bytes() } else { rung_bytes() }, "{}: frame length", sh.name);
         drop(receipt);
     }
 }

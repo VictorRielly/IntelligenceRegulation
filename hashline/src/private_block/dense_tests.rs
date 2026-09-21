@@ -40,6 +40,8 @@ use super::review_tests::{clone_witness, outcome, Outcome};
 use super::shape::Shape;
 use super::witness::{self, Witness};
 use super::*;
+// stage 20's independent identity check works in the field directly
+use crate::field::{Fp, Fp2};
 
 // ---------------------------------------------------------------- the recipe
 
@@ -49,18 +51,18 @@ pub(super) const DENSE_SEED: u64 = 0xD15E_ED19_0000_0001;
 
 /// the attention band: every entry of `Wq`, `Wk`, `Wv`, `Wo` is drawn
 /// uniformly from `[-56, -1] u [1, 56]`
-const BAND_ATTN: i64 = 56;
+pub(super) const BAND_ATTN: i64 = 56;
 
 /// the gate and up band: every entry of `Wg` and `Wu` is drawn uniformly from
 /// `[-96, -1] u [1, 96]`
-const BAND_GATE: i64 = 96;
+pub(super) const BAND_GATE: i64 = 96;
 
 /// the two norm gains are drawn uniformly from `[40, 127]` (positive, as a
 /// trained RMSNorm gain in this calibration is)
-const GAIN: (i64, i64) = (40, 127);
+pub(super) const GAIN: (i64, i64) = (40, 127);
 
 /// the hidden input is drawn uniformly from `[-6000, -1] u [1, 6000]`
-const INPUT_MAG: i64 = 6_000;
+pub(super) const INPUT_MAG: i64 = 6_000;
 
 /// **THE ONE SHAPE-DEPENDENT BAND: the down projection.** `Wd` accumulates
 /// over the HIDDEN axis, and that axis grows from 192 at the rung to 2,048 at
@@ -73,7 +75,7 @@ const INPUT_MAG: i64 = 6_000;
 /// the down band of the PROVABLE recipe (`dense_ff_case`), shape-free
 const BAND_DOWN_PROVABLE: i64 = 2;
 
-fn band_down(s: &Shape) -> i64 {
+pub(super) fn band_down(s: &Shape) -> i64 {
     let rung_f = Shape::rung().hidden as u64;
     (witness::isqrt(48 * 48 * rung_f / s.hidden as u64) as i64).clamp(2, 127)
 }
@@ -116,7 +118,7 @@ pub(super) fn dense_words(s: &Shape) -> ([Vec<i8>; 9], Vec<i16>) {
 
 /// The same recipe with every band given explicitly — the form the stage's
 /// bisection diagnostic drives, and the one place the numbers live.
-fn dense_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains: (i64, i64), xmag: i64) -> ([Vec<i8>; 9], Vec<i16>) {
+pub(super) fn dense_words_with(s: &Shape, attn: i64, gate: i64, down: i64, gains: (i64, i64), xmag: i64) -> ([Vec<i8>; 9], Vec<i16>) {
     let (d, f, kvw) = (s.width, s.hidden, s.kv_heads * s.head_dim);
     let mut r = Rng(DENSE_SEED);
     let mat = |r: &mut Rng, outer: usize, inner: usize, mag: i64| -> Vec<i8> { (0..outer * inner).map(|_| r.nonzero(mag) as i8).collect() };
@@ -153,7 +155,7 @@ fn tame_words(s: &Shape) -> ([Vec<i8>; 9], Vec<i16>) {
 }
 
 /// the public statement of any nine words at a shape
-fn statement_of_words(s: &Shape, w: &[Vec<i8>; 9]) -> (AttentionPublic, FeedForwardPublic) {
+pub(super) fn statement_of_words(s: &Shape, w: &[Vec<i8>; 9]) -> (AttentionPublic, FeedForwardPublic) {
     let (cos, sin) = crate::tables_attn::rope_tables_generate(s.tokens, s.head_dim, 10000.0, F_RO);
     let (exp, _) = crate::tables_attn::exp_member(0, s.head_dim, s.f_e);
     let (act, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, -3, -11).expect("frozen SiLU int16-out member");
@@ -452,28 +454,38 @@ fn prove_dense(sh: &Shape, blk: &BlockPublic, w: Witness) -> Result<(ExpectedIo,
     Ok((expected, receipt, bytes))
 }
 
-/// **FINDING S19-F1, THE HEADLINE OF THIS STAGE — AN HONEST PROOF IS
-/// REJECTED BY THE VERIFIER.** This test FAILS. It is kept, `#[ignore]`d and
-/// failing, because it is the shortest statement of the defect, and it is NOT
-/// fixed here: the production source is final from this lane's side.
+/// the counted rung-G frame length, pre-stage-20 plus the counted bilinear
+/// delta of the S19-F1 repair (`grow_tests::s20_bilinear_delta`)
+fn rung_g_frame_bytes() -> usize {
+    super::grow_tests::s20_frame_bytes(&Shape::rung_g(), 4_234_648)
+}
+
+/// **THE ACCEPTANCE TEST OF FINDING S19-F1 — the honest proof this defect
+/// used to REJECT is now ACCEPTED.**
 ///
-/// **The reproducer is the production fixture with ONE WORD of the hidden
-/// input changed.** `grow_tests::tame_case`'s own diagonal weights, its own
-/// input, and `input[0] = 0`. The witness builder accepts it, every relation
-/// `pad::every_checkable_relation_holds` can evaluate holds, the reference
-/// kernel agrees with it — and the honest receipt is REJECTED at
+/// **History.** Until stage 20 this test was named
+/// `s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_rejected`,
+/// was `#[ignore]`d and FAILED on purpose: it was the shortest statement of
+/// the defect. The two bilinear attention slots took the KEY-VALUE GROUP as
+/// a FIXED coordinate of both private factors, so the slot's claimed sum was
+/// a product of two multilinear extensions where the statement needed the
+/// extension of a pointwise product — equal only when one side does not vary
+/// across key-value groups. The honest receipt was REJECTED at
 /// `slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0:
-/// s(0) + s(1) != claim`.
+/// s(0) + s(1) != claim`. Stage 20 makes the group bits sumcheck variables
+/// under a public `eq`, and nothing about this test's WITNESS or its
+/// assertions was weakened to make it pass — only the `#[ignore]`, the name
+/// and the two `expect` messages changed.
 ///
-/// **Why no earlier test saw it.** With `tame_case`'s input the norm output
-/// is exactly `+3` at even width indices and `-3` at odd ones, at every
-/// token — so the hidden state is the SAME in every head, and every
-/// key-value head carries the same keys and values. `input[0] = 0` moves one
-/// word of head 0 and nothing else. See `stage19_bisect_the_head_axis` for
-/// which axis of variation does it.
+/// **The witness is the production fixture with ONE WORD of the hidden input
+/// changed**: `grow_tests::tame_case`'s own diagonal weights, its own input,
+/// and `input[0] = 0`. With `tame_case`'s unmodified input the norm output is
+/// exactly `+3` at even width indices and `-3` at odd ones at every token, so
+/// the hidden state is the SAME in every head and every key-value head
+/// carries the same keys and values; `input[0] = 0` moves one word of head 0
+/// and nothing else, and that was enough.
 #[test]
-#[ignore = "FAILS: finding S19-F1, a production defect in argument.rs's grouped-query claim construction. Not fixed here: the production source is final from this lane's side."]
-fn s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_rejected() {
+fn s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_accepted() {
     let sh = Shape::rung_g();
     let (public, ff, mut input) = super::grow_tests::tame_case(&sh);
     input[0] = 0;
@@ -482,9 +494,9 @@ fn s19_f1_an_honest_proof_of_the_fixture_with_one_input_word_moved_is_rejected()
     assert!(super::pad::every_checkable_relation_holds(&sh, &ids, &w), "the witness itself is inconsistent, so this is not S19-F1");
     let blk = BlockPublic::new(public, ff);
     let (expected, receipt, bytes) = prove_dense(&sh, &blk, w).expect("the honest prover");
-    assert_eq!(bytes.len(), 4_234_648, "the frame is not the counted length");
-    verify_inner_at(&sh, &blk, &expected, &receipt).expect("S19-F1: an HONEST receipt is rejected in typed form");
-    verify_bytes_at(&sh, &blk, &expected, &bytes).expect("S19-F1: an HONEST receipt is rejected from bytes");
+    assert_eq!(bytes.len(), rung_g_frame_bytes(), "the frame is not the counted length");
+    verify_inner_at(&sh, &blk, &expected, &receipt).expect("S19-F1 is not fixed: an HONEST receipt is rejected in typed form");
+    verify_bytes_at(&sh, &blk, &expected, &bytes).expect("S19-F1 is not fixed: an HONEST receipt is rejected from bytes");
 }
 
 /// **THE ACCEPTANCE OF ITEM 5, one block, on the PROVABLE recipe.** The dense
@@ -501,7 +513,7 @@ fn an_honest_dense_feed_forward_block_proves_and_verifies_from_bytes_at_the_rung
     let t0 = std::time::Instant::now();
     let (expected, receipt, bytes) = prove_dense(&sh, &blk, w).expect("the dense feed-forward prover");
     let prove_s = t0.elapsed().as_secs_f64();
-    assert_eq!(bytes.len(), 4_234_648, "the dense feed-forward rung-G frame is not the counted length");
+    assert_eq!(bytes.len(), rung_g_frame_bytes(), "the dense feed-forward rung-G frame is not the counted length");
     verify_inner_at(&sh, &blk, &expected, &receipt).expect("the receipt verifies in typed form");
     let t1 = std::time::Instant::now();
     verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the receipt verifies from bytes");
@@ -509,12 +521,13 @@ fn an_honest_dense_feed_forward_block_proves_and_verifies_from_bytes_at_the_rung
     assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short frame was accepted");
 }
 
-/// The FULLY dense recipe's one-block proof. **This test FAILS on finding
-/// S19-F1** — the dense attention weights make the key-value heads carry
-/// different activations, which is exactly what the defect rejects. Kept
-/// `#[ignore]`d and failing beside the reproducer above.
+/// **THE FULLY DENSE one-block proof — the recipe of item 3 with no tame
+/// word left in it.** Until stage 20 this test was `#[ignore]`d and FAILED on
+/// finding S19-F1: the dense attention weights make the key-value heads carry
+/// different activations, which is exactly what the defect rejected. Nothing
+/// about it was weakened; the `#[ignore]` was removed and the frame length is
+/// now the counted one of the repaired schedule.
 #[test]
-#[ignore = "FAILS: finding S19-F1 (the same defect as s19_f1_...). Not fixed here."]
 fn an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g() {
     let sh = Shape::rung_g();
     let (public, ff, input) = dense_case(&sh);
@@ -523,7 +536,7 @@ fn an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g() {
     let t0 = std::time::Instant::now();
     let (expected, receipt, bytes) = prove_dense(&sh, &blk, w).expect("the dense prover");
     let prove_s = t0.elapsed().as_secs_f64();
-    assert_eq!(bytes.len(), 4_234_648, "the dense rung-G frame is not the counted length");
+    assert_eq!(bytes.len(), rung_g_frame_bytes(), "the dense rung-G frame is not the counted length");
     verify_inner_at(&sh, &blk, &expected, &receipt).expect("the dense receipt verifies in typed form");
     let t1 = std::time::Instant::now();
     verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the dense receipt verifies from bytes");
@@ -531,14 +544,16 @@ fn an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_g() {
     assert!(verify_bytes_at(&sh, &blk, &expected, &bytes[..bytes.len() - 1]).is_err(), "a short dense frame was accepted");
 }
 
-/// **THE BISECTION DIAGNOSTIC (`#[ignore]`d).** The honest dense proof was
-/// rejected by the verifier the first time it was run; this is the harness
-/// that says WHICH knob of the recipe does it. Each variant is built, the
-/// witness's own checkable relations are evaluated, and the proof is made and
-/// verified in typed form, with the outcome printed. It is kept because the
-/// next person to widen the recipe will want it.
+/// **STAGE 20: THE FIRST BISECTION, NOW A REGRESSION TEST.** It was stage
+/// 19's `#[ignore]`d diagnostic — the harness that said WHICH knob of the
+/// recipe made the honest dense proof fail. Every one of its ten variants is
+/// HONEST, so the statement that survives the repair is the completeness one:
+/// **no variant may be rejected by the VERIFIER.** A refusal by the witness
+/// builder or by the prover is an ADMISSIBILITY statement about a recipe and
+/// stays allowed (some bands really do leave `int16`); a verifier rejecting
+/// an honest receipt is the S19-F1 class of failure and is forbidden. The
+/// per-case line is still printed, so the diagnostic is not lost.
 #[test]
-#[ignore = "a diagnostic, not a gate: it proves eight rung-G blocks"]
 fn stage19_bisect_the_dense_failure() {
     let s = Shape::rung_g();
     let (dw, dx) = dense_words(&s);
@@ -564,32 +579,61 @@ fn stage19_bisect_the_dense_failure() {
         cases.push((format!("07 dense with attention band {band}"), w, x));
     }
     let ids = Ids::new(&s).expect("the rung-G plane map");
+    let mut rejected: Vec<String> = Vec::new();
+    let (mut verified, mut refused) = (0usize, 0usize);
     for (name, w, input) in cases {
         let (public, ff) = statement_of_words(&s, &w);
         let wit = match witness::build_shaped(&s, &public, &ff, &input) {
             Ok(w) => w,
             Err(m) => {
+                refused += 1;
                 eprintln!("BISECT {name}: the WITNESS BUILDER refused: {m}");
                 continue;
             }
         };
         let checkable = super::pad::every_checkable_relation_holds(&s, &ids, &wit);
         let blk = BlockPublic::new(public, ff);
+        let mut bad = false;
         let verdict = match prove_dense(&s, &blk, wit) {
-            Err(e) => format!("the PROVER refused: {e}"),
+            Err(e) => {
+                refused += 1;
+                format!("the PROVER refused: {e}")
+            }
             Ok((expected, receipt, bytes)) => match verify_inner_at(&s, &blk, &expected, &receipt) {
-                Err(e) => format!("the VERIFIER rejected (typed): {e}"),
+                Err(e) => {
+                    bad = true;
+                    format!("the VERIFIER rejected (typed): {e}")
+                }
                 Ok(_) => match verify_bytes_at(&s, &blk, &expected, &bytes) {
-                    Err(e) => format!("the VERIFIER rejected (from bytes): {e}"),
-                    Ok(()) => "VERIFIED".to_string(),
+                    Err(e) => {
+                        bad = true;
+                        format!("the VERIFIER rejected (from bytes): {e}")
+                    }
+                    Ok(()) => {
+                        verified += 1;
+                        assert_eq!(bytes.len(), rung_g_frame_bytes(), "{name}: the frame is not the counted length");
+                        "VERIFIED".to_string()
+                    }
                 },
             },
         };
         eprintln!("BISECT {name}: checkable relations {}, {verdict}", if checkable { "HOLD" } else { "FAIL" });
+        if bad {
+            rejected.push(format!("{name}: {verdict}"));
+        }
     }
+    eprintln!("BISECT the dense recipe at the rung-G shape: {verified} verified, {refused} refused before a proof existed, {} REJECTED", rejected.len());
+    assert!(rejected.is_empty(), "an HONEST receipt was rejected by the verifier — the S19-F1 class of failure: {rejected:#?}");
+    assert!(verified > 0, "no variant reached the verifier, so the test says nothing");
 }
 
-/// **THE SECOND BISECTION (`#[ignore]`d): the HIDDEN INPUT alone.** The first
+/// **STAGE 20: THE SECOND BISECTION, NOW A REGRESSION TEST** on the same
+/// rule as the first — no HONEST case may be rejected by the verifier, and
+/// with `tame_case`'s admissible diagonal weights every one of these eight
+/// inputs must in fact VERIFY. This is the sharpest regression guard the
+/// stage has: five of the eight were REJECTED before the repair.
+///
+/// **The HIDDEN INPUT alone.** The first
 /// bisection found that the DIAGONAL production fixture also fails once the
 /// hidden input changes, so the recipe is not what matters. This one holds the
 /// public weights at `tame_case`'s diagonal matrices and moves only the input,
@@ -599,7 +643,6 @@ fn stage19_bisect_the_dense_failure() {
 /// halves agree everywhere (which they do at the fixture, and which would hide
 /// any confusion between a position and its partner).
 #[test]
-#[ignore = "a diagnostic, not a gate: it proves eight rung-G blocks"]
 fn stage19_bisect_the_hidden_input() {
     let s = Shape::rung_g();
     let (tw, tx) = tame_words(&s);
@@ -628,14 +671,10 @@ fn stage19_bisect_the_hidden_input() {
     ];
     let ids = Ids::new(&s).expect("the rung-G plane map");
     let (dp, dh, half) = (s.d_pad, s.head_dim, s.head_dim / 2);
+    let want_cases = cases.len();
+    let mut verified = 0usize;
     for (name, input) in cases {
-        let w = match witness::build_shaped(&s, &public, &ff, &input) {
-            Ok(w) => w,
-            Err(m) => {
-                eprintln!("INPUT {name}: the WITNESS BUILDER refused: {m}");
-                continue;
-            }
-        };
+        let w = witness::build_shaped(&s, &public, &ff, &input).unwrap_or_else(|m| panic!("INPUT {name}: the WITNESS BUILDER refused: {m}"));
         // the three degeneracies, measured on the true support
         let sup_d = super::witness::Geom::new(&s).support(Dom::D);
         let mut ys: Vec<i64> = sup_d.iter().map(|i| w.planes[ids.at(A_Y)][*i]).collect();
@@ -655,25 +694,32 @@ fn stage19_bisect_the_hidden_input() {
                 Err(e) => format!("the VERIFIER rejected: {e}"),
                 Ok(_) => match verify_bytes_at(&s, &blk, &expected, &bytes) {
                     Err(e) => format!("the VERIFIER rejected (from bytes): {e}"),
-                    Ok(()) => "VERIFIED".to_string(),
+                    Ok(()) => {
+                        assert_eq!(bytes.len(), rung_g_frame_bytes(), "{name}: the frame is not the counted length");
+                        "VERIFIED".to_string()
+                    }
                 },
             },
         };
         eprintln!("INPUT {name}: norm_a takes {} distinct values, A_RQL takes {} ({rq:?}), RoPE partner halves {}; {verdict}", ys.len(), rq.len(), if partners_agree { "AGREE everywhere" } else { "differ" });
+        // STAGE 20: every one of these inputs is HONEST and admissible, so
+        // every one must VERIFY. Five of the eight were rejected by S19-F1.
+        assert_eq!(verdict, "VERIFIED", "INPUT {name} did not verify");
+        verified += 1;
     }
+    assert_eq!(verified, want_cases, "not every hidden input reached the verifier");
 }
 
-/// **THE THIRD BISECTION (`#[ignore]`d): WHICH AXIS OF VARIATION BREAKS IT.**
-///
-/// The second bisection found that the verdict tracks whether the hidden
-/// state VARIES BETWEEN HEADS, not the weights recipe. Two slots read the
-/// head axis in two different ways — `SC_SCORE` and `SC_PV` take the QUERY
-/// head from the whole of `r_h` and the KEY-VALUE head from its top
-/// `log2(kv_heads)` bits (trap T-3) — so this drives the two sides apart
-/// independently, with diagonal weights scaled PER HEAD and PER KEY-VALUE
-/// HEAD, on the fixture's own input.
+/// **STAGE 20: THE THIRD BISECTION IS THE ACCEPTANCE MATRIX OF S19-F1**, and
+/// is no longer `#[ignore]`d. It drives the two sides of the grouped-query
+/// map apart INDEPENDENTLY — diagonal weights scaled per QUERY head and per
+/// KEY-VALUE head, on the fixture's own input — and stage 19 measured three
+/// of its five cases REJECTED, all three being exactly the ones in which the
+/// key-value heads carry different activations. **Every one of the five must
+/// now VERIFY**, and so must the review's own `distinct_kv_case` at both rung
+/// profiles. Nothing was weakened: the cases, the scales and the input are
+/// stage 19's, and the verdicts are still printed.
 #[test]
-#[ignore = "a diagnostic, not a gate: it proves four rung-G blocks"]
 fn stage19_bisect_the_head_axis() {
     let s = Shape::rung_g();
     let (d, kvw, dh, group) = (s.width, s.kv_heads * s.head_dim, s.head_dim, s.q_heads / s.kv_heads);
@@ -710,22 +756,22 @@ fn stage19_bisect_the_head_axis() {
             (0..s.hidden * d).map(|k| if k / d == k % d { 64i8 } else { 0 }).collect(),
         ];
         let (public, ff) = statement_of_words(&s, &words);
-        let w = match witness::build_shaped(&s, &public, &ff, &tx) {
-            Ok(w) => w,
-            Err(m) => {
-                eprintln!("HEAD {name}: the WITNESS BUILDER refused: {m}");
-                continue;
-            }
-        };
+        let w = witness::build_shaped(&s, &public, &ff, &tx).unwrap_or_else(|m| panic!("HEAD {name}: the WITNESS BUILDER refused: {m}"));
         let blk = BlockPublic::new(public, ff);
         let verdict = match prove_dense(&s, &blk, w) {
             Err(e) => format!("the PROVER refused: {e}"),
-            Ok((expected, receipt, _)) => match verify_inner_at(&s, &blk, &expected, &receipt) {
+            Ok((expected, receipt, bytes)) => match verify_inner_at(&s, &blk, &expected, &receipt) {
                 Err(e) => format!("the VERIFIER rejected: {e}"),
-                Ok(_) => "VERIFIED".to_string(),
+                Ok(_) => match verify_bytes_at(&s, &blk, &expected, &bytes) {
+                    Err(e) => format!("the VERIFIER rejected (from bytes): {e}"),
+                    Ok(()) => "VERIFIED".to_string(),
+                },
             },
         };
         eprintln!("HEAD {name}: {verdict}");
+        // STAGE 20: cases iii, iv and v were REJECTED by S19-F1. All five are
+        // honest and admissible, so all five must verify.
+        assert_eq!(verdict, "VERIFIED", "HEAD {name} did not verify");
     }
     // and the review's own distinct-key-value fixture, at BOTH rung profiles,
     // beside the same construction with a different pair of scales: the
@@ -737,6 +783,7 @@ fn stage19_bisect_the_head_axis() {
         let w = witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the distinct-KV honest witness");
         let o = outcome(&sh, &blk, w);
         eprintln!("HEAD review distinct_kv_case at {}: {}", sh.name, o.short());
+        assert!(o.is_accepted(), "{}: the review's distinct-KV honest control is not accepted", sh.name);
     }
 }
 
@@ -803,14 +850,14 @@ fn every_upper_hidden_half_perturbation_of_the_dense_witness_is_rejected_at_the_
 /// OFF-DIAGONAL score entry of a query head in the shared group, and one
 /// entry each of the shared head's rotated key and value planes.
 ///
-/// **CONFOUNDED BY S19-F1 and therefore `#[ignore]`d.** Every one of these
-/// three perturbations makes the key-value heads carry different activations,
-/// which is precisely the condition under which S19-F1 rejects an HONEST
-/// proof — so a rejection here would not distinguish the tamper from the
-/// defect, and the honest control the test opens with is itself rejected.
-/// It becomes a real control the day S19-F1 is fixed.
+/// **STAGE 20: IT IS A REAL CONTROL NOW.** Stage 19 had to `#[ignore]` this
+/// test because every one of its three perturbations makes the key-value
+/// heads carry different activations, which is precisely the condition under
+/// which S19-F1 rejected an HONEST proof: a rejection would not have
+/// distinguished the tamper from the defect, and the honest control the test
+/// opens with was itself rejected. With the repair the honest control is
+/// ACCEPTED, so each rejection below is the tamper.
 #[test]
-#[ignore = "blocked by finding S19-F1: the honest control is rejected, so a rejection of the tamper says nothing"]
 fn a_shared_kv_head_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g() {
     let sh = Shape::rung_g();
     let group = sh.q_heads / sh.kv_heads;
@@ -842,4 +889,348 @@ fn a_shared_kv_head_perturbation_of_the_dense_witness_is_rejected_at_the_rung_g(
         eprintln!("SHARED KV {what}: {}", o.short());
         assert!(!o.is_accepted(), "{what} was ACCEPTED");
     }
+}
+
+// ===================================================================
+// STAGE 20 — the repair of finding S19-F1
+// ===================================================================
+
+/// **THE INDEPENDENT CHECK OF THE TWO IDENTITIES.**
+///
+/// The prover and the verifier of this module share ONE definition
+/// (`argument::define`), which is exactly why S19-F1 survived every
+/// prove-and-verify test written on a degenerate witness: both sides
+/// evaluated the same wrong expression. Nothing below goes through `define`,
+/// `Layout`, the transcript or the sumcheck. It evaluates, with plain loops
+/// over the Boolean cube and nothing else,
+///
+/// * **LHS** — the multilinear extension of the pointwise product the slot's
+///   HOST demands: `sum_{h,t,j,c} eq(r_h,h) eq(r_t,t) eq(r_j,j) QR8[t,h,c]
+///   KR8[j,g(h),c]` for the score, and the matching sum for `PV`, with
+///   `g(h)` the key-value group of head slot `h` (its top `lkv` bits);
+/// * **NEW** — the identity stage 20 builds: `sum_{g,c} eq(r_g,g)
+///   Q~(r_t,(g,r_hj),c) K~(r_j,g,c)`, the group SUMMED under a public `eq`;
+/// * **OLD** — what the module computed until stage 20: the product of the
+///   two extensions at the shared fixed group point, `sum_c Q~(r_t,r_h,c)
+///   K~(r_j,r_g,c)`.
+///
+/// The statement is three-part and each part is load-bearing: **NEW = LHS
+/// always**; **OLD != LHS on a generic witness** (or the defect would not
+/// have existed and the repair would be unnecessary); **OLD = LHS on the
+/// degenerate fixture** (which is why nothing saw it for nineteen stages).
+struct Bilinear {
+    t_pad: usize,
+    h_pad: usize,
+    head_dim: usize,
+    kv_heads: usize,
+}
+
+impl Bilinear {
+    fn lkv(&self) -> usize {
+        self.kv_heads.trailing_zeros() as usize
+    }
+    fn lh(&self) -> usize {
+        self.h_pad.trailing_zeros() as usize
+    }
+    /// the key-value group of head slot `h`: its top `lkv` bits
+    fn group(&self, h: usize) -> usize {
+        h >> (self.lh() - self.lkv())
+    }
+}
+
+/// `eq(point, x)` for the boolean vector whose bits are `x`'s, MOST
+/// SIGNIFICANT FIRST — the convention of `mle::eq_table_msb`, written out
+/// here rather than called, so that the check shares no code with the module.
+fn eq_at(point: &[Fp2], x: usize) -> Fp2 {
+    let n = point.len();
+    let mut acc = Fp2::ONE;
+    for (k, r) in point.iter().enumerate() {
+        let b = (x >> (n - 1 - k)) & 1;
+        acc = acc.mul(if b == 1 { *r } else { Fp2::ONE.sub(*r) });
+    }
+    acc
+}
+
+/// the three values of the SCORE identity: `(LHS, NEW, OLD)`
+fn score_identity(g: &Bilinear, qr8: &[i64], kr8: &[i64], r_h: &[Fp2], r_t: &[Fp2], r_j: &[Fp2]) -> (Fp2, Fp2, Fp2) {
+    let (tp, hp, dh, kv, lkv) = (g.t_pad, g.h_pad, g.head_dim, g.kv_heads, g.lkv());
+    let (r_g, r_hj) = (&r_h[..lkv], &r_h[lkv..]);
+    let q = |t: usize, h: usize, c: usize| Fp2::from_i64(qr8[t * hp * dh + h * dh + c]);
+    let k = |j: usize, grp: usize, c: usize| Fp2::from_i64(kr8[j * kv * dh + grp * dh + c]);
+    // LHS: the extension of the pointwise product
+    let mut lhs = Fp2::ZERO;
+    for h in 0..hp {
+        for t in 0..tp {
+            for j in 0..tp {
+                let w = eq_at(r_h, h).mul(eq_at(r_t, t)).mul(eq_at(r_j, j));
+                if w == Fp2::ZERO {
+                    continue;
+                }
+                let mut s = Fp2::ZERO;
+                for c in 0..dh {
+                    s = s.add(q(t, h, c).mul(k(j, g.group(h), c)));
+                }
+                lhs = lhs.add(w.mul(s));
+            }
+        }
+    }
+    // NEW: the group summed, under a public eq
+    let mut new = Fp2::ZERO;
+    for grp in 0..kv {
+        for c in 0..dh {
+            // Q~(r_t, (grp, r_hj), c)
+            let mut qe = Fp2::ZERO;
+            for t in 0..tp {
+                for hj in 0..(hp / kv) {
+                    qe = qe.add(eq_at(r_t, t).mul(eq_at(r_hj, hj)).mul(q(t, grp * (hp / kv) + hj, c)));
+                }
+            }
+            // K~(r_j, grp, c)
+            let mut ke = Fp2::ZERO;
+            for j in 0..tp {
+                ke = ke.add(eq_at(r_j, j).mul(k(j, grp, c)));
+            }
+            new = new.add(eq_at(r_g, grp).mul(qe).mul(ke));
+        }
+    }
+    // OLD: the product of the two extensions at the shared fixed group point
+    let mut old = Fp2::ZERO;
+    for c in 0..dh {
+        let mut qe = Fp2::ZERO;
+        for t in 0..tp {
+            for h in 0..hp {
+                qe = qe.add(eq_at(r_t, t).mul(eq_at(r_h, h)).mul(q(t, h, c)));
+            }
+        }
+        let mut ke = Fp2::ZERO;
+        for j in 0..tp {
+            for grp in 0..kv {
+                ke = ke.add(eq_at(r_j, j).mul(eq_at(r_g, grp)).mul(k(j, grp, c)));
+            }
+        }
+        old = old.add(qe.mul(ke));
+    }
+    (lhs, new, old)
+}
+
+/// the three values of the PV identity: `(LHS, NEW, OLD)`
+fn pv_identity(g: &Bilinear, p: &[i64], v8: &[i64], r_h: &[Fp2], r_t: &[Fp2], r_i: &[Fp2]) -> (Fp2, Fp2, Fp2) {
+    let (tp, hp, dh, kv, lkv) = (g.t_pad, g.h_pad, g.head_dim, g.kv_heads, g.lkv());
+    let (r_g, r_hj) = (&r_h[..lkv], &r_h[lkv..]);
+    let pp = |h: usize, t: usize, s: usize| Fp2::from_i64(p[(h * tp + t) * tp + s]);
+    let vv = |s: usize, grp: usize, i: usize| Fp2::from_i64(v8[s * kv * dh + grp * dh + i]);
+    let mut lhs = Fp2::ZERO;
+    for h in 0..hp {
+        for t in 0..tp {
+            for i in 0..dh {
+                let w = eq_at(r_t, t).mul(eq_at(r_h, h)).mul(eq_at(r_i, i));
+                if w == Fp2::ZERO {
+                    continue;
+                }
+                let mut o = Fp2::ZERO;
+                for s in 0..tp {
+                    o = o.add(pp(h, t, s).mul(vv(s, g.group(h), i)));
+                }
+                lhs = lhs.add(w.mul(o));
+            }
+        }
+    }
+    let mut new = Fp2::ZERO;
+    for grp in 0..kv {
+        for s in 0..tp {
+            let mut pe = Fp2::ZERO;
+            for t in 0..tp {
+                for hj in 0..(hp / kv) {
+                    pe = pe.add(eq_at(r_hj, hj).mul(eq_at(r_t, t)).mul(pp(grp * (hp / kv) + hj, t, s)));
+                }
+            }
+            let mut ve = Fp2::ZERO;
+            for i in 0..dh {
+                ve = ve.add(eq_at(r_i, i).mul(vv(s, grp, i)));
+            }
+            new = new.add(eq_at(r_g, grp).mul(pe).mul(ve));
+        }
+    }
+    let mut old = Fp2::ZERO;
+    for s in 0..tp {
+        let mut pe = Fp2::ZERO;
+        for h in 0..hp {
+            for t in 0..tp {
+                pe = pe.add(eq_at(r_h, h).mul(eq_at(r_t, t)).mul(pp(h, t, s)));
+            }
+        }
+        let mut ve = Fp2::ZERO;
+        for grp in 0..kv {
+            for i in 0..dh {
+                ve = ve.add(eq_at(r_g, grp).mul(eq_at(r_i, i)).mul(vv(s, grp, i)));
+            }
+        }
+        old = old.add(pe.mul(ve));
+    }
+    (lhs, new, old)
+}
+
+/// a deterministic point of `n` field elements from this module's own stream
+fn point_of(r: &mut Rng, n: usize) -> Vec<Fp2> {
+    (0..n).map(|_| Fp2::new(Fp::new(r.next() % crate::field::P), Fp::new(r.next() % crate::field::P))).collect()
+}
+
+/// **THE IDENTITY CHECK ON THE REAL RUNG-G WITNESSES.** The FULLY dense
+/// witness is the generic one; `tame_case`'s is the degenerate one every
+/// earlier stage proved at. Both are read plane by plane out of the witness
+/// builder, and the three sums above are taken at a fixed random point.
+#[test]
+fn the_two_bilinear_identities_hold_independently_of_the_argument_at_the_rung_g() {
+    let sh = Shape::rung_g();
+    let ids = Ids::new(&sh).expect("the rung-G plane map");
+    let g = Bilinear { t_pad: sh.t_pad, h_pad: sh.h_pad, head_dim: sh.head_dim, kv_heads: sh.kv_heads };
+    assert_eq!(g.lkv(), 1, "the rung-G shape must group, or this test says nothing");
+    let mut r = Rng(0x5C0E_1D01_0000_0001);
+    let (r_h, r_t, r_j) = (point_of(&mut r, g.lh()), point_of(&mut r, 5), point_of(&mut r, 5));
+    let r_i = point_of(&mut r, g.head_dim.trailing_zeros() as usize);
+    assert_eq!(1usize << r_t.len(), sh.t_pad, "the token point is not the padded token axis");
+    for (what, case, generic) in [("FULLY DENSE (generic)", dense_case(&sh), true), ("tame_case (the degenerate fixture)", super::grow_tests::tame_case(&sh), false)] {
+        let (public, ff, input) = case;
+        let w = witness::build_shaped(&sh, &public, &ff, &input).expect("the honest witness");
+        let pl = |toy: usize| -> &[i64] { &w.planes[ids.at(toy)] };
+        let (s_lhs, s_new, s_old) = score_identity(&g, pl(A_QR8), pl(A_KR8), &r_h, &r_t, &r_j);
+        let (o_lhs, o_new, o_old) = pv_identity(&g, pl(A_P), pl(A_V8), &r_h, &r_t, &r_i);
+        assert_eq!(s_new, s_lhs, "{what}: the repaired SCORE identity does not hold");
+        assert_eq!(o_new, o_lhs, "{what}: the repaired PV identity does not hold");
+        eprintln!("IDENTITY {what}: SCORE new == lhs, PV new == lhs; SCORE old {} lhs, PV old {} lhs", if s_old == s_lhs { "==" } else { "!=" }, if o_old == o_lhs { "==" } else { "!=" });
+        if generic {
+            assert_ne!(s_old, s_lhs, "{what}: the OLD product-of-extensions formula AGREES on a generic witness — then S19-F1 was not what it was said to be");
+            assert_ne!(o_old, o_lhs, "{what}: the OLD PV formula AGREES on a generic witness");
+        } else {
+            assert_eq!(s_old, s_lhs, "{what}: the OLD formula DISAGREES on the degenerate fixture — then the fixture is not what hid the defect");
+            assert_eq!(o_old, o_lhs, "{what}: the OLD PV formula DISAGREES on the degenerate fixture");
+        }
+    }
+}
+
+/// **THE SAME CHECK AT A SYNTHETIC `kv_heads = 4` GEOMETRY**, on RANDOM
+/// planes rather than a witness. No shape this lane proves at has four
+/// key-value heads except 125M, which is far too large to sum over here; and
+/// random planes are a stronger test of an algebraic identity than a witness,
+/// because a witness has structure that could hide a mistake. `lkv = 2` is
+/// also the first case in which the group is more than one bit.
+#[test]
+fn the_two_bilinear_identities_hold_at_a_synthetic_four_key_value_head_geometry() {
+    let mut r = Rng(0x5C0E_1D02_0000_0001);
+    for (t_pad, h_pad, head_dim, kv_heads) in [(8usize, 4usize, 4usize, 4usize), (8, 8, 4, 4), (8, 4, 4, 2), (8, 2, 4, 1)] {
+        let g = Bilinear { t_pad, h_pad, head_dim, kv_heads };
+        let plane = |r: &mut Rng, n: usize| -> Vec<i64> { (0..n).map(|_| r.pick(-127, 127)).collect() };
+        let qr8 = plane(&mut r, t_pad * h_pad * head_dim);
+        let kr8 = plane(&mut r, t_pad * kv_heads * head_dim);
+        let p = plane(&mut r, h_pad * t_pad * t_pad);
+        let v8 = plane(&mut r, t_pad * kv_heads * head_dim);
+        let lt = t_pad.trailing_zeros() as usize;
+        let (r_h, r_t, r_j) = (point_of(&mut r, g.lh()), point_of(&mut r, lt), point_of(&mut r, lt));
+        let r_i = point_of(&mut r, head_dim.trailing_zeros() as usize);
+        let (s_lhs, s_new, s_old) = score_identity(&g, &qr8, &kr8, &r_h, &r_t, &r_j);
+        let (o_lhs, o_new, o_old) = pv_identity(&g, &p, &v8, &r_h, &r_t, &r_i);
+        let label = format!("T{t_pad}/H{h_pad}/dh{head_dim}/KV{kv_heads}");
+        assert_eq!(s_new, s_lhs, "{label}: the repaired SCORE identity does not hold");
+        assert_eq!(o_new, o_lhs, "{label}: the repaired PV identity does not hold");
+        // with ONE key-value group the two formulas are the SAME expression,
+        // which is the toy's exemption, stated algebraically
+        if kv_heads == 1 {
+            assert_eq!(s_old, s_lhs, "{label}: the OLD formula must be the identity when there is one key-value head");
+            assert_eq!(o_old, o_lhs, "{label}: the OLD PV formula must be the identity when there is one key-value head");
+        } else {
+            assert_ne!(s_old, s_lhs, "{label}: the OLD SCORE formula agrees on random planes");
+            assert_ne!(o_old, o_lhs, "{label}: the OLD PV formula agrees on random planes");
+        }
+        eprintln!("IDENTITY {label}: new == lhs on both; old {} lhs", if s_old == s_lhs && o_old == o_lhs { "==" } else { "!=" });
+    }
+}
+
+/// **THE NEGATIVE CONTROLS THE REPAIR MAKES POSSIBLE (stage 20 item 3).**
+///
+/// With the FULLY dense recipe both key-value groups carry real, DIFFERENT
+/// data — the regime S19-F1 rejected outright, so none of this could be
+/// asked before. One `+1` in each of the four planes the two bilinear slots
+/// read, at a NON-FIRST key-value group and a NON-FIRST query head, and the
+/// exchange of the two groups' whole key family. Every one must be refused
+/// by the prover or rejected by the verifier, and who does it is recorded.
+#[test]
+fn a_perturbation_in_the_second_key_value_group_of_the_dense_witness_is_rejected_at_the_rung_g() {
+    let sh = Shape::rung_g();
+    let group = sh.q_heads / sh.kv_heads;
+    let (public, ff, input) = dense_case(&sh);
+    let base = witness::build_shaped(&sh, &public, &ff, &input).expect("the dense honest witness");
+    let blk = BlockPublic::new(public, ff);
+    let ids = Ids::new(&sh).expect("the rung-G plane map");
+    let (tp, dp, dh, kvw) = (sh.t_pad, sh.d_pad, sh.head_dim, sh.kv_heads * sh.head_dim);
+    // the honest control FIRST, or nothing below is a statement
+    let honest = outcome(&sh, &blk, clone_witness(&base));
+    assert!(honest.is_accepted(), "the fully dense honest witness is not accepted: {}", honest.short());
+    // query head 4 is the second head of key-value group 1 — neither the
+    // first head nor the first group
+    let (h, kv) = (4usize, 1usize);
+    assert_eq!(h / group, kv, "query head 4 must sit in key-value group 1");
+    let slot = sh.head_slot(h);
+    assert!(slot >= sh.h_pad / sh.kv_heads, "slot {slot} is not in the second group's block");
+    let cases: [(&str, usize, usize); 4] = [
+        ("A_QR8, the rotated query of a non-first head of the second group", ids.at(A_QR8), 3 * dp + slot * dh + 5),
+        ("A_KR8, the rotated key of the second key-value group", ids.at(A_KR8), 3 * kvw + kv * dh + 9),
+        ("A_P, a causally live softmax weight of a non-first head of the second group", ids.at(A_P), (slot * tp + 5) * tp + 2),
+        ("A_V8, the value of the second key-value group", ids.at(A_V8), 7 * kvw + kv * dh + 2),
+    ];
+    let (mut prover, mut verifier) = (0usize, 0usize);
+    for (what, plane, at) in cases {
+        let mut w = clone_witness(&base);
+        w.planes[plane][at] += 1;
+        let o = outcome(&sh, &blk, w);
+        eprintln!("SECOND GROUP {what}: {}", o.short());
+        match o {
+            Outcome::Accepted => panic!("{what} was ACCEPTED"),
+            Outcome::ProverRefused(_) => prover += 1,
+            Outcome::VerifierRejected(_) => verifier += 1,
+        }
+    }
+    eprintln!("SECOND-GROUP SWEEP at the rung-G shape: {prover} refused by the prover, {verifier} rejected by the verifier, 0 accepted");
+    assert_eq!(prover + verifier, 4, "not every plane was exercised");
+}
+
+/// **THE KEY-VALUE SWAP ON A WITNESS WHOSE TWO GROUPS BOTH CARRY DATA.**
+///
+/// The independent review's attack 3 could only be written on
+/// `distinct_kv_case`, whose SECOND key-value head requantizes to identically
+/// zero (stage 19's surprise 3) — which is also the one grouped case S19-F1
+/// happened to accept. On the fully dense recipe both groups are nonzero and
+/// different, so exchanging the two groups' whole KEY family is a statement
+/// about the group map and nothing else. It must be rejected BY THE VERIFIER:
+/// every relation inside `SC_KVZC` is per position and survives the swap.
+#[test]
+fn exchanging_the_two_key_value_groups_keys_is_rejected_at_the_rung_g() {
+    let sh = Shape::rung_g();
+    assert_eq!(sh.kv_heads, 2, "this case is written for the rung-G shape's two key-value groups");
+    let (public, ff, input) = dense_case(&sh);
+    let base = witness::build_shaped(&sh, &public, &ff, &input).expect("the dense honest witness");
+    let blk = BlockPublic::new(public, ff);
+    let ids = Ids::new(&sh).expect("the rung-G plane map");
+    let (dh, kvw) = (sh.head_dim, sh.kv_heads * sh.head_dim);
+    assert!(outcome(&sh, &blk, clone_witness(&base)).is_accepted(), "the fully dense honest witness is not accepted");
+    // the KEY family alone: the requantized key, its remainder, the rotated
+    // key and its remainder. The value planes are left alone, so this is a
+    // statement about the keys.
+    let key_planes = [ids.at(A_K8), ids.at(A_RKL), ids.at(A_KR8), ids.at(A_RKRL)];
+    let mut w = clone_witness(&base);
+    let mut moved = 0usize;
+    for p in key_planes {
+        for t in 0..sh.t_pad {
+            for i in 0..dh {
+                let (a, b) = (t * kvw + i, t * kvw + dh + i);
+                if w.planes[p][a] != w.planes[p][b] {
+                    moved += 1;
+                }
+                w.planes[p].swap(a, b);
+            }
+        }
+    }
+    assert!(moved > 0, "the two key-value groups carry identical keys: the swap is a no-op");
+    let o = outcome(&sh, &blk, w);
+    eprintln!("GQA DENSE: the two key-value groups' key family exchanged ({moved} positions differ): {}", o.short());
+    assert!(matches!(o, Outcome::VerifierRejected(_)), "the dense key-value swap was not rejected by the VERIFIER: {}", o.short());
 }

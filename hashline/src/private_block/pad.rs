@@ -903,6 +903,38 @@ mod tests {
         assert_eq!(Shape::m125().slot_lengths()[SC_SZC], 117, "125M's closest slot is SC_SZC");
         assert_eq!(Shape::rung().slot_lengths()[SC_SZC], 72, "the rung's closest slot is SC_SZC (SC_FZC ties it)");
         assert_eq!(Shape::rung().slot_lengths()[SC_FZC], 72, "and SC_FZC ties it");
+        // **STAGE 20, the two slots the S19-F1 repair moved.** Their length is
+        // recomputed here from the shape's axes alone — `lkv` more main
+        // rounds and one more degree when the shape groups — and never read
+        // off the schedule the test is checking. The toy's two are unmoved
+        // (12 and 14) because `lkv = 0` there.
+        let want_l = |sh: &Shape, inner: usize| -> usize {
+            let lkv = sh.kv_heads.trailing_zeros() as usize;
+            (lkv + inner + 2) * (2 + usize::from(lkv > 0)) + 2
+        };
+        for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::m125()] {
+            let dh = s.head_dim.trailing_zeros() as usize;
+            let tp = s.t_pad.trailing_zeros() as usize;
+            assert_eq!(s.slot_lengths()[SC_SCORE], want_l(&s, dh), "{}: SC_SCORE's masked length", s.name);
+            assert_eq!(s.slot_lengths()[SC_PV], want_l(&s, tp), "{}: SC_PV's masked length", s.name);
+        }
+        assert_eq!((Shape::toy().slot_lengths()[SC_SCORE], Shape::toy().slot_lengths()[SC_PV]), (12, 16), "the frozen toy's bilinear slots moved");
+    }
+
+    /// **STAGE 20.** The `sc-round` entry of the T-3 hash-length table takes
+    /// the WHOLE of [`Shape::degree_range`] rather than the degrees one shape
+    /// uses, so the table is complete only while every shape's declared
+    /// degrees are inside that range. The S19-F1 repair raises two slots from
+    /// 2 to 3, which is inside it — asserted here so that a later degree move
+    /// cannot silently leave a transcript length out of the guard.
+    #[test]
+    fn the_declared_degrees_are_inside_the_declared_range() {
+        let (lo, hi) = Shape::degree_range();
+        for s in [Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::m125()] {
+            for (slot, (_, _, d)) in s.slots().iter().enumerate() {
+                assert!((lo..=hi).contains(d), "{}: slot {slot} declares degree {d}, outside the declared range {lo}..={hi}", s.name);
+            }
+        }
     }
 
     /// The honest rung witness satisfies every relation the module can

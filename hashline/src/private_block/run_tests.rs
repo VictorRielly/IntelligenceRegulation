@@ -446,6 +446,97 @@ fn an_honest_three_block_dense_run_verifies_from_its_segments() {
     );
 }
 
+/// **STAGE 20.** The first down-projection band at which a FULLY DENSE
+/// chain of `l` blocks is admissible at this shape — searched, not assumed,
+/// from the recipe's own `band_down` downwards. Every other band of the
+/// recipe (attention, gate, up, the two gains, the hidden input) is the
+/// recipe's own, so the ATTENTION words stay dense at every candidate, which
+/// is the only thing finding S19-F1 was ever about. Returns the band and the
+/// statement it produces; `None` if no band down to 1 makes the chain
+/// admissible, which is itself a fact worth reporting.
+///
+/// Why a chain needs a smaller band than a block: block `k+1`'s hidden input
+/// IS block `k`'s `xres2 = xres1 + z16`, so `z16`'s spread compounds along
+/// the run and the residual leaves `int16`.
+fn first_admissible_dense_run_band(sh: &Shape, l: usize) -> Option<(i64, AttentionPublic, FeedForwardPublic, Vec<i16>)> {
+    use super::dense_tests::{band_down, dense_words_with, statement_of_words, BAND_ATTN, BAND_GATE, GAIN, INPUT_MAG};
+    for down in (1..=band_down(sh)).rev() {
+        let (w, input) = dense_words_with(sh, BAND_ATTN, BAND_GATE, down, GAIN, INPUT_MAG);
+        let (public, ff) = statement_of_words(sh, &w);
+        let mut x = input.clone();
+        let mut ok = true;
+        for _ in 0..l {
+            match witness::build_shaped(sh, &public, &ff, &x) {
+                Ok(wit) => x = true_input(sh, &padded(&wit, Ids::new(sh).expect("plane map").at(A_X2))),
+                Err(m) => {
+                    eprintln!("DENSE RUN band {down}: the witness builder refused a block of the chain: {m}");
+                    ok = false;
+                    break;
+                }
+            }
+        }
+        if ok {
+            return Some((down, public, ff, input));
+        }
+    }
+    None
+}
+
+/// **STAGE 20: AN HONEST THREE-BLOCK *FULLY DENSE* RUN VERIFIES FROM ITS
+/// SEGMENTS.** Stage 19 could only run the DENSE FEED-FORWARD half, because
+/// finding S19-F1 rejected any honest proof whose key-value heads carried
+/// different activations and the dense attention words make them do exactly
+/// that. With the repair the fully dense recipe runs: every one of the nine
+/// public words is nonzero everywhere, in three chained blocks, and the
+/// segment lengths are still the counted ones.
+///
+/// **The one thing the recipe has to give up to be a RUN and not a block** is
+/// the down-projection band: block `k+1`'s hidden input IS block `k`'s
+/// `xres2 = xres1 + z16`, so the fully dense `band_down` leaves `int16`
+/// within a block or two (the witness builder refuses by name, `fixed oracle
+/// range refusal: residual 2`). The test states which band the chain is
+/// admissible at rather than assuming one: it walks the bands DOWN from the
+/// recipe's own and takes the first at which the witness builder accepts all
+/// three blocks, and it asserts that the attention words are the DENSE ones
+/// throughout, which is what S19-F1 was about.
+///
+/// A CORRECTNESS milestone, not a privacy one.
+#[test]
+fn an_honest_three_block_fully_dense_run_verifies_from_its_segments() {
+    let sh = Shape::rung_g();
+    let (d, f, fp) = (sh.width, sh.hidden, sh.f_pad);
+    let ids = Ids::new(&sh).expect("plane map");
+    // the first down band at which a THREE-block chain is admissible, tried
+    // from the recipe's own downwards; the attention words never change
+    let (band, public, ff, input) = first_admissible_dense_run_band(&sh, 3).expect("no fully dense band makes a three-block chain admissible at the rung-G shape");
+    let blocks = blocks_from(&public, &ff, 3);
+    let mut c = Chain::from_parts(&sh, 3, public, ff, input);
+    for k in 0..3 {
+        let w = witness::build_shaped(&sh, &c.public, &c.ff, &c.inputs[k]).expect("a fully dense witness of the chain");
+        let live = (0..sh.tokens).flat_map(|t| (d..f).map(move |j| t * fp + j)).filter(|i| w.planes[ids.at(A_G8)][*i] != 0).count();
+        assert!(live > 0, "block {k}: the gate plane is identically zero on the upper hidden half [{d}, {f})");
+        // and the two key-value groups carry DIFFERENT data in every block —
+        // the regime S19-F1 rejected
+        let (dh, kvw) = (sh.head_dim, sh.kv_heads * sh.head_dim);
+        let differs = (0..sh.tokens).flat_map(|t| (0..dh).map(move |i| (t, i))).filter(|(t, i)| w.planes[ids.at(A_KR8)][t * kvw + i] != w.planes[ids.at(A_KR8)][t * kvw + dh + i]).count();
+        assert!(differs > 0, "block {k}: the two key-value groups carry identical rotated keys, so the run is not in S19-F1's regime");
+    }
+    let (st, owners) = statement_of(&c, 3, &blocks);
+    let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
+    let t0 = std::time::Instant::now();
+    let (segs, stats) = prove_to_vec(&st, &blocks, &mut c, owners).expect("the honest three-block fully dense run proves");
+    let prove_s = t0.elapsed().as_secs_f64();
+    assert_eq!(stats.segment_bytes, counted_segment_bytes(&sh, 3, rows), "a fully dense segment is not the counted length");
+    let t1 = std::time::Instant::now();
+    run::verify_run(&st, &blocks, &segs).expect("the honest three-block fully dense run verifies from its segments");
+    eprintln!(
+        "FULLY DENSE RUN L=3 at the rung-G shape (down band {band}): prove {prove_s:.2} s, verify from segments {:.2} s, segments {:?} B (total {} B), boundary {rows} rows",
+        t1.elapsed().as_secs_f64(),
+        stats.segment_bytes,
+        stats.segment_bytes.iter().sum::<usize>()
+    );
+}
+
 /// **THE HEADLINE NEGATIVE TEST: block 2 rebuilt on a hidden input that is
 /// NOT block 1's output is REJECTED BY THE VERIFIER.** Both variants, because
 /// they fail at different slots:

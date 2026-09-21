@@ -243,6 +243,15 @@ use super::shape::{ReceiptBytes, Shape, Totals};
 /// `scripts/zk60_private_block_layout_model.py`). The two were written from
 /// the same memo but not from each other, so an agreement is evidence and a
 /// disagreement is a finding.
+///
+/// **STAGE 20.** Two of these figures — `main_rounds` and `receipt_total` —
+/// are the PRE-repair ones, because the Python model is outside this lane's
+/// write set and still declares the old bilinear schedule. They are compared
+/// against the Rust through [`s20_bilinear_delta`], which COUNTS what the
+/// S19-F1 repair adds from the shape's axes alone; the model owes the same
+/// two-line change (`SC_SCORE` / `SC_PV` gain `log2(kv_heads)` main rounds
+/// and one degree) and the lane ledger records it. Every other figure here is
+/// untouched by the repair.
 struct Expected {
     a_planes: usize,
     h_planes: usize,
@@ -356,8 +365,53 @@ const MODEL_M125: Expected = Expected {
     receipt_total: 40_782_792,
 };
 
+/// **STAGE 20's COUNTED DELTA (the repair of finding S19-F1).**
+///
+/// Every `Expected` above, and every frame length this module pins, was
+/// COUNTED before the two bilinear attention slots gained the key-value group
+/// as a sumcheck variable. The repair moves exactly two slots and moves them
+/// by an amount that is a function of the SHAPE'S AXES and of nothing else,
+/// so the new figures are DERIVED here rather than re-measured and pasted:
+///
+/// * `SC_SCORE` had `main = log2(head_dim)`, degree 2; it now has
+///   `main = lkv + log2(head_dim)`, degree 3.
+/// * `SC_PV` had `main = log2(t_pad)`, degree 2; it now has
+///   `main = lkv + log2(t_pad)`, degree 3.
+/// * both keep their two extension rounds, their two private terminals and
+///   their two claim sites, so nothing else about the layout moves.
+///
+/// A slot contributes `1 + (main + ext)(degree + 1) + terminals` FIELD WORDS
+/// to a frame (`wire::encoded_len`, `Shape::receipt_bytes`), 16 bytes each.
+/// With `kv_heads = 1` — the frozen toy — `lkv = 0`, the degree does not
+/// move and the delta is `(0, 0)`: the toy pays nothing.
+///
+/// Returns `(extra main rounds, extra frame bytes)`.
+pub(super) fn s20_bilinear_delta(sh: &Shape) -> (usize, usize) {
+    let lg = |v: usize| v.trailing_zeros() as usize;
+    let lkv = lg(sh.kv_heads);
+    if lkv == 0 {
+        return (0, 0);
+    }
+    // (old main, new main) of the two bilinear slots, with ext = 2 throughout
+    let moved = [(lg(sh.head_dim), lkv + lg(sh.head_dim)), (lg(sh.t_pad), lkv + lg(sh.t_pad))];
+    let rounds: usize = moved.iter().map(|(old, new)| new - old).sum();
+    // old degree 2 -> three words a round; new degree 3 -> four
+    let words: usize = moved.iter().map(|(old, new)| (new + 2) * 4 - (old + 2) * 3).sum();
+    (rounds, 16 * words)
+}
+
+/// the counted frame length of one block at a shape whose PRE-stage-20 length
+/// was `before`
+pub(super) fn s20_frame_bytes(sh: &Shape, before: usize) -> usize {
+    before + s20_bilinear_delta(sh).1
+}
+
 fn check_against_model(sh: &Shape, want: &Expected) {
     let t: Totals = sh.totals();
+    // STAGE 20: the two figures the S19-F1 repair moves, derived and not
+    // re-pinned. `want` stays the INDEPENDENT model's number.
+    let (d_rounds, d_bytes) = s20_bilinear_delta(sh);
+    let (want_main_rounds, want_receipt_total) = (want.main_rounds + d_rounds, want.receipt_total + d_bytes);
     assert_eq!(t.a_planes, want.a_planes, "{}: A planes", sh.name);
     assert_eq!(t.h_planes, want.h_planes, "{}: H planes", sh.name);
     assert_eq!(t.a_data_rows, want.a_data_rows, "{}: A data rows", sh.name);
@@ -372,13 +426,13 @@ fn check_against_model(sh: &Shape, want: &Expected) {
     assert_eq!(t.functionals, 34, "{}: functionals", sh.name);
     assert_eq!(t.largest_slot_length, want.largest_slot_length, "{}: largest slot L", sh.name);
     assert!(t.largest_slot_length + 256 <= 512, "{}: the mask budget L + 256 <= 512 is broken", sh.name);
-    assert_eq!(t.main_rounds, want.main_rounds, "{}: main rounds", sh.name);
+    assert_eq!(t.main_rounds, want_main_rounds, "{}: main rounds (the model's {} plus the stage-20 bilinear delta {d_rounds})", sh.name, want.main_rounds);
     assert_eq!(t.extension_rounds, want.extension_rounds, "{}: extension rounds", sh.name);
     assert_eq!(t.u8_per_domain, want.u8_per_domain.to_vec(), "{}: U8 lookups per domain", sh.name);
     assert_eq!(t.u8_lookups, want.u8_lookups, "{}: U8 lookups", sh.name);
     assert_eq!(t.exp_pairs, want.exp_pairs, "{}: exp pairs", sh.name);
     assert_eq!(t.act_pairs, want.act_pairs, "{}: act pairs", sh.name);
-    assert_eq!(t.receipt_bytes.total, want.receipt_total, "{}: receipt bytes", sh.name);
+    assert_eq!(t.receipt_bytes.total, want_receipt_total, "{}: receipt bytes (the model's {} plus the stage-20 bilinear delta {d_bytes})", sh.name, want.receipt_total);
     // B-3 must be closed at EVERY shape, or that shape produces no receipt
     assert_eq!(t.logup_sum_claim_keys, 1, "{}: the LogUp sum claim raises more than one column-weight key", sh.name);
 }
@@ -490,9 +544,12 @@ fn the_125m_receipt_is_reproduced_part_by_part() {
     // 393,216-word plane (29). See `MODEL_M125`.
     assert_eq!(r.endpoint_openings, 1_499_136, "two endpoint openings");
     assert_eq!(r.mask_opening, 243_712, "M opening");
-    assert_eq!(r.slots, 27_456, "23 slots");
+    // STAGE 20: the two bilinear slots' repair is the ONLY part of the frame
+    // it touches, and it touches only this part. Counted, not re-measured.
+    let (_, d_bytes) = s20_bilinear_delta(&Shape::m125());
+    assert_eq!(r.slots, 27_456 + d_bytes, "23 slots (the pre-repair 27,456 plus the stage-20 bilinear delta {d_bytes})");
     assert_eq!(r.header_and_three_roots, 136, "header + three roots");
-    assert_eq!(r.total, 40_782_792, "one 125M block");
+    assert_eq!(r.total, 40_782_792 + d_bytes, "one 125M block");
     // and the toy's, which the wire format actually produces
     assert_eq!(Shape::toy().receipt_bytes().total, 2_816_472);
 }
@@ -1010,11 +1067,17 @@ fn the_layout_is_built_from_a_shape_and_the_toy_is_one_instance() {
 ///
 /// And it pins **trap T-3** where it can be seen: at a shape with grouped
 /// query heads, the key-value factor of `SC_SCORE` and of `SC_PV` must be
-/// read at the key-value group of the QUERY head the challenge picked, so
-/// the group coordinate of the key-value claim point is literally the same
-/// field element as the head challenge's first coordinate. Reading the
-/// key-value side at a free coordinate of its own would prove a different
-/// statement, and this equality is what forbids it.
+/// read at the key-value group of the QUERY head the challenge picked.
+/// **STAGE 20 restates it for the repaired construction** (finding S19-F1):
+/// the group bits are the slot's LEADING SUMCHECK VARIABLES now, not fixed
+/// coordinates, so what is pinned is that both private factors read the group
+/// at the SAME variables `0 .. lkv` and that the slot's single public `eq`
+/// factor carries the head challenge's own group bits — the claim point
+/// `p_s` / `p_o` is where those can be read. A factor with group variables of
+/// its own, or an `eq` at a point of its own, would prove a different
+/// statement exactly as a free fixed coordinate would have. At `kv_heads = 1`
+/// (the frozen toy) the test asserts the OPPOSITE: no variable and no public
+/// factor at all.
 ///
 /// It is a DEFINITION test: no proof is produced at the rung. Since S9 part 4
 /// it also counts the pad rule's public tables slot by slot — the toy must
@@ -1056,9 +1119,20 @@ fn the_slot_definitions_are_built_from_the_shape() {
             let def = define(s, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{}: slot {s}: {e}", sh.name));
             let (main, ext, _) = slots[s];
             let mut n_priv = 0usize;
-            let fixed_at = |p: &Priv, i: usize| match &p.coords[i] {
-                Coord::Fixed(f) => *f,
-                c => panic!("{}: slot {s}: coordinate {i} is {c:?}, not a fixed one", sh.name),
+            // **STAGE 20, the repaired T-3 statement.** The group bits are no
+            // longer a FIXED coordinate of either factor: they are the slot's
+            // leading sumcheck variables. What has to hold is that BOTH
+            // private factors read them at the SAME variables, in the same
+            // order — a factor reading the group at variables of its own would
+            // prove a different statement exactly as a free fixed coordinate
+            // would have.
+            let group_at = |p: &Priv, first: usize| -> Vec<usize> {
+                (0..lkv)
+                    .map(|k| match &p.coords[first + k] {
+                        Coord::Rho(v) => *v,
+                        c => panic!("{}: slot {s}: group coordinate {k} is {c:?}, not a sumcheck variable", sh.name),
+                    })
+                    .collect()
             };
             for (i, t) in def.tabs.iter().enumerate() {
                 match t {
@@ -1073,19 +1147,23 @@ fn the_slot_definitions_are_built_from_the_shape() {
                                 assert!(*kk < main, "{}: slot {s} table {i}: free coordinate {kk} outside the cube", sh.name);
                             }
                         }
-                        // T-3: the key-value factor's group coordinate
+                        // T-3 as repaired: the shared group variables.
+                        // `A_QR8` is `(t, head slot, c)` and `A_KR8` is
+                        // `(j, group, c)`, so the group sits at offset `lt` in
+                        // both; `A_P` is `(head slot, t, s)` and `A_V8` is
+                        // `(s, group, i)`, so at 0 and at `lt`.
                         if lkv > 0 && s == SC_SCORE {
-                            let v = fixed_at(p, lt);
-                            match kv_score {
+                            let v = group_at(p, lt);
+                            match &kv_score {
                                 None => kv_score = Some(v),
-                                Some(q) => assert_eq!(q, v, "{}: SC_SCORE reads the key side at a group of its own", sh.name),
+                                Some(q) => assert_eq!(*q, v, "{}: SC_SCORE reads the key side at group variables of its own", sh.name),
                             }
                         }
                         if lkv > 0 && s == SC_PV {
-                            let v = if n_priv == 1 { fixed_at(p, 0) } else { fixed_at(p, lt) };
-                            match kv_pv {
+                            let v = if n_priv == 1 { group_at(p, 0) } else { group_at(p, lt) };
+                            match &kv_pv {
                                 None => kv_pv = Some(v),
-                                Some(q) => assert_eq!(q, v, "{}: SC_PV reads the value side at a group of its own", sh.name),
+                                Some(q) => assert_eq!(*q, v, "{}: SC_PV reads the value side at group variables of its own", sh.name),
                             }
                         }
                     }
@@ -1093,9 +1171,31 @@ fn the_slot_definitions_are_built_from_the_shape() {
             }
             assert_eq!(n_priv, terms[s], "{}: slot {s}: private terminals", sh.name);
             pubs[s] = def.tabs.iter().filter(|t| matches!(t, Tab::Pub(_))).count();
+            // and the PUBLIC factor over those variables is the head
+            // challenge's OWN group bits, which is what makes the sum a sum
+            // over the query head's group and not over a fresh point: `p_s` is
+            // `(r_h, r_t, r_j)` and `p_o` is `(r_t, r_h, r_i)`.
+            if lkv > 0 && (s == SC_SCORE || s == SC_PV) {
+                let eqs: Vec<(&Vec<Fp2>, usize)> = def.tabs.iter().filter_map(|t| if let Tab::Eq { point, start } = t { Some((point, *start)) } else { None }).collect();
+                assert_eq!(eqs.len(), 1, "{}: slot {s} declares {} eq tables, not the one group factor", sh.name, eqs.len());
+                let (point, start) = eqs[0];
+                assert_eq!((point.len(), start), (lkv, 0), "{}: slot {s}: the group eq is not over the leading {lkv} variables", sh.name);
+                let want = if s == SC_SCORE { &pts.p_s()[..lkv] } else { &pts.p_o()[lt..lt + lkv] };
+                assert_eq!(point.as_slice(), want, "{}: slot {s}: the group eq carries a point of its own, not the head challenge's group bits", sh.name);
+            }
+            // the toy is EXEMPT and must stay byte-identical: no variable, no
+            // public factor, the same two tables it always had
+            if lkv == 0 && (s == SC_SCORE || s == SC_PV) {
+                assert_eq!(def.tabs.len(), 2, "{}: slot {s} gained a table at kv_heads = 1", sh.name);
+                assert!(def.tabs.iter().all(|t| matches!(t, Tab::Priv(_))), "{}: slot {s} gained a public factor at kv_heads = 1", sh.name);
+            }
         }
         assert_eq!(kv_score.is_some(), lkv > 0, "{}: the grouped-head check ran iff the shape groups", sh.name);
         assert_eq!(kv_pv.is_some(), lkv > 0, "{}: the grouped-head check ran iff the shape groups", sh.name);
+        if lkv > 0 {
+            assert_eq!(kv_score.as_deref(), Some(&(0..lkv).collect::<Vec<usize>>()[..]), "{}: SC_SCORE's group variables are not the slot's leading ones", sh.name);
+            assert_eq!(kv_pv.as_deref(), Some(&(0..lkv).collect::<Vec<usize>>()[..]), "{}: SC_PV's group variables are not the slot's leading ones", sh.name);
+        }
         match pub_toy {
             None => {
                 // the TOY carries no pad machinery at all (finding S9-F1)
@@ -1167,7 +1267,14 @@ fn the_pcs_parameters_come_from_the_shape_and_the_pad_count_tracks_the_opened_co
 /// to reach and the 125M frame exceeds it many times over.
 #[test]
 fn the_codec_length_is_the_models_at_every_shape() {
-    for (sh, want) in [(Shape::toy(), 2_816_472usize), (Shape::rung(), 4_218_264), (Shape::rung_g(), 4_234_648), (Shape::m125(), Shape::m125().receipt_bytes().total)] {
+    // STAGE 20: the three pinned lengths are the pre-repair ones plus the
+    // COUNTED bilinear delta of `s20_bilinear_delta`; the toy's delta is zero.
+    for (sh, want) in [
+        (Shape::toy(), s20_frame_bytes(&Shape::toy(), 2_816_472usize)),
+        (Shape::rung(), s20_frame_bytes(&Shape::rung(), 4_218_264)),
+        (Shape::rung_g(), s20_frame_bytes(&Shape::rung_g(), 4_234_648)),
+        (Shape::m125(), Shape::m125().receipt_bytes().total),
+    ] {
         let lay = Layout::for_shape(&sh).expect("the shape is well formed");
         assert_eq!(sh.receipt_bytes().total, want, "{}: the model's receipt total", sh.name);
         assert_eq!(super::wire::encoded_len(&lay), want, "{}: the codec's frame length differs from the model", sh.name);
@@ -1177,8 +1284,9 @@ fn the_codec_length_is_the_models_at_every_shape() {
     // the toy's bound is the frozen constant and the toy frame is under it;
     // the rung's frame is 23,960 B OVER that constant, which is why the bound
     // had to become per-profile at all
-    assert!(2_816_472 < MAX_WIRE_BYTES && 4_218_264 > MAX_WIRE_BYTES);
-    assert_eq!(4_218_264 - MAX_WIRE_BYTES, 23_960, "the rung frame's overshoot of the toy bound");
+    let rung_now = s20_frame_bytes(&Shape::rung(), 4_218_264);
+    assert!(2_816_472 < MAX_WIRE_BYTES && rung_now > MAX_WIRE_BYTES);
+    assert_eq!(rung_now - MAX_WIRE_BYTES, 23_960 + s20_bilinear_delta(&Shape::rung()).1, "the rung frame's overshoot of the toy bound");
     assert!(Shape::m125().receipt_bytes().total <= super::wire::MAX_WIRE_BYTES_ANY, "125M must fit the absolute ceiling");
     // the toy path is unchanged: the public entry point still reports the frozen length
     assert_eq!(encoded_len(), 2_816_472);
@@ -1410,7 +1518,7 @@ fn the_125m_shape_constructs_and_what_still_refuses_says_so_by_name() {
     // the counted receipt, codec and model agreeing
     let r = sh.receipt_bytes();
     assert_eq!(r.endpoint_openings, 1_499_136, "125M's two endpoint openings");
-    assert_eq!(r.total, 40_782_792, "125M's counted receipt");
+    assert_eq!(r.total, s20_frame_bytes(&sh, 40_782_792), "125M's counted receipt (the pre-repair figure plus the stage-20 bilinear delta)");
     assert_eq!(super::wire::encoded_len(&lay), r.total, "the codec's frame length differs from the model at 125M");
     // the endpoint STATEMENT builds at 125M, with no witness and no proof
     let spec = IoSpec::new_shaped(&sh, [11u8; 32], 0, 0).expect("the 125M endpoint spec builds");

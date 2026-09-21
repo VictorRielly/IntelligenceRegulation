@@ -278,7 +278,10 @@ fn the_125m_layout_constructs_and_its_indicators_agree_with_the_definition() {
     assert_eq!(lay.shape().name, sh.name);
     // 3. the wire length: the codec's and the shape's own count must agree
     let r = sh.receipt_bytes();
-    assert_eq!(r.total, 40_782_792, "the 125M frame's counted length");
+    // STAGE 20: the pre-repair 40,782,792 plus the COUNTED bilinear delta of
+    // the S19-F1 fix (`grow_tests::s20_bilinear_delta`), which is the only
+    // part of a 125M frame the repair moves.
+    assert_eq!(r.total, super::grow_tests::s20_frame_bytes(&sh, 40_782_792), "the 125M frame's counted length");
     assert_eq!(super::wire::encoded_len(&lay), r.total, "the codec disagrees with the count");
     assert!(r.total <= super::wire::MAX_WIRE_BYTES_ANY, "125M must fit the absolute wire ceiling");
     // 4. the endpoint geometry: the padded Dom::D cube, 32 data rows, 37 rows

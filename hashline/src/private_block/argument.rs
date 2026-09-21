@@ -152,6 +152,22 @@ pub(crate) struct Points {
     p_z: Vec<Fp2>,
 }
 
+/// **TEST HOOK (stage 20).** The two bilinear slots' published claim points.
+/// The repair of S19-F1 makes the key-value group bits SUMCHECK variables
+/// under a public `eq`, and the statement a definition test has to be able to
+/// make is that the `eq` carries the HEAD CHALLENGE's own group bits and not
+/// a point of its own — which is what the claim point exposes: `p_s` is
+/// `(r_h, r_t, r_j)` and `p_o` is `(r_t, r_h, r_i)`.
+#[cfg(test)]
+impl Points {
+    pub(super) fn p_s(&self) -> &[Fp2] {
+        &self.p_s
+    }
+    pub(super) fn p_o(&self) -> &[Fp2] {
+        &self.p_o
+    }
+}
+
 // ---------------------------------------------------------------- tables
 
 fn claim_point(p: &Priv, rho: &[Fp2]) -> Vec<Fp2> {
@@ -460,6 +476,20 @@ impl<'a> B<'a> {
     }
     fn eq(&mut self, point: &[Fp2], start: usize) -> usize {
         self.push(Tab::Eq { point: point.to_vec(), start })
+    }
+    /// **STAGE 20's public factor (the repair of finding S19-F1).** The two
+    /// bilinear attention slots sum over the key-value GROUP, so they carry
+    /// `eq(r_g, .)` over their LEADING `|r_g|` variables. A shape with ONE
+    /// key-value head has an empty `r_g` and gets `None`: no table, no degree
+    /// and no transcript byte, exactly as [`B::supp`] gives the frozen toy
+    /// nothing. The caller wraps the result in a [`Gate`], whose `None` arm
+    /// is the constant ONE, so the toy's slot polynomial is the product of
+    /// its two private factors and nothing else.
+    fn group_eq(&mut self, r_g: &[Fp2]) -> Option<usize> {
+        if r_g.is_empty() {
+            return None;
+        }
+        Some(self.eq(r_g, 0))
     }
     fn public(&mut self, v: Vec<Fp2>) -> usize {
         self.push(Tab::Pub(v))
@@ -1054,36 +1084,106 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             }
             b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
         }
+        // **THE TWO BILINEAR SLOTS, AS REPAIRED BY STAGE 20 (finding
+        // S19-F1).** Both raise a claim of the form
+        //
+        // ```text
+        //     target~(r_h, ...) = sum_h eq(r_h, h) * X~(.., h, ..) * Y~(.., g(h), ..)
+        // ```
+        //
+        // where `g(h)` — the key-value GROUP of query head slot `h` — is the
+        // TOP `lkv` bits of `h` (C-1, the head permutation). Until stage 20
+        // both factors took the group as a FIXED coordinate `r_h[..lkv]` and
+        // the slot summed only over the inner axis. That is WRONG whenever
+        // `lkv > 0`: the extension of a product that shares a variable is not
+        // the product of the extensions (the product is quadratic in the
+        // shared bits), and the honest prover and the honest verifier then
+        // disagree the moment the key-value groups carry different
+        // activations — a COMPLETENESS failure, reproduced by the security
+        // owner.
+        //
+        // The repair splits `r_h = (r_g, r_hj)` — `r_g` the `lkv` group bits,
+        // `r_hj` the query head WITHIN its group — and sums over the group:
+        //
+        // ```text
+        //     = sum_{g in {0,1}^lkv} eq(r_g, g) * sum_{inner} X~(.., (g, r_hj), ..) * Y~(.., g, ..)
+        // ```
+        //
+        // which is an identity, because `Y` does not depend on `hj` and `X` is
+        // multilinear in those bits, so `sum_hj eq(r_hj, hj) X~(.., (g,hj), ..)
+        // = X~(.., (g, r_hj), ..)`. So the slot gains `lkv` main rounds, a
+        // PUBLIC `eq(r_g, .)` over the leading `lkv` variables and one degree.
+        //
+        // **`lkv = 0` (the frozen toy, `kv_heads = 1`) reduces to the old path
+        // BYTE FOR BYTE**: no variable, no public table, no degree, the same
+        // closure `v[0] * v[1]`, the same transcript.
+        //
+        // The variable order is the same on both sides and in both slots:
+        // variables `0 .. lkv` are the group `g`, variables `lkv ..` are the
+        // slot's own inner axis. `Tab::Eq { start: 0 }` reads the LEADING
+        // `lkv` variables, which is where the group sits, because coordinates
+        // are most-significant-first everywhere in this module.
         SC_SCORE => {
             let r_h = tr.challenge_fp2_vec(lh);
             let r_t = tr.challenge_fp2_vec(lt);
             let r_j = tr.challenge_fp2_vec(lt);
             pts.p_s = cat(&[&r_h, &r_t, &r_j]);
+            // `r_h` splits into the key-value GROUP bits `r_g` — the top `lkv`
+            // entries, C-1's high bits of the head slot — and `r_hj`, the
+            // query head WITHIN its group. `r_hj` is the tail, so it is built
+            // as a copy of `r_h` with the group split off.
+            let r_g = &r_h[..lkv];
+            let mut r_hj = cat(&[&r_h]);
+            r_hj = r_hj.split_off(lkv);
+            let ig = Gate(b.group_eq(r_g));
+            // the head-dimension segment of the slot's variables, one copy per
+            // factor, because a coordinate list owns its entries
+            let mut tq = rho(0..lkv + ldh);
+            tq = tq.split_off(lkv);
+            let mut tk = rho(0..lkv + ldh);
+            tk = tk.split_off(lkv);
             // two private factors: qr is masked in extension round 0, kr in round 1
-            let mut cq = fixed(&cat(&[&r_t, &r_h]));
-            cq.extend(rho(0..ldh));
-            b.a_at(ids.at(A_QR8), cq, 0)?;
-            // C-1 / trap T-3: the key-value head of the query head the
-            // challenge selects is the TOP `log2(kv_heads)` bits of `r_h`.
+            // `A_QR8` lives on `Dom::Q = (t, head slot, c)`; the head slot is
+            // `(g, r_hj)` — the group SUMMED, the within-group head fixed.
+            let mut cq = fixed(&r_t);
+            cq.extend(rho(0..lkv));
+            cq.extend(fixed(&r_hj));
+            cq.extend(tq);
+            let iq = b.a_at(ids.at(A_QR8), cq, 0)?;
+            // `A_KR8` lives on `Dom::Kv = (j, group, c)`: the group is the
+            // SAME summed variable, which is the whole point of the repair
+            // (C-1 / trap T-3).
             let mut ck = fixed(&r_j);
-            ck.extend(fixed(&r_h[..lkv]));
-            ck.extend(rho(0..ldh));
-            b.a_at(ids.at(A_KR8), ck, 1)?;
-            b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
+            ck.extend(rho(0..lkv));
+            ck.extend(tk);
+            let ik = b.a_at(ids.at(A_KR8), ck, 1)?;
+            b.finish(Box::new(move |v: &[Fp2]| ig.at(v).mul(v[iq]).mul(v[ik])), vec![])
         }
         SC_PV => {
             let r_h = tr.challenge_fp2_vec(lh);
             let r_t = tr.challenge_fp2_vec(lt);
             let r_i = tr.challenge_fp2_vec(ldh);
             pts.p_o = cat(&[&r_t, &r_h, &r_i]);
-            let mut cp = fixed(&cat(&[&r_h, &r_t]));
-            cp.extend(rho(0..lt));
-            b.a_at(ids.at(A_P), cp, 0)?;
-            let mut cv = rho(0..lt);
-            cv.extend(fixed(&r_h[..lkv]));
+            let r_g = &r_h[..lkv];
+            let mut r_hj = cat(&[&r_h]);
+            r_hj = r_hj.split_off(lkv);
+            let ig = Gate(b.group_eq(r_g));
+            // the source-token segment of the slot's variables, one copy per factor
+            let mut tp = rho(0..lkv + lt);
+            tp = tp.split_off(lkv);
+            // `A_P` lives on `Dom::S = (head slot, t, s)`
+            let mut cp = rho(0..lkv);
+            cp.extend(fixed(&r_hj));
+            cp.extend(fixed(&r_t));
+            cp.extend(tp);
+            let ip = b.a_at(ids.at(A_P), cp, 0)?;
+            // `A_V8` lives on `Dom::Kv = (s, group, i)`
+            let mut cv = rho(0..lkv + lt);
+            cv = cv.split_off(lkv);
+            cv.extend(rho(0..lkv));
             cv.extend(fixed(&r_i));
-            b.a_at(ids.at(A_V8), cv, 1)?;
-            b.finish(Box::new(|v: &[Fp2]| v[0].mul(v[1])), vec![])
+            let iv = b.a_at(ids.at(A_V8), cv, 1)?;
+            b.finish(Box::new(move |v: &[Fp2]| ig.at(v).mul(v[ip]).mul(v[iv])), vec![])
         }
         // The three feed-forward matmuls (T2 section C.1). The two weight
         // matrices of the gate and up share one row point `r_tf`, mirroring
