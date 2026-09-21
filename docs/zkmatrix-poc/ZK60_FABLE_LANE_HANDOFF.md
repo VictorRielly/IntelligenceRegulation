@@ -6,6 +6,62 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 15:23 (2026-09-21) — lane at `226f3b2` (pushed): a 4-second shape with 125M's row width, head size and slot degrees, and a 2-second shape with 125M's endpoint row count — validate shared-file changes on THESE before any 10 GiB run; two rulings implemented; the gate's round 9b
+
+- **For your optimisation work, the point of today's lane stages 30–33:** four
+  new small profiles now reach, in the ORDINARY filter (394 passed / 0 failed / 17
+  ignored, about 9.5 minutes), every shape-dependent branch the 125M block
+  takes except what scales with 512 tokens and twelve blocks:
+  | profile | what it shares with 125M | one proof |
+  |---|---|---|
+  | `rung-P2` (32 tok, 96/256) | T, Kv, F unpadded: `pad_on == false` in slots 02, 16, 18 | 0.6 s |
+  | `rung-C6` (32 tok, 384/512, heads of 32) | + correction C-6 (`norm_top_is_full_byte`) | 1.2 s |
+  | **`rung-W14`** (64 tok, 768/1,024, heads of 64) | **row width 2^14 → encoded 2^16, 256 opened columns, Merkle depth 16, head axis, all 23 slot degrees, 83 `A` / 50 `H` planes, 36 / 9 opening groups, the ×64 table lift, the 14-log endpoint, C-6** | **3.9 s, 757 MB** |
+  | `rung-E32` (32 tok, 768/1,024) | the endpoint's 32 data / 37 commitment rows and 296-byte column digest; boundary 38 rows in a run | 1.8 s, 361 MB |
+  Every one: dense generic witness equal to the independent reference kernel
+  on every plane, receipt length equal to the Python model's count, all-zero
+  input, a multi-block run from segments, tampers at the positions only that
+  shape has (columns ≥ 2^13, the ×64 lifted table rows, the last index of an
+  unpadded domain, endpoint rows ≥ 16), each rejected by the verifier at the
+  expected slot. **No soundness finding in any of them.** What stays
+  heavy-only: 32 endpoint data rows AT the 14-log endpoint (that conjunction is
+  125M itself), the token ladder (128 would still be ordinary, 256 medium),
+  long runs and the memory path. **If you change `pcs.rs`, `zk.rs` or
+  `zkp-core` for speed, `rung-W14` is the shape whose receipt must not move**
+  (16,421,048 B; its test verifies from bytes), and it costs four seconds.
+- **Ruling S-6, implemented:** `Shape::a_groups`'s first arm
+  (`natural_log(Dom::T) >= log_cols`) was reached by no registered shape; the
+  failing-first test showed the toy's axes at 256 tokens were ACCEPTED and read
+  `a_groups() = 28` out of that arm. Such shapes are now refused at validation
+  by name (`private block shape: ruling S-6 …`), the Python model refuses the
+  same family with the same sentence, and the arm stays as a panic-free
+  defensive return (the two arms provably agree on the refused family).
+- **Ruling J-7a, implemented:** the separator of every declared hash-input
+  length coincidence is now CHECKED: 42 fixed literals (14 profiles, 4
+  key-derivation contexts, 22 transcript labels, 2 transcript literals) are
+  printable ASCII with no zero byte, and for every registered profile length
+  the transcript constructor's input is separated from every absorb layout of
+  the same length (124 layouts) by at least 14 forced-zero positions inside
+  length fields — positions computed, a bad test-local profile rejected. If
+  you add a profile, that test tells you at once whether its length is safe.
+- **The Python gate, round 9b** (joint-view `4db3a4d`, pushed; suite 507):
+  `rung-P2` through the whole gate, pad rule derived by the predictor before
+  the run, 46 of 46 twice, every control family firing; **a second independent
+  reading confirms the speed stages 28–29 changed nothing sent, absorbed or
+  drawn.** It also corrected round 9 and I corrected my pages: the 125M joint
+  figure is the sum of its parts (the joint statement rests on the coupling
+  check), only the preimage and masking control families have fired at 125M
+  so far, and the gate's M-F1 control had never fired at any shape until its
+  repair today (finding P-F2) — the development-shape twin now runs in a
+  second.
+- **Repository size, my side:** today's capture bundles add about 143 MB to
+  the lane branch (the largest pair 33 MB each). From now on I keep bundles
+  over 20 MB outside the repository with committed manifests, as for 125M and
+  `rung-W14`.
+- Unchanged: the five items I am waiting on from you (04:38), D19b with
+  Victor. Message-only notes for integration: S31-F1, T30-F1, and S33-F1 (a
+  declared separator said "six" zero bytes where there are seven — corrected).
+
 ### 13:20 (2026-09-21) — lane at `d282dd6` (pushed): `rung-C6` puts correction C-6 in the ordinary filter, no soundness finding; the 125M prove figure is now a RANGE (17.4–19.4 s, two runs); the gate's preimage step is complete at 125M; stage 32 (row width 2^14, head_dim 64, the 14-log endpoint) running
 
 - **`Shape::rung_c6`** — 32 tokens, width 384, hidden 512, 12 heads of 32 over
