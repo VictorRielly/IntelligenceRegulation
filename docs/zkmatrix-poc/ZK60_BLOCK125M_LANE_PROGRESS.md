@@ -10290,3 +10290,49 @@ C-6 — four dropped lookups, two dropped helper planes, a two-plane shorter
 name, tampered with at the exact obligation it could have removed, and
 captured, by tests that run in twenty-nine seconds. **Stage 30's list of
 cheap heavy-only branches is empty.**
+
+## Stage 32 — the 125M ROW WIDTH, HEAD SIZE and ENDPOINT LOG in the ordinary filter (2026-09-21, 13:2x–)
+
+**THE GAP, IN ONE SENTENCE.** Stage 31's closing list says three of the four
+remaining heavy-only branches are ONE shape away from the ordinary filter:
+the row width **`log_cols = 14`** (a 2^14-word message encoded to 2^16, and
+everything keyed to it — the PCS column geometry, `rows_of` for every
+domain, the `Dom::Tab` P-3 lift distance, the NTT log, the tagged hash
+lengths), the head size **`head_dim = 64`** (the S-3 / C-2 margin and the
+RoPE partner bit at `log − 6`), and the **125M endpoint log**
+(`endpoint_log_n = 14`). Every shape the ordinary filter proves at is at
+`log_cols` 8 or 10 and at a head dimension of 8, 16 or 32; the only shape
+with 14 and 64 is 125M, whose proofs are `#[ignore]`d 10 GiB tests. The
+integrator is about to optimise the shared commitment and sumcheck code AT
+THE 125M SHAPE, and a branch only a heavy ignored test reaches is a branch
+nobody tests (the security owner's standing rule after S19-F1). This stage
+puts the row width, the head size and the endpoint log inside one shape the
+filter proves in seconds, by exactly stages 30 and 31's method.
+
+| task | what | state |
+|---|---|---|
+| 1 | the shape: `log_cols = 14`, `head_dim = 64`, `endpoint_log_n = 14`, `lkv = 2`, every named refusal unweakened; the side-by-side table with rung-C6 and 125M | **OPEN** |
+| 2 | the tests in the ORDINARY filter (or a documented medium tier): the gap census FIRST, the generic honest witness, the all-zero input, what is keyed to the row width, the tampers only this width reaches, a run | **OPEN** |
+| 3 | capture bundles for the independent Python gate — in the repository only if ≤ ~40 MB, otherwise outside it with their manifests committed | **OPEN** |
+| 4 | the refreshed "still heavy-only" list | **OPEN** |
+| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof, the Python model's tests | **OPEN** |
+
+**The rules this stage works under** are the lane's and stages 30/31's: one
+writer, the build recipe in this file's header, **no 125M run**, a NEW
+profile for the new shape (D17 and Codex's condition), the gap census
+written FIRST, the toy byte-frozen, no older profile moved (toy, the frozen
+seam rung, rung-G, rung-K4, rung-P2, rung-C6, 125M — named and kept green),
+**no witness VALUE in any log** (range facts and counts only, stage 31's
+capture-rule fix), and no "proves and verifies" without a GENERIC honest
+witness — dense public weights, a non-constant hidden input, heads and
+key-value groups that differ — checked element for element against the
+independent `private-block-kernel-shaped` reference.
+
+**MEASURE BEFORE PLACING.** This shape is the first development shape at the
+125M row width, so its cost is not knowable from the older ones: one honest
+proof is measured first, detached, under `systemd-run --user --scope -p
+MemoryMax=6G -p MemorySwapMax=0`, and the placement of the tests — ordinary
+filter, or one honest proof in the filter and a documented medium tier
+beside it — follows that measurement and nothing else.
+
+**Evidence prefix**: `results/zk60_block125m_lane/v32-*`.
