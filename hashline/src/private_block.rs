@@ -184,6 +184,11 @@ mod run_statement_file;
 // `docs/zkmatrix-poc/ZK60_BLOCK125M_S20_FIX_REVIEW.md`.
 #[cfg(test)]
 mod s20_review_tests;
+// STAGE 23: the two shape refusals of the security owner's disposition on the
+// generic-rank lemma at the shaped layouts (rulings S-1 and S-3). Both name a
+// shape condition the privacy argument depends on that nothing checked.
+#[cfg(test)]
+mod s23_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

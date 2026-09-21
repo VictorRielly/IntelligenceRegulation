@@ -133,6 +133,40 @@ pub(crate) enum Dom {
 ///
 /// At the toy this function is the identity: every `H` domain is already at
 /// or above `LOG_N = 8` (`Tab` is exactly 8), so no toy byte moves.
+///
+/// ---
+///
+/// **AN INVARIANT THAT MUST NOT BE WEAKENED (lane stage 23, ruling S-1; the
+/// shaped check's finding B-2).** This lift is where the condition
+/// `log(Dom::Tab) == log_cols` is decided, and the private block's privacy
+/// argument at the shaped layouts rests on it.
+///
+/// The argument's "Fact 1" claims that a claim's evaluation point never
+/// reaches a commitment's non-data rows. That is **false on the helper
+/// commitment `H`**: the claim of slot `SC_ZS` on the hidden plane `H_U`
+/// (`argument.rs`'s `b.h(hids.u())`) and the pairless LogUp sum claim
+/// (`protocol::logup_sum_claim`) both place data parts on the two ZERO-SUM
+/// rows, which the argument counts as non-data, and `audit_claims` does not
+/// forbid it — its only row-placement checks are the proximity pair and
+/// site-row exclusivity.
+///
+/// What makes it harmless is this lift and nothing else. With
+/// `log(Dom::Tab) == log_cols` both claims have `ls == log_cols`, hence
+/// `lr = ls - log_cols = 0` and `eq_table_msb(&point[..0]) = [1]`, so each
+/// zero-sum row's weight is the point-INDEPENDENT coefficient (`cd` and
+/// `cd * U`, or `1` and `U` for the sum claim). The point reaches the
+/// non-data block and contributes nothing to it. Put `log(Dom::Tab)` ABOVE
+/// the row width and those two rows carry an eq-tensor in the claim's point:
+/// the non-data block becomes point-dependent and the argument's corollary
+/// about the repaired bilinear slots has to be re-derived.
+///
+/// Because `Dom::Tab`'s natural log is the fixed `clog2(U8_LEN)` and this
+/// function only lifts UPWARD, the condition is exactly "the row width is at
+/// least the table's natural size". **`Shape::new` refuses any shape that
+/// breaks it, by name**, and `s23_tests.rs` asserts that all five existing
+/// shapes satisfy it and that a shape below it is refused. Changing either
+/// this function's direction or `Dom::Tab`'s natural log reopens the
+/// argument.
 pub(crate) fn domain_log_at(natural: usize, carries_h_planes: bool, log_n: usize) -> usize {
     if carries_h_planes && natural < log_n {
         log_n

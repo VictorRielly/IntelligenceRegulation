@@ -258,6 +258,68 @@ impl Shape {
                 ));
             }
         }
+        // **STAGE 23, RULING S-1 (the shaped check's finding B-2): the P-3
+        // lift's standing hypothesis, as a named refusal.**
+        //
+        // The privacy argument's "Fact 1" — a claim's evaluation point never
+        // reaches a commitment's non-data rows — is FALSE on the helper
+        // commitment `H`. The claim of slot `SC_ZS` on the hidden plane `H_U`
+        // and the pairless LogUp sum claim both put data parts on the two
+        // ZERO-SUM rows, which the argument's own accounting counts as
+        // non-data, and `audit_claims` does not forbid it (its only
+        // row-placement checks are the proximity pair and site-row
+        // exclusivity).
+        //
+        // It is harmless today for exactly one reason: the lookup-table
+        // domain sits at EXACTLY the row width, so for both claims the row
+        // part of the eq-tensor is `eq_table_msb(&point[..0]) = [1]` and each
+        // zero-sum row's weight is the point-INDEPENDENT coefficient. Move
+        // the table domain above the row width and those rows would carry an
+        // eq-tensor in the claim's point: the non-data block becomes
+        // point-dependent and the argument's whole corollary about the
+        // repaired bilinear slots stops being a theorem.
+        //
+        // `Dom::Tab`'s natural log is the fixed `clog2(U8_LEN)`, and
+        // `layout::domain_log_at` only lifts UPWARD, so the condition is
+        // equivalent to "the row width is at least the table's natural size".
+        // No shape this module builds is affected — the toy sits exactly at
+        // it and every other shape is lifted onto it. This is a
+        // construction-time statement of the fact, by name, so that a future
+        // shape cannot take it away silently.
+        if sh.log(Dom::Tab) != sh.log_cols {
+            return Err(format!(
+                "private block shape: ruling S-1 — the lookup-table domain must sit at EXACTLY the row width (Dom::Tab natural log {}, at this shape {}, against a row width of 2^{}); below it the table spans several rows and the helper commitment's zero-sum rows would carry point-dependent data weights",
+                sh.natural_log(Dom::Tab),
+                sh.log(Dom::Tab),
+                sh.log_cols
+            ));
+        }
+        // **STAGE 23, RULING S-3 (the shaped check's finding B-3): a latent
+        // liveness trap, as a named refusal.**
+        //
+        // `SC_SCORE`'s two private factors end their coordinate lists in two
+        // copies of the SAME symbol segment, `rho(lkv .. lkv + log2(head_dim))`
+        // (`argument.rs:1141-1158`), because a coordinate list owns its
+        // entries. A column key is the LAST `log_cols` entries of a list, so
+        // if `log2(head_dim)` reached `log_cols` the two keys would be the
+        // last `log_cols` entries of that one shared segment — equal BY
+        // CONSTRUCTION on every run. `opening_groups_at` would then return
+        // one group fewer than the schedule declares and `check_opening`
+        // would refuse EVERY proof at that shape.
+        //
+        // It is a liveness cliff, not a leak, and it is not near: head
+        // dimensions of 8 to 64 against row widths of 2^8 to 2^14. The guard
+        // above (ruling F-2) covers only the opposite direction, a bilinear
+        // domain BELOW the row width. `SC_PV` cannot collide structurally at
+        // any shape: its `A_V8` list always ends in the FIXED `r_i`, a
+        // segment the existing T-8 refusal `head_dim >= 2` keeps non-empty,
+        // while its `A_P` list ends in the shared source-token symbols.
+        if sh.head_dim >= 1usize << sh.log_cols {
+            return Err(format!(
+                "private block shape: ruling S-3 — the head dimension {} reaches the row width 2^{}, so the two private factors of the score slot would share their whole tail and their column keys would collide on every run; every proof at this shape would be refused for its opening-group count",
+                sh.head_dim, sh.log_cols
+            ));
+        }
         Ok(sh)
     }
 
