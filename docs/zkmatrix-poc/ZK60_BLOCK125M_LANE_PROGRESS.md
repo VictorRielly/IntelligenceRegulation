@@ -7451,7 +7451,7 @@ The whole diff against `8c5922b` is **17 files**: this ledger,
 
 ## Stage 25 — the lane's share of the query-class work list (2026-09-21, 04:0x–)
 
-**Status: `SKELETON`.** Opened 2026-09-21 04:03 PDT on the lane tip `5758b95`.
+**Status: `LANDED`.** Opened 2026-09-21 04:03 PDT on the lane tip `5758b95`.
 The items of `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md` §8 that its "whose
 file" column marks **the lane**, as rulings J-3, J-5, J-6 and J-7 leave them
 (`…_DISPOSITION.md`): **W-2** (generalised), **W-3**, **W-4**, **W-5**,
@@ -7466,13 +7466,408 @@ document.
 **No heavy run, no GPU, nothing at 125M proved. No privacy or soundness
 acceptance is claimed.**
 
+Commits: the skeleton `17af21a`, the code, the thirteen tests and the W-5
+document `9c1c56b`, and this ledger.
+
 | item | what | state |
 |---|---|---|
-| W-2 | every hash input kind of every registered profile, printed with its length; per hash FUNCTION no two different kinds are equal unless declared; every pair within one byte listed | `PENDING` |
-| W-3 | the refusal replay re-issues the live chain's next points and leaves the live transcript untouched | `PENDING` |
-| W-4 | the legacy length guard gains the statement digests and the seed derivations | `PENDING` |
-| W-5 | `ZK60_HASH_FUNCTION_SEPARATION_TABLE.md` | `PENDING` |
-| W-6 | the per-slot `pb-term` lengths, printed and RECORDED (not guarded) | `PENDING` |
-| W-7 | stage 24's twelve-key test still covers every tagged profile | `PENDING` |
-| W-8 | assertions 5 and 7 of the memo's §3.1 (the two that need no accessor) | `PENDING` |
-| W-11 | the source scan extended from absorb LABELS to hash CALL SITES | `PENDING` |
+| W-2 | every hash input kind of every registered profile, printed with its length; per hash FUNCTION no two different kinds are equal unless declared; every pair within one byte listed | **DONE** — 8 profiles, **410 kinds**, **113** one-byte pairs |
+| W-3 | the refusal replay re-issues the live chain's next points and leaves the live transcript untouched | **DONE** on a real rung-K4 boundary opening |
+| W-4 | the legacy length guard gains the statement digests and the seed derivations | **DONE**, 16 rows refused by name, failing-first as a live assertion |
+| W-5 | `ZK60_HASH_FUNCTION_SEPARATION_TABLE.md` | **DONE** |
+| W-6 | the per-slot `pb-term` lengths, printed and RECORDED (not guarded) | **DONE**, and the 295-byte pair recorded |
+| W-7 | stage 24's twelve-key test still covers every tagged profile | **DONE** (confirmed, nothing added) |
+| W-8 | assertions 5 and 7 of the memo's §3.1 (the two that need no accessor) | **DONE**; 1–4 and 6 still blocked, with a test that says so |
+| W-11 | the source scan extended from absorb LABELS to hash CALL SITES | **DONE**, 19 sites in 18 files |
+
+---
+
+### Item W-2 — the whole table, and what it says that the memo does not
+
+**THE SHAPE OF THE TEST.** For every one of the **eight** registered profiles
+— the five block shapes and the three run profiles, enumerated from the
+SOURCE registry exactly as stage 24's key test enumerates it — the test
+builds every hash input KIND on that profile's path, with its exact length
+and the BLAKE3 FUNCTION that hashes it, and prints the whole list. A
+"function" is one mode and one key: at a legacy profile there is one
+(`F_U`), plus the generator's keyed seed derivation `R1`; at a tagged profile
+there are five (`F_T`, `F_C`, `F_L`, `F_N`, `F_U`), plus `R1` and the
+`derive_key` mode `K`.
+
+**410 kinds**: 45 at the toy, 47 at the frozen-seam rung, 49 at each tagged
+block, 57 at each run (`r3`/`q3-s25-green.log:120-648`).
+
+**The kinds, per profile**: the transcript constructor; every absorb label
+with every data length it takes at that shape, the variable ones included
+(`parameters`, `pb-term`, `pcs-vec`, `pcs-prox`, `sc-round`); the squeeze;
+the refill; the seed derivation `22 + |domain|` at every `ZkRng::from_os`
+domain on that path; the statement digests D1–D8 that exist there; the five
+commitments' column digests; the salted leaf and the Merkle node; and, at a
+tagged profile, the four `derive_key` contexts.
+
+**A LABEL-SCOPE TABLE decides which labels a BLOCK absorbs and which a RUN
+does**, and the test asserts it covers exactly `hash_domain`'s label table,
+so a new label cannot be measured without a decision. The two asymmetries
+are re-derived from the code: a run absorbs `run-shape`, `pb-run-stage`,
+`pb-run-block` and `B`, and **a block inside a run never absorbs its own
+`parameters` line** (`prove_core` is handed the run's transcript;
+`protocol::transcript` is not called).
+
+**THE ASSERTION.** Per profile and per FUNCTION, no two DIFFERENT kinds have
+equal length unless the pair is in a DECLARED list that names the fixed
+literal separating them. Seven pairs are declared:
+
+| length | the pair | what separates them |
+|---:|---|---|
+| 64 | a salted leaf / a Merkle inner node | **NOTHING** under the legacy rule (claim B-7, ruling L-7, 2^-484.83); under a tag they are two functions and the pair does not arise |
+| 64 | `log-cols` absorb / leaf, and / node | the fixed 24-byte `le64(8) ‖ "log-cols" ‖ le64(8)` at offset 32 |
+| 81 | the root absorbs `A`, `H`, `B`, `M` | the one-byte label at offset 40 |
+| 171 | `expected-IO` / `parameters` (the toy only) | the label literal and its length prefix at offset 32 |
+| 295 | `parameters`(run line) / `pb-term`(15), at a rung-G or rung-K4 run with `2 ≤ L ≤ 9` | the label literal (the check's B-7, recorded by J-7) |
+| 49 | the transcript key's / the leaf key's `derive_key` context | **the context strings themselves** — see finding S25-F2 |
+
+Anything else fails the test. Nothing else was found, at any of the eight.
+
+**FINDING S25-F1 — the `calibration` absorb is 91 bytes and is in no list of
+the memo's.** §5.1's "fixed at every shape" block enumerates 60, 63, 64, 68,
+73, 81, 88, 92, 96, 104/120/136/152, 113, 171, 16,438, 16,441 and omits it.
+It is also **one byte below the `pb-run-block` absorb's 92**, so it belongs
+to the one-byte class of §7 as well.
+
+**FINDING S25-F2 — the four `derive_key` contexts are 49 / 44 / 49 / 48
+bytes**, one more each than the memo's 48 / 43 / 48 / 47 (`hashtag.rs:47-53`,
+re-counted). Two of them share a length, which is why the seventh declared
+pair exists; a `derive_key` context input IS a fixed public literal, so what
+separates them is the literal itself and the finding is bookkeeping, not a
+hazard.
+
+**FINDING S25-F3 — there are 113 pairs within one byte, not six.** The
+memo's §7 lists six and says naming the class is the point; the class has
+**113 members** across the eight profiles. Every one of the memo's six is in
+the printout (asserted by name). The ones the memo does not list include:
+
+* `calibration` 91 / `pb-run-block` 92, at all three runs;
+* the rung-G and rung-K4 endpoint column 72 / `pb-scalar` 73;
+* an internal boundary's column 80 / each of the four root absorbs 81, at
+  the two development runs;
+* `pb-term`(15) 295 / the 125M external endpoint column 296;
+* `pcs-vec` / `pcs-prox` at every shape (8,247/8,248, 20,535/20,536,
+  266,295/266,296) — one byte apart because their labels are;
+* `pb-term`(3) 103 / `sc-round`(2) 104, at every profile;
+* the node key's `derive_key` context 48 / the squeeze 47, and / the 125M
+  block constructor 48, and / the other two contexts 49.
+
+None is a clash. The point of listing them is that the next profile string,
+the next label or the next geometry lands in a crowded space.
+
+**D2, the block's public/weights digest, is arithmetic checked against the
+hasher.** Its input is `31 + w` and `w` is about 9 MB at 125M, so no guard
+can build it; the formula mirrors `absorb_into`'s framing and is re-walked
+tensor by tensor against two REAL statements (the toy's synthetic fixture and
+rung-G's tame case): **6,311 B at the toy, 145,287 B at rung-G, 9,179,783 B
+at 125M** [COMPUTED].
+
+---
+
+### Item W-3 — the refusal replay, measured on a real opening
+
+**WHAT WAS PINNED BY NOTHING.** `check_opening` clones the transcript and
+draws `Σ members + rows` challenges (`protocol.rs:305-306`); `pcs::open_zk`
+then draws the same count from the LIVE transcript (`zk_rhos`). The memo:
+*"the same oracle points, queried twice, by design"* — and §8's row against
+it said **nothing**.
+
+**THE OBJECT.** A real rung-K4 internal boundary: the geometry a real
+three-block rung-K4 run commits (`RunStatement::boundary_spec(0)`, **10
+rows**, two claim sites), committed over a non-constant plane with fresh
+operating-system randomness under the shape's own hash tag, opened by the
+real `PreparedBoundary::into_opening` — which is `check_opening` and then
+`pcs::open_zk` with nothing between them — and verified by
+`pcs::verify_zk_tagged`.
+
+**THE FOUR MEASUREMENTS** (`q3-s25-green.log:672`):
+
+1. the live transcript's state AND its next challenge are unchanged by
+   `check_opening`;
+2. the **12** values the replay consumes, recorded through
+   `check_opening_challenges`' injectable draw, equal element for element
+   the 12 a clone at the same state produces in `zk_rhos`' order;
+3. after the real opening, a clone that drew exactly those 12 and then
+   absorbed the opening's own vectors **reproduces the live transcript's
+   state** and samples the opening's own **256** column indices;
+4. non-vacuity: a clone that draws ONE challenge more ends elsewhere.
+
+**THE OBSERVATION THAT WOULD NEED A PRODUCTION HOOK, AND IS NOT ADDED**: a
+squeeze-COUNTER accessor on `zkp-core`'s `Transcript` (finding U-3), and the
+`#[cfg(test)] fn observe(condition, draw_index)` inside
+`check_opening_challenges` that ruling GS-2 declined. What replaces the first
+is the (state, next-challenge) pair; what replaces the second is stage 23's
+order test on a real capture.
+
+---
+
+### Item W-4 — the statement digests and the seed derivations enter the
+### legacy guard
+
+**THE HOLE (claim B-9, as narrowed by J-7).** Stage 16's set was built from
+the TRANSCRIPT class alone. A commitment of **16 rows** hashes its column to
+128 bytes, which is the frozen seam's spec digest, and nothing refused it;
+the seed derivation was missing for the same reason, and at the generalised
+endpoint it is **64** — the leaf and node length.
+
+**WHAT WAS ADDED, and where.** `hash_domain.rs` gains a STATEMENT CLASS —
+D1 (30), D6 (142), D7 (151), D8 (128), D4 (`29 + 32L`) and R1 at every
+`from_os` domain (`22 + |domain|`) — and the two IMPOSED functions
+(`imposed_at_shape_with`, `imposed_shape_free`) now use the whole set.
+`at_shape*` and `shape_free` are UNCHANGED, so every stage-16 test goes on
+pinning what it pinned. The imposition stays legacy-only (T-3 as amended,
+which J-7 does not reopen).
+
+**THE FAILING-FIRST IS A LIVE ASSERTION, not a transient log**: the test
+asserts that `shape_free()` — the guard exactly as stage 16 left it —
+ACCEPTS a 16-row commitment, and that `full_shape_free()` refuses the same
+count by name, in the same run. The "before" cannot rot.
+
+**The set grew by exactly one dangerous row count**: `[5, 8, 11, 12, 13, 15,
+17, 19] -> [5, 8, 11, 12, 13, 15, 16, 17, 19]`. 64 was already the node's,
+and the other five new lengths (30, 50, 142, 151, and `29+32L ≡ 5 mod 8`) are
+not multiples of eight.
+
+**Refused by name** at both legacy profiles' shape-driven sets, at the two
+bare statement constructors, and at a REAL constructor: a synthetic legacy
+internal boundary of a `32 x 128` plane over a `2^9` row width with three
+claim sites is `8 + 6 + 2 = 16` rows and is refused; the same geometry
+constructs under a tag.
+
+**Nothing accepted moves**: the toy's 455 / 384 / 50 / 7 and the frozen-seam
+rung's 623 / 576 / 50 / 21 are asserted by hand and pass; the generalised
+endpoint's reachable 6, 7, 9, 13, 21, 37 have the same verdicts as before
+(only 13 refused, for `sc-round`); 10 and 38 boundary rows still pass; and
+every tagged profile's imposed set is still empty.
+
+**WHAT IS DELIBERATELY NOT IN THE IMPOSED SET, with the reason.** Three
+statement digests have a VARIABLE input that is not knowable where the guard
+is called: **D2** (`31 + w`, and the weights do not exist at
+`Layout::for_shape`), **D3** and **D5** (`33 + Σ` / `31 + Σ` over the
+layout's own description lines, which would need the Layout the guard is
+called from the middle of). All three are COMPUTED instead in W-2's table at
+every registered profile, where the test asserts no commitment's column has
+their length. This is a scope note, not a hazard: the nearest of them to any
+column digest is thousands of bytes away.
+
+---
+
+### Item W-6 — the per-slot terminal absorbs, printed and RECORDED
+
+**Slot 19 = `SC_TAB` carries 3 + 3 terminals at every registered shape**, and
+`SC_TAB = 19 < SC_IO_IN = 21`, so `slot_terms[19] = 6` and the absorb is
+`48 + 7 + 96 = 151` bytes everywhere. The whole table reproduces the check's
+`recheck.py` §5 exactly:
+
+| shape | distinct `slot_terms` | `pb-term` absorb lengths |
+|---|---|---|
+| toy | 1, 2, 3, **6**, 13, 15, 17, 21, 22, 56 | 71, 87, 103, **151**, 263, 295, 327, 391, 407, 951 |
+| rung / rung-G / rung-K4 | 1, 2, 3, **6**, 13, 15, 17, 22, 24, 56 | 71, 87, 103, **151**, 263, 295, 327, 407, 439, 951 |
+| 125M | 1, 2, 3, **6**, 13, 15, 17, 22, 24, 54 | 71, 87, 103, **151**, 263, 295, 327, 407, 439, 919 |
+
+**151 IS the internal boundary's spec-digest input, and it is RECORDED and
+NOT GUARDED** (ruling J-7). What the test asserts is the reason: at every one
+of the eight profiles, no two 151-byte inputs share a FUNCTION — a legacy
+profile has no internal boundary at all, and at a tagged profile the absorb
+is `F_T` and the digest `F_U`. The pair exists only under the "one global
+`F_U` across profiles on one machine" reading, at `2^-256` per absorb.
+
+**The 295-byte within-function coincidence is recorded too.** At a rung-G or
+rung-K4 run the `parameters` absorb of the RUN's line is 295 bytes for
+exactly `2 ≤ L ≤ 9` — measured over `L = 1 … 12` at both, with 294 at `L = 1`
+and 296 at `L = 12` — and a 15-terminal `pb-term` absorb is 295 at those
+shapes. Same function, same execution, separated by `le64(10)‖"parameters"`
+against `le64(7)‖"pb-term"` at offset 32. Deterministic; nothing is broken.
+
+---
+
+### Item W-7 — confirmed, nothing added
+
+Stage 24's `every_registered_profile_is_covered_and_every_tagged_ones_keys_
+are_pairwise_distinct` still covers every tagged profile: the registry read
+out of the source gives **8 profiles, 2 legacy, 3 tagged, 12 live keys
+pairwise distinct**. The confirmation test cites the stage-24 test by name
+and fails if it is ever deleted.
+
+---
+
+### Item W-8 — the two assertions that need no accessor
+
+**Assertion 7, "the key is fresh"** (the accepted toy statement's condition
+6, as a test): every `ZkRng::` constructor in the production text of every
+production module of this path is `from_os`; **no file on the path names
+`ZkConfig`**, whose `rng` method is the only route to the seeded
+`ZkRng::new`; `boundary::prepare` takes `&mut ZkRng` from the caller and
+makes none. Non-vacuity in test code alone: the classifier sees a seeded
+construction and does not mistake a `&mut ZkRng` parameter for one.
+
+**FINDING S25-F4 — there is a FIFTH `ZkRng::from_os` site, and the memo's
+A-6 lists four.** `private_seam.rs:349`, inside `private_seam::prove` — the
+experimental standalone seam proof. It is **off this path**: the private
+block reaches the seam through `private_seam::prepare` alone
+(`private_block.rs:776`), and the test asserts that no production file of
+this path names `private_seam::prove`. A-6's enumeration is right about the
+path and short about the file.
+
+**Assertion 5, "never cloned, forked or serialised; exactly one per
+prover"**: `ZkRng` implements neither `Clone` nor `Copy` — a TYPE-LEVEL fact,
+probed with the inherent-impl trick and carrying its own two controls, so
+"never cloned" is not a discipline but a compile error; `rng.rs` has no
+derive, no `impl Clone`, no `Serialize`; and `prove_run` and `prove_inner_at`
+each contain exactly one `ZkRng::from_os`, no `ZkRng::new`, no `rng.clone()`,
+and hand the one generator on by `&mut`.
+
+**Assertions 1–4 and 6 remain BLOCKED**, and a test says so as a fact of the
+code: `ZkRng`'s four fields are private and it publishes no consumption
+accessor. **The day the integrator's accessor lands, that test fails** and
+the four assertions become owed on this lane.
+
+---
+
+### Item W-11 — the scan, from absorb labels to hash call sites
+
+`every_absorb_label_on_the_path_is_in_the_table` sees absorb LABELS and
+nothing else; §5.3 of the memo found six in-process hash sites that were in
+no list. The new scan looks for **thirteen** BLAKE3 and SHA-256 entry points
+(`blake3::hash`, `Hasher::new`, `new_keyed`, `new_derive_key`, `derive_key`,
+`keyed_hash`, `finalize_xof`, `hashtag::hasher`, `hash_pair`, `hash_columns`,
+`salt_leaf`, `Sha256::new`, `sha256_hex`) in the production text of **18**
+files — every production module of `private_block` (the list is PARSED from
+the parent's `mod` lines, so a new one is scanned automatically), the parent,
+`private_seam.rs`, and the three `cfg(test)` modules that write a retained
+bundle — and asserts that every site is in an explicit commented table with
+its call kind from the memo's §5.
+
+**19 sites, all classified**: 7 unkeyed BLAKE3 (D1, D2, D3, D4, D5, D6, D7
+in `private_block.rs`, `layout.rs`, `run.rs` ×2, `endpoint_g.rs`,
+`boundary.rs`) plus D8 in `private_seam.rs`, and 11 SHA-256 (C1) in
+`run_sink.rs`, `run_capture.rs` and `run_statement_file.rs`.
+
+**The table is keyed by `(file, entry point, count)` and not by line
+number**, deliberately: a line-numbered table rots on every comment edit,
+and what has to fail is a NEW call site, which changes a count.
+
+**The other engineer's files are listed READ-ONLY**, 14 entries with the
+`file:line` the memo records at `8c5922b` (T1–T4c, P1–P5, R1, R2, K and the
+two CUDA kernels), and are **not scanned** — they change under integration
+and a count pinned here would fail for reasons this lane cannot fix. The
+G1/G2 row carries ruling J-3 in full.
+
+---
+
+### Item W-5 — the document
+
+`docs/zkmatrix-poc/ZK60_HASH_FUNCTION_SEPARATION_TABLE.md`: the eight
+functions (`F_U`, `F_T`, `F_C`, `F_L`, `F_N`, `R1`, `K`, and SHA-256 named as
+not BLAKE3), the line where each is constructed, and every pair with the
+model that separates it and the test that pins it — under the legacy rule and
+under a tag, separately, because the same table means different things. It
+names the five rows **pinned by nothing**: leaf against node at a legacy
+profile; the model behind leaf ≠ node under a tag (proposed decision **D19b**,
+marked PROPOSED); `R1` against the leaf and node classes (convention V-2
+alone, and at the generalised endpoint they even share a length); that C1
+stays SHA-256; and the two CUDA kernels' agreement, with ruling **J-3** in
+full — an AGREEMENT pinned by the differential probe `dev_hash_check` and the
+proof-byte parity gates, not a separation, reachable at the two legacy
+profiles under `gpu-cuda` + `HL_GPU=1`, and outside what D22 covers. No
+privacy claim is made anywhere in it.
+
+---
+
+### Tests and commands of stage 25
+
+All through the shared build lock,
+`CARGO_TARGET_DIR=.../wt-zk60-attention-compile/hashline/target`,
+`--release --offline -j 2 -- --test-threads=1`.
+
+| command | log | result |
+|---|---|---|
+| the new module's first build, `--lib s25 -- --list` | `q0-s25-compile.log` | compiles, 14 warnings (one unused import, removed) |
+| the thirteen tests, first pass, `--nocapture` | `q1-s25-first.log` | **8 passed / 5 failed**, exit 101 — all five REAL and all five reported below |
+| the second pass | `q2-s25-second.log` | **12 passed / 1 failed** — the fifth `from_os` site, finding S25-F4 |
+| the thirteen tests, green, `--nocapture` | `q3-s25-green.log` | **13 passed / 0 failed**, 0.49 s, exit 0 — this is the stage's evidence log: the 410 kinds, the 113 one-byte pairs and every measurement above |
+| **THE GATE**: `--lib private_` | `q4-s25-private.log:422` | **298 passed / 0 failed / 11 ignored**, 67 filtered out, **405.31 s**, exit 0, **13 warnings** |
+
+**Against the stage-24 baseline of 285 / 0 / 11 and 13 warnings**: **298 / 0 /
+11**, 13 warnings. **Thirteen tests are new** — the thirteen of
+`s25_tests.rs` — and **not one existing test was weakened, removed or
+changed**: the whole diff to existing Rust is one `mod` line with its
+comment, the statement class and three new functions in `hash_domain.rs`,
+and the run's call site passing `RunFacts` instead of a bare string.
+
+**The frozen gates are in the pass list**: `the_toy_schedule_digest_is_frozen`
+(`q4:198`), `the_toy_parameter_line_is_the_frozen_literal` (`:197`),
+`a_toy_receipt_made_before_the_lane_still_verifies` (`:266`) and
+`the_125m_receipt_is_reproduced_part_by_part` (`:174`). The toy's
+**2,816,472 B** and the four shaped receipt sizes **4,218,600 / 4,234,984 /
+4,743,128 / 40,783,352** are unmoved, asserted where they always are
+(`tests.rs:108`, `zero_witness_tests.rs:172`, `grow_tests`' `MODEL_*`
+totals, `k4_tests`' frame constant), all in the pass list.
+
+**The five first-pass failures, each a real finding or a real defect of the
+first draft**: the read-only call-kind list had two entries whose text was
+shorter than the test's own "this is a reason" floor; the two 49-byte
+`derive_key` contexts were an undeclared equal-length pair (finding S25-F2);
+a doc comment naming `ZkRng::refill` was read as a constructor call; the
+synthetic 16-row boundary was written with five claim sites, which the
+construction refuses at four; and the rung-K4 boundary was verified with the
+LEGACY verifier where a tagged profile needs `verify_zk_tagged`.
+
+**No witness value, no position and no count of hidden words is printed by
+any test in this stage** (the capture rule). The one commitment any of them
+makes is over a non-constant PUBLIC plane, and what is printed of it is its
+row count and the number of challenges drawn.
+
+**No Python is touched by this stage**, no GPU, no heavy run, and nothing at
+125M is proved: the 125M rows of W-2's table are lengths computed from the
+shape, and the one 125M object built is a `RunStatement`, which commits
+nothing (`ExpectedIo::from_roots` takes the two external roots as given).
+
+### FORBIDDEN-FILES PROOF
+
+```
+git --no-pager -C /home/victor/wt-zk60-block125m diff --stat 5758b95 -- \
+  zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs \
+  hashline/src/wcache.rs hashline/src/native_capture.rs \
+  hashline/src/private_seam.rs hashline/src/gpu private-block-kernel \
+  private-model-kernel private-block-kernel-shaped zkvm-block scripts tests
+```
+
+prints **NOTHING**. The whole diff against `5758b95` is **six files**: this
+ledger, `ZK60_HASH_FUNCTION_SEPARATION_TABLE.md`,
+`hashline/src/private_block{.rs, /hash_domain.rs, /run.rs, /s25_tests.rs}`,
+plus the logs under `results/zk60_block125m_lane/`.
+
+### WHAT STAGE 25 DOES NOT ESTABLISH
+
+* **No privacy property and no privacy acceptance.** Register entry D22 is
+  untouched. W-2 … W-11 are the memo's BOOKKEEPING items: they make the
+  query-class table a computed object with a test behind each row. The
+  composition step still rests on what §3 of the disposition says it rests
+  on, and the two hops (the generator assumption, then the sampler's bias)
+  are unchanged.
+* **The one pair separated by nothing is still separated by nothing.** A
+  salted leaf and a Merkle inner node under the legacy rule are the same
+  function on the same 64 bytes. This stage names and prices the pair; it
+  does not close it. Only the tag does, at the cost of proposed decision
+  D19b.
+* **W-9 and W-10 are not touched**: the two CUDA kernels' agreement is not
+  cited to a gate by name and the device and pinned-host buffer lifetimes
+  are unread, so ruling J-3's exclusion stands and the accelerator
+  configuration remains outside D22.
+* **W-8 is half done.** Assertions 1–4 and 6 of the memo's §3.1 — every one
+  of the position-level ones and the realised-value map — are blocked on the
+  integrator's consumption accessor. What this stage adds is the two that
+  close the two defects assertions 1–5 could not see: a seeded generator
+  (assertion 7) and a forked one (assertion 5).
+* **The imposed length guard still omits D2, D3 and D5**, whose inputs are
+  variable-length; they are computed and checked per profile in a test
+  instead, which is a weaker place than a constructor.
+* **The source scans pin TEXT, not behaviour** — the same weak link stage 16
+  named for T-3. A hash call reached through a helper in an unscanned file,
+  or a `ZkRng` obtained through a fourth crate, is invisible to them.

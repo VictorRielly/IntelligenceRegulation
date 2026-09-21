@@ -1,0 +1,689 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:652:13
+    |
+652 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:246:5
+    |
+239 | struct Rec {
+    |        --- field in this struct
+...
+246 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:336:15
+    |
+336 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 13 warnings (run `cargo fix --lib -p hashline --tests` to apply 9 suggestions)
+    Finished `release` profile [optimized] target(s) in 57.81s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-70a7a72f73401de5)
+
+running 13 tests
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... S25 W-4: a run's set carries D4, D7 and its own seed derivation, and not the block prover's
+ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... S25 W-11: 19 hash call sites in 18 scanned lane sources, every one classified; 14 read-only sites listed with file:line
+ok
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... --- hashline-zk-mr1/private-block-t32-poc/1 (toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)), 45 kinds, rule legacy ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           47 B  F_U  a transcript squeeze
+           50 B  R1   the generator's seed derivation at the frozen seam (private_seam.rs:196)
+           51 B  F_U  the transcript constructor at `hashline-zk-mr1/private-block-t32-poc/1`
+           56 B  F_U  an external endpoint's column digest
+           60 B  F_U  the transcript absorb of `rows` with 8 bytes of data
+           61 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-t32-poc/1` (protocol.rs:486)
+           63 B  F_U  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_U  a Merkle inner node
+           64 B  F_U  a salted Merkle leaf
+           64 B  F_U  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_U  the transcript absorb of `pb-term` with 16 bytes of data
+           73 B  F_U  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_U  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_U  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_U  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_U  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_U  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_U  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_U  the transcript absorb of `sc-round` with 48 bytes of data
+          120 B  F_U  the transcript absorb of `sc-round` with 64 bytes of data
+          128 B  F_U  the frozen seam's spec digest (D8)
+          136 B  F_U  the transcript absorb of `sc-round` with 80 bytes of data
+          151 B  F_U  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_U  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_U  the transcript absorb of `expected-IO` with 112 bytes of data
+          171 B  F_U  the transcript absorb of `parameters` with 113 bytes of data
+          263 B  F_U  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_U  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_U  the transcript absorb of `pb-term` with 272 bytes of data
+          391 B  F_U  the transcript absorb of `pb-term` with 336 bytes of data
+          400 B  F_U  the M commitment's column digest
+          407 B  F_U  the transcript absorb of `pb-term` with 352 bytes of data
+          951 B  F_U  the transcript absorb of `pb-term` with 896 bytes of data
+         3072 B  F_U  the H commitment's column digest
+         3205 B  F_U  the block's schedule digest (D3)
+         3640 B  F_U  the A commitment's column digest
+         6311 B  F_U  the block's public/weights digest (D2)
+         8247 B  F_U  the transcript absorb of `pcs-vec` with 8192 bytes of data
+         8248 B  F_U  the transcript absorb of `pcs-prox` with 8192 bytes of data
+        16438 B  F_U  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_U  the transcript absorb of `mask-prox` with 16384 bytes of data
+--- hashline-zk-mr1/private-block-rung-t24-dev/1 (development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)), 47 kinds, rule legacy ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           47 B  F_U  a transcript squeeze
+           50 B  R1   the generator's seed derivation at the frozen seam (private_seam.rs:196)
+           56 B  F_U  the transcript constructor at `hashline-zk-mr1/private-block-rung-t24-dev/1`
+           60 B  F_U  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_U  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_U  a Merkle inner node
+           64 B  F_U  a salted Merkle leaf
+           64 B  F_U  the transcript absorb of `log-cols` with 8 bytes of data
+           66 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-t24-dev/1` (protocol.rs:486)
+           71 B  F_U  the transcript absorb of `pb-term` with 16 bytes of data
+           73 B  F_U  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_U  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_U  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_U  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_U  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_U  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_U  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_U  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_U  the transcript absorb of `sc-round` with 48 bytes of data
+          120 B  F_U  the transcript absorb of `sc-round` with 64 bytes of data
+          128 B  F_U  the frozen seam's spec digest (D8)
+          136 B  F_U  the transcript absorb of `sc-round` with 80 bytes of data
+          151 B  F_U  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_U  the transcript absorb of `sc-round` with 96 bytes of data
+          168 B  F_U  an external endpoint's column digest
+          171 B  F_U  the transcript absorb of `expected-IO` with 112 bytes of data
+          210 B  F_U  the transcript absorb of `parameters` with 152 bytes of data
+          263 B  F_U  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_U  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_U  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_U  the M commitment's column digest
+          407 B  F_U  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_U  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_U  the transcript absorb of `pb-term` with 896 bytes of data
+         3246 B  F_U  the block's schedule digest (D3)
+         4608 B  F_U  the H commitment's column digest
+         4984 B  F_U  the A commitment's column digest
+         8247 B  F_U  the transcript absorb of `pcs-vec` with 8192 bytes of data
+         8248 B  F_U  the transcript absorb of `pcs-prox` with 8192 bytes of data
+        16438 B  F_U  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_U  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_U  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_U  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       145287 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-rung-g-t24-dev/1 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           58 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-rung-g-t24-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  R1   the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224)
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           68 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-g-t24-dev/1` (protocol.rs:486)
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          210 B  F_T  the transcript absorb of `parameters` with 152 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_T  the transcript absorb of `pb-term` with 896 bytes of data
+         3248 B  F_U  the block's schedule digest (D3)
+         4608 B  F_C  the H commitment's column digest
+         4984 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       145287 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-rung-k4-t24-dev/1 (development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           59 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-rung-k4-t24-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  R1   the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224)
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           69 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-rung-k4-t24-dev/1` (protocol.rs:486)
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          210 B  F_T  the transcript absorb of `parameters` with 152 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_T  the transcript absorb of `pb-term` with 896 bytes of data
+         3249 B  F_U  the block's schedule digest (D3)
+         5760 B  F_C  the H commitment's column digest
+         5816 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       143751 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-block-m125/1 (125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)), 49 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           48 B  F_T  the transcript constructor at `hashline-zk-mr1/private-block-m125/1`
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           58 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-block-m125/1` (protocol.rs:486)
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  R1   the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224)
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          215 B  F_T  the transcript absorb of `parameters` with 157 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          296 B  F_C  an external endpoint's column digest
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          919 B  F_T  the transcript absorb of `pb-term` with 864 bytes of data
+         3261 B  F_U  the block's schedule digest (D3)
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        45448 B  F_C  the A commitment's column digest
+        56960 B  F_C  the H commitment's column digest
+       266295 B  F_T  the transcript absorb of `pcs-vec` with 266240 bytes of data
+       266296 B  F_T  the transcript absorb of `pcs-prox` with 266240 bytes of data
+      9179783 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-run-rung-g-t24-dev/1 (development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)), 57 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           56 B  F_T  the transcript constructor at `hashline-zk-mr1/private-run-rung-g-t24-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  R1   the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224)
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           66 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-run-rung-g-t24-dev/1` (run.rs:510)
+           68 B  F_T  the transcript absorb of `pb-run-stage` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           80 B  F_C  an internal boundary's column digest
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `B` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           92 B  F_T  the transcript absorb of `pb-run-block` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          113 B  F_T  the transcript absorb of `run-shape` with 56 bytes of data
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          125 B  F_U  the run's public statement digest over 3 blocks (D4)
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_U  an internal boundary's spec digest (D7)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `parameters` with 237 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_T  the transcript absorb of `pb-term` with 896 bytes of data
+         3248 B  F_U  the block's schedule digest (D3)
+         4055 B  F_U  the run's schedule digest (D5)
+         4608 B  F_C  the H commitment's column digest
+         4984 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       145287 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-run-rung-k4-t24-dev/1 (development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)), 57 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           57 B  F_T  the transcript constructor at `hashline-zk-mr1/private-run-rung-k4-t24-dev/1`
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  R1   the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224)
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           67 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-run-rung-k4-t24-dev/1` (run.rs:510)
+           68 B  F_T  the transcript absorb of `pb-run-stage` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           72 B  F_C  an external endpoint's column digest
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           80 B  F_C  an internal boundary's column digest
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `B` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           92 B  F_T  the transcript absorb of `pb-run-block` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          113 B  F_T  the transcript absorb of `run-shape` with 56 bytes of data
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          125 B  F_U  the run's public statement digest over 3 blocks (D4)
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_U  an internal boundary's spec digest (D7)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `parameters` with 237 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          951 B  F_T  the transcript absorb of `pb-term` with 896 bytes of data
+         3249 B  F_U  the block's schedule digest (D3)
+         4056 B  F_U  the run's schedule digest (D5)
+         5760 B  F_C  the H commitment's column digest
+         5816 B  F_C  the A commitment's column digest
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        20535 B  F_T  the transcript absorb of `pcs-vec` with 20480 bytes of data
+        20536 B  F_T  the transcript absorb of `pcs-prox` with 20480 bytes of data
+       143751 B  F_U  the block's public/weights digest (D2)
+--- hashline-zk-mr1/private-run-m125/1 (125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)), 57 kinds, rule tagged ---
+           30 B  F_U  the calibration identity digest (D1)
+           40 B  F_U  the generator's refill block
+           44 B  K    the column key's derive_key context
+           46 B  F_T  the transcript constructor at `hashline-zk-mr1/private-run-m125/1`
+           47 B  F_T  a transcript squeeze
+           48 B  K    the node key's derive_key context
+           49 B  K    the leaf key's derive_key context
+           49 B  K    the transcript key's derive_key context
+           56 B  R1   the generator's seed derivation at `hashline-zk-mr1/private-run-m125/1` (run.rs:510)
+           60 B  F_T  the transcript absorb of `rows` with 8 bytes of data
+           63 B  F_T  the transcript absorb of `pb-slot` with 8 bytes of data
+           64 B  F_N  a Merkle inner node
+           64 B  F_L  a salted Merkle leaf
+           64 B  R1   the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224)
+           64 B  F_T  the transcript absorb of `log-cols` with 8 bytes of data
+           68 B  F_T  the transcript absorb of `pb-run-stage` with 8 bytes of data
+           71 B  F_T  the transcript absorb of `pb-term` with 16 bytes of data
+           73 B  F_T  the transcript absorb of `pb-scalar` with 16 bytes of data
+           81 B  F_T  the transcript absorb of `A` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `B` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `H` with 32 bytes of data
+           81 B  F_T  the transcript absorb of `M` with 32 bytes of data
+           87 B  F_T  the transcript absorb of `pb-term` with 32 bytes of data
+           88 B  F_T  the transcript absorb of `schedule` with 32 bytes of data
+           91 B  F_T  the transcript absorb of `calibration` with 32 bytes of data
+           92 B  F_T  the transcript absorb of `pb-run-block` with 32 bytes of data
+           96 B  F_T  the transcript absorb of `public-statement` with 32 bytes of data
+          103 B  F_T  the transcript absorb of `pb-term` with 48 bytes of data
+          104 B  F_T  the transcript absorb of `sc-round` with 48 bytes of data
+          113 B  F_T  the transcript absorb of `run-shape` with 56 bytes of data
+          120 B  F_T  the transcript absorb of `sc-round` with 64 bytes of data
+          136 B  F_T  the transcript absorb of `sc-round` with 80 bytes of data
+          142 B  F_U  the generalised endpoint's spec digest (D6)
+          151 B  F_U  an internal boundary's spec digest (D7)
+          151 B  F_T  the transcript absorb of `pb-term` with 96 bytes of data
+          152 B  F_T  the transcript absorb of `sc-round` with 96 bytes of data
+          171 B  F_T  the transcript absorb of `expected-IO` with 112 bytes of data
+          263 B  F_T  the transcript absorb of `pb-term` with 208 bytes of data
+          295 B  F_T  the transcript absorb of `pb-term` with 240 bytes of data
+          296 B  F_C  an external endpoint's column digest
+          302 B  F_T  the transcript absorb of `parameters` with 244 bytes of data
+          304 B  F_C  an internal boundary's column digest
+          327 B  F_T  the transcript absorb of `pb-term` with 272 bytes of data
+          400 B  F_C  the M commitment's column digest
+          407 B  F_T  the transcript absorb of `pb-term` with 352 bytes of data
+          413 B  F_U  the run's public statement digest over 12 blocks (D4)
+          439 B  F_T  the transcript absorb of `pb-term` with 384 bytes of data
+          919 B  F_T  the transcript absorb of `pb-term` with 864 bytes of data
+         3261 B  F_U  the block's schedule digest (D3)
+         5555 B  F_U  the run's schedule digest (D5)
+        16438 B  F_T  the transcript absorb of `mask-q` with 16384 bytes of data
+        16441 B  F_T  the transcript absorb of `mask-prox` with 16384 bytes of data
+        45448 B  F_C  the A commitment's column digest
+        56960 B  F_C  the H commitment's column digest
+       266295 B  F_T  the transcript absorb of `pcs-vec` with 266240 bytes of data
+       266296 B  F_T  the transcript absorb of `pcs-prox` with 266240 bytes of data
+      9179783 B  F_U  the block's public/weights digest (D2)
+--- every pair of hash input kinds within ONE BYTE, per profile (113 rows) ---
+    hashline-zk-mr1/private-block-t32-poc/1: 50 B the generator's seed derivation at the frozen seam (private_seam.rs:196) (R1) vs 51 B the transcript constructor at `hashline-zk-mr1/private-block-t32-poc/1` (F_U)
+    hashline-zk-mr1/private-block-t32-poc/1: 60 B the transcript absorb of `rows` with 8 bytes of data (F_U) vs 61 B the generator's seed derivation at `hashline-zk-mr1/private-block-t32-poc/1` (protocol.rs:486) (R1)
+    hashline-zk-mr1/private-block-t32-poc/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_U) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_U)
+    hashline-zk-mr1/private-block-t32-poc/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_U) vs 64 B a salted Merkle leaf (F_U)
+    hashline-zk-mr1/private-block-t32-poc/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_U) vs 64 B a Merkle inner node (F_U)
+    hashline-zk-mr1/private-block-t32-poc/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_U) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_U)
+    hashline-zk-mr1/private-block-t32-poc/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_U) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_U)
+    hashline-zk-mr1/private-block-t32-poc/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_U) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_U)
+    hashline-zk-mr1/private-block-t32-poc/1: 8247 B the transcript absorb of `pcs-vec` with 8192 bytes of data (F_U) vs 8248 B the transcript absorb of `pcs-prox` with 8192 bytes of data (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_U) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_U) vs 64 B a salted Merkle leaf (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_U) vs 64 B a Merkle inner node (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_U) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_U) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_U) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 8247 B the transcript absorb of `pcs-vec` with 8192 bytes of data (F_U) vs 8248 B the transcript absorb of `pcs-prox` with 8192 bytes of data (F_U)
+    hashline-zk-mr1/private-block-rung-t24-dev/1: 20535 B the transcript absorb of `pcs-vec` with 20480 bytes of data (F_U) vs 20536 B the transcript absorb of `pcs-prox` with 20480 bytes of data (F_U)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 47 B a transcript squeeze (F_T) vs 48 B the node key's derive_key context (K)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the transcript key's derive_key context (K)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the leaf key's derive_key context (K)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224) (R1)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a salted Merkle leaf (F_L)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a Merkle inner node (F_N)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 71 B the transcript absorb of `pb-term` with 16 bytes of data (F_T) vs 72 B an external endpoint's column digest (F_C)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 72 B an external endpoint's column digest (F_C) vs 73 B the transcript absorb of `pb-scalar` with 16 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_T) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_T) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_T) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-g-t24-dev/1: 20535 B the transcript absorb of `pcs-vec` with 20480 bytes of data (F_T) vs 20536 B the transcript absorb of `pcs-prox` with 20480 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 47 B a transcript squeeze (F_T) vs 48 B the node key's derive_key context (K)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the transcript key's derive_key context (K)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the leaf key's derive_key context (K)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 59 B the transcript constructor at `hashline-zk-mr1/private-block-rung-k4-t24-dev/1` (F_T) vs 60 B the transcript absorb of `rows` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224) (R1)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a salted Merkle leaf (F_L)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a Merkle inner node (F_N)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 71 B the transcript absorb of `pb-term` with 16 bytes of data (F_T) vs 72 B an external endpoint's column digest (F_C)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 72 B an external endpoint's column digest (F_C) vs 73 B the transcript absorb of `pb-scalar` with 16 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_T) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_T) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_T) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-block-rung-k4-t24-dev/1: 20535 B the transcript absorb of `pcs-vec` with 20480 bytes of data (F_T) vs 20536 B the transcript absorb of `pcs-prox` with 20480 bytes of data (F_T)
+    hashline-zk-mr1/private-block-m125/1: 47 B a transcript squeeze (F_T) vs 48 B the transcript constructor at `hashline-zk-mr1/private-block-m125/1` (F_T)
+    hashline-zk-mr1/private-block-m125/1: 47 B a transcript squeeze (F_T) vs 48 B the node key's derive_key context (K)
+    hashline-zk-mr1/private-block-m125/1: 48 B the transcript constructor at `hashline-zk-mr1/private-block-m125/1` (F_T) vs 49 B the transcript key's derive_key context (K)
+    hashline-zk-mr1/private-block-m125/1: 48 B the transcript constructor at `hashline-zk-mr1/private-block-m125/1` (F_T) vs 49 B the leaf key's derive_key context (K)
+    hashline-zk-mr1/private-block-m125/1: 48 B the node key's derive_key context (K) vs 49 B the transcript key's derive_key context (K)
+    hashline-zk-mr1/private-block-m125/1: 48 B the node key's derive_key context (K) vs 49 B the leaf key's derive_key context (K)
+    hashline-zk-mr1/private-block-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-block-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224) (R1)
+    hashline-zk-mr1/private-block-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a salted Merkle leaf (F_L)
+    hashline-zk-mr1/private-block-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a Merkle inner node (F_N)
+    hashline-zk-mr1/private-block-m125/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_T) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-block-m125/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_T) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_T)
+    hashline-zk-mr1/private-block-m125/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_T) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-block-m125/1: 295 B the transcript absorb of `pb-term` with 240 bytes of data (F_T) vs 296 B an external endpoint's column digest (F_C)
+    hashline-zk-mr1/private-block-m125/1: 266295 B the transcript absorb of `pcs-vec` with 266240 bytes of data (F_T) vs 266296 B the transcript absorb of `pcs-prox` with 266240 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 47 B a transcript squeeze (F_T) vs 48 B the node key's derive_key context (K)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the transcript key's derive_key context (K)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the leaf key's derive_key context (K)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224) (R1)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a salted Merkle leaf (F_L)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a Merkle inner node (F_N)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 71 B the transcript absorb of `pb-term` with 16 bytes of data (F_T) vs 72 B an external endpoint's column digest (F_C)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 72 B an external endpoint's column digest (F_C) vs 73 B the transcript absorb of `pb-scalar` with 16 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `A` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `H` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `B` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `M` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_T) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 91 B the transcript absorb of `calibration` with 32 bytes of data (F_T) vs 92 B the transcript absorb of `pb-run-block` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_T) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_T) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 151 B an internal boundary's spec digest (D7) (F_U) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-g-t24-dev/1: 20535 B the transcript absorb of `pcs-vec` with 20480 bytes of data (F_T) vs 20536 B the transcript absorb of `pcs-prox` with 20480 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 47 B a transcript squeeze (F_T) vs 48 B the node key's derive_key context (K)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the transcript key's derive_key context (K)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 48 B the node key's derive_key context (K) vs 49 B the leaf key's derive_key context (K)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224) (R1)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a salted Merkle leaf (F_L)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a Merkle inner node (F_N)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 67 B the generator's seed derivation at `hashline-zk-mr1/private-run-rung-k4-t24-dev/1` (run.rs:510) (R1) vs 68 B the transcript absorb of `pb-run-stage` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 71 B the transcript absorb of `pb-term` with 16 bytes of data (F_T) vs 72 B an external endpoint's column digest (F_C)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 72 B an external endpoint's column digest (F_C) vs 73 B the transcript absorb of `pb-scalar` with 16 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `A` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `H` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `B` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 80 B an internal boundary's column digest (F_C) vs 81 B the transcript absorb of `M` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_T) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 91 B the transcript absorb of `calibration` with 32 bytes of data (F_T) vs 92 B the transcript absorb of `pb-run-block` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_T) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_T) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 151 B an internal boundary's spec digest (D7) (F_U) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-run-rung-k4-t24-dev/1: 20535 B the transcript absorb of `pcs-vec` with 20480 bytes of data (F_T) vs 20536 B the transcript absorb of `pcs-prox` with 20480 bytes of data (F_T)
+    hashline-zk-mr1/private-run-m125/1: 46 B the transcript constructor at `hashline-zk-mr1/private-run-m125/1` (F_T) vs 47 B a transcript squeeze (F_T)
+    hashline-zk-mr1/private-run-m125/1: 47 B a transcript squeeze (F_T) vs 48 B the node key's derive_key context (K)
+    hashline-zk-mr1/private-run-m125/1: 48 B the node key's derive_key context (K) vs 49 B the transcript key's derive_key context (K)
+    hashline-zk-mr1/private-run-m125/1: 48 B the node key's derive_key context (K) vs 49 B the leaf key's derive_key context (K)
+    hashline-zk-mr1/private-run-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the transcript absorb of `log-cols` with 8 bytes of data (F_T)
+    hashline-zk-mr1/private-run-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B the generator's seed derivation at the generalised endpoint (endpoint_g.rs:224) (R1)
+    hashline-zk-mr1/private-run-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a salted Merkle leaf (F_L)
+    hashline-zk-mr1/private-run-m125/1: 63 B the transcript absorb of `pb-slot` with 8 bytes of data (F_T) vs 64 B a Merkle inner node (F_N)
+    hashline-zk-mr1/private-run-m125/1: 87 B the transcript absorb of `pb-term` with 32 bytes of data (F_T) vs 88 B the transcript absorb of `schedule` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-m125/1: 91 B the transcript absorb of `calibration` with 32 bytes of data (F_T) vs 92 B the transcript absorb of `pb-run-block` with 32 bytes of data (F_T)
+    hashline-zk-mr1/private-run-m125/1: 103 B the transcript absorb of `pb-term` with 48 bytes of data (F_T) vs 104 B the transcript absorb of `sc-round` with 48 bytes of data (F_T)
+    hashline-zk-mr1/private-run-m125/1: 151 B the transcript absorb of `pb-term` with 96 bytes of data (F_T) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-run-m125/1: 151 B an internal boundary's spec digest (D7) (F_U) vs 152 B the transcript absorb of `sc-round` with 96 bytes of data (F_T)
+    hashline-zk-mr1/private-run-m125/1: 295 B the transcript absorb of `pb-term` with 240 bytes of data (F_T) vs 296 B an external endpoint's column digest (F_C)
+    hashline-zk-mr1/private-run-m125/1: 266295 B the transcript absorb of `pcs-vec` with 266240 bytes of data (F_T) vs 266296 B the transcript absorb of `pcs-prox` with 266240 bytes of data (F_T)
+S25 W-2: 8 profiles, 410 hash input kinds, 113 pairs within one byte, 7 declared equal-length pairs
+ok
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... 
+thread 'private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system' (579024) panicked at src/private_block/s25_tests.rs:1198:5:
+assertion `left == right` failed: the path's generator constructions are no longer the four the memo's A-6 lists: ["src/private_block/endpoint_g.rs:224", "src/private_block/protocol.rs:486", "src/private_block/run.rs:516", "src/private_seam.rs:196", "src/private_seam.rs:349"]
+  left: 5
+ right: 4
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... S25 W-7: 8 profiles in the registry, 2 legacy, 3 tagged, 12 live keys pairwise distinct — covered by s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct
+ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... S25 W-2: D2's input is 6311 B at the toy, 145287 B at rung-G and 9179783 B at 125M [COMPUTED]
+ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... S25 W-8: assertions 1-4 and 6 remain BLOCKED — `ZkRng`'s four fields are private and it publishes no consumption accessor (requested of the integrator 2026-09-21 03:25)
+ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... S25 W-8(5): ZkRng implements neither Clone nor Copy (type-level, with controls); prove_run and prove_inner_at construct exactly one generator each and pass it on by &mut
+ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... S25 W-4: the legacy shape-free dangerous row counts are [5, 8, 11, 12, 13, 15, 17, 19] -> [5, 8, 11, 12, 13, 15, 16, 17, 19]; 16 refused by name at both legacy profiles and at the two bare constructors, clear under a tag
+ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... S25 W-2: the memo's table re-derived; two differences — the `calibration` absorb at 91 B is in no list, and the derive_key contexts are 49/44/49/48 and not 48/43/48/47
+ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ...     toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) slot_terms [1, 2, 3, 6, 13, 15, 17, 21, 22, 56] -> pb-term absorbs [71, 87, 103, 151, 263, 295, 327, 391, 407, 951]
+    development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot_terms [1, 2, 3, 6, 13, 15, 17, 22, 24, 56] -> pb-term absorbs [71, 87, 103, 151, 263, 295, 327, 407, 439, 951]
+    development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot_terms [1, 2, 3, 6, 13, 15, 17, 22, 24, 56] -> pb-term absorbs [71, 87, 103, 151, 263, 295, 327, 407, 439, 951]
+    development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot_terms [1, 2, 3, 6, 13, 15, 17, 22, 24, 56] -> pb-term absorbs [71, 87, 103, 151, 263, 295, 327, 407, 439, 951]
+    125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) slot_terms [1, 2, 3, 6, 13, 15, 17, 22, 24, 54] -> pb-term absorbs [71, 87, 103, 151, 263, 295, 327, 407, 439, 919]
+S25 W-6: slot 19 carries six terminals at every shape (151 B, = the boundary spec digest's input, never in one function inside one profile); the 295-byte `parameters`/`pb-term`(15) pair is live at the two development runs for 2 <= L <= 9
+ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... S25 W-3: rung-K4 boundary of 10 rows, 2 groups: the replay drew 12 challenges, equal to the live chain's next 12 and leaving its state and next squeeze unmoved; the continued clone reproduces the live state and the opening's 256 sampled columns
+ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... S25 W-4: the three spec-digest domains (42 / 43 / 28 B), the 22-byte seed prefix and the calibration literal are pinned to their source
+ok
+
+failures:
+
+failures:
+    private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 363 filtered out; finished in 0.55s
+
+error: test failed, to rerun pass `--lib`
