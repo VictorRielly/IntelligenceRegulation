@@ -8721,6 +8721,16 @@ refused, when, or with what message. Every change here is an arithmetic or a
 memory change inside the prover, and the acceptance is byte identity at the
 frozen toy and at every shape with a deterministic receipt pin.
 
+> **CORRECTED 2026-09-21 11:10 PDT (stage 29, finding S28-R8, ruling V-4).**
+> The sentence above holds for every REACHABLE input but is not complete as
+> written: stage 28 adds **one refusal string**, in `helper_pair_inverses_u8`
+> (`protocol.rs`), and the ledger did not list it. It is
+> `"private block: paired lookup columns of different lengths"`, it is
+> unreachable — every column of a domain is built by `lookup_values` over the
+> same `size(dom)`, so the two columns of a pair always have the same length —
+> and it is covered by the refusal-reason rule like every other refusal on this
+> path. Task 1b below carries the same note where the function is described.
+
 Ledger sections of this stage, filled as the work lands:
 
 * **Task 0 — the post-repair baseline at the tip.** (below)
@@ -8777,6 +8787,18 @@ old form re-derived in `s28_tests.rs` from `crate::field` / `crate::mle` (or
 copied verbatim from the tip `79f0726`) so that it is an oracle and not a
 second name for the code under test. Nine such tests, listed with each item
 below. A digest pin would say "something moved"; these say which word.
+
+> **CORRECTED 2026-09-21 11:10 PDT (stage 29, finding S28-R5, ruling V-4).**
+> **Ten**, not nine: `s28_tests.rs` carries ten `#[test]`s, and the gate table
+> of task 4 says ten. **CORRECTED again in the same breath (finding S28-R1):**
+> the claim "for every computation changed, the OLD form and the NEW form are
+> run on the same inputs IN THE SAME TEST" was **not true of four of the nine
+> changed computations** at stage 28 — the moved public table, the parallel
+> table build, the parallel claimed sum and the parallel histogram had
+> end-to-end evidence only. Stage 29's `s29_tests.rs` gives all four an
+> old-against-new oracle and crosses BOTH branches of all five thresholds in
+> the ordinary filter, so the sentence is true at the stage-29 tip and was not
+> true at the stage-28 tip.
 
 **Nothing in this stage touches randomness.** No line added or changed draws
 from a generator, so the number of draws, their order and the stream they come
@@ -8877,6 +8899,45 @@ prominently.**
   one of 256 public points; it is not new to this stage and no line of it
   moved.)
 
+> **CORRECTED 2026-09-21 11:10 PDT — S28-F1a, the form the security owner
+> accepts (ruling V-3 of `ZK60_BLOCK125M_S28_DISPOSITION.md`, finding S28-R2
+> of the independent review).** The sentence in bold above over-reaches and
+> the ruling replaces it with this one:
+>
+> **For every witness the constructors admit, every looked byte is one of the
+> 256 byte rows, every `(delta, e)` pair a row of the public exponential table
+> and every activation pair a row of the public activation table; so every
+> denominator the prover forms IS a table denominator, and whether an HONEST
+> attempt is refused for a zero LogUp denominator is a deterministic function
+> of the three public challenges and the three public tables — the event
+> "alpha equals one of at most 768 public field elements" — and not of the
+> hidden input. What the hidden input decides is only WHICH of the two lines
+> returns first, and nothing published can tell them apart: the two return the
+> byte-identical string, and no transcript absorb and no generator draw lies
+> between the challenge draw and the second line (on this lane `alpha` is
+> drawn at `protocol.rs:848`, the helper lines are `:857-879`, the table line
+> `:909`, the next draw `:933` and the next absorb `:949`).**
+>
+> **Why the unqualified sentence is false.** A witness value that no public
+> table carries — a looked value of 4096, or an exponential pair
+> `(3, exp[3] + 1)` — gives a zero denominator that the three table helpers
+> never see, so the refusal then depends on the hidden column. The reviewer's
+> counterexample test is
+> `s28_review_tests::whether_an_attempt_is_refused_still_depends_on_the_hidden_input_for_off_table_values`,
+> and it asserts that the OLD path behaves identically on both sides: this is
+> pre-existing behaviour and not a stage-28 regression. Such a witness is not
+> admitted and cannot yield a verifying proof; a prover feeding it is lying
+> about its own secret, and nothing about anybody else's input is at stake.
+>
+> **Consequence for the accepted figures: none** (ruling V-3 item 4). The toy
+> statement and the run documents price this refusal as if it depended on the
+> input (at most 768 distinct denominators: `2^-118.4` per block, `2^-114.8`
+> per twelve-block run); with the sharper reading the event is reproduced
+> exactly by anyone who knows the challenges, so that row is an over-estimate
+> and the security owner leaves the numbers as they are. The elapsed time of a
+> refused attempt (which line fired) is a timing channel of the same class as
+> every other in this prover and is outside every statement made so far.
+
 **MEASURED at 125M [one run, shared box]**, `q28-m125-task1-attrib.log`
 against `q28-baseline-dense.log`:
 
@@ -8900,6 +8961,18 @@ one pass over it. Columns are still visited in index order, so a refusal is
 still the lowest-indexed column's, and the words are the same words
 (`the_paired_helper_column_is_the_two_columns_inverted_and_added`, which
 compares against the two separate inversions plus the element-wise add).
+
+> **CORRECTED 2026-09-21 11:10 PDT (stage 29, finding S28-R8, ruling V-4).**
+> `helper_pair_inverses_u8` opens with a length guard and therefore adds the
+> ONE refusal string this stage did not list:
+> `"private block: paired lookup columns of different lengths"`
+> (`protocol.rs`, the first lines of the function). It is UNREACHABLE — every
+> column of a domain is built by `lookup_values` as `(0..len)` with the same
+> `len = shape().size(dom)`, so the two columns of a pair cannot differ in
+> length — and it is the only refusal string stage 28 added. Like every other
+> refusal on this path it falls under the refusal-reason rule (a refusal, or
+> the stage it happened at, is never shown to anyone not entitled to the
+> input).
 
 ### Task 2 — where the big zero-check slots' seconds actually go
 
@@ -9031,6 +9104,20 @@ and the sub-steps, summed over the twenty-three slots:
 | claimed sum `total` (**lane**) | 0.140 | **0.020** |
 | masked sumcheck (**shared**) | 6.907 | 6.594 |
 | extension rounds (`mask_eval` + shared) | 0.747 | 0.757 |
+
+> **CORRECTED 2026-09-21 11:10 PDT (stage 29, finding S28-R4, ruling V-4).**
+> The column headed "baseline" in the sub-step table above is **NOT the
+> 27.71 s baseline at `79f0726`** — that run has no `PB-SLOTSTEP` lines at all
+> (`grep -c PB-SLOTSTEP q28-baseline-dense.log` = 0), because the instrument
+> did not exist there. It is the **24.59 s tree after task 1**, measured in
+> `q28-m125-task1-attrib.log`, and **that tree is no commit**: `slot_step` and
+> the table-build change landed together in `a9f2211`, so the instrument-only
+> tree was measured and never committed. Read the column as "after task 1,
+> before task 2", against a 24.59 s prove and not a 27.71 s one. The headline
+> **27.71 -> 17.40 s is between two commits** (`79f0726` and `a9f2211`) and
+> stands unchanged; so does every per-phase row of the table above it, which
+> is `PB-TIMING` and not `PB-SLOTSTEP`. The lesson for the next stage: commit
+> the instrument first, then measure.
 
 The shared sumcheck and the two shared commitments did not move, which is the
 control this stage wanted: the 10.31 s came out of the lane's own code and
