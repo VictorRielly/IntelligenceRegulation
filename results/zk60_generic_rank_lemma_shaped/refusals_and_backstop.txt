@@ -1,0 +1,112 @@
+REFUSALS, THE INPUT-DEPENDENT TERM, AND THE BACKSTOP, AT THE SHAPED LAYOUTS
+Goldilocks p = 2^64 - 2^32 + 1; every challenge is drawn from Fp2 (|Fp2| = p^2).
+Pr[wedge(a,b) = 0] for a, b uniform in Fp2 = (p^2 + (p^2-1)p)/p^4 = 2^-64.00
+
+==============================================================================
+toy: ONE BLOCK — challenge-only refusals (liveness, not privacy)
+  term                                                           probability
+  terminal mask e in {0,1}                                         2^-122.36
+  CFS multiplier c_s = 0                                           2^-123.48
+  nu = 0 (5 sites x 2)                                             2^-124.68
+  zeta = 0 (0 pad-zero hosts)                                              0
+  PCS lambda = 0 (174 draws)                                       2^-120.56
+  proximity pair Fp-dependent (4 openings)                          2^-62.00
+  an accidental column-key collision (8466 claim pairs)            2^-114.95
+  TOTAL per block                                                   2^-62.00
+  openings: A (120 claims, 455 rows), H (52 claims, 384 rows), Input (1 claims, 7 rows), Output (1 claims, 7 rows)
+  challenge draws that enter this lemma: {'lambdas': 174, 'proximity': 853, 'sumcheck': 184, 'extension': 25, 'cfs': 23, 'nu': 10, 'zeta': 0, 'tags': 3}  (total 1272)
+
+  input-dependent refusal INSIDE the argument (zero LogUp denominator):
+    raw count of inversions 64,768  = u8 61,440 + exp 2,048 + act 512 + table rows 768
+      -> 2^-112.02 per block   [the figure ruling R-6 carries]
+    DISTINCT denominator ARGUMENTS, honest witness: at most 768 (3 tags x 256 table rows)
+      -> 2^-118.42 per block   [the refinement]
+    the refinement is worth 6.4 bits at this shape
+
+  Schwartz-Zippel backstop, if a structural step is rejected (over Fp):
+    A          minor  72 x 72  degree  212   2^-56.27
+    H          minor  20 x 20  degree   56   2^-58.19
+    endpoint   minor   4 x 4   degree    8   2^-61.00
+    boundary   minor   6 x 6   degree   14   2^-60.19
+    union over one block's four openings: 2^-55.85
+
+==============================================================================
+rung_g: ONE BLOCK — challenge-only refusals (liveness, not privacy)
+  term                                                           probability
+  terminal mask e in {0,1}                                         2^-122.36
+  CFS multiplier c_s = 0                                           2^-123.48
+  nu = 0 (5 sites x 2)                                             2^-124.68
+  zeta = 0 (8 pad-zero hosts)                                      2^-125.00
+  PCS lambda = 0 (177 draws)                                       2^-120.53
+  proximity pair Fp-dependent (4 openings)                          2^-62.00
+  an accidental column-key collision (8759 claim pairs)            2^-114.90
+  TOTAL per block                                                   2^-62.00
+  openings: A (122 claims, 623 rows), H (53 claims, 576 rows), Input (1 claims, 9 rows), Output (1 claims, 9 rows)
+  challenge draws that enter this lemma: {'lambdas': 177, 'proximity': 1217, 'sumcheck': 242, 'extension': 25, 'cfs': 23, 'nu': 10, 'zeta': 8, 'tags': 3}  (total 1705)
+
+  input-dependent refusal INSIDE the argument (zero LogUp denominator):
+    raw count of inversions 439,296  = u8 419,840 + exp 8,192 + act 8,192 + table rows 3,072
+      -> 2^-109.26 per block   [the figure ruling R-6 carries]
+    DISTINCT denominator ARGUMENTS, honest witness: at most 768 (3 tags x 256 table rows)
+      -> 2^-118.42 per block   [the refinement]
+    the refinement is worth 9.2 bits at this shape
+
+  Schwartz-Zippel backstop, if a structural step is rejected (over Fp):
+    A          minor  74 x 74  degree  218   2^-56.23
+    H          minor  20 x 20  degree   56   2^-58.19
+    endpoint   minor   4 x 4   degree    8   2^-61.00
+    boundary   minor   6 x 6   degree   14   2^-60.19
+    union over one block's four openings: 2^-55.82
+
+==============================================================================
+m125: ONE BLOCK — challenge-only refusals (liveness, not privacy)
+  term                                                           probability
+  terminal mask e in {0,1}                                         2^-122.36
+  CFS multiplier c_s = 0                                           2^-123.48
+  nu = 0 (5 sites x 2)                                             2^-124.68
+  zeta = 0 (5 pad-zero hosts)                                      2^-125.68
+  PCS lambda = 0 (175 draws)                                       2^-120.55
+  proximity pair Fp-dependent (4 openings)                          2^-62.00
+  an accidental column-key collision (8656 claim pairs)            2^-114.92
+  TOTAL per block                                                   2^-62.00
+  openings: A (122 claims, 5681 rows), H (51 claims, 7120 rows), Input (1 claims, 37 rows), Output (1 claims, 37 rows)
+  challenge draws that enter this lemma: {'lambdas': 175, 'proximity': 12875, 'sumcheck': 361, 'extension': 25, 'cfs': 23, 'nu': 10, 'zeta': 5, 'tags': 3}  (total 13477)
+
+  input-dependent refusal INSIDE the argument (zero LogUp denominator):
+    raw count of inversions 103,890,944  = u8 98,598,912 + exp 4,194,304 + act 1,048,576 + table rows 49,152
+      -> 2^-101.37 per block   [the figure ruling R-6 carries]
+    DISTINCT denominator ARGUMENTS, honest witness: at most 768 (3 tags x 256 table rows)
+      -> 2^-118.42 per block   [the refinement]
+    the refinement is worth 17.0 bits at this shape
+
+  Schwartz-Zippel backstop, if a structural step is rejected (over Fp):
+    A          minor  74 x 74  degree  218   2^-56.23
+    H          minor  20 x 20  degree   56   2^-58.19
+    endpoint   minor   4 x 4   degree    8   2^-61.00
+    boundary   minor   6 x 6   degree   14   2^-60.19
+    union over one block's four openings: 2^-55.82
+
+==============================================================================
+A RUN OF L = 12 BLOCKS AT 125M
+  term                                                           probability
+  terminal mask e in {0,1}                                         2^-118.77
+  CFS multiplier c_s = 0                                           2^-119.89
+  nu = 0                                                           2^-121.09
+  zeta = 0                                                         2^-122.09
+  PCS lambda = 0 (2100 draws)                                      2^-116.96
+  proximity pair Fp-dependent (37 openings = 3L+1)                  2^-58.79
+  an accidental column-key collision (103883 claim pairs)          2^-111.34
+  TOTAL per run (liveness)                                          2^-58.79   [ruling R-6: 2^-58.8]
+
+  input-dependent refusal inside the argument, 12 blocks with independent alpha:
+    raw      1,246,691,328  ->  2^-97.78    [ruling R-6: 2^-97.8]
+    refined  9,216  ->  2^-114.83    [worth 17.0 bits]
+
+  Schwartz-Zippel backstop over the whole run: 2^-52.24
+
+  the key-collision constraint counts of the two BILINEAR slots (shared coordinates
+  make part of a collision AUTOMATIC, so they are the closest pair on `A`):
+    rung_g   SC_SCORE: 6 of 10 tail positions differ -> collision 2^-768.00
+    rung_g   SC_PV   : 10 of 10 tail positions differ -> collision 2^-1280.00
+    m125     SC_SCORE: 8 of 14 tail positions differ -> collision 2^-1024.00
+    m125     SC_PV   : 14 of 14 tail positions differ -> collision 2^-1792.00

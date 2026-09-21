@@ -1,0 +1,95 @@
+A FAITHFUL MINIATURE OF THE REPAIRED BILINEAR SLOTS (lkv = 2)
+field: Goldilocks p = 2^64 - 2^32 + 1, Fp2 = Fp[U]/(U^2 - 7)
+geometry: lt=1 lkv=2 lhj=1 ldh=1 -> log(Dom::Q)=5 log(Dom::Kv)=4 log(Dom::S)=5; row width n=8, pads Q=8, inv_rate=4
+commitment: 12 data rows, 4 reserved pairs at 12..19, proximity pair (20,21), 22 rows in all
+
+A. THE CLAIM SCHEDULE AND ITS GROUPING, ten seeds
+--------------------------------------------------------------------------
+   seed  claims  groups  gens  rank(gens)  on non-data   k0  det == product
+      0       4       4    10          10           10    0             yes
+      1       4       4    10          10           10    0             yes
+      2       4       4    10          10           10    0             yes
+      3       4       4    10          10           10    0             yes
+      4       4       4    10          10           10    0             yes
+      5       4       4    10          10           10    0             yes
+      6       4       4    10          10           10    0             yes
+      7       4       4    10          10           10    0             yes
+      8       4       4    10          10           10    0             yes
+      9       4       4    10          10           10    0             yes
+  -> groups [4], k0 [0], factorisation exact on all ten: True
+
+B. ARE THE TWO SHARED-COORDINATE CLAIMS IN DIFFERENT OPENING GROUPS?
+--------------------------------------------------------------------------
+  claim 0 A_QR8  ext_round 0  pair (12,13)  nonzero rows 6 (non-data: [12, 13])  key tail len 3 c0 0 len 8
+  claim 1 A_KR8  ext_round 1  pair (14,15)  nonzero rows 4 (non-data: [14, 15])  key tail len 3 c0 0 len 8
+  claim 2 A_P    ext_round 0  pair (16,17)  nonzero rows 6 (non-data: [16, 17])  key tail len 3 c0 0 len 8
+  claim 3 A_V8   ext_round 1  pair (18,19)  nonzero rows 4 (non-data: [18, 19])  key tail len 3 c0 0 len 8
+  distinct keys: 4 of 4  -> 4 opening groups
+  the shared coordinates: SC_SCORE's two factors both carry rho(0..2) (the group bits);
+  SC_PV's two factors both carry rho(0..2) AND rho(2..3) (the source tokens).
+  Every claim's weights on the non-data rows sit on its OWN pair and nowhere else,
+  which is what makes the shared point invisible to the non-data block.
+
+C. ADVERSARIAL CHALLENGE REGIMES (the shared coordinates driven to collide)
+--------------------------------------------------------------------------
+  uniform
+      groups [4]   k0 [0]
+  both slots drawing the SAME fixed challenges
+      groups [4]   k0 [0]
+  the group coordinates rho_g driven to BOOLEAN values
+      groups [4]   k0 [0]
+  pre-repair schedule (group bits FIXED in both factors)
+      groups [4]   k0 [0]
+  the two bilinear claims forced into ONE opening group
+      groups [3]   k0 [0]
+  one cm = 0 (the zero-mask-challenge refusal disabled)
+      groups [4]   k0 [2]
+  one group's lambdas all 0
+      groups [4]   k0 [0]
+  the proximity pair Fp-dependent
+      groups [4]   k0 [1]
+  two claims SHARING one reserved pair (audit_claims forbids)
+      groups [4]   k0 [2]
+
+D. BRUTE FORCE: the disclosed dimension of the WHOLE linear view
+--------------------------------------------------------------------------
+   no reduction; disclosed = rank(view) - rank(view on the coordinates outside
+   the hidden data rectangle).  Coordinates: 22 rows x (8 message + 8 pad).
+   opened columns: [11, 12, 24, 25] (distinct 4 <= Q = 8)
+   seed 0: 256 functionals, 352 coordinates, hidden 96, rank(observed block) 208, rank(all) 208  ->  DISCLOSED 0
+   seed 1: 256 functionals, 352 coordinates, hidden 96, rank(observed block) 208, rank(all) 208  ->  DISCLOSED 0
+   seed 2: 256 functionals, 352 coordinates, hidden 96, rank(observed block) 208, rank(all) 208  ->  DISCLOSED 0
+   control: the same view with ONE reserved pair shared by two claims
+     -> DISCLOSED 16  (rank(all) 208, observed block 192)
+   control: the same view with one cm = 0
+     -> DISCLOSED 16
+   control: the same view with an Fp-DEPENDENT proximity pair
+     -> DISCLOSED 8
+   control: the two bilinear claims forced into ONE opening group (a 2-member group)
+     -> DISCLOSED 0  (groups 3, so Step 7's per-group argument is exercised at m = 2)
+   control: one opened column MORE than the pad budget (9 distinct columns against 8 pads)
+     -> DISCLOSED 12  (H-pad broken: 9 distinct columns)
+
+D'. THE SAME BRUTE FORCE AT n != Q — the shaped case the toy could not show
+--------------------------------------------------------------------------
+   at the toy n = Q = 256 and the two halves of a published vector have equal
+   length; at rung-G n = 1,024 and at 125M n = 16,384, against Q = 256 either way.
+   n = 8, Q = 4, 4 distinct opened columns, seed 0: 216 functionals, 264 coordinates  ->  DISCLOSED 0
+   n = 8, Q = 4, 4 distinct opened columns, seed 1: 216 functionals, 264 coordinates  ->  DISCLOSED 0
+   n = 8, Q = 4, 5 distinct columns (one OVER the budget)  ->  DISCLOSED 12
+   n = 8, Q = 4, 3 distinct opened columns, seed 0: 194 functionals, 264 coordinates  ->  DISCLOSED 0
+   n = 8, Q = 4, 3 distinct opened columns, seed 1: 194 functionals, 264 coordinates  ->  DISCLOSED 0
+   n = 8, Q = 4, 5 distinct columns (one OVER the budget)  ->  DISCLOSED 12
+   n = 8, Q = 2, 2 distinct opened columns, seed 0: 152 functionals, 220 coordinates  ->  DISCLOSED 0
+   n = 8, Q = 2, 2 distinct opened columns, seed 1: 152 functionals, 220 coordinates  ->  DISCLOSED 0
+   n = 8, Q = 2, 3 distinct columns (one OVER the budget)  ->  DISCLOSED 12
+
+E. GROUPED HEADS: a plane that is PUBLICLY ZERO on its padded slots
+--------------------------------------------------------------------------
+   the hidden rectangle shrinks to the SUPPORTED positions; the view is unchanged.
+   hidden = the whole data rectangle : 96 coordinates, DISCLOSED 0
+   hidden = the SUPPORTED positions  : 48 coordinates, DISCLOSED 0
+   control: with one shared reserved pair the two figures SEPARATE,
+     whole rectangle 16, supported positions 8  -> the smaller space can only disclose LESS, never more
+
+[elapsed 2.3 s]

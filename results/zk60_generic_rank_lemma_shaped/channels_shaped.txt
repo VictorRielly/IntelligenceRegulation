@@ -1,0 +1,54 @@
+THE PAD BLOCK AND THE CFS MASK CHANNEL AT THE SHAPED PARAMETERS
+field: Goldilocks; all arithmetic exact
+
+A. THE PAD BLOCK (H-pad, M-cols) — no challenge enters, no union bound
+--------------------------------------------------------------------------
+  toy  A / H             n = 2^8, rate 1/8, nn = 2^11, Q = 256
+    Z_n(x_j) != 0 at every one of the 2,048 encoded positions: True  (8 distinct values, closed form verified on 64 random j: True)
+    the nodes 7*w_nn^j are distinct: True
+    exact det(diag(Z_n) * Vandermonde) on 256 distinct columns != 0: consecutive True, maximally spread True, pseudo-random True
+  toy  endpoint/boundary n = 2^8, rate 1/8, nn = 2^11, Q = 256
+    Z_n(x_j) != 0 at every one of the 2,048 encoded positions: True  (8 distinct values, closed form verified on 64 random j: True)
+    the nodes 7*w_nn^j are distinct: True
+    exact det(diag(Z_n) * Vandermonde) on 256 distinct columns != 0: consecutive True, maximally spread True, pseudo-random True
+  rung_g  A / H          n = 2^10, rate 1/4, nn = 2^12, Q = 256
+    Z_n(x_j) != 0 at every one of the 4,096 encoded positions: True  (4 distinct values, closed form verified on 64 random j: True)
+    the nodes 7*w_nn^j are distinct: True
+    exact det(diag(Z_n) * Vandermonde) on 256 distinct columns != 0: consecutive True, maximally spread True, pseudo-random True
+  rung_g  endpoint/boundary n = 2^10, rate 1/4, nn = 2^12, Q = 256
+    Z_n(x_j) != 0 at every one of the 4,096 encoded positions: True  (4 distinct values, closed form verified on 64 random j: True)
+    the nodes 7*w_nn^j are distinct: True
+    exact det(diag(Z_n) * Vandermonde) on 256 distinct columns != 0: consecutive True, maximally spread True, pseudo-random True
+  m125  A / H            n = 2^14, rate 1/4, nn = 2^16, Q = 256
+    Z_n(x_j) != 0 at every one of the 65,536 encoded positions: True  (4 distinct values, closed form verified on 64 random j: True)
+    the nodes 7*w_nn^j are distinct: True
+    exact det(diag(Z_n) * Vandermonde) on 256 distinct columns != 0: consecutive True, maximally spread True, pseudo-random True
+  m125  endpoint/boundary n = 2^14, rate 1/4, nn = 2^16, Q = 256
+    Z_n(x_j) != 0 at every one of the 65,536 encoded positions: True  (4 distinct values, closed form verified on 64 random j: True)
+    the nodes 7*w_nn^j are distinct: True
+    exact det(diag(Z_n) * Vandermonde) on 256 distinct columns != 0: consecutive True, maximally spread True, pseudo-random True
+  M (every shape)        n = 2^9, rate 1/8, nn = 2^12, Q = 256
+    Z_n(x_j) != 0 at every one of the 4,096 encoded positions: True  (8 distinct values, closed form verified on 64 random j: True)
+    the nodes 7*w_nn^j are distinct: True
+    exact det(diag(Z_n) * Vandermonde) on 256 distinct columns != 0: consecutive True, maximally spread True, pseudo-random True
+
+B. THE CFS MASK CHANNEL, slot by slot
+--------------------------------------------------------------------------
+   `dim ker R` must be 1 over Fp2 (so `uncovered = 0`), and both
+   `sum_weights` and `eval_weights` must lie in the row span, at every
+   rho.  The elimination is over Fp on the REALIFIED coefficient space,
+   so an Fp2 kernel of dimension 1 shows as an Fp kernel of dimension 2.
+  rung_g: 23 slots, (N, d) pairs [(6, 3), (7, 3), (8, 2), (8, 3), (9, 2), (11, 2), (11, 3), (11, 4), (11, 5), (13, 2), (13, 4), (13, 5), (14, 4), (14, 5)]
+    rho uniform      dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho all-one      dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho all-equal    dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho base-field   dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho all-zero     dim_Fp2 ker R [1]   both functionals in the row span: True
+    negative control, slot 14 (N=13, d=5): d+1 values per round -> dim_Fp2 ker R 1; only d -> 2
+  m125: 23 slots, (N, d) pairs [(10, 3), (11, 2), (12, 2), (13, 3), (15, 2), (15, 3), (15, 4), (18, 4), (20, 2), (20, 4), (20, 5), (21, 4), (23, 4), (23, 5)]
+    rho uniform      dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho all-one      dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho all-equal    dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho base-field   dim_Fp2 ker R [1]   both functionals in the row span: True
+    rho all-zero     dim_Fp2 ker R [1]   both functionals in the row span: True
+    negative control, slot 14 (N=20, d=5): d+1 values per round -> dim_Fp2 ker R 1; only d -> 2

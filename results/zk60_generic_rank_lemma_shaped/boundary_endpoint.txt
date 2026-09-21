@@ -1,0 +1,61 @@
+THE NON-DATA BLOCK, PER COMMITMENT KIND, AT THE SHAPED COUNTS
+field: Goldilocks, Fp2 = Fp[U]/(U^2-7); exact ranks; 8 seeds each
+
+  case                                                     gens    nd      rank   rank|nd      k0
+  -----------------------------------------------------------------------------------------
+  ENDPOINT, rung-G: 4 data + 5 (pair, prox pair, SPARE)
+      honest                                                  4     5       [4]       [4]     [0]
+      proximity pair Fp-DEPENDENT (refused)                   4     5       [4]       [4]     [0]
+      cm = 0 (refused)                                        4     5       [4]       [2]     [2]
+      lambda = 0 (refused)                                    4     5       [2]       [2]     [0]
+      SPARE ROW REMOVED, proximity pair Fp-dependent          4     4       [4]       [3]     [1]
+      SPARE ROW REMOVED, honest                               4     4       [4]       [4]     [0]
+  ENDPOINT, 125M: 32 data + 5 (pair, prox pair, SPARE)
+      honest                                                  4     5       [4]       [4]     [0]
+      proximity pair Fp-DEPENDENT (refused)                   4     5       [4]       [4]     [0]
+      cm = 0 (refused)                                        4     5       [4]       [2]     [2]
+      lambda = 0 (refused)                                    4     5       [2]       [2]     [0]
+      SPARE ROW REMOVED, proximity pair Fp-dependent          4     4       [4]       [3]     [1]
+      SPARE ROW REMOVED, honest                               4     4       [4]       [4]     [0]
+
+  BOUNDARY, rung-G: 4 data + 2*2 site rows + 2 prox = 10 rows, ZERO slack
+      honest                                                  6     6       [6]       [6]     [0]
+      proximity pair Fp-DEPENDENT (refused)                   6     6       [6]       [5]     [1]
+      the two claims in ONE group (refused: group count)      4     6       [4]       [4]     [0]
+      cm = 0 on one site (refused)                            6     6       [6]       [4]     [2]
+      lambda = 0 on one group (refused)                       6     6       [4]       [4]     [0]
+      the two claims SHARING one pair (audit refuses)         6     6       [6]       [4]     [2]
+      ONE proximity ROW instead of a pair (ruling M-1)        6     5       [6]       [5]     [1]
+      a THIRD opening group appears (refused: count)          8     6       [8]       [6]     [2]
+  BOUNDARY, 125M: 32 data + 2*2 site rows + 2 prox = 38 rows, ZERO slack
+      honest                                                  6     6       [6]       [6]     [0]
+      proximity pair Fp-DEPENDENT (refused)                   6     6       [6]       [5]     [1]
+      the two claims in ONE group (refused: group count)      4     6       [4]       [4]     [0]
+      cm = 0 on one site (refused)                            6     6       [6]       [4]     [2]
+      lambda = 0 on one group (refused)                       6     6       [4]       [4]     [0]
+      the two claims SHARING one pair (audit refuses)         6     6       [6]       [4]     [2]
+      ONE proximity ROW instead of a pair (ruling M-1)        6     5       [6]       [5]     [1]
+      a THIRD opening group appears (refused: count)          8     6       [8]       [6]     [2]
+
+  A, rung-G: 122 claims in 36 groups, 377 data rows, 623 rows, slack 172
+      honest                                                 74   246      [74]      [74]     [0]
+      proximity pair Fp-DEPENDENT (refused)                  74   246      [74]      [74]     [0]
+      group sizes: [36, 14, 14, 11, 7, 6] … (27 singleton groups of 36)
+      cm = 0 on claim 0 (a SINGLETON group; refused)         74   246      [74]      [72]     [2]
+      cm = 0 on claim 40 (a 36-member group; refused)        74   246      [74]      [74]     [0]
+
+  H, rung-G: 53 claims in 9 groups, the LAST group's claim masked by the shared zero-sum pair (572,573)
+      honest                                                 20   108      [20]      [20]     [0]
+      proximity pair Fp-DEPENDENT (refused)                  20   108      [20]      [20]     [0]
+
+READING
+  * every honest case reaches rank 2(G+1) on its non-data rows, so k0 = 0;
+  * where the SLACK (non-data rows minus generators) is zero, a refusal that
+    the large commitments can absorb becomes load-bearing.  The BOUNDARY has
+    slack 0 at every shape, and its proximity refusal is therefore EXACTLY
+    NECESSARY: with an Fp-dependent proximity pair k0 rises.  On `A` and `H`,
+    with slack in the hundreds, the same perturbation leaves k0 at 0 — which
+    is what the toy's check found, and it is a fact about the slack, not
+    about the refusal;
+  * the endpoint's FIFTH (spare) row is what gives it slack 1: remove it and
+    the dependent proximity pair moves k0 there too.
