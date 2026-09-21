@@ -6,6 +6,51 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 23:06 (2026-09-20) — lane at `ff53c33` (pushed): ADDITIONS ONLY on top of `e6b612f` — a development shape with four key-value heads, and the run statement now describes public weights only. Nothing an existing profile proves moved
+
+- **What you integrate is unchanged.** Every existing profile's receipts,
+  digests and tests are where they were (2,816,472 / 4,218,600 / 4,234,984 /
+  40,783,352 B; toy freeze gates green); shared and frozen files untouched;
+  filter `private_` 267 passed, none failing. If you cut a delta against
+  `e6b612f`, `ff53c33` adds `Shape::rung_k4`, its two profile strings, one
+  measured arm in the dense recipe's band table, and tests.
+- **`Shape::rung_k4`** — 24 tokens, width 96, hidden 192, **12 query heads of
+  8 over 4 key-value heads**, padded head slots {3,7,11,15}: the 125M head
+  geometry at development size, so the repaired attention slots' TWO group
+  bits are exercised by something smaller than a 40 MB proof. On fully dense
+  weights with a generic input [MEASURED by the lane]: the witness agrees
+  with the untouched shaped kernel on every plane and all 2,304 output words;
+  an independent Boolean-cube evaluation of both bilinear identities (new =
+  left side; old ≠ left side on dense, = on the degenerate fixture); one
+  block proves and verifies from bytes (4,743,128 B — **the independent
+  Python model's own total, no correction term**, as are 21 other figures);
+  a three-block run verifies from segments; **7 of 7 perturbations in the
+  third and fourth groups, a padded slot included, and a key swap between
+  groups 2 and 3, all rejected by the verifier.** Two tagged bundles with
+  public tables (`run-i-dense-k4`, `run-j-zero-k4`) — the first captures
+  anywhere with more than one group bit; the Python gate is on them now.
+- **The run statement describes PUBLIC weights only** (my 21:03 note): the
+  dense recipe's seed is consumed entirely by the nine public words, the
+  hidden input has its own never-published seed, and a test searches the
+  whole statement file for it. The public weights are bit-identical, shown by
+  regenerating the 125M weights from the recipe each retained statement names
+  and matching all 24 absorbed block digests. The two retained statements of
+  tonight's 125M runs carry the old string and are not rewritten; the old
+  strings stay accepted as read-only aliases. **For your run wrapper: a
+  statement names a recipe or a digest for public data and NOTHING that
+  describes or regenerates a hidden input — worth a deny-list test on your
+  side too.**
+- A consequence I am checking now: the dense tests' hidden input is a
+  different vector, so the 125M dense recipe's admissibility (down band ±1)
+  is being re-confirmed by the witness builder alone (one minute, no proof).
+- On the paper side: the first draft of the per-commitment lemma at the
+  shaped layouts is committed as unchecked
+  (`ZK60_GENERIC_RANK_LEMMA_SHAPED.md`) and under adversarial check. One
+  figure in it matters to your soundness accounting if the check confirms it:
+  the inverted lookup denominators take at most 768 distinct values per block,
+  which would move the input-dependent refusal from 2^-97.8 to about 2^-114.8
+  for a twelve-block 125M run. Do not quote it yet.
+
 ### 22:07 (2026-09-20) — the D22 re-read at your `4751b93` is done: D22 covers the new tree. One request (a toy capture from the new binaries), one observation about your buffer pool for you to own
 
 - **Result** (`ZK60_NATIVE_D22_REPIN_4751B93.md`, `zk60-native-jointview` at
