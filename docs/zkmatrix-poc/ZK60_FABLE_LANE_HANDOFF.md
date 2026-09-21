@@ -6,6 +6,61 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 10:00 (2026-09-21) — lane at `309d238` (pushed): one 125M block proves in 17.40 s instead of 27.71 s with the same bytes — under independent review; what is left is 79% yours, with measured attribution
+
+- **Result [MEASURED, one run each, shared box; I re-read the logs].** One
+  block at the 125M shape, dense weights, generic hidden input: **prove 27.71 →
+  17.40 s, verify 1.28 → 1.15 s, receipt 40,783,352 B in both, high-water mark
+  10,232 → 10,156 MiB.** Filter `private_`: 319 passed / 0 failed / 12 ignored
+  (309 + ten old-against-new equality gates). **The diff is
+  `private_block.rs`, `private_block/{argument,protocol,timing}.rs` and a new
+  test file — nothing of yours, nothing shared** (`git diff --stat 79f0726`
+  over every forbidden path prints nothing; I checked).
+- **What changed, all lane-side:** the LogUp helper inverses come from a
+  256-entry table built once per proof (4.06 → 1.08 s; values outside a byte —
+  only a tampered witness — take the old path; the refusal is preserved value
+  by value); the per-slot tables are built in parallel and cheaper (6.01 →
+  0.59 s over the 23 slots); the claimed sums, the looked columns and the byte
+  histogram run in parallel. No line draws from a generator, reorders an
+  absorb, or changes what is sent. The controls did not move: your masked
+  sumcheck 6.91 → 6.59 s, the two commitments 3.08 → 3.07 s and 3.50 → 3.43 s.
+- **No deterministic digest pin was added, deliberately** (finding S28-F2): a
+  seeded generator on the proving path would break the accepted toy
+  statement's condition 6, which a test enforces. "Same bytes" therefore rests
+  on the equality gates, the size pins and honest proofs verifying at five
+  shapes — so **an independent reviewer is attacking it now** on the review
+  branch (differential tests against the code at `79f0726`, thread-count
+  independence, draw and absorb order, and receipts written by the OLD prover
+  checked by the NEW verifier on the twelve-block dense 125M run). Treat
+  17.40 s as a measurement of code under review until I write again.
+- **A finding that is good news if the reviewer confirms it (S28-F1):** the
+  three table helpers invert all 256 denominators of each public table on
+  every attempt, so WHETHER an attempt is refused for a zero LogUp denominator
+  is a function of the public challenges and public tables alone; the hidden
+  input only decides which of two lines returns the (same) string first. I
+  will rule after the review; the toy statement prices that refusal as if it
+  were input-dependent, which is conservative either way.
+- **What is left, and whose it is [MEASURED, same run]:** of 17.40 s,
+  **13.76 s (79%) is in shared files** — `zkp-core/src/sumcheck.rs` `prove`'s
+  round loop via `zk::masked_prove` 6.59 s (37.9%); `pcs::commit_zk_owned` for
+  `H` 3.43 s and `A` 3.07 s (37.3% together); openings 0.67 s. The lane's
+  ledger (stage 28, "Integrator requests") has the detail, including what the
+  round loop ALREADY does so nobody re-suggests it. In the order I would take
+  them: (R2) the two commitments are the GPU's — and the tagged hash rule
+  declines the accelerator today, so keyed variants of the two CUDA BLAKE3
+  kernels (same compression function, key words in place of the IV, the
+  keyed-hash flag) gate any GPU number on this line; (R1a) a batched `poly`
+  interface in the round loop instead of one boxed call per point per
+  evaluation; (R1c) the constant 1,024 chunk at every cube from 2^10 to 2^23;
+  (R1b) a base-field first round is a JOINT change (lane tables + your loop) —
+  I will measure how many of a big slot's tables are base-field-valued before
+  asking for it. All four keep every byte.
+- **Pins:** capture bundles written before this stage (including the two 125M
+  ones from 09:04) pin the OLD text of `protocol.rs`, `argument.rs` and
+  `timing.rs` at `f4697f9`; the Python gate's round 9 reads them against that
+  commit. Captures taken after this stage pin the new text and need the diff
+  read first — mine to do.
+
 ### 09:04 (2026-09-21) — two 125M run captures exist (lane `79f0726`, pushed); the Python gate is reading them now; a lane-local speed stage has started — nothing of yours is touched
 
 - **Captures [MEASURED, one run each, shared box].** The stage-27 test-only
