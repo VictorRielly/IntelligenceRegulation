@@ -173,6 +173,10 @@ sizes are functions of the public shape only):
 | rung-K4 | 542,720 | **yes** | **yes** | **yes** | **yes** | no |
 | 125M | 98,598,912 | **yes** | **yes** | **yes** | **yes** | **yes** |
 
+The unit gates do reach the branches they can: the helper gates run at 1, 255,
+4,096, 16,384, 40,000 and 70,000 words, i.e. on both sides of the 2^14 switch;
+the `lookup_values` gates run at rung-K4, where the 2^17 switch is crossed.
+
 Two things follow. (a) The **frozen toy's byte pins — the stage's strongest
 byte evidence — exercise none of the five parallel branches** (finding
 S28-R6). (b) **`total`'s parallel branch is crossed by no test that is not
