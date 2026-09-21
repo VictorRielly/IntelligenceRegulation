@@ -9537,3 +9537,37 @@ other 54 are the three or so challenge-weighted `eq` tables per slot and the
   `zkp-core::sumcheck::prove`'s `cur`/`dif` pair and the slot closures'
   `&[Fp2]` signature, both in shared files. Neither side can take it alone.
 
+---
+
+## Stage 30 — the UNPADDED branch of the pad rule, in the ordinary filter (2026-09-21, 11:4x–)
+
+**THE GAP, IN ONE SENTENCE.** Ruling P-1's pad-zero term is drawn per HOST
+SLOT and only when the domain that slot hosts actually pads: `argument.rs`
+draws `mu(... + n_pad)` and a `zeta` **iff `pad_on`**, and `B::supp` returns
+`None` — no public support table, no gate — when `!sh.pads(dom)`. Every
+development shape the ordinary filter proves at (`rung`, `rung_g`,
+`rung_k4`) pads **all nine** domains, so the `pad_on == false` arm of a
+shape that CARRIES the rule is reached by the 125M shape alone, whose proofs
+are `#[ignore]`d 10 GiB tests. The independent Python gate had this branch
+wrong in its own port until 2026-09-21 and no development shape could show
+it (its finding **M-F1**). Under the security owner's standing rule after
+S19-F1 — a branch only an ignored heavy test reaches is a branch nobody
+tests — this stage puts BOTH arms of the rule inside one small shape in the
+ordinary filter.
+
+| task | what | state |
+|---|---|---|
+| 1 | the shape: T, Kv and F unpadded, Ht / L / D / Q / S / Tab padded, `lkv = 2` | **OPEN** |
+| 2 | the tests in the ordinary filter (gap census, honest dense, all-zero, draw census, tampers, a run) | **OPEN** |
+| 3 | what is STILL reached only by ignored heavy tests after this stage (the S19-F1 lesson) | **OPEN** |
+| 4 | two capture bundles of the new shape for the Python gate's M-F1 regression | **OPEN** |
+| 5 | the gates: the whole `private_` filter, every older profile's pins, the forbidden-files proof | **OPEN** |
+
+**The rules this stage works under** are the lane's: one writer, the build
+recipe above, no 125M run (the heavy lock carries the stage-29 census), new
+profiles for new shapes (Codex's condition and D17), each failure reproduced
+as a failing test first, the toy byte-frozen, and no "proves and verifies"
+without a GENERIC honest witness — dense public weights, a non-constant
+hidden input, key-value groups that differ — checked against the
+independent reference kernel.
+
