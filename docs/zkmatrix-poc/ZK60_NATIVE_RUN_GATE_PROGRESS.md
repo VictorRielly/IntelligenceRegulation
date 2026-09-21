@@ -497,3 +497,67 @@ reports, as `ruling_R3` in the records.
    role and showing the roles' stream positions pairwise disjoint — is
    asked of the Rust lane (gap G-R4), not of this gate.
 5. Nothing in this round moves D8/D11 or ruling M-8's decision.
+
+---
+
+# Round 5 — TWO key-value group bits (rung-K4), and the toy gates' path pins
+
+**Opened 2026-09-20 23:07 PDT** on the same lane, same sole writer.
+Python only. Nothing here is a privacy acceptance and no statement here
+establishes a privacy property.
+
+## R5.0 Why there is a round 5
+
+Two items, unrelated to each other except that both close a gap the
+previous night's work named in its own NEXT list.
+
+1. **Item A — a shape with `lkv > 1`.** R4.5 item 1: every group figure
+   this gate has ever reported was taken at `kv_heads = 2`, i.e. ONE
+   key-value group bit, where the public factor `eq(r_g, ·)` carries a
+   one-element point and the sum over groups has two terms. The Rust lane
+   has now written a development shape **rung-K4** — 24 tokens, width 96,
+   hidden 192, **12 query heads of 8 over 4 key-value heads**, padded head
+   slots {3, 7, 11, 15}, which is the 125M model's own head geometry — and
+   two tagged three-block bundles at it. The port claims to be
+   shape-driven. Round 5 is the first time that claim is tested against a
+   shape it was not written at.
+2. **Item B — the toy gates' source pins widened to the whole path.**
+   `ZK60_NATIVE_D22_REPIN_4751B93.md` §7 item 1 found that
+   `hashline/src/pcs.rs`, `hashline/src/private_block.rs` and the
+   hashline-side `merkle`, `transcript`, `field`, `ntt` files are on the
+   toy profile's path and pinned by NOTHING, so condition 7 of the
+   accepted statement ("a change to any pinned Rust file suspends step 3")
+   was narrower in practice than in words. The security owner ruled at
+   22:06 that the pin set is extended to every file on the path.
+
+## R5.1 Input (READ-ONLY, not copied here)
+
+| bundle / tree | what |
+|---|---|
+| `…/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4` | rung-K4, fully dense weights, generic hidden input, all four key-value groups carrying different data |
+| `…/run-j-zero-k4` | rung-K4, the all-zero hidden input |
+| the main repository at commit `4751b93` | Item B's Rust blobs, read with `git show 4751b93:<path>`, never the working tree |
+
+## R5.2 Status
+
+| # | item | state |
+|---|---|---|
+| X0 | ledger skeleton, round 5 opened | done |
+| X1 | Item A — the K4 geometry and the two-group factor derived; any one-group-bit assumption in the tools found and named | pending |
+| X2 | Item A — the whole-run replay and the keyed hash layer under the K4 profile's own keys, with the cross-profile key controls | pending |
+| X3 | Item A — the 23-slot terminal identity on both bundles | pending |
+| X4 | Item A — every per-commitment figure, next to rung-G's, in one table | pending |
+| X5 | Item A — round 4's controls re-aimed at the third and fourth group | pending |
+| X6 | Item A — evidence, report section, channel count recounted | pending |
+| X7 | Item B — the path list established from `4751b93`'s blobs, file by file | pending |
+| X8 | Item B — pins added, the path-pin table, the gate's refusal by name | pending |
+| X9 | Item B — the toy records refreshed deliberately, every figure of record shown unchanged, the guard updated | pending |
+| X10 | the whole native suite | pending |
+
+## R5.3 Commands and logs (round 5)
+
+*(filled as each item lands)*
+
+## R5.4 Results
+
+*(filled as each item lands)*
