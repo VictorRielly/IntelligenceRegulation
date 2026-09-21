@@ -9097,3 +9097,48 @@ two-prover split would have to pay twice or divide (the P5 question).
 **R3 — nothing else in a shared file is above 1.5% at this shape.**
 `zk::mask_commit` 0.022 s, `zk::mask_open` 0.005 s, `pcs::open_zk` (A, H and
 the two endpoints) 0.698 s total.
+
+### Task 4 — the gates, the commits, and what a reader should check first
+
+**The commits of stage 28**, in order:
+
+| commit | what |
+|---|---|
+| `d4d1b19` | the ledger skeleton |
+| `d2c2733` | **task 1**: the LogUp helper inverses by table (256 denominators once per proof), the refusal preserved value by value, six equality gates, finding S28-F1 |
+| `a9f2211` | **task 2**: `timing::slot_step` (the attribution instrument), the slot table build in parallel and cheaper (five changes), the claimed sum in parallel, the helper columns written pair by pair, the looked columns and the byte histogram in parallel; four more equality gates |
+| `938750a` | the ledger: the pins, finding S28-F2, task 0's baseline, task 1, the attribution, the integrator requests |
+| `1952a1e` | **task 3**: the 125M re-measurement (27.71 -> 17.40 s) |
+| this one | task 4: the gates, and the closing statement |
+
+**The gates at the final tip.**
+
+| gate | result |
+|---|---|
+| `--lib private_` (the whole filter) | **319 passed / 0 failed / 12 ignored, 416.64 s, exit 0** (`q28-gate2.log`); the stage's baseline was 309 passed / 0 failed / 12 ignored and this stage adds **ten** tests, all in `s28_tests.rs` |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `tests::the_toy_receipt_is_the_counted_length` family (the 2,816,472 B pins in `tests.rs`, `zero_witness_tests.rs`, `hash_domain_tests.rs`, `review_tests.rs`, `grow_tests.rs`), `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — **all in the pass list** |
+| the rung, rung-G and rung-K4 receipt lengths | in the pass list (`rung_tests`, `dense_tests`, `k4_tests`, dense AND all-zero) |
+| the 125M receipt length | `40,783,352 B`, asserted inside the `#[ignore]`d run this stage executed three times |
+| the TEN new equality gates | `q28-s28-equality3.log` and the filter above |
+| the Python suite | **not run, and it reads nothing this stage touched.** The manifests that pin Rust sources (`zk60_round22_captures.json`, `zk60_round19_validation.json`, finding S17-F1) pin `zk.rs`, `pcs.rs`, `transcript.rs`, `private_seam.rs`, `sumcheck.rs` and the five `zk_ffn_*` files — not one of them is in this stage's diff |
+| the forbidden-files proof | `git diff --stat 79f0726 -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu private-block-kernel private-model-kernel private-block-kernel-shaped zkvm-block scripts tests` prints **nothing**. The whole diff is four lane sources, one new test file, this ledger and the evidence |
+
+**One consequence for the integrator, not a failure.** `run_capture`'s
+`source_pins()` hashes `protocol.rs`, `argument.rs` and `timing.rs` among
+the files a bundle pins, so every capture bundle taken BEFORE this stage
+records their old digests. Nothing re-verifies those pins against the working
+tree today; a capture taken after this stage simply pins the new text. It is
+noted here so that a later reader does not read the difference as tampering.
+
+**An all-zero-input control at 125M** (`q28-m125-final-zero.log`,
+`HL_PB_INPUT=zero`, the degenerate witness of the privacy case) was run with
+the fourth of this stage's five 125M budget: it was launched chained behind the gate and is ENQUEUED on the heavy lock behind another lane's Python run-gate jobs (the kernel releases the lock, so it self-starts). Its evidence is `q28-m125-final-zero.log` with the exit code in `q28-m125-final-zero.done`: a later session reads them and, if the figures matter to it, adds them here. The pre-repair all-zero run at the same shape (`m125-one-block-zero.log`, tame weights, 2026-09-20 19:28) proved in 26.98 s with a 9.99 GiB high-water mark, so that is the number this control is to be read against. Nothing in this stage's changes can depend on the hidden input: the table path is chosen by a value's RANGE, never by its value, and the parallel thresholds are functions of the public shape.
+
+**What a reader should check first, in one line each.** (1) The receipt
+length is the same number before and after, at every shape, and every honest
+proof still verifies FROM BYTES. (2) Every change has an old-against-new
+equality test in `s28_tests.rs` whose oracle is not the code under test.
+(3) Finding S28-F1 is a statement about the EXISTING refusal, not a change to
+it, and it is the security owner's to rule on. (4) Finding S28-F2 says why
+there is no deterministic receipt digest to pin on this path and what it
+would cost to build one.
