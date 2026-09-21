@@ -1,0 +1,120 @@
+==============================================================================
+1. The Goldilocks sampler, exactly
+==============================================================================
+p        = 18446744069414584321  = 2^64 - 2^32 + 1
+N = 2^128
+k = N//p = 18446744078004518911
+r = N-kp = 18446744065119617025
+p - r    = 4294967296  = 2^32   <- why TV is small
+
+TV(real, uniform)            = 18446744065119617025/1461501636990620551361974531767172749817708281856
+                             = 2^-96.0000000003     [COMPUTED]
+Pr[rejection region U >= kp] = 18446744065119617025/340282366920938463463374607431768211456
+                             = 2^-64.0000000007     [COMPUTED]
+ratio  Pr[rej] / TV          = 2^32.000000
+
+Smallest bad probability over ALL couplings with an exactly
+uniform good event           = 18446744065119617025/340282366920938463463374607431768211456
+                             = 2^-64.0000000007     [PROVED below]
+  -> the rejection-region coupling is OPTIMAL under that constraint,
+     and 2^-96 is NOT attainable with a conditionally uniform good event.
+
+==============================================================================
+2. Why the maximal coupling fails (the check's B-4, reproduced)
+==============================================================================
+Pr[agreement] = 1 - TV; 1 - Pr[agreement] = 2^-96.000000
+conditional law given agreement takes 2 distinct values:
+    value 79228162514264337593543950336/1461501636990620551361974531748726005752588664831   on 18,446,744,065,119,617,025 field points
+    value 340282366920938463444927863366648594431/6277101733925179126845168871845691884372076182789450366976   on 4,294,967,296 field points
+uniform would be 1/p = 1/18446744069414584321
+  -> NOT uniform. Hypothesis (H5) of the fixed-challenge theorem
+     ('alpha uniform') does not survive conditioning on this good event.
+
+==============================================================================
+3. The lower bound, checked exhaustively on small analogues
+==============================================================================
+    p       N                 TV            Pr[rej]    brute-force min bad
+    5      16               1/20               1/16                   1/16
+    7      32               3/56                1/8                    1/8
+   11      64              9/352               9/64                   9/64
+   13     128             11/832             11/128                 11/128
+    5    1024             1/1280              1/256                  1/256
+   17     256              1/272              1/256                  1/256
+  -> every instance: the exhaustive minimum equals Pr[rejection region],
+     and is strictly larger than TV whenever p does not divide N.
+
+==============================================================================
+4. What that does to the project's figures
+==============================================================================
+artifact                         fp() draws     union x TV  union x Pr[rej]      gap
+toy block (D9, 327,052)             327,052       2^-77.68         2^-45.68 32.0 bits
+rung-G run, L=3 (H-6)             2,093,340       2^-75.00         2^-43.00 32.0 bits
+rung-K4 run, L=3 (H-6)            2,283,876       2^-74.88         2^-42.88 32.0 bits
+125M block (H-6)                  9,029,804       2^-72.89         2^-40.89 32.0 bits
+125M run, L=12 (H-6)            109,728,784       2^-69.29         2^-37.29 32.0 bits
+
+Reading:
+  'union x TV'      is the accepted Route-A hop G_3->G_4 (a plain
+                    distance hop; D22's 2^-77.7 and the run's 2^-69.3).
+  'union x Pr[rej]' is what the sampler would cost IN EVENT FORM --
+                    a flag off which the blinding is EXACTLY uniform
+                    (K-R3's owed sentence as first drafted).
+
+  The two differ by 32.0 bits.  The independent check's B-4 asserted
+  they are the same number.  Ruling K-R4a (2026-09-21 02:42)
+  withdraws that and keeps the sampler as a DISTANCE hop, which is
+  the 'union x TV' column: D22's 2^-77.7 and the run's 2^-69.3 are
+  unmoved, and B_samp leaves the flag.  This script agrees, and
+  section 6 is the part the ruling states in one line.
+
+==============================================================================
+5. Where the code's own comment sits
+==============================================================================
+zkp-core/src/rng.rs:72 (at 8c5922b) reads:
+    "A uniform base-field element (a 128-bit draw reduced mod p: bias 2^-64)."
+  2^-64 is Pr[rejection region] = 2^-64.0000, not the TV distance
+  2^-96.0000 the memos quote.  The comment is wrong for the number
+  the project publishes and right for the number Route B needs.
+
+==============================================================================
+6. The repair: take the sampler OUT of the flag and pay it as a hop
+==============================================================================
+Exact end-to-end model.  p=5, N=16 (so TV=1/20, Pr[rej]=1/16), a
+2-round protocol, two biased draws, challenges from a schedule, a
+witness-dependent refusal in round 2.  Three bounds compared against
+the TRUE adaptive distance, by exhaustive enumeration in exact
+rationals over every challenge schedule.
+
+  instance p=5, N=16: TV=1/20, Pr[rej]=1/16
+  schedules enumerated               : 3125
+  witness pairs per schedule         : 10
+  TRUE worst adaptive distance (real): 73/256  = 0.285156
+  worst adaptive distance (ideal)    : 1/5  = 0.200000
+    (nonzero: the witness-dependent refusal, priced separately)
+  bound A, sampler INSIDE the flag   : n*Pr[rej] + ideal = 13/40 = 0.325000
+  bound B, sampler as a PRIOR hop    : 2n*TV   + ideal = 2/5 = 0.400000
+  both bounds hold.  Smaller here: FLAG.
+
+  The same model at p=5, N=1024, where the ratio resembles Goldilocks:
+  instance p=5, N=1024: TV=1/1280, Pr[rej]=1/256
+  schedules enumerated               : 3125
+  witness pairs per schedule         : 10
+  TRUE worst adaptive distance (real): 105677/524288  = 0.201563
+  worst adaptive distance (ideal)    : 1/5  = 0.200000
+    (nonzero: the witness-dependent refusal, priced separately)
+  bound A, sampler INSIDE the flag   : n*Pr[rej] + ideal = 133/640 = 0.207813
+  bound B, sampler as a PRIOR hop    : 2n*TV   + ideal = 13/64 = 0.203125
+  both bounds hold.  Smaller here: PRIOR HOP.
+
+  THE CRITERION, in closed form:
+    prior hop beats flag   <=>   2*TV < Pr[rej]
+                           <=>   2*r(p-r)/(pN) < r/N
+                           <=>   2(p-r) < p.
+    Goldilocks: p - r = 2^32, p = 2^64 - 2^32 + 1, so 2(p-r) is
+    2^31 times smaller than p: the prior hop wins by
+    log2(Pr[rej]/(2 TV)) = 31.000 bits per draw.
+    At p=5, N=16 the field is so small that 2(p-r) > p and the flag
+    route is the better of the two -- printed so nobody reads the
+    criterion as universal.
+
+ALL ASSERTIONS PASSED.

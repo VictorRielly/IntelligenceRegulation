@@ -1,0 +1,339 @@
+############################################################################################
+# PART B -- the complete query-class table, computed
+############################################################################################
+
+============================================================================================
+toy   (rule: legacy, endpoint: frozen seam)
+============================================================================================
+  F_U (the single unkeyed function): 95 input kinds, 86 distinct lengths, 6 length clashes (2 of them one kind at two geometries)
+      !!      64 B  [a fixed literal on ONE side only -- probabilistic]
+            Merkle inner node
+            absorb `log-cols` (8 B data)
+            salted leaf
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+      !!     151 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `pb-term` (6 terminals)
+            internal boundary spec digest (boundary.rs:211)
+      !!     171 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `expected-IO` (112 B data)
+            absorb `parameters` (block line)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+
+============================================================================================
+rung   (rule: legacy, endpoint: frozen seam)
+============================================================================================
+  F_U (the single unkeyed function): 95 input kinds, 89 distinct lengths, 3 length clashes (0 of them one kind at two geometries)
+      !!      64 B  [a fixed literal on ONE side only -- probabilistic]
+            Merkle inner node
+            absorb `log-cols` (8 B data)
+            salted leaf
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+      !!     151 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `pb-term` (6 terminals)
+            internal boundary spec digest (boundary.rs:211)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+
+============================================================================================
+rung-G   (rule: tagged, endpoint: generalised)
+============================================================================================
+  F_T (transcript key): 84 input kinds, 79 distinct lengths, 3 length clashes (2 of them one kind at two geometries)
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+  F_C (column key): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_L (leaf key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_N (node key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_U (still unkeyed): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    salted leaf  [F_L (leaf key)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~     151 B: absorb `pb-term` (6 terminals)  [F_T (transcript key)]
+                    internal boundary spec digest (boundary.rs:211)  [F_U (still unkeyed)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      68 B: absorb `pb-run-stage` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `block prover` (46 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: Merkle inner node  [F_N (node key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+
+============================================================================================
+rung-K4   (rule: tagged, endpoint: generalised)
+============================================================================================
+  F_T (transcript key): 83 input kinds, 78 distinct lengths, 3 length clashes (2 of them one kind at two geometries)
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+  F_C (column key): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_L (leaf key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_N (node key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_U (still unkeyed): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    salted leaf  [F_L (leaf key)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~     151 B: absorb `pb-term` (6 terminals)  [F_T (transcript key)]
+                    internal boundary spec digest (boundary.rs:211)  [F_U (still unkeyed)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: Merkle inner node  [F_N (node key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+
+============================================================================================
+125M   (rule: tagged, endpoint: generalised)
+============================================================================================
+  F_T (transcript key): 84 input kinds, 78 distinct lengths, 4 length clashes (2 of them one kind at two geometries)
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+      !!     215 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `parameters` (block line)
+            absorb `pb-term` (10 terminals)
+  F_C (column key): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_L (leaf key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_N (node key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_U (still unkeyed): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    salted leaf  [F_L (leaf key)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~     151 B: absorb `pb-term` (6 terminals)  [F_T (transcript key)]
+                    internal boundary spec digest (boundary.rs:211)  [F_U (still unkeyed)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: Merkle inner node  [F_N (node key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+
+============================================================================================
+run rung-G L=3   (rule: tagged, endpoint: generalised)
+============================================================================================
+  F_T (transcript key): 84 input kinds, 79 distinct lengths, 3 length clashes (2 of them one kind at two geometries)
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+  F_C (column key): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_L (leaf key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_N (node key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_U (still unkeyed): 6 input kinds, 6 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    salted leaf  [F_L (leaf key)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~     151 B: absorb `pb-term` (6 terminals)  [F_T (transcript key)]
+                    internal boundary spec digest (boundary.rs:211)  [F_U (still unkeyed)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      68 B: absorb `pb-run-stage` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `block prover` (46 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: Merkle inner node  [F_N (node key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+
+============================================================================================
+run rung-K4 L=3   (rule: tagged, endpoint: generalised)
+============================================================================================
+  F_T (transcript key): 83 input kinds, 78 distinct lengths, 3 length clashes (2 of them one kind at two geometries)
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+  F_C (column key): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_L (leaf key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_N (node key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_U (still unkeyed): 6 input kinds, 6 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    salted leaf  [F_L (leaf key)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~     151 B: absorb `pb-term` (6 terminals)  [F_T (transcript key)]
+                    internal boundary spec digest (boundary.rs:211)  [F_U (still unkeyed)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: Merkle inner node  [F_N (node key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+
+============================================================================================
+run 125M L=12   (rule: tagged, endpoint: generalised)
+============================================================================================
+  F_T (transcript key): 84 input kinds, 78 distinct lengths, 4 length clashes (2 of them one kind at two geometries)
+      !!      81 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `A` (32 B data)
+            absorb `B` (32 B data)
+            absorb `H` (32 B data)
+            absorb `M` (32 B data)
+      !!     215 B  [fixed literals at fixed offsets, in BOTH -- deterministic]
+            absorb `parameters` (block line)
+            absorb `pb-term` (10 terminals)
+  F_C (column key): 5 input kinds, 5 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_L (leaf key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_N (node key): 1 input kinds, 1 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  F_U (still unkeyed): 6 input kinds, 6 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  keyed under the secret OS entropy (V-2): 2 input kinds, 2 distinct lengths, 0 length clashes (0 of them one kind at two geometries)
+  cross-family coincidences (separated by mode/key, never by length):
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    salted leaf  [F_L (leaf key)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~     151 B: absorb `pb-term` (6 terminals)  [F_T (transcript key)]
+                    internal boundary spec digest (boundary.rs:211)  [F_U (still unkeyed)]
+      ~~      64 B: absorb `log-cols` (8 B data)  [F_T (transcript key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    Merkle inner node  [F_N (node key)]
+      ~~      64 B: salted leaf  [F_L (leaf key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+      ~~      64 B: Merkle inner node  [F_N (node key)]
+                    generator SEED derivation, domain `generalised endpoint` (42 B)  [keyed under the secret OS entropy (V-2)]
+
+############################################################################################
+# EVERY PAIR SEPARATED BY NOTHING STRUCTURAL (same function, same
+# length), collected
+############################################################################################
+  [toy             ] F_U (the single unkeyed function)  at 64 B:
+        - Merkle inner node
+        - absorb `log-cols` (8 B data)
+        - salted leaf
+  [toy             ] F_U (the single unkeyed function)  at 81 B:
+        - absorb `A` (32 B data)
+        - absorb `B` (32 B data)
+        - absorb `H` (32 B data)
+        - absorb `M` (32 B data)
+  [toy             ] F_U (the single unkeyed function)  at 151 B:
+        - absorb `pb-term` (6 terminals)
+        - internal boundary spec digest (boundary.rs:211)
+  [toy             ] F_U (the single unkeyed function)  at 171 B:
+        - absorb `expected-IO` (112 B data)
+        - absorb `parameters` (block line)
+  [rung-G          ] F_T (transcript key)  at 81 B:
+        - absorb `A` (32 B data)
+        - absorb `B` (32 B data)
+        - absorb `H` (32 B data)
+        - absorb `M` (32 B data)
+  [125M            ] F_T (transcript key)  at 215 B:
+        - absorb `parameters` (block line)
+        - absorb `pb-term` (10 terminals)
+
+############################################################################################
+# DANGEROUS ROW COUNTS: a commitment with this many rows has a
+# column digest of the same length as the named input
+############################################################################################
+
+--- toy (rule legacy); real row counts: [455, 384, 50, 7]
+    GUARDED by hash_domain.rs (imposed only under the legacy rule): [5, 8, 11, 12, 13, 15, 17, 19, 1031]
+    DANGEROUS AND IN NO GUARD: [16]
+        rows=16   -> 128 B = frozen-seam spec digest (private_seam.rs:116)
+    any real commitment on a dangerous count? no
+
+--- rung (rule legacy); real row counts: [623, 576, 50, 21]
+    GUARDED by hash_domain.rs (imposed only under the legacy rule): [5, 7, 8, 11, 12, 13, 15, 17, 19, 1031, 2567]
+    DANGEROUS AND IN NO GUARD: [16]
+        rows=16   -> 128 B = frozen-seam spec digest (private_seam.rs:116)
+    any real commitment on a dangerous count? no
+
+--- rung-G (rule tagged); real row counts: [623, 576, 50, 9, 10]
+    GUARDED by hash_domain.rs (imposed only under the legacy rule): [5, 8, 11, 12, 13, 15, 17, 19, 2567]
+    DANGEROUS AND IN NO GUARD: [16]
+        rows=16   -> 128 B = frozen-seam spec digest (private_seam.rs:116)
+    any real commitment on a dangerous count? no
+
+--- rung-K4 (rule tagged); real row counts: [727, 720, 50, 9, 10]
+    GUARDED by hash_domain.rs (imposed only under the legacy rule): [5, 8, 11, 12, 13, 15, 17, 19, 2567]
+    DANGEROUS AND IN NO GUARD: [16]
+        rows=16   -> 128 B = frozen-seam spec digest (private_seam.rs:116)
+    any real commitment on a dangerous count? no
+
+--- 125M (rule tagged); real row counts: [5681, 7120, 50, 37, 38]
+    GUARDED by hash_domain.rs (imposed only under the legacy rule): [5, 6, 8, 11, 12, 13, 15, 17, 19, 33287]
+    DANGEROUS AND IN NO GUARD: [16]
+        rows=16   -> 128 B = frozen-seam spec digest (private_seam.rs:116)
+    any real commitment on a dangerous count? no
+
+############################################################################################
+# THE 47-BYTE MARGIN (ruling H-8) AND THE 40-BYTE CLASS (claim N5)
+############################################################################################
+  squeeze length = 47; a constructor is 12 + |domain|, so |domain| = 35 is the dangerous one.
+    block toy      |domain| = 39  constructor =  51
+    block rung     |domain| = 44  constructor =  56
+    block rung-G   |domain| = 46  constructor =  58
+    block rung-K4  |domain| = 47  constructor =  59
+    block 125M     |domain| = 36  constructor =  48
+    run rung-G L=3   |domain| = 44  constructor =  56
+    run rung-K4 L=3  |domain| = 45  constructor =  57
+    run 125M L=12    |domain| = 34  constructor =  46
+  nearest block profile to the dangerous 35: 1 byte(s) away
+  nearest run   profile to the dangerous 35: 1 byte(s) away  <- the 125M run profile, ruling H-8's margin
+
+  refill length = 40.  Which other inputs are 40 bytes?
+    a 5-row commitment's column digest (8 x 5 = 40)
+    a transcript constructor on a 28-byte domain (12 + 28 = 40): private_seam.rs:26 (b"experimental-private-seam/v1") and public_block_receipt.rs:20 (b"zk60-public-block-receipt-v1"), both UNKEYED, both off the block path
+    the run public statement 29 + 32L: never 40 (29 + 32L == 40 has no integer solution)  [COMPUTED]
+
+############################################################################################
+# THE `pb-term` / BOUNDARY-SPEC COINCIDENCE AT 151 BYTES
+############################################################################################
+  absorb `pb-term` with k terminals is 48 + 7 + 16k = 55 + 16k B.
+  55 + 16k = 151  <=>  k = 6.  The internal boundary spec digest
+  (boundary.rs:211) is 151 B, UNKEYED at every rule.
+  At a TAGGED profile the absorb is in F_T and the digest in F_U:
+  mode/key separated.  At a LEGACY profile both would be F_U -- and
+  a legacy profile has no boundary, so the pair is CROSS-PROFILE: a
+  legacy toy proof's pb-term(6) and a tagged run's boundary digest
+  are the same unkeyed function's queries on one machine.
+  [UNVERIFIED whether any slot's pb-term really carries 6 terminals:
+   the range 1..56 used here is an over-approximation of what
+   hash_domain.rs:172-182 builds.  Work-list item W-6.]
+
+  Which absorb lengths can a COLUMN digest (8*rows) ever hit?
+    pb-term  = 55 + 16k == 7 mod 16, a column digest is 0 or 8 mod
+    16, so NEVER.  [PROVED]
+    (checked for k = 1..56: none is a multiple of 8)  [COMPUTED]
+
+ALL ASSERTIONS PASSED.

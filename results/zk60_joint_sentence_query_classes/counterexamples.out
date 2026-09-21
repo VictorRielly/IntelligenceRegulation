@@ -1,0 +1,62 @@
+==============================================================================
+COUNTEREXAMPLE (i) -- a SHARED blinding row
+==============================================================================
+Two claim sites, three published coordinates each.
+
+ seed  disclosed dim (independent)   disclosed dim (shared)   marginals uniform?
+    1                            0                        3     yes, each site 0
+    2                            0                        3     yes, each site 0
+    3                            0                        3     yes, each site 0
+    5                            0                        3     yes, each site 0
+    8                            0                        3     yes, each site 0
+   13                            0                        3     yes, each site 0
+
+  Reading: with a shared row each site's MARGINAL view is still
+  perfectly blinded (disclosed 0 on its own), and the JOINT view
+  discloses VIEW = 3 coordinates.  That is the project's known trap.
+
+  What determines the witness, explicitly:
+    V_0 - V_1 = (M_0 - M_1).w  = [23, 86, 87]   (blinding cancels)
+    the other witness gives      [83, 73, 62]   -- separated
+  -> the difference of the two sites' views is a function of w with
+     no blinding left in it, whatever beta is.  [COMPUTED]
+
+==============================================================================
+COUNTEREXAMPLE (ii) -- ruling R-3: two DISTINCT rows, coinciding
+VALUES
+==============================================================================
+The maps are the INDEPENDENT ones (two distinct symbols, disjoint
+stream positions).  Only the VALUES drawn happen to coincide.
+
+  seed 1: gate's disclosed dimension = 0  (the honest answer); realised view leaks the witness functional: True; separated from w': True
+  seed 2: gate's disclosed dimension = 0  (the honest answer); realised view leaks the witness functional: True; separated from w': True
+  seed 3: gate's disclosed dimension = 0  (the honest answer); realised view leaks the witness functional: True; separated from w': True
+  seed 5: gate's disclosed dimension = 0  (the honest answer); realised view leaks the witness functional: True; separated from w': True
+  seed 8: gate's disclosed dimension = 0  (the honest answer); realised view leaks the witness functional: True; separated from w': True
+  seed 13: gate's disclosed dimension = 0  (the honest answer); realised view leaks the witness functional: True; separated from w': True
+
+  -> on 6/6 adversarial instances the gate reports
+     'disclosed 0' and the realised view still determines
+     (M_0 - M_1).w exactly.  The gate is a statement about the
+     STRUCTURE (which symbol each site uses); the leak is a
+     statement about the VALUES.  No rank computation can see it.
+
+==============================================================================
+PRICING: an accident versus a broken draw discipline
+==============================================================================
+  independent draws, k coordinates mod 101:
+    k=1: predicted q^-k = 9.901e-03; measured over 400,000 trials = 1.014e-02 (4057 hits)
+    k=2: predicted q^-k = 9.803e-05; measured over 400,000 trials = 1.075e-04 (43 hits)
+
+  At the real geometry a blinding row is 256 Goldilocks words, so an
+  ACCIDENTAL coincidence of two rows is p^-256 = 2^-16384 -- not a
+  term anybody needs to carry.  [COMPUTED]
+
+  A BROKEN DRAW DISCIPLINE is a different object entirely: if two
+  roles read the SAME stream positions (a reused buffer, a cloned
+  generator, an off-by-one in a draw count, a re-entered commit
+  path), the coincidence has probability ONE and is invisible to
+  every gate above.  That -- not the accident -- is what ruling R-3
+  asks a draw-accounting test to exclude.
+
+ALL ASSERTIONS PASSED.

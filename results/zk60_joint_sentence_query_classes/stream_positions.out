@@ -1,0 +1,185 @@
+====================================================================================================
+1. THE ORDERED SEGMENT TABLE OF ONE BLOCK BODY (one generator, protocol.rs:486)
+====================================================================================================
+
+--- toy  (n = 256, nn = 2048) ---
+  # segment                          kind        draws     byte start       byte end  pub
+  1 A mask + proximity rows            fp       61,952              0        991,232  -
+  2 A pads                             fp      116,480        991,232      2,854,912  -
+  3 A salts                       bytes32        2,048      2,854,912      2,920,448  YES
+  4 M CFS mask coefficients            fp        1,166      2,920,448      2,939,104  -
+  5 M per-row pads                     fp       11,776      2,939,104      3,127,520  -
+  6 M b_re,b_im,u_re,u_im              fp        4,096      3,127,520      3,193,056  -
+  7 M salts                       bytes32        4,096      3,193,056      3,324,128  YES
+  8 H mask + proximity rows            fp       26,624      3,324,128      3,750,112  -
+  9 H zero-sum rows                    fp          510      3,750,112      3,758,272  -
+ 10 H pads                             fp       98,304      3,758,272      5,331,136  -
+ 11 H salts                       bytes32        2,048      5,331,136      5,396,672  YES
+    total fp() draws = 320,908   salts = 8,192   stream bytes = 5,396,672
+    cross-check against the project's count: 320,908 -- MATCHES the counted figure
+
+--- rung  (n = 1024, nn = 4096) ---
+  # segment                          kind        draws     byte start       byte end  pub
+  1 A mask + proximity rows            fp      251,904              0      4,030,464  -
+  2 A pads                             fp      159,488      4,030,464      6,582,272  -
+  3 A salts                       bytes32        4,096      6,582,272      6,713,344  YES
+  4 M CFS mask coefficients            fp        1,718      6,713,344      6,740,832  -
+  5 M per-row pads                     fp       11,776      6,740,832      6,929,248  -
+  6 M b_re,b_im,u_re,u_im              fp        4,096      6,929,248      6,994,784  -
+  7 M salts                       bytes32        4,096      6,994,784      7,125,856  YES
+  8 H mask + proximity rows            fp      108,544      7,125,856      8,862,560  -
+  9 H zero-sum rows                    fp        2,046      8,862,560      8,895,296  -
+ 10 H pads                             fp      147,456      8,895,296     11,254,592  -
+ 11 H salts                       bytes32        4,096     11,254,592     11,385,664  YES
+    total fp() draws = 687,028   salts = 12,288   stream bytes = 11,385,664
+    cross-check against the project's count: 687,028 -- MATCHES the counted figure
+
+--- rung-G  (n = 1024, nn = 4096) ---
+  # segment                          kind        draws     byte start       byte end  pub
+  1 A mask + proximity rows            fp      251,904              0      4,030,464  -
+  2 A pads                             fp      159,488      4,030,464      6,582,272  -
+  3 A salts                       bytes32        4,096      6,582,272      6,713,344  YES
+  4 M CFS mask coefficients            fp        1,718      6,713,344      6,740,832  -
+  5 M per-row pads                     fp       11,776      6,740,832      6,929,248  -
+  6 M b_re,b_im,u_re,u_im              fp        4,096      6,929,248      6,994,784  -
+  7 M salts                       bytes32        4,096      6,994,784      7,125,856  YES
+  8 H mask + proximity rows            fp      108,544      7,125,856      8,862,560  -
+  9 H zero-sum rows                    fp        2,046      8,862,560      8,895,296  -
+ 10 H pads                             fp      147,456      8,895,296     11,254,592  -
+ 11 H salts                       bytes32        4,096     11,254,592     11,385,664  YES
+    total fp() draws = 687,028   salts = 12,288   stream bytes = 11,385,664
+    cross-check against the project's count: 687,028 -- MATCHES the counted figure
+
+--- rung-K4  (n = 1024, nn = 4096) ---
+  # segment                          kind        draws     byte start       byte end  pub
+  1 A mask + proximity rows            fp      251,904              0      4,030,464  -
+  2 A pads                             fp      186,112      4,030,464      7,008,256  -
+  3 A salts                       bytes32        4,096      7,008,256      7,139,328  YES
+  4 M CFS mask coefficients            fp        1,742      7,139,328      7,167,200  -
+  5 M per-row pads                     fp       11,776      7,167,200      7,355,616  -
+  6 M b_re,b_im,u_re,u_im              fp        4,096      7,355,616      7,421,152  -
+  7 M salts                       bytes32        4,096      7,421,152      7,552,224  YES
+  8 H mask + proximity rows            fp      108,544      7,552,224      9,288,928  -
+  9 H zero-sum rows                    fp        2,046      9,288,928      9,321,664  -
+ 10 H pads                             fp      184,320      9,321,664     12,270,784  -
+ 11 H salts                       bytes32        4,096     12,270,784     12,401,856  YES
+    total fp() draws = 750,540   salts = 12,288   stream bytes = 12,401,856
+    cross-check against the project's count: 750,540 -- MATCHES the counted figure
+
+--- 125M  (n = 16384, nn = 65536) ---
+  # segment                          kind        draws     byte start       byte end  pub
+  1 A mask + proximity rows            fp    4,030,464              0     64,487,424  -
+  2 A pads                             fp    1,454,336     64,487,424     87,756,800  -
+  3 A salts                       bytes32       65,536     87,756,800     89,853,952  YES
+  4 M CFS mask coefficients            fp        2,478     89,853,952     89,893,600  -
+  5 M per-row pads                     fp       11,776     89,893,600     90,082,016  -
+  6 M b_re,b_im,u_re,u_im              fp        4,096     90,082,016     90,147,552  -
+  7 M salts                       bytes32        4,096     90,147,552     90,278,624  YES
+  8 H mask + proximity rows            fp    1,671,168     90,278,624    117,017,312  -
+  9 H zero-sum rows                    fp       32,766    117,017,312    117,541,568  -
+ 10 H pads                             fp    1,822,720    117,541,568    146,705,088  -
+ 11 H salts                       bytes32       65,536    146,705,088    148,802,240  YES
+    total fp() draws = 9,029,804   salts = 135,168   stream bytes = 148,802,240
+    cross-check against the project's count: 9,029,804 -- MATCHES the counted figure
+
+  Every count above is built from shape constants only: row counts,
+  n, nn, Q = 256, MASK_Q, MASK_M, MASK_DOM, sum_Ls, N_SLOTS.
+  No expression on the right of any '=' is a witness value.
+  [COUNTED from the code; the totals reproduce the figures of
+   record, D9's 327,052 at the toy and ruling H-6's at the rest.]
+
+====================================================================================================
+2. THE TOY PROOF AS A WHOLE: THREE GENERATORS
+====================================================================================================
+  generator 1 -- the block, protocol.rs:486, domain = the profile
+      320,908 fp() draws, 5,396,672 stream bytes
+  generator 2 -- the input endpoint, private_seam.rs:196
+  generator 3 -- the output endpoint, private_seam.rs:196
+      3,072 fp() draws each, 114,688 stream bytes each
+  TOTAL fp() draws = 320,908 + 2 x 3,072 = 327,052
+  decision D9 / the accepted statement carry 327,052.  MATCHES
+
+  Independence between the three: INFORMATION-THEORETIC, not M-3 --
+  three separate /dev/urandom reads (rng.rs:45-46), each keying its
+  own stream.  (Correction C-11 of the toy joint-law memo.)
+  Independence WITHIN generator 1 -- between the salt segments and
+  the blinding segments -- is M-3 and nothing else.
+
+====================================================================================================
+3. A RUN: ONE GENERATOR FOR THE WHOLE RUN (run.rs:475), PLUS TWO
+====================================================================================================
+
+--- rung-G, L = 3 ---
+  per block body : 687,028 fp, 11,385,664 B
+  per boundary   : 8,704 fp, 270,336 B
+  RUN STREAM     : 2,078,492 fp over 34,697,664 bytes, 3 blocks + 2 boundaries = 11 commitments
+  + two external endpoints on their OWN generators, 7,424 fp each
+  TOTAL fp() of the run = 2,093,340
+  first / last stage offsets:
+    stage 0: boundary B_0        [0 .. 270,336)
+    stage 2: block body          [23,312,000 .. 34,697,664)
+  the offset of stage k is k*(block) + min(k, L-1)*(boundary):
+  a function of k and the shape, and of nothing else.
+
+--- rung-K4, L = 3 ---
+  per block body : 750,540 fp, 12,401,856 B
+  per boundary   : 8,704 fp, 270,336 B
+  RUN STREAM     : 2,269,028 fp over 37,746,240 bytes, 3 blocks + 2 boundaries = 11 commitments
+  + two external endpoints on their OWN generators, 7,424 fp each
+  TOTAL fp() of the run = 2,283,876
+  first / last stage offsets:
+    stage 0: boundary B_0        [0 .. 270,336)
+    stage 2: block body          [25,344,384 .. 37,746,240)
+  the offset of stage k is k*(block) + min(k, L-1)*(boundary):
+  a function of k and the shape, and of nothing else.
+
+--- 125M, L = 12 ---
+  per block body : 9,029,804 fp, 148,802,240 B
+  per boundary   : 108,032 fp, 3,825,664 B
+  RUN STREAM     : 109,546,000 fp over 1,827,709,184 bytes, 12 blocks + 11 boundaries = 47 commitments
+  + two external endpoints on their OWN generators, 91,392 fp each
+  TOTAL fp() of the run = 109,728,784
+  first / last stage offsets:
+    stage 0: boundary B_0        [0 .. 3,825,664)
+    stage 11: block body         [1,678,906,944 .. 1,827,709,184)
+  the offset of stage k is k*(block) + min(k, L-1)*(boundary):
+  a function of k and the shape, and of nothing else.
+  ruling H-6 carries 109,728,784 for this run (blocks + boundaries + the two endpoints).
+  this script's total: 109,728,784  -- MATCHES
+
+====================================================================================================
+4. WHAT A REJECTION SAMPLER WOULD HAVE COST THE ARGUMENT
+====================================================================================================
+The code does NOT reject: Fp::from_u128 is `v % P` (field.rs:37),
+so fp() consumes exactly 16 bytes whatever it draws.  The question
+is what the argument would have needed if it did, because the
+independence clause is currently justified by DISJOINT FIXED
+POSITIONS, and rejection makes the positions random.
+
+Exact model.  Stream of i.i.d. uniform symbols on {0,1,2,3}.  A
+'draw' rejects the symbol 3 and retries; the value is the accepted
+symbol.  Two draws, then one 'salt' symbol.  Everything exact.
+
+  enumerated mass (truncated at depth 14) = 268435413/268435456 = 1 - 43/268435456
+  salt marginal (should be mass/4 each): [Fraction(268435413, 1073741824)]
+  max |joint(v,s) - P(v)*1/4| over all (v,s) = 0
+
+  -> with rejection the salt is STILL exactly uniform and STILL
+     exactly independent of the accepted values -- but NOT because
+     its position is fixed: its position is the random stopping
+     time T = (number of symbols consumed).  The reason is the
+     STRONG MARKOV property of an i.i.d. stream: for a stopping
+     time T of the stream filtration, the post-T stream is i.i.d.
+     uniform and independent of F_T.
+
+  Two consequences for the memo, and they point opposite ways:
+   (a) the CONCLUSION would survive rejection sampling;
+   (b) the ARGUMENT would not -- 'disjoint fixed positions' would
+       have to be replaced by a stopping-time argument, and the
+       stopping time would have to be shown WITNESS-FREE, which is
+       a strictly stronger reading of the draw-accounting test.
+  Since fp() reduces rather than rejects, the project needs only
+  the weaker reading -- and that is a fact of `field.rs:37`, which
+  no test pins as a privacy-relevant property.
+
+ALL ASSERTIONS PASSED.
