@@ -39,7 +39,7 @@
 
 use super::hash_domain::{self, RunFacts};
 use super::layout::{Layout, M_ROWS, N_SLOTS, SC_IO_IN, SC_TAB};
-use super::run::{RunShape, RunStatement, RUN_PROFILE_M125, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4};
+use super::run::{RunShape, RunStatement, RUN_PROFILE_M125, RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2};
 use super::shape::Shape;
 use super::{BlockPublic, ExpectedIo, IoSpec};
 use crate::field::{Fp, Fp2};
@@ -74,14 +74,19 @@ fn profile_literals(text: &str) -> Vec<String> {
 
 /// the five shapes this module builds
 fn every_shape() -> Vec<Shape> {
-    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::m125()]
+    vec![Shape::toy(), Shape::rung(), Shape::rung_g(), Shape::rung_k4(), Shape::rung_p2(), Shape::m125()]
 }
 
 /// The three RUN profiles and the `L` each is registered at: the two
 /// development runs this lane proves at three blocks, and the twelve-block
 /// 125M run stage 13 prepared.
 fn every_run() -> Vec<(&'static str, Shape, usize)> {
-    vec![(RUN_PROFILE_RUNG_G, Shape::rung_g(), 3), (RUN_PROFILE_RUNG_K4, Shape::rung_k4(), 3), (RUN_PROFILE_M125, Shape::m125(), 12)]
+    vec![
+        (RUN_PROFILE_RUNG_G, Shape::rung_g(), 3),
+        (RUN_PROFILE_RUNG_K4, Shape::rung_k4(), 3),
+        (RUN_PROFILE_RUNG_P2, Shape::rung_p2(), 3),
+        (RUN_PROFILE_M125, Shape::m125(), 12),
+    ]
 }
 
 fn s25_context() -> Digest {
@@ -100,6 +105,8 @@ fn run_statement(sh: &Shape, profile: &str, l: usize) -> RunStatement {
         RunShape::m125(l).expect("the 125M run shape")
     } else if profile == RUN_PROFILE_RUNG_K4 {
         RunShape::rung_k4(l).expect("the rung-K4 run shape")
+    } else if profile == RUN_PROFILE_RUNG_P2 {
+        RunShape::rung_p2(l).expect("the rung-P2 run shape")
     } else {
         RunShape::rung_g(l).expect("the rung-G run shape")
     };
@@ -507,12 +514,21 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
     // `22 + |use literal| + 1 + |profile|` under the ruling on finding B-1.
     // The two FROZEN profiles' 61 and 66 are the reexamination's own numbers
     // and may not move.
-    let want: [(&str, usize, usize, usize, usize, usize, usize); 5] = [
+    // **STAGE 30 adds the rung-P2 row**, and it is a row of coincidences
+    // worth reading: its profile string is exactly as long as rung-K4's (47
+    // bytes), so the constructor input and the block seed are rung-K4's 59
+    // and 117 to the byte; its padded layout IS rung-K4's, so the A and H
+    // column digests are the same 5,816 and 5,760; and its row width and
+    // opened-column count are the rungs', so the `pcs-vec` block is the
+    // same 20,535. Nothing about the pad rule reaches a hash INPUT LENGTH,
+    // which is the point of the row being identical.
+    let want: [(&str, usize, usize, usize, usize, usize, usize); 6] = [
         // (name, constructor, A column, H column, endpoint column, block seed, pcs-vec block)
         ("toy", 51, 3640, 3072, 56, 61, 8247),
         ("rung", 56, 4984, 4608, 168, 66, 20535),
         ("rung-g", 58, 4984, 4608, 72, 116, 20535),
         ("rung-k4", 59, 5816, 5760, 72, 117, 20535),
+        ("rung-p2", 59, 5816, 5760, 72, 117, 20535),
         ("m125", 48, 45448, 56960, 296, 106, 266295),
     ];
     for (sh, (name, ctor, a, h, e, seed, vec_len)) in every_shape().into_iter().zip(want) {
@@ -534,8 +550,12 @@ fn the_memos_length_table_is_re_derived_from_the_code() {
             "{name}: the endpoint's seed derivation"
         );
     }
-    // the run constructors and public statements of §5.1's last two lines
-    for ((p, _, l), (ctor, public)) in every_run().into_iter().zip([(56usize, 125usize), (57, 125), (46, 413)]) {
+    // the run constructors and public statements of §5.1's last two lines.
+    // **STAGE 30**: the rung-P2 run's 57 is the rung-K4 run's, because the
+    // two profile strings are the same length, and its public statement
+    // digest input is the same 125 at `L = 3` — that input is `29 + 32 L`
+    // and knows nothing about the shape.
+    for ((p, _, l), (ctor, public)) in every_run().into_iter().zip([(56usize, 125usize), (57, 125), (57, 125), (46, 413)]) {
         assert_eq!(12 + p.len(), ctor, "{p}: the run transcript constructor's input");
         assert_eq!(29 + 32 * l, public, "{p}: the run public statement digest's input");
     }
@@ -1032,7 +1052,7 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
             assert!(!sh.hashes_under_the_legacy_rule(), "{name}: a legacy profile has an internal boundary, and then 151 WOULD be a live pair");
         }
     }
-    // THE 295-BYTE WITHIN-FUNCTION COINCIDENCE, at the two development runs
+    // THE 295-BYTE WITHIN-FUNCTION COINCIDENCE, at every development run
     let mut recorded = 0usize;
     for (p, sh, _) in every_run() {
         if p == RUN_PROFILE_M125 {
@@ -1059,7 +1079,8 @@ fn the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape(
         assert_eq!(hits, (2..=9).collect::<Vec<usize>>(), "{p}: the 295-byte parameters absorb is not exactly at 2 <= L <= 9");
         recorded += 1;
     }
-    assert_eq!(recorded, 2, "the 295-byte coincidence was checked at fewer than the two development runs");
+    // every registered run but 125M's (stage 30: three of them)
+    assert_eq!(recorded, every_run().len() - 1, "the 295-byte coincidence was checked at fewer than every development run");
     // and what separates them, at a fixed offset inside the input
     let a = [&(10u64).to_le_bytes()[..], b"parameters"].concat();
     let b = [&(7u64).to_le_bytes()[..], b"pb-term"].concat();
@@ -1103,15 +1124,24 @@ fn stage_24s_twelve_key_test_still_covers_every_tagged_profile() {
             keys.push(*k.expect("a tagged profile carries all four keys"));
         }
     }
-    assert_eq!((legacy, tagged), (2, 3), "the registry's legacy / tagged split moved");
-    assert_eq!(keys.len(), 12, "there are no longer twelve live keys");
+    assert_eq!(legacy, 2, "the two legacy-rule profiles are the frozen toy and the frozen-seam rung, and there are no others");
+    assert_eq!(tagged, every_shape().len() - legacy, "the registry's legacy / tagged split moved");
+    // STAGE 30: four keys per tagged block profile, DERIVED from the
+    // registry. It was the literal 12 while there were three tagged
+    // profiles; a sixth shape made it 16, and a literal here would have
+    // said only that the number moved.
+    assert_eq!(keys.len(), 4 * tagged, "a tagged profile did not produce four keys");
     for i in 0..keys.len() {
         for j in i + 1..keys.len() {
-            assert_ne!(keys[i], keys[j], "two of the twelve live keys collide");
+            assert_ne!(keys[i], keys[j], "two of the live keys collide");
         }
     }
-    assert_eq!(in_source.len(), 8, "the source registry no longer holds eight profile strings");
-    eprintln!("S25 W-7: {} profiles in the registry, {legacy} legacy, {tagged} tagged, 12 live keys pairwise distinct — covered by s24_tests::{cited}", in_source.len());
+    assert_eq!(in_source.len(), every_shape().len() + every_run().len(), "the source registry holds a profile this test does not measure (or vice versa)");
+    eprintln!(
+        "S25 W-7: {} profiles in the registry, {legacy} legacy, {tagged} tagged, {} live keys pairwise distinct — covered by s24_tests::{cited}",
+        in_source.len(),
+        keys.len()
+    );
 }
 
 // ---------------------------------------------------------------------------
