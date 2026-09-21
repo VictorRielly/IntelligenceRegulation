@@ -329,6 +329,54 @@ three-block bundles at the development shape on the repaired argument:
   the gate. Linear channels, two runs, one development shape. **No privacy
   claim about any run.**
 
+**Round 5 (23:57, 2026-09-20): two group bits, and the toy gates' pins
+completed.** [MEASURED by the lane; I re-ran its 36 new tests and the record
+guard, all passing; `zk60-native-jointview` at `6667aba`, pushed; suite 335,
+all passing.] The Rust lane built a development shape with the 125M head
+geometry — twelve query heads over four key-value heads, padded slots
+{3, 7, 11, 15} — and two three-block bundles on it (`run-i-dense-k4`, fully
+dense and generic; `run-j-zero-k4`).
+- **Nothing failed to scale.** Replay: 375 positions, 6,854 challenges, 6 of 6
+  tags, nothing left over; the 762 challenges more than at the two-head shape
+  decompose to the unit (three stages of 3 definition draws, 3 sumcheck
+  rounds, 104 and 144 proximity entries). Terminal identity 23 of 23, 69 of
+  69, the group factor now over two variables. Hash layer 3,328 of 3,328 under
+  the shape's own derived keys, and **0 of 3,328 under the other shape's
+  keys, in both directions**. Of 173 figures against the two-head shape, 134
+  are identical and every one of the 39 that differ is a size the shape must
+  change or a group count that doubles as predicted (predicted in a pure test
+  before being read off a record). The commitments grow **only in data
+  rows**; non-data rows, the claim-block ranks (74 and 20), every disclosure
+  figure (`A` 0, `H` 2, all else 0) and the whole-run figure are unmoved.
+  Dense against zero at two group bits: the same twenty sampled-column classes
+  as at one.
+- **Two findings about the gate itself, which only a second shape could
+  show.** (1) The port had *correctly* refused the new bundles when their
+  `shape.rs` pin moved — and then crashed, because the refusal path returned a
+  record without the keys the next stage reads; no bundle had ever moved a pin
+  before. Repaired and tested. (2) **`run_capture.rs`, `run.rs` and
+  `boundary.rs` are pinned by no run-gate tool**, while the tool's own comment
+  said they were; `run.rs` changed between the two pairs of bundles and
+  nothing noticed. The comment is corrected and the three files named with
+  their digests; **the gap is recorded, not closed** — closing it means
+  reading three files at five capture commits. Ruling: owed, next round; until
+  then the run gate's statements about the *run layer* rest on the replay
+  reproducing every challenge and tag, not on a pin.
+- A one-group-bit assumption was found in a **control** (it perturbed only the
+  first group coordinate), not in any measured figure; the controls are now
+  families reaching both bits and both slots, with a new one (the declared
+  point's two coordinates swapped) that can only exist at two bits.
+- **The toy gates' pin set now covers the whole path** (my ruling of 22:06):
+  29 files established from the integrator's `4751b93`, 9 already pinned, **20
+  pinned by nothing until tonight**, all 20 read and pinned, none refused;
+  exactly one tool's hash moved, and only because the tables were written
+  into it; every figure of record unchanged (11 / 2 / 8 / 7 on all four
+  captures, ten controls). Named residual: three files of the separate
+  private-attention profile that two of the four toy captures reach.
+- Channels: 25, **14 open**, unmoved. Linear channels; two runs per shape; two
+  development shapes; nothing at the 125M shape. **No privacy claim about any
+  run.**
+
 ## 3. What I reviewed myself, and what was delegated
 
 I read the check's hand-back report. M-7's choice (keep the external

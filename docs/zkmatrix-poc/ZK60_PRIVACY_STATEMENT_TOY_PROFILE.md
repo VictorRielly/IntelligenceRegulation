@@ -52,6 +52,16 @@ D21").
 > receipt the new binaries made — the integrator proved this profile on the
 > new tree, but no bundle from it exists in the gate's schema.
 
+> **The pin gap is closed — note of 2026-09-20 23:57.** The path was
+> established from the blobs at `4751b93`: 29 Rust files, of which 9 were
+> pinned and **20 were pinned by nothing**. All 20 were read and pinned
+> (`zk60-native-jointview` at `6667aba`, pushed), none refused as inconsistent
+> with a port; a changed byte in any of them now stops the gate by name. Every
+> figure of record is unchanged. Condition 7 now means in practice what it
+> says in words. Named residual: three files of the separate private-attention
+> profile, which two of the four captures reach and this statement does not
+> cover.
+
 **Changes since the 05:32 draft** (nothing in the argument changed): D19–D21
 are decisions, no longer proposals; the gate's record of record was found
 stale in one file and is being refreshed (its numbers were right); the run
