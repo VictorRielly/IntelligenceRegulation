@@ -1,0 +1,326 @@
+
+================================================================================================
+1.  THE SAMPLER: reduction bias in distance form and in event form
+================================================================================================
+  p                = 18446744069414584321
+  r = N - kp       = 18446744065119617025
+  p - r            = 4294967296   (= 2^32? True)
+  TV(real,uniform) = 2^-96.0000000003
+  Pr[reject region]= 2^-64.0000000007
+  [OK ] A-12  p - r == 2^32: got 4294967296
+  [OK ] A-12  TV rounds to 2^-96.0000000003: got '-96.0000000003'
+  [OK ] A-12  Pr[rej] rounds to 2^-64.0000000007: got '-64.0000000007'
+  [OK ] A-13  criterion 2(p-r) < p  (distance form wins): got True
+  gap between the two forms = -32.000000 bits   (memo A-14 says 32.0)
+
+  A-13 optimality, brute force on small (p, N):
+    p=  5 N=   16:  min_v Pr[X=v] = 3/16,  best Pr[bad] = 1/16 = r/N = 1/16   OK
+  [OK ] A-13  p=5,N=16 is a case where the EVENT form is smaller: got True
+    p=  7 N=   32:  min_v Pr[X=v] = 4/32,  best Pr[bad] = 1/8 = r/N = 1/8   OK
+    p= 11 N=   64:  min_v Pr[X=v] = 5/64,  best Pr[bad] = 9/64 = r/N = 9/64   OK
+    p= 13 N=  128:  min_v Pr[X=v] = 9/128,  best Pr[bad] = 11/128 = r/N = 11/128   OK
+    p=  5 N= 1024:  min_v Pr[X=v] = 204/1024,  best Pr[bad] = 1/256 = r/N = 1/256   OK
+    p= 17 N=  256:  min_v Pr[X=v] = 15/256,  best Pr[bad] = 1/256 = r/N = 1/256   OK
+  toy, D9's draw count               N =      327,052   N*TV = 2^-77.6808   N*Pr[rej] = 2^-45.6808
+  125M run L=12, ruling H-6          N =  109,728,784   N*TV = 2^-69.2906   N*Pr[rej] = 2^-37.2906
+
+================================================================================================
+2.  THE BLOCK BODY: eleven segments, rebuilt from shape/layout constants
+================================================================================================
+
+  --- toy  (n = 256, sum L_s = 583) ---
+    1  A mask + proximity rows     fp          61,952   [            0 ..       991,232)   protocol.rs:655-657
+    2  A pads                      fp         116,480   [      991,232 ..     2,854,912)   zkp-core/pcs.rs:777
+    3  A salts                     salt         2,048   [    2,854,912 ..     2,920,448)   zkp-core/pcs.rs:778
+    4  M CFS mask coefficients     fp           1,166   [    2,920,448 ..     2,939,104)   zk.rs:485 -> sumcheck.rs:201
+    5  M per-row pads              fp          11,776   [    2,939,104 ..     3,127,520)   zk.rs:496
+    6  M b_re,b_im,u_re,u_im       fp           4,096   [    3,127,520 ..     3,193,056)   zk.rs:503-508
+    7  M salts                     salt         4,096   [    3,193,056 ..     3,324,128)   zk.rs:513
+    8  H mask + proximity rows     fp          26,624   [    3,324,128 ..     3,750,112)   protocol.rs:757-759
+    9  H zero-sum rows             fp             510   [    3,750,112 ..     3,758,272)   protocol.rs:760-768
+    10 H pads                      fp          98,304   [    3,758,272 ..     5,331,136)   zkp-core/pcs.rs:777
+    11 H salts                     salt         2,048   [    5,331,136 ..     5,396,672)   zkp-core/pcs.rs:778
+    TOTAL fp 320,908   salts 8,192   bytes 5,396,672
+
+  --- rung  (n = 1,024, sum L_s = 859) ---
+    1  A mask + proximity rows     fp         251,904   [            0 ..     4,030,464)   protocol.rs:655-657
+    2  A pads                      fp         159,488   [    4,030,464 ..     6,582,272)   zkp-core/pcs.rs:777
+    3  A salts                     salt         4,096   [    6,582,272 ..     6,713,344)   zkp-core/pcs.rs:778
+    4  M CFS mask coefficients     fp           1,718   [    6,713,344 ..     6,740,832)   zk.rs:485 -> sumcheck.rs:201
+    5  M per-row pads              fp          11,776   [    6,740,832 ..     6,929,248)   zk.rs:496
+    6  M b_re,b_im,u_re,u_im       fp           4,096   [    6,929,248 ..     6,994,784)   zk.rs:503-508
+    7  M salts                     salt         4,096   [    6,994,784 ..     7,125,856)   zk.rs:513
+    8  H mask + proximity rows     fp         108,544   [    7,125,856 ..     8,862,560)   protocol.rs:757-759
+    9  H zero-sum rows             fp           2,046   [    8,862,560 ..     8,895,296)   protocol.rs:760-768
+    10 H pads                      fp         147,456   [    8,895,296 ..    11,254,592)   zkp-core/pcs.rs:777
+    11 H salts                     salt         4,096   [   11,254,592 ..    11,385,664)   zkp-core/pcs.rs:778
+    TOTAL fp 687,028   salts 12,288   bytes 11,385,664
+
+  --- rung-G  (n = 1,024, sum L_s = 859) ---
+    1  A mask + proximity rows     fp         251,904   [            0 ..     4,030,464)   protocol.rs:655-657
+    2  A pads                      fp         159,488   [    4,030,464 ..     6,582,272)   zkp-core/pcs.rs:777
+    3  A salts                     salt         4,096   [    6,582,272 ..     6,713,344)   zkp-core/pcs.rs:778
+    4  M CFS mask coefficients     fp           1,718   [    6,713,344 ..     6,740,832)   zk.rs:485 -> sumcheck.rs:201
+    5  M per-row pads              fp          11,776   [    6,740,832 ..     6,929,248)   zk.rs:496
+    6  M b_re,b_im,u_re,u_im       fp           4,096   [    6,929,248 ..     6,994,784)   zk.rs:503-508
+    7  M salts                     salt         4,096   [    6,994,784 ..     7,125,856)   zk.rs:513
+    8  H mask + proximity rows     fp         108,544   [    7,125,856 ..     8,862,560)   protocol.rs:757-759
+    9  H zero-sum rows             fp           2,046   [    8,862,560 ..     8,895,296)   protocol.rs:760-768
+    10 H pads                      fp         147,456   [    8,895,296 ..    11,254,592)   zkp-core/pcs.rs:777
+    11 H salts                     salt         4,096   [   11,254,592 ..    11,385,664)   zkp-core/pcs.rs:778
+    TOTAL fp 687,028   salts 12,288   bytes 11,385,664
+
+  --- rung-K4  (n = 1,024, sum L_s = 871) ---
+    1  A mask + proximity rows     fp         251,904   [            0 ..     4,030,464)   protocol.rs:655-657
+    2  A pads                      fp         186,112   [    4,030,464 ..     7,008,256)   zkp-core/pcs.rs:777
+    3  A salts                     salt         4,096   [    7,008,256 ..     7,139,328)   zkp-core/pcs.rs:778
+    4  M CFS mask coefficients     fp           1,742   [    7,139,328 ..     7,167,200)   zk.rs:485 -> sumcheck.rs:201
+    5  M per-row pads              fp          11,776   [    7,167,200 ..     7,355,616)   zk.rs:496
+    6  M b_re,b_im,u_re,u_im       fp           4,096   [    7,355,616 ..     7,421,152)   zk.rs:503-508
+    7  M salts                     salt         4,096   [    7,421,152 ..     7,552,224)   zk.rs:513
+    8  H mask + proximity rows     fp         108,544   [    7,552,224 ..     9,288,928)   protocol.rs:757-759
+    9  H zero-sum rows             fp           2,046   [    9,288,928 ..     9,321,664)   protocol.rs:760-768
+    10 H pads                      fp         184,320   [    9,321,664 ..    12,270,784)   zkp-core/pcs.rs:777
+    11 H salts                     salt         4,096   [   12,270,784 ..    12,401,856)   zkp-core/pcs.rs:778
+    TOTAL fp 750,540   salts 12,288   bytes 12,401,856
+
+  --- 125M  (n = 16,384, sum L_s = 1,239) ---
+    1  A mask + proximity rows     fp       4,030,464   [            0 ..    64,487,424)   protocol.rs:655-657
+    2  A pads                      fp       1,454,336   [   64,487,424 ..    87,756,800)   zkp-core/pcs.rs:777
+    3  A salts                     salt        65,536   [   87,756,800 ..    89,853,952)   zkp-core/pcs.rs:778
+    4  M CFS mask coefficients     fp           2,478   [   89,853,952 ..    89,893,600)   zk.rs:485 -> sumcheck.rs:201
+    5  M per-row pads              fp          11,776   [   89,893,600 ..    90,082,016)   zk.rs:496
+    6  M b_re,b_im,u_re,u_im       fp           4,096   [   90,082,016 ..    90,147,552)   zk.rs:503-508
+    7  M salts                     salt         4,096   [   90,147,552 ..    90,278,624)   zk.rs:513
+    8  H mask + proximity rows     fp       1,671,168   [   90,278,624 ..   117,017,312)   protocol.rs:757-759
+    9  H zero-sum rows             fp          32,766   [  117,017,312 ..   117,541,568)   protocol.rs:760-768
+    10 H pads                      fp       1,822,720   [  117,541,568 ..   146,705,088)   zkp-core/pcs.rs:777
+    11 H salts                     salt        65,536   [  146,705,088 ..   148,802,240)   zkp-core/pcs.rs:778
+    TOTAL fp 9,029,804   salts 135,168   bytes 148,802,240
+  [OK ] A-5  toy fp draws: got 320908
+  [OK ] A-5  rung fp draws: got 687028
+  [OK ] A-5  rung-G fp draws: got 687028
+  [OK ] A-5  rung-K4 fp draws: got 750540
+  [OK ] A-5  125M fp draws: got 9029804
+  [OK ] A-5  toy stream bytes: got 5396672
+  [OK ] A-5  125M stream bytes: got 148802240
+
+================================================================================================
+3.  ENDPOINTS, BOUNDARIES AND THE RUN TOTALS  (memo A-5, A-6, A-7)
+================================================================================================
+  toy frozen-seam endpoint   : 3,072 fp, 2,048 salts, 114,688 bytes  (own generator)
+  [OK ] A-5  toy proof total fp = D9's 327,052: got 327052
+
+  rung-G: boundary 8,704 fp / 4,096 salts ; generalised endpoint 7,424 fp / 4,096 salts
+    L=3: run stream 2,078,492 fp, 45,056 salts, 34,697,664 bytes;  + 2 endpoints -> 2,093,340 fp
+          commitments 13, of which 11 share the one run stream  -> C(11,2) = 55 pairs rest on M-3
+  [OK ] A-7  rung-G L=3 total fp = ruling H-6's: got 2093340
+
+  rung-K4: boundary 8,704 fp / 4,096 salts ; generalised endpoint 7,424 fp / 4,096 salts
+    L=3: run stream 2,269,028 fp, 45,056 salts, 37,746,240 bytes;  + 2 endpoints -> 2,283,876 fp
+          commitments 13, of which 11 share the one run stream  -> C(11,2) = 55 pairs rest on M-3
+  [OK ] A-7  rung-K4 L=3 total fp = ruling H-6's: got 2283876
+
+  125M: boundary 108,032 fp / 65,536 salts ; generalised endpoint 91,392 fp / 65,536 salts
+    L=12: run stream 109,546,000 fp, 2,342,912 salts, 1,827,709,184 bytes;  + 2 endpoints -> 109,728,784 fp
+          commitments 49, of which 47 share the one run stream  -> C(47,2) = 1,081 pairs rest on M-3
+  [OK ] A-7  125M L=12 run-stream fp draws: got 109546000
+  [OK ] A-7  125M L=12 run-stream salt draws: got 2342912
+  [OK ] A-7  125M L=12 run-stream bytes: got 1827709184
+  [OK ] A-7  125M L=12 total fp = ruling H-6's: got 109728784
+  [OK ] A-11 C(47,2) pairs on one stream: got 1081
+
+================================================================================================
+4.  THE FLAG'S PRICE: what Lemma H states against what A-17 carries
+================================================================================================
+  [OK ] Lemma H's toy N_leaf: got 12288
+  [OK ] Lemma H's toy N_node: got 12283
+  [OK ] Lemma H's toy N_overlap (leaf+node 64-byte objects): got 24571
+  C(N_leaf,2) * 2^-256          = 2^-229.8302   (the memo's 2^-229.8)
+  N_overlap  * 2^-256           = 2^-241.4153   (the 2^-241.42 row)
+  N_node*N_leaf * 2^-512        = 2^-484.8307   (correction C-4)
+  q * N_leaf * 2^-256           = q * 2^-242.4150
+  [OK ] 2^-229.83 reproduces: got '-229.83'
+  [OK ] 2^-241.42 reproduces: got '-241.42'
+  [OK ] 2^-484.83 reproduces: got '-484.83'
+
+  The q-term overtakes the collision term at q = 6,144 = 2^12.58.
+  => pricing the flag at 2^-229.8 is right only for an adversary making
+     fewer than 2^12.6 oracle queries.  [FINDING]
+  The memo's stated MECHANISM for 2^-241.42 ('a digest must spell 24 fixed
+  bytes') would give 2^-192 per pair, not 2^-241.42; the figure of record
+  comes from the 32-byte SALT being uniform, counted over 24,571 objects:
+     24 fixed bytes           -> 2^-192 per pair
+     32 uniform salt bytes x 24571 objects -> 2^-241.4153
+  [OK ] seam spec digest  = DOMAIN(28)+ctx(32)+8*u64+i32: got 128
+  [OK ] general endpoint spec = DOMAIN(42)+ctx(32)+8*u64+i32: got 142
+  [OK ] internal boundary spec = DOMAIN(43)+ctx(32)+9*u64+i32: got 151
+
+================================================================================================
+5.  EVERY BLAKE3 INPUT LENGTH, PER PROFILE -- all clashes, mine, not the memo's
+================================================================================================
+
+  --- toy single block  (legacy) ---
+    WITHIN F_U unkeyed             64 B : absorb `log-cols` | salted leaf | Merkle inner node
+    WITHIN F_U unkeyed             81 B : absorb root `A` | absorb root `H` | absorb root `M`
+    WITHIN F_U unkeyed            171 B : absorb `expected-IO` | absorb `parameters` (block line)
+    MARGIN 1 B : 50 (seed derivation, frozen-seam endpoint [keyed under secret OS entropy])  vs  51 (transcript constructor (profile 39 B) [F_U unkeyed])
+    MARGIN 1 B : 60 (absorb `rows` [F_U unkeyed])  vs  61 (seed derivation, block prover [keyed under secret OS entropy])
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_U unkeyed])  vs  64 (absorb `log-cols` [F_U unkeyed])
+
+  --- rung single block  (legacy) ---
+    WITHIN F_U unkeyed             64 B : absorb `log-cols` | salted leaf | Merkle inner node
+    WITHIN F_U unkeyed             81 B : absorb root `A` | absorb root `H` | absorb root `M`
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_U unkeyed])  vs  64 (absorb `log-cols` [F_U unkeyed])
+    MARGIN 1 B : 87 (absorb `pb-term` (2 terminals) [F_U unkeyed])  vs  88 (absorb `schedule` [F_U unkeyed])
+    MARGIN 1 B : 103 (absorb `pb-term` (3 terminals) [F_U unkeyed])  vs  104 (absorb `sc-round` (degree 2) [F_U unkeyed])
+
+  --- rung-G single block  (tagged) ---
+    WITHIN F_T transcript          81 B : absorb root `A` | absorb root `H` | absorb root `M`
+    CROSS  F_L leaf / F_N node       64 B : salted leaf  <->  Merkle inner node
+    CROSS  F_L leaf / F_T transcript       64 B : salted leaf  <->  absorb `log-cols`
+    CROSS  F_L leaf / keyed under secret OS entropy       64 B : salted leaf  <->  seed derivation, generalised endpoint
+    CROSS  F_N node / F_T transcript       64 B : Merkle inner node  <->  absorb `log-cols`
+    CROSS  F_N node / keyed under secret OS entropy       64 B : Merkle inner node  <->  seed derivation, generalised endpoint
+    CROSS  F_T transcript / keyed under secret OS entropy       64 B : absorb `log-cols`  <->  seed derivation, generalised endpoint
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_T transcript])  vs  64 (absorb `log-cols` [F_T transcript])
+    MARGIN 1 B : 71 (absorb `pb-term` (1 terminals) [F_T transcript])  vs  72 (column digest endpoint (9 rows) [F_C column])
+    MARGIN 1 B : 72 (column digest endpoint (9 rows) [F_C column])  vs  73 (absorb `pb-scalar` [F_T transcript])
+
+  --- rung-K4 single block  (tagged) ---
+    WITHIN F_T transcript          81 B : absorb root `A` | absorb root `H` | absorb root `M`
+    CROSS  F_L leaf / F_N node       64 B : salted leaf  <->  Merkle inner node
+    CROSS  F_L leaf / F_T transcript       64 B : salted leaf  <->  absorb `log-cols`
+    CROSS  F_L leaf / keyed under secret OS entropy       64 B : salted leaf  <->  seed derivation, generalised endpoint
+    CROSS  F_N node / F_T transcript       64 B : Merkle inner node  <->  absorb `log-cols`
+    CROSS  F_N node / keyed under secret OS entropy       64 B : Merkle inner node  <->  seed derivation, generalised endpoint
+    CROSS  F_T transcript / keyed under secret OS entropy       64 B : absorb `log-cols`  <->  seed derivation, generalised endpoint
+    MARGIN 1 B : 59 (transcript constructor (profile 47 B) [F_T transcript])  vs  60 (absorb `rows` [F_T transcript])
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_T transcript])  vs  64 (absorb `log-cols` [F_T transcript])
+    MARGIN 1 B : 71 (absorb `pb-term` (1 terminals) [F_T transcript])  vs  72 (column digest endpoint (9 rows) [F_C column])
+
+  --- 125M single block  (tagged) ---
+    WITHIN F_T transcript          81 B : absorb root `A` | absorb root `H` | absorb root `M`
+    CROSS  F_L leaf / F_N node       64 B : salted leaf  <->  Merkle inner node
+    CROSS  F_L leaf / F_T transcript       64 B : salted leaf  <->  absorb `log-cols`
+    CROSS  F_L leaf / keyed under secret OS entropy       64 B : salted leaf  <->  seed derivation, generalised endpoint
+    CROSS  F_N node / F_T transcript       64 B : Merkle inner node  <->  absorb `log-cols`
+    CROSS  F_N node / keyed under secret OS entropy       64 B : Merkle inner node  <->  seed derivation, generalised endpoint
+    CROSS  F_T transcript / keyed under secret OS entropy       64 B : absorb `log-cols`  <->  seed derivation, generalised endpoint
+    MARGIN 1 B : 47 (transcript squeeze / position tag / refusal replay [F_T transcript])  vs  48 (transcript constructor (profile 36 B) [F_T transcript])
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_T transcript])  vs  64 (absorb `log-cols` [F_T transcript])
+    MARGIN 1 B : 87 (absorb `pb-term` (2 terminals) [F_T transcript])  vs  88 (absorb `schedule` [F_T transcript])
+
+  --- rung-G run L=3  (tagged) ---
+    WITHIN F_T transcript          81 B : absorb root `B` | absorb root `A` | absorb root `H` | absorb root `M`
+    WITHIN F_T transcript         295 B : absorb `parameters` (run line, L=3, 237 B) | absorb `pb-term` (15 terminals)
+    CROSS  F_L leaf / F_N node       64 B : salted leaf  <->  Merkle inner node
+    CROSS  F_L leaf / F_T transcript       64 B : salted leaf  <->  absorb `log-cols`
+    CROSS  F_L leaf / keyed under secret OS entropy       64 B : salted leaf  <->  seed derivation, generalised endpoint
+    CROSS  F_N node / F_T transcript       64 B : Merkle inner node  <->  absorb `log-cols`
+    CROSS  F_N node / keyed under secret OS entropy       64 B : Merkle inner node  <->  seed derivation, generalised endpoint
+    CROSS  F_T transcript / F_U unkeyed      151 B : absorb `pb-term` (6 terminals)  <->  internal boundary spec digest (boundary.rs:211)
+    CROSS  F_T transcript / keyed under secret OS entropy       64 B : absorb `log-cols`  <->  seed derivation, generalised endpoint
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_T transcript])  vs  64 (absorb `log-cols` [F_T transcript])
+    MARGIN 1 B : 71 (absorb `pb-term` (1 terminals) [F_T transcript])  vs  72 (column digest endpoint (9 rows) [F_C column])
+    MARGIN 1 B : 72 (column digest endpoint (9 rows) [F_C column])  vs  73 (absorb `pb-scalar` [F_T transcript])
+
+  --- rung-K4 run L=3  (tagged) ---
+    WITHIN F_T transcript          81 B : absorb root `B` | absorb root `A` | absorb root `H` | absorb root `M`
+    WITHIN F_T transcript         295 B : absorb `parameters` (run line, L=3, 237 B) | absorb `pb-term` (15 terminals)
+    CROSS  F_L leaf / F_N node       64 B : salted leaf  <->  Merkle inner node
+    CROSS  F_L leaf / F_T transcript       64 B : salted leaf  <->  absorb `log-cols`
+    CROSS  F_L leaf / keyed under secret OS entropy       64 B : salted leaf  <->  seed derivation, generalised endpoint
+    CROSS  F_N node / F_T transcript       64 B : Merkle inner node  <->  absorb `log-cols`
+    CROSS  F_N node / keyed under secret OS entropy       64 B : Merkle inner node  <->  seed derivation, generalised endpoint
+    CROSS  F_T transcript / F_U unkeyed      151 B : absorb `pb-term` (6 terminals)  <->  internal boundary spec digest (boundary.rs:211)
+    CROSS  F_T transcript / keyed under secret OS entropy       64 B : absorb `log-cols`  <->  seed derivation, generalised endpoint
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_T transcript])  vs  64 (absorb `log-cols` [F_T transcript])
+    MARGIN 1 B : 67 (seed derivation, run prover [keyed under secret OS entropy])  vs  68 (absorb `pb-run-stage` [F_T transcript])
+    MARGIN 1 B : 71 (absorb `pb-term` (1 terminals) [F_T transcript])  vs  72 (column digest endpoint (9 rows) [F_C column])
+
+  --- 125M run L=12  (tagged) ---
+    WITHIN F_T transcript          81 B : absorb root `B` | absorb root `A` | absorb root `H` | absorb root `M`
+    CROSS  F_L leaf / F_N node       64 B : salted leaf  <->  Merkle inner node
+    CROSS  F_L leaf / F_T transcript       64 B : salted leaf  <->  absorb `log-cols`
+    CROSS  F_L leaf / keyed under secret OS entropy       64 B : salted leaf  <->  seed derivation, generalised endpoint
+    CROSS  F_N node / F_T transcript       64 B : Merkle inner node  <->  absorb `log-cols`
+    CROSS  F_N node / keyed under secret OS entropy       64 B : Merkle inner node  <->  seed derivation, generalised endpoint
+    CROSS  F_T transcript / F_U unkeyed      151 B : absorb `pb-term` (6 terminals)  <->  internal boundary spec digest (boundary.rs:211)
+    CROSS  F_T transcript / keyed under secret OS entropy       64 B : absorb `log-cols`  <->  seed derivation, generalised endpoint
+    MARGIN 1 B : 46 (transcript constructor (profile 34 B) [F_T transcript])  vs  47 (transcript squeeze / position tag / refusal replay [F_T transcript])
+    MARGIN 1 B : 63 (absorb `pb-slot` [F_T transcript])  vs  64 (absorb `log-cols` [F_T transcript])
+    MARGIN 1 B : 87 (absorb `pb-term` (2 terminals) [F_T transcript])  vs  88 (absorb `schedule` [F_T transcript])
+
+  The toy's four legacy clashes the memo names (64, 81, 151, 171):
+      64 B -> ['absorb `log-cols`', 'salted leaf', 'Merkle inner node']
+      81 B -> ['absorb root `A`', 'absorb root `H`', 'absorb root `M`']
+     151 B -> ['absorb `pb-term` (6 terminals)']
+     171 B -> ['absorb `expected-IO`', 'absorb `parameters` (block line)']
+  [OK ] toy: 171 B is a real clash (expected-IO vs parameters): got True
+  [OK ] toy: 151 B (pb-term(6)) has NO boundary digest beside it (the toy has no boundary): got 1
+
+================================================================================================
+6.  `pb-term` terminal counts per shape (memo left this [UNVERIFIED])
+================================================================================================
+  toy      distinct terminal counts [1, 2, 3, 6, 13, 15, 17, 21, 22, 56]
+           absorb lengths           [71, 87, 103, 151, 263, 295, 327, 391, 407, 951]
+           slots with SIX terminals: [19]  -> 151-byte absorb EXISTS
+  [OK ] toy: a six-terminal pb-term absorb exists (slot 19 = SC_TAB): got True
+  rung     distinct terminal counts [1, 2, 3, 6, 13, 15, 17, 22, 24, 56]
+           absorb lengths           [71, 87, 103, 151, 263, 295, 327, 407, 439, 951]
+           slots with SIX terminals: [19]  -> 151-byte absorb EXISTS
+  [OK ] rung: a six-terminal pb-term absorb exists (slot 19 = SC_TAB): got True
+  rung-G   distinct terminal counts [1, 2, 3, 6, 13, 15, 17, 22, 24, 56]
+           absorb lengths           [71, 87, 103, 151, 263, 295, 327, 407, 439, 951]
+           slots with SIX terminals: [19]  -> 151-byte absorb EXISTS
+  [OK ] rung-G: a six-terminal pb-term absorb exists (slot 19 = SC_TAB): got True
+  rung-K4  distinct terminal counts [1, 2, 3, 6, 13, 15, 17, 22, 24, 56]
+           absorb lengths           [71, 87, 103, 151, 263, 295, 327, 407, 439, 951]
+           slots with SIX terminals: [19]  -> 151-byte absorb EXISTS
+  [OK ] rung-K4: a six-terminal pb-term absorb exists (slot 19 = SC_TAB): got True
+  125M     distinct terminal counts [1, 2, 3, 6, 13, 15, 17, 22, 24, 54]
+           absorb lengths           [71, 87, 103, 151, 263, 295, 327, 407, 439, 919]
+           slots with SIX terminals: [19]  -> 151-byte absorb EXISTS
+  [OK ] 125M: a six-terminal pb-term absorb exists (slot 19 = SC_TAB): got True
+  55 + 16k = 7 mod 16 for every k, and a column digest is 0 mod 8,
+  so no pb-term absorb can equal a column digest at any shape.  [PROVED]
+  [OK ] pb-term lengths are 7 mod 16 for k in 1..64: got True
+
+================================================================================================
+7.  THE TWO COUNTEREXAMPLES, reimplemented from scratch (mod q = 101)
+================================================================================================
+  (i) a SHARED blinding row: two claim sites, three published coordinates each.
+      disclosed dim, independent rows = 0
+      seed  1: disclosed(independent)=0  disclosed(shared)=3  (M0-M1)w separates two witnesses: True   OK
+      seed  2: disclosed(independent)=0  disclosed(shared)=3  (M0-M1)w separates two witnesses: True   OK
+      seed  3: disclosed(independent)=0  disclosed(shared)=3  (M0-M1)w separates two witnesses: True   OK
+      seed  5: disclosed(independent)=0  disclosed(shared)=3  (M0-M1)w separates two witnesses: True   OK
+      seed  8: disclosed(independent)=0  disclosed(shared)=3  (M0-M1)w separates two witnesses: True   OK
+      seed 13: disclosed(independent)=0  disclosed(shared)=3  (M0-M1)w separates two witnesses: True   OK
+
+  (ii) ruling R-3: two DISTINCT rows at DISJOINT positions whose VALUES coincide.
+      seed  1: gate disclosed = 0; realised view determines (M0-M1).w: True; separated: True   OK
+      seed  2: gate disclosed = 0; realised view determines (M0-M1).w: True; separated: True   OK
+      seed  3: gate disclosed = 0; realised view determines (M0-M1).w: True; separated: True   OK
+      seed  5: gate disclosed = 0; realised view determines (M0-M1).w: True; separated: True   OK
+      seed  8: gate disclosed = 0; realised view determines (M0-M1).w: True; separated: True   OK
+      seed 13: gate disclosed = 0; realised view determines (M0-M1).w: True; separated: True   OK
+
+  Pricing: an ACCIDENT at the real geometry (a blinding row is 256 Goldilocks words):
+      p^-256 = 2^-16384.0
+  A BROKEN DRAW DISCIPLINE has probability ONE and is invisible to a rank gate.
+  Memo's five owed assertions are all about POSITIONS.  The two defects below
+  keep every position disjoint and still correlate the realised VALUES:
+    (d1) `b_re[m] := -b_re[0]` (zk.rs:505-506): two drawn words at DISJOINT
+         positions, one discarded, and the committed row carries a deterministic
+         linear relation.  Assertions 1-5 all pass.  It is in the code today.
+    (d2) a generator constructed from a DETERMINISTIC seed on a production path
+         (`ZkRng::new`, rng.rs:20; reachable through `ZkConfig::rng`, zk.rs:334-337)
+         -- one generator, never cloned, correct offsets, and every proof identical.
+  => a SIXTH assertion is owed, about the realised value map, not the positions.
+
+================================================================================================
+RESULT
+================================================================================================
+  ALL ASSERTIONS PASSED.

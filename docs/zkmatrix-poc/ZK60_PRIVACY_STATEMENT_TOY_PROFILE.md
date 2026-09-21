@@ -62,6 +62,26 @@ D21").
 > profile, which two of the four captures reach and this statement does not
 > cover.
 
+> **Two clarifications of scope and of one assumption — note of 2026-09-21
+> 03:24** (rulings J-2 and J-3 of
+> `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES_DISPOSITION.md`). Neither changes the
+> statement's sentence or any number; both say more exactly what it covers.
+> **(1) This statement covers the profile on the CPU path.** At this untagged
+> profile the commitment code still offers its column hashing to the
+> accelerator: a build with the `gpu-cuda` feature and `HL_GPU=1` at run time
+> sends it to two hand-written CUDA BLAKE3 kernels, and blinding rows and pads
+> to device and pinned host memory. All the evidence behind this statement —
+> the four captures and both gates — was produced on the CPU (the capture
+> runner strips every `HL_*` variable). **That configuration is not covered
+> until the kernels' agreement with the CPU function is cited to a gate by
+> name and the lifetime of those buffers has been read.** It joins §1's "not
+> in scope". **(2) "The prover's randomness generator" in §2 means the three
+> generators of a block proof jointly** — the block's and the two endpoints' —
+> each seeded by its own read of the operating system's entropy. The
+> assumption is that their joint output is indistinguishable from uniform,
+> which includes that **separate operating-system entropy reads are
+> independent**. That was always what the argument used; it is now said.
+
 **Changes since the 05:32 draft** (nothing in the argument changed): D19–D21
 are decisions, no longer proposals; the gate's record of record was found
 stale in one file and is being refreshed (its numbers were right); the run
