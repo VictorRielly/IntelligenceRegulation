@@ -147,6 +147,10 @@ fn the_private_table_builder_agrees_with_79f0726_on_randomised_descriptors() {
     let mut with_dup = 0usize;
     let mut with_fixed = 0usize;
     let mut short = 0usize;
+    // the two FAST PATHS the new builder adds, counted so that "no difference"
+    // cannot mean "the fast path was never taken"
+    let mut plain_store = 0usize;
+    let mut one_slice = 0usize;
     for n_vars in [0usize, 1, 2, 3, 5, 7, 9, 10] {
         for seed in 0..75u64 {
             let mut r = R::new(seed.wrapping_mul(1_000_003).wrapping_add(n_vars as u64 * 7 + 1));
@@ -178,9 +182,25 @@ fn the_private_table_builder_agrees_with_79f0726_on_randomised_descriptors() {
             if p.log < n_vars {
                 short += 1;
             }
+            // the plain-store condition, recomputed here from the descriptor
+            let moving = p.coords.iter().filter(|c| !matches!(c, Coord::Fixed(_))).count();
+            let mut used = 0usize;
+            for c in &p.coords {
+                if let Coord::Rho(k) | Coord::Flip(k) = c {
+                    used |= 1usize << (n_vars - 1 - *k);
+                }
+            }
+            if moving == p.coords.len() && used.count_ones() as usize == moving {
+                plain_store += 1;
+            }
+            if p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE {
+                one_slice += 1;
+            }
         }
     }
-    eprintln!("S28-REVIEW priv_table: {cases} comparisons, {with_dup} duplicated-index descriptors, {with_fixed} with fixed coordinates, {short} short planes");
+    eprintln!("S28-REVIEW priv_table: {cases} comparisons, {with_dup} duplicated-index descriptors, {with_fixed} with fixed coordinates, {short} short planes, {plain_store} on the plain-store fast path, {one_slice} on the one-slice fast path");
+    assert!(plain_store >= 50, "only {plain_store} descriptors take the plain-store fast path");
+    assert!(one_slice >= 50, "only {one_slice} descriptors take the one-slice fast path");
     assert!(cases >= 1_800, "only {cases} comparisons");
     assert!(with_dup >= 10, "only {with_dup} duplicated-index descriptors: the collision fallback is barely covered");
     assert!(with_fixed >= 100, "only {with_fixed} descriptors with a fixed coordinate");

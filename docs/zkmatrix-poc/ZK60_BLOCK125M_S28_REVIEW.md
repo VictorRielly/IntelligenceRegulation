@@ -26,6 +26,16 @@ test.
 
 ## 1. The production diff, line by line
 
+**The forbidden-files proof re-run by this reviewer** (`git diff --stat
+79f0726 309d238 -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs
+hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs
+hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu
+private-block-kernel private-model-kernel private-block-kernel-shaped
+zkvm-block scripts tests`) prints **nothing**, and the diff's whole
+non-documentation, non-evidence file list is five files:
+`private_block.rs`, `private_block/{argument,protocol,timing}.rs` and the new
+`private_block/s28_tests.rs`. **Confirmed.**
+
 `git diff 79f0726 309d238` touches four production files:
 `private_block.rs` (+6, a `#[cfg(test)] mod` registration),
 `timing.rs` (+20, one new test-instrument function),
@@ -86,6 +96,18 @@ share no helper with the code under test. **The ten gates are real oracles.**
 | — | **`total` (the parallel claimed sum): no gate at all (S28-R1)** |
 | — | the parallel table build and the moved public table: no gate; covered only by end-to-end proofs |
 | — | the parallel byte histogram: no gate (the ledger says so and the argument is sound) |
+
+**The shape-specific cases the brief names.** No unit gate — the stage's or
+this review's — builds the REAL slot descriptors (there is no reachable
+constructor for a `SlotDef` from a test module), so the bilinear slots 08/09,
+the group-bit variables and the padded tails of a non-power-of-two token count
+are covered **end to end only**: `lkv = 0` at the toy (1 KV head), `lkv = 1` at
+the rung and rung-G (2 KV heads, 24 tokens padded to 32), `lkv = 2` at rung-K4
+and 125M (4 KV heads). Every honest proof at all five shapes proves and
+verifies from its own bytes in the runs of §9, and the group-bit sweep of
+`k4_tests` rejects all seven third/fourth-group tampers at the verifier. That
+is real coverage of `priv_table` on the descriptors the schedule actually
+builds, but it is end-to-end coverage, not an oracle.
 
 So the ledger's sentence *"for every computation changed, the OLD form and the
 NEW form are run on the same inputs IN THE SAME TEST"* is **not true of four
@@ -202,7 +224,11 @@ prove AND verify from bytes (finding S28-R1).
   (Had `count` been smaller, a column would have stopped being able to refuse;
   had it been larger, `cols[2k]` would panic. Neither can happen.)
 * **Same string.** One literal, in `inverses` and in `ZERO_DENOMINATOR`,
-  byte-identical; both surface as `Err(String)` out of `prove_core`.
+  byte-identical; both surface as `Err(String)` out of `prove_core`. (The
+  ledger's "a refusal is still the lowest-indexed column's" is true ACROSS
+  helpers — they are still visited in index order — but not strictly within a
+  parallel column, where rayon keeps an arbitrary one of the errors. Nothing
+  observable turns on it: there is one string. See §4.)
 * **Same point.** Between the old refusal point and the new one there is **no
   transcript absorb and no generator draw**: the whole region sits between the
   `alpha` challenge and the `H` root absorb. Partial `h_data` writes are
@@ -212,11 +238,15 @@ prove AND verify from bytes (finding S28-R1).
 
 ### 6.2 S28-F1: **partly true — first half yes, second half no**
 
-* **TRUE, and re-derived here:** a zero denominator at a value the byte table
-  CARRIES refuses the attempt whatever the hidden input holds, because
-  `table_values_u8_at` carries all 256 byte values (its padded entries repeat
-  `i % U8_LEN`) and the three table helpers invert every one of them a few
-  lines later with the same string.
+* **TRUE, and re-derived here on the real path:** the prover's table-helper
+  line is `inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?` with
+  `tv = table_values_u8(g_u8) = table_values_u8_at(Dom::Tab.len(), g_u8)`, and
+  `Dom::Tab.natural_log() = 8`, so `tv` carries all 256 byte rows at **every**
+  shape (padded entries repeat `i % U8_LEN`). Two details make the claim
+  airtight rather than nearly true: the inversion runs over the WHOLE table
+  **before** the multiplicities are zipped in, so a table row whose
+  multiplicity is zero still refuses; and the same construction holds for the
+  exponential and activation tables under their own tags.
 * **FALSE as written:** *"whether an attempt is refused is therefore a
   function of the public challenges and the public table alone"*.
   Counterexample, passing as a test: take `alpha = v + g_u8` with `v = 4096`.
@@ -352,7 +382,14 @@ went down" is only true of the endpoints.
 
 ### 9.2 The filter, with this review's tests included
 
-*(filled in below)*
+`--lib private_`, the lane's recipe, `--test-threads=1`, this reviewer's
+manifest. Evidence in `results/zk60_block125m_s28_review/`.
+
+| run | threads | result |
+|---|---|---|
+| `gate-ambient.log` / `.done` | ambient rayon pool | **327 passed / 0 failed / 13 ignored, 414.59 s, exit 0** (the stage's 319 + 12, plus this review's 8 + 1) |
+| `gate-rayon1.log` / `.done` | `RAYON_NUM_THREADS=1` | *(filled in below)* |
+| `gate-final.log` / `.done` | ambient, final review code | *(filled in below)* |
 
 ### 9.3 Cross-version, 125M
 
