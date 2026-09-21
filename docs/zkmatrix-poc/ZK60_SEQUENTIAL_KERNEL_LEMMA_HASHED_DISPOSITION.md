@@ -106,6 +106,24 @@ coinages ("Game ⊥", "Game prefix") are defined where first used or replaced by
 the project's words (accepted receipts only, per D21 and rule M-9); citation
 defects fixed.
 
+**K-R4a (2026-09-21 02:42) — the first sentence of K-R4 was wrong, and the
+errata editor caught it.** I had ruled, following the check's B-4, that the
+sampler coupling "works for the rejection-region coupling only … number
+unchanged". The two halves cannot both be true. For the field's modulus,
+`2^128 mod p = p − 2^32`, so the rejection region has probability
+`r/2^128 = 2^-64` per draw while the distance from uniform is `2^-96` per
+draw; and **no event that leaves the sample exactly uniform can be smaller
+than the rejection region** (a residue above `r` has mass `k/2^128`, which
+bounds `(1 − Pr[B])/p`). I recomputed all three in exact integers. In event
+form the sampler would cost 2^-45.7 at the toy and 2^-37.3 for a twelve-block
+run. **Ruling: the sampler idealisation stays a distance hop, taken before the
+lemma** — the draws sit at schedule-determined positions and the view is a
+function of them, so the view moves by at most `N · 2^-96`, decision D9's
+accepted 2^-77.7 and 2^-69.3 — **and `B_samp` leaves the lemma's flag.** This
+is what the toy's accepted step 5 already does; nothing accepted moves. The
+lesson is the checker's as much as mine: a number carried from one proof form
+to another has to be re-derived in the new form.
+
 **K-R5 — the game.** The project's statements are about **accepted receipts
 only** (D21; M-9 for a run). The checker confirmed on one protocol that the
 lemma's fixed-challenge hypothesis holds under that game and fails if
