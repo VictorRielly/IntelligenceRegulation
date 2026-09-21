@@ -346,10 +346,61 @@ fn peak_rss_mib() -> f64 {
         .unwrap_or(f64::NAN)
 }
 
+/// **STAGE 19: which PUBLIC WEIGHTS the heavy tests use.** The default is the
+/// diagonal fixture every earlier stage measured, so nothing that has been
+/// measured moves. With `HL_PB_WEIGHTS=dense` the stage-19 DENSE recipe is
+/// used instead: every weight entry nonzero, so the hidden units above `d` —
+/// the whole upper half of every `Dom::F` plane, which the diagonal fixture
+/// leaves identically zero — carry real values. Any other value of the
+/// variable is refused by name rather than silently ignored.
+///
+/// The weight fold is the one phase whose COST this changes: `fold_cols_i8`
+/// and `fold_rows_i8` skip zero weights, so every published 125M timing taken
+/// on the diagonal fixture has an optimistic weight-fold phase.
+pub(super) const WEIGHTS_ENV: &str = "HL_PB_WEIGHTS";
+
+/// **STAGE 19 task 9(b): which HIDDEN INPUT the heavy tests use.** The
+/// default is the recipe's own; `HL_PB_INPUT=zero` substitutes the ALL-ZERO
+/// hidden input, which is the FIXED INPUT of the privacy case (U-4) and has
+/// never been proved at the 125M shape. It is weight-independent — every
+/// weight is multiplied by zero — so it is the same witness under either
+/// recipe.
+pub(super) const INPUT_ENV: &str = "HL_PB_INPUT";
+
+fn heavy_case(sh: &Shape) -> (String, AttentionPublic, FeedForwardPublic, Vec<i16>) {
+    let (recipe, p, f, x) = match std::env::var(WEIGHTS_ENV).ok().as_deref() {
+        None | Some("") | Some("tame") => {
+            let (p, f, x) = super::grow_tests::tame_case(sh);
+            ("tame (diagonal, the fixture of every earlier stage)", p, f, x)
+        }
+        Some("dense-ff") => {
+            let (p, f, x) = super::dense_tests::dense_ff_case(sh);
+            ("dense-ff (stage 19: DENSE feed-forward words on the fixture's attention words and input — the recipe that PROVES)", p, f, x)
+        }
+        Some("dense") => {
+            let (p, f, x) = super::dense_tests::dense_case(sh);
+            ("dense (stage 19: every public weight entry nonzero — EXPECTED TO BE REJECTED by finding S19-F1 until it is fixed)", p, f, x)
+        }
+        Some(other) => panic!("{WEIGHTS_ENV}={other} is not a weights recipe: use `tame` (the default), `dense-ff` or `dense`"),
+    };
+    let (label, input) = match std::env::var(INPUT_ENV).ok().as_deref() {
+        None | Some("") | Some("fixture") => ("the recipe's own hidden input", x),
+        Some("zero") => ("the ALL-ZERO hidden input (the fixed input of the privacy case, U-4)", vec![0i16; sh.tokens * sh.width]),
+        Some(other) => panic!("{INPUT_ENV}={other} is not a hidden input: use `fixture` (the default) or `zero`"),
+    };
+    (format!("weights {recipe}; input {label}"), p, f, input)
+}
+
 /// **ONE 125M BLOCK, END TO END.** Built, proved with the generalised
 /// endpoint, encoded, and verified FROM BYTES by a fresh verifier call.
 /// Development grade (ruling P-7) on public synthetic weights: not a privacy
 /// statement, not an acceptance, and no receipt from it is shown to anyone.
+///
+/// **STAGE 19:** `HL_PB_WEIGHTS=dense` swaps the diagonal fixture for the
+/// dense recipe and `HL_PB_INPUT=zero` swaps the hidden input for the
+/// all-zero one (task 9(b)). Nothing else about the test moves — the same
+/// endpoints, the same counted frame length, the same assertions — because a
+/// receipt's length is a function of the shape and of nothing else.
 #[test]
 #[ignore = "the 125M run: about 11 GiB peak resident and minutes of wall clock. Launch it detached under ruling P-6's conditions with the command line in ZK60_BLOCK125M_LANE_PROGRESS.md; never from a session that is also building."]
 fn private_block_125m_one_block() {
@@ -363,7 +414,8 @@ fn private_block_125m_one_block() {
     let clock = super::timing::enabled();
     println!("125M: the phase clock ({}) is {}", super::timing::ENV, if clock { "ON: the PB-TIMING tables below are ONE run on a shared box, a diagnostic and not a receipt" } else { "off" });
     let t_start = std::time::Instant::now();
-    let (public, ff, input) = super::grow_tests::tame_case(&sh);
+    let (recipe, public, ff, input) = heavy_case(&sh);
+    println!("125M: the case ({WEIGHTS_ENV} / {INPUT_ENV}) is {recipe}");
     let blk = BlockPublic::new(public, ff);
     let w = witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &input).expect("the 125M honest witness");
     drop(input);
