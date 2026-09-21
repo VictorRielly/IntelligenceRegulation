@@ -9894,3 +9894,57 @@ checked element for element against the independent
 `private-block-kernel-shaped` reference.
 
 **Evidence prefix**: `results/zk60_block125m_lane/u31-*`.
+**THE 125M CENSUS** [MEASURED, one run, shared box, `r29-m125-bfcensus.log`,
+exit 0, started 12:50 PDT 2026-09-21 once the heavy lock freed, one dense
+one-block prove, scans 0.052 s in total]:
+
+| slot | tables | wholly base-field | words | base-field words | share | the exceptions, and why |
+|---|---:|---:|---:|---:|---:|---|
+| 17 `SC_SZC` | 30 | 18 | 125,829,120 | 75,497,472 | **60.0%** | 3 `Eq` (two over a 22-coordinate point, one over 13) + 9 `Priv cm=H` |
+| 14 `SC_DZC` | 60 | 40 | 31,457,280 | 20,971,520 | **66.7%** | 3 `Eq` + 17 `Priv cm=H` |
+| 18 `SC_FZC` | 20 | 11 | 20,971,520 | 11,534,336 | **55.0%** | 3 `Eq` + 6 `Priv cm=H` |
+| 15 `SC_QZC` | 21 | 11 | 11,010,048 | 5,767,168 | **52.4%** | 3 `Eq` + 7 `Priv cm=H` |
+| 04 `SC_RS` | 5 | 4 | 20,971,520 | 16,777,216 | **80.0%** | 1 `Eq` |
+| **the five** | **136** | **84** | **210,239,488** | **130,547,712** | **62.1%** | — |
+
+**[COUNTED] 84 of the 136 tables that round 1 of these five slots reads at
+the 125M shape are wholly base-field — 130,547,712 of 210,239,488 words,
+62.1%.** The rung-K4 answer was 61.5%, so the share is a property of the
+SCHEDULE and not of the shape: the same two classes are base-field (the `A`
+planes and the public tables) and the same two are not (the challenge-weighted
+`eq` tables, three per zero-check slot, and the `H` LogUp helper columns,
+which are inverses in the extension). Both readings above — cheaper
+multiplications rather than a base-field round, and joint or nothing — hold
+unchanged at this shape.
+
+One reading note so the two tables in this ledger can be compared. A table's
+length here is `1 << n` for the slot's MAIN variable count: 2^22 at slots 17
+and 04, 2^19 at 14 and 15, 2^20 at 18. The "cube" column of stage 28's task-2
+table and of the `PB-TIMING` phase rows is `1 << (main + ext)`
+(`argument.rs:1755`), which is twice as large at each of these five slots
+because each has `ext = 1` (the instrument prints it). Neither figure is
+wrong; they count different things.
+
+**The second prove-time sample** [MEASURED, one run, shared box], beside
+stage 28's 17.40 s, same test, same env plus `HL_PB_BASEFIELD`:
+
+| figure | stage 28 (`q28-m125-final-dense.log`) | **this run** |
+|---|---|---|
+| prove, s | 17.40 | **19.36** (19.31 with the 0.052 s of census scans taken out) |
+| verify from bytes, s | 1.15 | **1.34** |
+| receipt, B | 40,783,352 | **40,783,352** |
+| peak RSS, MiB | 10,156 | **10,141** |
+| witness build, s (outside the prover) | 5.24 | **6.08** |
+
+**How to read it: as run-to-run spread on a shared box, not as a change.**
+The binary is the stage-28 production code plus the census, so the prover is
+the same prover; the receipt length is identical; and the parts of the run
+that contain NO census — the witness build (+16%) and the verify (+17%) —
+moved by more than the prove did (+11%), which is what a busier box looks
+like and not what a slower prover looks like. The project's own measured
+run-to-run variance on this box is up to a factor of two. **The honest
+statement is that one 125M block proves in 17.4-19.4 s on this laptop, two
+runs, and that nothing here narrows that.** The per-slot sub-steps move the
+same way (slot 17's table build 0.251 -> 0.510 s, its shared masked sumcheck
+3.054 -> 3.107 s).
+
