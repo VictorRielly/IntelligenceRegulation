@@ -1507,7 +1507,33 @@ was asked. The mechanics worth recording here:
 
 ## R8.8 The channel table, the evidence and the suite
 
-(pending)
+**The table grows, and that is the one thing round 8 does that rounds 2–7
+did not.** Every earlier round moved statuses inside a fixed array (or
+added one entry, in round 3). Round 8 adds THREE: `M`'s `q`, `M`'s
+proximity vector and `M`'s own opened columns. The run gate never graded
+them separately — channel 3 excluded `M`'s opening in one word and channel
+7 carried the whole masking layer — while the TOY gate has graded them
+separately since its §14. So the array goes **25 → 28**, and with both arms
+off the three new entries are OPEN.
+
+| record set | with both arms OFF | with both arms ON |
+|---|---|---|
+| the ten records of record | **28: 2 / 5 / 4 / 17** (planeindex: 2 / 4 / 4 / 18) | not taken |
+| round 8's four | not taken | **28: 10 / 5 / 4 / 9** |
+
+**Four assertions of earlier test files had to move**, and they are the only
+ones: the channel-count assertions in
+`test_zk60_native_run_gate_{s20,planeindex,tagged,k4}.py`. Each is about
+the record's SHAPE — three entries added, all OPEN with the arms off — and
+not about any figure. Round 7 could say "no assertion of rounds 1–6 had to
+move"; round 8 cannot say that, and says so instead.
+
+**The leaf diff.** The ten records of record were re-run with both arms off
+and diffed leaf by leaf against the committed bytes taken into `before/`
+first. The classifier gains two classes: the new `stage12_mask_and_cfs`
+block and the new `stage13_joint_run_preimage` block; the three added
+channel entries and the moved counts fall under the channel classes round 3
+established.
 
 ## R8.9 NEXT after round 8
 
