@@ -1880,7 +1880,8 @@ should do is `ls *.done`, read the exit codes, and integrate.
 | `dense-controls2` | the CT / GQ / C1–C6 / CH families after the M-F3 repair | the count of controls that fire at 125M, which §13.7 currently gives only for M9-1..3 and round 8's M1–M6 |
 | `dense-final`, `zero-final` | the two (a)–(d) records re-taken on FROZEN bytes | these supersede the committed `m125-dense.json` / `m125-zero.json` for their tool pins; every figure must be identical |
 | `refresh` + `diff.sh` | **LANDED**: the ten development records re-run and leaf-diffed — **0 UNCLASSIFIED on all ten**, 2,855–4,140 identical leaves each, every difference one of nine tool hashes, one to three wall clocks, the seven `array_store` leaves or the five `shared_files` leaves. Not one rank, disclosed dimension, challenge count, slot check, control figure or channel count moved | integrated in report §13.8b. `refresh2` is a redundant second pass on the same frozen bytes |
-| `tests_final`, `tests_native_all`, `tests_run_gate_all` | the two suites on frozen bytes | the round's suite counts, which §13 does not yet state |
+| `tests_native_all` | **LANDED**: **474 tests** (round 8: 432), one skip, one expected failure; five failures and one error, every one an earlier round's exact-set assertion that round 9 widened on purpose (report §13.8c) — all six now updated with the reason beside each | integrated; `tests_final` and `tests_run_gate_all` re-run them after the repairs |
+| `retake78` | rounds 7 and 8's OWN evidence re-taken on frozen bytes | their `test_the_evidence_came_from_the_tool_bytes_now_in_the_tree` is what demanded it; NO stage-11 or stage-12 figure may move |
 
 The ledger names them rather than predicting their outcomes, which is the
 marker protocol's whole point: the box kept working, and a figure nobody

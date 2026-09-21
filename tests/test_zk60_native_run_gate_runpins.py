@@ -60,6 +60,16 @@ IN_SCOPE = (
     "run-g-dense-s20", "run-h-zero-s20",
     "run-i-dense-k4", "run-j-zero-k4",
 )
+# [ROUND 9] the two 125M bundles are the first in scope that live OUTSIDE
+# the Rust lane's results directory: they are 281 MB and 273 MB and are kept
+# in `zk60-artifacts/`, never copied into a repository.  They are in scope
+# for the pin tables all the same, so the cross-reference below has to reach
+# them; when they are absent the table's claim about them is not checked and
+# the test says which names it skipped rather than silently narrowing.
+M125_DIR = os.environ.get("ZK60_M125_BUNDLES", "/home/victor/zk60-artifacts")
+M125_IN_SCOPE = ("m125-capture-dense-l2", "m125-capture-zero-l2")
+HAVE_M125 = all(os.path.isdir(os.path.join(M125_DIR, b))
+                for b in M125_IN_SCOPE)
 HAVE_BUNDLES = all(os.path.isdir(os.path.join(BUNDLES, b)) for b in IN_SCOPE)
 HAVE_LANE = os.path.isdir(os.path.join(LANE, ".git")) or os.path.exists(
     os.path.join(LANE, ".git"))
@@ -89,7 +99,8 @@ NEWLY_PINNED = (
 
 
 def _bundle(name):
-    return RunBundle(os.path.join(BUNDLES, name))
+    root = M125_DIR if name in M125_IN_SCOPE else BUNDLES
+    return RunBundle(os.path.join(root, name))
 
 
 def _with_digest(bundle, path, digest):
@@ -141,7 +152,11 @@ class ThePinTableCoversExactlyTheEstablishedList(unittest.TestCase):
         """A pin added without a reading is what this discipline forbids."""
         pairs = {(p, d) for p, t in RUN_LAYER_PINS.items() for d in t}
         self.assertEqual(pairs, set(READINGS))
-        self.assertEqual(len(pairs), 9)
+        # [ROUND 9, DELIBERATE] nine (file, digest) pairs became twelve:
+        # `run_capture.rs`, `run.rs` and `boundary.rs` each gained the
+        # digest the 125M bundles pin at `f4697f9`, and each gained a
+        # written reading with it -- which is what this test is for.
+        self.assertEqual(len(pairs), 12)
         for (path, digest), text in READINGS.items():
             self.assertGreater(len(text), 200, (path, digest))
             self.assertEqual(len(digest), 64)
@@ -207,8 +222,12 @@ class TheRoundFiveFiguresThisRoundCorrects(unittest.TestCase):
         self.assertIn("9** added", WAS_UNPINNED["src/private_block/run.rs"])
 
     def test_boundary_rs_is_not_byte_identical_at_every_capture_commit(self):
+        # [ROUND 9, DELIBERATE] two digests became THREE: stage 26 added
+        # `BoundarySpec::index()` and a doc comment (production +22/-0, not
+        # one geometry accessor), which round 5's "byte-identical at every
+        # capture commit so far" would have been wrong about a third time.
         self.assertEqual(len(RUN_LAYER_PINS["src/private_block/boundary.rs"]),
-                         2)
+                         3)
         why = WAS_UNPINNED["src/private_block/boundary.rs"]
         self.assertIn("that is WRONG", why)
         self.assertIn("9860c35d", why)
@@ -222,7 +241,9 @@ class EveryInScopeBundlePasses(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.bundles = {n: _bundle(n) for n in IN_SCOPE}
+        names = list(IN_SCOPE) + (list(M125_IN_SCOPE) if HAVE_M125 else [])
+        cls.names = tuple(names)
+        cls.bundles = {n: _bundle(n) for n in names}
 
     def test_all_ten_bundles_run_layer_pins_are_read_digests(self):
         for name, b in self.bundles.items():
@@ -243,7 +264,14 @@ class EveryInScopeBundlePasses(unittest.TestCase):
                             for p in self.bundles[name].manifest["source_pins"]}
                     self.assertEqual(pins[path], digest, (path, name))
             claimed = {n for e in table.values() for n in e["bundles"]}
-            self.assertEqual(claimed, set(IN_SCOPE), path)
+            # [ROUND 9] the tables now claim the two 125M bundles as well.
+            # A box without them checks the ten it has and says so, rather
+            # than asserting a narrower set and calling that a pass.
+            self.assertEqual(claimed, set(IN_SCOPE) | set(M125_IN_SCOPE),
+                             path)
+            if not HAVE_M125:
+                self.skipTest("the 125M bundles are not on this box, so the "
+                              "table's claim about them is unchecked")
 
     def test_the_source_commit_a_bundle_declares_is_one_the_table_lists(self):
         """A bundle names its own lane commit in `run.json`; the digest it
@@ -412,8 +440,12 @@ class TheDigestsAreTheCommittedBlobs(unittest.TestCase):
                                      (path, commit))
                     self.assertEqual(len(raw), entry["bytes"], (path, commit))
                     checked += 1
-        self.assertEqual(checked, 15,
-                         "three files at five capture commits each")
+        # [ROUND 9, DELIBERATE] five capture commits became SIX: the 125M
+        # bundles are written at `f4697f9`, and all three run-layer files
+        # moved there.  Three files at six commits each is 18.
+        self.assertEqual(checked, 18,
+                         "three files at SIX capture commits each "
+                         "(round 9 added f4697f9)")
 
     def test_one_flipped_byte_in_each_file_is_not_a_read_digest(self):
         """The refusal above is asserted on a made-up digest; this is the

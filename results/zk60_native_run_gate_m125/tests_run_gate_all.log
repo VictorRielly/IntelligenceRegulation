@@ -1,0 +1,166 @@
+Running scope as unit: run-r4bdad48392254163ab693a34f9b41258.scope
+test_a_boundary_with_one_proximity_row_is_refused_by_the_row_rule (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_a_manifest_hash_that_does_not_match_the_bytes_is_refused (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_a_toy_schema_3_capture_is_refused_by_name (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_both_bundles_pass_the_integrity_pass (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_the_shape_is_data_and_not_a_ported_constant (test_zk60_native_run_gate.TestLoaderAndIntegrity) ... ok
+test_the_certifying_minor_rebuilds_from_the_emitted_indices_alone (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_the_disclosed_dimensions_at_the_run_shape (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_the_msg_and_pad_halves_have_different_lengths_here (test_zk60_native_run_gate.TestPerCommitment) ... ok
+test_a_commitment_with_multi_member_groups_is_skipped_not_faked (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_every_control_fires_on_a_bundle_that_passes_honest (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_the_controls_restore_everything_they_touched (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_the_zero_data_message_preimage_is_exhibited_and_verified (test_zk60_native_run_gate.TestPreimageAndControls) ... ok
+test_both_bundles_have_a_green_record_that_claims_no_privacy_property (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_every_recorded_channel_carries_a_usable_status (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_record_says_what_it_does_not_show (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_boundary_figures (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_controls_all_fire_and_give_the_checkers_numbers (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_the_recorded_disclosed_dimensions (test_zk60_native_run_gate.TestRecordedEvidence) ... ok
+test_one_altered_field_breaks_the_replay (test_zk60_native_run_gate.TestReplay) ... ok
+test_the_whole_run_transcript_is_re_derived (test_zk60_native_run_gate.TestReplay) ... ok
+test_a_shared_blinding_row_raises_the_joint_above_the_sum (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_a_shared_pair_gives_disclosed_two_and_a_single_prox_row_gives_one (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_reserved_row_figure_is_six_of_six_and_discloses_nothing (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_three_roles_are_identified_from_claim_sources (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_whole_run_is_one_system_and_the_joint_equals_the_sum (test_zk60_native_run_gate.TestTheBoundary) ... ok
+test_the_two_solves_agree_to_the_byte (test_zk60_native_run_gate_ahpreimage.TestEquivalenceWithTheToyGate) ... ok
+test_the_wide_verify_adds_a_hash_arm_the_toy_has_not (test_zk60_native_run_gate_ahpreimage.TestEquivalenceWithTheToyGate)
+The one difference in `verify`, stated and asserted: with no rule ... ok
+test_a_boundary_solves_and_verifies_from_scratch (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_no_capture_file_was_written (test_zk60_native_run_gate_ahpreimage.TestLive)
+Every perturbation is in memory: the bundle's bytes must be what ... ok
+test_p1_one_opened_column_entry (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p2_one_group_vector_entry_message_half (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p3_one_group_vector_entry_pad_half (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p4_one_pad_fewer_than_the_distinct_opened_columns (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p5_a_blinding_row_shared_between_A_and_H (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_p6_a_fixed_input_off_H_s_disclosed_identity (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_the_message_half_agrees_with_round_1_s_own_construction (test_zk60_native_run_gate_ahpreimage.TestLive)
+Round 1's singleton-group solve and round 7's general one are two ... ok
+test_the_solve_order_puts_the_zsum_group_after_the_one_it_reads (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_the_systems_dimensions_are_read_from_the_shape (test_zk60_native_run_gate_ahpreimage.TestLive) ... ok
+test_derived_from_names_every_re_derived_method (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_every_primitive_is_the_toy_gate_s_own_object (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_the_module_defines_no_primitive_of_its_own (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork)
+A re-implementation would show up as a function defined HERE. ... ok
+test_the_module_says_it_establishes_no_privacy_property (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_the_stage_is_off_by_default_and_says_why (test_zk60_native_run_gate_ahpreimage.TestTheModuleIsNotAFork) ... ok
+test_a_run_preimage_is_still_open_and_says_why (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_every_opened_column_re_authenticates (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_every_pcs_commitment_has_an_exhibited_preimage (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_nothing_differs_anywhere (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_channel_table_moved_three_channels_and_no_more (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_controls_all_fire (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_entry_counts_are_the_shapes_own_arithmetic (test_zk60_native_run_gate_ahpreimage.TestTheRecord)
+Not a constant: each count is re-derived from the commitment's own ... ok
+test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... FAIL
+test_the_four_bundles_are_the_ones_the_round_names (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_record_denies_a_privacy_property (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_two_shapes_are_the_ones_the_report_quotes (test_zk60_native_run_gate_ahpreimage.TestTheRecord) ... ok
+test_the_zero_witness_bundles_are_the_sanity_anchor (test_zk60_native_run_gate_ahpreimage.TestTheRecord)
+On a bundle the prover made from the ALL-ZERO hidden input the ... ok
+test_a_perturbed_group_coordinate_changes_the_factor (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+Every coordinate of `r_g` matters, one at a time: flipping any ... ok
+test_eq_point_agrees_with_the_msb_first_table_at_every_arity (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+`eq(r, .)` built as a TABLE over 2^n points and evaluated ... ok
+test_the_group_factor_sums_to_one_over_the_boolean_cube (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+`sum over g in {0,1}^n of eq(r, g) == 1` for every `r`: the ... ok
+test_the_repaired_sum_picks_out_one_group (test_zk60_native_run_gate_k4.TheGroupFactorOnGenericInstances)
+The identity the repair rests on, stated generically: for any ... ok
+test_both_factors_coordinate_schedules_written_out_at_lkv_2 (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+The whole point of the repair, at two group bits: the SAME two ... ok
+test_the_bilinear_slot_dimensions_at_two_group_bits (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived) ... ok
+test_the_definition_draws_at_both_shapes (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived) ... ok
+test_the_group_bits_are_summed_in_both_factors_at_lkv_2 (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+The property finding S19-F1 names: BEFORE the repair the group ... ok
+test_the_head_axis_moves_in_three_ways_not_one (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+If anything in the port had assumed six heads or a sixteen-wide ... ok
+test_the_lengths_scale_exactly_as_the_two_shapes_predict (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+The coordinate-entry counts the gate reports, derived here from ... ok
+test_the_padded_head_slots_are_the_125m_geometry (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+12 query heads of 8 over 4 key-value heads with `h_pad = 16` ... ok
+test_the_shape_digest_of_rung_k4_is_a_read_second_value (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived)
+`shape.rs` moved for the K4 bundles, and the port accepts the ... ok
+test_two_group_bits_at_rung_k4_and_one_at_rung_g (test_zk60_native_run_gate_k4.TheK4GeometryIsDerived) ... ok
+test_a_coordinate_out_of_range_is_refused_rather_than_ignored (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_a_moved_source_pin_is_reported_and_does_not_crash_the_gate (test_zk60_native_run_gate_k4.TheLiveK4Bundle)
+**Finding K4-F1.**  Until round 5 the moved-pin arm of ... ok
+test_a_same_profile_pair_is_named_and_skipped_not_passed (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_all_thirteen_group_controls_fire_live (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_each_group_coordinate_is_compared_on_both_sides (test_zk60_native_run_gate_k4.TheLiveK4Bundle)
+The two halves of the derive-and-compare rule, once per group ... ok
+test_the_group_point_is_two_entries_and_is_derived_not_read (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_the_terminal_identity_holds_on_the_live_bundle (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_the_two_profiles_derive_four_different_keys (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_the_two_profiles_keys_do_not_authenticate_each_others_columns (test_zk60_native_run_gate_k4.TheLiveK4Bundle) ... ok
+test_both_bundles_pass_every_stage_and_claim_no_privacy (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_every_control_of_record_fires (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_boundary_and_the_whole_run (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_dense_against_zero_comparison_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_disclosure_and_rank_figures_are_rung_gs (test_zk60_native_run_gate_k4.TheRecordedFigures)
+The headline: the blinding structure does not move with the head ... ok
+test_the_eight_older_records_were_refreshed_without_a_figure_moving (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_geometry_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_group_counts_of_record_double_with_lkv (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_hash_layer_and_the_channel_count (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_profile_and_the_keyed_rule_are_the_k4_ones (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_replay_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_shape_comparison_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_the_twenty_three_slots_of_record (test_zk60_native_run_gate_k4.TheRecordedFigures) ... ok
+test_a_digest_that_is_not_a_digest (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_member_the_schema_does_not_define (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_missing_member_of_the_reference (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_negative_or_non_integer_field (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_range_past_the_end_of_the_store (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_reference_as_a_list_element (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_reference_under_a_member_the_schema_never_externalises (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_store_that_is_not_there (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_store_whose_length_is_not_the_manifests (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_u64_that_is_not_a_reduced_goldilocks_element (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_an_unknown_element_type (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_bytes_that_are_not_len_times_the_width (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_every_externalisable_member_the_format_names_is_walked (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_the_walk_collects_refusals_and_keeps_going (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_the_wrong_digest_for_the_right_bytes (test_zk60_native_run_gate_m125.ARefusalIsNeverACrash) ... ok
+test_a_4run_bundle_must_not_carry_a_store (test_zk60_native_run_gate_m125.TheDecoderAgainstADevelopmentBundle) ... ok
+test_an_fp2_array_reads_as_the_list_of_pairs_it_replaces (test_zk60_native_run_gate_m125.TheDecoderReadsWhatTheFormatWrites) ... ok
+test_an_fp_array_reads_as_the_list_of_ints_it_replaces (test_zk60_native_run_gate_m125.TheDecoderReadsWhatTheFormatWrites) ... ok
+test_the_digest_of_a_resolved_range_is_recomputed_once_per_range (test_zk60_native_run_gate_m125.TheDecoderReadsWhatTheFormatWrites) ... ok
+test_the_summary_counts_what_it_says_it_counts (test_zk60_native_run_gate_m125.TheDecoderReadsWhatTheFormatWrites) ... ok
+test_a_round_trip_over_the_six_member_names (test_zk60_native_run_gate_m125.TheEncoderIsTheInverseOfTheDecoder) ... ok
+test_an_array_shorter_than_the_threshold_stays_inline (test_zk60_native_run_gate_m125.TheEncoderIsTheInverseOfTheDecoder) ... ok
+test_identical_arrays_are_stored_once (test_zk60_native_run_gate_m125.TheEncoderIsTheInverseOfTheDecoder) ... ok
+test_a_perturbed_byte_of_the_store_is_refused_by_digest (test_zk60_native_run_gate_m125.TheLiveBundle)
+The control, in memory: nothing on disk is written, and the ... ok
+test_a_public_tables_array_digest_is_its_own_sha256_field (test_zk60_native_run_gate_m125.TheLiveBundle)
+Format 12: 'A public table's `array` digest IS its `sha256`', ... ok
+test_the_bundle_declares_the_new_schema_and_carries_a_store (test_zk60_native_run_gate_m125.TheLiveBundle) ... ok
+test_the_two_bundles_pin_the_same_sources (test_zk60_native_run_gate_m125.TheLiveBundle) ... ok
+test_every_member_of_a_development_run_reads_the_same_both_ways (test_zk60_native_run_gate_m125.TheLoaderEquivalence) ... ok
+test_the_whole_gate_reports_the_same_figures_through_the_new_loader (test_zk60_native_run_gate_m125.TheLoaderEquivalence) ... ok
+test_all_thirty_eight_pins_are_at_a_digest_this_gate_read (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... ok
+test_every_opened_column_of_every_commitment_authenticated (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... ok
+test_every_recorded_figure_agrees_with_the_prediction (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... ok
+test_no_record_claims_a_privacy_property (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... ok
+test_the_array_store_resolved_every_reference_without_a_refusal (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... ok
+test_the_boundary_is_six_of_six_and_discloses_nothing (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... ok
+test_the_disclosure_figures_are_the_development_shapes (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... /usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_replay_reproduced_every_challenge (test_zk60_native_run_gate_m125.TheRecordOfRecordAt125M) ... ok
+test_every_predicted_figure_is_the_literal_written_here (test_zk60_native_run_gate_m125.WhatTheGateMustReportAt125M) ... ok
+test_rulings_C4_headroom_is_positive_or_the_mask_would_not_fit (test_zk60_native_run_gate_m125.WhatTheGateMustReportAt125M) ... ok
+test_the_125m_geometry_is_the_one_the_brief_names (test_zk60_native_run_gate_m125.WhatTheGateMustReportAt125M) ... ok
+test_the_non_data_row_count_is_two_per_claim_plus_the_proximity_pair (test_zk60_native_run_gate_m125.WhatTheGateMustReportAt125M)
+The one law that holds at every commitment of every shape, and ... ok
+test_the_prediction_was_validated_on_both_development_shapes (test_zk60_native_run_gate_m125.WhatTheGateMustReportAt125M) ... ok
+test_the_record_says_every_figure_is_equal (test_zk60_native_run_gate_mask.TestEquivalenceRecord) ... ok
+test_every_figure_equals_the_toy_gate_s_committed_record (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate) ... ok
+test_the_join_also_works_at_the_toy (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate)
+The CFS-solved coefficients reproduce the toy's M opening too. ... ok
+test_the_toy_model_object_is_the_toy_module_s_class (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate) ... ok
+test_the_two_exhibited_randomness_digests_are_the_toy_s (test_zk60_native_run_gate_mask.TestEquivalenceToTheToyGate) ... ok

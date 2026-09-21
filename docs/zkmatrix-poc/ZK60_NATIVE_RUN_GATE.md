@@ -3187,6 +3187,22 @@ waited for 125M.
 > `m125-dense-everything` runs against them, so this is recorded here
 > rather than repaired.
 
+## 13.8c The suite, and the six assertions round 9 moved
+
+`-p 'test_zk60_native*.py'`: **474 tests** (round 8: 432), one skip and one
+recorded expected failure. The first whole-suite pass after the tool
+changes was **five failures and one error**, and — as in rounds 5 and 8 —
+every one is an earlier round asserting an exact set that round 9 widened
+on purpose. **Not one is a measured figure.**
+
+| assertion | was | is | why |
+|---|---|---|---|
+| `test_every_pinned_digest_is_the_blob_at_every_commit_it_names` | 15 | **18** | three run-layer files at **six** capture commits, not five: `f4697f9` is new and all three moved there |
+| `test_every_pinned_digest_has_a_written_reading` | 9 | **12** | each of the three gained the digest the 125M bundles pin, and each gained its written reading with it — which is what that test is for |
+| `test_boundary_rs_is_not_byte_identical_at_every_capture_commit` | 2 digests | **3** | stage 26 added `BoundarySpec::index()` and a doc comment (production +22/−0, not one geometry accessor). Round 5's "byte-identical at every capture commit so far" would have been wrong a third time |
+| `test_the_tables_bundle_cross_reference_is_the_manifests` | `KeyError` | in scope | the two 125M bundles are the **first in scope that live outside the Rust lane's results directory** — they are 281 MB and 273 MB and are never copied into a repository — so the test reaches them at `zk60-artifacts/` and skips *by name* on a box that does not have them, rather than silently narrowing the set it asserts |
+| `test_the_evidence_came_from_the_tool_bytes_now_in_the_tree` (round 7's and round 8's) | pinned digests round 9 moved | re-taken | **round 7's and round 8's own evidence had to be re-taken**, which is the cost round 8 paid for round 7 and said so. Round 9 pays it for both: `retake78.sh`, on frozen bytes, with no stage-11 or stage-12 figure permitted to move |
+
 ## 13.9 Every sentence that said "nothing at 125M", corrected in place
 
 Nothing above is rewritten; each correction is dated.
