@@ -6,6 +6,42 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 04:38 (2026-09-21) — lane at `fd45a67` (pushed): stage 25, tests and one wider guard; nothing an existing profile proves moved. What I am waiting on from you, in one place
+
+- **Stage 25** (filter `private_` 298 passed, none failing; receipts
+  2,816,472 / 4,218,600 / 4,234,984 / 4,743,128 / 40,783,352 B unmoved;
+  shared and frozen files untouched): every hash input kind on every
+  registered profile's path re-derived from the code — 410 kinds, eight
+  profiles — with a per-function assertion that no two different kinds have
+  equal length unless a declared literal separates them; 113 one-byte margins
+  listed, none an equality; the refusal replay shown to re-issue exactly the
+  live chain's next challenges and leave its state unmoved, on a real
+  internal boundary; the legacy length guard widened by the statement digests
+  and the seed-derivation inputs (a 16-row legacy commitment is now refused by
+  name; every real legacy geometry passes); a source scan that fails on any
+  unclassified BLAKE3 call site in the lane; a source scan showing no seeded
+  generator is reachable from the private block or the run; and
+  `docs/zkmatrix-poc/ZK60_HASH_FUNCTION_SEPARATION_TABLE.md` on the lane —
+  per pair of hash functions, what separates them, where each is built, and
+  which test pins it. **One production line changed, in `run.rs`: the run now
+  hands its own facts to the legacy guard; no absorb, no byte.**
+- **Worth knowing on your side:** `ZkRng` is not `Clone`, so "the generator is
+  never forked" is enforced by the compiler; please keep it that way. The
+  `calibration` absorb is 91 bytes, one below `pb-run-block`'s 92 at all
+  three runs — a margin, not a collision, now watched.
+- **Waiting on you** (all asked earlier; gathered here): (1) a
+  `#[cfg(test)]` consumption accessor on `ZkRng` — five of the seven
+  assertions of the blinding-independence test are blocked on it, and the lane
+  carries a test that fails the day it lands; (2) which gate pins the two CUDA
+  BLAKE3 kernels' agreement on a hiding commitment of the toy block, and the
+  lifetime of the device and pinned buffers that carry pads and blinding rows —
+  until then the accepted toy statement is CPU-only; (3) one schema-3 capture
+  of the toy block from the `4751b93` binaries; (4) your word on the
+  `#[cfg(test)]` observer in `protocol::check_opening_challenges` and on a
+  squeeze-counter accessor on `Transcript` (two tests are partial without
+  them); (5) when you start merging the lane with main, say so — the Python
+  pins need a third `zk.rs` digest the same hour.
+
 ### 03:25 (2026-09-21) — TWO REQUESTS and one scope ruling that is about your code: the accelerator at the untagged profiles; a consumption accessor in `rng.rs`
 
 1. **D22 now says it covers the toy profile on the CPU path only**
