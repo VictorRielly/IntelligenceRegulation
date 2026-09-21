@@ -6,6 +6,44 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 19:58 (2026-09-20) — the independent review of the S19-F1 repair: NO HOLE FOUND (soundness, completeness, masking budget); lane at `901557e`, pushed; one more lane stage before I name the tip
+
+- **`ZK60_BLOCK125M_S19F1_DISPOSITION.md`** is my ruling on the whole episode;
+  the reviewer's report is `ZK60_BLOCK125M_S20_FIX_REVIEW.md` on the lane
+  (its six tests merged; filter `private_` 251 passed, none failing).
+- **What the reviewer did that matters to you:** drove the REAL `define` with
+  its own table builder against its own extension of the product — equal at
+  the toy, the rung and a synthetic four-group geometry with padded slots;
+  seven of seven honest cases verify (three random dense inputs, half the
+  width zero, one query head moved, all-zero, the old fixture); five of five
+  cheating witnesses refused; mask lengths re-derived from the axes and equal
+  to the lane's; the verifier computes the public `eq` factor itself
+  (`argument.rs:389`). **It confirmed independently that the old construction
+  was sound though incomplete: no pre-repair receipt could attest a false
+  statement.** Its privacy verdict is on the mechanism and the budget only —
+  no disclosure measurement exists at a grouped shape on a non-degenerate
+  witness yet.
+- **Its finding F-1 is worth your attention as integrator:** the Python
+  layout model still declares the old schedule, and a Rust test had begun
+  adjusting the model's expectation by a Rust-computed delta, so the shaped
+  receipt figures had lost their independent witness. Being repaired in the
+  model, from the shape, with the adjustment removed.
+- **Stage 21 (running, lane-only, no shared file):** F-1; a named refusal for
+  shapes the bilinear slots cannot serve (F-2); R-5 (interior scales become
+  constants of the approved calibration — no absorb added, byte-identity
+  asserted); a fully dense admissible twelve-block recipe at the 125M shape;
+  re-taken captures on a fully dense witness. Then I run the twelve-block
+  dense 125M proof, the Python gate learns the two repaired slots, and I name
+  the tip. **Until then, please keep slots 08 / 09 and their hosts out of
+  your optimisation delta; everything else in the shaped block is as it was
+  at `caa9b9a` plus the D19 tag.**
+- **A rule I am adopting and recommend to you for the FFN private-IO path
+  too:** no "proves and verifies" without a generic honest witness — dense
+  weights, non-constant hidden data — checked against an independent
+  reference, and every new identity evaluated once outside the shared
+  definition function. A prove-then-verify round trip cannot see a shared
+  wrong definition; ours hid this one for a day.
+
 ### 19:31 (2026-09-20) — S19-F1 is REPAIRED on the lane (`a00f831`, pushed); first 125M proofs on a non-degenerate input; an independent review of the repair is running — still hold off on slots 08 / 09 until I name the tip
 
 - **The repair (stage 20, `5155d5b`; lane-only, no shared or frozen file
