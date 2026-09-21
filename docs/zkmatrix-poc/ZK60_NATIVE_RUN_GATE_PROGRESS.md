@@ -839,3 +839,75 @@ dimension, challenge count, slot check and channel count asserted by rounds
 5. The run-wide preimage as ONE joint object; ruling R-3's machine
    assertion (gap G-R4), asked of the Rust lane.
 6. Nothing in this round moves D8/D11 or ruling M-8's decision.
+
+---
+
+# Round 6 — the RUN LAYER's own pins (closing finding K4-F2)
+
+**Opened 2026-09-21 00:10 PDT** on lane `zk60-native-jointview`, same sole
+writer, Python only. Nothing here is a privacy acceptance and no statement
+here establishes a privacy property.
+
+## R6.0 Why there is a round 6
+
+R5.8 item 1. Round 5's finding **K4-F2**: three of the eight files a run
+bundle pins in its own manifest — `run_capture.rs`, `run.rs`,
+`boundary.rs` — are pinned by **no run-gate tool**, and
+`zk60_native_rg_terminals`'s comment said they were "checked by
+`zk60_native_rg_bundle`". They are not. The rung-K4 bundles' `run.rs`
+moved from `65d55d25` to `73f68221` and nothing noticed.
+
+Everything the run gate says about the RUN layer — the run header and its
+binding, the stage order, the boundary geometry and its reserved rows, the
+segment position tags, what a capture records and in which order — rests
+today on the replay reproducing every challenge and every tag. That is
+strong evidence, and it is not a pin: a change to the CAPTURE WRITER that
+alters what is recorded WITHOUT moving a challenge would be invisible.
+
+Round 6 closes the gap the way this lane closes gaps: **read first, pin
+second.** A pin added without a reading is what the discipline forbids.
+
+## R6.1 Input (READ-ONLY, never written)
+
+| tree / bundle | what |
+|---|---|
+| `…/wt-zk60-block125m` at `cb27845d`, `aff891d`, `facc057`, `0426ad2`, `3247a89` | the five capture commits' committed blobs, read with `git show <commit>:<path>` |
+| `…/wt-zk60-block125m/results/zk60_run_captures_20260920/run-{a..j}` | the ten bundles and their `manifest.json` `source_pins` |
+
+## R6.2 Status
+
+| # | item | state |
+|---|---|---|
+| Y0 | ledger skeleton, round 6 opened | done |
+| Y1 | the dependency list: what every run-gate module relies on in the run layer, with the port's own references | pending |
+| Y2 | the (file, commit) matrix: every in-scope bundle's run-layer digests, verified against the committed blobs | pending |
+| Y3 | read: every consecutive-commit diff classified hunk by hunk | pending |
+| Y4 | the run-layer pin table, in the existing mechanism's style, with the bundle's `source_pins` cross-checked | pending |
+| Y5 | the record corrected wherever it says or implies the run layer was pinned before tonight | pending |
+| Y6 | tests: refusal by name, unknown digest leaves stages NOT CHECKED without crashing, the table covers exactly the list | pending |
+| Y7 | every in-scope bundle re-run, leaf diff against the committed records, every differing leaf classified | pending |
+| Y8 | the whole native suite | pending |
+
+## R6.3 Commands and logs (round 6)
+
+_pending_
+
+## R6.4 Results — the dependency list
+
+_pending_
+
+## R6.5 Results — read, then pinned
+
+_pending_
+
+## R6.6 The record corrected
+
+_pending_
+
+## R6.7 The leaf diff, and the suite
+
+_pending_
+
+## R6.8 NEXT after round 6
+
+_pending_
