@@ -51,6 +51,33 @@ CLASSES = (
      "the new fields about captured public tables"),
 )
 
+# **ROUND 4 (2026-09-20), finding S19-F1.**  The same tool, run on
+# round-3-against-round-4 diffs, needs this round's own classes.  They are
+# additive and each names a change this lane knows it made; anything else is
+# still UNCLASSIFIED.  Round 3's committed summary is not regenerated.
+CLASSES_ROUND_4 = (
+    (lambda p: p == "stage10_bilinear_group_factor"
+     or p.startswith("stage10_bilinear_group_factor/"),
+     "the new stage 10 block (the bilinear slots' group factor)"),
+    (lambda p: p == "ruling_R3" or p.endswith("/ruling_R3")
+     or "/ruling_R3/" in p,
+     "ruling R-3's correction note, added beside every joint figure"),
+    (lambda p: p.startswith("stage4_the_boundary/ruling_R3"),
+     "ruling R-3's correction note on stage 4"),
+    (lambda p: "/bilinear_group_factor" in p
+     or p.endswith("/derived_group_points_used_and_compared")
+     or "/bilinear_definition" in p
+     or "/argument_definitions_this_port_implements" in p,
+     "the terminal port naming which definition of slots 08/09 is in force"),
+)
+CLASSES = CLASSES + CLASSES_ROUND_4
+NOTE_ROUND_4 = (
+    "  Round 4 adds four classes: the new stage 10 block, ruling R-3's "
+    "correction note beside every joint figure, the terminal port naming "
+    "which definition of the two bilinear slots is in force, and the one "
+    "channel entry whose reason gained R-3's sentence."
+)
+
 NOTE = (
     "every difference is one of: a wall clock, a tool SHA-256, the two NEW "
     "record blocks (hash_rule and stage 9), the replay naming its rule, the new "
@@ -70,9 +97,9 @@ def classify(path: str) -> str:
 
 def summarise(diffs: dict) -> dict:
     out = {
-        "what": "the superseded bundles re-run under round 3 and diffed leaf by "
-        "leaf against their round-2 records",
-        "note": NOTE,
+        "what": "the superseded bundles re-run under the current tools and "
+        "diffed leaf by leaf against their previous round's records",
+        "note": NOTE + NOTE_ROUND_4,
         "per_bundle": [],
         "unclassified": [],
     }

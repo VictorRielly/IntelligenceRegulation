@@ -37,7 +37,320 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 8.9,
+ "seconds": 9.2,
+ "stage10_bilinear_group_factor": {
+  "controls": {
+   "ok": true,
+   "skipped": "the bundle carries no plane index table, so no slot polynomial can be evaluated"
+  },
+  "group_factor": {
+   "bilinear_slots_per_stage": 2,
+   "bundle": "run-a-tame",
+   "counts": {
+    "coordinate_entries_compared": 135,
+    "coordinate_lists_rederived_and_compared": 12,
+    "definition_challenge_counts_compared": 6,
+    "dimension_sets_derived_and_compared": 6,
+    "fixed_coordinates_compared_with_a_rederived_challenge": 81,
+    "group_point_entries_compared": 0,
+    "group_points_derived_and_compared": 0,
+    "slots_examined": 6
+   },
+   "definition_in_force": "pre-repair",
+   "definition_reason": "stages 14-18: the two bilinear slots fix the key-value group bits r_h[..lkv] as coordinates of BOTH private factors and sum only over the inner axis (`|v| v[0].mul(v[1])`).  This is the definition finding S19-F1 names as wrong for a generic witness; a bundle written under it is SUPERSEDED, and nothing measured on it is a statement about what the profile produces today",
+   "definition_selected_by": "the bundle's own source pin of argument.rs (909670c96562)",
+   "failures": [],
+   "finding": "S19-F1 (ZK60_BLOCK125M_S19F1_DISPOSITION.md)",
+   "geometry": {
+    "h_pad": 8,
+    "head_dim": 16,
+    "kv_heads": 2,
+    "ldh = lg(head_dim)": 4,
+    "lh = lg(h_pad)": 3,
+    "lkv = clog2(kv_heads)": 1,
+    "lt = lg(t_pad)": 5,
+    "q_heads": 6,
+    "t_pad": 32
+   },
+   "group_point_derived_from": "the transcript replay's own re-derived definition challenges",
+   "ok": true,
+   "per_slot": [
+    {
+     "declared": [
+      4,
+      2,
+      2
+     ],
+     "declared_definition_draws": 13,
+     "definition": "pre-repair",
+     "derived_definition_draws": 13,
+     "derived_main_extension_degree": [
+      4,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 12,
+       "derived_len": 12,
+       "extension_round": 0,
+       "factor": "A_QR8",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_KR8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_SCORE",
+     "slot": 8,
+     "stage": 0,
+     "the_shapes_own_slots_entry": [
+      4,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      5,
+      2,
+      2
+     ],
+     "declared_definition_draws": 12,
+     "definition": "pre-repair",
+     "derived_definition_draws": 12,
+     "derived_main_extension_degree": [
+      5,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 0,
+       "factor": "A_P",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_V8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_PV",
+     "slot": 9,
+     "stage": 0,
+     "the_shapes_own_slots_entry": [
+      5,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      4,
+      2,
+      2
+     ],
+     "declared_definition_draws": 13,
+     "definition": "pre-repair",
+     "derived_definition_draws": 13,
+     "derived_main_extension_degree": [
+      4,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 12,
+       "derived_len": 12,
+       "extension_round": 0,
+       "factor": "A_QR8",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_KR8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_SCORE",
+     "slot": 8,
+     "stage": 1,
+     "the_shapes_own_slots_entry": [
+      4,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      5,
+      2,
+      2
+     ],
+     "declared_definition_draws": 12,
+     "definition": "pre-repair",
+     "derived_definition_draws": 12,
+     "derived_main_extension_degree": [
+      5,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 0,
+       "factor": "A_P",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_V8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_PV",
+     "slot": 9,
+     "stage": 1,
+     "the_shapes_own_slots_entry": [
+      5,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      4,
+      2,
+      2
+     ],
+     "declared_definition_draws": 13,
+     "definition": "pre-repair",
+     "derived_definition_draws": 13,
+     "derived_main_extension_degree": [
+      4,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 12,
+       "derived_len": 12,
+       "extension_round": 0,
+       "factor": "A_QR8",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_KR8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_SCORE",
+     "slot": 8,
+     "stage": 2,
+     "the_shapes_own_slots_entry": [
+      4,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      5,
+      2,
+      2
+     ],
+     "declared_definition_draws": 12,
+     "definition": "pre-repair",
+     "derived_definition_draws": 12,
+     "derived_main_extension_degree": [
+      5,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 0,
+       "factor": "A_P",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_V8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_PV",
+     "slot": 9,
+     "stage": 2,
+     "the_shapes_own_slots_entry": [
+      5,
+      2,
+      2
+     ]
+    }
+   ],
+   "refusals": [],
+   "slot_instances": 6,
+   "slots_with_a_derived_group_point": 0,
+   "stages": 3,
+   "superseded": true,
+   "superseded_note": "this bundle was made under the PRE-REPAIR definition of slots 08 and 09, which finding S19-F1 names as wrong for a witness that varies across key-value groups.  It is replayed under that definition because that is what made its bytes; nothing measured on it is a statement about what the profile produces today",
+   "what": "the two bilinear attention slots' GROUP FACTOR: lkv, the slot dimensions, the point r_g = r_h[..lkv] and both private factors' coordinate lists, all DERIVED from the shape and the replayed transcript and then compared with what the bundle declares.  The derived point is what the terminal identity evaluates; the declared one is only ever compared",
+   "what_this_does_not_establish": "that the private factors are the quantised query, key, probability and value planes of the statement.  No bundle carries a witness.  What is established is that the claim POINT and the slot's SCHEDULE are the ones the repaired construction derives from this shape, and that the group factor the verifier multiplies in is the one this tool computed for itself"
+  },
+  "ok": true
+ },
  "stage1_integrity": {
   "any_root_opened_twice": false,
   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
@@ -1649,6 +1962,7 @@
      "M@1": 0
     },
     "rows_total": 2517,
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
     "sum_of_parts_fp": 4
    },
    {
@@ -1708,6 +2022,7 @@
      "M@2": 0
     },
     "rows_total": 2517,
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
     "sum_of_parts_fp": 4
    }
   ],
@@ -1917,6 +2232,7 @@
       "B0",
       "A@1"
      ],
+     "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
      "sum_of_parts_fp": 0,
      "what": "the same hidden plane under three commitments: block k's activation commitment (its output plane), the boundary commitment, and block k+1's activation commitment (its input plane)"
     }
@@ -2125,12 +2441,14 @@
       "B1",
       "A@2"
      ],
+     "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
      "sum_of_parts_fp": 0,
      "what": "the same hidden plane under three commitments: block k's activation commitment (its output plane), the boundary commitment, and block k+1's activation commitment (its input plane)"
     }
    }
   ],
   "ruling": "M-8: three blocks at the development rung, all three roles of each boundary plane ranked jointly, the shared-pair and single-proximity-row controls included",
+  "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
   "shared_planes": {
    "equality_slots": [
     {
@@ -2379,7 +2697,8 @@
     "M@2": 0
    },
    "rows_total": 3785,
-   "seconds": 1.0,
+   "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+   "seconds": 1.1,
    "sum_of_parts_fp": 6
   }
  },
@@ -2916,7 +3235,8 @@
     "assumption": null,
     "channel": "the cross-block joint law beyond the linear rank",
     "preimage_exhibited": null,
-    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b)",
+    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b).  ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
     "section": "run 2.2 (NEW)",
     "status": "open"
    },
@@ -3055,7 +3375,7 @@
     {
      "authenticated_under_the_legacy_rule": 3328,
      "authenticated_under_the_tag": 0,
-     "bundle": "run-a-tame",
+     "bundle": "run-b-zero",
      "control": "CH-6",
      "fires": true,
      "mechanism": "the column, leaf and node keys, on real captured bytes",
@@ -3261,17 +3581,19 @@
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_rg_bundle.py": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
   "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
+  "zk60_native_rg_gcontrols.py": "c03f50ce2a09013a6a7421c1219bb8c52777687f4ca7afcc79eef8006e2c84af",
+  "zk60_native_rg_gqa.py": "54b5369e7080c47669d286297da641782e2717846b3cd1cb6465e6c7c3a5dd0c",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
-  "zk60_native_rg_joint.py": "6158bfd2a8195b9a0543baa86274e0f9f52466a3078debd64f6b45babfea4e9e",
+  "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
-  "zk60_native_rg_replay.py": "feb4ac04d1cf8113dcc6fae2ced68ed7fd953985e16a27d0fd79bebe5f0d21ea",
+  "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
-  "zk60_native_rg_terminals.py": "9d1de1758591e30ff9dcf9e42d9c6a6389c8c43db78aef227b96e898cd79dcb2",
-  "zk60_native_run_gate.py": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165"
+  "zk60_native_rg_terminals.py": "dc51ed03944ef0d9cde8b623fc87a8d68bfc36c686bc02a091c8f8b91c10d792",
+  "zk60_native_run_gate.py": "a3fefd950162d546ad73dc575d5fc15e8a92be0c44ac3d19c951953d717c67e2"
  },
  "version": 1,
  "what_it_does_not_show": [
@@ -3281,6 +3603,8 @@
   "the joint-law composition for a run is unwritten",
   "the per-slot terminal identity is not checked at this shape: this bundle carries no plane index table",
   "a captured public table is checked against the capture's own length, SHA-256 and the structure its builder gives it -- NOT against the weight matrix the statement names, which no bundle carries",
+  "the bilinear slots' group factor is DERIVED and compared, which says the claim point and the schedule are the repaired construction's -- it says nothing about the witness the run was proved on.  A capture carries no witness, so THIS GATE CANNOT TELL A DENSE WITNESS FROM A DEGENERATE ONE, and cannot reproduce finding S19-F1, which is a disagreement between the prover's claim and the true sum over key-value groups.  Which witness made a bundle is a fact of the Rust lane's test, read from the capture's README, not from the bundle",
+  "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
   "NOT a privacy acceptance and NOT a privacy property"
  ],
  "what_this_is": "the linear channels of ONE captured private run of 3 blocks at the development rung shape, at that run's real challenges"

@@ -50,7 +50,471 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 14.1,
+ "seconds": 15.9,
+ "stage10_bilinear_group_factor": {
+  "controls": {
+   "controls": [
+    {
+     "control": "GQ-1",
+     "fails_at_exactly_the_perturbed_slot": true,
+     "fires": true,
+     "mechanism": "the repaired identity's own arithmetic",
+     "of": 69,
+     "slot_checks_equal": 68,
+     "slots_that_failed": [
+      [
+       0,
+       8
+      ]
+     ],
+     "what": "stage 0, slot 8 [SC_SCORE], terminal 0 changed by +1"
+    },
+    {
+     "control": "GQ-2",
+     "fails_at_exactly_the_perturbed_slot": true,
+     "fires": true,
+     "mechanism": "the repaired identity's own arithmetic",
+     "of": 69,
+     "slot_checks_equal": 68,
+     "slots_that_failed": [
+      [
+       2,
+       9
+      ]
+     ],
+     "what": "stage 2, slot 9 [SC_PV], terminal 1 changed by +1"
+    },
+    {
+     "both_slots_refused_in_every_stage": true,
+     "control": "GQ-5",
+     "fires": true,
+     "group_factor_ok": false,
+     "mechanism": "the derived dimensions and the presence of the group table, both refused by name before any arithmetic runs",
+     "of_expected": 69,
+     "refusal_count": 30,
+     "refusals": [
+      "stage 0 slot 8 [SC_SCORE]: declared (main, extension, degree) (4, 2, 2) is not the (5, 2, 3) this shape and definition derive",
+      "stage 0 slot 8 [SC_SCORE]: the shape's own slots entry (4, 2, 2) is not the (5, 2, 3) this geometry derives",
+      "stage 0 slot 8 [SC_SCORE]: the repaired definition has exactly one public eq table and the bundle declares 0",
+      "stage 0 slot 8 [SC_SCORE] factor 0 [A_QR8]: the coordinate list is not the one this schedule derives (5 of 12 entries differ, first at index 5: derived rho 0)"
+     ],
+     "slot_checks_equal": 63,
+     "the_other_21_slots_are_unaffected": true,
+     "what": "the repaired definition of slots 08 and 09 FORCED on bytes made under the pre-repair one"
+    },
+    {
+     "control": "GQ-6",
+     "fires": true,
+     "group_factors_equal_to_one": 6,
+     "mechanism": "a measurement, not a perturbation",
+     "of": 6,
+     "reading": "this bundle carries no group table, so the two definitions are the SAME expression here and no gate reading this capture can separate them",
+     "terminal_products_that_are_zero": 0,
+     "the_bundle_carries_a_group_table": false,
+     "the_pre_repair_definition_holds": 6,
+     "the_repaired_definition_holds": 6,
+     "what": "the PRE-REPAIR polynomial X*Y evaluated on this bundle's own terminals, beside the repaired eq(r_g,.)*X*Y"
+    }
+   ],
+   "controls_that_fire": 4,
+   "controls_total": 4,
+   "definition_in_force": "pre-repair",
+   "honest": {
+    "derived_group_points_used_and_compared": 0,
+    "findings": [],
+    "ok": true,
+    "slot_checks_equal": 69,
+    "slot_checks_expected": 69
+   },
+   "ok": true,
+   "pre_repair_polynomial_measured": {
+    "group_factors_equal_to_one": 6,
+    "ok": true,
+    "per_slot": [
+     {
+      "first_terminal_is_zero": false,
+      "group_factor_is_one": true,
+      "name": "SC_SCORE",
+      "product_of_the_two_terminals_is_zero": false,
+      "second_terminal_is_zero": false,
+      "slot": 8,
+      "stage": 0,
+      "the_pre_repair_polynomial_satisfies_the_identity": true,
+      "the_repaired_polynomial_satisfies_the_identity": true
+     },
+     {
+      "first_terminal_is_zero": false,
+      "group_factor_is_one": true,
+      "name": "SC_PV",
+      "product_of_the_two_terminals_is_zero": false,
+      "second_terminal_is_zero": false,
+      "slot": 9,
+      "stage": 0,
+      "the_pre_repair_polynomial_satisfies_the_identity": true,
+      "the_repaired_polynomial_satisfies_the_identity": true
+     },
+     {
+      "first_terminal_is_zero": false,
+      "group_factor_is_one": true,
+      "name": "SC_SCORE",
+      "product_of_the_two_terminals_is_zero": false,
+      "second_terminal_is_zero": false,
+      "slot": 8,
+      "stage": 1,
+      "the_pre_repair_polynomial_satisfies_the_identity": true,
+      "the_repaired_polynomial_satisfies_the_identity": true
+     },
+     {
+      "first_terminal_is_zero": false,
+      "group_factor_is_one": true,
+      "name": "SC_PV",
+      "product_of_the_two_terminals_is_zero": false,
+      "second_terminal_is_zero": false,
+      "slot": 9,
+      "stage": 1,
+      "the_pre_repair_polynomial_satisfies_the_identity": true,
+      "the_repaired_polynomial_satisfies_the_identity": true
+     },
+     {
+      "first_terminal_is_zero": false,
+      "group_factor_is_one": true,
+      "name": "SC_SCORE",
+      "product_of_the_two_terminals_is_zero": false,
+      "second_terminal_is_zero": false,
+      "slot": 8,
+      "stage": 2,
+      "the_pre_repair_polynomial_satisfies_the_identity": true,
+      "the_repaired_polynomial_satisfies_the_identity": true
+     },
+     {
+      "first_terminal_is_zero": false,
+      "group_factor_is_one": true,
+      "name": "SC_PV",
+      "product_of_the_two_terminals_is_zero": false,
+      "second_terminal_is_zero": false,
+      "slot": 9,
+      "stage": 2,
+      "the_pre_repair_polynomial_satisfies_the_identity": true,
+      "the_repaired_polynomial_satisfies_the_identity": true
+     }
+    ],
+    "slot_instances": 6,
+    "terminal_products_that_are_zero": 0,
+    "the_pre_repair_definition_holds": 6,
+    "the_repaired_definition_holds": 6,
+    "what": "both definitions' polynomials evaluated on the SAME captured terminals and rho, and which of them satisfies fin == c*mask_eval + poly",
+    "what_this_does_not_show": "the defect itself.  Finding S19-F1 is a disagreement between the prover's CLAIM and the true sum over key-value groups, and both sides of that need a witness, which no capture carries.  A gate reading a capture can only say which POLYNOMIAL the published numbers satisfy -- and both bundles here were produced under the repaired one, so the pre-repair polynomial failing is a statement about the group factor's arithmetic weight, not about the witness"
+   },
+   "what": "round 4's controls: the two bilinear attention slots under the definition the bundle's own source pin selects"
+  },
+  "group_factor": {
+   "bilinear_slots_per_stage": 2,
+   "bundle": "run-e-tame-tagged",
+   "counts": {
+    "coordinate_entries_compared": 135,
+    "coordinate_lists_rederived_and_compared": 12,
+    "definition_challenge_counts_compared": 6,
+    "dimension_sets_derived_and_compared": 6,
+    "fixed_coordinates_compared_with_a_rederived_challenge": 81,
+    "group_point_entries_compared": 0,
+    "group_points_derived_and_compared": 0,
+    "slots_examined": 6
+   },
+   "definition_in_force": "pre-repair",
+   "definition_reason": "stages 14-18: the two bilinear slots fix the key-value group bits r_h[..lkv] as coordinates of BOTH private factors and sum only over the inner axis (`|v| v[0].mul(v[1])`).  This is the definition finding S19-F1 names as wrong for a generic witness; a bundle written under it is SUPERSEDED, and nothing measured on it is a statement about what the profile produces today",
+   "definition_selected_by": "the bundle's own source pin of argument.rs (909670c96562)",
+   "failures": [],
+   "finding": "S19-F1 (ZK60_BLOCK125M_S19F1_DISPOSITION.md)",
+   "geometry": {
+    "h_pad": 8,
+    "head_dim": 16,
+    "kv_heads": 2,
+    "ldh = lg(head_dim)": 4,
+    "lh = lg(h_pad)": 3,
+    "lkv = clog2(kv_heads)": 1,
+    "lt = lg(t_pad)": 5,
+    "q_heads": 6,
+    "t_pad": 32
+   },
+   "group_point_derived_from": "the transcript replay's own re-derived definition challenges",
+   "ok": true,
+   "per_slot": [
+    {
+     "declared": [
+      4,
+      2,
+      2
+     ],
+     "declared_definition_draws": 13,
+     "definition": "pre-repair",
+     "derived_definition_draws": 13,
+     "derived_main_extension_degree": [
+      4,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 12,
+       "derived_len": 12,
+       "extension_round": 0,
+       "factor": "A_QR8",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_KR8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_SCORE",
+     "slot": 8,
+     "stage": 0,
+     "the_shapes_own_slots_entry": [
+      4,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      5,
+      2,
+      2
+     ],
+     "declared_definition_draws": 12,
+     "definition": "pre-repair",
+     "derived_definition_draws": 12,
+     "derived_main_extension_degree": [
+      5,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 0,
+       "factor": "A_P",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_V8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_PV",
+     "slot": 9,
+     "stage": 0,
+     "the_shapes_own_slots_entry": [
+      5,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      4,
+      2,
+      2
+     ],
+     "declared_definition_draws": 13,
+     "definition": "pre-repair",
+     "derived_definition_draws": 13,
+     "derived_main_extension_degree": [
+      4,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 12,
+       "derived_len": 12,
+       "extension_round": 0,
+       "factor": "A_QR8",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_KR8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_SCORE",
+     "slot": 8,
+     "stage": 1,
+     "the_shapes_own_slots_entry": [
+      4,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      5,
+      2,
+      2
+     ],
+     "declared_definition_draws": 12,
+     "definition": "pre-repair",
+     "derived_definition_draws": 12,
+     "derived_main_extension_degree": [
+      5,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 0,
+       "factor": "A_P",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_V8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_PV",
+     "slot": 9,
+     "stage": 1,
+     "the_shapes_own_slots_entry": [
+      5,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      4,
+      2,
+      2
+     ],
+     "declared_definition_draws": 13,
+     "definition": "pre-repair",
+     "derived_definition_draws": 13,
+     "derived_main_extension_degree": [
+      4,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 12,
+       "derived_len": 12,
+       "extension_round": 0,
+       "factor": "A_QR8",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_KR8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_SCORE",
+     "slot": 8,
+     "stage": 2,
+     "the_shapes_own_slots_entry": [
+      4,
+      2,
+      2
+     ]
+    },
+    {
+     "declared": [
+      5,
+      2,
+      2
+     ],
+     "declared_definition_draws": 12,
+     "definition": "pre-repair",
+     "derived_definition_draws": 12,
+     "derived_main_extension_degree": [
+      5,
+      2,
+      2
+     ],
+     "factors": [
+      {
+       "declared_len": 13,
+       "derived_len": 13,
+       "extension_round": 0,
+       "factor": "A_P",
+       "matches": true,
+       "push_index": 0
+      },
+      {
+       "declared_len": 10,
+       "derived_len": 10,
+       "extension_round": 1,
+       "factor": "A_V8",
+       "matches": true,
+       "push_index": 1
+      }
+     ],
+     "group_point_matches_the_rederived_r_g": null,
+     "group_table_expected": false,
+     "group_tables_declared": 0,
+     "name": "SC_PV",
+     "slot": 9,
+     "stage": 2,
+     "the_shapes_own_slots_entry": [
+      5,
+      2,
+      2
+     ]
+    }
+   ],
+   "refusals": [],
+   "slot_instances": 6,
+   "slots_with_a_derived_group_point": 0,
+   "stages": 3,
+   "superseded": true,
+   "superseded_note": "this bundle was made under the PRE-REPAIR definition of slots 08 and 09, which finding S19-F1 names as wrong for a witness that varies across key-value groups.  It is replayed under that definition because that is what made its bytes; nothing measured on it is a statement about what the profile produces today",
+   "what": "the two bilinear attention slots' GROUP FACTOR: lkv, the slot dimensions, the point r_g = r_h[..lkv] and both private factors' coordinate lists, all DERIVED from the shape and the replayed transcript and then compared with what the bundle declares.  The derived point is what the terminal identity evaluates; the declared one is only ever compared",
+   "what_this_does_not_establish": "that the private factors are the quantised query, key, probability and value planes of the statement.  No bundle carries a witness.  What is established is that the claim POINT and the slot's SCHEDULE are the ones the repaired construction derives from this shape, and that the group factor the verifier multiplies in is the one this tool computed for itself"
+  },
+  "ok": true
+ },
  "stage1_integrity": {
   "any_root_opened_twice": false,
   "block_profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
@@ -383,7 +847,7 @@
    "exact_rank_of_the_pad_block": 248,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.6,
+   "seconds": 3.4,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -2213,6 +2677,12 @@
      "src/private_block/shape.rs": "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
      "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
     },
+    "argument_definitions_this_port_implements": {
+     "909670c96562": "pre-repair",
+     "dd8469cb0279": "repaired"
+    },
+    "bilinear_definition_reason": "stages 14-18: the two bilinear slots fix the key-value group bits r_h[..lkv] as coordinates of BOTH private factors and sum only over the inner axis (`|v| v[0].mul(v[1])`).  This is the definition finding S19-F1 names as wrong for a generic witness; a bundle written under it is SUPERSEDED, and nothing measured on it is a statement about what the profile produces today",
+    "bilinear_definition_selected_by_the_argument_pin": "pre-repair",
     "ok": true,
     "pins_at_an_accepted_second_digest": [
      "src/private_block/layout.rs: b765bdcbe576 -- stage 16/17/18: the shape-free half of the C-H4 row-count set moved into `hash_domain` and takes a HashTag; nothing this port reads changed",
@@ -2292,6 +2762,7 @@
      "M@1": 0
     },
     "rows_total": 2517,
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
     "sum_of_parts_fp": 4
    },
    {
@@ -2351,6 +2822,7 @@
      "M@2": 0
     },
     "rows_total": 2517,
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
     "sum_of_parts_fp": 4
    }
   ],
@@ -2560,6 +3032,7 @@
       "B0",
       "A@1"
      ],
+     "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
      "sum_of_parts_fp": 0,
      "what": "the same hidden plane under three commitments: block k's activation commitment (its output plane), the boundary commitment, and block k+1's activation commitment (its input plane)"
     }
@@ -2768,12 +3241,14 @@
       "B1",
       "A@2"
      ],
+     "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
      "sum_of_parts_fp": 0,
      "what": "the same hidden plane under three commitments: block k's activation commitment (its output plane), the boundary commitment, and block k+1's activation commitment (its input plane)"
     }
    }
   ],
   "ruling": "M-8: three blocks at the development rung, all three roles of each boundary plane ranked jointly, the shared-pair and single-proximity-row controls included",
+  "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
   "shared_planes": {
    "equality_slots": [
     {
@@ -3022,6 +3497,7 @@
     "M@2": 0
    },
    "rows_total": 3785,
+   "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
    "seconds": 1.1,
    "sum_of_parts_fp": 6
   }
@@ -3571,7 +4047,8 @@
     "assumption": null,
     "channel": "the cross-block joint law beyond the linear rank",
     "preimage_exhibited": null,
-    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b)",
+    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b).  ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
     "section": "run 2.2 (NEW)",
     "status": "open"
    },
@@ -4507,6 +4984,12 @@
      "src/private_block/shape.rs": "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
      "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
     },
+    "argument_definitions_this_port_implements": {
+     "909670c96562": "pre-repair",
+     "dd8469cb0279": "repaired"
+    },
+    "bilinear_definition_reason": "stages 14-18: the two bilinear slots fix the key-value group bits r_h[..lkv] as coordinates of BOTH private factors and sum only over the inner axis (`|v| v[0].mul(v[1])`).  This is the definition finding S19-F1 names as wrong for a generic witness; a bundle written under it is SUPERSEDED, and nothing measured on it is a statement about what the profile produces today",
+    "bilinear_definition_selected_by_the_argument_pin": "pre-repair",
     "ok": true,
     "pins_at_an_accepted_second_digest": [
      "src/private_block/layout.rs: b765bdcbe576 -- stage 16/17/18: the shape-free half of the C-H4 row-count set moved into `hash_domain` and takes a HashTag; nothing this port reads changed",
@@ -4793,17 +5276,19 @@
   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
   "zk60_native_rg_bundle.py": "37cd9fd04fa4438a2436d807b76cab17dc66d6cc597a04c5559d1953e14e7708",
   "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
+  "zk60_native_rg_gcontrols.py": "c03f50ce2a09013a6a7421c1219bb8c52777687f4ca7afcc79eef8006e2c84af",
+  "zk60_native_rg_gqa.py": "54b5369e7080c47669d286297da641782e2717846b3cd1cb6465e6c7c3a5dd0c",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "7112a2679ed05fdfea8c260a0a0bb8cb2a35429d30042104b714c0cbdda0820d",
-  "zk60_native_rg_joint.py": "6158bfd2a8195b9a0543baa86274e0f9f52466a3078debd64f6b45babfea4e9e",
+  "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
-  "zk60_native_rg_replay.py": "feb4ac04d1cf8113dcc6fae2ced68ed7fd953985e16a27d0fd79bebe5f0d21ea",
+  "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
   "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
-  "zk60_native_rg_terminals.py": "9d1de1758591e30ff9dcf9e42d9c6a6389c8c43db78aef227b96e898cd79dcb2",
-  "zk60_native_run_gate.py": "9e19f015cbb8b4bcb3f8d980a5094edf89323a2b1eb58212f6d10198e33bb165"
+  "zk60_native_rg_terminals.py": "dc51ed03944ef0d9cde8b623fc87a8d68bfc36c686bc02a091c8f8b91c10d792",
+  "zk60_native_run_gate.py": "a3fefd950162d546ad73dc575d5fc15e8a92be0c44ac3d19c951953d717c67e2"
  },
  "version": 1,
  "what_it_does_not_show": [
@@ -4813,6 +5298,8 @@
   "the joint-law composition for a run is unwritten",
   "the per-slot terminal identity is checked for 23 of 23 slots and OPEN for the other 0, whose public tables this bundle does not carry",
   "a captured public table is checked against the capture's own length, SHA-256 and the structure its builder gives it -- NOT against the weight matrix the statement names, which no bundle carries",
+  "the bilinear slots' group factor is DERIVED and compared, which says the claim point and the schedule are the repaired construction's -- it says nothing about the witness the run was proved on.  A capture carries no witness, so THIS GATE CANNOT TELL A DENSE WITNESS FROM A DEGENERATE ONE, and cannot reproduce finding S19-F1, which is a disagreement between the prover's claim and the true sum over key-value groups.  Which witness made a bundle is a fact of the Rust lane's test, read from the capture's README, not from the bundle",
+  "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
   "NOT a privacy acceptance and NOT a privacy property"
  ],
  "what_this_is": "the linear channels of ONE captured private run of 3 blocks at the development rung shape, at that run's real challenges"

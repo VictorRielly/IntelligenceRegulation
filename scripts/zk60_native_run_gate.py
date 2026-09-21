@@ -62,6 +62,7 @@ if HERE not in sys.path:
 from zk60_native_rg_bundle import RunBundle, integrity  # noqa: E402
 from zk60_native_rg_controls import controls  # noqa: E402
 from zk60_native_rg_joint import (  # noqa: E402
+    RULING_R3,
     boundary_reserved_figure,
     discover_shared_planes,
     mask_block,
@@ -75,6 +76,8 @@ from zk60_native_rg_replay import RunReplay  # noqa: E402
 from zk60_native_rg_hashlayer import check_hash_layer  # noqa: E402
 from zk60_native_rg_hcontrols import hash_rule_controls  # noqa: E402
 from zk60_native_rg_tcontrols import terminal_controls  # noqa: E402
+from zk60_native_rg_gqa import GroupFactors  # noqa: E402
+from zk60_native_rg_gcontrols import group_controls  # noqa: E402
 from zk60_native_rg_terminals import (  # noqa: E402
     PORTS,
     check_terminals,
@@ -94,6 +97,8 @@ TOOLS = [
     "zk60_native_rg_planes.py",
     "zk60_native_rg_terminals.py",
     "zk60_native_rg_tcontrols.py",
+    "zk60_native_rg_gqa.py",
+    "zk60_native_rg_gcontrols.py",
     "zk60_native_rg_hashrule.py",
     "zk60_native_rg_hashlayer.py",
     "zk60_native_rg_hcontrols.py",
@@ -243,6 +248,31 @@ PUBLIC_TABLES_OPEN = (
 
 
 # --------------------------------------------------------------- stage 8
+def stage10(bundle, index, replay, do_controls=True):
+    """**ROUND 4, finding S19-F1.**  The two BILINEAR attention slots'
+    group factor, derived and compared, and round 4's own controls.
+
+    A bundle with no plane index table cannot be terminal-checked at all,
+    so the stage says so and is not a failure -- the same rule stage 8
+    keeps.  A bundle written before the repair is replayed under the
+    definition that made its bytes and reported SUPERSEDED for those two
+    slots; that too is not a failure.
+    """
+    group = GroupFactors(bundle, replay=replay)
+    out = {"group_factor": group.summary()}
+    if index is None:
+        out["controls"] = {"skipped": "the bundle carries no plane index table, "
+                           "so no slot polynomial can be evaluated", "ok": True}
+        out["ok"] = out["group_factor"]["ok"]
+        return out
+    out["controls"] = (group_controls(bundle, index, replay=replay)
+                       if do_controls else {"skipped": "controls not requested",
+                                            "ok": False})
+    out["ok"] = out["group_factor"]["ok"] and (
+        out["controls"].get("ok") if do_controls else True)
+    return out
+
+
 def stage8(bundle, replay, old=None, do_controls=True):
     """The PLANE INDEX TABLE, and the per-slot terminal identity it unlocks.
 
@@ -363,6 +393,7 @@ def stage4(bundle, views, shared, run_wide=True):
         "ruling": "M-8: three blocks at the development rung, all three roles of each "
         "boundary plane ranked jointly, the shared-pair and single-proximity-row "
         "controls included",
+        "ruling_R3": RULING_R3,
         "ok": all(b["ok"] for b in per_boundary)
         and not shared["findings"]
         and (whole is None or whole["ok"])
@@ -680,7 +711,8 @@ def channels(bundle, record):
             "(O-R2, verified in the code, not here) and a composition argument for a "
             "run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the "
             "gate must rank the two A commitments that hold the same plane, not the "
-            "boundary alone -- IS met by stage 4(b)",
+            "boundary alone -- IS met by stage 4(b).  " + RULING_R3,
+            "ruling_R3": RULING_R3,
         },
         {
             "channel": "the preimage construction for a RUN (one randomness "
@@ -832,6 +864,8 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
     old = RunBundle(old_dir) if old_dir else None
     s8, _index = stage8(bundle, replay, old=old, do_controls=do_controls)
     record["stage8_plane_index_and_terminals"] = s8
+    record["stage10_bilinear_group_factor"] = stage10(
+        bundle, _index, replay, do_controls=do_controls)
     note = dict(s8["terminal_identity"])
     note["status"] = s8["channel_status"]
     s3, views = stage3(bundle, replay, pad_rank=pad_rank, terminal_note=note)
@@ -889,6 +923,15 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         "a captured public table is checked against the capture's own length, "
         "SHA-256 and the structure its builder gives it -- NOT against the "
         "weight matrix the statement names, which no bundle carries",
+        "the bilinear slots' group factor is DERIVED and compared, which says "
+        "the claim point and the schedule are the repaired construction's -- "
+        "it says nothing about the witness the run was proved on.  A capture "
+        "carries no witness, so THIS GATE CANNOT TELL A DENSE WITNESS FROM A "
+        "DEGENERATE ONE, and cannot reproduce finding S19-F1, which is a "
+        "disagreement between the prover's claim and the true sum over "
+        "key-value groups.  Which witness made a bundle is a fact of the Rust "
+        "lane's test, read from the capture's README, not from the bundle",
+        RULING_R3,
         "NOT a privacy acceptance and NOT a privacy property",
     ]
     return record

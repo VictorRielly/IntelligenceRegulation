@@ -54,6 +54,20 @@ from zk60_native_jv_joint import Block, JointSystem
 
 IO_SITE_ROLES = ("Input", "Output")
 
+# **RULING R-3 (ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md, 2026-09-20),
+# carried on every joint figure this module reports.**  Recorded in round 4;
+# it corrects rounds 1-3's WORDING and changes none of their numbers.
+RULING_R3 = (
+    "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this "
+    "model's coordinate classes, NOT evidence that the commitments' blinding "
+    "is independent.  The checker built the counterexample: two DISTINCT "
+    "blinding rows whose VALUES coincide score exactly like an honest run "
+    "(joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  "
+    "Independence across the 4L+1 commitments rests on the generator and the "
+    "draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is "
+    "not established by anything in this figure"
+)
+
 
 # --------------------------------------------------------- the blocks
 def block_from_view(view):
@@ -355,6 +369,7 @@ def three_role_figure(bundle, views, shared, k, extra_identifications=(),
             unmerged["disclosed_fp"] - jf["disclosed_fp"]
         ),
         "joint_equals_sum_of_parts": jf["disclosed_fp"] == total,
+        "ruling_R3": RULING_R3,
         "is_that_a_theorem_here": {
             "answer": bool(block_diagonal and total == 0),
             "why": (
@@ -428,6 +443,7 @@ def run_wide_figure(bundle, views, shared, include_mask=True, subset=None,
         "joint_fp": jf["disclosed_fp"],
         "joint_detail": jf,
         "joint_equals_sum_of_parts": jf["disclosed_fp"] == total,
+        "ruling_R3": RULING_R3,
         "findings": findings,
         "ok": not findings and jf["disclosed_fp"] == total,
     }
