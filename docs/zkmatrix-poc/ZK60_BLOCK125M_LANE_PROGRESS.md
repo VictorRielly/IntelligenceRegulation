@@ -5694,10 +5694,17 @@ All three take the HEAVY lock, so enqueuing them together is right: each
 blocks on the lock and self-starts.
 
 **Does a fully dense admissible RUN recipe exist?** At **rung-G, YES, and it
-is measured**: `first_admissible_dense_run_band` searches the
-down-projection band DOWNWARDS from the recipe's own and takes the first at
-which the witness builder accepts all three blocks, with every other band —
-attention included — left at the recipe's. The band is printed by the test.
+is measured: the down-projection band is 47**, one below the recipe's own
+48, at which the witness builder refuses the chain's second block by name
+(`fixed oracle range refusal: residual 2`).
+`first_admissible_dense_run_band` searches DOWNWARDS from the recipe's own
+and takes the first band at which the builder accepts all three blocks, with
+every other band — attention included — left at the recipe's, so the
+attention words are the fully dense ones and the two key-value groups carry
+different rotated keys in EVERY block of the run (asserted). Measured:
+prove 1.42 s, verify from segments 0.29 s, segments 4,067,160 / 4,089,688 /
+4,257,592 B = **12,414,440 B**, which is the counted figure and is the
+pre-repair 12,413,432 plus 3 x 336 to the byte.
 A run needs a smaller down band than a block because block `k+1`'s hidden
 input IS block `k`'s `xres2 = xres1 + z16`, so `z16`'s spread compounds and
 the residual leaves `int16`. **At 125M it is NOT determined here**: the same
