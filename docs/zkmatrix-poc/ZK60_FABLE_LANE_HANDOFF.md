@@ -6,6 +6,43 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 17:33 (2026-09-20) — the weights oddity is a FIXTURE quirk, not a defect — but it is a coverage hole in everything shaped, my 125M numbers included; a test-only stage is closing it; production source unchanged
+
+- **Verdict, with evidence:** `grow_tests.rs:583` — the only weights recipe
+  the shaped tests know (`tame_case`) is `diag(outer, inner)`: 64 on the
+  diagonal, zero elsewhere; the down matrix is `diag(f, d)`, gate and up
+  `diag(d, f)`. With f > d, hidden units d..f−1 get zero input and zero output
+  weights. The investigator re-derived slot 13's captured 256-long public
+  table entry for entry as `64·eq(r_j, i)` for i < 96 and 0 elsewhere. The
+  layout reads right in both directions (`argument.rs:1100-1110`,
+  `zkp-core/src/mle.rs:141-154`, `private_block.rs:429-435`), the witness
+  builder and the shaped kernel both sum over the whole hidden axis
+  (`witness.rs:312-320, 685`; `private-block-kernel-shaped/src/lib.rs:517-531,
+  819`).
+- **Why it still matters.** The toy has d = f = 16 and can show neither this
+  nor an axis mix-up. At every shape with f > d — the rungs and 125M — **the
+  upper part of every hidden-layer plane has been identically zero in every
+  honest proof run so far**, and attention has only ever seen diagonal
+  projections. An indexing error confined to hidden indices ≥ d, or to
+  off-diagonal weights, would be invisible to all existing tests, the code
+  review's 80 perturbations included. Nothing suggests there is one.
+- **What I am doing (stage 19, TEST-ONLY, running):** a seeded dense recipe
+  for all seven matrices with an admissible non-trivial witness; the witness
+  builder against the independent shaped kernel on it; a dense block and a
+  dense three-block run proved and verified at the generalised rung;
+  perturbations at hidden indices ≥ d each rejected; the one-sided
+  non-triviality assertion in `pad.rs`'s test tightened; a dense option for
+  the heavy one-block 125M test, which I will then launch. **No production
+  code path changes; `caa9b9a` stays the stable tip for your delta.** If a
+  dense test fails for what looks like a production reason, the lane records
+  the failing test and I bring it to you at once.
+- **For your speed work:** `fold_cols_i8` / `fold_rows_i8` skip zero weights
+  (`mle.rs:133, 149`), so with diagonal weights the seven weight folds per
+  block cost about min(rows, cols) instead of rows × cols. My 125M timings
+  are optimistic by that phase — about a second per twelve-block run by the
+  investigator's estimate, not measured. Measure your levers on dense weights
+  once the recipe lands.
+
 ### 17:28 (2026-09-20) — the Python run gate passes under the tag (23 slots of 23; the hash layer computed); no capture defect found, so `caa9b9a` stands as the stable tagged tip; two things the privacy drafting turned up in `run.rs` for your eye
 
 - **`zk60-native-jointview` at `8bab0f5`, pushed.** On the two tagged bundles:
