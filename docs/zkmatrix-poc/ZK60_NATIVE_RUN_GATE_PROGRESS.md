@@ -2359,29 +2359,239 @@ that replay.
 
 ## R9d.1 Input (READ-ONLY, never modified, not committed here)
 
+`/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922/`
+in the MAIN tree, **uncommitted, the integrator's**. Read here, never
+written, never renamed, never staged; the three capture files were copied
+into this lane's evidence directory and that copy is deliberately left
+untracked. Digests, so a later session can tell whether the files changed:
+
+| file | bytes | sha256 |
+|---|---|---|
+| `captures/10b9d4be….json` | 9,251,420 | `e8d3c55bb16e4784e4873fb2683841096b813ff1264e2e23fdde6f71f43dd527` |
+| `captures/10b9d4be….receipt` | 2,816,472 | `10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b` |
+| `captures/10b9d4be….expected` | 112 | `b491fb948141cc8df7cc11bb3f75466810d39f26e2c3a127fa5b4a7965ca73a3` |
+| `capture-validation.json` | 16,239 | `ff415259047756c1634f73fe10cb8c68d2d7e908f90745ba77384cd4f5722fc4` |
+
+The request is the integrator's note of 2026-09-22 07:25 in
+`docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md` (also uncommitted in the
+main tree): "Please replay your joint gate on this bundle; D22 remains
+CPU-only."
+
 ## R9d.2 Status
 
 | # | item | state |
 |---|---|---|
-| T1 | what the bundle is (schema, profile, pins, digests) | OPEN |
-| T2 | the pins, file by file, against `4751b93` and the D22 record | OPEN |
-| T3 | the replay: the toy joint gate, and the leaf diff | OPEN |
-| T4 | the controls | OPEN |
-| T5 | the report and this ledger | OPEN |
-| T6 | the toy gate's tests and the record guard | OPEN |
+| T1 | what the bundle is (schema, profile, pins, digests) | DONE — R9d.4, report §8.1/§8.2 |
+| T2 | the pins, file by file, against `4751b93` and the D22 record | DONE — R9d.5, `pins_check.txt`, report §8.3 |
+| T3 | the replay: the toy joint gate, and the leaf diff | DONE — R9d.6, `leafdiff_*.txt`, report §8.4 |
+| T4 | the controls | DONE — R9d.7, report §8.5 |
+| T5 | the report and this ledger | DONE — §8 of `ZK60_NATIVE_D22_REPIN_4751B93.md` and this section |
+| T6 | the toy gate's tests and the record guard | DONE — R9d.8 |
+
+**Headline: zero figures of record moved.** The bundle is from the tree
+`4751b93` names (132 of 132 source hashes equal to the blobs), every one of
+the 32 pinned files is at a digest the gate already accepts, **no gate script
+had to change to read it**, and every number the statement and the D22 record
+quote reproduces on a receipt the new code made.
 
 ## R9d.3 Commands and logs (round 9d)
 
+Evidence: `results/zk60_native_d22_replay_20260922/` (`README.md` there
+tabulates it). All four gate runs detached under `flock /tmp/zk-heavy.lock`
+inside a `systemd-run --user --scope -p MemoryMax=4G -p MemorySwapMax=0`
+scope, 10:07:23 → 10:09:49, markers `0`.
+
+| step | command | log / marker |
+|---|---|---|
+| T2 | `python3 results/zk60_native_d22_replay_20260922/pins_check.py` | `pins_check.txt`, exit 0 |
+| staging | `python3 .../stage_bundle.py` | `staged.json` |
+| T3/T4 | `bash .../replay.sh` — the P10 gate `--columns full --controls-on all` and the joint-view gate, each once on the staged copy and once straight at the integrator's directory | `replay.log`, `replay.done` = 0 |
+| T3 | `python3 .../leafdiff.py <new p10 record>` | `leafdiff_p10.txt`, `leafdiff_p10_as_delivered.txt`, exit 0 |
+| T3 | `PYTHONPATH=... python3 .../leafdiff_jv.py <new jv record>` | `leafdiff_jointview.txt`, exit 0 |
+| T3 | `jsondiff.py` staged vs as-delivered | `shim_control_p10.txt`, `shim_control_jointview.txt` |
+| T6 | `python3 -m unittest -v tests.test_zk60_native_{capture,gate_record,joint_view,mask_commit,privacy_gate,terminal_polys,small_model_groups}` | `suite.log`, `suite.done` = 0 |
+
+The gate commands are the ones the records of record give in their own
+READMEs, with only `--captures` and `--evidence` moved. **No gate script was
+edited**, and the nine P10 tool hashes and ten joint-view tool hashes in this
+round's records are identical to the record of record's.
+
 ## R9d.4 Results — T1, what the bundle is
+
+Schema **3** (the schema the toy gate reads), kind
+`zk60-verifier-observations`, coverage `native-all-slots-v1`, profile and
+transcript domain `hashline-zk-mr1/private-block-t32-poc/1`, privacy `P1`,
+weight policy `public-statement`, `fully_verified` true,
+`privacy_review_complete` false, `source_commit`
+`4751b93ff4566e16fe07c61bd23d4cc2352f9f0b`, 23 slots, 34 mask functionals,
+rows 455 / 384 / 7 / 7, groups 35 / 9 / 1 / 1, opening order
+`M, A, H, Input, Output`. The **hash rule is legacy** (unkeyed BLAKE3): this
+profile is one of the two `Shape::hashes_under_the_legacy_rule` names, so it
+carries no D19 separating tag, which is what the gate's replay assumes.
+
+`zk60_native_capture.screen_bundle` was run on it here, independently of the
+gate: **it passes**, which is where the `.expected` question is answered — the
+112-byte file must equal `expected_policy` element by element and hash to
+`expected_policy_sha256`, and the receipt must hash to its own file name and
+match `proof_bytes` and the captured header state.
+
+**The receipt.** `10b9d4be…`, 2,816,472 bytes — byte-identical to
+`results/zk60_host_private_20260920/main-gate/native-block/block_receipt.bin`,
+the receipt §7 of the D22 re-pin record pointed at when it said the
+integrator had proved this profile on the new tree but no bundle existed in
+the gate's schema. **This is that bundle.** It is a re-capture of a saved
+receipt, not a new proof: `capture.py` re-runs the ignored capture test with
+`HL_TEST_NATIVE_RECEIPT` pointing at the saved file, using the `4751b93`
+GPU-feature binary `hashline-75d0767c271c429f` (`cbc1864c…`, still on disk at
+that digest) with every `HL_*` variable stripped, so the CPU body is taken.
+
+**One gap recorded (report §8.2).** `10b9d4be…` is not one of the four
+captures D22's evidence rests on, and it cannot be: it is a different proof.
+The question "is this the accepted receipt?" **cannot be answered against the
+statement**, because neither the statement nor the D22 re-pin record records
+a digest for "the accepted receipt" — D22 accepts a PROFILE, and its evidence
+is four captures named by digest. The statement should say so in one line so
+the phrase cannot be read as naming a pinned artifact.
 
 ## R9d.5 Results — T2, the pins
 
+`pins_check.py`, two independent questions (`pins_check.txt`).
+
+* **The tree.** All **132** entries of `capture-validation.json[source_hashes]`
+  compared with the SHA-256 of `git show 4751b93:<path>` from the main
+  repository: **132 of 132 equal, 0 mismatches.** The bundle is from the tree
+  D22 pins.
+* **The pin set.** The union of `zk60_native_mask_commit.SOURCE_PINS` (10) and
+  `PATH_PINS` (20) — the 29 files on this profile's path plus
+  `private_attention/argument.rs` — with `zk60_native_terminal_polys.SOURCE_PINS`
+  (8, six already in the first set): **32 distinct paths, all 32 present in
+  the bundle and all 32 accepted.** 28 at the pin of record; **4 at the second
+  accepted digest** — `hashline/src/zk.rs` `ce8cc516…`, `hashline/src/pcs.rs`
+  `9537915b…`, `hashline/src/private_block.rs` `412a43f4…`,
+  `hashline/src/gpu/mod.rs` `706ca7fa…` — which are exactly the four
+  `ALSO_ACCEPTED` entries this lane wrote for `4751b93` after reading each
+  change. **0 not accepted, 0 absent.**
+* The three artifacts and the verifier binary were re-hashed on disk: all four
+  match the manifest.
+
+**No pin had to move and no tool had to change to read this bundle.**
+
 ## R9d.6 Results — T3, the replay and the leaf diff
+
+Four runs, all exit 0: P10 `--columns full --controls-on all` at 62.5 s
+(staged) and 61.5 s (as delivered); the eight-stage joint view at 10.9 s
+each.
+
+The bundle is a DIFFERENT receipt, so its challenges and every
+challenge-derived value are supposed to differ. The diff is therefore an
+A/B/N comparison: with A = `40083e7a…` and B = `7d334e06…` the two block
+captures of record, the leaves A and B already disagree on are
+receipt-specific, and **the leaves A and B agree on and N differs on are
+figures of record moving**.
+
+| record | A vs B | A vs N | B vs N | **MOVED** |
+|---|---|---|---|---|
+| P10 per-capture subtree | 99 | 99 | 67 | **0** |
+| joint view, stages 1 / 2 / 3 / 4 / 5 / 7 | 0/16/2/0/0/1 | 0/16/2/0/0/1 | 0/10/2/0/0/1 | **0 at every stage** |
+
+Outside `per_capture` the P10 record differs in one leaf only (no attention
+entry in `receipt_length_is_the_same_within_a_profile`, because this run read
+one block capture), plus `seconds`, `manifest` and `captures_dir`. Reproduced
+on the new capture: 2,816,472 bytes; 28 channels, 11 constructed / 2 derived /
+8 argued / 7 open, 0 failures; the per-role ranks 72 / 20 / 4 / 4; `q_pad`,
+`pad_count` and `sampled_columns` 256; `rank_F` 34 and `rank_F_mod_rounds` 0;
+stage 4's `joint_fp` 4 against `sum_of_parts_fp` 4, `pcs_sum_fp` 2,
+`cfs_opening_only_fp` 2, `joint_opening_only_fp` 4; the M opening's disclosed
+2 (predicted 2) with fibre 1164; the stage-2 disclosed dimensions 0 / 2 / 0 /
+0; and all 28 channels with the same name and the same status.
+
+**The staging shim adds no fact.** The two staged runs exist only because
+`manifest_check` reads a file called `validation.json` whose `accepted` is a
+list; the integrator's is `capture-validation.json` with a single record. The
+staged copy is byte-identical and its `validation.json` is that manifest with
+one key reshaped. `shim_control_p10.txt` / `shim_control_jointview.txt`: the
+staged and as-delivered runs differ in `captures_dir`, the `manifest` block
+and `seconds` **and in nothing else**.
 
 ## R9d.7 Results — T4, the controls
 
+`--controls-on all`, so every control ran on the new capture: `all_fire`
+true, `ok` true, `honest_again` true, ten control names, M's three with
+`mask_commitment_M/all_fire` true, and the honest run passing before and
+after each. Name by name, `fires` is true on A, on B and on N for all ten
+(`leafdiff_p10.txt` §6). The joint-view gate's stage-6 set — altered capture
+bytes, the pad-budget boundary, the four stage-4 joint controls, the
+derived-mask-evaluation controls, the small model, the brute-force agreement
+— is `ok` as a whole, and every other stage is `ok`, with
+`privacy_property_established` false in both records.
+
+**One observation, not a defect.** On the new capture the masking commitment
+opens 252 distinct columns against its 256 pads, a margin of **4**; the two
+block captures of record have margins 10 and 9. Condition 2 of §5 of the
+statement holds and the exact-rank cross-check gives 252 on 252. The margin
+is a per-receipt draw, not a property of the code; it is recorded so that a
+future margin of 0 is recognised as the boundary
+`one_pad_fewer_than_the_distinct_opened_columns` exists to police.
+
 ## R9d.8 Results — T6, the suite
+
+`tests.test_zk60_native_{capture,gate_record,joint_view,mask_commit,privacy_gate,terminal_polys,small_model_groups}`:
+**Ran 176 tests in 211.5 s, OK (skipped=1, expected failures=1)**, marker
+`suite.done` = 0, inside the 4 GiB scope. The record guard alone
+(`tests.test_zk60_native_gate_record`): **12 tests, 0.066 s, OK** — the three
+committed records still agree with their own grades, carry the counts of
+record, name the records they pin, and **were produced by the tools now in
+the tree**, and the whole widened path-pin table still passes with a changed
+byte in any pinned file refused by name.
+
+Round 9c's 4 GiB single-process ceiling is untouched by this round: the toy
+subset peaks well under it (553 MB RSS observed), and no 125M work was run.
 
 ## R9d.9 What this round is NOT
 
+1. **It does not extend D22 to any other profile, tree or device path.** One
+   bundle, one toy profile, CPU only — every `HL_*` variable was stripped when
+   it was made, and the integrator states D22 remains CPU-only. The GPU
+   configuration stays uncovered (statement note of 2026-09-21 03:23).
+2. **It is not a privacy acceptance and establishes no privacy property.**
+   Both records carry `privacy_property_established: false`; the P10 record
+   carries `is_a_privacy_acceptance: false`. Seven channels stay OPEN, the
+   joint LAW and the hash layer's hiding are where rounds 7–9c left them, and
+   nothing here moves D8/D11.
+3. **It does not replay a proof made today.** The receipt was produced by the
+   new tree's binary on 2026-09-20 and saved; this run re-verified and
+   re-captured it. What is established is stronger than §7's "the ports still
+   describe the code" and weaker than "the ports reproduce a proof made
+   today".
+4. **The integrator's own verification is its evidence, not this.** Its
+   fresh-process verification, canonical recapture and 23 slot/alias checks
+   were not taken as an input to anything above; the two readings agree.
+5. **It says nothing about the integration branch** `fee1a8d` or the lane's
+   stage-36 observers, which move six pinned files and owe their own read
+   under condition 7.
+6. **The bundle is not committed here** — it is the integrator's, uncommitted
+   in the main tree; only its digests are recorded.
+
 ## R9d.10 NEXT after round 9d
+
+0. **Round 9c's NEXT list is untouched** by this round and still stands, item
+   for item.
+1. **To the integrator, one line of agreement on bundle shape.** A capture
+   directory delivered as `capture-validation.json` with a single `accepted`
+   record has the gate's manifest cross-check **skipped without saying so**
+   (`manifest_check` returns `validation_json: absent` and the gate passes).
+   Name it `validation.json`, make `accepted` a list, and lift
+   `privacy_review_complete` and `verifier_binary_sha256` to the top level, as
+   `results/zk60_native_captures_20260919/validation.json` does. No tool
+   changes on either side.
+2. **To the security owner, the gap of R9d.4.** The statement should say in
+   one line that D22 accepts a profile and that its evidence is the four
+   captures of 2026-09-19 by digest, so "the accepted receipt" cannot be read
+   as naming a pinned artifact.
+3. **A fresh proof under the new code** would turn "the ports reproduce the
+   captured view of a receipt the new code made" into "the ports reproduce a
+   proof made today". It is a Rust run, not this lane's work, and it is still
+   worth asking for.
+4. **The `fee1a8d` snapshot and the stage-36 observers** will need the
+   condition-7 re-read of their six pinned files, and the pin set updated,
+   before step 3 covers that tree.

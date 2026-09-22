@@ -1,0 +1,50 @@
+Running scope as unit: run-r08cf3577240047a4a7fa7d981a7b0967.scope
++ cd /home/victor/wt-zk60-jointview
++ date
+Tue Sep 22 10:11:10 PDT 2026
++ python3 -m unittest -v tests.test_zk60_native_capture tests.test_zk60_native_gate_record tests.test_zk60_native_joint_view tests.test_zk60_native_mask_commit tests.test_zk60_native_privacy_gate tests.test_zk60_native_terminal_polys tests.test_zk60_native_small_model_groups
++ tail -40
+test_across_two_groups_the_per_group_figure_misses_it_as_well (tests.test_zk60_native_small_model_groups.CaseBSharedPair)
+Sharing WITHIN one group is caught by that group's own system (the ... ok
+test_every_marginal_is_unchanged_and_discloses_nothing (tests.test_zk60_native_small_model_groups.CaseBSharedPair) ... ok
+test_the_gate_refuses_it_and_the_dense_rank_sees_it (tests.test_zk60_native_small_model_groups.CaseBSharedPair)
+The gate's H-pair check is what catches this: the reduction alone ... ok
+test_the_joint_law_is_short_and_moves_with_the_data (tests.test_zk60_native_small_model_groups.CaseBSharedPair) ... ok
+test_ranked_jointly_the_only_disclosure_is_the_public_identity (tests.test_zk60_native_small_model_groups.CaseCHStyleSharing) ... ok
+test_ranked_per_group_the_figure_is_wrong (tests.test_zk60_native_small_model_groups.CaseCHStyleSharing) ... ok
+test_the_gates_own_pair_check_does_not_notice_the_sharing (tests.test_zk60_native_small_model_groups.CaseCHStyleSharing)
+The review's section 3.4 finding, reproduced: `audit_claims` (and ... ok
+test_the_two_groups_really_do_share_the_zero_sum_pair (tests.test_zk60_native_small_model_groups.CaseCHStyleSharing) ... ok
+test_a_singleton_group_discloses_one_message_width_although_cm_is_nonzero (tests.test_zk60_native_small_model_groups.CaseDWrongPairShape) ... ok
+test_in_a_multi_member_group_the_other_members_cover_the_loss (tests.test_zk60_native_small_model_groups.CaseDWrongPairShape)
+The review's control C8: the same broken shape in a 35-member group ... ok
+test_removing_the_pair_discloses_the_whole_message_half (tests.test_zk60_native_small_model_groups.CaseDWrongPairShape) ... ok
+test_the_zeroed_member_is_absent_from_the_group_vector (tests.test_zk60_native_small_model_groups.CaseEZeroLambda) ... ok
+test_zero_lambda_discloses_nothing_at_several_m_and_several_draws (tests.test_zk60_native_small_model_groups.CaseEZeroLambda) ... ok
+test_the_dense_rank_sees_the_disclosure (tests.test_zk60_native_small_model_groups.CaseFBeyondThePadBudget) ... ok
+test_the_guard_refuses_exactly_outside_the_budget (tests.test_zk60_native_small_model_groups.CaseFBeyondThePadBudget)
+The guard added by this lane.  Its condition is the one the ... ok
+test_the_reduction_does_not_see_one_position_beyond_the_pad_budget (tests.test_zk60_native_small_model_groups.CaseFBeyondThePadBudget)
+EXPECTED FAILURE, recorded as the finding it is. ... expected failure
+test_the_refusal_is_raised_and_names_the_budget (tests.test_zk60_native_small_model_groups.CaseFBeyondThePadBudget) ... ok
+test_the_base_class_now_carries_the_guard_too (tests.test_zk60_native_small_model_groups.TheExistingSmallModelIsUntouched)
+The owed one-line follow-up, taken 2026-09-20. ... ok
+test_the_old_controls_still_report_what_the_gate_expects (tests.test_zk60_native_small_model_groups.TheExistingSmallModelIsUntouched) ... ok
+test_the_two_refusal_classes_are_one_class (tests.test_zk60_native_small_model_groups.TheExistingSmallModelIsUntouched)
+`groups.PadBudgetRefusal` is an alias, so every existing ... ok
+test_one_group_per_claim_still_reproduces_the_old_small_models_answer (tests.test_zk60_native_small_model_groups.TheModelIsTheToolsOwn)
+A grouped view with every group a singleton is the old toy's shape, ... ok
+test_the_grouped_view_inherits_the_tools_reduction_and_dense_map (tests.test_zk60_native_small_model_groups.TheModelIsTheToolsOwn) ... ok
+test_all_six_cases_run_and_the_record_is_self_consistent (tests.test_zk60_native_small_model_groups.TheRecord) ... ok
+test_the_disclosed_space_basis_agrees_with_the_dense_figure (tests.test_zk60_native_small_model_groups.TheRecord)
+A cross-check of the machinery the H-style identity test rests on: ... ok
+test_the_retained_evidence_matches_a_fresh_run (tests.test_zk60_native_small_model_groups.TheRecord) ... ok
+
+----------------------------------------------------------------------
+Ran 176 tests in 211.462s
+
+OK (skipped=1, expected failures=1)
++ echo 'toy suite exit=0'
+toy suite exit=0
++ date
+Tue Sep 22 10:14:42 PDT 2026
