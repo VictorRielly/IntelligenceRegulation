@@ -183,6 +183,34 @@ memo's §2.3(ii): `per_row` is the hosted claim's coefficient, not a factor of
 slot 17's polynomial. **Stage 2 (lever (b) inside the closures of slots 17
 and 14, lane-only, the IR's equality oracle as the gate) may proceed.**
 
+**Stage 2 (lever (b) in slots 17 and 14) DONE — 2026-09-21 18:42 (lane stage
+35, `fee1a8d`, pushed; I checked the diff's scope — `argument.rs`, one test
+file, two module lines — and read the 125M log's result lines).** Three
+changes, one commit each, every one a pure algebraic identity in an exact
+field or the implementation identity `x.mul(c) == x.mul_base(c.c0)` for a
+constant with zero imaginary part (tested on all 13 constants over 6,656
+arguments): the support gate hoisted, two of slot 14's sub-products formed
+once, public constants through `mul_base`. Counted per evaluation: slot 17
+175 → 119 of 405 units (13.8% of its closure), slot 14 320 → 165 of 828
+(18.7%) [COUNTED]. Old closure (verbatim from `89e393f`) = new closure = the
+stage-34 IR at 576 points and 72 comparisons per registry walk, both pad
+branches; table list, order, rounds and declared degree pinned unchanged;
+receipt 40,783,352 B identical. **What it measured [MEASURED, one run each,
+shared box, NOT quiesced]:** at rung-W14 nothing distinguishable from spread
+(three runs each, every range overlapping — its cubes are 2^16); at 125M slot
+17's masked sumcheck **3.05 / 3.11 → 2.66 s** (about −13%, close to the
+count, and against a baseline spread of 0.05 s while the untouched
+neighbours ran slower in the after-run), slot 14 **1.64 / 1.87 → 1.74 s**
+(nothing — IR-C9 again: the larger counted saving shows no clock), the whole
+prove **18.40 s against 17.40 / 19.36** — inside the band. **Honest headline:
+one measured 0.4 s on one slot; the 125M block stays at 17.4–19.4 s.** This
+is what lever (b) alone is worth on this CPU, and it says that the remaining
+levers need the shared loop (I-4, I-5) and that the commitments, not the
+rounds, are where the CPU time is. Finding S35-F1 for the integrator:
+`argument.rs::limbs` is now dead code (its only callers were these two arms;
+the arms-only rule kept it) — delete or keep behind `cfg(test)` as an oracle.
+Filter 408 passed / 0 failed / 17 ignored.
+
 ## 2. What this is not
 
 Not an implementation (nothing compiled or run by either agent; the IR-versus-
