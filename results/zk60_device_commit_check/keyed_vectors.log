@@ -1,0 +1,24 @@
+python blake3 package: 1.0.9
+official BLAKE3 vectors (unkeyed+keyed, len 0/1/1024): True
+eight derived key pins re-derived from the spec: True
+chunk-start-only keyed bug first shows at: {'first_failing_rows': 129, 'first_failing_bytes': 1032}
+negative controls: {'keyed_K1_vs_keyed_K2_differ': True, 'keyed_K1_vs_unkeyed_differ': True, 'column_key_vs_leaf_key_differ': True}
+VERDICT: ALL AGREE failures: []
+
+shape                                rows   bytes chunks  keyed column digest (m125 column key)
+empty                                   0       0      1  7ad2a969cf6b76e6a88fc387abf86792b7225a551fd3145afe495df016e93501   <- chunk-start-only bug INVISIBLE
+one row                                 1       8      1  8d492850d41c4140c897a869c7df044a5908901f66bfc8d427e8b3e7bd753d7a   <- chunk-start-only bug INVISIBLE
+8 rows = 64 B                           8      64      1  75bbf9ab6272f22ff369440b58b0e95b8f40e01d4a6617f849058db2ababd208   <- chunk-start-only bug INVISIBLE
+64 rows = 512 B                        64     512      1  d06c984248a25da7a44edf80e3fe48c667afedcdb21b706daa19421227d2047b   <- chunk-start-only bug INVISIBLE
+127 rows                              127    1016      1  f19e85af72737b98aa02feace2493ada47a612e84f8084e28d54ed707a01e7ae   <- chunk-start-only bug INVISIBLE
+128 rows = 1024 B (one chunk)         128    1024      1  98bb8dfab899528be9b2e69484065d7c936b278865cc4e8bc32be81c5f017131   <- chunk-start-only bug INVISIBLE
+129 rows = 1032 B (first parent)      129    1032      2  c274dd55a31249e2467ded26bc65625ffbf303ea80781306f150660dbc6b17a0
+256 rows                              256    2048      2  e46bc56dc8c7a2d6db9885745bb1be47a814ebc1940eec30fa3eadce907635d5
+toy A column (455 rows)               455    3640      4  3063587e5c43aadd38e57f123dfd083edea0824ae5650e3e79481a24543f501b
+toy H column (384 rows)               384    3072      3  bb22be82d3f35627c5f266effe16d18284c01dc42f655f4418d4a13fdf6e343e
+rung-W14 A column (527 rows)          527    4216      5  a5c68ae255e3093b7cb7fb8c5b7772ea0487d61ea005435fdf27395076a03953
+rung-W14 H column (436 rows)          436    3488      4  9e0dd7c4b6e30f0999f0fdf03850336612542f4539bc59e43cb02a0a715c8d7f
+125M endpoint column (37 rows)         37     296      1  09ce9166787208d6093e51e24b8f656a38ac888962fe15f92c531a8b02b07e98   <- chunk-start-only bug INVISIBLE
+mask M column (50 rows)                50     400      1  e74eadf64a7860ef2a61eb42ab157be7dfe35d7d00740d2be22fde5f5356a9b9   <- chunk-start-only bug INVISIBLE
+125M A column (5681 rows)            5681   45448     45  ad82957cff4fc2a1b41e535e511c67bf1d73111eed8361e691ac2601ee76cfad
+125M H column (7120 rows)            7120   56960     56  e73a3f15df06f9368ecb9e6f0110b108cb1e9af9d3030358de7262c6db32cec6

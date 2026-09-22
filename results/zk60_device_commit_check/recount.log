@@ -1,0 +1,84 @@
+==============================================================================
+RECEIPT RECONCILIATION (mine, from the wire format and the shapes)
+==============================================================================
+125M      counted     40783352   model     40783352   AGREE
+            a_opening                21626880  vs     21626880 
+            h_opening                17385472  vs     17385472 
+            endpoint_openings         1499136  vs      1499136 
+            mask_opening               243712  vs       243712 
+rung-W14  counted     16421048   model     16421048   AGREE
+            a_opening                11071488  vs     11071488 
+            h_opening                 3696640  vs      3696640 
+            endpoint_openings         1384448  vs      1384448 
+            mask_opening               243712  vs       243712 
+toy       counted      2816472   model      2816472   AGREE
+            a_opening                 1327104  vs      1327104 
+            h_opening                  968704  vs       968704 
+            endpoint_openings          262144  vs       262144 
+            mask_opening               243712  vs       243712 
+
+==============================================================================
+COMPRESSIONS  (memo section 2.2)
+==============================================================================
+125M      column digests (four)    112066560   memo 112197120
+          leaves    262144  nodes    262140  total(four)    112590844   memo 112721404
+          total including the MASK commitment:    112627707
+          tree share 0.2328%  leaf share 0.2328%
+rung-W14  column digests (four)      8650752   memo None
+          leaves    262144  nodes    262140  total(four)      9175036   memo 9175036
+          total including the MASK commitment:      9211899
+          tree share 2.8571%  leaf share 2.8571%
+toy       column digests (four)       229376   memo -
+          leaves      8192  nodes      8188  total(four)       245756   memo -
+          total including the MASK commitment:       282619
+          tree share 3.3318%  leaf share 3.3334%
+
+==============================================================================
+DEVICE RESIDENCY  (memo section 3)
+==============================================================================
+-- 125M
+  A            rows*nn*8    2978480128  CHUNKS
+      resident peak: memo    6716884976 (6.26 GiB) | with pooled d_coef    7461505008 (6.95 GiB)  [+744620032]
+      chunked peak      961513456 (0.90 GiB)   survives to opening     756779008
+  H            rows*nn*8    3732930560  CHUNKS
+      resident peak: memo    8417345520 (7.84 GiB) | with pooled d_coef    9350578160 (8.71 GiB)  [+933232640]
+      chunked peak     1153073136 (1.07 GiB)   survives to opening     948338688
+  endpoint-in  rows*nn*8      19398656  resident
+      resident peak: memo      47392752 (0.04 GiB) | with pooled d_coef      52242416 (0.05 GiB)  [+4849664]
+      chunked peak      102836208 (0.10 GiB)   survives to opening       5449728
+  endpoint-out rows*nn*8      19398656  resident
+      resident peak: memo      47392752 (0.04 GiB) | with pooled d_coef      52242416 (0.05 GiB)  [+4849664]
+      chunked peak      102836208 (0.10 GiB)   survives to opening       5449728
+  commit-phase peak (default arms)    1909852144 (1.78 GiB)   memo 1909852144
+  held to the openings                1753614336 (1.63 GiB)   memo 1753614336
+  all-resident cumulative peak       12140445680 (11.31 GiB)   memo 12140445680
+  all-resident held                   8437760000 (7.86 GiB)   memo 8460904432
+  all-resident peak, pool UNDRAINED  16879265776 (15.72 GiB)   [the pool never cuMemFrees]
+-- rung-W14
+  A            rows*nn*8     276299776  resident
+      resident peak: memo     626423792 (0.58 GiB) | with pooled d_coef     695498736 (0.65 GiB)  [+69074944]
+      chunked peak      275412976 (0.26 GiB)   survives to opening      70678528
+  H            rows*nn*8     228589568  resident
+      resident peak: memo     518889456 (0.48 GiB) | with pooled d_coef     576036848 (0.54 GiB)  [+57147392]
+      chunked peak      263299056 (0.25 GiB)   survives to opening      58564608
+  endpoint-in  rows*nn*8       4718592  resident
+      resident peak: memo      14305264 (0.01 GiB) | with pooled d_coef      15484912 (0.01 GiB)  [+1179648]
+      chunked peak       66078704 (0.06 GiB)   survives to opening       1722368
+  endpoint-out rows*nn*8       4718592  resident
+      resident peak: memo      14305264 (0.01 GiB) | with pooled d_coef      15484912 (0.01 GiB)  [+1179648]
+      chunked peak       66078704 (0.06 GiB)   survives to opening       1722368
+  commit-phase peak (default arms)     864264176 (0.80 GiB)   memo -
+  held to the openings                 642908160 (0.60 GiB)   memo -
+  all-resident cumulative peak         864264176 (0.80 GiB)   memo -
+  all-resident held                    642908160 (0.60 GiB)   memo -
+  all-resident peak, pool UNDRAINED   1289504752 (1.20 GiB)   [the pool never cuMemFrees]
+
+four encoded bytes     6750208000 (6.29 GiB)  memo 6750208000
+five encoded bytes     6751846400 (6.29 GiB)  (the memo's four + the mask)
+rng bytes (four)         61124608              memo 61124608
+A+H share of the five commitments' encoded bytes: 99.40%
+
+opened columns seen by the verifier, as a fraction of the kernel's output:
+  125M      256 of  65536 columns = 0.391%   (sampled WITH replacement: ~255.5 distinct)
+  rung-W14  256 of  65536 columns = 0.391%   (sampled WITH replacement: ~255.5 distinct)
+  toy       256 of   2048 columns = 12.500%   (sampled WITH replacement: ~240.7 distinct)
