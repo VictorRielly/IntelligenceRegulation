@@ -1424,6 +1424,24 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             }
             let lks = lk_tables(lay, Dom::D, &b.shaped, g_u8);
             let (k_num, k_dv, k_den) = (k(2 * NORM_CN), k(1 << NORM_TN), k(1 << (NORM_TN + 1)));
+            // **STAGE 35, LEVER (b)(iii): the public constants as BASE field
+            // elements.** Every one of these is `Fp2::from_i64` of a public
+            // integer of the profile, so its imaginary part is zero, and for
+            // such a constant `x.mul(c)` IS `x.mul_base(c.c0)`: `Fp2::mul`
+            // computes `(a c0 + b c1 * 7, a c1 + b c0)` and `c1 = 0`
+            // collapses it to `mul_base`'s two products instead of five.
+            // That is an identity of the implementation, not a ring law, and
+            // `s35_tests::multiplying_by_a_constant_with_no_imaginary_part_is_exactly_mul_base`
+            // asserts it on all thirteen constants of the two arms. `lw`
+            // builds `limbs`'s weight vector out of the SAME `pow256(kk)`
+            // the fold used, so the byte-limb decomposition is unchanged
+            // term for term — except that the `256^0` weight is dropped in
+            // the closure instead of being paid as a multiply by one, which
+            // is what the hand-written `l2` and `l3` already do.
+            let (b_num, b_dv, b_den, b_p1) = (k_num.c0, k_dv.c0, k_den.c0, p1.c0);
+            let (b_ao, b_z) = (k(1 << SH_AO).c0, k(1 << SH_Z).c0);
+            let lw = |ix: &[usize]| -> Vec<(usize, Fp)> { ix.iter().enumerate().map(|(kk, i)| (*i, pow256(kk).c0)).collect() };
+            let (w_nr, w_ns, w_mr, w_ms) = (lw(&i_nr), lw(&i_ns), lw(&i_mr), lw(&i_ms));
             let hosted = vec![(SC_WO, nu[0]), (SC_DMM, nu[1])];
             // **S9 part 4 on `Dom::D`.** Every one of the domain's planes is
             // ZERO-rule, and all of them are already pushed by `a_range`, so
@@ -1465,11 +1483,17 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             };
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
-                let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
+                let l2 = |o: usize| at(o).add(at(o + 1).mul_base(b_p1));
+                // `limbs` with the weights as base constants and the `256^0`
+                // multiply by one dropped: the first limb IS the running sum
+                let lb = |w: &[(usize, Fp)]| match w.split_first() {
+                    None => Fp2::ZERO,
+                    Some(((i0, _), rest)) => rest.iter().fold(v[*i0], |a, (i, c)| a.add(v[*i].mul_base(*c))),
+                };
                 let (x, y, ao, x1, d) = (at(A_X), at(A_Y), at(A_AO), at(A_X1), v[id]);
                 let (nm, x2, z16, dm) = (at(A_YM), at(A_X2), at(A_Z16), v[idm]);
-                let (nr, ns) = (limbs(v, &i_nr), limbs(v, &i_ns));
-                let (mr, ms) = (limbs(v, &i_mr), limbs(v, &i_ms));
+                let (nr, ns) = (lb(&w_nr), lb(&w_ns));
+                let (mr, ms) = (lb(&w_mr), lb(&w_ms));
                 // **STAGE 35, LEVER (b)(ii): the two sub-products this arm
                 // recomputes.** `k_den * d` is formed twice — once inside
                 // c0's `k_den.mul(y).mul(d)`, which is `(k_den * d) * y`
@@ -1479,15 +1503,15 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 // only pair reading this arm turns up: `at(p)`, the two norm
                 // gains, `delta`-like intermediates and the four limb folds
                 // are already shared by a `let`.
-                let (kd, kdm) = (k_den.mul(d), k_den.mul(dm));
-                let c0 = k_num.mul(v[ig]).mul(x).add(k_dv.mul(d)).sub(kd.mul(y)).sub(nr);
+                let (kd, kdm) = (d.mul_base(b_den), dm.mul_base(b_den));
+                let c0 = v[ig].mul(x).mul_base(b_num).add(d.mul_base(b_dv)).sub(kd.mul(y)).sub(nr);
                 let c1 = ns.add(nr).add(Fp2::ONE).sub(kd);
                 let c2 = x.add(k(32768)).sub(l2(A_XL0));
                 let c3 = ao.add(k(32768)).sub(l2(A_AL0));
                 let c4 = x1.add(k(32768)).sub(l2(A_X1L0));
                 let c5 = x1.sub(x).sub(ao);
                 // norm_m: the identical relation with gamma_m and xres1 (T1 C.1)
-                let c6 = k_num.mul(v[igm]).mul(x1).add(k_dv.mul(dm)).sub(kdm.mul(nm)).sub(mr);
+                let c6 = v[igm].mul(x1).mul_base(b_num).add(dm.mul_base(b_dv)).sub(kdm.mul(nm)).sub(mr);
                 let c7 = ms.add(mr).add(Fp2::ONE).sub(kdm);
                 // residual 2 and z16's int16 class (T1 C.2, T2 C.2)
                 let c8 = x2.add(k(32768)).sub(l2(A_X2L0));
@@ -1510,8 +1534,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                     clauses = clauses.add(m.mul(c));
                 }
                 let zc = helper_sum(v, &lks, h0, alpha, &mu[11..]).add(pz.eval(v)).add(g.mul(clauses));
-                let host_wo = k(1 << SH_AO).mul(ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
-                let host_dmm = k(1 << SH_Z).mul(z16).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
+                let host_wo = ao.mul_base(b_ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
+                let host_dmm = z16.mul_base(b_z).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_wo)).add(nu[1].mul(v[2]).mul(g).mul(host_dmm))
             };
             #[cfg(test)]
@@ -1658,6 +1682,13 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             }
             let ihx = b.h(hids.sexp())?;
             let lks = lk_tables(lay, Dom::S, &b.shaped, g_u8);
+            // **STAGE 35, LEVER (b)(iii)** — see the note in `SC_DZC` above:
+            // a constant with no imaginary part makes `x.mul(c)` exactly
+            // `x.mul_base(c.c0)`, two base multiplications instead of five,
+            // and `lw` is `limbs`'s own `pow256(kk)` weight vector.
+            let (b_fp, b_shs) = (k(1 << F_P).c0, k(1 << SH_S).c0);
+            let lw = |ix: &[usize]| -> Vec<(usize, Fp)> { ix.iter().enumerate().map(|(kk, i)| (*i, pow256(kk).c0)).collect() };
+            let (w_sr, w_sg, w_pl) = (lw(&i_sr), lw(&i_sg), lw(&i_pl));
             // the row-sum host term is constant in j: it sums to (the number of
             // j positions of the S cube per Ht position) * (Sum(p_ht) + lam_z)
             let per_row = (sh.size(Dom::S) / sh.size(Dom::Ht)) as i64;
@@ -1711,15 +1742,21 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             };
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
+                // `limbs` with base weights and the `256^0` multiply by one
+                // dropped — the same `lb` as in `SC_DZC`
+                let lb = |w: &[(usize, Fp)]| match w.split_first() {
+                    None => Fp2::ZERO,
+                    Some(((i0, _), rest)) => rest.iter().fold(v[*i0], |a, (i, c)| a.add(v[*i].mul_base(*c))),
+                };
                 let (mask, s8, zsel, e, p, sum) = (v[im], at(A_S8), at(A_ZSEL), at(A_E), at(A_P), v[isum]);
-                let sr = limbs(v, &i_sr);
+                let sr = lb(&w_sr);
                 // delta = max - masked score, the masked score being mask * (s8 + 127) - 127
                 let delta = v[imx].sub(mask.mul(s8.add(k(-MASK_SCORE)))).add(k(-MASK_SCORE));
                 let c0 = zsel.mul(zsel).sub(zsel);
                 let c1 = zsel.mul(delta);
-                let c2 = k(1 << F_P).mul(mask).mul(e).sub(p.mul(sum)).sub(sr);
-                let c3 = limbs(v, &i_sg).add(sr).add(Fp2::ONE).sub(sum);
-                let c4 = p.sub(limbs(v, &i_pl));
+                let c2 = mask.mul(e).mul_base(b_fp).sub(p.mul(sum)).sub(sr);
+                let c3 = lb(&w_sg).add(sr).add(Fp2::ONE).sub(sum);
+                let c4 = p.sub(lb(&w_pl));
                 let cx = v[ihx].mul(alpha.sub(delta.add(beta.mul(e)).add(g_exp))).sub(Fp2::ONE);
                 let g = gs.at(v);
                 // **STAGE 35, LEVER (b)(i)** — the same rewrite as in
@@ -1733,7 +1770,7 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 }
                 let zc = helper_sum(v, &lks, h0, alpha, &mu[5..5 + n_help]).add(mu[5 + n_help].mul(cx)).add(pz.eval(v)).add(g.mul(clauses));
                 let host_rs = sum.add(lam);
-                let host_s = k(1 << SH_S).mul(s8).add(at(A_RSL)).sub(k(1 << (SH_S - 1)));
+                let host_s = s8.mul_base(b_shs).add(at(A_RSL)).sub(k(1 << (SH_S - 1)));
                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(ght.at(v)).mul(host_rs)).add(nu[1].mul(v[2]).mul(g).mul(host_s))
             };
             #[cfg(test)]
