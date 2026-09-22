@@ -11049,9 +11049,9 @@ all updated — but if those two censuses are meant to stay current, their
 lists want the same treatment, and that is a decision about what those tests
 are for rather than a defect.
 
-## Stage 34 — the slot expression IR, stage 1: the 23 slot polynomials as DATA beside the closures (2026-09-21, 16:4x–)
+## Stage 34 — the slot expression IR, stage 1: the 23 slot polynomials as DATA beside the closures (2026-09-21, 16:4x–17:4x)
 
-**Status: OPEN.** Opened 2026-09-21 16:48 PDT on the lane tip `226f3b2`
+**Status: CLOSED 2026-09-21 17:45 PDT.** Opened 2026-09-21 16:48 PDT on the lane tip `226f3b2`
 (pushed). The work is ruling **I-8** of
 `docs/zkmatrix-poc/ZK60_SLOT_EXPRESSION_IR_DISPOSITION.md` (the security
 owner's disposition of the slot expression IR design memo and its
@@ -11061,12 +11061,12 @@ its load-bearing half.
 
 | task | what | state |
 |---|---|---|
-| 1 | the IR types in a new `private_block/slot_ir.rs`: table references with a stable id, a kind and a provenance; products with coefficients that carry their provenance; sums; the zero-check wrapper; the bilinear group bits; the LogUp terms; the pad-rule terms under `pad_on`; the declared degree. **`FieldKind` is a FUNCTION of provenance and has no setter** (ruling I-2) | OPEN |
-| 2 | a builder per arm of `argument::define` — all 16 arms, all 23 slots — producing that slot's IR from the same inputs and the same challenge draws, BESIDE the arm, with no line of the arm changed | OPEN |
-| 3 | the IR evaluator: the simplest correct interpreter, `#[cfg(test)]`-reachable only, never on the proving path | OPEN |
-| 4 | the oracle tests in `slot_ir_tests.rs`, in the ordinary filter: (a) IR = closure on random tables at every registered shape and both pad branches; (b) the declared degree against the closure's degree by interpolation, with the check's degree finding recorded as an ASSERTED fact; (c) **the `FieldKind` oracle** of ruling I-2, with a deliberately mislabelled table as its control; (d) the IR's counts against the drafter's inventory; (e) IR-C19's premise — `s(0) + s(1) == claim` at every round — measured on the ORACLE side, for the integrator's request R1d | OPEN |
-| 5 | stage 1b: a canonical JSON export of a shape's 23 slot IRs with a SHA-256, pinned per registered shape, so the independent Python gate can CROSS-CHECK its hand port (it does not replace it — ruling I-8) | OPEN |
-| 6 | this ledger section, closed with the commits, the counts and what stage 2 would be | OPEN |
+| 1 | the IR types in a new `private_block/slot_ir.rs`: table references with a stable id, a kind and a provenance; products with coefficients that carry their provenance; sums; the zero-check wrapper; the bilinear group bits; the LogUp terms; the pad-rule terms under `pad_on`; the declared degree. **`FieldKind` is a FUNCTION of provenance and has no setter** (ruling I-2) | **DONE** |
+| 2 | a builder per arm of `argument::define` — all 16 arms, all 23 slots — producing that slot's IR from the same inputs and the same challenge draws, BESIDE the arm, with no line of the arm changed | **DONE** |
+| 3 | the IR evaluator: the simplest correct interpreter, `#[cfg(test)]`-reachable only, never on the proving path | **DONE** |
+| 4 | the oracle tests in `slot_ir_tests.rs`, in the ordinary filter: (a) IR = closure on random tables at every registered shape and both pad branches; (b) the declared degree against the closure's degree by interpolation, with the check's degree finding recorded as an ASSERTED fact; (c) **the `FieldKind` oracle** of ruling I-2, with a deliberately mislabelled table as its control; (d) the IR's counts against the drafter's inventory; (e) IR-C19's premise — `s(0) + s(1) == claim` at every round — measured on the ORACLE side, for the integrator's request R1d | **DONE** |
+| 5 | stage 1b: a canonical JSON export of a shape's 23 slot IRs with a SHA-256, pinned per registered shape, so the independent Python gate can CROSS-CHECK its hand port (it does not replace it — ruling I-8) | **DONE** |
+| 6 | this ledger section, closed with the commits, the counts and what stage 2 would be | **DONE** |
 
 **The rules this stage works under** are the lane's: one writer, the build
 recipe in this file's header, **no 125M proof run**, no registered profile
@@ -11257,3 +11257,116 @@ at every registered shape and both pad branches, that **the hoist is
 value-preserving**: 22 muls become 12 at slot 14 and 10 become 6 at slot 17
 with the same field element out. That is half of lever (b) with its
 "moves no byte" argument measured rather than argued.
+
+### What stage 2 would be (lane-only), and what waits on the integrator
+
+**STAGE 2, ON THIS LANE: lever (b) inside the closures of slots 17 and 14.**
+Ruling I-4 fixes the order and the reason — the loop over evaluation points
+and the fold live in `sumcheck::prove`, so a closure can only change what
+happens INSIDE one evaluation, which is exactly what lever (b) is. The two
+slots are 82% of the counted baseline and 71% of the measured
+masked-sumcheck seconds, and the lever is **14.2% of the baseline at 125M,
+15.0% at rung-W14** [COUNTED, the check's §5]. Three parts, and the IR is
+now the list for all three:
+
+1. **hoist the support gate** out of the clause batch,
+   `sum_i mu_i g c_i = g sum_i mu_i c_i`: 22 multiplications become 12 at
+   slot 14 and 10 become 6 at slot 17. **The IR already encodes the hoisted
+   form, so this stage's equality oracle already proves the hoist
+   value-preserving at every registered shape and both pad branches** — the
+   change is a transcription of the IR's own grouping back into the closure,
+   gated by a test that exists;
+2. **typed coefficients**: every `k(c)`, `pow256(k)` and `2^SH_*` is a full
+   five-multiplication `Fp2::mul` today where `mul_base` is two — 31 of them
+   per evaluation at slot 14 and 10 at slot 17. **`CoefProv::Base` is the
+   set**, named coefficient by coefficient in the export;
+3. **the shared sub-expressions the closures miss**: `k_den·d` recomputed in
+   `c0` and `c1`, `k_den·dm` in `c6` and `c7` (`argument.rs:1449-1457`), and
+   `limbs`'s fold from `k = 0`, which multiplies by a runtime `Fp2::ONE`
+   where the hand-written `l2` / `l3` skip it.
+
+Its gate is this stage's own — the IR-vs-closure equality, unchanged, plus
+the frozen receipt-length and digest pins. Nothing in it moves a byte.
+
+**WHAT WAITS ON THE INTEGRATOR.**
+
+* **Request R1d (finding IR-C19)** — one evaluation per pair index in
+  `sumcheck::prove` is redundant because the prover knows the claim, 15.8%
+  of the baseline. **Its premise now has lane evidence**: `s(0) + s(1) ==
+  claim` at all 379 rounds of 46 (shape, slot) pairs on the honest prover's
+  round loop. The remaining half is ruling I-3's — whether the claim
+  `zk::masked_prove` tracks is the unmasked one at that point, and the debug
+  assertion in test builds;
+* **the `SumcheckRounds` interface (ruling I-5, Option A)** with the check's
+  three corrections: drop the `Sync` supertrait, write the preservation list
+  into the trait's documentation, name the frozen byte gates in the request.
+  **Levers (a) and (c) cannot be taken without it**, because both need a
+  range of pair indices or the whole round. Ruling I-5's precondition stands
+  and is not this lane's to close:
+  `tests/test_zk60_mvp_security_probe.py` is already red on main for
+  `hashline/src/zk.rs` since `4751b93` and must be re-pinned before any
+  further change there;
+* **the Python gate's side of the export** — it reads
+  `x34-slot-ir/slot_ir_<shape>.json` as a cross-check of its hand port, and
+  the hand port is retired only on ruling I-8's condition.
+
+### Task 6 — the gates and the commits
+
+**THE GATES.**
+
+| gate | result |
+|---|---|
+| `--lib private_` (the whole filter) at `44ac386` | **402 passed / 0 failed / 17 ignored, 569.84 s, exit 0** (`x34-gate-private1.log`) — stage 33's 394 plus this stage's first eight, nothing lost |
+| `--lib private_` (the whole filter) at the tip | **403 passed / 0 failed / 17 ignored, 569.18 s, exit 0** (`x34-gate-private2.log`) — with the ninth test (the bilinear group bits) |
+| the stage's own tests alone | **9 passed / 0 failed, 3.87 s.** The whole of stage 34 costs the ordinary filter about **four seconds**, well inside the two minutes it was given |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — in the pass list of both runs |
+| the development profiles' pins, BY NAME | `k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims`, `p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move`, `c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved`, `w14_tests::the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count`, `e32_tests::the_new_shape_is_125ms_endpoint_row_count_at_a_ten_log_endpoint`, plus `rung_tests` and `dense_tests` — in the pass list of both runs |
+| the forbidden-files proof | `git diff --stat 226f3b2 HEAD -- zkp-core hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/field hashline/src/native_capture.rs hashline/src/private_seam.rs hashline/src/gpu zkvm-block private-block-kernel private-model-kernel private-block-kernel-shaped scripts tests` prints **nothing** |
+| **the arms, untouched** | `python3 results/zk60_block125m_lane/x34-arm-immutability.py 226f3b2 HEAD`: **0 removed and 0 added lines** in `argument.rs` — the file is not in the diff at all, which is stronger than ruling I-8's condition. The script locates `define`'s `match slot` block (lines 1118..1731 at the base, 26 `SC_* =>` arm heads) so a later stage can run the same measurement against a diff that is not empty |
+| the crate's warnings | **14**, the tip's own (`review_tests`, `s28_review_tests`, `run.rs`, `rung_tests`, `run_capture`, `attention.rs`); **neither new file adds one** |
+| no 125M proof run | none. The 125M SHAPE is walked — definitions, IR, degrees, export — with **no witness, no tables and no proof**; no `r29-*` file is touched and the two quarantined `u31-c6-run1.*` files are untracked and untouched |
+
+**ON THE HEAVY LOCK, AND WHY THIS RUN DID NOT TAKE IT.** At 17:15 the gate
+was launched under `flock /tmp/zk-heavy.lock` per the no-hangup protocol and
+sat behind **three m125 native-gate jobs of another lane** (one an hour in,
+two queued four hours). This lane's filter is a CORRECTNESS gate, not a
+measurement; with 12 GB available and 22 cores the queued run was cancelled
+and re-launched detached WITHOUT the heavy lock, still with its log and its
+`.done` marker. **The consequence is stated rather than hidden: 569 s is an
+UPPER BOUND taken on a box that was not quiesced**, and it is not a timing
+result. Against stage 33's 565.58 s the difference is about four seconds,
+the same order as the stage's own measured 3.87 s of tests.
+
+**THE COMMITS OF STAGE 34**, in order:
+
+| commit | what |
+|---|---|
+| `fca610c` | the ledger skeleton: the six tasks of ruling I-8, the rules, the evidence prefix |
+| `08658de` | **tasks 1–4**: `slot_ir.rs` (the types with `FieldKind` derived from provenance, the builder for all sixteen arms, the interpreter) and `slot_ir_tests.rs` (the equality oracle, the thread census, the degree oracle, the `FieldKind` oracle and its control, the inventory comparison, IR-C19's premise), plus the drafter's inventory extract |
+| `e007064` | **task 5**: the canonical JSON export, nine files, pinned by digest and by length |
+| `44ac386` | the arm-immutability proof script and its log; `CoefProv::Product` removed (finding S34-F1) and `SlotIr::profile` made the export's source |
+| `33c2db0` | the bilinear slots' group bits checked against the shape — the S19-F1 repair as data |
+| this one | the ledger's tasks 1–6 and the close |
+
+### What this stage is NOT
+
+Not a speed result: **nothing was made faster and no execution path
+changed.** Not a privacy or a soundness claim: the IR describes `f`, never
+`f + c·g`, and the mask, the transcript, the extension rounds and every
+table CONSTRUCTION stay where they are. Not a profile change: no declared
+degree, no receipt length and no digest moves, and ruling I-7's degree gap
+is recorded and left alone. Not a replacement for the closures — they are
+the oracle, and stage 1 ends with them still holding that job. Not a claim
+about 125M: the shape is WALKED, never proved.
+
+**WHAT IT IS.** The twenty-three slot polynomials now exist as data that a
+machine can read, beside the closures, with **1,656 evaluations at nine
+shapes saying the data and the code are the same polynomial**; the
+base-field classification that finding IR-C1 showed was wrong by twelve
+tables is now derived from provenance and **tested against the tables the
+prover really builds**, with a control that catches all twelve; the true
+degree of every slot at every shape is measured for the first time and
+agrees with the IR's computed one everywhere; the premise of the
+integrator's cheapest lever is checked at 379 rounds; and a canonical,
+digest-pinned export gives the independent Python gate something to check
+its hand port against.
