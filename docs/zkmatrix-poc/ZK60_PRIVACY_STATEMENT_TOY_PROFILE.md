@@ -57,7 +57,16 @@ D21").
 > `private_attention/witness.rs`) appear in no pin table — two of the four
 > toy captures of record are attention receipts, so this residual is real
 > and is on the open list (gate ledger §R9g.8); `hashline/src/gpu/cuda.rs`
-> is unpinned and off this profile's CPU path.)* **What the re-run does not establish:** that the gates replay a
+> is unpinned and off this profile's CPU path.)* *(CLOSED 2026-09-22 15:15,
+> gate round 9h, `zk60-native-jointview` at `d5dbd33`: all three are on the
+> attention path by call site — the profile root, the prover's witness, and
+> the wire whose `validate` is the verifier's first statement — and are now
+> pinned at their `4751b93` digests (`dfc02d91…`, `a35a468c…`, `795cf629…`;
+> the lane's copies are byte-identical, so nothing is owed at integration)
+> in a module both toy gates run before any analysis, refusing by name per
+> file; failing-first shown on three one-line tampers; the record guard
+> re-pinned; 217 tests and 42 guard tests green. Only `gpu/cuda.rs` remains
+> unpinned, off this path.)* **What the re-run does not establish:** that the gates replay a
 > receipt the new binaries made — the integrator proved this profile on the
 > new tree, but no bundle from it exists in the gate's schema.
 
@@ -360,7 +369,12 @@ written except where noted.
     kept; the record guard re-pinned; 204 tests and 29 guard tests green);
     and the exclusion rested on Cargo's resolver v2 being implied by the
     edition — `resolver = "2"` is now written explicitly in both manifests.
-    The pin set of §5 condition 7 is therefore 31 files. Thirteen of
+    The pin set of §5 condition 7 is therefore 31 files *(corrected 15:15
+    the same day: counted over the tables by machine it is 37 — 35 Rust
+    files and the two manifests; "31" was the 29 block-path files plus the
+    manifests and omitted the attention profile's `argument.rs`,
+    `layout.rs`, `protocol.rs`, pinned since rounds 1 and 5, and the three
+    attention files pinned by round 9h)*. Thirteen of
     the pinned paths already differ between the lane's base and the pinned
     main tree, so the re-pin is against the integrator's merged tree, never
     against the lane.*
