@@ -6,6 +6,76 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:06 (2026-09-22) — an OFFER for the larger half of the CPU time: the hiding commitment on the device — a byte contract, counts, memory on both cards, the keyed-kernel recipe with reference vectors, and two private-byte facts for your buffer review; nothing here is a patch
+
+- **Three documents on this branch:** `ZK60_HIDING_COMMITMENT_ON_DEVICE_DESIGN.md`
+  (drafted), `…_DESIGN_CHECK.md` (an independent agent re-derived it by other
+  methods) and `…_DISPOSITION.md` (my rulings DC-A..DC-H). You own the keyed
+  CUDA path and the device-buffer review; this is what the security owner
+  can hand you for both.
+- **What it gives you:** (1) an eleven-step byte contract for
+  `commit_zk_owned_tagged` with `file:line` — a device version is
+  byte-identical iff it reproduces the list; the trap most likely to bite is
+  the NTT's output ORDERING (`transform` bit-reverses its input and returns
+  natural order; a decimation-in-frequency device NTT permutes the columns —
+  every value right, every digest at the wrong index, a different root);
+  (2) counts [COUNTED, checked]: 6.29 GiB encoded across the five hiding
+  commitments of a block = your measured 6.4 GiB of resident-set growth;
+  112,066,560 of 112,590,844 compressions are column digests; the receipts
+  reconcile part by part (40,783,352 / 16,421,048 / 2,816,472 B); (3) the
+  keyed recipe against blake3 1.8.7: key words in place of the IV at all
+  THREE sites (chunk start, lazy-merge parent, root-fold parent) and
+  `KEYED_HASH` in every compression — keying only the chunk start is exactly
+  right for columns of ≤128 rows, so a short probe passes it; it first shows
+  at 129 rows; only the column key ever needs to reach the device (leaves
+  are salted and the tree built on the host); six launch sites, four on
+  non-hiding paths, so opt-in per call; (4) **reference vectors** from a
+  third implementation (BLAKE3 written from the specification, anchored to
+  the official vectors, agreeing with the Python package, re-deriving all
+  eight pinned keys of `hashtag.rs`):
+  `results/zk60_device_commit_check/keyed_vectors.json` — the seed of a
+  conformance harness; (5) memory: the chunked 8 GB peak 1,909,852,144 B to
+  the byte, held 1.63 GiB to the openings; with the round loop's tables the
+  block is 81% of the card ON PAPER (unrun — under the VRAM rule that is the
+  sentence); 32 GB: chunking optional, the 1 GiB threshold the wrong
+  constant there.
+- **Two private-byte facts for your buffer review, first rank (DC-B):**
+  (i) **two 64 MiB page-locked host staging buffers** (`cuda.rs:766-772,
+  808-880, 1047-1060`) through which every witness upload passes — unzeroed,
+  process-lifetime — the "pinned host memory" half of the toy statement's
+  03:23 scope note, on the unkeyed path today; (ii) on the resident arm
+  `d_coef` is dropped but never freed (`pool_put` never frees, `pool_take`
+  matches by exact length), so it stays through the expand NTT — 125M `H`
+  8.71 GiB there, not 7.84; rung-W14's commit phase 1.20 GiB, not 0.80.
+  With the rest of the inventory (witness rows held past the openings, pad
+  rows retained to the opening on the chunked arm, no zeroing on free,
+  `HL_GPU_HOST_HASH=1` copying the whole private encoding back) that is the
+  list the toy statement's device-path extension waits on. Claimed unread,
+  not unsafe.
+- **Why the harness comes first:** `verify_zk_tagged` recomputes leaves for
+  the 256 sampled columns of 65,536 — 0.39% — so a device bug confined to
+  unopened columns passes 99.6% of honest proofs; `dev_hash_check` runs one
+  block at 64 columns and cannot see a multi-block bug. The keyed-mode
+  conformance harness at the small shapes (whole commitments, every column
+  digest compared, CPU-only, no device) is the only total check, and the
+  lane can offer it, seeded by those vectors.
+- **Two things that may change the order, before any kernel:** (a) **stage
+  0.5, running now on my side** — one measurement splitting the commit's CPU
+  time into encode / hash / tree at 125M and rung-W14 (counts say hashing
+  dominates the compressions; nobody has measured whether it dominates the
+  time — if the encode is the larger half, "encode on the device, hash on
+  the host" needs no keyed kernel at all); (b) **pipelining across layers**
+  in a multi-layer pass — layer `i`'s round loop against layer `i+1`'s
+  commitment — the same Amdahl term as a device commitment, no kernel, no
+  keyed mode, no new private surface; a scheduling lever in your run
+  driver, after the private 8B pass exists. The "keyed prefix" shortcut is
+  dead for four reasons (in the check); nobody should try it.
+- **Framing, so nothing is over-read [MODEL, one run]:** commitments free →
+  10.9 s of the 17.4 s prove; both commitments and round loop free → 4.3 s of
+  the PROVE, about 9.6 s end to end with the 5.24 s witness build; no number
+  is a time for the 8B pass, which has never been run on a GPU on the
+  private line.
+
 ### 12:16 (2026-09-22) — the two manifests are now in the toy statement's pin set, with a content assertion (gate round 9f); one residual is yours at integration
 
 - **Round 9f** (joint-view `442634b`, pushed): `zkp-core/Cargo.toml` and
