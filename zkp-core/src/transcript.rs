@@ -162,6 +162,50 @@ impl Transcript {
     }
 }
 
+// ---------------------------------------------------------------------------
+// TEST OBSERVER (the integrator's authorisation of 2026-09-22 07:25)
+// ---------------------------------------------------------------------------
+//
+// **What this is for.** Finding U-3 of the lane ledger: the transcript
+// published `state()` but no counter accessor, so "how many challenges did
+// this proof squeeze" was unobservable and the lane had to substitute a
+// 32-byte position tag for it. The draw-accounting test needs the count,
+// and the count is already in the state.
+//
+// **Read-only, derived, and counts only.** `counter` is incremented by
+// `squeeze_bytes` and by nothing else; this returns it. It is not a new
+// field, no absorb or squeeze does any extra work, and no challenge value,
+// no absorbed message and no Fiat-Shamir key can be reached through it.
+#[cfg(any(test, feature = "test-observers"))]
+impl Transcript {
+    /// **How many SQUEEZES this transcript has performed** since it was
+    /// constructed — the value that goes into the next squeeze's input as
+    /// `le64(counter)`, which is exactly why it counts them.
+    ///
+    /// It is squeezes, not challenges, and the two differ in one place:
+    /// `challenge_fp` and `challenge_fp2` are one squeeze each, but
+    /// `challenge_indices(n, _)` squeezes `ceil(n / 4)` times because it
+    /// takes four indices from each 32-byte output. A test that wants
+    /// "challenges" counts the calls it made; this counts the points on the
+    /// hash chain, which is the object the Fiat-Shamir argument is about.
+    ///
+    /// **A clone carries it.** `clone_state` copies `counter` along with
+    /// `state` (ruling T-7), so a refusal replay taken off a clone starts
+    /// at the live count and the live transcript's own count does not move
+    /// — which is the property the draw-accounting test asserts about the
+    /// replay.
+    ///
+    /// **Absorbs are NOT counted, and cannot be derived.** `absorb` folds
+    /// its message into `state` and touches no counter, so the number of
+    /// absorbs is not a function of any state this type holds. Counting
+    /// them would mean a new field bumped on every absorb — work on a hot
+    /// path, which the integrator's conditions forbid and which this
+    /// accessor therefore does not do.
+    pub fn squeezes(&self) -> u64 {
+        self.counter
+    }
+}
+
 #[allow(dead_code)]
 const _ASSERT_P: u64 = P;
 
@@ -239,5 +283,75 @@ mod tests {
         h2.update(&32u64.to_le_bytes());
         h2.update(&[7u8; 32]);
         assert_eq!(want, *h2.finalize().as_bytes(), "the legacy transcript rule moved");
+    }
+
+    // -----------------------------------------------------------------
+    // the squeeze counter (stage 36)
+    // -----------------------------------------------------------------
+
+    /// **The counter matches a hand-counted sequence**, call kind by call
+    /// kind: absorbs move it not at all, `challenge_fp` and `challenge_fp2`
+    /// move it by one, `challenge_fp2_vec(n)` by `n`, and
+    /// `challenge_indices(n, _)` by `ceil(n / 4)` because each squeeze
+    /// yields four 8-byte indices. The last is the one place where
+    /// "challenges" and "squeezes" are different numbers, and the test says
+    /// so at four sizes, including the exact multiple of four and one past
+    /// it.
+    #[test]
+    fn the_squeeze_counter_matches_a_hand_counted_sequence() {
+        let mut t = Transcript::new(b"stage36");
+        assert_eq!(t.squeezes(), 0, "a fresh transcript has squeezed");
+        t.absorb(b"x", &[1, 2, 3]);
+        t.absorb_u64(b"rows", 7);
+        t.absorb_fp(b"vals", &[Fp::new(5)]);
+        t.absorb_fp2(b"sc-round", &[Fp2::ONE]);
+        assert_eq!(t.squeezes(), 0, "an absorb squeezed");
+        t.challenge_fp();
+        assert_eq!(t.squeezes(), 1);
+        t.challenge_fp2();
+        assert_eq!(t.squeezes(), 2);
+        t.challenge_fp2_vec(5);
+        assert_eq!(t.squeezes(), 7, "a vector of five challenges is not five squeezes");
+        let mut want = 7u64;
+        for (n, squeezes) in [(1usize, 1u64), (4, 1), (5, 2), (100, 25)] {
+            t.challenge_indices(n, 1024);
+            want += squeezes;
+            assert_eq!(t.squeezes(), want, "{n} indices did not take {squeezes} squeezes");
+        }
+        // a clone starts where the original is, and the original does not
+        // move while the clone draws (the refusal replay's property)
+        let live = t.squeezes();
+        let mut clone = Transcript::clone_state(&t);
+        assert_eq!(clone.squeezes(), live, "the clone did not inherit the counter");
+        for _ in 0..12 {
+            clone.challenge_fp2();
+        }
+        assert_eq!(clone.squeezes(), live + 12);
+        assert_eq!(t.squeezes(), live, "a clone's draws moved the live transcript's counter");
+    }
+
+    /// **Reading the counter changes no challenge and no state.** Two
+    /// transcripts on the same domain take the same absorbs and the same
+    /// challenges; one is interrogated before and after every call. The
+    /// challenge values agree one by one, and so do the two states at the
+    /// end.
+    #[test]
+    fn reading_the_squeeze_counter_changes_no_challenge() {
+        let mut watched = Transcript::new(b"stage36");
+        let mut untouched = Transcript::new(b"stage36");
+        let mut a: Vec<Fp2> = Vec::new();
+        let mut b: Vec<Fp2> = Vec::new();
+        for i in 0..32u64 {
+            let _ = watched.squeezes();
+            watched.absorb_u64(b"i", i);
+            let _ = watched.squeezes();
+            a.push(watched.challenge_fp2());
+            assert_eq!(watched.squeezes(), i + 1);
+            untouched.absorb_u64(b"i", i);
+            b.push(untouched.challenge_fp2());
+        }
+        assert_eq!(a, b, "interrogating the transcript moved its challenges");
+        assert_eq!(watched.state(), untouched.state(), "interrogating the transcript moved its state");
+        assert_eq!(watched.squeezes(), untouched.squeezes());
     }
 }
