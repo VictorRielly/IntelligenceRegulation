@@ -116,6 +116,17 @@ Nothing about the 125M shape. The hash layer is argued, not computed. The
 joint-law composition for a run is unwritten. The per-slot terminal identity
 is not checked at this shape. NOT a privacy acceptance.
 
+*(CORRECTED 2026-09-22 14:21 (round 9g): three of those five are no longer
+true of the gate as a whole, and this paragraph is round 2's scope
+statement. "Nothing about the 125M shape" — closed by round 9 (the whole
+gate at 125M, 179 s) and round 9c (the full channel table there, **28 at 10
+/ 5 / 4 / 9**). "The hash layer is argued, not computed" — the HIDING is
+still argued (M-2, M-3) but the hash RULE is derived and every opened column
+re-authenticated since round 3. "The per-slot terminal identity is not
+checked at this shape" — checked since round 3, and at seven shapes now.
+Unchanged and still true: the joint-law composition for a run is unwritten
+(O-R2 / G-R4), and **nothing on this lane is a privacy acceptance**.)*
+
 ## R2.5 NEXT after round 2
 
 1. **Close the other eleven slots.** Ask the Rust lane for a capture with
@@ -1398,6 +1409,12 @@ that no captured file was written).
 4. **The 125M shape**: the solve is `O(rows · d²)` in the pads and
    `O(G · n · rows)` in the verification, and nobody has measured either
    there. Round 7 makes the measurement cheap to take.
+   *(MEASURED, 2026-09-22 14:21 (round 9g) noting round 9 §13.8: `A@0` at
+   125M is **365.1 s** against an `O(G·n·rows)` extrapolation of 1,400 s —
+   the arithmetic bound bounds the VERIFICATION pass, not the solve, which
+   still decomposes at 5,681 rows. The three singleton-group commitments
+   cost **16×** the rung's, the message-width ratio and not the row ratio.
+   The whole full arm is 1,292.7 s dense / 1,293.8 s zero.)*
 5. R6.8 items 1–3 (the writer-side pin ask, the attention profile's path, a
    shape with `lkv > 2`) are untouched and still open.
 6. Nothing in this round moves D8/D11 or ruling M-8's decision.
@@ -1829,6 +1846,17 @@ pass carrying every stage would read 10 / 5 / 4 / 9 and is enqueued as
 `m125-dense-everything`; until it lands **no 125M record carries the whole
 table and nothing here claims one does**.
 
+*(CORRECTED 2026-09-22 14:21 (round 9g): **it landed, in round 9c** — twice
+(`dense-everything.done` and `dense-everything2.done`, both exit 1, 2:17:40
+and 2:09:58, identical figures), every one of its thirteen stages RAN, and a
+125M record now reads the full **28 at 10 / 5 / 4 / 9**. The exit 1 is
+control bookkeeping and is decomposed leaf by leaf in
+`results/zk60_native_run_gate_9c/dense_everything_exit1_decomposition.json`.
+So "no 125M record carries the whole table" is false from 2026-09-21/22
+onward. The two figures above — 10 / 3 / 4 / 11 and 2 / 5 / 4 / 17 — are
+unchanged and still describe the passes that produced them. See R9c.4 and
+report §15.1 item 5 / §15.2.)*
+
 Also enqueued and named rather than guessed at: the zero bundle's full-arm
 run, the fixed control run, the two default records re-taken on frozen
 bytes, the ten-record refresh and both suites — each with its own log and
@@ -1942,6 +1970,18 @@ should do is `ls *.done`, read the exit codes, and integrate.
 The ledger names them rather than predicting their outcomes, which is the
 marker protocol's whole point: the box kept working, and a figure nobody
 has read is not a figure.
+
+*(CORRECTED 2026-09-22 14:21 (round 9g): **all of them have since landed
+and been read**, so the four rows still marked as pending above are the
+state at round 9's close and not the state now. `dense-everything` exit 1
+(twice) — the whole table, **28 at 10 / 5 / 4 / 9**, integrated in round 9c
+(R9c.4, report §15.2). `dense-controls2` exit 1 — it CRASHED and delivered
+no control set, which round 9b recorded (report §14.9) and round 9c then
+answered from `dense-everything`, where **M9-3 fires at 125M in all three
+directions**. `dense-final` / `zero-final` exit 0, integrated. `retake78`
+exit 0 at 15:37 on 2026-09-21. The marker files are in
+`results/zk60_native_run_gate_m125/`, which is where any later session
+should still start.)*
 
 ## R9.11 NEXT after round 9
 
@@ -3190,3 +3230,35 @@ every profile's path). Every other "cannot be pinned" sentence is stale.
 | 14 | D22 record §4, the per-file table | `pcs.rs` / `private_block.rs` "yes, not pinned" | **CORRECTED in place**, as a dated row under the table |
 | 15 | D22 record §7, "Also recorded" item 1 | "Widening the pin set … is the security owner's call whether to ask for it" | **CORRECTED in place** — the call was made at 22:06 on 2026-09-20 and round 5 carried it out; all six files named are in `PATH_PINS` |
 | 16 | D22 record §1.4, `gpu/cuda.rs` "not pinned by any gate tool" | — | **STILL TRUE**, and said so in the §7 correction rather than corrected |
+
+## R9g.4 Item 2 — "nothing measured at 125M", and the channel table
+
+Report §13.9 was round 9's own sweep of this and caught **six** sentences.
+It missed four of exactly the same kind, and one of round 9's own closures
+went stale inside round 9c. Every occurrence:
+
+| # | where | the sentence | decision |
+|---|---|---|---|
+| 1 | report §5, §9.11, §11.8, §11.10, §12.8, §12.10 | the six of §13.9 | **already corrected** in place, dated 2026-09-21 |
+| 2 | report §6.7 (round 2) | "Nothing about the 125M shape. The port is shape-driven … but it has been RUN at one shape" | **CORRECTED** — seven shapes now (rung-G, K4, P2, C6, W14, E32, 125M); 46 of 46 slot checks at 125M |
+| 3 | report §7.9 (round 3) | "it has been RUN at one shape. The m125 profile's four keys … that is the only 125M fact here" | **CORRECTED** — the hash layer runs at 125M; only CH-3 cannot exist there, and round 9c records why |
+| 4 | report §8.11 (round 4) | "it has been RUN at one shape, where `lkv = 1`" | **CORRECTED** — `lkv = 2` at rung-K4, rung-P2 and 125M; `lkv > 2` is the part still open |
+| 5 | report §11.8's round-9 DATED NOTE | "`A` and `H` are estimated at 22–23 minutes apiece and are OPEN at that shape, so §12.7's JOINT preimage is not established there either" | **CORRECTED** — the full-arm pass landed inside round 9: all seven commitments constructed and verified (8,263,736 entries, 0 differing), the JOINT preimage holds at 125M (8,296,654, 0 differing), `A@0` 365.1 s |
+| 6 | report §11.10's round-9 DATED NOTE | "§13.8 has the estimate for `A` and `H` and the reason it is an estimate" | **CORRECTED** — the estimate became a measurement in the same round |
+| 7 | report §13.8, last paragraph | "until it lands no 125M record carries the whole table and this section does not claim one does" | **CORRECTED** — `dense-everything` landed twice in round 9c: **28 at 10 / 5 / 4 / 9** |
+| 8 | report §14.9, the `dense-everything`, `dense-controls2` and `retake78` rows | "**not landed**" | **CORRECTED** as a dated block under the table, with each marker's exit code |
+| 9 | report §13.9's own table | — | **EXTENDED** with a dated block naming the four it missed |
+| 10 | ledger §5 of round 2 ("What this lane does NOT show") | "Nothing about the 125M shape. The hash layer is argued, not computed … the per-slot terminal identity is not checked at this shape" | **CORRECTED** — three of the five closed, and the two that stand (the joint law; not a privacy acceptance) named as standing |
+| 11 | ledger R7.9 item 4 | "nobody has measured either there" | **CORRECTED** — measured in round 9 §13.8, with the figures |
+| 12 | ledger R9.6 ("A bookkeeping distinction") | "until it lands no 125M record carries the whole table" | **CORRECTED** — landed in round 9c |
+| 13 | ledger R9.10's marker table | four rows still reading as pending | **CORRECTED** as a dated block under the table |
+| 14 | ledger R9.0 ("Every round so far ends with the same line") | — | **already the correction**: it quotes the stale sentences in order to close them |
+| 15 | ledger R8.x line 1590, "the ten records of record — 28: 2 / 5 / 4 / 17" | — | **correct as written**: it is the DEVELOPMENT records' table, not a 125M claim. Left alone |
+| 16 | report §12.7 / §13.8's "2 / 5 / 4 / 17" and "10 / 3 / 4 / 11" figures | — | **correct as written** for the passes that produced them; the corrections say so explicitly so nobody "fixes" them to 10 / 5 / 4 / 9 |
+
+**The one figure that matters, stated once:** the 125M channel table read
+from a record that carries every stage is **28 at 10 / 5 / 4 / 9** — ten
+CONSTRUCTED, five DERIVED, four ARGUED, nine OPEN — the same table rung-K4
+and rung-P2 read. Records that ran only some stages read 2 / 5 / 4 / 17 or
+10 / 3 / 4 / 11, and that is bookkeeping about which stage ran, not a
+disagreement about a channel.

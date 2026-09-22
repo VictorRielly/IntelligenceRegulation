@@ -747,6 +747,12 @@ absent. The whole live arm runs in 5.5 s, so nothing here needs a
   while `SH_S`, `SH_G`, `SH_H_PROD`, `F_P` and `NORM_CEPS` are read here as
   fixed calibration constants of `layout.rs`. At a shape where one of those
   moved, the identity would simply fail; it would not be silently wrong.
+  > *(CORRECTED 2026-09-22 14:21 (round 9g): "it has been RUN at one shape"
+  > is false since round 9 — see §13 — and the count today is **seven**:
+  > rung-G, rung-K4, rung-P2, rung-C6, rung-W14, rung-E32 and the 125M
+  > shape itself. At 125M the terminal identity holds at **46 of 46** slot
+  > checks, so the three constants that move there did move and the port
+  > followed them. The sentence is kept as round 2's statement.)*
 * **Eleven of twenty-three slots are not checked at all**, and the nonlinear
   link between the commitment and masking channels is therefore covered for
   twelve slots and not for eleven.
@@ -1026,6 +1032,13 @@ gates' record guard still passes and no toy file's bytes were touched.
 * **Nothing about the 125M shape.** The port is shape-driven, but it has
   been RUN at one shape. The m125 profile's four keys are re-derived and
   pinned in the tests, and that is the only 125M fact here.
+  > *(CORRECTED 2026-09-22 14:21 (round 9g): false since round 9. The hash
+  > layer has been run at 125M — the hash rule is derived from the m125
+  > profile and every opened column re-authenticated — and at six further
+  > shapes since. Control **CH-3** is the one thing that cannot exist at
+  > 125M: it substitutes the 125M profile's tag, which at 125M is the
+  > identity, and round 9c records it as `fires: false` with that reason
+  > (§15). Kept as round 3's statement.)*
 * **A weight fold is the capture's.** See §7.4: no bundle carries a weight,
   so "this is the fold of the statement's matrix" is not established by
   anything in this round.
@@ -1313,6 +1326,13 @@ gates' record guard still passes and no toy file's bytes were touched.
   `run.json["shape"]` — but it has been RUN at one shape, where `lkv = 1`.
   At `lkv > 1` the same code paths carry more group variables and nothing
   here has exercised them.
+  > *(CORRECTED 2026-09-22 14:21 (round 9g): `lkv = 2` was exercised by
+  > round 5 at rung-K4 (§9) and by round 9 at **125M itself** (§13), whose
+  > `lkv` is 2 — 12 query heads of 64 over 4 key-value heads — with the GQ
+  > family of thirteen control entries firing on both group bits. What is
+  > still unexercised is `lkv > 2`: every shape this gate has run has `lkv ≤
+  > 2`, and that item stays open (ledger R5.8 item 3). Kept as round 4's
+  > statement.)*
 * **The hash layer's HIDING is still argued** (§7.3), and the masked
   sumcheck / CFS channel is still the largest open one a port could close.
 * **The defect itself is out of reach from a capture** (§8.6). What round 4
@@ -2165,6 +2185,16 @@ hidden input; their views have a preimage at zero all the same.
   > each). `A` and `H` are **estimated at 22–23 minutes apiece** from round
   > 7's own measurements and are OPEN at that shape, so §12.7's JOINT
   > run-wide preimage is not established there either.
+  > *(CORRECTED 2026-09-22 14:21 (round 9g): that note was written while the
+  > full-arm pass was still queued, and the pass landed inside round 9
+  > itself. **All seven PCS commitments of the two-block 125M dense run have
+  > a constructed and verified preimage** — 8,263,736 entries recomputed and
+  > none differing, 1,792 salted leaves, P-1 … P-6 all firing — and §12.7's
+  > JOINT run-wide preimage holds at 125M too: 8,296,654 entries, 0
+  > differing, 2,304 salted leaves, C1's 128 pairs all data rows. `A@0` took
+  > 365.1 s, not 22–23 minutes. See §13.8 and the §13.9 row for this bullet;
+  > the ZERO bundle's full arm landed in round 9b. "Nothing nonlinear" and
+  > "the four out-of-band channels" are unchanged.)*
 * **and it is not a privacy acceptance.** Both bundles carry
   `privacy_review_complete: false`, and so does every record round 7 wrote.
 
@@ -2212,6 +2242,11 @@ the gate.
   > singleton-group commitments: **16×** the rung's cost, which is the
   > message-width ratio 16,384 / 1,024 and NOT the row ratio. §13.8 has the
   > estimate for `A` and `H` and the reason it is an estimate.
+  > *(CORRECTED 2026-09-22 14:21 (round 9g): the estimate was replaced by a
+  > measurement inside round 9 — `A@0` is **365.1 s** against an
+  > `O(G·n·rows)` extrapolation of 1,400 s, because the arithmetic bound
+  > bounds the VERIFICATION pass and not the solve, which still decomposes
+  > at 5,681 rows. "Nobody has measured it" is false from §13.8 onward.)*
 
 ---
 
@@ -3214,6 +3249,17 @@ stage would read 10 / 5 / 4 / 9; it is enqueued as `m125-dense-everything`
 and named with its log and marker, and **until it lands no 125M record
 carries the whole table and this section does not claim one does.**
 
+> *(CORRECTED 2026-09-22 14:21 (round 9g): **it landed, in round 9c.**
+> `m125-dense-everything` is in, and a 125M record does now carry the whole
+> table: **28 at 10 / 5 / 4 / 9**, every stage `ok`, all nine terminal
+> controls firing, 253 s and 540 MB — §15 and ledger R9c.2 item 5 / R9c.6.
+> So "no 125M record carries the whole table" is false from 2026-09-21/22
+> onward, and with it the `dense-everything` row of §14.9. The two figures
+> quoted in this paragraph, **10 / 3 / 4 / 11** for the full-arm pass and
+> **2 / 5 / 4 / 17** for the (a)–(d) records of record, are unchanged and
+> are still what those records read; the bookkeeping reason given above is
+> still the right reading of why they differ.)*
+
 ## 13.8b The ten development records, re-run and leaf-diffed
 
 Round 9 moved five tool files — the loader, the array store, the terminal
@@ -3282,6 +3328,18 @@ Nothing above is rewritten; each correction is dated.
 | §12.8, sixth bullet | "anything at the 125M shape. Nothing here was measured there, and `L_s + 256 ≤ 512` is a constraint a bigger shape could break" | **closed**: the masking layer is constructed and verified at 125M, 32,918 entries with none differing; `L_s + 256` is 373 at its largest, headroom 139, and ruling C-4 now refuses a shape that breaks it. **§12.7's JOINT run-wide preimage also holds there** — 8,296,654 entries, 0 differing, 2,304 salted leaves, C1's 128 pairs all data rows |
 | §12.10, last bullet | "`M` keeps 50 rows there, but every `L_s` grows … whether it survives at 125M is a question for the Rust lane, and nobody has measured the solve there" | **answered both ways**: the Rust lane answered it with ruling C-4, and the solve is measured at 9.4 s a stage |
 | §2.3, "Here `n = 1,024`" | — | a dated note: at 125M `n = 16,384` and `Q = 256`, so a published vector is 16,640 entries; the split of the column functional's two halves is the same and the identity reproduces with 0 failures |
+
+*(EXTENDED 2026-09-22 14:21 (round 9g): this table caught six sentences and
+missed four of the same kind, which now carry their own dated corrections
+in place — §6.7's "Nothing about the 125M shape. The port … has been RUN at
+one shape" (seven shapes now), §7.9's "that is the only 125M fact here" (the
+hash layer runs at 125M; CH-3 is the identity there and says so), §8.11's
+"it has been RUN at one shape, where `lkv = 1`" (`lkv = 2` at rung-K4,
+rung-P2 and 125M itself; `lkv > 2` is what is still unread), and §13.8's own
+"until it lands no 125M record carries the whole table" (`dense-everything`
+landed in round 9c: **28 at 10 / 5 / 4 / 9**). §1's `source_pins` list and
+§10.2 / §10.8 / §12.2's "cannot be pinned" sentences are corrected in the
+same sweep. Round 9g adds no measurement of its own.)*
 
 ## 13.10 What this round is NOT
 
@@ -3611,6 +3669,21 @@ adds what the verification found.
 | `tests_native_all`, `tests_run_gate_all`, `tests_final` | `.done` | 1, 1, 1 | the exact-set assertions round 9 and round 9b widened; §14.11 |
 | `dense-everything` | `…/m125/dense-everything.done` | **not landed** | still queued on `/tmp/zk-heavy.lock`; it is the only pass that can read **28 at 10 / 5 / 4 / 9** at 125M, and until it lands no 125M record carries the whole table |
 | `retake78` | `…/m125/retake78.done` | **not landed** | rounds 7 and 8's own evidence, re-taken |
+
+*(CORRECTED 2026-09-22 14:21 (round 9g): the `dense-everything` row is the
+state at round 9b's close and is **out of date**. Round 9c's Task A reports
+it landed **twice** — exit 1, 2:17:40 and 2:09:58, 5,484 MB, the same
+figures both times — with **every one of its thirteen stages RAN** and the
+channel table the full **28 at 10 / 5 / 4 / 9**, so a 125M record does carry
+the whole table. The exit 1 is decomposed in §15.2 and is control
+bookkeeping, not a failed figure. The same pass is where **M9-3 fires at
+125M for the first time since its repair, in all three directions (F, Kv,
+T)**, which answers the `dense-controls2` row above: the control families at
+125M no longer rest on a pass that never landed. See §15.1 item 5, §15.2 and
+ledger R9c.4. `retake78` also landed — marker
+`results/zk60_native_run_gate_m125/retake78.done` = **0**, 2026-09-21
+15:37 — so rounds 7's and 8's own evidence was re-taken as §13.10 required,
+and the "not landed" in its row is stale too.)*
 
 **The `joint` stage at 125M takes 0.0 s, and here is why — it builds
 nothing.** `joint_run_preimage` does not construct or verify a third
