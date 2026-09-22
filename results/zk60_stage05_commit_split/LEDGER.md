@@ -174,10 +174,10 @@ box, at 81% and 90%.**
 Those `PB-TIMING` lines were read from
 `/home/victor/wt-zk60-block125m/results/zk60_block125m_lane/` and are one run
 each. The harness is below them, which is what should be expected and is not
-a discrepancy to explain away: at the moment the prover reaches `A: commit`
-it is already holding 5.0 GiB resident and ends `H: commit` at 8.2 GiB (the
-`RSS MiB` column of those same lines), while this process never exceeds 4.4
-GiB and holds one commitment at a time. More resident memory means more
+a discrepancy to explain away: the prover's resident set goes 2.1 → 5.0 GiB
+across `A: commit` and 4.6 → 8.2 GiB across `H: commit` (the `RSS MiB`
+column of those same lines), while this process never exceeds 4.4 GiB and
+holds one commitment at a time. More resident memory means more
 expensive faults and more cache pressure on exactly the two parts that are
 memory-bound. **The split is what this page claims; the absolute seconds are
 a lower bound on the prover's.**
@@ -322,6 +322,11 @@ a 16-deep tree.
 | keyed against unkeyed against legacy hashing | `private_block::stage05_commit_split::stage05_rung_w14_keyed_vs_unkeyed_hash` |
 | the value control | `private_block::stage05_commit_split::stage05_rung_w14_value_control` |
 | the zeroing is dead work | `private_block::stage05_commit_split::stage05_the_zeroing_is_dead_work` |
+
+**The suite is green with the module in it**: the whole `hashline` library
+suite, `--test-threads=1`, **490 passed, 0 failed, 18 ignored, 613.20 s**
+(2026-09-22 13:37 PDT), which is the four new light tests plus the 486 that
+were there before.
 
 Light (ordinary filter, about 5 s):
 
