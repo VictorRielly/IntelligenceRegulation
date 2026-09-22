@@ -1439,6 +1439,30 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 pz.mu = mu[11 + n_help];
                 pz.add(gd.0, &planes, zeta);
             }
+            // **STAGE 35, the differential gate.** The closure's captures are
+            // handed to `s35_tests`, which holds the body of this arm as it
+            // stood at `89e393f` verbatim and compares the two on random
+            // table vectors at every definition. `cfg(test)` only: nothing
+            // below is compiled into a production build.
+            #[cfg(test)]
+            let s35 = super::s35_tests::Dzc {
+                idx: idx.clone(),
+                ig,
+                igm,
+                id,
+                idm,
+                h0,
+                i_nr: i_nr.clone(),
+                i_ns: i_ns.clone(),
+                i_mr: i_mr.clone(),
+                i_ms: i_ms.clone(),
+                lks: lks.iter().map(|l| super::s35_tests::LkT { terms: l.terms.clone(), cst: l.cst }).collect(),
+                mu: mu.clone(),
+                nu: nu.clone(),
+                alpha,
+                gd: super::s35_tests::Gate(gd.0),
+                pz: super::s35_tests::PadTerm { groups: pz.groups.clone(), mu: pz.mu },
+            };
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let l2 = |o: usize| at(o).add(at(o + 1).mul(p1));
@@ -1468,6 +1492,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let host_dmm = k(1 << SH_Z).mul(z16).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_wo)).add(nu[1].mul(v[2]).mul(g).mul(host_dmm))
             };
+            #[cfg(test)]
+            s35.check(b.tabs.len(), &poly);
             b.finish(Box::new(poly), hosted)
         }
         // The f-cube zero-check (T2 section C.1): the product, the two int16
@@ -1635,6 +1661,32 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let planes: Vec<usize> = super::pad::zero_rule_a_planes(sh, ids, Dom::S).iter().map(|p| b.tab(*p)).collect();
                 pz.add(gs.0, &planes, zeta);
             }
+            // **STAGE 35, the differential gate.** See the same block in
+            // `SC_DZC` above: `cfg(test)` only, and it hands this arm's
+            // captures to the verbatim `89e393f` body in `s35_tests`.
+            #[cfg(test)]
+            let s35 = super::s35_tests::Szc {
+                idx: idx.clone(),
+                im,
+                imx,
+                isum,
+                ihx,
+                h0,
+                i_sr: i_sr.clone(),
+                i_sg: i_sg.clone(),
+                i_pl: i_pl.clone(),
+                lks: lks.iter().map(|l| super::s35_tests::LkT { terms: l.terms.clone(), cst: l.cst }).collect(),
+                mu: mu.clone(),
+                nu: nu.clone(),
+                n_help,
+                lam,
+                alpha,
+                beta,
+                g_exp,
+                gs: super::s35_tests::Gate(gs.0),
+                ght: super::s35_tests::Gate(ght.0),
+                pz: super::s35_tests::PadTerm { groups: pz.groups.clone(), mu: pz.mu },
+            };
             let poly = move |v: &[Fp2]| {
                 let at = |p: usize| v[idx[p]];
                 let (mask, s8, zsel, e, p, sum) = (v[im], at(A_S8), at(A_ZSEL), at(A_E), at(A_P), v[isum]);
@@ -1656,6 +1708,8 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let host_s = k(1 << SH_S).mul(s8).add(at(A_RSL)).sub(k(1 << (SH_S - 1)));
                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(ght.at(v)).mul(host_rs)).add(nu[1].mul(v[2]).mul(g).mul(host_s))
             };
+            #[cfg(test)]
+            s35.check(b.tabs.len(), &poly);
             b.finish(Box::new(poly), hosted)
         }
         // three (multiplicity, helper, public values) triples now: U8, exp and

@@ -279,6 +279,13 @@ mod s33_tests;
 mod slot_ir;
 #[cfg(test)]
 mod slot_ir_tests;
+// STAGE 35 (stage 2 of ruling I-4 of the same disposition): lever (b) inside
+// the closures of slots 17 and 14. The module holds the two closure bodies as
+// they stood at `89e393f`, VERBATIM, and the two arms hand it their real
+// definition-time captures under `cfg(test)` so that the old form and the new
+// one are compared on the same table vector at every definition.
+#[cfg(test)]
+mod s35_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
