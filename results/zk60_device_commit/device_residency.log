@@ -1,0 +1,102 @@
+==============================================================================
+125M, the four hiding commitments on the device
+==============================================================================
+
+  A: 5,681 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 2,978,480,128 B  vs the 1 GiB chunk threshold -> takes the CHUNKED arm by default
+    resident-arm peak     6,716,884,976 B ( 6.26 GiB)   [source formula core 6,713,739,264 B]
+    chunked-arm peak        961,513,456 B ( 0.90 GiB)
+      = persistent 756,779,008 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (CHUNKED)     756,779,008 B ( 0.70 GiB)
+
+  H: 7,120 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 3,732,930,560 B  vs the 1 GiB chunk threshold -> takes the CHUNKED arm by default
+    resident-arm peak     8,417,345,520 B ( 7.84 GiB)   [source formula core 8,414,199,808 B]
+    chunked-arm peak      1,153,073,136 B ( 1.07 GiB)
+      = persistent 948,338,688 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (CHUNKED)     948,338,688 B ( 0.88 GiB)
+
+  endpoint-in: 37 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 19,398,656 B  vs the 1 GiB chunk threshold -> takes the resident arm by default
+    resident-arm peak        47,392,752 B ( 0.04 GiB)   [source formula core 44,247,040 B]
+    chunked-arm peak        210,184,176 B ( 0.20 GiB)
+      = persistent 5,449,728 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (resident)      24,248,320 B ( 0.02 GiB)
+
+  endpoint-out: 37 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 19,398,656 B  vs the 1 GiB chunk threshold -> takes the resident arm by default
+    resident-arm peak        47,392,752 B ( 0.04 GiB)   [source formula core 44,247,040 B]
+    chunked-arm peak        210,184,176 B ( 0.20 GiB)
+      = persistent 5,449,728 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (resident)      24,248,320 B ( 0.02 GiB)
+
+  -- the four commitments, in prove order
+     held from the last commit to the openings  1,753,614,336 B ( 1.63 GiB)
+     PEAK across the commit phase              1,909,852,144 B ( 1.78 GiB)
+     + the round loop's own tables (4.83 GiB)  6,938,713,604 B ( 6.46 GiB)
+     8 GB laptop card (8,188 MiB): commit peak  22.2% of VRAM, commit+round-loop  80.8%
+     32 GB card (5090): commit peak   6.0% of VRAM, commit+round-loop  21.7%
+
+==============================================================================
+rung-W14, the four hiding commitments on the device
+==============================================================================
+
+  A: 527 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 276,299,776 B  vs the 1 GiB chunk threshold -> takes the resident arm by default
+    resident-arm peak       626,423,792 B ( 0.58 GiB)   [source formula core 623,278,080 B]
+    chunked-arm peak        275,412,976 B ( 0.26 GiB)
+      = persistent 70,678,528 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (resident)     345,374,720 B ( 0.32 GiB)
+
+  H: 436 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 228,589,568 B  vs the 1 GiB chunk threshold -> takes the resident arm by default
+    resident-arm peak       518,889,456 B ( 0.48 GiB)   [source formula core 515,743,744 B]
+    chunked-arm peak        263,299,056 B ( 0.25 GiB)
+      = persistent 58,564,608 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (resident)     285,736,960 B ( 0.27 GiB)
+
+  endpoint-in: 9 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 4,718,592 B  vs the 1 GiB chunk threshold -> takes the resident arm by default
+    resident-arm peak        14,305,264 B ( 0.01 GiB)   [source formula core 11,159,552 B]
+    chunked-arm peak        206,456,816 B ( 0.19 GiB)
+      = persistent 1,722,368 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (resident)       5,898,240 B ( 0.01 GiB)
+
+  endpoint-out: 9 rows, n = 16,384, nn = 65,536
+    rows*nn*8 = 4,718,592 B  vs the 1 GiB chunk threshold -> takes the resident arm by default
+    resident-arm peak        14,305,264 B ( 0.01 GiB)   [source formula core 11,159,552 B]
+    chunked-arm peak        206,456,816 B ( 0.19 GiB)
+      = persistent 1,722,368 + scratch 150,994,944 + blake3 state 50,593,792 + leaves 2,097,152 + twiddles 1,048,560
+    SURVIVES to the opening (resident)       5,898,240 B ( 0.01 GiB)
+
+  -- the four commitments, in prove order
+     held from the last commit to the openings    642,908,160 B ( 0.60 GiB)
+     PEAK across the commit phase                864,264,176 B ( 0.80 GiB)
+     + the round loop's own tables (4.83 GiB)  5,828,007,428 B ( 5.43 GiB)
+     8 GB laptop card (8,188 MiB): commit peak  10.1% of VRAM, commit+round-loop  67.9%
+     32 GB card (5090): commit peak   2.7% of VRAM, commit+round-loop  18.2%
+
+==============================================================================
+THE TWO CARDS
+==============================================================================
+
+  8 GB laptop card, 8,188 MiB usable   = 8,585,740,288 B
+    125M, the four hiding commitments    commit peak  1.78 GiB ( 22.2%), held  1.63 GiB ( 20.4%)
+    rung-W14, the four hiding commitme   commit peak  0.80 GiB ( 10.1%), held  0.60 GiB (  7.5%)
+
+  32 GB card (RTX 5090), not yet installed   = 32,000,000,000 B
+    125M, the four hiding commitments    commit peak  1.78 GiB (  6.0%), held  1.63 GiB (  5.5%)
+    rung-W14, the four hiding commitme   commit peak  0.80 GiB (  2.7%), held  0.60 GiB (  2.0%)
+
+  -- the ALL-RESIDENT counterfactual at 125M (what CL1 avoids).
+     CUMULATIVE: each commitment's own peak on top of what the
+     earlier ones still hold (data + enc, because enc is Some on
+     the resident arm -- cuda.rs:1591-1594).
+    A              own peak   6,716,884,976 B, with earlier holdings   6,716,884,976 B (  6.26 GiB)  -- under the 8 GB card
+    H              own peak   8,417,345,520 B, with earlier holdings  12,140,445,680 B ( 11.31 GiB)  -- OVER the 8 GB card
+    endpoint-in    own peak      47,392,752 B, with earlier holdings   8,436,656,112 B (  7.86 GiB)  -- under the 8 GB card
+    endpoint-out   own peak      47,392,752 B, with earlier holdings   8,460,904,432 B (  7.88 GiB)  -- under the 8 GB card
+    all-resident commit-phase peak 12,140,445,680 B (11.31 GiB = 11,578 MiB)  -- 1.41x the 8 GB card, 38% of a 32 GB card
+    the chunked arm's peak is 6.4x smaller
+
+wrote /home/victor/IntelligenceRegulation/results/zk60_device_commit/residency.json

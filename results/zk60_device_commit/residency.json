@@ -1,0 +1,171 @@
+{
+ "125M all-resident counterfactual": {
+  "commit_phase_peak": 12140445680
+ },
+ "125M, the four hiding commitments on the device": {
+  "commit_phase_peak": 1909852144,
+  "commitments": [
+   {
+    "chunked": true,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 961513456,
+     "persistent": 756779008,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 961513456,
+    "n": 16384,
+    "name": "A",
+    "nn": 65536,
+    "peak_at_this_commit": 961513456,
+    "resident_peak": 6716884976,
+    "rows": 5681,
+    "survives": 756779008
+   },
+   {
+    "chunked": true,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 1153073136,
+     "persistent": 948338688,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 1153073136,
+    "n": 16384,
+    "name": "H",
+    "nn": 65536,
+    "peak_at_this_commit": 1909852144,
+    "resident_peak": 8417345520,
+    "rows": 7120,
+    "survives": 948338688
+   },
+   {
+    "chunked": false,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 210184176,
+     "persistent": 5449728,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 210184176,
+    "n": 16384,
+    "name": "endpoint-in",
+    "nn": 65536,
+    "peak_at_this_commit": 1752510448,
+    "resident_peak": 47392752,
+    "rows": 37,
+    "survives": 24248320
+   },
+   {
+    "chunked": false,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 210184176,
+     "persistent": 5449728,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 210184176,
+    "n": 16384,
+    "name": "endpoint-out",
+    "nn": 65536,
+    "peak_at_this_commit": 1776758768,
+    "resident_peak": 47392752,
+    "rows": 37,
+    "survives": 24248320
+   }
+  ],
+  "held_total": 1753614336,
+  "plus_round_loop_tables": 6938713604
+ },
+ "rung-W14, the four hiding commitments on the device": {
+  "commit_phase_peak": 864264176,
+  "commitments": [
+   {
+    "chunked": false,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 275412976,
+     "persistent": 70678528,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 275412976,
+    "n": 16384,
+    "name": "A",
+    "nn": 65536,
+    "peak_at_this_commit": 626423792,
+    "resident_peak": 626423792,
+    "rows": 527,
+    "survives": 345374720
+   },
+   {
+    "chunked": false,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 263299056,
+     "persistent": 58564608,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 263299056,
+    "n": 16384,
+    "name": "H",
+    "nn": 65536,
+    "peak_at_this_commit": 864264176,
+    "resident_peak": 518889456,
+    "rows": 436,
+    "survives": 285736960
+   },
+   {
+    "chunked": false,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 206456816,
+     "persistent": 1722368,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 206456816,
+    "n": 16384,
+    "name": "endpoint-in",
+    "nn": 65536,
+    "peak_at_this_commit": 645416944,
+    "resident_peak": 14305264,
+    "rows": 9,
+    "survives": 5898240
+   },
+   {
+    "chunked": false,
+    "chunked_parts": {
+     "leaves": 2097152,
+     "peak": 206456816,
+     "persistent": 1722368,
+     "scratch": 150994944,
+     "state": 50593792,
+     "twiddles": 1048560
+    },
+    "chunked_peak": 206456816,
+    "n": 16384,
+    "name": "endpoint-out",
+    "nn": 65536,
+    "peak_at_this_commit": 651315184,
+    "resident_peak": 14305264,
+    "rows": 9,
+    "survives": 5898240
+   }
+  ],
+  "held_total": 642908160,
+  "plus_round_loop_tables": 5828007428
+ }
+}
