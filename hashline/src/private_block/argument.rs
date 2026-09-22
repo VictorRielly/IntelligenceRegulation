@@ -1484,10 +1484,22 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let c9 = x2.sub(x1).sub(z16);
                 let c10 = z16.add(k(32768)).sub(l2(A_ZL0));
                 let g = gd.at(v);
-                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[11..]).add(pz.eval(v));
+                // **STAGE 35, LEVER (b)(i): the support gate hoisted out of
+                // the clause batch.** `sum_i mu_i g c_i = g sum_i mu_i c_i`
+                // is distributivity in a commutative ring, and this one is
+                // exact — `Fp` keeps canonical representatives everywhere
+                // (`zkp-core/src/field.rs:1-9`), so the reassociation is not
+                // an approximation and the field element out is the same
+                // word. ELEVEN multiplications by `g` become ONE. The
+                // stage-34 IR already encodes THIS grouping, so its equality
+                // oracle covers the rewrite at every registered shape and
+                // both pad branches, and `s35_tests` compares it against the
+                // `89e393f` body on every definition.
+                let mut clauses = Fp2::ZERO;
                 for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10]) {
-                    zc = zc.add(m.mul(g).mul(c));
+                    clauses = clauses.add(m.mul(c));
                 }
+                let zc = helper_sum(v, &lks, h0, alpha, &mu[11..]).add(pz.eval(v)).add(g.mul(clauses));
                 let host_wo = k(1 << SH_AO).mul(ao).add(at(A_RAL)).sub(k(1 << (SH_AO - 1)));
                 let host_dmm = k(1 << SH_Z).mul(z16).add(at(A_RDL)).sub(k(1 << (SH_Z - 1)));
                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(g).mul(host_wo)).add(nu[1].mul(v[2]).mul(g).mul(host_dmm))
@@ -1700,10 +1712,16 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let c4 = p.sub(limbs(v, &i_pl));
                 let cx = v[ihx].mul(alpha.sub(delta.add(beta.mul(e)).add(g_exp))).sub(Fp2::ONE);
                 let g = gs.at(v);
-                let mut zc = helper_sum(v, &lks, h0, alpha, &mu[5..5 + n_help]).add(mu[5 + n_help].mul(cx)).add(pz.eval(v));
+                // **STAGE 35, LEVER (b)(i)** — the same rewrite as in
+                // `SC_DZC` above, and the same argument: FIVE multiplications
+                // by the support gate become ONE. `ght` gates the row-sum
+                // host term and `gs` the rest; only `gs` is hoisted, because
+                // the two are different tables (finding S9-F7).
+                let mut clauses = Fp2::ZERO;
                 for (m, c) in mu.iter().zip([c0, c1, c2, c3, c4]) {
-                    zc = zc.add(m.mul(g).mul(c));
+                    clauses = clauses.add(m.mul(c));
                 }
+                let zc = helper_sum(v, &lks, h0, alpha, &mu[5..5 + n_help]).add(mu[5 + n_help].mul(cx)).add(pz.eval(v)).add(g.mul(clauses));
                 let host_rs = sum.add(lam);
                 let host_s = k(1 << SH_S).mul(s8).add(at(A_RSL)).sub(k(1 << (SH_S - 1)));
                 v[0].mul(zc).add(nu[0].mul(v[1]).mul(ght.at(v)).mul(host_rs)).add(nu[1].mul(v[2]).mul(g).mul(host_s))

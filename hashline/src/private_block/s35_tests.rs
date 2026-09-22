@@ -565,73 +565,92 @@ fn pad_units(groups: &[usize]) -> usize {
     MUL + groups.iter().map(|n| (n + 1) * MUL).sum::<usize>()
 }
 
-/// slot 17 `SC_SZC`: (old, new) base multiplications per evaluation, and the
-/// shared remainder both forms pay
-fn szc_units(sh: &Shape, lay: &Layout) -> (usize, usize, usize) {
+/// the four rungs of the ladder, in the order the stage takes them:
+/// `89e393f`, then lever (b)(i) the hoisted support gate, then (b)(ii) the
+/// shared sub-products, then (b)(iii) the base-field constants
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct Ladder {
+    pub old: usize,
+    pub after_i: usize,
+    pub after_ii: usize,
+    pub after_iii: usize,
+    /// what both forms pay and neither changes: `helper_sum` and `PadTerm`
+    pub shared: usize,
+}
+
+/// slot 17 `SC_SZC`, per evaluation
+fn szc_units(sh: &Shape, lay: &Layout) -> Ladder {
     let (ls, lp) = (sh.limbs_sigma_s(), sh.limbs_p());
-    // OLD, in the arm's order:
+    // `89e393f`, in the arm's order:
     //   limbs(sr) ls | delta 1 | c0 1 | c1 1 | c2 3 | limbs(sg) ls |
     //   limbs(pl) lp | cx 2 | mu*cx 1 | the clause loop 5*2 | host_s 1 |
     //   the three top-level products 7
     let old = (2 * ls + lp + 27) * MUL;
-    // NEW:
-    //   lb(sr) (ls-1) mul_base | delta 1 | c0 1 | c1 1 |
-    //   c2 = mask*e (1) then mul_base, plus p*sum (1) | lb(sg) (ls-1) |
-    //   lb(pl) (lp-1) | cx 2 | mu*cx 1 | the hoisted loop 5+1 |
-    //   host_s mul_base | the three top-level products 7
-    let new = 21 * MUL + (2 * ls + lp - 1) * MULB;
+    // (b)(i): the clause loop's ten multiplications become six — five
+    // `mu_i * c_i` and one by `g`
+    let after_i = (2 * ls + lp + 23) * MUL;
+    // (b)(ii): nothing. The check's §5 found the recomputed sub-products at
+    // slot 14 only, and reading this arm confirms it — `delta`, `sr` and the
+    // `at(p)` reads are already shared by a `let`
+    let after_ii = after_i;
+    // (b)(iii): lb(sr) and lb(sg) (ls-1) mul_base each, lb(pl) (lp-1),
+    //   c2's `1 << F_P` and host_s's `1 << SH_S` through mul_base
+    let after_iii = 21 * MUL + (2 * ls + lp - 1) * MULB;
     let shared = logup_units(lay, Dom::S) + pad_units(&pad_groups(sh, lay.ids(), SC_SZC));
-    (old, new, shared)
+    Ladder { old, after_i, after_ii, after_iii, shared }
 }
 
-/// slot 14 `SC_DZC`: the same three figures
-fn dzc_units(sh: &Shape, lay: &Layout) -> (usize, usize, usize) {
+/// slot 14 `SC_DZC`, per evaluation
+fn dzc_units(sh: &Shape, lay: &Layout) -> Ladder {
     let ln = sh.limbs_norm();
-    // OLD:
+    // `89e393f`:
     //   l2 x5 | limbs x4 (4 ln) | c0 5 | c1 1 | c6 5 | c7 1 |
     //   the clause loop 11*2 | host_wo 1 | host_dmm 1 |
     //   the three top-level products 7
     let old = (4 * ln + 48) * MUL;
-    // NEW:
-    //   l2 x5 mul_base | lb x4 (4(ln-1)) mul_base | kd + kdm 2 mul_base |
-    //   c0 = ig*x (1) + mul_base + d.mul_base + kd*y (1) | c1 free |
-    //   c6 the same 2 + 2 | c7 free | the hoisted loop 11+1 |
-    //   host_wo and host_dmm mul_base | the three top-level products 7
-    let new = 23 * MUL + (4 * ln + 9) * MULB;
+    // (b)(i): the clause loop's twenty-two become twelve
+    let after_i = (4 * ln + 38) * MUL;
+    // (b)(ii): `k_den * d` is computed once for c0 and c1 and `k_den * dm`
+    // once for c6 and c7 — one multiplication saved in each pair
+    let after_ii = (4 * ln + 36) * MUL;
+    // (b)(iii): l2 x5, the four limb folds (4(ln-1), the `256^0` multiply by
+    //   one dropped), `kd`/`kdm`, `k_num` and `k_dv` in c0 and c6, and the
+    //   two host shifts — all through mul_base
+    let after_iii = 23 * MUL + (4 * ln + 9) * MULB;
     let shared = logup_units(lay, Dom::D) + pad_units(&pad_groups(sh, lay.ids(), SC_DZC));
-    (old, new, shared)
+    Ladder { old, after_i, after_ii, after_iii, shared }
 }
 
-/// **THE COUNT, per shape, for the record.** It asserts only what a count can
-/// carry: that the rewrite removes multiplications at every registered shape,
-/// that it removes the SAME number at rung-W14 and at 125M (the two shapes
-/// have identical limb structure — the check's §7), and the two headline
-/// figures. Everything else it prints.
+/// **THE COUNT, per shape and per rung of the ladder, for the record.** It
+/// asserts only what a count can carry: that every rung removes work and
+/// none adds any, that rung-W14 and 125M save the same (their limb
+/// structure is identical — the check's §7), and the headline figures.
+/// Everything else it prints. Ruling I-1: none of this is a time.
 #[test]
 fn the_rewrite_removes_the_counted_multiplications_at_every_registered_shape() {
     let mut w14: Option<(usize, usize)> = None;
     let mut m125: Option<(usize, usize)> = None;
     for sh in every_shape() {
         let lay = Layout::for_shape(&sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
-        let (o17, n17, s17) = szc_units(&sh, &lay);
-        let (o14, n14, s14) = dzc_units(&sh, &lay);
+        let (a, b) = (szc_units(&sh, &lay), dzc_units(&sh, &lay));
         let key = shape_key(&sh);
-        eprintln!(
-            "S35 count {key}: slot 17 {o17} -> {n17} of {} -> {} units/evaluation ({:.1}%); slot 14 {o14} -> {n14} of {} -> {} ({:.1}%)",
-            o17 + s17,
-            n17 + s17,
-            100.0 * (o17 - n17) as f64 / (o17 + s17) as f64,
-            o14 + s14,
-            n14 + s14,
-            100.0 * (o14 - n14) as f64 / (o14 + s14) as f64
-        );
-        assert!(n17 < o17, "{key}: slot 17's rewrite removes no multiplication");
-        assert!(n14 < o14, "{key}: slot 14's rewrite removes no multiplication");
+        for (slot, l) in [(17usize, a), (14, b)] {
+            let whole = l.old + l.shared;
+            eprintln!(
+                "S35 count {key} slot {slot}: {} -> {} -> {} -> {} units/evaluation in the arm (of {whole} with helper_sum and the pad term), {:.1}% of the closure",
+                l.old,
+                l.after_i,
+                l.after_ii,
+                l.after_iii,
+                100.0 * (l.old - l.after_iii) as f64 / whole as f64
+            );
+            assert!(l.after_i <= l.old && l.after_ii <= l.after_i && l.after_iii < l.after_ii, "{key} slot {slot}: a rung of the ladder does not remove work: {l:?}");
+        }
         if key == "rung-W14" {
-            w14 = Some((o17 - n17, o14 - n14));
+            w14 = Some((a.old - a.after_iii, b.old - b.after_iii));
         }
         if key == "125M" {
-            m125 = Some((o17 - n17, o14 - n14));
+            m125 = Some((a.old - a.after_iii, b.old - b.after_iii));
         }
     }
     assert_eq!(w14, m125, "rung-W14 and 125M have the same limb structure and must save the same count");
