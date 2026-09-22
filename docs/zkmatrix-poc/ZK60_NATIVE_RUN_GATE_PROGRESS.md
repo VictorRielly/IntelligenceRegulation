@@ -3658,3 +3658,73 @@ directories shows exactly three modified files, all of them documents:
    added 28 tests inside that pattern without re-running it; one 8G pass
    would replace a floor with a number.
 4. Nothing here moves D8/D11, ruling M-8's decision, or D22's scope.
+
+# ROUND 9h (2026-09-22 14:53 PDT) — the private-attention profile's three files join the pin set
+
+## R9h.0 Why there is a round 9h
+
+Round 9g found it and could not close it: three Rust files on the PRIVATE
+ATTENTION profile's proving and verifying path —
+`hashline/src/private_attention.rs`, `private_attention/wire.rs` and
+`private_attention/witness.rs` — appear in no pin table on this lane
+(§R9g.8, read out of the tools rather than from prose). **Two of the four
+toy captures of record are attention-profile receipts**, so condition 7 of
+the toy profile's accepted privacy statement — *every file on the path is
+pinned, and a change to any of them suspends step 3 until it is re-read* —
+is not met for those two captures: a change to any of the three would trip
+no gate. The security owner ruled on 2026-09-22 that the three join the D22
+pin set. **Round 9h is that one change and nothing else.**
+
+Nothing in this round is a privacy acceptance, nothing here establishes a
+privacy property, and no figure of record may move.
+
+## R9h.1 Status
+
+| # | item | state |
+|---|---|---|
+| U1 | are all three really ON the attention profile's path? | PENDING |
+| U2 | the three pins at main's `4751b93`, and where the pin lives | PENDING |
+| U3 | failing first: before, a tampered tree passes both toy gates | PENDING |
+| U4 | the re-pin of the three records of record, with its reason | PENDING |
+| U5 | the toy gate's modules and the record guard | PENDING |
+| U6 | this section and §8.9 of the D22 record | PENDING |
+
+## R9h.2 Scope (hard)
+
+1. **One change**: three digest pins, in a module both toy gates call before
+   any analysis. No Rust file is touched (this lane does not write Rust), no
+   capture is re-made, no bundle is read.
+2. **The Rust pin tables keep their bytes.** `zk60_native_mask_commit.py` is
+   named by 122 committed records' `tool_sha256` maps and
+   `zk60_native_terminal_polys.py` by 8; a byte there stales the whole
+   run-gate series.
+3. **Main's digests, not the lane's.**
+4. Nothing here is a privacy acceptance and no figure of record may move.
+
+## R9h.3 Commands, logs and evidence
+
+PENDING.
+
+## R9h.4 Results — U1, the path
+
+PENDING.
+
+## R9h.5 Results — U2, the three pins and where they live
+
+PENDING.
+
+## R9h.6 Results — U3, failing first
+
+PENDING.
+
+## R9h.7 Results — U4, the re-pin
+
+PENDING.
+
+## R9h.8 Results — U5, the suite
+
+PENDING.
+
+## R9h.9 What this round is NOT
+
+PENDING.
