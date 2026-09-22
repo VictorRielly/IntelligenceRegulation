@@ -945,6 +945,11 @@ exactly, in both directions.
 
 **Eight run-layer files were considered. FOUR are depended on; of those,
 THREE were pinned by nothing.**
+*(Historical, as of 2026-09-21 (round 6) — the past tense is accurate: they
+were pinned by nothing until this round pinned them. The four in the second
+table below, which round 6 could not pin at all, are pinned by the WRITER
+from lane stage 27; the correction is under "The residual, named" at the end
+of this section.)*
 
 | file | depended on by | pinned before tonight? |
 |---|---|---|
@@ -2086,6 +2091,11 @@ and a `.done` marker, inside `systemd-run --user --scope -p MemoryMax=4G
 -p MemorySwapMax=0`. **No new 125M computation was started for task A**;
 the two 125M records of record are re-taken once each under
 `flock /tmp/zk-heavy.lock` at 8G, enqueued and named below.
+*(As of 2026-09-21 (round 9b), noted 2026-09-22 14:21 (round 9g): 4G for
+light work and 8G for a heavy run is right and is what this round did.
+Round 9c then found the WHOLE `test_zk60_native*.py` suite had outgrown 4
+GiB in one process, so **8G is the standing cap for a suite run** from that
+round on — see R9c.8 and R9c.9 item 4.)*
 
 | what | command | log / marker |
 |---|---|---|
@@ -2523,6 +2533,10 @@ Evidence: `results/zk60_native_d22_replay_20260922/` (`README.md` there
 tabulates it). All four gate runs detached under `flock /tmp/zk-heavy.lock`
 inside a `systemd-run --user --scope -p MemoryMax=4G -p MemorySwapMax=0`
 scope, 10:07:23 → 10:09:49, markers `0`.
+*(As of 2026-09-22 10:09, noted 14:21 (round 9g): 4G is this round's own
+choice and is correct for it — the toy work peaks at 553 MB. The standing
+cap for a whole-suite run has been **8G** since round 9c, and rounds 9e and
+9f used it.)*
 
 | step | command | log / marker |
 |---|---|---|
@@ -3228,16 +3242,16 @@ The seven items this round sweeps, each named by the owner:
 
 | # | item | state |
 |---|---|---|
-| S1 | this ledger section | IN FLIGHT |
-| S2 | item 1 — the pin sentences, occurrence by occurrence | IN FLIGHT |
-| S3 | item 2 — the 125M sentences and the channel table | IN FLIGHT |
-| S4 | item 3 — M9-3 and "every control … unchanged", everywhere it repeats | IN FLIGHT |
-| S5 | item 4 — R9d.10 item 1's withdrawal, visible at the original sentence | IN FLIGHT |
-| S6 | item 5 — the memory cap and the suite counts | IN FLIGHT |
-| S7 | item 6 — the private-attention profile's present pin status | IN FLIGHT |
-| S8 | item 7 — the P-rulings for slots 08/09, and where GS-13 stands | IN FLIGHT |
-| S9 | the final grep, and the sentences owed to the MAIN TREE | IN FLIGHT |
-| S10 | the record guard, showing nothing pinned moved | IN FLIGHT |
+| S1 | this ledger section | DONE — `48cf29f` |
+| S2 | item 1 — the pin sentences, occurrence by occurrence | DONE — R9g.3, `363dd56`; 16 occurrences, 9 corrected in place |
+| S3 | item 2 — the 125M sentences and the channel table | DONE — R9g.4, `5ee2f0f`; 16 occurrences, 8 corrected, §13.9 extended |
+| S4 | item 3 — M9-3 and "every control … unchanged", everywhere it repeats | DONE — R9g.5, `c4e8eb3`; 7 places, 4 corrected in place |
+| S5 | item 4 — R9d.10 item 1's withdrawal, visible at the original sentence | DONE — R9g.6, `c4e8eb3`; 2 corrected in place |
+| S6 | item 5 — the memory cap and the suite counts | DONE — R9g.7, `c4e8eb3`; 8 places, 4 corrected, 4 marked as of their date |
+| S7 | item 6 — the private-attention profile's present pin status | DONE — R9g.8, `fb52e52`; **STILL UNPINNED**, on the open list |
+| S8 | item 7 — the P-rulings for slots 08/09, and where GS-13 stands | DONE — R9g.9, `fb52e52`; **GS-13 STILL OPEN**, and a namespace collision resolved |
+| S9 | the final grep, and the sentences owed to the MAIN TREE | DONE — R9g.10 (110 lines swept, 0 bare) and R9g.11 (five sentences) |
+| S10 | the record guard, showing nothing pinned moved | DONE — R9g.12 |
 
 ## R9g.2 Method (the owner's, followed literally)
 
@@ -3442,3 +3456,205 @@ sense, and report §12.8 lists "anything nonlinear" as not established.
 Note also **GS-14**, in the same table: a linear-view argument cannot see a
 completeness defect of any kind — which is S19-F1's own lesson and the
 reason the repair is a lane-side fact and not a gate-side one.
+
+## R9g.10 The final sweep: no occurrence left bare
+
+Re-grepped the three documents for all seven item patterns after the
+corrections landed — 110 matching lines. Every one is either the stale
+sentence WITH a dated correction beside it, or a sentence that is itself a
+correction, or a figure marked as of its date. **Ten lines match a pattern
+with no marker in their own window, and all ten are corrections or
+quotations of the closed sentence rather than the sentence itself:**
+
+| where | what it is |
+|---|---|
+| report §14.1 item 8, and the P-F1 finding block (§14.2) | **is** the correction — "A bundle has pinned it since stage 27", "that has been false since stage 27" |
+| ledger R9b's P-F1 paragraph | the same correction on the ledger side |
+| report §13.0, ledger R9.0 | round 9's opening, which **quotes** the stale 125M sentences in order to close them |
+| report §14.1 item 2, "§13.7's M9-3 row is corrected in §14.10" | a pointer to the correction |
+| report §15.11's reading of the 4G/8G measurement | round 9c's own finding, immediately under this round's AS-OF block |
+| report §7.4's note, the GS-13 line | this round's own text |
+
+The patterns swept: `not pinned by a bundle | no bundle pins | pinned by
+nothing | cannot be pinned | not pinnable | no gate tool pins it`;
+`nothing (about|at) the 125M shape | anything at the 125M shape | no 125M
+record | nobody has measured`; `fired at 125M unchanged | M9-3 row`; ``Name
+it `validation.json` ``; `MemoryMax=4G | 4 GiB`; `private_attention.rs`;
+`ruling P-2 | P-3 lift | GS-13`.
+
+## R9g.11 What the MAIN TREE still needs — exact sentences for the security owner
+
+Main-tree documents are read-only for this lane. Five corrections are owed
+there, each written out so it can be pasted as a dated block **beside** the
+original, never over it.
+
+---
+
+**(1) `docs/zkmatrix-poc/ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md`,
+§3's shape table, the 125M row (line 130).**
+
+Original, to keep:
+
+> | 125M | The argument and every count carry over; **nothing has been
+> measured there** (GS-1), and nothing can be with the present tools — a
+> 125M capture is out of the Python gate's reach. A privacy statement at
+> this shape would rest on the argument, the counts, and measurements at
+> the two development shapes that share its head geometry. That is a limit
+> to state, not to hide. |
+
+Proposed block beneath it:
+
+> *(CORRECTED 2026-09-22: both halves are false as of 2026-09-21. The
+> Python run gate has been RUN at 125M — the whole default gate in 179.1 s
+> at a peak of 1,459 MB on a two-block 512-token capture, 46 of 46 slot
+> checks, and a 281 MB `/5-run` bundle ingested in 0.6 s, which is what
+> lane stage 27's binary array store bought. The full preimage arm is
+> measured there too (all seven PCS commitments, 8,263,736 entries
+> recomputed with none differing, 1,792 salted leaves), as is the masking
+> layer (32,918 entries, 9.4 s a stage) and the joint run-wide preimage
+> (8,296,654 entries, 0 differing). A record carrying every stage reads the
+> full channel table, **28 at 10 / 5 / 4 / 9**. So a privacy statement at
+> this shape need no longer rest on the argument and counts alone.
+> Evidence: `ZK60_NATIVE_RUN_GATE.md` §13 and §15, ledger R9 and R9c. What
+> is NOT closed by this: gap GS-13, the non-linear channel at a shaped
+> layout, which stays open; and none of it is a privacy acceptance.)*
+
+**(2) `docs/zkmatrix-poc/ZK60_GENERIC_RANK_LEMMA_SHAPED.md`, the same
+sentence in two places — gap **GS-1** in the §7 table (line 1367) and the
+125M row of the §8 shape table (line 1403).** The same block as (1), with
+GS-1's own wording addressed:
+
+> *(CORRECTED 2026-09-22: "Nothing has ever been measured at 125M" and "the
+> disposition records that nothing can be measured at 125M with the present
+> tools (a 125M capture is out of the Python gate's reach)" are both false
+> as of 2026-09-21. Two two-block 125M captures have been through the
+> Python run gate: 179.1 s, 1,459 MB, 46 of 46 slot checks; ranks computed
+> on the real matrices (`A` 5,681 rows, `H` 7,120, the largest ranked
+> matrix 206 × 25,686 at 2.1 s); disclosure figures, the full preimage, the
+> masking layer and the joint run preimage all constructed and verified
+> there. **GS-1 is closed on its measurement half.** What remains of it, if
+> anything, is a question about which shape a privacy statement should rest
+> on, not about whether the shape can be measured.
+> See `ZK60_NATIVE_RUN_GATE.md` §13, §15.)*
+
+**(3) `docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md`,
+§2 "Rulings", immediately before **P-1** (line 38).** This is the note that
+item 4 of `ZK60_BLOCK125M_S19F1_DISPOSITION.md` §7 says is owed:
+
+> *(NOTE ADDED 2026-09-22, owed by item 4 of the S19-F1 disposition's
+> process rulings. **Rulings P-1 … P-8 below are SUPERSEDED for the two
+> bilinear attention slots — 08 `SC_SCORE` and 09 `SC_PV` — by §4 of
+> `ZK60_BLOCK125M_S19F1_DISPOSITION.md` (2026-09-20).** Under grouped-query
+> attention those two slots fixed the key-value GROUP bits of the head
+> challenge as coordinates of BOTH private factors; a product of two
+> multilinear extensions sharing a variable is quadratic in it, so honest
+> prover and honest verifier disagreed the moment two key-value groups
+> carried different data — a COMPLETENESS failure, not a soundness one.
+> The repair (lane stage 20) makes the group bits SUMCHECK VARIABLES
+> `rho(0..lkv)` shared by both factors, with a public factor `eq(r_g, ·)`;
+> degree 3 and `lkv` more main rounds, `+336` bytes a stage. Every ruling
+> below is otherwise unchanged, and the independent Python gate ports the
+> repaired definition (`ZK60_NATIVE_RUN_GATE.md` §8, §12.3).)*
+
+**(4) `docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_125M_LAYOUT.md`, the
+grouped-attention section, after the line "So: **grouped-query attention,
+12 heads of 64 over 4 KV heads.**" (line 450).** The other half of the same
+owed note:
+
+> *(NOTE ADDED 2026-09-22: **this section's treatment of the two bilinear
+> slots is superseded by §4 of `ZK60_BLOCK125M_S19F1_DISPOSITION.md`**
+> (finding S19-F1, 2026-09-20). Fixing the key-value group bits as
+> coordinates of both private factors makes slots 08 and 09 quadratic in
+> those bits and breaks COMPLETENESS as soon as two key-value groups carry
+> different data. The group bits are now sumcheck variables shared by both
+> factors with a public `eq(r_g, ·)` factor. Read §4 of that disposition
+> before using anything here about slots 08 and 09.)*
+
+**(5) `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md`, the note
+block that reads "**The gap:** `hashline/src/pcs.rs`, `private_block.rs`,
+and the hashline-side `merkle`, `transcript`, `field` and `ntt` files are
+on this profile's path and pinned by nothing … **Ruling: the pin set is
+extended to every file on the path**, re-exports included (owed on the
+joint-view branch)."** The ruling has been carried out and the statement
+does not say so:
+
+> *(CLOSED 2026-09-22: the ruling was carried out on the joint-view branch
+> in round 5 (2026-09-20, `7ef86d6`). `zk60_native_mask_commit` gained
+> `PATH_PINS`, **20 entries**, covering every file on the profile's path
+> including all six named here, each with its digest, its git blob and a
+> written reading; with `SOURCE_PINS` (10) and
+> `zk60_native_terminal_polys.SOURCE_PINS` (8) the gate now checks **32
+> distinct paths**, and the integrator's new-tree bundle was read against
+> all 32 with 0 refusals (`ZK60_NATIVE_D22_REPIN_4751B93.md` §8.3). Three
+> residuals are named rather than dropped: the five `#[cfg(test)]`
+> `private_block` modules; `causal_oracle.rs`, `tables_v3.rs` and
+> `zkp-core/src/tables.rs`, which are on the FIXTURE's path
+> (`FIXTURE_PATH_NOT_PINNED`); and `private_attention.rs`,
+> `private_attention/wire.rs`, `private_attention/witness.rs`, the
+> ATTENTION profile's path, **still unpinned** — two of the four captures
+> of record are attention receipts, so that one is worth closing. Since
+> 2026-09-22 the two Cargo manifests are pinned as well
+> (`zk60_native_manifest_pins`, finding P36-2). The 21:28 note's
+> `hashline/src/pcs.rs` / `zkp-core/src/pcs.rs` mix-up, flagged in §1.3 and
+> §7 item 2 of the D22 record, is what the corrections block above already
+> fixes.)*
+
+---
+
+**A sixth, once (3) and (4) are applied:** item 4 of
+`ZK60_BLOCK125M_S19F1_DISPOSITION.md` §7 says "a note is owed against
+them". It can then be closed with *(the note was added 2026-09-22 to both
+the layout memo's grouped-attention section and §2 of its disposition)*.
+
+None of these five changes any figure, and none is a privacy acceptance.
+
+## R9g.12 The record guard, and what this round did NOT touch
+
+`python3 -m unittest discover -s tests -p 'test_zk60_native_gate_record*.py'`
+inside `systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0`:
+**Ran 29 tests in 0.082 s, OK.** The three records of record still agree
+with their own grades, carry the counts of record, name the records they
+pin and **were produced by the tools now in the tree**; the widened path-pin
+table and the two Cargo manifests still pass, and a changed byte in any
+pinned file is still refused by name. So **nothing pinned moved**, which is
+the whole claim this round makes about the machinery.
+
+`git status` over `docs/`, `scripts/`, `tests/` and the three record
+directories shows exactly three modified files, all of them documents:
+`ZK60_NATIVE_RUN_GATE.md`, `ZK60_NATIVE_RUN_GATE_PROGRESS.md` and
+`ZK60_NATIVE_D22_REPIN_4751B93.md`.
+
+## R9g.13 What this round is NOT
+
+1. **It is not a privacy acceptance and establishes no privacy property.**
+   Not one sentence added here is a claim about privacy; both gates still
+   write `privacy_property_established: false`.
+2. **It measures nothing.** Every figure quoted in a correction is taken
+   from a committed record of an earlier round and cited to its section.
+   No gate was run, no bundle read, no control fired.
+3. **It changes no tool, no test and no record** — three documents, and the
+   record guard run once to show it.
+4. **It deletes nothing.** Every stale sentence is still readable where it
+   was written; the corrections sit beside them, dated, with the round that
+   closed each one named.
+5. **It closes nothing that was open.** The attention profile's three files
+   are still unpinned (R9g.8), GS-13 is still open (R9g.9), `lkv > 2` is
+   still unread, M9-3's ok-criterion and CH-3's self-report are still
+   R9c.9's items 2 and 3, and the joint LAW (O-R2 / G-R4) and the hash
+   layer's HIDING (M-2, M-3) are exactly where rounds 7–9f left them.
+6. **Five corrections are owed in the MAIN TREE and are not made here**
+   (R9g.11). Until the security owner applies them, two main-tree documents
+   still say nothing can be measured at 125M and the layout memo still
+   carries no note against its superseded bilinear rulings.
+
+## R9g.14 NEXT after round 9g
+
+1. **The security owner applies R9g.11's five blocks** — or rules that one
+   of them is wrong, which is equally useful.
+2. **The attention profile's path**, R5.5c item 3 / R9f.10 item 3: the one
+   thing this sweep found still genuinely open on the pin side. Cheapest at
+   the next re-take of the three records of record.
+3. **A whole-suite figure.** 530 is from round 9c and rounds 9e and 9f have
+   added 28 tests inside that pattern without re-running it; one 8G pass
+   would replace a floor with a number.
+4. Nothing here moves D8/D11, ruling M-8's decision, or D22's scope.

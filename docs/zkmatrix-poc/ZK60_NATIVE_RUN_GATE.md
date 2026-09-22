@@ -1716,6 +1716,11 @@ challenge would be invisible to it.**
    own reference. The fourth, `plane_index.rs`, was already pinned by
    `zk60_native_rg_terminals` and stays there — two tools pinning one file
    is how a pin quietly stops meaning anything.
+   *(Historical, as of 2026-09-21 (round 6) — the past tense is the
+   accurate one: the three were pinned by nothing UNTIL this round, and
+   round 6 is what pinned them. The four that round 6 could not pin at all
+   have been pinned by the WRITER since lane stage 27; see the correction
+   at §10.2 and round 9 / §13.5.)*
 2. **Nine (file, digest) pairs over five capture commits, all READ, none
    refused.** §10.3. Every diff between consecutive capture commits was
    classified hunk by hunk and the production / `#[cfg(test)]` split
@@ -2356,6 +2361,13 @@ exactly these five keys and each to say what replaces it:
 | 3 | `MASK_LOG_MSG = 9`, `MASK_LOG_DOM = 12`, `MASK_Q = 256` as module constants | a bundle declares its own mask domain, and a shape that moved any of the three would make the toy solver silently wrong | `derive_mask_domain`, which READS the domain from the bundle and refuses by name on a difference |
 | 4 | nothing to check `mask["specs"]` against (the toy's slot table is a Rust constant no capture carries) | a run bundle carries `shape["slots"]` | `check_specs_against_shape`: every `(n_s, d_s)` re-derived as `(main + ext, degree)` and compared |
 | 5 | does not hash | a run bundle carries `M`'s root, 256 salts and 12-level paths, and the loader derives the rule | `_hash_layer`, the same arm round 7 added for the PCS side |
+
+*(CORRECTED 2026-09-22 14:21 (round 9g), row 1 only: the eight files in
+`NOT_PINNABLE_FROM_A_BUNDLE` **are all pinned from a bundle since lane
+stage 27**, at exactly the digests recorded there as
+`at_the_capture_commits`. The table is right about what round 8 could do;
+see the correction under "And what cannot be pinned at all" below, and
+§13.5.)*
 
 **The pins, read and then written down.** `argument.rs` moved from
 `e62f46c2…` to `dd8469cb…`; read hunk by hunk, the declared-order block and

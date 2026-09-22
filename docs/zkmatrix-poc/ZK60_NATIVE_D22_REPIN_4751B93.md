@@ -132,6 +132,16 @@ records SHA-256 for 92 files of the tree at the capture commit
 `hashline/src/private_block/norm_alias.rs` and
 `hashline/src/zk_mr1_probe_tests.rs` are new files and are in neither set.
 
+*(Re-checked 2026-09-22 14:21 (round 9g): **`cuda.rs` is STILL not pinned by
+any gate tool** — it is the one file on this lane, besides the attention
+profile's three, that nothing compares, and it stays out for the reason
+given: it is compiled only under `gpu-cuda` and is off every profile's path
+in the build the captures were made in. `gpu/mod.rs`, which holds
+`backend()`, IS pinned (`PATH_PINS`, round 5), and so are `pcs.rs`,
+`private_block.rs` and `zk.rs`; `layer.rs` and `wcache.rs` are off this
+profile's path (§4) and are deliberately not pinned. See the correction at
+§7.)*
+
 ## 2. The re-read
 
 `git diff 4751b93^ 4751b93` over the code files, kept verbatim in
@@ -726,6 +736,10 @@ all four match the manifest.
 Four runs, detached under `flock /tmp/zk-heavy.lock` inside a
 `systemd-run --user --scope -p MemoryMax=4G -p MemorySwapMax=0` scope,
 10:07:23 → 10:09:49, all four markers `0` (`replay.sh`, `replay.log`):
+*(As of 2026-09-22 10:09, noted 14:21 (round 9g): 4G is correct for these
+four runs, which peak far below it. **8G is the standing cap for a
+whole-suite run** since round 9c found the suite had outgrown 4 GiB in one
+process; §8.8's suite runs use it.)*
 
 | run | command | seconds |
 |---|---|---|
