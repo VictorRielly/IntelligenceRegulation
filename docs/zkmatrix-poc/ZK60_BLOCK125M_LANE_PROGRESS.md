@@ -11718,3 +11718,229 @@ frozen length.
 **No 125M run. No privacy acceptance.** What this stage produces is a
 measurement of the prover's randomness accounting and a test that keeps it
 true; it establishes no privacy property.
+
+### Stage 36 — CLOSED (2026-09-22, 07:58–08:5x)
+
+**Status: `LANDED`.** Eight commits on `fee1a8d`. No 125M run, no GPU, no
+byte of any profile moved: the toy's receipt is still **2,816,472 B**,
+rung-C6's **7,452,040 B** and rung-W14's **16,421,048 B**, each asserted
+by the tests that already asserted them.
+
+#### What the observers are, one line each
+
+| observer | what it returns | derived from |
+|---|---|---|
+| `ZkRng::consumed_bytes` | the stream BYTES this generator has yielded | `(counter, pos)`: `0` when `counter == 0`, else `(counter - 1)·8192 + pos` |
+| `ZkRng::refills` | how many times the stream was refilled | `counter` |
+| `Transcript::squeezes` | how many SQUEEZES this transcript has performed | `counter` |
+| `draw_observer` (in `check_opening_challenges`) | per call: draws, of which group-coefficient draws, and which of the three exits | the wrapped draw closure and three gated markers |
+
+Nothing was added to any hot path: `next_u64`, `absorb` and
+`squeeze_bytes` are byte for byte what they were, and the accessors are
+`&self`.
+
+#### The production-identity proof
+
+`python3 results/zk60_block125m_lane/z36-cfg-gate-proof.py fee1a8d HEAD`
+(`z36-cfg-gate-proof.txt`) takes the diff of the three source files the
+integrator's condition names and requires every added line to be inside a
+`#[cfg(test)]` / `#[cfg(any(test, feature = "test-observers"))]` item (the
+attribute, the item it gates and the comment block above it) or to be a
+comment or blank line, and requires that nothing was deleted:
+
+| file | added | inside a gate | comment/blank outside | **code outside a gate** | deleted |
+|---|---:|---:|---:|---:|---:|
+| `zkp-core/src/rng.rs` | 225 | 225 | 0 | **0** | 0 |
+| `zkp-core/src/transcript.rs` | 114 | 113 | 1 | **0** | 0 |
+| `hashline/src/private_block/protocol.rs` | 21 | 10 | 11 | **0** | 0 |
+
+and the manifests by rule: `test-observers` appears in zkp-core's
+`[features]` and in hashline's `[dev-dependencies]`, and nowhere else.
+`cargo tree -e features,no-dev -i zkp-core` shows the feature **absent**
+from the non-dev graph and present only through the dev edge. Both crates
+**build in release with the feature off**, exit 0
+(`z36-release-nofeature.log`); `hashline/Cargo.lock` does not move.
+
+#### The draw accounting, measured (`z36-pinned.log`, 8 passed / 0 failed, 13.33 s)
+
+One proof per shape, the block generator and the live transcript OURS, the
+receipt verified in typed form and from bytes before any counter is read:
+
+| shape | block stream B | `fp()` draws | salts | refills | live squeezes | replay points | frame B |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **toy** | **5,396,672** | **320,908** | **8,192** | 659 | **1,863** | **1,027** | 2,816,472 |
+| rung-K4 | **12,401,856** | **750,540** | **12,288** | 1,514 | 2,610 | 1,642 | 4,743,128 |
+| rung-P2 | 12,401,056 | 750,490 | 12,288 | 1,514 | 2,604 | 1,642 | 4,742,728 |
+| rung-C6 | 17,654,944 | 1,078,858 | 12,288 | 2,156 | 3,977 | 2,962 | 7,452,040 |
+| rung-W14 | 100,308,416 | 5,998,940 | 135,168 | 12,245 | 2,254 | 1,156 | 16,421,048 |
+| rung-E32 | 25,356,928 | 1,560,232 | 12,288 | 3,096 | 5,919 | 4,874 | 11,368,824 |
+
+The two ENDPOINT generators of the same statements, measured on the
+replica (`16·fp + 32·salts` exactly at every one):
+
+| shape | both endpoints, B | `fp()` | salts | each |
+|---|---:|---:|---:|---|
+| toy | 229,376 | 6,144 | 4,096 | 3,072 draws, 2,048 salts |
+| rung-K4 / rung-P2 | 499,712 | 14,848 | 8,192 | 7,424 / 4,096 |
+| rung-C6 | 598,016 | 20,992 | 8,192 | 10,496 / 4,096 |
+| rung-W14 | 6,889,472 | 168,448 | 131,072 | 84,224 / 65,536 |
+| rung-E32 | 729,088 | 29,184 | 8,192 | 14,592 / 4,096 |
+
+**THE FOUR FIGURES OF RECORD, REPRODUCED FROM THE CODE.**
+
+1. **327,052** `fp()` draws per toy proof over the three generators —
+   decision **D9**'s figure, the one `2^-77.68 = 327,052 × 2^-96` is
+   computed from (`ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` §4 and §9 item
+   2). Measured: 320,908 + 3,072 + 3,072 = **327,052**, with 12,288 salts
+   and 5,626,048 stream bytes in total. The salt count is the hash-layer
+   table's own `4·2,048 + 4,096 = 12,288`, reached from the other side.
+2. **Claim A-5's table**, at both rows this lane can reach: the toy's
+   320,908 / 8,192 / 5,396,672 and **rung-K4's 750,540 / 12,288 /
+   12,401,856** — `stream_positions.py`'s numbers, recomputed here in Rust
+   from shape and layout constants and then matched against a real stream.
+3. **1,863** live squeeze points per toy proof — row **T4a** of
+   `ZK60_TOY_ROUTE_A_REEXAMINATION.md` §1.4.
+4. **1,027** points re-issued by the refusal replay per toy proof — row
+   **T4c** and clarification **9** of the accepted statement — in exactly
+   four calls (`A`, `H`, and one per endpoint), all accepted, each drawing
+   its group members then its commitment's own row count.
+
+Nothing failed to reproduce. The five rungs' squeeze and replay counts are
+**pins measured by this stage**, not reproductions, and the module says so
+where it declares them.
+
+#### The gates
+
+| gate | result |
+|---|---|
+| the whole `--lib private_` filter at the tip | **416 passed / 0 failed / 17 ignored, 585.06 s, exit 0** (`z36-gate-private2.log`, run at the tip after the two cosmetic fixes; the earlier run before them is `z36-gate-private.log`, 416 / 0 / 17 in 585.24 s) — stage 35's 408 plus this stage's eight, nothing lost |
+| `zkp-core`'s own suite, WITHOUT the feature | **56 passed / 0 failed** (`z36-core-plain.log`) — the tip's 50 plus this stage's six |
+| `zkp-core`'s own suite, WITH `--features test-observers` | **56 passed / 0 failed** (`z36-core-featured.log`) — the same six, because `cfg(test)` already opens the same gate; what the feature adds is a DEPENDENT's view |
+| the stage's own tests alone | **8 passed / 0 failed, 13.33 s** (`z36-pinned.log`) |
+| the release build with the feature OFF | exit 0 for both crates (`z36-release-nofeature.log`); `cargo tree -e features,no-dev -i zkp-core` shows only `default` |
+| the cfg-gate proof | `z36-cfg-gate-proof.txt`: **0 code lines outside a gate, 0 deletions**, in all three watched files |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — all three `... ok` |
+| stage 25's retired tripwire | `s25_tests::the_draw_accounting_assertions_are_no_longer_blocked_and_their_test_exists ... ok` |
+| the forbidden-files proof | `git diff --stat fee1a8d HEAD -- hashline/src/zk.rs hashline/src/pcs.rs hashline/src/layer.rs hashline/src/wcache.rs hashline/src/field.rs hashline/src/gpu hashline/src/native_capture.rs hashline/src/private_seam.rs scripts tests private-block-kernel private-model-kernel zkvm-block` prints **nothing** |
+
+#### The seven assertions, and where each one now lives
+
+| # | assertion | where | how it is established |
+|---|---|---|---|
+| 1 | total consumption | `s36_tests::a_block_proof_consumes_exactly_the_counted_stream_at_every_shape` | MEASURED at six shapes against eleven segments built from constants |
+| 2 | per-role offsets | the same | the eleven offsets are the running sums, asserted contiguous, pairwise disjoint and covering; **derived**, with the measured total as the check (see finding S36-F3) |
+| 3 | witness- and statement-independence | `consumption_does_not_depend_on_the_witness_or_on_the_public_statement` | three (witness, statement) pairs including the ALL-ZERO hidden input: identical bytes, refills, squeezes and frame; and an endpoint under two different sealed planes |
+| 4 | injectivity across roles | assertion 1's test + `the_three_generators_of_one_proof_are_three_separate_streams` | disjoint ranges on one stream; different streams under different keys |
+| 5 | never cloned or forked | `assertions_five_and_seven_...` here, `zkp-core::rng::tests::the_generator_is_still_not_clone`, and stage 25's source count | the inherent-impl probe with its two controls, at both levels |
+| 6 | the realised value map | `the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares` | nine production files scanned; exactly `b_re[m] := −b_re[0]` and `b_im[m] := −b_im[0]` at BOTH mask-commit entry points, plus the `H` zero-sum closing entry at a position the loop never draws |
+| 7 | the key is fresh | stage 25's scan, cited by name and required to exist | source scan + reachability |
+
+Clarification **5** of the accepted statement ("three fresh reads of the
+operating system's entropy per proof") is asserted as the source fact it
+is: one generator in `prove_inner_at`, one in each of `prepare_endpoints`'
+two owners, every one of them `ZkRng::from_os`, and no fourth site on the
+path.
+
+#### Findings
+
+**S36-F1 — ABSORBS CANNOT BE COUNTED, and this stage did not make them
+countable.** `Transcript::absorb` folds its message into `state` and
+touches no counter, so the number of absorbs is not a function of any
+state the type holds. Counting them would mean a new field bumped on every
+absorb — work on a hot path, which the integrator's conditions forbid.
+The item was **stopped rather than widened**, as instructed, and the doc
+comment on `squeezes` says so. Consequence for the query table: the **317
+absorbs** of row T3 remain a count nobody can check mechanically; only the
+**1,863** squeezes and the **1,027** replayed points can.
+
+**S36-F2 — the two endpoint generators cannot be observed IN SITU, and
+this stage measures a replica.** `private_seam::prepare` and
+`endpoint_g::prepare` construct their own generators and take none from
+the caller; both files are outside this stage's write set (the seam is
+frozen, `endpoint_g.rs` is not in the authorised list), so there is no way
+to hand either an observable generator. `measure_endpoint` performs the
+same two draw steps, and
+`the_endpoint_replica_is_the_endpoint_preparers_own_draw_sequence` reads
+both production bodies and asserts that the generator is used in exactly
+those two places, in that order, with those parameters. **It is a replica,
+and both the module and this ledger say so.** The smallest thing that
+would make it the object itself is a `pub(crate) fn prepare_with_rng` on
+`endpoint_g` (the frozen seam already has one, privately) — one line, for
+whoever owns that file.
+
+**S36-F3 — the segment OFFSETS are derived, not snapshotted.** What the
+accessor can report is the consumption at a point the test holds the
+generator; inside `prove_core` there is no such point without a hook in
+`prove_core` itself, which this stage may not add. So the eleven segments'
+lengths are computed from constants and their offsets are the running
+sums; what is measured is the TOTAL. Two compensating errors in the
+segment model would survive at one shape — which is why the same eleven
+terms are required to produce the right total at six geometries that
+differ in row width, head count, head dimension, endpoint rows and
+endpoint log, and to reproduce an independently computed row
+(`stream_positions.py`'s rung-K4) exactly.
+
+#### What the integrator needs, to integrate this delta
+
+* **Files**: `zkp-core/src/rng.rs`, `zkp-core/src/transcript.rs`,
+  `zkp-core/Cargo.toml` (`[features]`), `hashline/Cargo.toml` (one
+  dev-dependency line), `hashline/src/private_block/protocol.rs` (five
+  gated lines), `hashline/src/private_block.rs` (two `mod` lines), and two
+  new test-only files `draw_observer.rs`, `s36_tests.rs`.
+* **The feature**: any other dependent whose tests want the observers adds
+  `zkp-core = { path = "…", features = ["test-observers"] }` to its
+  `[dev-dependencies]`. Putting it in `[dependencies]` would compile the
+  accessors into a release build, which is the one thing the gate is for.
+* **THE D22 PIN SET MOVES, and the security owner must re-read it.** Three
+  of the files pinned by a run-capture bundle
+  (`run_capture::SHARED_SOURCE_FILES` / `OWN_SOURCE_FILES`) and by the
+  security probe's source list changed. Bundles already committed keep the
+  digests they recorded; **a bundle taken after this stage records the
+  right-hand column**:
+
+| file | before (`fee1a8d`) | after (this stage) |
+|---|---|---|
+| `zkp-core/src/rng.rs` | `0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb` | `b9920aeb3a12c2fd45e7f50f701852086cdf8bf73530de4f7658d4b4c09c3b9f` |
+| `zkp-core/src/transcript.rs` | `cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967` | `b8a228d9b33f7dbf19cd631c7b9a08eb9465b56ab3c32ea40c06fee2416adad4` |
+| `hashline/src/private_block/protocol.rs` | `ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413` | `e0e617be617a548641cb33c8564cee86ee7d2af90f9c6487b5fb7af30113d45b` |
+| `hashline/src/private_block.rs` | `b4aeb6ed32331b29b3d470ca5fc2f4789c1f2f4a9785751ca52aacaa51a3300e` | `fa0daca6797501ec9fe9ad93a5b890c0fa72165fbdb21c6854d4eaddac47ec94` |
+| `zkp-core/Cargo.toml` | `b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842` | `90156d589336ce790a103f69c42aa5c2489c5c2b12e1c1ce12e3b7b1c1ea4891` |
+| `hashline/Cargo.toml` | `e3acda1bf4cf1a8cbbd671e51885a3e4b31b41e976f7ecf15057fdf0018015fc` | `5633d1e46fd1c0878751283bf722a5cdbfb565bdf414aa521d7c160d4276fb38` |
+
+  **What changed in them is a test-gated read-only accessor and nothing
+  else** — the cfg-gate table above is the argument, and condition 7 of
+  the accepted statement ("a change to any pinned Rust file suspends step
+  3 until it is re-read and re-pinned") is the reason it is the security
+  owner's call and not this lane's.
+* **The one production-facing consequence**, for the register: the toy
+  statement's §4 sampler row now has a machine check behind it.
+  `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` §4's 327,052, §9 item 2's
+  arithmetic, row T4a's 1,863 and clarification 9's 1,027 are reproduced
+  by a test that runs in the ordinary filter, so a change to the schedule
+  that moved any of them would now fail rather than go unnoticed.
+
+**THE COMMITS OF STAGE 36**, in order:
+
+| commit | what |
+|---|---|
+| `45e236c` | the ledger skeleton: the six tasks, the integrator's conditions verbatim, the write set |
+| `c031c25` | task 1 — `ZkRng::consumed_bytes` / `refills` and four tests (every draw kind, the refill boundary including a straddling `fp()`, reading changes nothing, still not `Clone`) |
+| `e9b2738` | task 2 — `Transcript::squeezes` and two tests; finding U-3 closed |
+| `e4e2a04` | task 3 — the `test-observers` feature and the dev-dependency, with the `cargo tree` evidence |
+| `5d0022f` | task 4 — the observer in `check_opening_challenges` (five gated lines) and `draw_observer.rs` |
+| `f32d2fc` | task 5 — `s36_tests.rs`, all seven assertions, and stage 25's tripwire retired by its mirror image |
+| `1016dca` | two cosmetic fixes the gate runs found: an unneeded `mut` in the new rng test (the crate's warning count must not move for a test this stage added) and one doc sentence in `s36_tests.rs` that said three sites where the scan finds four |
+| this one | the measurements, the gates and this section, closed |
+
+### What stage 36 is NOT
+
+Not a privacy result and not an acceptance: what is now checked is that
+the prover's randomness accounting is what the argument assumes — where
+the draws are, how many, from how many streams, and that nobody chose the
+key. Whether that blinding SUFFICES is steps 2 to 5 of the statement's §3
+and is untouched. Not a change to any proof: no byte of any profile moved
+and the production build compiles the same code paths, proved two ways.
+Not a count of absorbs (finding S36-F1). Not an in-situ measurement of the
+two endpoint generators (S36-F2) or of the segment offsets inside
+`prove_core` (S36-F3) — both are named above with the smallest thing that
+would close them.

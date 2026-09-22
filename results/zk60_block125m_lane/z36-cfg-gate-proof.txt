@@ -1,0 +1,24 @@
+STAGE 36 cfg-gate proof: fee1a8d -> HEAD
+
+zkp-core/src/rng.rs
+     225 added lines,    0 deleted
+     225 inside a cfg gate
+       0 comment or blank lines outside any gate (compile to nothing)
+       0 CODE lines outside a gate,    0 code lines deleted
+zkp-core/src/transcript.rs
+     114 added lines,    0 deleted
+     113 inside a cfg gate
+       1 comment or blank lines outside any gate (compile to nothing)
+       0 CODE lines outside a gate,    0 code lines deleted
+hashline/src/private_block/protocol.rs
+      21 added lines,    0 deleted
+      10 inside a cfg gate
+      11 comment or blank lines outside any gate (compile to nothing)
+       0 CODE lines outside a gate,    0 code lines deleted
+
+zkp-core/Cargo.toml
+    the feature appears in: ['[features]']
+hashline/Cargo.toml
+    the feature appears in: ['[dev-dependencies]']
+
+RESULT: every added line is inside a cfg gate or is a comment, and nothing was deleted
