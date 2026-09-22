@@ -83,6 +83,13 @@ from zk60_native_manifest_pins import (  # noqa: E402
     ManifestPinError,
     check_manifest_pins,
 )
+# [ROUND 9h] the three files on the PRIVATE ATTENTION profile's path that no
+# pin table named, while two of the four captures of record are attention
+# receipts (ledger section R9h).
+from zk60_native_profile_pins import (  # noqa: E402
+    ProfilePinError,
+    check_profile_pins,
+)
 import zk60_native_jv_smallmodel as smallmodel  # noqa: E402
 import zk60_native_terminal_polys as terminal_polys  # noqa: E402
 
@@ -99,6 +106,8 @@ TOOLS = [
     "zk60_native_mask_commit.py",
     # [ROUND 9f] the Cargo-manifest pins and their content assertion
     "zk60_native_manifest_pins.py",
+    # [ROUND 9h] the private-attention profile's three path pins
+    "zk60_native_profile_pins.py",
 ]
 
 
@@ -561,6 +570,17 @@ def main(argv=None):
         check_manifest_pins()
     except ManifestPinError as exc:
         print(f"REFUSED (Cargo manifest pins): {exc}", file=sys.stderr)
+        return 3
+
+    # [ROUND 9h] and, on the same footing, the three files on the PRIVATE
+    # ATTENTION profile's proving and verifying path that no pin table named
+    # (ledger section R9h). Two of the four captures of record are attention
+    # receipts; the check is unconditional because a gate run reads the whole
+    # capture directory, which holds both profiles.
+    try:
+        check_profile_pins()
+    except ProfilePinError as exc:
+        print(f"REFUSED (attention profile pins): {exc}", file=sys.stderr)
         return 3
 
     t0 = time.time()

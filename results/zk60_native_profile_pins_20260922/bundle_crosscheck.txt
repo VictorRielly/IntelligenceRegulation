@@ -1,0 +1,25 @@
+bundle manifest: /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/bundle/validation.json
+  132 source hashes
+
+hashline/src/private_attention.rs
+  pin of record      dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923
+  main   4751b93     dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923  ==
+  lane   a8e4939     dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923  ==
+  this worktree      dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923  ==
+  delivered bundle   dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923  ==
+
+hashline/src/private_attention/wire.rs
+  pin of record      a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff
+  main   4751b93     a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff  ==
+  lane   a8e4939     a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff  ==
+  this worktree      a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff  ==
+  delivered bundle   a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff  ==
+
+hashline/src/private_attention/witness.rs
+  pin of record      795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0
+  main   4751b93     795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0  ==
+  lane   a8e4939     795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0  ==
+  this worktree      795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0  ==
+  delivered bundle   795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0  ==
+
+VERDICT: every source agrees with the pin of record

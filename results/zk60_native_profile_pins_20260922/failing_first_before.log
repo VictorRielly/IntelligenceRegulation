@@ -1,0 +1,56 @@
+pre-change modules: git:28853ac:scripts/zk60_native_mask_commit.py
+                    git:28853ac:scripts/zk60_native_terminal_polys.py
+                    git:28853ac:scripts/zk60_native_manifest_pins.py
+in-tree module:     /home/victor/wt-zk60-jointview/scripts/zk60_native_profile_pins.py
+
+three synthetic trees: every pinned file copied from the worktree, with one file tampered with in each
+  hashline/src/private_attention.rs -- the frame module made public API
+  hashline/src/private_attention/wire.rs -- the verifier stops checking H's opening shape
+  hashline/src/private_attention/witness.rs -- the prover's fixed-oracle range refusal disabled
+
+1. the PRE-CHANGE gate on those trees (bytes at 28853ac)
+  --- hashline/src/private_attention.rs
+  PRE mask       RETURNED 30 pinned files checked, NO refusal
+  PRE terms      RETURNED 8 pinned files checked, NO refusal
+  PRE manifests  RETURNED 2 manifests checked, NO refusal
+  --- hashline/src/private_attention/wire.rs
+  PRE mask       RETURNED 30 pinned files checked, NO refusal
+  PRE terms      RETURNED 8 pinned files checked, NO refusal
+  PRE manifests  RETURNED 2 manifests checked, NO refusal
+  --- hashline/src/private_attention/witness.rs
+  PRE mask       RETURNED 30 pinned files checked, NO refusal
+  PRE terms      RETURNED 8 pinned files checked, NO refusal
+  PRE manifests  RETURNED 2 manifests checked, NO refusal
+  PRE privacy_gate mentions NONE of (private_attention.rs, private_attention/, profile_pins)
+  PRE joint_view mentions NONE of (private_attention.rs, private_attention/, profile_pins)
+  => every tampered tree passes every check the gate had.
+
+2. the SAME trees, in-tree check
+  --- hashline/src/private_attention.rs
+  IN-TREE        RAISED ProfilePinError: profile pin MISMATCH for hashline/src/private_attention.rs:
+                          pinned sha256 dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923 (git blob 1bc8f8911f91ff66709f8186393774e3845ad3d7)
+                          found  sha256 29e09238115920096501946522b61ba50605101bf3a3de5832ff223d5cc1c4f3 (git blob 3a699920ce2bfc8a1f5bcaec18a834aacf373c50)
+                          what it is: REAL LOGIC, and the attention profile's own root: PROFILE, the public statement (AttentionPublic and its refusals), IoSpec / ExpectedIo / prepare_endpoints and the by-value Endpoints, compute_output, prove / prove_with_stats, verify, verify_bytes, Receipt::{to_bytes, from_bytes} and encoded_len. It also DECLARES `mod wire;` and `mod witness;` outside any cfg (lines 45-46), so it is the file a reader checks to know those two are not test-only
+                        This file is ON THE PRIVATE ATTENTION PROFILE'S PATH and two of the four toy captures of record are attention receipts (round 9h). Condition 7 of the toy profile's privacy statement (register D22) SUSPENDS step 3 until the file is re-read and re-pinned: read the diff, write the one-line reading in the ledger, and only then add the digest. Do NOT re-pin to make this pass.
+  --- hashline/src/private_attention/wire.rs
+  IN-TREE        RAISED ProfilePinError: profile pin MISMATCH for hashline/src/private_attention/wire.rs:
+                          pinned sha256 a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff (git blob 26e2166984b7164743683b0a2fb34cf3d732644f)
+                          found  sha256 db6dd50f489cce622796bff75058ea678e6e7139146ebb62fe1fe4ef739b0e30 (git blob bd1d16df5070dd36d6f840b4f489dd31cccd9a89)
+                          what it is: the frame, on BOTH sides: `validate` is the first statement of protocol::verify_inner (protocol.rs:419) and decides the receipt's shape, hiding widths and group counts before anything is read; `encode` / `decode` are Receipt::to_bytes / from_bytes, so verify_bytes decodes through this file; HEADER and encoded_len fix the frame length the toy captures' proof_bytes are measured against
+                        This file is ON THE PRIVATE ATTENTION PROFILE'S PATH and two of the four toy captures of record are attention receipts (round 9h). Condition 7 of the toy profile's privacy statement (register D22) SUSPENDS step 3 until the file is re-read and re-pinned: read the diff, write the one-line reading in the ledger, and only then add the digest. Do NOT re-pin to make this pass.
+  --- hashline/src/private_attention/witness.rs
+  IN-TREE        RAISED ProfilePinError: profile pin MISMATCH for hashline/src/private_attention/witness.rs:
+                          pinned sha256 795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0 (git blob 0c9f7b60847e913ef81034bea7f62ed72db050e6)
+                          found  sha256 2d78b1dfa066041057d8f44c5c04bbd1f1e719060f1e91600e2e2bc8052b21ee (git blob 5e9146f232d31e6b2d6e17e19a7478fdab19d493)
+                          what it is: the PROVER's integer witness: `build` (called at private_attention.rs:277 in prove_with_stats and :236 in compute_output) computes every hidden plane the proof commits to -- quantize / requant / matmul / rotate / isqrt / limbs -- and the Witness it returns is what protocol::prove_inner, lookup_values and exp_deltas read
+                        This file is ON THE PRIVATE ATTENTION PROFILE'S PATH and two of the four toy captures of record are attention receipts (round 9h). Condition 7 of the toy profile's privacy statement (register D22) SUSPENDS step 3 until the file is re-read and re-pinned: read the diff, write the one-line reading in the ledger, and only then add the digest. Do NOT re-pin to make this pass.
+
+3. CONTROL: the tree exactly as it stands
+  IN-TREE        RETURNED private_attention.rs: dfc02d91356974b0… == pin of record; wire.rs: a35a468cf19eb672… == pin of record; witness.rs: 795cf6292e366bc4… == pin of record
+
+4. the LANE's own bytes at a8e4939 (read-only, from the main checkout)
+  IN-TREE        RETURNED private_attention.rs: dfc02d91356974b0…; wire.rs: a35a468cf19eb672…; witness.rs: 795cf6292e366bc4…  (accepted: the lane is byte-identical to main here)
+
+5. the two gates, with the check pointed at a tampered tree
+  joint_view     has NO attention-profile pin check (pre-change)
+  privacy_gate   has NO attention-profile pin check (pre-change)

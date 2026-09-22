@@ -660,5 +660,296 @@ class TheCargoManifestsArePinnedAndAsserted(unittest.TestCase):
         self.assertEqual(self.mp.ALSO_ACCEPTED, {})
 
 
+# =====================================================================
+#  round 9h (2026-09-22): the private-attention profile's three files
+# =====================================================================
+class TheAttentionProfilesPathIsPinned(unittest.TestCase):
+    """Round 9g §R9g.8: three Rust files on the PRIVATE ATTENTION profile's
+    proving and verifying path were named by no pin table, while two of the
+    four toy captures of record are attention receipts -- so for those two,
+    condition 7 of the toy profile's accepted privacy statement ("every file
+    on the path") was not met.  The security owner ruled they join the pin
+    set; `scripts/zk60_native_profile_pins.py` is that pin.
+
+    The pins live in their own module for round 9f's reason, unchanged:
+    `mask_commit.py` is named by 122 committed records' `tool_sha256` maps
+    and `terminal_polys.py` by 8, so a byte there stales the run-gate series.
+    They are not folded into `zk60_native_manifest_pins.py` either -- that
+    module is the two CARGO MANIFESTS and finding P36-2, and a Rust source
+    pin filed under a name that says "manifest" would mislead the reader at
+    the moment the refusal fires.  What THIS class insists on is that the
+    separation costs nothing.
+    """
+
+    # read independently of the tool, from the integrator's main branch at
+    # 4751b93 (the commit the whole D22 pin set is read at):
+    #   git --no-pager -C <main tree> show 4751b93:<path> | sha256sum
+    PINS_OF_RECORD = {
+        "hashline/src/private_attention.rs":
+            "dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923",
+        "hashline/src/private_attention/wire.rs":
+            "a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff",
+        "hashline/src/private_attention/witness.rs":
+            "795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0",
+    }
+
+    # the attention profile's OWN six files: the root and its five modules,
+    # `tests.rs` excluded because it is `#[cfg(test)]`.  After round 9h every
+    # one of them must be pinned by SOME table.
+    PROFILE_FILES = {
+        "hashline/src/private_attention.rs",
+        "hashline/src/private_attention/argument.rs",
+        "hashline/src/private_attention/layout.rs",
+        "hashline/src/private_attention/protocol.rs",
+        "hashline/src/private_attention/wire.rs",
+        "hashline/src/private_attention/witness.rs",
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        import zk60_native_manifest_pins as mp
+        import zk60_native_mask_commit as mc
+        import zk60_native_profile_pins as pp
+        import zk60_native_terminal_polys as tp
+        cls.mp, cls.mc, cls.pp, cls.tp = mp, mc, pp, tp
+        cls.elsewhere = {p.path: p.sha256 for p in
+                         list(mc.SOURCE_PINS) + list(mc.PATH_PINS)
+                         + list(tp.SOURCE_PINS)}
+
+    # ------------------------------------------------------------ the pins
+    def test_the_three_are_pinned_at_mains_digests(self):
+        pinned = {p.path: p.sha256 for p in self.pp.PROFILE_PINS}
+        self.assertEqual(pinned, self.PINS_OF_RECORD)
+        for pin in self.pp.PROFILE_PINS:
+            self.assertTrue(pin.why.strip(),
+                            "a pin's reason must say what the file is")
+            self.assertEqual(len(pin.blob), 40)
+
+    def test_the_pins_are_at_the_bytes_in_this_tree(self):
+        got = self.pp.check_profile_pins()
+        self.assertEqual(sorted(got), sorted(self.PINS_OF_RECORD))
+        for path, rec in got.items():
+            self.assertEqual(rec["sha256"], self.PINS_OF_RECORD[path])
+            self.assertEqual(rec["pin_kind"], "on-the-attention-path")
+            self.assertNotIn("accepted_as", rec,
+                             "the tree is at the pin of record, not at a "
+                             "second accepted digest")
+
+    def test_no_other_pin_table_names_them_at_a_different_digest(self):
+        """The three tables that could disagree: the two Rust ones and round
+        9f's manifest pins.  None of them should name these files at all
+        today, and if one ever does, the digests must agree."""
+        others = dict(self.elsewhere)
+        others.update({p.path: p.sha256 for p in self.mp.MANIFEST_PINS})
+        for path, sha in self.PINS_OF_RECORD.items():
+            if path in others:
+                self.assertEqual(
+                    others[path], sha,
+                    f"{path}: another pin table and the profile pins "
+                    "disagree; one of them is stale")
+
+    def test_a_changed_byte_in_each_of_the_three_is_refused_by_name(self):
+        """One byte flipped in EVERY newly pinned file, one at a time, in a
+        throwaway tree: each must raise and each message must name its own
+        file.  The other two are copied unchanged, so the refusal can only be
+        this one's."""
+        import shutil
+        import tempfile
+        for pin in self.pp.PROFILE_PINS:
+            with self.subTest(path=pin.path):
+                with tempfile.TemporaryDirectory() as tmp:
+                    for other in self.pp.PROFILE_PINS:
+                        dst = os.path.join(tmp, other.path)
+                        os.makedirs(os.path.dirname(dst), exist_ok=True)
+                        shutil.copyfile(os.path.join(ROOT, other.path), dst)
+                    with open(os.path.join(tmp, pin.path), "ab") as fh:
+                        fh.write(b"\n// one byte more\n")
+                    with self.assertRaises(self.pp.ProfilePinError) as cm:
+                        self.pp.check_profile_pins(root=tmp)
+                    msg = str(cm.exception)
+                    self.assertIn(pin.path, msg)
+                    self.assertIn("MISMATCH", msg)
+                    self.assertIn("PRIVATE ATTENTION PROFILE'S PATH", msg)
+
+    def test_a_missing_file_is_refused_by_name(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(self.pp.ProfilePinError) as cm:
+                self.pp.check_profile_pins(root=tmp)
+            self.assertIn("private_attention.rs", str(cm.exception))
+
+    def test_an_unchanged_copy_still_passes(self):
+        """The control for the test above: the same throwaway tree with
+        nothing flipped passes, so the refusals are the perturbation's and
+        not the copying's."""
+        import shutil
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            for pin in self.pp.PROFILE_PINS:
+                dst = os.path.join(tmp, pin.path)
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copyfile(os.path.join(ROOT, pin.path), dst)
+            self.assertEqual(len(self.pp.check_profile_pins(root=tmp)), 3)
+
+    # ------------------------------------------------- the path is covered
+    def test_the_profiles_six_files_are_all_pinned_now(self):
+        """The point of the round: no file of the attention profile is left
+        uncompared.  The three new ones here, the other three where the
+        module says they are -- checked against the tables, not the prose."""
+        pinned = set(self.elsewhere) | {p.path for p in self.pp.PROFILE_PINS}
+        missing = self.PROFILE_FILES - pinned
+        self.assertEqual(
+            missing, set(),
+            "these files are on the attention profile's path and NOTHING "
+            "pins them: " + ", ".join(sorted(missing)))
+        for path, where in self.pp.ALREADY_PINNED_ELSEWHERE.items():
+            self.assertIn(path, self.elsewhere,
+                          f"{path}: the module says it is pinned elsewhere "
+                          f"({where}) and it is not")
+        self.assertEqual(
+            set(self.pp.ALREADY_PINNED_ELSEWHERE) |
+            {p.path for p in self.pp.PROFILE_PINS},
+            self.PROFILE_FILES,
+            "the module's two lists together must be exactly the profile's "
+            "six files")
+
+    def test_every_crate_module_the_profile_imports_is_pinned(self):
+        """Coverage, derived rather than asserted: every `use crate::<m>` in
+        the profile's six files must resolve to a hashline file some table
+        pins, or to one of the three the tool NAMES as fixture-only (reached
+        from `synthetic_fixture`, which makes the public test data, and so
+        off the prover's and the verifier's path by the owner's own words).
+        A future attention file that reaches into any other unpinned module
+        turns this red instead of widening the hole silently."""
+        pinned = set(self.elsewhere) | {p.path for p in self.pp.PROFILE_PINS}
+        fixture_only = set(self.mc.FIXTURE_PATH_NOT_PINNED)
+        seen = {}
+        for rel in sorted(self.PROFILE_FILES):
+            with open(os.path.join(ROOT, rel)) as fh:
+                text = fh.read()
+            for m in re.findall(r"\buse crate::(\w+)", text) + \
+                    re.findall(r"\bcrate::(\w+)::", text):
+                cand = f"hashline/src/{m}.rs"
+                if not os.path.exists(os.path.join(ROOT, cand)):
+                    cand = f"hashline/src/{m}/mod.rs"
+                seen.setdefault(cand, set()).add(rel)
+        self.assertGreaterEqual(len(seen), 8, "the scan found almost nothing; "
+                                "the import syntax must have changed")
+        for cand, who in sorted(seen.items()):
+            with self.subTest(module=cand):
+                self.assertIn(
+                    cand, pinned | fixture_only,
+                    f"{cand} is reached from {sorted(who)} and nothing pins "
+                    "it; read it and add it to a pin table")
+        # and the fixture-only exception stays the documented one: today
+        # exactly `causal_oracle.rs`, from the root's `synthetic_fixture`.
+        self.assertEqual(
+            sorted(set(seen) - pinned),
+            ["hashline/src/causal_oracle.rs"],
+            "the only unpinned module the attention profile names must be "
+            "the public fixture's, with its reason in "
+            "`zk60_native_mask_commit.FIXTURE_PATH_NOT_PINNED`")
+        for rel in sorted(set(seen) - pinned):
+            self.assertTrue(self.mc.FIXTURE_PATH_NOT_PINNED[rel].strip())
+
+    def test_none_of_the_three_is_a_test_only_module(self):
+        """`private_block/{norm_alias,parity,refusals,tamper,tests}.rs` are
+        out of the pin set because they are `#[cfg(test)]`.  These three are
+        in it because they are not: the root declares `mod wire;` and `mod
+        witness;` with no attribute above them, and the line that IS gated
+        (`mod tests;`) shows the file distinguishes the two."""
+        path = os.path.join(ROOT, "hashline/src/private_attention.rs")
+        with open(path) as fh:
+            lines = fh.read().splitlines()
+        for decl in ("mod wire;", "mod witness;"):
+            with self.subTest(decl=decl):
+                i = [n for n, ln in enumerate(lines) if ln.strip() == decl]
+                self.assertEqual(len(i), 1, f"{decl} not declared exactly once")
+                self.assertFalse(
+                    lines[i[0] - 1].strip().startswith("#["),
+                    f"{decl} has an attribute above it; if it is now "
+                    "cfg-gated the pin's justification has changed")
+        j = [n for n, ln in enumerate(lines) if ln.strip() == "mod tests;"]
+        self.assertEqual(len(j), 1)
+        self.assertEqual(lines[j[0] - 1].strip(), "#[cfg(test)]")
+
+    # ------------------------------------------------------- the two gates
+    def test_both_gates_call_the_check_and_name_the_tool(self):
+        import zk60_native_joint_view as jv
+        import zk60_native_privacy_gate as p10
+        for name, gate in (("joint_view", jv), ("privacy_gate", p10)):
+            with self.subTest(gate=name):
+                self.assertIs(gate.check_profile_pins,
+                              self.pp.check_profile_pins)
+                self.assertIn("zk60_native_profile_pins.py", gate.TOOLS,
+                              "a tool whose bytes decide a refusal must be in "
+                              "the record's tool_sha256 map")
+                self.assertIn("zk60_native_profile_pins.py",
+                              gate.tool_hashes())
+
+    def test_both_gates_call_it_unconditionally_and_before_any_capture(self):
+        """Not gated on the capture's profile, and not after the captures
+        have been read: a gate run reads the whole capture directory, which
+        holds two block receipts and two attention ones."""
+        import inspect
+        import zk60_native_joint_view as jv
+        import zk60_native_privacy_gate as p10
+        for name, gate in (("joint_view", jv), ("privacy_gate", p10)):
+            with self.subTest(gate=name):
+                src = inspect.getsource(gate.main)
+                self.assertIn("check_profile_pins()", src,
+                              "the call takes no profile argument: it is the "
+                              "same rule for every toy run")
+                self.assertLess(
+                    src.index("check_profile_pins()"), src.index("load_all("),
+                    "the check must come before anything is read")
+
+    def test_both_gates_refuse_and_return_3_instead_of_running(self):
+        """The callers' half: the refusal comes before anything is read, so
+        it costs nothing and writes NO record."""
+        import contextlib
+        import io
+        import shutil
+        import tempfile
+        import zk60_native_joint_view as jv
+        import zk60_native_privacy_gate as p10
+
+        def raiser():
+            raise self.pp.ProfilePinError(
+                "profile pin MISMATCH for "
+                "hashline/src/private_attention/wire.rs: (test)")
+
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
+        for name, gate in (("joint_view", jv), ("privacy_gate", p10)):
+            with self.subTest(gate=name):
+                ev = os.path.join(tmp, name)
+                os.makedirs(ev)
+                keep = gate.check_profile_pins
+                gate.check_profile_pins = raiser
+                err = io.StringIO()
+                try:
+                    with contextlib.redirect_stderr(err):
+                        rc = gate.main(["--captures", tmp, "--evidence", ev])
+                finally:
+                    gate.check_profile_pins = keep
+                self.assertEqual(rc, 3)
+                self.assertIn("REFUSED (attention profile pins)", err.getvalue())
+                self.assertIn("private_attention/wire.rs", err.getvalue())
+                self.assertEqual(os.listdir(ev), [],
+                                 "a refused run must write no record")
+
+    # ------------------------------------- what the integration will bring
+    def test_the_lane_carries_the_same_bytes_and_nothing_is_pre_accepted(self):
+        """Unlike round 9f's manifests, the block lane (`a8e4939`) has not
+        touched these three, so there is no post-integration digest to
+        expect.  The module records that as data and the accepted set stays
+        empty."""
+        lane = self.pp.LANE_DIGESTS
+        self.assertTrue(lane["identical_to_main"])
+        self.assertEqual(lane["digests"], self.PINS_OF_RECORD)
+        self.assertEqual(self.pp.ALSO_ACCEPTED, {})
+
+
 if __name__ == "__main__":
     unittest.main()

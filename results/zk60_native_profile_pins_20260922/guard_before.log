@@ -1,0 +1,23 @@
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..F.......................................
+======================================================================
+FAIL: test_every_record_was_produced_by_the_tools_now_in_the_tree (tests.test_zk60_native_gate_record.GateRecordOfRecord)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py", line 163, in test_every_record_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_capture.py': '11f598d1472eac3cdffd6955[897 chars]b56'} != {'zk60_native_privacy_gate.py': '040891a757fc6efb991a57[996 chars]2cb'}
+Diff is 1191 characters long. Set self.maxDiff to None to see it. : results/zk60_native_privacy_gate: the record was produced by different tool bytes; re-run the gate and refresh the evidence (the command is in that directory's README)
+
+----------------------------------------------------------------------
+Ran 42 tests in 0.088s
+
+FAILED (failures=1)

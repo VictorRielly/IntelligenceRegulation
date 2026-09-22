@@ -3703,19 +3703,148 @@ privacy property, and no figure of record may move.
 
 ## R9h.3 Commands, logs and evidence
 
-PENDING.
+Evidence: `results/zk60_native_profile_pins_20260922/` (`README.md` there
+tabulates it). The three gate runs were detached under
+`flock /tmp/zk-heavy.lock` inside a
+`systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0` scope, with
+the suite queued on the same lock so that it self-started when they were
+done; markers `run.done` / `suite.done`.
 
-## R9h.4 Results — U1, the path
+| # | what | command | log |
+|---|---|---|---|
+| 1 | the three digests, against four independent readings | `python3 results/zk60_native_profile_pins_20260922/bundle_crosscheck.py` | `bundle_crosscheck.txt` |
+| 2 | the hole, against the pre-change bytes | `python3 results/zk60_native_profile_pins_20260922/failing_first.py` | `failing_first_before.log` (taken before the gates were wired), `failing_first_after.log` |
+| 3 | the guard before the re-pin | `python3 -m unittest tests.test_zk60_native_gate_record` | `guard_before.log` |
+| 4-6 | the three re-takes | `run.sh` (the command in each record directory's README, unchanged) | `run.log`, `run.done` |
+| 7 | what the re-pin moved | `python3 …/repin_diff.py` | `repin_diff.txt` |
+| 8 | the seven modules and the record guard | `suite.sh` | `suite.log`, `suite.done` |
 
-PENDING.
+## R9h.4 Results — U1, the path: all three are on it
+
+Read at `4751b93` from the committed blobs, by call site rather than by
+belief. **All three are on the attention profile's proving or verifying
+path; none is a test-only module, so none is pinned here that should not
+be.**
+
+| file | why it is on the path |
+|---|---|
+| `hashline/src/private_attention.rs` | the profile's ROOT. `hashline/src/lib.rs:49` declares `pub mod private_attention;` with no `cfg` and no feature gate. The file holds `AttentionPublic` and its refusals, `IoSpec` / `ExpectedIo` / `prepare_endpoints` and the by-value `Endpoints`, `compute_output` (236), `prove` / `prove_with_stats` (270 / 274), `verify` (285), `verify_bytes` (311), `Receipt::{to_bytes, from_bytes}` (298 / 303) and `encoded_len` (290). Every attention proof and every attention verification enters here |
+| `private_attention/witness.rs` | the PROVER's integer witness: `witness::build` is called at `private_attention.rs:277` (inside `prove_with_stats`) and `:236` (inside `compute_output`), and the `Witness` it returns is the argument of `protocol::prove_inner` (`protocol.rs:12`, `:259`), read by `lookup_values` (203) and `exp_deltas` (211). It computes every hidden plane the proof commits to — `quantize` / `requant` / `matmul` / `rotate` / `isqrt` / `limbs` — and carries the fixed-oracle range refusals |
+| `private_attention/wire.rs` | BOTH sides. `wire::validate` is the FIRST statement of `protocol::verify_inner` (`protocol.rs:419`) and decides the receipt's shape, hiding widths and group counts before anything else is read; `wire::encode` / `wire::decode` are `Receipt::to_bytes` / `from_bytes` (`private_attention.rs:298` / `:303`), so `verify_bytes` decodes through this file; `HEADER` and `encoded_len` fix the frame length the captures' `proof_bytes` are measured against |
+
+**Not test-only, checked rather than assumed.** The root declares `mod wire;`
+(line 45) and `mod witness;` (line 46) with no attribute above either, and the
+line that IS gated — `#[cfg(test)] mod tests;` (48-49) — is the next one. That
+is the distinction that kept `private_block/{norm_alias,parity,refusals,
+tamper,tests}.rs` out of round 5's table, and a test now asserts it on the
+file rather than on this paragraph.
+
+**The profile's six files are now complete.** `argument.rs`, `layout.rs` and
+`protocol.rs` were already pinned by `zk60_native_terminal_polys.SOURCE_PINS`
+(and `argument.rs` again by `zk60_native_mask_commit.SOURCE_PINS`, at the same
+digest); with these three there is no file of the attention profile that
+nothing compares. A second test derives the rest of the coverage rather than
+asserting it: every `use crate::<m>` in the profile's six files must resolve
+to a hashline file some table pins. Ten modules do (`field`, `merkle`, `mle`,
+`ntt`, `pcs`, `private_seam`, `sumcheck`, `tables_attn`, `transcript`, `zk`);
+the ONE that does not is `hashline/src/causal_oracle.rs`, reached from the
+root's `synthetic_fixture` (line 132) — the public-fixture path the owner's
+own words put outside "prover and verifier reach", already recorded with its
+reason in `zk60_native_mask_commit.FIXTURE_PATH_NOT_PINNED`. The test allows
+exactly that one and would go red on any other.
 
 ## R9h.5 Results — U2, the three pins and where they live
 
-PENDING.
+Read from main at `4751b93`
+(`git --no-pager -C <main tree> show 4751b93:<path> | sha256sum`):
+
+| path | sha256 | git blob |
+|---|---|---|
+| `hashline/src/private_attention.rs` | `dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923` | `1bc8f891…` |
+| `hashline/src/private_attention/wire.rs` | `a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff` | `26e21669…` |
+| `hashline/src/private_attention/witness.rs` | `795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0` | `0c9f7b60…` |
+
+**Four independent readings agree** (`bundle_crosscheck.txt`): main at
+`4751b93`, the block lane at `a8e4939`, this worktree, and the delivered
+new-tree bundle's 132-entry `source_hashes`
+(`results/zk60_native_d22_replay_20260922/bundle/validation.json`, read-only,
+not committed here). **The lane's digests are IDENTICAL to main's**, so
+unlike round 9f's two Cargo manifests there is nothing here to record as
+"expected after integration" and nothing for the integrator's re-pin to move;
+`LANE_DIGESTS` says so as data and the guard asserts the equality.
+
+**Where the pin lives: `scripts/zk60_native_profile_pins.py`**, a new sibling
+of round 9f's module, called by both toy gates before they read anything
+(exit **3**, no record, on a refusal).
+
+* Not in `zk60_native_mask_commit.PATH_PINS`, the natural home: that file is
+  named by **122** committed records' `tool_sha256` maps — the whole run-gate
+  series over the real 125M bundles — each asserted equal to the tool bytes
+  in the tree by its own test, so one byte there would stale ~115 records and
+  demand their re-take on bundles this round has no business re-running
+  (`terminal_polys.py`: 8 records plus its own `port_sha256`). Round 9f's
+  reason, unchanged.
+* **Not folded into `zk60_native_manifest_pins.py`**, although it has the
+  same shape and the same two callers. That module is the two CARGO
+  MANIFESTS and finding P36-2; its error type, its header and its refusal
+  line all say "Cargo manifest pins", and a Rust source pin filed under a
+  name that says "manifest" would mislead the reader at the moment the
+  refusal fires. The cost of the separate file is one more tool leaf in the
+  three records — which this round re-takes anyway.
+
+**Unconditional, not gated on the capture's profile**, which is what the
+ruling asked for and is also the only thing that makes sense here: a gate run
+reads a capture DIRECTORY, and the directory of record holds all four
+captures — two block receipts and two attention ones — so a per-profile
+branch would never be taken differently in any run of record; and for a block
+run these three are simply files that must not have moved either (the same
+tree the manifest cross-check compares a bundle against; the bundle's
+`source_hashes` carries all three). One rule, no branch. A test asserts the
+call takes no profile argument and stands before `load_all` in both gates.
+
+**Digest only, no content assertion, and that is deliberate.** Round 9f's
+manifests carry one because a Cargo manifest can be re-pinned blind and still
+ship a test-only feature — the property there is a fact about the file's
+meaning. The property here is the one the pin set exists for, *these are the
+bytes the four captures of record were produced and verified by*, and a
+sha256 is exactly that property. The refusal message carries the rest: read
+the diff, write the reading in the ledger, and only then add a digest.
+
+**The pin set's new size.** Machine-counted over the tables themselves, the
+union was **34 distinct paths** (32 Rust + the 2 Cargo manifests) and is now
+**37** (35 Rust + 2). *The accepted statement says 31 and becomes 34 by its
+own arithmetic* — and that arithmetic undercounts by three: its 31 is the 29
+files of the BLOCK path plus the two manifests, and it omits
+`private_attention/{argument,layout,protocol}.rs`, which the tables have
+pinned since round 1 / round 5. Both numbers are given here so the next
+reader is not surprised by either; the sentence the main tree needs is in
+R9h.9 item 5.
 
 ## R9h.6 Results — U3, failing first
 
-PENDING.
+`failing_first.py` loads `zk60_native_mask_commit.py`,
+`zk60_native_terminal_polys.py` and `zk60_native_manifest_pins.py` **as they
+stood at `28853ac`, straight out of git**, so the pre-change column keeps
+printing after the change has landed. Three synthetic trees, each a copy of
+every file the toy gate pins with ONE of the three tampered with — one line
+each, of the kind that matters rather than a stray byte:
+
+| tampered file | the one-line change |
+|---|---|
+| `private_attention.rs` | `mod wire;` → `pub mod wire;` — the frame's internals become public API |
+| `private_attention/wire.rs` | the `!hiding_ok(&r.h_open, …)` clause deleted from `validate`: the verifier stops checking H's opening shape |
+| `private_attention/witness.rs` | `if !(lo..=hi).contains(&q)` → `if false && …`: the prover's fixed-oracle range refusal never fires |
+
+| case | before (`28853ac`) | after |
+|---|---|---|
+| 1. each tampered tree, against every pin check the gate HAD | **30, 8 and 2 pinned files checked, NO refusal** — in all three trees; and neither gate's source mentions `private_attention.rs`, `private_attention/` or `profile_pins` | — |
+| 2. the same three trees, the profile pins | — | `ProfilePinError` in each, **naming its own file**, digest against digest |
+| 3. CONTROL: the tree exactly as it stands | — | accepted, three digests equal to their pins of record |
+| 4. the LANE's bytes at `a8e4939` (read-only, from the main checkout) | — | accepted — byte-identical to main |
+| 5. the two gates, check pointed at a tampered tree | **no such check** ("has NO attention-profile pin check (pre-change)") | `main()` → **3**, `REFUSED (attention profile pins): …`, **no record written** |
+
+Case 1 is §R9g.8's finding exercised: a change that deletes a verifier's
+shape check, or a prover's range refusal, passed every check the gate had.
 
 ## R9h.7 Results — U4, the re-pin
 
