@@ -2595,3 +2595,53 @@ subset peaks well under it (553 MB RSS observed), and no 125M work was run.
 4. **The `fee1a8d` snapshot and the stage-36 observers** will need the
    condition-7 re-read of their six pinned files, and the pin set updated,
    before step 3 covers that tree.
+
+# ROUND 9e (2026-09-22 10:26 PDT) — the TOY gate's manifest cross-check: the silent skip, fixed
+
+## R9e.0 Why there is a round 9e
+
+Round 9d found the defect and filed it as a request to the OTHER side:
+R9d.10 item 1 asked the integrator to rename its manifest and reshape one
+key, "no tool changes on either side". The security owner ruled the other
+way round, and the ruling is the right one: a gate whose manifest
+cross-check **skips itself without saying so** is the defect, wherever the
+bundle came from. A tool that cannot cross-check a delivered bundle must
+**refuse by name**; passing quietly is the one behaviour it may not have.
+
+This round is that one fix, inside the hash-pinned toy gate, and nothing
+else.
+
+## R9e.1 Status
+
+| # | item | state |
+|---|---|---|
+| S1 | the defect, reproduced against the pinned bytes (failing first) | TODO |
+| S2 | the fix in `manifest_check`, and the two callers' handling of the refusal | TODO |
+| S3 | the tests: a single record, a list, absent / unreadable / neither, a manifest that disagrees | TODO |
+| S4 | the re-pin of the records of record, reason in the guard's own record | TODO |
+| S5 | the round-9d replay once more with the fixed tool, **no shim** | TODO |
+| S6 | the toy gate's seven modules and the record guard | TODO |
+| S7 | report §8.7 of the D22 record, and this ledger | TODO |
+
+## R9e.2 Scope (hard, from the ruling)
+
+1. **One change**: `manifest_check` in `scripts/zk60_native_jv_capture.py`
+   and the two gates' handling of the new refusal. Nothing else in any tool,
+   proved by the diff against `d837d50`.
+2. **The records of record must keep passing.** They were produced from a
+   directory that HAS a `validation.json` with a list `accepted`
+   (`results/zk60_native_captures_20260919/`), so the fix must leave their
+   manifest block exactly as it is.
+3. **The re-pin is expected**: the tool's bytes change, so every record that
+   names them has to be re-taken with the documented command, and the reason
+   recorded in the guard's own record, as every re-pin before this one was.
+4. Nothing in this round is a privacy acceptance, and no figure of record may
+   move.
+
+## R9e.3 Commands, logs and evidence
+
+TODO — `results/zk60_native_manifest_check_20260922/`.
+
+## R9e.4 Results
+
+TODO.
