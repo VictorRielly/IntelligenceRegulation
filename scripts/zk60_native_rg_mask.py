@@ -422,6 +422,55 @@ MASK_LAYER_PINS = {
             "and their `L_s` are shorter; `derive_mask_domain` reads the "
             "domain the bundle declares, as always",
         },
+        # [ROUND 9c] stages 31, 32 and 33: rung-C6, rung-W14 and rung-E32.
+        # One reading for the three, because the three diffs are the same
+        # diff with one, two and three constructors in it.
+        "3791ef61cd3c29356f3b71e8c271378ca8a31cd2bef7fb963d2e7ac8be7c8224": {
+            "commits": ("3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",),
+            "bundles": ("run-m-dense-c6", "run-n-zero-c6"),
+            "reading": "READ 2026-09-21 (round 9c).  `git diff 4ccbad1 "
+            "3e106e1 -- .../shape.rs` is **75 added, 0 removed -- "
+            "ADDITIONS ONLY**: `Shape::rung_c6()` and its doc comment.  "
+            "`Shape::slots` -- the source of every `(n_s, d_s)` this port "
+            "turns into `L_s` -- is byte-identical, and so is ruling C-4's "
+            "refusal in `Shape::new`, which is this port's own feasibility "
+            "condition.  What the new shape does to this port is "
+            "arithmetic: correction C-6 drops two `Dom::D` helper planes, "
+            "so slot 14's term list is shorter, and slots 16 and 18 keep "
+            "rung-P2's unpadded degrees.  The prediction derives the "
+            "largest `L_s` (77) and the C-4 headroom (179) before the run",
+        },
+        "b891869adb3d3df2564ba0f2524e8ec6dcbfa6a3c5a1139a39420b4f4e68c645": {
+            "commits": ("11703c94df428c3e53dbc6c37eac835e348f5bf9",),
+            "bundles": ("run-o-dense-w14", "run-p-zero-w14"),
+            "reading": "READ 2026-09-21 (round 9c).  `git diff 4ccbad1 "
+            "11703c9 -- .../shape.rs` is **154 added, 0 removed -- "
+            "ADDITIONS ONLY**: `Shape::rung_c6()` and `Shape::rung_w14()` "
+            "with their doc comments.  `Shape::slots` and ruling C-4 are "
+            "byte-identical.  rung-W14 is the first shape this port sees "
+            "at `log_cols = 14`: `MASK_MSG` and `MASK_Q` are constants of "
+            "`zk.rs` and do not move with the row width, so the C-4 "
+            "headroom TIGHTENS to 169 -- the largest `L_s` is 87 at slot "
+            "14 because the domain logs are two larger -- and the "
+            "prediction names both numbers before the run",
+        },
+        "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911": {
+            "commits": ("6d71b405de9863a7a95dc166ba932f6e12e5a2d0",
+                        "2d04d941f1e7e4e52b72f7d1434060779814405e",
+                        "226f3b2c6aed44fe9b1f495cd7c7e34b900e4e90"),
+            "bundles": ("run-q-dense-e32", "run-r-zero-e32"),
+            "reading": "READ 2026-09-21 (round 9c).  `git diff 4ccbad1 "
+            "6d71b40 -- .../shape.rs` is **273 added, 0 removed -- "
+            "ADDITIONS ONLY**: the three constructors, ruling S-6's named "
+            "construction refusal (a shape whose padded token count "
+            "reaches the row width, which no registered shape is and no "
+            "bundle here is near) and a doc comment on `a_groups`.  "
+            "`Shape::slots` and ruling C-4 are byte-identical; `a_groups` "
+            "itself is byte-identical.  The largest `L_s` is 82 and the "
+            "C-4 headroom 174.  **The rung-E32 bundles NAME `4505ddf`, "
+            "which does not carry this blob** -- finding E32-F1; the "
+            "commits listed here are the ones that do",
+        },
     },
 }
 

@@ -227,5 +227,80 @@ class TheComparisonReRun(unittest.TestCase):
                         self.assertIsNotNone(row["group_bits"]["export"])
 
 
+@unittest.skipUnless(HAVE_EXPORT and LIVE, "no bundle on this box")
+class TheControls(unittest.TestCase):
+    """SIX perturbations of the export, each of which MUST be refused by
+    name.  A comparison that reports zero disagreements is worth nothing
+    unless a wrong export would have produced one -- the K4-F1 rule.  The
+    export on disk is never touched: each control mutates an in-memory
+    copy.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        from zk60_native_rg_bundle import RunBundle
+        cls.key, cls.dir = LIVE[0]
+        cls.bundle = RunBundle(cls.dir)
+
+    def _fires(self, mutate, slot, what):
+        import copy
+        e = copy.deepcopy(sir.load_export(self.key))
+        mutate(e)
+        out = sir.compare(e, self.bundle)
+        hits = [d for d in out["disagreements"]
+                if d["slot"] == slot and d["what"] == what]
+        self.assertTrue(
+            hits, f"the perturbation at slot {slot} ({what}) was NOT caught; "
+            f"disagreements reported: {out['disagreements']}")
+        self.assertFalse(out["ok"])
+
+    def test_a_dropped_table_is_caught(self):
+        self._fires(lambda e: e["slots"][14]["tables"].pop(), 14,
+                    "table count")
+
+    def test_a_swapped_private_plane_is_caught(self):
+        def m(e):
+            t = e["slots"][14]["tables"]
+            priv = [i for i, x in enumerate(t) if x["kind"] in ("A", "H")]
+            a, b = priv[0], priv[1]
+            t[a], t[b] = t[b], t[a]
+        self._fires(m, 14, "the private plane sequence")
+
+    def test_a_flipped_pad_on_is_caught(self):
+        self._fires(lambda e: e["slots"][14].__setitem__(
+            "pad_on", not e["slots"][14]["pad_on"]), 14, "pad_on")
+
+    def test_a_moved_declared_degree_is_caught(self):
+        self._fires(lambda e: e["slots"][17].__setitem__(
+            "declared_degree", e["slots"][17]["declared_degree"] + 1), 17,
+            "declared degree")
+
+    def test_a_moved_group_bit_count_is_caught(self):
+        self._fires(lambda e: e["slots"][8].__setitem__(
+            "group_bits", e["slots"][8]["group_bits"] + 1), 8, "group_bits")
+
+    def test_a_dropped_logup_helper_is_caught(self):
+        def m(e):
+            t = e["slots"][14]["tables"]
+            i = next(i for i, x in enumerate(t) if x["kind"] == "H")
+            t[i] = dict(t[i], kind="pub", label="supp(D)", prov="x")
+        # the helper count AND the kind sequence both move; the LogUp
+        # comparison is the one this control is about
+        self._fires(m, 14, "the LogUp byte-limb helper count")
+
+    def test_a_pin_mismatch_refuses_before_a_byte_is_compared(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            src = os.path.join(sir.EXPORT_DIR, f"slot_ir_{self.key}.json")
+            dst = os.path.join(d, f"slot_ir_{self.key}.json")
+            with open(src) as fh:
+                raw = fh.read()
+            with open(dst, "w") as fh:
+                fh.write(raw + " ")
+            with self.assertRaises(ValueError) as cm:
+                sir.load_export(self.key, directory=d)
+            self.assertIn("the lane pins", str(cm.exception))
+
+
 if __name__ == "__main__":
     unittest.main()
