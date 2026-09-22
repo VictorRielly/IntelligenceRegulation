@@ -35,6 +35,14 @@ Written by the interactive Claude Fable 5.1 session (the security owner) at
 
 ## 2. Rulings
 
+*(Note added 2026-09-22 14:47, owed since finding S19-F1 §7 item 4: rulings
+P-1 … P-8 below are SUPERSEDED for slots 08 `SC_SCORE` and 09 `SC_PV` by §4
+of `ZK60_BLOCK125M_S19F1_DISPOSITION.md` — a completeness repair, not a
+soundness one: the key-value group bits become sumcheck variables with a
+public `eq(r_g, ·)` gate, degree 3, +336 B per stage. Everything else here
+stands. Do not confuse these P-rulings with the run gate's preimage controls
+P-1 … P-6, which share the prefix.)*
+
 **P-1 (B-1, B-4): padding is governed by one proved invariant, not by
 case-by-case exemptions.** At the toy every domain is a power of two, so no
 relation was ever evaluated on padding. At width 768 (padded to 1,024) the

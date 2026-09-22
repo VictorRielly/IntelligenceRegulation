@@ -48,7 +48,16 @@ D21").
 > `ntt` files are on this profile's path and pinned by nothing, so condition 7
 > was narrower in practice than in words. **Ruling: the pin set is extended to
 > every file on the path**, re-exports included (owed on the joint-view
-> branch). **What the re-run does not establish:** that the gates replay a
+> branch). *(CLOSED 2026-09-22 14:50: the gate's round 5 (`7ef86d6`) added
+> the 20-file path-pin table — 32 distinct paths checked, 0 refusals on the
+> integrator's new-tree bundle (round 9d) — and the two Cargo manifests were
+> pinned on 2026-09-22 (round 9f), so the pin set of condition 7 is 31 files.
+> Named residuals, still open: the private-attention profile's three files
+> (`private_attention.rs`, `private_attention/wire.rs`,
+> `private_attention/witness.rs`) appear in no pin table — two of the four
+> toy captures of record are attention receipts, so this residual is real
+> and is on the open list (gate ledger §R9g.8); `hashline/src/gpu/cuda.rs`
+> is unpinned and off this profile's CPU path.)* **What the re-run does not establish:** that the gates replay a
 > receipt the new binaries made — the integrator proved this profile on the
 > new tree, but no bundle from it exists in the gate's schema.
 

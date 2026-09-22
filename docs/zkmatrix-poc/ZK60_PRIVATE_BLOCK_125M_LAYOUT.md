@@ -449,6 +449,12 @@ The head geometry **is** recorded; it did not have to be assumed.
 
 So: **grouped-query attention, 12 heads of 64 over 4 KV heads.** This is *not*
 what the toy module does (one KV head, `layout.rs:45`), which is trap T-3.
+*(Note added 2026-09-22 14:47: the bilinear slots' handling of the key-value
+groups as written in this memo was INCOMPLETE — an honest proof under grouped
+attention was refused (finding S19-F1, 2026-09-20); the repair makes the group
+bits sumcheck variables with a public `eq(r_g, ·)` gate, and the layout
+rulings P-1 … P-8 are superseded for slots 08 and 09 by
+`ZK60_BLOCK125M_S19F1_DISPOSITION.md` §4.)*
 For contrast the 8B class is 32/8 heads of 128 at `d = 4096`, `f = 14336`
 (`ATTENTION_INTEGER_SPEC.md:106–108`, `TARGET_CONTRACT.md:23–25`).
 
