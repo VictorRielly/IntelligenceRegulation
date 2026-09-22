@@ -339,15 +339,391 @@ after it.
 
 ## 3. Device memory: the 8 GB card and the 32 GB card
 
-*pending*
+Counted by `results/zk60_device_commit/device_residency.py` from the
+allocation sites in `hashline/src/gpu/cuda.rs` on main at `78531ea`; output
+in `device_residency.log` and `residency.json`.
+
+### 3.1 What the two kernels need, and why the chunking axis is rows
+
+`k_hash_cols` and `k_hash_cols_stream` both run **one thread per column**
+and read that column down the encoded matrix at stride `nn`
+(`kernels.cu:547`, `:1470`). So the hash pass needs *whole columns*; the
+encode pass (`encode_rows_view_zk`, an inverse NTT, `k_zk_pad_scale` and an
+expand NTT) needs *whole rows*. Chunking by columns would force the encode
+to run `nn/chunk` times over every row; chunking by rows forces the hash to
+be resumable. **CL1 chose rows and made the hash resumable**, which is the
+right choice and the reason `k_hash_cols_stream` exists: it keeps each
+column's BLAKE3 chaining-value stack in global memory —
+`state[(8s + i)·nn + j]`, 193 `u32` per column (`kernels.cu:1418-1427`,
+`cuda.rs:2130`) — so a launch can absorb a slice of rows and the launch
+holding the last row emits the leaf. The encode pass and the hash pass then
+walk *the same* `chunk_plan` in one loop (`cuda.rs:1834-1842`).
+
+The load-bearing constraint is that **every chunk but the last is a
+multiple of 128 rows** (`chunk_plan`, `cuda.rs:2116-2129`): 128 rows × 8 B
+is 1,024 bytes, exactly one BLAKE3 chunk of a column's byte string, so an
+interior chunk boundary is always a chunk boundary of the hash. The default
+is `HL_GPU_CHUNK_ROWS = 128` with a floor of 128 (`cuda.rs:2105-2113`); the
+source records the tuning — a 1,024-row chunk's encoded scratch is 537 MB,
+"far past the 32 MB L2", against 67 MB for 128 rows.
+
+### 3.2 The resident-set table [COUNTED]
+
+`W = 8` bytes per field element; `n = 2^14`, `nn = 2^16`, `Q = 256` at both
+shapes. The source's own peak formula for the resident arm is
+`[rows·(n + Q + 2·nn) + nn] · 8` (`cuda.rs:3619-3621`) — both `rows × nn`
+buffers (`d_coef2` and `d_enc`) are live across the expand NTT. The figures
+below add the two buffers that formula omits: the leaf array (`nn × 8`
+`u32`) and the twiddle tables.
+
+| 125M | `A` (5,681 rows) | `H` (7,120) | endpoint (37, ×2) |
+|---|---:|---:|---:|
+| `rows·nn·8` vs the 1 GiB threshold | 2,978,480,128 → **chunks** | 3,732,930,560 → **chunks** | 19,398,656 → resident |
+| resident-arm peak | 6,716,884,976 B (6.26 GiB) | 8,417,345,520 B (7.84 GiB) | 47,392,752 B |
+| **chunked-arm peak** | **961,513,456 B (0.90 GiB)** | **1,153,073,136 B (1.07 GiB)** | — |
+| survives to the opening | 756,779,008 B | 948,338,688 B | 24,248,320 B |
+
+The chunked peak decomposes as persistent (`d_data` + `d_pads` + `d_pows`)
++ 150,994,944 B of scratch (`d_coef`, `d_coef2`, `d_enc` at 128 rows each)
++ 50,593,792 B of BLAKE3 state + 2,097,152 B of leaves + 1,048,560 B of
+twiddles. **The scratch, the state, the leaves and the twiddles are the
+same 204,734,448 B at every shape** — they depend on `nn` and the chunk
+size, not on the rows.
+
+| rung-W14 | `A` (527) | `H` (436) | endpoint (9, ×2) |
+|---|---:|---:|---:|
+| `rows·nn·8` | 276,299,776 → resident | 228,589,568 → resident | 4,718,592 → resident |
+| resident-arm peak | 626,423,792 B | 518,889,456 B | 14,305,264 B |
+| survives to the opening | 345,374,720 B | 285,736,960 B | 5,898,240 B |
+
+### 3.3 (a) The 8 GB card — the peak, and the free order as a condition
+
+**The whole commit phase of a 125M block peaks at 1,909,852,144 B
+(1.78 GiB) and holds 1,753,614,336 B (1.63 GiB) from the last commit to the
+openings — 22.2% and 20.4% of the laptop's 8,188 MiB.** [COUNTED] That is
+the commitments alone, and it is comfortable.
+
+The all-resident counterfactual is what CL1 bought: cumulative peak
+**12,140,445,680 B (11.31 GiB), 1.41× the card**, because `A`'s own peak
+(6.26 GiB) fits alone but `H`'s (7.84 GiB) does not once `A`'s encoding is
+still held. The chunked arm's peak is **6.4× smaller**. This is the counted
+twin of CL1's measured result — one Mistral layer's hiding commit 15.82 →
+4.142 s, "3.82× purely by fitting", VRAM 5,182 MB flat with 37% headroom
+[MEASURED, one layer, `ZK60_FIVE_SECOND_PLAN.md` §3.B row CL1].
+
+**Add the round loop and the sentence changes.** The IR memo's
+round-loop-only figure is 4.83 GiB (all 23 slots' sumcheck tables as `Fp2`,
+with `A` and `H` counted as raw data) [COUNTED,
+`ZK60_SLOT_EXPRESSION_IR_DESIGN_CHECK.md` §10]. 1.63 + 4.83 = **6.46 GiB,
+80.8% of the card.** Under this project's VRAM rule — running out of VRAM
+freezes the whole WSL box, not just the process — the only sentence I am
+willing to write is:
+
+> **The hiding commitments of a 125M block fit an 8 GB card at a counted
+> peak of 1.78 GiB, provided the chunked arm is taken (it is, by default, at
+> this shape) and provided each commitment's scratch is returned to the pool
+> before the next commitment's is taken. Commitments *plus* the round loop
+> reach 6.46 GiB, 81% of 8,188 MiB, and that is a counted figure with no
+> measurement behind it and no margin for a fragmented pool.**
+
+The free order is the condition, not a note. Concretely: `d_coef` must drop
+before `d_enc` is taken (it does today, `cuda.rs:3695`); the chunk scratch
+must return to the pool between commitments; and the pool's best-fit
+`pool_take_min` (`cuda.rs:461-483`) must not be left holding four
+commitment-sized buffers. Note also that this same rule is what makes the
+resident arm's `HL_ZK_CHUNK=off` mode dangerous on the laptop: it is a
+strict reference mode that *refuses* to fall back, and at 125M it would ask
+for 7.84 GiB in one take.
+
+### 3.3 (b) The 32 GB card
+
+The 5090 is **not installed and the machine does not exist yet**
+(`ZK60_5090_LINUX_BRINGUP.md:3-8, 1270-1275`; the five-second plan's "could
+not find" item 7: "Any RTX 5090 measurement. The card is not installed"),
+and the 32 GB figure is `BLACKWELL_5090_RUNBOOK.md:21`. So everything here
+is a counted budget against a card nobody has measured.
+
+| what | bytes | % of 32 GB |
+|---|---:|---:|
+| the four commitments, chunked, commit-phase peak | 1,909,852,144 | 6.0% |
+| held to the openings, chunked | 1,753,614,336 | 5.5% |
+| the all-resident arm's peak (both encodings live) | 12,140,445,680 | 38% |
+| held to the openings, all-resident | 8,460,904,432 | 26% |
+| chunked holdings + the round loop's 4.83 GiB | 6,938,713,604 | 21.7% |
+| all-resident holdings + the round loop's 4.83 GiB | 13,646,003,700 | 43% |
+
+**So the interesting question on a 32 GB card is not "does it fit" but
+"should it chunk at all".** With 32 GB, both encodings can stay resident
+through the round loop for 26%, and the opening then reads its 256 columns
+straight out of `d_enc` instead of re-encoding from `d_data` + pads + coset
+powers. That is a real saving the chunked arm gives up — the lane already
+measured the CPU cost of the re-encode phase once (CL7 trimmed it 0.575 →
+0.470 s on one Mistral layer [MEASURED there]) — and on a 32 GB card the
+default `HL_GPU_CHUNK_BYTES = 1 GiB` threshold is simply the wrong number.
+I would not hard-code a new one: the threshold should be a fraction of
+*free* VRAM read at startup, and the resident arm should keep its
+allocation-failure fallback. **Even at 32 GB the peak must be named**, and
+the all-resident peak of 11.31 GiB plus the round loop's 4.83 GiB is
+16.14 GiB — half the card, before anything else in the pass.
 
 ## 4. The keyed kernels
 
-*pending*
+### 4.1 What the two kernels compute today
+
+Both are in `hashline/src/gpu/kernels.cu` on main at `78531ea`, over a
+shared `__device__` core.
+
+* **Flags** (`kernels.cu:455-459`): `B3_CHUNK_START 1`, `B3_CHUNK_END 2`,
+  `B3_PARENT 4`, `B3_ROOT 8`, `B3_MAX_DEPTH 24`. **There is no
+  `KEYED_HASH` constant and no `DERIVE_KEY_*` constant.**
+* **`b3_compress(cv, block, counter, block_len, flags, out)`**
+  (`:480-509`): `s[0..8] = cv`; `s[8..12]` = the first four IV words,
+  written inline; `s[12..14]` = the counter; `s[14] = block_len`;
+  `s[15] = flags`; 7 rounds; output `out[i] = s[i] ^ s[i+8]` — the
+  truncated 32-byte form, which is what `blake3::hash` returns.
+* **`b3_iv(cv)`** (`:474-477`) is the standard IV and is used at **three**
+  logical places: the chaining value each chunk starts from (`:538`,
+  `:1459`), the chaining value of a lazy-merge parent (`:529-531`,
+  `:1451-1453`) and the chaining value of a root-fold parent (`:565-567`,
+  `:1481-1483`).
+* **`k_hash_cols`** (`:582-590`): one thread per column, the whole column,
+  a private 24-level CV stack in local memory; multi-chunk by the standard
+  popcount rule. `leaves[j·8 + w]` is the `w`-th output word.
+* **`k_hash_cols_stream`** (`:1429-1498`): the same code with the CV stack
+  moved to global memory and the row range rebased by `row0`; the launch
+  holding the last row writes the leaf. Its flag lines are textually
+  identical to the resident kernel's (`:1463-1464` vs `:541-542`).
+* Launch: `LaunchConfig::for_num_elems(nn)` — 1,024 threads per block,
+  `ceil(nn/1024)` blocks, no shared memory.
+
+### 4.2 The minimal change to a keyed mode, checked against the crate
+
+The CPU path uses **blake3 1.8.7** (`zkp-core/Cargo.lock:12-15` and
+`hashline/Cargo.lock:22-25`, same checksum
+`6d9e454f…27ae`; the lane's locks are identical). I read the crate rather
+than repeating the lane's comment, and the comment is right but *incomplete
+in a way that matters*:
+
+* `KEYED_HASH = 1 << 4` = **16** (`blake3-1.8.7/src/lib.rs:200`).
+* `Hasher::new_keyed(key)` decodes the 32 key bytes as **eight
+  little-endian `u32`** (`platform.rs:477-488`) and calls
+  `new_internal(&key_words, KEYED_HASH)` (`lib.rs:1097-1099`) — so the key
+  words are the initial chaining value *and* `KEYED_HASH` is in the flags
+  of every compression.
+* `parent_node_output(left, right, key, flags)` sets
+  `input_chaining_value: *key` (`lib.rs:1022`), `counter: 0`,
+  `block_len: 64`, `flags: PARENT | flags`. **In keyed mode a parent node's
+  chaining value is the KEY, not the IV.**
+
+So the change is:
+
+1. add `#define B3_KEYED_HASH 16u`;
+2. pass the eight key words in (a kernel parameter or `__constant__`
+   memory, uploaded once) and use them **at all three `b3_iv` sites** —
+   chunk start, lazy-merge parent, root-fold parent;
+3. OR `B3_KEYED_HASH` into the flags of **every** compression, the chunk
+   blocks and the parents alike;
+4. leave `s[8..12]` alone: those stay the first four IV words in both modes.
+
+**The trap, stated plainly.** The lane's own instruction is "load the key
+words in place of `b3_iv` and OR in `KEYED_HASH`" (`pcs.rs:766-768`). There
+are three `b3_iv` sites per kernel, not one. A kernel that keys only the
+chunk-start site produces **the correct digest for every column short
+enough to be one BLAKE3 chunk** — at 8 bytes per row, any commitment of
+**128 rows or fewer** — and a wrong root for everything larger. A probe run
+only at small row counts would pass it. The existing `dev_hash_check`
+sweeps `rows = 1..=300` plus both sides of every chunk boundary up to 8,192
+(`hashline.rs:503-504`), so it *would* catch this — provided the keyed probe
+inherits that sweep rather than a new short one.
+
+### 4.3 Which keys the device needs — only one of the four
+
+This is the part that makes the change small. Of the three keyed hashes in
+§1, **only the column digest happens on the device**: the leaves are salted
+on the host (`pcs.rs:797`) and the tree is built on the host
+(`pcs.rs:798`), and the device returns unsalted column digests — the source
+says so in as many words, `cuda.rs:3598`: "column hashes (unsalted: the host
+salts the leaves as on the CPU path)". So the device needs
+`tag.column_key()` and nothing else; `tag.leaf_key()` and `tag.node_key()`
+never leave the host, and the transcript key never comes near the GPU.
+
+One key, 32 bytes, derived on the host by `blake3::derive_key(CTX_COLUMN,
+profile)` and uploaded once per process. The kernel must decode it as eight
+little-endian `u32`, the same way `platform::words_from_le_bytes_32` does.
+
+### 4.4 The probe, extended
+
+`dev_hash_check` is at `cuda.rs:2930-2945` (not 2783 — 2780 is
+`dev_commit_zk_from_probe`, the end-to-end hiding-commit probe). It hashes
+64 columns of LCG data at a caller-given row count on the device and
+compares against `zkp_core::pcs::hash_columns`, returning the mismatch
+count; the `hashline gpu-probe` subcommand (`hashline.rs:499-513`,
+`#[cfg(feature = "gpu-cuda")]`) sweeps the row counts, prints "blake3 checks
+RED" and `exit(1)` on any failure. **It exercises `k_hash_cols` only.**
+
+The keyed extension is a second comparison in the same shape: hash the same
+64 columns under a fixed key and compare against
+`zkp_core::pcs::hash_columns_keyed(&enc, rows, 64, Some(&key))`, over the
+same row sweep, with two negative controls that are as important as the
+positive one — the keyed device digest must **differ** from the unkeyed CPU
+digest, and a device digest under key `K1` must differ from the CPU digest
+under key `K2`. Without those, a kernel that silently ignored its key
+argument would pass a test that only compared keyed-to-keyed if the host
+also ignored it.
+
+`k_hash_cols_stream` has no dedicated probe of its own (it is covered
+indirectly by `dev_commit_check_chunked`, `cuda.rs:2522`). Given §4.2's
+trap, the keyed probe should cover it directly.
+
+### 4.5 Every launch site
+
+| kernel | lookup | launch | enclosing function | what it commits |
+|---|---|---|---|---|
+| `k_hash_cols` | `cuda.rs:2911` | `cuda.rs:2915` | `Gpu::hash_cols` | — (the one entry) |
+| | | called at `cuda.rs:2888` | `dev_commit_from` | plain resident commit |
+| | | called at `cuda.rs:2942` | `dev_hash_check` | the probe |
+| | | called at `cuda.rs:3744` | `dev_commit_zk_from` | **hiding resident commit** |
+| `k_hash_cols_stream` | `cuda.rs:1832` | `cuda.rs:1841` | `Gpu::commit_zk_chunked` | **hiding chunked commit (CL1)** |
+| | `cuda.rs:2267` | `cuda.rs:2279` | `Gpu::commit_chunked` | plain chunked commit |
+| | `cuda.rs:2319` | `cuda.rs:2377` | `Gpu::commit_chunked_upload` | plain chunked + pinned upload |
+
+Six launch sites, four of which are on a non-hiding path. A keyed mode must
+be *opt-in per call*, not a global switch: the non-hiding commits
+(`wcache`, the weight planes) are not tagged and must keep producing exactly
+the bytes they produce today.
+
+### 4.6 One thing the integrator should know before starting
+
+**The tagged path does not exist on main.** `zkp-core/src/hashtag.rs`,
+`commit_zk_owned_with_tag`, `hash_columns_keyed`, `salt_leaf_keyed`,
+`MerkleTree::build_keyed` and `verify_zk_tagged` are all in the lane
+worktree at `a8e4939` and none of them is in main's `zkp-core/src` at
+`78531ea`. So there is no "tagged commit declines the accelerator" site in
+main's tree to point a reviewer at; the decline is `pcs.rs:782-785` **in the
+lane**, and it arrives with the D19 integration. A keyed kernel written
+before that integration would have nothing to serve.
 
 ## 5. Blinding material on the device
 
-*pending*
+**This is the section the toy privacy statement scoped out, and nothing in
+it is a safety claim.** The statement's note of 2026-09-21 03:23 says
+exactly what is missing (`ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md`, quoted
+verbatim):
+
+> **(1) This statement covers the profile on the CPU path.** At this
+> untagged profile the commitment code still offers its column hashing to
+> the accelerator: **a build with the `gpu-cuda` feature and `HL_GPU=1` at
+> run time sends it to two hand-written CUDA BLAKE3 kernels, and blinding
+> rows and pads to device and pinned host memory.** … **That configuration
+> is not covered until the kernels' agreement with the CPU function is cited
+> to a gate by name and the lifetime of those buffers has been read.**
+
+Two obligations, then: *a named gate* (§6) and *a read of the buffers*
+(below). I have done neither — I have read the allocation sites and can say
+what the read must establish.
+
+### 5.1 What private bytes reach device memory, and for how long
+
+| bytes | private? | where | lifetime |
+|---|---|---|---|
+| the witness rows (`d_data`, `rows × n`) | **yes** — the block's activations | `Pooled`, uploaded by `dev_commit_zk` (`cuda.rs:3761`) | held in `DevCommit.data` **until the commitment is dropped**, i.e. past the openings |
+| the pad rows (`d_pads`, `rows × Q`) | **yes** — this is the blinding | raw `htod_sync_copy` (`cuda.rs:3634`), **not pooled** | on the chunked arm, **retained in `ZkReenc` until the opening** (`cuda.rs:1595-1602`) |
+| the coset powers (`d_pows`, `nn`) | no — public | raw (`cuda.rs:3636`) | retained with the pads |
+| the mask and proximity rows | **yes** | *inside* `d_data` — they are rows of `A`/`H` (`protocol.rs`, the `a_mask_base` loop) | as `d_data` |
+| `d_coef`, `d_coef2`, `d_enc` | **yes** — the encoding of private rows | `Pooled::take` / `take_min` | returned to the pool, **unscrubbed** |
+| the BLAKE3 CV state (`d_state`) | derived from private bytes | `Pooled`, zeroed on acquisition (`cuda.rs:1829`) | returned unscrubbed |
+| the salts | **NO — they never reach the device** | drawn on the host (`pcs.rs:778`), applied on the host (`pcs.rs:797`) | — |
+
+**Copied back to the host?** On the production commit path, only the
+`nn × 32` bytes of column digests and, at opening time, the sampled columns
+(`cuda.rs:1843`, `:2916`, `:1928`, `:2489`, `:2984`). Both are receipt
+material anyway. **One exception exists and must be named:** under
+`HL_GPU_HOST_HASH=1` (`cuda.rs:2878-2886`) the *whole* encoded matrix —
+`rows × nn × 8` bytes of private encoding — is copied back to the host with
+`dtoh_sync_copy` at `cuda.rs:2880`. That is an A/B switch on the non-hiding
+path, but it is the kind of thing the buffer review exists to find.
+
+**Zeroed on free?** No. `Pooled`'s `Drop` (`cuda.rs:503-509`) hands the
+slice back to a 64-entry free list (`pool_put`, `cuda.rs:451-458`) with no
+memset; allocation is a raw `cuMemAlloc` with no initialisation
+(`cuda.rs:446`, `:479`); and `pool_take_min` best-fits, so a later, smaller
+request gets a buffer **whose tail still holds the previous tenant's field
+elements** ("the extra tail is inert", `cuda.rs:459-461`). There are exactly
+three `memset_zeros` calls on the commit path and all three are on
+*acquisition* of the BLAKE3 state buffer, never on release. The codebase
+states its own invariant, twice (`cuda.rs:3113-3114`, `:3147-3149`):
+"Draining is value-neutral: a pooled buffer holds nothing live (every
+element a kernel reads is written first)". **That is a write-before-read
+argument, not an erasure argument**, and it is the right argument for
+*correctness*. Whether it is the right argument for this project's privacy
+statement is exactly what the integrator's buffer review must decide, and I
+am not deciding it here.
+
+### 5.2 What the buffer review must establish for the hash-layer argument to extend
+
+The hash-layer argument's conditions are C-H1…C-H8 (+C-H4′) in
+`ZK60_HASH_LAYER_AND_FS_LIFT.md` §2.5 — **not** in the run disposition,
+which carries the run-level rulings H-1…H-8 instead. Three of them bear
+directly on a device path, and one of them is already written as a gap:
+
+* **C-H8** — "no external/device commit path produces different leaves".
+  Status today: "**TRUE**: the block calls `commit_zk_owned` → the `Cpu`
+  backend … is never offered a device on this path", with the required
+  action "assert the store is `Store::Host` in the block profile's own test,
+  so a future device backend has to re-open this question deliberately.
+  **GAP for any future device path**." That sentence is about this memo. A
+  device hiding commitment *is* the future device path, and C-H8 is the
+  condition it must re-establish — by byte identity, not by inspection.
+* **C-H3** — "the salt is 32 bytes", true at the type level
+  (`salts: Vec<[u8; 32]>`). Unaffected: the salts never reach the device
+  (§5.1). This is the one condition a device path cannot break, and it is
+  worth saying, because it means the leaf-level blinding argument is
+  entirely host-side.
+* **C-H5** — "no salt or blinding value is reused across commitments or
+  proofs". A device path does not draw anything, so the draws are
+  unaffected; but the *pool* reuses buffers, and a review has to say that
+  reuse of a buffer is not reuse of a value. The write-before-read invariant
+  is what carries that, and it is asserted in comments rather than enforced.
+
+**On leaf/node domain separation, do not overclaim.** Under the legacy rule
+there is **no** domain separation between a salted leaf and an inner node —
+both are 64 untagged bytes, recorded as finding L-7 in
+`ZK60_HASH_LAYER_AND_FS_LIFT.md`: for hiding the missing bad event is priced
+at ≈2^-484.8; for **binding** it is "declared outside this memo … and
+**checked by nobody** — FLAGGED AND NOT CHASED". D19's tag is what removes
+it for tagged profiles (`salt_leaf_keyed`'s doc comment, `pcs.rs:686-690`,
+says so). A device path does not touch either hash, so it neither creates
+nor fixes this — but a memo about the device must not be read as saying the
+separation exists.
+
+### 5.3 What would REOPEN the toy statement
+
+The toy profile is CPU-only and legacy-ruled, and §1 of the statement lists
+the 125M and rung profiles as already out of scope. What would reopen the
+*toy statement itself*:
+
+1. **A toy proof produced with `HL_GPU=1`.** The statement's evidence — four
+   captures and both gates — was produced on the CPU, and the capture runner
+   strips every `HL_*` variable. A toy capture made on the device is outside
+   the statement until §6's gate exists.
+2. **Any change that lets the device see a salt.** Today it cannot; the
+   leaf-level argument rests on that.
+3. **Any change to the number or length of the salts**, including a
+   byte-saving lever: C-H3 is priced in §2.4 of the hash-layer memo at 16
+   and 8 bytes and may not be moved without redoing it.
+4. **A device path that returns *permuted* leaves** — see §1 step 5's
+   ordering trap. It would not be caught by "the proof verifies" if the
+   verifier were also changed, and it changes which salt lands on which
+   column.
+5. **Scrubbing, or not scrubbing, becoming load-bearing** — i.e. any claim
+   in the statement that rests on device buffers being erased. There is no
+   such claim today and none should be added without `cuMemsetD8` on
+   release and a test for it.
+6. **Enabling `HL_GPU_HOST_HASH=1` on a private path**, which copies the
+   whole private encoding back to the host (§5.1).
+
+None of the above is a finding that anything is unsafe. Each is a thing that
+has to be read.
 
 ## 6. Proving byte identity without deterministic receipts
 
