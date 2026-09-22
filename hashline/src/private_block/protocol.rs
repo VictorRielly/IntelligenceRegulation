@@ -279,16 +279,37 @@ fn determinant(a: Fp2, b: Fp2) -> Fp {
 
 /// Refusal logic with an injectable draw (deterministic negative controls); the live
 /// caller draws once from a CLONED PCS challenge prefix and never resamples.
+///
+/// **STAGE 36 — the read-only TEST OBSERVER** (the integrator's
+/// authorisation of 2026-09-22 07:25, reversing what ruling GS-2 declined
+/// in stage 23). The five `#[cfg(test)]` lines below are the whole of it:
+/// one that shadows `draw` with a counting wrapper, and one beside each of
+/// the three exits. They record HOW MANY challenges this call drew and
+/// WHICH exit it took, into `super::draw_observer`'s thread-local, and
+/// they record nothing else — no coefficient, no determinant, no state.
+/// A build without `cfg(test)` compiles none of them, so the production
+/// function is the one that was here before, statement for statement: not
+/// one existing line is restructured.
 pub(crate) fn check_opening_challenges(groups: &[usize], rows: usize, prox: usize, mut draw: impl FnMut() -> Fp2) -> Result<(), String> {
+    #[cfg(test)]
+    let mut draw = super::draw_observer::counting(&mut draw);
     for &count in groups {
         if (0..count).map(|_| draw()).any(|c| c.is_zero()) {
+            #[cfg(test)]
+            super::draw_observer::note_verdict(super::draw_observer::Verdict::ZeroGroupMember);
             return Err("zero group member coefficient; discard attempt".into());
         }
     }
+    #[cfg(test)]
+    super::draw_observer::note_groups_passed();
     let rho: Vec<Fp2> = (0..rows).map(|_| draw()).collect();
     if prox + 1 >= rows || determinant(rho[prox], rho[prox + 1]).is_zero() {
+        #[cfg(test)]
+        super::draw_observer::note_verdict(super::draw_observer::Verdict::DependentProximity);
         return Err("dependent proximity mask coefficients; discard attempt".into());
     }
+    #[cfg(test)]
+    super::draw_observer::note_verdict(super::draw_observer::Verdict::Accepted);
     Ok(())
 }
 

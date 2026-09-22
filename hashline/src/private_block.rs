@@ -286,6 +286,15 @@ mod slot_ir_tests;
 // one are compared on the same table vector at every definition.
 #[cfg(test)]
 mod s35_tests;
+// STAGE 36 (the integrator's authorisation of 2026-09-22 07:25): the
+// read-only TEST OBSERVER of the refusal replay, and the draw-accounting
+// test it unblocks. `protocol.rs` gains four `#[cfg(test)]` lines that call
+// into `draw_observer` and nothing else — the module holds the
+// thread-local, the session guard and the record type, so the production
+// file carries the hook and not the machinery. It is what ruling GS-2
+// declined in stage 23 and the file's owner has now allowed.
+#[cfg(test)]
+mod draw_observer;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
