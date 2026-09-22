@@ -2615,13 +2615,19 @@ else.
 
 | # | item | state |
 |---|---|---|
-| S1 | the defect, reproduced against the pinned bytes (failing first) | TODO |
-| S2 | the fix in `manifest_check`, and the two callers' handling of the refusal | TODO |
-| S3 | the tests: a single record, a list, absent / unreadable / neither, a manifest that disagrees | TODO |
-| S4 | the re-pin of the records of record, reason in the guard's own record | TODO |
-| S5 | the round-9d replay once more with the fixed tool, **no shim** | TODO |
-| S6 | the toy gate's seven modules and the record guard | TODO |
-| S7 | report §8.7 of the D22 record, and this ledger | TODO |
+| S1 | the defect, reproduced against the pinned bytes (failing first) | DONE — R9e.4, `failing_first_before.log` |
+| S2 | the fix in `manifest_check`, and the two callers' handling of the refusal | DONE — R9e.5, commit `92d0f82` |
+| S3 | the tests: a single record, a list, absent / unreadable / neither, a manifest that disagrees | DONE — R9e.5, eleven tests |
+| S4 | the re-pin of the records of record, reason in the guard's own record | DONE — R9e.6, `repin_diff.txt`, 0 unexpected |
+| S5 | the round-9d replay once more with the fixed tool, **no shim** | DONE — R9e.7, `vs9d.txt`, `leafdiff_*.txt`, 0 moved |
+| S6 | the toy gate's seven modules and the record guard | DONE — R9e.8, **187 OK**, guard 12 OK |
+| S7 | report §8.7 of the D22 record, and this ledger | DONE — §8.7 (§8.6 was taken; nothing renumbered) and this section |
+
+**Headline: the check now fires on the delivered bundle on its own, and zero
+figures moved.** The three guarded records differ from their committed bytes
+in the three tool digests and the clocks and in nothing else; the replay
+without the shim reproduces the shim's answer leaf for leaf and round 9d's
+A/B/N verdict figure for figure.
 
 ## R9e.2 Scope (hard, from the ruling)
 
@@ -2640,8 +2646,163 @@ else.
 
 ## R9e.3 Commands, logs and evidence
 
-TODO — `results/zk60_native_manifest_check_20260922/`.
+Evidence: `results/zk60_native_manifest_check_20260922/` (`README.md` there
+tabulates it). The five gate runs were detached under
+`flock /tmp/zk-heavy.lock` inside a
+`systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0` scope, with
+the suite queued on the same lock so that it self-started when they were
+done; markers `run.done` / `suite.done`.
 
-## R9e.4 Results
+| # | what | command | log |
+|---|---|---|---|
+| 1 | the defect, against the pre-fix bytes | `python3 results/zk60_native_manifest_check_20260922/failing_first.py` | `failing_first_before.log` (taken before the edit), `failing_first_after.log` |
+| 2 | re-pin, P10 record 1 | `zk60_native_privacy_gate.py --captures results/zk60_native_captures_20260919 --evidence results/zk60_native_privacy_gate --columns full --controls-on all` | `run.log` |
+| 3 | re-pin, P10 record 2 | the same, `--evidence results/zk60_native_privacy_gate_channels` | `run.log` |
+| 4 | re-pin, the joint-view record | `zk60_native_joint_view.py --captures results/zk60_native_captures_20260919 --evidence results/zk60_native_joint_view` | `run.log` |
+| 5 | the replay, no shim | `zk60_native_privacy_gate.py --captures <the integrator's directory> --evidence …/p10_as_delivered_fixed --columns full --controls-on all` | `run.log` |
+| 6 | the replay, no shim | `zk60_native_joint_view.py --captures <the integrator's directory> --evidence …/jointview_as_delivered_fixed` | `run.log` |
+| 7 | what the re-pin moved | `python3 …/repin_diff.py` | `repin_diff.txt` |
+| 8 | the replay against round 9d | `python3 …/vs9d.py` | `vs9d.txt` |
+| 9 | the A/B/N leaf diff, round 9d's own tool | `python3 results/zk60_native_d22_replay_20260922/leafdiff.py …` and `leafdiff_jv.py …` | `leafdiff_p10.txt`, `leafdiff_jointview.txt` |
+| 10 | the seven modules and the record guard | `suite.sh` | `suite.log` |
 
-TODO.
+The integrator's directory
+(`/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922/`,
+uncommitted in the main tree) was read-only throughout. Round 9d had to copy
+it to make the check fire; this round needed **no copy at all**, and the
+round-9d copy under `results/zk60_native_d22_replay_20260922/bundle/` stays
+untracked and untouched.
+
+## R9e.4 Results — S1, the defect, reproduced against the pinned bytes
+
+`failing_first.py` loads `scripts/zk60_native_jv_capture.py` **as it stood at
+`d837d50`, straight out of git**, so the pre-fix column keeps printing after
+the fix has landed; `failing_first_before.log` was taken before a byte was
+touched, and its two columns are identical, as they must be.
+
+| case | before | after |
+|---|---|---|
+| 1. the integrator's directory as delivered (`capture-validation.json`, `accepted` one record) | `{"validation_json": "absent"}` — **and the gate passes** | `checked` 1, `mismatch` `[]`, `source_commit` `4751b93…` |
+| 2. `validation.json`, `accepted` one record | `TypeError: string indices must be integers` | read, cross-checked |
+| 3. `validation.json`, unparsable | `JSONDecodeError`, naming neither file nor directory | `ManifestRefusal`, naming the file |
+| 4. `accepted` neither shape | `TypeError` | `ManifestRefusal`, naming the file and what it found |
+| 5. **control**: the four captures of record | `checked` 4, `mismatch` `[]` | **character for character the same** |
+| 6. a manifest that disagrees with the bundle | a `mismatch` list **neither gate folds into `ok`** | `ManifestRefusal`, naming the artifact |
+| 7. no validation file at all | `{"validation_json": "absent"}` | `ManifestRefusal`, naming the directory and both names it looked for |
+
+The silent skip in case 1 is caused by the **file name**, not by the single
+record: `manifest_check` knew one name. The single record is a second defect
+on the same function, and it is case 2. Round 9d's §8.5 saw the first; the
+ruling names the second; both are fixed.
+
+## R9e.5 Results — S2/S3, the fix, and what it deliberately does not change
+
+`manifest_check` reads the manifest under either name (`validation.json`,
+then `capture-validation.json`), reads `accepted` as a list **or** a single
+record, and raises `ManifestRefusal` — naming directory, file and reason —
+for absent, unreadable, not an object, `accepted` of neither shape, a record
+without `proof_sha256`, or any disagreement with the bundle. The one way past
+a missing manifest is `--no-validation-file`, whose declaration is written
+into the record; declaring absence when a manifest is present is itself a
+refusal. Both gates call the check **before** any analysis and exit **3** on
+a refusal, writing no record.
+
+Line counts against `d837d50`: `zk60_native_jv_capture.py` +112 / −11,
+`zk60_native_privacy_gate.py` +18 / −2, `zk60_native_joint_view.py` +18 / −2,
+`tests/test_zk60_native_joint_view.py` +241 / −1. The scripts' diff touches
+the manifest-check function, the two callers' imports, their one new flag and
+their refusal path, and nothing else.
+
+**Deliberately unchanged**: the shape of the returned record. A passing
+record still says `validation_json: "present"` without naming which of the
+two files was read, so that every record of record's manifest block stays
+byte-identical across this fix — which is what makes the re-pin provably a
+re-pin and nothing more. The name is in every refusal message and in the
+evidence. **One malformed shape is still refused without a name**: a manifest
+whose `artifacts` key is present but is not an object raises `AttributeError`
+— loud, no record written, so it cannot pass silently — and closing it would
+change the tool's bytes again and cost another re-take of three records, so
+it is left for the next re-take.
+
+Eleven tests, in `tests/test_zk60_native_joint_view.py` (the module that
+already owns this reader and one of the seven the toy suite runs): a single
+record read and cross-checked, synthetically and on the integrator's real
+bundle read-only; a list read, synthetically and on the four captures of
+record; absent, unreadable and neither-shape refused by name; three kinds of
+disagreement refused by name; the declaration recorded and a false
+declaration refused; and both gates returning 3 and writing no record. One
+of them is the load-bearing compatibility claim, machine-checked: the fixed
+function's answer on `results/zk60_native_captures_20260919/` equals
+`d837d50`'s answer on it, key for key.
+
+## R9e.6 Results — S4, the re-pin
+
+Three tool digests moved, so every record naming them was re-taken with the
+command in its own README:
+
+| tool | `d837d50` | now | why |
+|---|---|---|---|
+| `zk60_native_jv_capture.py` | `191f8bc9…` | `11f598d1…` | the fix |
+| `zk60_native_privacy_gate.py` | `c33a27fb…` | `abaa316d…` | the flag and the refusal path |
+| `zk60_native_joint_view.py` | `ca48c67a…` | `c66181aa…` | the same |
+
+| record | before | after | what moved |
+|---|---|---|---|
+| `results/zk60_native_privacy_gate/privacy_gate.json` | 226.7 s | **224.9 s**, four captures `ok` | 2 tool hashes + `seconds` |
+| `results/zk60_native_privacy_gate_channels/privacy_gate.json` | 233.8 s | **222.1 s**, four captures `ok` | 2 tool hashes + `seconds` |
+| `results/zk60_native_joint_view/joint_view.json` | 25.2 s | **20.7 s**, every stage `ok` | 2 tool hashes + `seconds` (including three per-stage clocks) |
+
+`repin_diff.txt` compares each with its own committed bytes at `d837d50` leaf
+by leaf: **0 unexpected differences**, and in particular each record's
+`manifest` block is **identical**. The reason is written into the guard's own
+record (`results/zk60_native_gate_record_refresh/README.md`), which now
+carries the table of every re-pin with its cause, and into each record
+directory's README.
+
+## R9e.7 Results — S5, the replay with no shim
+
+Both gates straight at the integrator's directory, nothing copied or staged:
+the manifest check **fires on its own** — `present`, `checked` 1, `mismatch`
+`[]`, `source_commit` `4751b93ff4566e16fe07c61bd23d4cc2352f9f0b` — P10 60.9 s,
+joint view 10.8 s, both `ok`.
+
+| comparison | differences | verdict |
+|---|---|---|
+| against 9d's **staged** runs (the shim) | `captures_dir`, `seconds`, the two tool hashes; **the manifest block identical** | the fix reproduces the shim's answer with no shim; the shim is retired |
+| against 9d's **as-delivered** runs | the manifest block (6 leaves: `absent` → the cross-check), `seconds`, the tool hashes | the fix changed the check and no analysis |
+| A/B/N against the records of record | P10 per-capture 99 / 99 / 67; joint view by stage 0 / 16 / 2 / 0 / 0 / 1 | **FIGURES MOVED: 0**, exactly round 9d's numbers |
+
+So every figure of §8.4 of the D22 record stands, now taken through a
+cross-check that actually ran.
+
+**R9d.10 item 1 is withdrawn**: the integrator need not rename its manifest
+or reshape `accepted`. The rest of that item is a preference, not a
+requirement — `privacy_review_complete` and `verifier_binary_sha256` at the
+top level would be read; inside `accepted` they come back `null`, here as in
+9d's staged run.
+
+## R9e.8 Results — S6, the suite
+
+`tests.test_zk60_native_{capture,gate_record,joint_view,mask_commit,privacy_gate,terminal_polys,small_model_groups}`,
+inside the 8 GiB scope: **Ran 187 tests in 208.5 s, OK (skipped=1, expected
+failures=1)**, marker `suite.done` = 0 — 176 in round 9d, and the eleven new
+ones are this round's. The one skip is the pre-existing one, not a new one:
+the test that reads the integrator's uncommitted bundle **ran** and passed.
+The record guard alone (`tests.test_zk60_native_gate_record`): **12 tests,
+0.066 s, OK** — the three re-taken records agree with their own grades, carry
+the counts of record, and were produced by the tools now in the tree.
+
+## R9e.9 What this round is NOT
+
+1. **It is not a privacy acceptance and establishes no privacy property.**
+   Both gates still write `privacy_property_established: false`; the seven
+   OPEN channels stay open; D8/D11, the joint LAW and the hash layer's hiding
+   are untouched.
+2. **No figure of record moved** — that is the point of the whole round, and
+   it is machine-checked three ways (the re-pin diff, the 9d comparison, the
+   A/B/N leaf diff).
+3. **It does not re-open D22, the pins over the Rust tree, or §§8.1–8.6 of
+   the D22 record.** It is one bookkeeping check in one Python tool.
+4. **It does not extend the gate to any new bundle shape** beyond the second
+   manifest name and the single `accepted` record. A bundle in a third shape
+   is now a refusal, which is the intended behaviour.

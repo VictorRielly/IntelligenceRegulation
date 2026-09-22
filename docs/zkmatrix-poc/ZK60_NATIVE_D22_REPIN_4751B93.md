@@ -837,3 +837,108 @@ to police, and, at that boundary, condition 2's obligation would bind exactly.
 * **The bundle is not committed here.** It is the integrator's, uncommitted
   in the main tree; only its digests are recorded (§8.1), so a later session
   can tell whether the files changed.
+
+### 8.7 The manifest cross-check's silent skip, fixed — 2026-09-22 (round 9e)
+
+(The security owner asked for this as "§8.6"; that number was already taken
+by the paragraph above, so it is §8.7 and nothing was renumbered.)
+
+§8.5's observation 1 was filed as a request to the other side — rename the
+manifest, reshape one key, "no tool changes on either side". The security
+owner ruled the other way, and the ruling is right: **a cross-check that
+skips itself without saying so is the defect**, wherever the bundle came
+from. Round 9e is that one fix. Evidence and commands:
+`results/zk60_native_manifest_check_20260922/`; ledger section R9e.
+
+**The defect, both halves.** `manifest_check` knew ONE file name,
+`validation.json`. The integrator's bundle carries its manifest under the
+name its capture runner writes, `capture-validation.json`, so the check
+returned `{"validation_json": "absent"}` and both gates ran to the end and
+**passed with their artifact-hash and accepted-list cross-check switched
+off**, with nothing in the record saying so. That is the silent skip, and it
+is what §8.5 saw. The single `accepted` record — the half the ruling names —
+is a second defect on the same function: a manifest whose `accepted` is one
+record rather than a list made the check raise `TypeError: string indices
+must be integers` from inside a dict literal, naming neither the file nor the
+directory; an unparsable file and an `accepted` of any other shape failed the
+same way. And a manifest that genuinely **disagreed** with the bundle
+returned a `mismatch` list that **neither gate folds into its `ok`** — so the
+gate passed on that too.
+
+**Failing first, kept.** `failing_first.py` loads the tool **as it stood at
+`d837d50`, straight out of git**, and runs seven cases against it and against
+the tool in the tree. `failing_first_before.log` was taken before a byte was
+touched, `failing_first_after.log` after. Case 1 is the integrator's real
+bundle, read-only: `{"validation_json": "absent"}` before, a cross-check with
+`checked` 1 and `mismatch` `[]` after. Case 5 is the control — the four
+captures of record — and its two columns are identical before and after,
+character for character.
+
+**The fix**, inside `manifest_check` and its two callers and nowhere else:
+either file name; `accepted` read as a list **or** a single record; and
+`ManifestRefusal` — naming the directory, the file and the reason — for
+absent, unreadable, not an object, `accepted` of neither shape, a record
+without `proof_sha256`, or any disagreement with the bundle. The one way past
+a missing manifest is for the caller to declare it (`--no-validation-file`),
+and the declaration is written into the record. Both gates call the check
+**before** any analysis and exit **3** on a refusal, writing no record: a
+bundle that cannot be cross-checked now costs a second and produces nothing,
+instead of four minutes and a green record with the check off.
+
+**The records of record keep passing, and it is machine-checked.** They are
+taken from `results/zk60_native_captures_20260919/`, which has a
+`validation.json` with a list `accepted` — the shape the fix leaves alone —
+and a test compares the fixed function's answer on that directory with
+`d837d50`'s answer on it, key for key. Their `manifest` blocks do not move.
+What did have to move is the re-pin: three tool digests, because the tool's
+bytes changed.
+
+| tool | at `d837d50` | now | why it moved |
+|---|---|---|---|
+| `zk60_native_jv_capture.py` | `191f8bc9…` | `11f598d1…` | the fix itself |
+| `zk60_native_privacy_gate.py` | `c33a27fb…` | `abaa316d…` | the flag and the refusal path |
+| `zk60_native_joint_view.py` | `ca48c67a…` | `c66181aa…` | the same |
+
+The three guarded records were re-taken with the commands in their own
+READMEs and compared leaf by leaf with their committed bytes
+(`repin_diff.txt`): **the only differences are those three tool hashes and
+`seconds`.** The reason is recorded in the guard's own record
+(`results/zk60_native_gate_record_refresh/README.md`), as every re-pin before
+this one was.
+
+**The round-9d replay, once more, with no shim.** Both gates were run
+straight at the integrator's directory with the fixed tool — no copy, no
+`validation.json` built for them, nothing staged — and **the manifest check
+fired on its own**: `validation_json` `present`, `checked` 1, `mismatch`
+`[]`, `source_commit` `4751b93ff4566e16fe07c61bd23d4cc2352f9f0b`, read out of
+`capture-validation.json` under its own name. P10 60.9 s, joint view 10.8 s,
+both `ok`.
+
+| comparison | what differs | verdict |
+|---|---|---|
+| 9e vs round 9d's **staged** runs (where the shim made the check fire) | `captures_dir`, `seconds`, the two tool hashes — **and the manifest block is identical, leaf for leaf** | the fixed tool reproduces, with no shim at all, exactly what the shim produced. The shim is retired |
+| 9e vs round 9d's **as-delivered** runs (where the check was skipped) | the manifest block, from `{"validation_json": "absent"}` to the cross-check itself (6 leaves), plus `seconds` and the tool hashes | nothing else moved: the fix changed the check and no analysis |
+| 9e vs the records of record, A/B/N (`leafdiff_p10.txt`, `leafdiff_jointview.txt`) | P10 per-capture subtree 99 / 99 / 67 as in §8.4; joint view 0 / 16 / 2 / 0 / 0 / 1 by stage, as in §8.4 | **FIGURES MOVED: 0**, every count, rank, dimension and control exactly as §8.4 records them |
+
+So §8.4's table stands unchanged, now taken through a cross-check that
+actually ran: 2,816,472 bytes; 28 channels 11 / 2 / 8 / 7, 0 failures; ranks
+72 / 20 / 4 / 4; `q_pad`, `pad_count`, `sampled_columns` 256; `rank_F` 34;
+stage 4's 4 / 4 / 2 / 2 / 4; the M opening's 2 of a predicted 2 with fibre
+1164; ten controls firing on A, B and N.
+
+**One line of R9d.10 is withdrawn.** Item 1 asked the integrator to rename
+its manifest and reshape one key. It need not: the gate reads the bundle as
+delivered. The other half of that item stands as a preference rather than a
+requirement — `privacy_review_complete` and `verifier_binary_sha256` at the
+top level would be read; inside `accepted` they come back `null`, here as in
+9d's staged run.
+
+**What this does not touch.** No figure of record, no channel, no control, no
+pin over the Rust tree, and nothing in §§8.1–8.6 above. It is one bookkeeping
+check in one Python tool; it is not a privacy acceptance and it establishes
+no privacy property. One malformed shape is still refused without a name: a
+manifest whose `artifacts` key is present but is not an object raises
+`AttributeError` — loud, and no record is written, so it cannot pass
+silently, but it does not name the file. Closing it changes the tool's bytes
+again and so costs another re-take of all three guarded records; it is left
+for the next time those records are re-taken for another reason.
