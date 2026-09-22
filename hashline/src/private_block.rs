@@ -303,6 +303,17 @@ mod s36_tests;
 // integrated with it.
 #[cfg(test)]
 mod p36_preread_tests;
+// STAGE 0.5 OF THE DEVICE-COMMITMENT PLAN (ruling DC-G(1) of
+// `docs/zkmatrix-poc/ZK60_HIDING_COMMITMENT_ON_DEVICE_DISPOSITION.md`): the
+// measurement, never made before, of how a hiding commitment's CPU seconds
+// split between row ENCODING and column HASHING, at 125M and at rung-W14. A
+// harness over the production functions on synthetic rows; it changes no
+// production line and proves nothing about the protocol. Its one assertion
+// is the gate that makes its clocks comparable — the parts' Merkle root
+// equals the enclosing call's. Report:
+// `results/zk60_stage05_commit_split/LEDGER.md`.
+#[cfg(test)]
+mod stage05_commit_split;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
