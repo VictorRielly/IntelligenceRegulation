@@ -278,3 +278,27 @@ written except where noted.
     cannot yield a verifying proof, and is outside §2's quantifier. The elapsed
     time of a refused attempt is a timing channel and is, like every timing
     channel, outside this statement (§6, by decisions D20 and D21).
+11. **§4 the sampler row and §9 items 2, 5 and 9 — the counts are now MEASURED
+    by an accessor, not only counted (added 2026-09-22 08:55).** With the
+    integrator's authorisation of 07:25 that day, the lane
+    (`zk60-private-block-125m` at `29cba9a`, stage 36) added read-only,
+    test-only observers to the generator and the transcript — derived from
+    their existing counter state, compiled only under a test feature, every
+    added line behind a `cfg` gate (proved by a script), the release build and
+    the frozen toy receipt unchanged. On the toy profile they measure
+    **327,052 field draws per proof** — the figure of §4 and item 2 exactly —
+    plus 12,288 salt draws, as 5,396,672 bytes on the block's generator (659
+    refills) and 229,376 bytes on the two endpoint generators; **1,863 live
+    squeezes** of the transcript; and the refusal replay re-issuing **1,027
+    points in four calls, all accepted, consuming no generator bytes** (item
+    9). Two honest limits: absorbs cannot be counted from existing state, so
+    the 317 absorbs of the query table stay a count; and the two endpoint
+    generators were measured on a replica of their two call sites (pinned by
+    a source test), not on the endpoint objects themselves. The measurement
+    is on the lane's tree, which differs from the pinned main tree by the
+    integrator's later host changes and by this delta; **the six pinned
+    files this delta moves (`zkp-core/src/rng.rs`, `transcript.rs`, both
+    `Cargo.toml`, `private_block/protocol.rs`, `private_block.rs`) will be
+    re-read by the security owner at integration, and this statement's pin
+    set updated then — until then it pins main as before.** Condition 6's
+    "three fresh reads" is asserted by the same test.
