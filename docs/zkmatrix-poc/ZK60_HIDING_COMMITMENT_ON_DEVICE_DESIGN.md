@@ -727,16 +727,211 @@ has to be read.
 
 ## 6. Proving byte identity without deterministic receipts
 
-*pending*
+A proof draws its pads and salts from `ZkRng::from_os` (`rng.rs:30-42`), so
+**two honest proofs of the same witness differ in almost every byte** and
+"the receipt is unchanged" is not available as an end-to-end test. That is
+an accepted condition, not a defect. What *is* available is four different
+kinds of check, and together they cover the contract of §1 step by step.
 
-## 7. What it does not buy
+### (a) The deterministic parts, CPU against GPU
 
-*pending*
+Everything in §1 except steps 1-2 is a deterministic function of its
+inputs, so each can be compared directly. This is the CL1 pattern and it
+already exists for the unkeyed case.
+
+| what | how | precedent |
+|---|---|---|
+| **the encoding** (step 5) | a fixed row set, fixed pads, fixed coset powers; compare the `rows × nn` field elements | `dev_commit_zk_from_probe` (`cuda.rs:2780-2824`) already compares leaves *and* opened columns against `encode_row_zk` + `hash_columns` |
+| **the column digest** (step 6) | fixed columns, fixed key; compare the 32-byte digests, plus the two negative controls of §4.4 | `dev_hash_check` (`cuda.rs:2930-2945`), swept over `rows = 1..=300` and both sides of every chunk boundary to 8,192 |
+| **the chunked digest** (step 6, `k_hash_cols_stream`) | the same, forced chunked, over the row counts and rates CL1 used — `inv_rate` 2/4/8, rows 129/255/256/257/384/400, `q_pad` 1/16/64/256, `log_cols` 12 and 14 | `dev_commit_zk_check_chunked`, 6/6 in the CL1 record, with a negative control that the *non-ZK* opening must disagree |
+| **the salted leaf and the tree** (steps 7-8) | host-only; the test is that they *stayed* host-only | — |
+
+Two additions I would insist on, because the existing gates were written for
+an unkeyed kernel:
+
+1. **The row sweep must be inherited, not re-invented.** §4.2's trap is
+   invisible below 129 rows.
+2. **An independent reference for the keyed digest.** The lane already
+   cross-checks the eight derived keys against Python's `blake3` module
+   (`hashtag.rs:166-168`). The same should be done for a keyed *column
+   digest* at one fixed input, so the device's target is a third
+   implementation and not the Rust function it is supposed to match. This
+   is the project's standing "generic honest witness / independent
+   reference" rule and it is cheap here.
+
+### (b) End to end, with what can and cannot be asserted
+
+* **What CAN be byte-identical: a seeded fixture.** `ZkRng::new(seed,
+  domain)` is deterministic and exists precisely for this — its doc says
+  "the CPU/GPU parity gate needs the prover's randomness to be a function
+  of the seed" (`rng.rs:6-8`). CL1's own evidence was of this kind: with
+  `HL_ZK_CHUNK=1` the frozen fixtures' digests were unmoved (`zk`
+  `021485e4f80ec695`, 87,228,528 B; `zkv3` `40eb54795e023c77`,
+  87,697,008 B) [MEASURED, CL1 record]. A keyed device path owes the same:
+  **a seeded fixture whose receipt digest and length are identical on the
+  CPU and on the device.**
+* **What CANNOT: an OS-seeded proof.** For those the assertions are
+  (i) the receipt **verifies under the unchanged CPU verifier** at every
+  registered shape, (ii) the receipt **length** is unchanged — 16,421,048 B
+  at rung-W14, 40,783,352 B at 125M — since length is a function of the
+  shape alone (§2), and (iii) previously committed receipts still verify.
+* **The toy must not move.** `hashline-zk-mr1/private-block-t32-poc/1` is
+  the frozen legacy profile and the subject of the accepted privacy
+  statement. It stays on the **legacy (unkeyed) rule and on the CPU**, byte
+  for byte, unless that is separately ruled; a device-produced toy capture
+  is outside the statement (§5.3 item 1). The natural enforcement is the
+  one C-H8 already asks for: **assert `Store::Host` in the block profile's
+  own test**, so a device backend has to re-open the question deliberately.
+* **`rung-W14` is the first end-to-end shape**, and §3.2's finding applies:
+  it takes the **resident** arm at all four commitments by default, so a
+  gate run there alone exercises `k_hash_cols` and never
+  `k_hash_cols_stream`. The chunked arm needs `HL_ZK_CHUNK=force` (or 125M).
+
+### (c) The decline switch flips only on a passing probe
+
+Today a tagged commitment declines unconditionally (`pcs.rs:782-785`). The
+condition for changing `Some(_) => None` into an offer should be a
+**runtime** fact, not a build-time one:
+
+* at backend construction, run the keyed probe at three row counts — one
+  single-chunk (≤128), one multi-chunk, one straddling a chunk boundary —
+  under the profile's own column key, against `hash_columns_keyed`;
+* on any mismatch or error, decline **for the process** and print a decline
+  in the shape of the two that already exist (`gpu/mod.rs:650`, `:663`, the
+  exact strings the logs and `tests/test_hashline_cl_profile.py` expect);
+* never accept because the feature compiled. A kernel is compiled by NVRTC
+  at run time from `kernels.cu` (`cuda.rs:15,24`), so the thing that runs is
+  not the thing that was reviewed unless the probe says so.
+
+The keys are public functions of public strings (D19 ruling T-7), so a
+startup probe under a real profile key discloses nothing.
+
+### (d) The independent check: the Python gate
+
+The gate's hash layer re-hashes the opened columns under keys **it derives
+itself**, from the profile string, without calling the Rust. A capture
+produced on the device must pass it **unchanged** — no new tolerance, no
+new field, no "device" flag it has to know about. That is the only check in
+this list that is not the prover marking its own homework, and it is the
+one the 03:23 scope note is asking for when it says the kernels' agreement
+must be "cited to a gate by name".
+
+## 7. What it does not buy [MODEL]
+
+**Every number in this section is an Amdahl ceiling computed from one
+measured run. None of it is a prediction, and none of it is a time for the
+8B pass.** The measured run is `q28-m125-final-dense.log` in the lane
+worktree, which labels itself "ONE run on a shared box, a diagnostic and
+not a receipt".
+
+The measured split of one 125M block, 17.401 s wall [MEASURED]:
+
+| phase | s | % |
+|---|---:|---:|
+| `A: commit` + `H: commit` (the two `pcs::commit_zk_owned` calls) | **6.500** | 37.4% |
+| the 23 masked sumcheck bodies (the round loop) | **6.594** | 37.9% |
+| the five openings | 0.647 | 3.7% |
+| the rest of the commit half (witness planes, LogUp inverses, …) | 1.997 | 11.5% |
+| everything else (table builds, extension rounds, setup, frame) | 1.663 | 9.6% |
+
+The Amdahl arithmetic [MODEL]:
+
+| if this cost zero | wall | cut |
+|---|---:|---:|
+| the two commitments | 10.901 s | −37.4% |
+| the round loop | 10.807 s | −37.9% |
+| **both** | **4.307 s** | −75.2% |
+
+and the checker's own ceiling with every CPU lever taken is 13.44 s, "of
+which the two commitments are 60%" [MODEL,
+`ZK60_SLOT_EXPRESSION_IR_DISPOSITION.md` I-9].
+
+Four things that arithmetic does **not** say.
+
+1. **The commitments cannot cost zero on a device.** They still upload
+   `rows × n` words and download `nn × 32` bytes, and on the chunked arm
+   they move the re-encode into the opening — the 0.647 s row, which the
+   device would also have to serve.
+2. **1.997 s of the commit half is not the commitment.** LogUp helper
+   inverses alone are 1.079 s. A device commitment leaves that where it is.
+3. **The 6.500 s is one sample.** Across the three logged 125M runs
+   `A: commit` is 3.017-3.552 s and `H: commit` 3.431-3.923 s, so the pair
+   is 6.500-7.475 s; the lane's honest sentence is "one 125M block proves in
+   17.4-19.4 s on this laptop". A ~2 s run-to-run band on a shared box is
+   wider than several of the levers being compared.
+4. **125M is not 8B.** 8B is 32 layers of a much larger block, and — in the
+   five-second plan's own words — "There is **no 32-layer 8B P3 pass on a
+   GPU**, anywhere, in any log. There is no 8B pass of any kind that
+   includes attention." The plan's CL1 row calls that "the most important
+   unmeasured result in the repository. Every 8B private number predates
+   it." **No number in this memo is a time for the 8B pass, and this memo
+   does not produce one.**
 
 ## 8. A staged plan
 
-*pending*
+Byte identity at every stage, each stage green before the next opens. The
+stages are ordered so that the first failure is cheap.
+
+| # | what | owner | the gate that closes it |
+|---|---|---|---|
+| **0** | **The D19 integration lands.** `hashtag.rs` and the six keyed functions reach main; without them there is no tagged commit to accelerate (§4.6). | integrator | the lane's existing D19 tests green in main's tree |
+| **1** | **A keyed-mode conformance harness at the small shapes** — reference vectors for the keyed column digest at fixed inputs and a fixed key, cross-checked against Python's `blake3`, so the kernel's target is a third implementation. CPU-only, no device, no `gpu/*`. | the lane can offer this | the vectors reproduce in Rust and in Python |
+| **2** | **`k_hash_cols` keyed**: `B3_KEYED_HASH`, the key words at all three `b3_iv` sites, the flag on every compression, opt-in per call. | integrator | `dev_hash_check` extended to keyed mode over its **existing** row sweep, with the two negative controls of §4.4; and the unkeyed sweep still green |
+| **3** | **`k_hash_cols_stream` keyed** — the CL1 arm. | integrator | `dev_commit_zk_check_chunked` extended to keyed mode at CL1's rates and row counts, run with `HL_ZK_CHUNK=force` (rung-W14 does not chunk on its own, §3.2) |
+| **4** | **The decline switch becomes a runtime probe** (§6c), still defaulting to decline. | integrator | a forced-failure test: a deliberately wrong key must make the process decline and say so |
+| **5** | **Seeded-fixture byte identity** end to end: one fixture's receipt digest and length identical CPU and device, on the legacy rule and on a tagged profile. | integrator | the digests, recorded the way CL1 recorded its two |
+| **6** | **The device-buffer review** — §5.2's three conditions and the 03:23 note's second obligation. | integrator | a written answer to C-H8 that does not rest on inspection alone |
+| **7** | **A capture from the device path for the Python gate**, which must pass unchanged (§6d). | the lane can offer this | the gate green on a device-made capture |
+
+**Risks, named.**
+
+* **The VRAM freeze.** Running out of VRAM freezes the whole WSL box, not
+  the process — three freezes and about nine hours lost on 2026-09-04. So
+  **every device test on the 8 GB card is one attempt at a time, detached,
+  under the heavy lock, with a `.done` marker**, and no script may chain two
+  GPU passes. §3.3's 81% figure for commitments-plus-round-loop is exactly
+  the region where this bites.
+* **The 5090 box does not exist.** Every 32 GB number in §3.3(b) is a
+  budget against an uninstalled card. Nothing in this plan should be
+  sequenced behind it.
+* **A keyed kernel bug that produces a valid-looking root is caught, and
+  here is why.** `verify_zk_tagged` recomputes, from the *opened column
+  bytes in the receipt*, `salt_leaf_keyed(hash_column_keyed(col,
+  column_key), salt, leaf_key)` with the CPU's own functions and the tag it
+  derives from the profile **it** trusts, then checks the Merkle path
+  against the root (`pcs.rs:1248-1251`). It separately checks that
+  `Σ ρ_i·col_i` equals the CPU encoder's value at column `j`
+  (`:1252-1262`). So a wrong column digest fails the path; a permuted leaf
+  array fails the path; a wrong *encoding* fails the codeword check even
+  though its leaves are self-consistent. The failure mode is a proof that
+  does not verify — loud, not silent. **The one way to lose that** is to
+  change the verifier to match the kernel, which is why the CPU verifier
+  must stay untouched through all seven stages and why §6(d)'s independent
+  Python gate is in the list.
+* **Six launch sites, four of them non-hiding.** A keyed mode introduced as
+  a global switch rather than per call would move the bytes of the
+  weight-plane commitments, which are not tagged and are frozen.
 
 ## 9. What this memo is not
 
-*pending*
+* **It is not a patch, and no production code changed.** Six commits, all
+  under `docs/zkmatrix-poc/` and `results/zk60_device_commit/`: this memo
+  and two counting scripts with their output.
+* **It is not an acceptance of anything.** Not of the device path's
+  privacy, not of the keyed kernel's correctness, not of the toy
+  statement's extension to the GPU. §5 says what has to be read; it does
+  not say the answer.
+* **It is not a measurement.** Nothing was built, nothing was run on a GPU,
+  no timing was taken. Every counted number comes from the two scripts, and
+  every measured number is quoted from a committed log with its path.
+* **It is not a prediction.** §7's figures are Amdahl ceilings on one
+  measured run on a shared box, and the memo contains no time for the 8B
+  pass — the pass this whole line exists to make fast, and the one that has
+  never been run on a GPU at all.
+* **It does not settle who does the work.** The kernels, the launch sites,
+  the probe and the buffer review are the integrator's by the standing
+  split; §8 marks the two stages the lane could offer instead.
+* **It is not complete on the device side.** I read the allocation sites,
+  not the run. The lifetime question in §5.1 is answered from code and
+  comments; the 03:23 note asks for it to be *read*, and a reader with the
+  card in front of them may find something these lines do not show.
