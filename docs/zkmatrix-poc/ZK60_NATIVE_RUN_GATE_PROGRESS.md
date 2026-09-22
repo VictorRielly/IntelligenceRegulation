@@ -3045,3 +3045,65 @@ what the re-pin is for.
    residual), and one malformed manifest shape in `manifest_check` is still
    refused without a name (round 9e's residual). Both are cheapest at the
    next re-take of the three records.
+
+# ROUND 9g (2026-09-22 14:21 PDT) — the documentation-consistency sweep: every stale sentence carries a dated correction IN PLACE
+
+**Opened 2026-09-22 14:21 PDT** on the same lane, same sole writer
+(`/home/victor/wt-zk60-jointview`, branch `zk60-native-jointview`, tip
+`442634b`). **Documents and this ledger only** — no tool, no test and no
+record is edited in this round, and the record guard is run at the end to
+show that nothing pinned moved. Nothing here is a privacy acceptance and no
+sentence here establishes a privacy property.
+
+## R9g.0 Why there is a round 9g
+
+Rounds 9 … 9f each closed something an earlier round had written down as
+open, and each wrote the closure in its OWN section. The sentences the
+closure falsifies are still standing where they were first written, and a
+reader who opens §10 or §12 or an early ledger round has no way to know
+that §13, §14.10 or R9e answered it. The security owner's instruction is
+that **every such sentence carries a dated correction in place, with the
+original text kept visible** — no silent rewrite, and a pointer to the round
+that closed it.
+
+The seven items this round sweeps, each named by the owner:
+
+| # | the stale claim | the round that closed it |
+|---|---|---|
+| 1 | "not pinnable from a bundle" / "pinned by nothing" | stage 27 (round 9 §13.5, 38 files), round 9b (`pad.rs`, P-F1), round 9f (the two Cargo manifests) |
+| 2 | nothing measured at 125M; the 125M channel table is 2/5/4/17 | round 9c (28 at 10/5/4/9, every control family firing) |
+| 3 | §13.7's M9-3 row; "every control … fired at 125M unchanged" | round 9b §14.10 (P-F2), then round 9c |
+| 4 | R9d.10 item 1, "the integrator should rename its manifest" | withdrawn by round 9e |
+| 5 | the suite's 4 GiB cap; the suite is N tests | round 9c (8 GiB, 530), 9d/9e/9f (the running counts) |
+| 6 | the private-attention profile's three unpinned files | **nothing** — checked against the current tables and still open |
+| 7 | the P-rulings cited for the bilinear slots; gap GS-13 | the S19-F1 repair (lane stage 20, rounds 4–6); GS-13 **still open** |
+
+## R9g.1 Status
+
+| # | item | state |
+|---|---|---|
+| S1 | this ledger section | IN FLIGHT |
+| S2 | item 1 — the pin sentences, occurrence by occurrence | IN FLIGHT |
+| S3 | item 2 — the 125M sentences and the channel table | IN FLIGHT |
+| S4 | item 3 — M9-3 and "every control … unchanged", everywhere it repeats | IN FLIGHT |
+| S5 | item 4 — R9d.10 item 1's withdrawal, visible at the original sentence | IN FLIGHT |
+| S6 | item 5 — the memory cap and the suite counts | IN FLIGHT |
+| S7 | item 6 — the private-attention profile's present pin status | IN FLIGHT |
+| S8 | item 7 — the P-rulings for slots 08/09, and where GS-13 stands | IN FLIGHT |
+| S9 | the final grep, and the sentences owed to the MAIN TREE | IN FLIGHT |
+| S10 | the record guard, showing nothing pinned moved | IN FLIGHT |
+
+## R9g.2 Method (the owner's, followed literally)
+
+For each item: grep the branch's documents, list **every** occurrence with
+its line number below, decide per occurrence — **correct**,
+**historical-leave-with-date**, or **already corrected** — apply it, and
+record the decision here. A correction is always the original sentence kept
+verbatim plus a block of the form
+
+> *(CORRECTED &lt;date time&gt;: … — see round N / §…)*
+
+Main-tree documents (`/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/`)
+are read-only for this lane. Where one of them carries the same stale
+sentence, the exact proposed replacement is written into §R9g.11 below for
+the security owner to apply.
