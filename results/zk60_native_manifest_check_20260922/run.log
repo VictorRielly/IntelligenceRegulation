@@ -1,0 +1,53 @@
+Running scope as unit: run-r429534edadbe4aff8442b1c2e51e51b3.scope
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_manifest_check_20260922
++ S=/home/victor/wt-zk60-jointview/scripts
++ R=/home/victor/wt-zk60-jointview/results
++ C=/home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919
++ AS_DELIVERED=/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922
++ date
+Tue Sep 22 10:32:14 PDT 2026
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_privacy_gate.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate --columns full --controls-on all
+40083e7ac8f3f6c7 block: ok
+7d334e069c84f0c1 block: ok
+6c5e83fd1b2d8c16 attention: ok
+c26d1f05754be35c attention: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json (224.9 s)
++ echo 'repin_p10 exit=0'
+repin_p10 exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_privacy_gate.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels --columns full --controls-on all
+40083e7ac8f3f6c7 block: ok
+7d334e069c84f0c1 block: ok
+6c5e83fd1b2d8c16 attention: ok
+c26d1f05754be35c attention: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json (222.1 s)
++ echo 'repin_channels exit=0'
+repin_channels exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_joint_view
+stage1_transcript_replay: ok
+stage2_commitment_side_joint_view: ok
+stage3_masking_commitment_view: ok
+stage4_stacked: ok
+stage5_zero_witness_gate: ok
+stage6_negative_controls: ok
+stage7_terminal_polynomial_port: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_joint_view/joint_view.json (20.7 s)
++ echo 'repin_jointview exit=0'
+repin_jointview exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_privacy_gate.py --captures /home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_manifest_check_20260922/p10_as_delivered_fixed --columns full --controls-on all
+10b9d4be3c0af4a4 block: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_manifest_check_20260922/p10_as_delivered_fixed/privacy_gate.json (60.9 s)
++ echo 'p10_as_delivered_fixed exit=0'
+p10_as_delivered_fixed exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py --captures /home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_manifest_check_20260922/jointview_as_delivered_fixed
+stage1_transcript_replay: ok
+stage2_commitment_side_joint_view: ok
+stage3_masking_commitment_view: ok
+stage4_stacked: ok
+stage5_zero_witness_gate: ok
+stage6_negative_controls: ok
+stage7_terminal_polynomial_port: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_manifest_check_20260922/jointview_as_delivered_fixed/joint_view.json (10.8 s)
++ echo 'jointview_as_delivered_fixed exit=0'
+jointview_as_delivered_fixed exit=0
++ date
+Tue Sep 22 10:41:14 PDT 2026

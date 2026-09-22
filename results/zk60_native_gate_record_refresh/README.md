@@ -84,3 +84,27 @@ follows. A tool edited without re-running the gate now turns the suite red.
 `scratch/` is a working copy of the current tool's output, kept so the
 comparison above can be re-read without re-running the gate. It is not a
 record of anything.
+
+## The re-pins, each with its reason
+
+The pinned hashes are not literals in a table: each committed record carries
+the `tool_sha256` map of the tools that produced it, and the guard compares
+that map with the tools now in the tree. So a re-pin is a **re-take of the
+record with the documented command**, never an edited key, and the rule is
+that a re-pin has to name the tool bytes that moved and why. Every one so
+far:
+
+| date | tools whose bytes moved | why | evidence |
+|---|---|---|---|
+| 2026-09-20 | `zk60_native_privacy_gate.py`, `zk60_native_mask_commit.py` (new), `zk60_native_jv_cfs.py` | commit `d360466` ported M's row layout and closed M's three OPEN channels; one of the two records had never been re-taken and the other was stale in one key | this directory (above) |
+| **2026-09-22 (round 9e)** | `zk60_native_jv_capture.py` (`191f8bc9…` → `11f598d1…`), `zk60_native_privacy_gate.py` (`c33a27fb…` → `abaa316d…`), `zk60_native_joint_view.py` (`ca48c67a…` → `c66181aa…`) | the manifest cross-check **skipped itself silently** on a delivered bundle whose manifest is named `capture-validation.json` and whose `accepted` is one record (round 9d, `ZK60_NATIVE_D22_REPIN_4751B93.md` §8.5 observation 1, §8.7). `manifest_check` now reads either name and either shape and **refuses by name** where the cross-check cannot be made; the two gates take the declaration flag and exit 3 on a refusal. The gates' own bytes moved only because each lists the other's file in its `TOOLS` table | `results/zk60_native_manifest_check_20260922/` |
+
+**What the 2026-09-22 re-pin did NOT move.** The three records were re-taken
+with the commands in their own READMEs and compared leaf by leaf with their
+committed bytes at `d837d50` (`repin_diff.txt` in that directory): the only
+differences are the three `tool_sha256` entries above and `seconds`. In
+particular each record's `manifest` block is **identical**, because the
+directory they are taken from has always had a `validation.json` with a list
+`accepted` — the shape the fix leaves alone. A test pins that: the fixed
+function's answer on that directory is compared, key for key, with
+`d837d50`'s answer on it.

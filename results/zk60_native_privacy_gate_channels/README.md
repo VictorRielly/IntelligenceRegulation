@@ -17,6 +17,21 @@ is a privacy acceptance and nothing here establishes a privacy property.**
 > hash and in nothing else. `gate_with_M.log` below is the original 221.8 s
 > run of `d360466`. **No number quoted in any report changed.**
 
+> **2026-09-22 (round 9e): `privacy_gate.json` was RE-TAKEN, and only the
+> clock and three tool digests moved.** The toy gate's manifest cross-check
+> was fixed — it used to skip itself silently on a bundle whose manifest is
+> named `capture-validation.json` or whose `accepted` is one record, and it
+> now refuses by name — so the bytes of `zk60_native_jv_capture.py` and of
+> the two gates that list it changed, and every record naming them had to be
+> re-taken. The documented command reproduced this record leaf for leaf apart
+> from those three `tool_sha256` entries and `seconds` (233.8 s → **222.1 s**,
+> four captures `ok`, marker `0`); the manifest block is **identical**. The
+> comparison is `results/zk60_native_manifest_check_20260922/repin_diff.txt`,
+> the reason is in `results/zk60_native_gate_record_refresh/README.md`, and
+> the reading is §8.7 of
+> `docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md`. **No number quoted in
+> any report changed.**
+
 | file | what it is |
 |---|---|
 | `privacy_gate.json` | the P10 gate's record AFTER the masking commitment M was ported: 28 channels, **11 CONSTRUCTED / 2 DERIVED / 8 ARGUED / 7 OPEN** on every one of the four captures, with M's own stage (`masking_commitment_M_opening`) and M's three controls |

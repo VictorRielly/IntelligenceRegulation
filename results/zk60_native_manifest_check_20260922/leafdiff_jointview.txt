@@ -1,0 +1,61 @@
+new    : results/zk60_native_manifest_check_20260922/jointview_as_delivered_fixed/joint_view.json
+record : /home/victor/wt-zk60-jointview/results/zk60_native_joint_view/joint_view.json
+
+== 1. the record, outside the per-capture lists ==
+  /stage2_commitment_side_joint_view/pad_block_at_the_full_budget/capture
+    record '40083e7ac8f3f6c7'
+    new    '10b9d4be3c0af4a4'
+  /stage2_commitment_side_joint_view/pad_block_exact_rank_cross_check/capture
+    record '40083e7ac8f3f6c7'
+    new    '10b9d4be3c0af4a4'
+  /stage2_commitment_side_joint_view/pad_block_exact_rank_cross_check/distinct_columns
+    record 246
+    new    238
+  /stage2_commitment_side_joint_view/pad_block_exact_rank_cross_check/exact_rank_of_pad_block
+    record 246
+    new    238
+  /stage3_masking_commitment_view/m_pad_block_exact_rank_cross_check/capture
+    record '40083e7ac8f3f6c7'
+    new    '10b9d4be3c0af4a4'
+  /stage3_masking_commitment_view/m_pad_block_exact_rank_cross_check/distinct_columns
+    record 246
+    new    252
+  /stage3_masking_commitment_view/m_pad_block_exact_rank_cross_check/exact_rank_of_a_row_pad_block
+    record 246
+    new    252
+  /stage6_negative_controls/altered_capture_bytes_break_the_replay/per_capture/len
+    record 4
+    new    1
+  /stage6_negative_controls/derived_mask_evaluation_controls/len
+    record 4
+    new    1
+  /stage6_negative_controls/stage4_joint_controls/one_pad_fewer_than_the_distinct_opened_columns/what
+    record "A's pad count set to 245 against 246 distinct opened columns"
+    new    "A's pad count set to 242 against 243 distinct opened columns"
+
+seconds, record 20.7   new 10.8
+manifest, record : {"checked": 4, "mismatch": [], "privacy_review_complete": false, "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75", "validation_json": "present", "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"}
+manifest, new    : {"checked": 1, "mismatch": [], "privacy_review_complete": null, "source_commit": "4751b93ff4566e16fe07c61bd23d4cc2352f9f0b", "validation_json": "present", "verifier_binary_sha256": null}
+captures, new    : [{"json_bytes": 9251420, "json_sha256": "e8d3c55bb16e4784e4873fb2683841096b813ff1264e2e23fdde6f71f43dd527", "profile": "hashline-zk-mr1/private-block-t32-poc/1", "proof_sha256": "10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b", "slots": 23, "source_commit": "4751b93ff4566e16fe07c61bd23d4cc2352f9f0b"}]
+
+A = 40083e7ac8f3f6c7   B = 7d334e069c84f0c1   N = 10b9d4be3c0af4a4
+
+== 2. stage by stage ==
+stage1_transcript_replay: A/B 0 leaves differ, A/N 0, B/N 0, MOVED 0
+stage2_commitment_side_joint_view: A/B 16 leaves differ, A/N 16, B/N 10, MOVED 0
+stage3_masking_commitment_view: A/B 2 leaves differ, A/N 2, B/N 2, MOVED 0
+stage4_stacked: A/B 0 leaves differ, A/N 0, B/N 0, MOVED 0
+stage5_zero_witness_gate: A/B 0 leaves differ, A/N 0, B/N 0, MOVED 0
+stage7_terminal_polynomial_port: A/B 1 leaves differ, A/N 1, B/N 1, MOVED 0
+
+== 3. FIGURES THAT MOVED, all stages: 0 ==
+
+== 4. the stage verdicts and the named figures ==
+  stage1_transcript_replay                 ok=True
+  stage2_commitment_side_joint_view        ok=True
+  stage3_masking_commitment_view           ok=True
+  stage4_stacked                           ok=True
+  stage5_zero_witness_gate                 ok=True
+  stage7_terminal_polynomial_port          ok=True
+  stage6_negative_controls                 ok=True
+  whole gate                               ok=True  privacy_property_established=False

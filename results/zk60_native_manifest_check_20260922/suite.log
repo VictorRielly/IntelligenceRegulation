@@ -1,0 +1,53 @@
+Running scope as unit: run-reed3a5bfc3d243a4867e3872c6a3e4a0.scope
++ cd /home/victor/wt-zk60-jointview
++ date
+Tue Sep 22 10:41:14 PDT 2026
++ tail -20
++ python3 -m unittest tests.test_zk60_native_capture tests.test_zk60_native_gate_record tests.test_zk60_native_joint_view tests.test_zk60_native_mask_commit tests.test_zk60_native_privacy_gate tests.test_zk60_native_terminal_polys tests.test_zk60_native_small_model_groups
+.....s......./home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....................................................................................................................................................................x.........
+----------------------------------------------------------------------
+Ran 187 tests in 208.499s
+
+OK (skipped=1, expected failures=1)
++ echo 'toy suite exit=0'
+toy suite exit=0
++ python3 -m unittest -v tests.test_zk60_native_gate_record
++ tail -25
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_every_record_agrees_with_its_own_grade (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_carries_the_counts_of_record (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_was_produced_by_the_tools_now_in_the_tree (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_is_the_reports_channel_table (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_names_the_records_it_pins (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_records_are_ok_and_claim_no_privacy_property (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_a_changed_byte_in_any_newly_pinned_file_is_refused_by_name (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+One byte flipped in EVERY path-pinned file, one at a time, in a ... ok
+test_an_unchanged_tree_with_the_path_pins_still_passes (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The control for the test above: the same throwaway tree with ... ok
+test_every_pin_is_at_the_bytes_in_this_tree (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The whole widened table passes on the tree as it stands. ... ok
+test_the_fixture_path_is_named_and_not_pinned (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The three files reached only by the public fixtures are recorded ... ok
+test_the_pin_table_covers_exactly_the_established_path (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+Neither direction is allowed to drift: a file added to the path ... ok
+test_the_two_pin_tables_agree_where_they_overlap (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+Four files are pinned by BOTH this tool and ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.066s
+
+OK
++ echo 'record guard exit=0'
+record guard exit=0
++ date
+Tue Sep 22 10:44:43 PDT 2026

@@ -21,6 +21,22 @@ acceptance and nothing here establishes a privacy property.**
 > `results/zk60_native_gate_record_refresh/README.md` and in §15 of
 > `docs/zkmatrix-poc/ZK60_NATIVE_JOINT_VIEW.md`.
 
+> **2026-09-22 (round 9e): `privacy_gate.json` was RE-TAKEN, and only the
+> clock and three tool digests moved.** The toy gate's manifest cross-check
+> was fixed — it used to skip itself silently on a bundle whose manifest is
+> named `capture-validation.json` or whose `accepted` is one record, and it
+> now refuses by name — so the bytes of `zk60_native_jv_capture.py` and of
+> the two gates that list it changed, and every record naming them had to be
+> re-taken. Re-running the documented command reproduced this record leaf for
+> leaf apart from those three `tool_sha256` entries and `seconds` (226.7 s →
+> **224.9 s**, four captures `ok`, marker `0`); the manifest block itself is
+> **identical**, because this directory's captures always carried a
+> `validation.json` with a list `accepted`. The comparison is
+> `results/zk60_native_manifest_check_20260922/repin_diff.txt`, the reason is
+> in `results/zk60_native_gate_record_refresh/README.md`, and the reading is
+> §8.7 of `docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md`. **No number
+> quoted in any report changed.**
+
 | file | what it is |
 |---|---|
 | `privacy_gate.json` | the gate's record: per capture, the model's sizes, the two fixed inputs' preimages with their verification counts and fibre dimensions, the masking commitment's two accountings, the `channels` array (one entry per channel of the privacy case's §2, each with a status), the grade, and the negative controls |
