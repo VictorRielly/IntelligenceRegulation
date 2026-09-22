@@ -2,6 +2,10 @@
 name = "hashline"
 version = "0.1.0"
 edition = "2021"
+# Explicit, not implied by the edition (pre-read P36-3): under resolver v1 a
+# dev-dependency's feature unifies into the release build, and the
+# `test-observers` accessors of zkp-core would ship. v2 keeps them out.
+resolver = "2"
 description = "U-PERF3 lane UU: hash-based small-prime-field prover/verifier for the 125M FFN int8 statement (comparison row vs the lattice line)"
 
 [lib]
