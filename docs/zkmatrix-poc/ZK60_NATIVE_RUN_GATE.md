@@ -3075,6 +3075,23 @@ unchanged, and round 9 adds three that could not exist before. Each is
 shown to PASS on the honest bundle first; nothing on disk is written and the
 record carries the bundle's file digests before and after.
 
+> **CORRECTED 2026-09-21 (round 9b, §14.10) and again 2026-09-22 14:21
+> (round 9g).** The opening sentence was **too strong when written**: it
+> was true only of the families a pass actually carried through. Round 7's
+> P-1 … P-6 fired in `m125-dense-full` and round 8's masking controls in
+> `m125-dense-controls`'s stage 12, but the TERMINAL family and the
+> RUN-CONTROL family RAISED in both 125M control passes (`dense-controls`,
+> `dense-controls2`) — finding M-F3 — so no pass had carried them at 125M
+> when this was written. **Round 9c closes it**: `dense-everything` landed
+> (twice), every one of its thirteen stages RAN, all nine terminal controls
+> fire, and the channel table is the full 28 at 10 / 5 / 4 / 9. Two
+> controls still do not fire at 125M and each says why in the record —
+> **CT-4** needs a pre-stage-15 bundle passed with `--old` and the 125M
+> driver was given none (skipped with its reason, not faked), and **CH-3**
+> substitutes the 125M profile's own tag, which at 125M is the identity, so
+> no refusal can exist. See §15.1 item 5, §15.2 and ledger R9c.4. The
+> sentence above is kept as round 9's.
+
 | control | what moves | what fires |
 |---|---|---|
 | **M9-1** *(new)* | one array reference's byte range moved by 8 bytes in memory — the same length, the same element type, real bytes of the same `arrays.bin` | the loader REFUSES BY NAME on the SHA-256 the reference itself carries. This is the control for the one new trust assumption `/5-run` introduces |
@@ -3094,6 +3111,24 @@ record carries the bundle's file digests before and after.
 > of the two.
 | **M9-2** *(new)* | one entry of one opened column, moved by one, in memory | that column's leaf no longer authenticates under the bundle's own derived keyed rule — one column of 2,304, and no other |
 | **M9-3** *(new)* | each domain that does NOT pad at 125M, made to look padded to the port, one at a time | its host slot refuses **by name**, with the draws it consumes and the draws the capture declares in the message. Finding M-F1's own control, and it **does not exist at any development shape** — which is why rounds 1–8 could not run it |
+
+> **THE M9-3 ROW ABOVE IS WITHDRAWN — finding P-F2 (round 9b, §14.6), and
+> here is where it stands as of 2026-09-22 14:21 (round 9g).** When round 9
+> wrote that row **M9-3 had never fired**: it read `index.geom`, which a
+> `PlaneIndex` does not have, so it reported itself inapplicable, and in
+> both 125M passes the run-control stage raised before reaching it. There
+> was no record in which it fired, and the quoted refusal message is what
+> **CT-9** produces, not M9-3. Round 9b repaired the control and verified
+> it at rung-P2, where the same three domains are unpadded. **Round 9c then
+> fired it at 125M for the first time since the repair, in all three
+> directions (F, Kv, T)**, inside `dense-everything`. Its `ok` is still
+> **false**, for the reason §14.7 wrote down before that pass landed: M9-3
+> flips the whole pad STATE, which the public-table count catches one step
+> earlier, so it cannot produce the draw-count message its own criterion
+> demands — CT-9 produces that message. **The criterion is what is wrong,
+> not the control**, and re-writing it (or retiring M9-3 in favour of CT-9)
+> is ledger R9c's open item 2. Nothing in the row above is rewritten; see
+> §14.6, §14.10, §15.1 item 6 and §15.2.
 
 **FINDING M-F3: three controls of rounds 1, 5 and 8 were written at
 `L = 3`, and at `L = 2` they CRASHED.** The first pass with the whole
@@ -4234,6 +4269,18 @@ at all**. They are the first thing the next round re-takes.
 (round 9b: 507; the 23 new ones are the slot-IR module and the runpins
 test that asserts finding E32-F1). **It needed `MemoryMax=8G`, and that
 is this section's other result.**
+
+> *(AS OF 2026-09-21 (round 9c), dated 2026-09-22 14:21 (round 9g). **530
+> is still the last measurement of the WHOLE `test_zk60_native*.py`
+> suite** — rounds 9d, 9e and 9f ran only the seven-module TOY subset, and
+> two of them added tests inside that pattern (9e +11, 9f +17), so the
+> whole-suite figure has not been re-taken and 530 is a floor rather than
+> the count today. The current, measured figures are the toy subset at
+> **204 tests OK in 210.0 s** and the record guard alone at **29 tests
+> OK** (round 9f, R9f.8). **`MemoryMax=8G` is the standing cap** from round
+> 9c onward; the one 4G run since is round 9d's toy subset, which peaks at
+> 553 MB and says so. The 4G/8G table below is round 9c's measurement and
+> is not re-taken here.)*
 
 | run | cap | outcome | peak RSS |
 |---|---|---|---:|

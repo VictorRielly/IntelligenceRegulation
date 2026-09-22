@@ -482,6 +482,14 @@ The pin file was **not** touched, because no count moved.
 `suite_after.done` = 0. It was 290 before this task; the three new tests
 are §4.1's guards on the widened pin check.
 
+*(AS OF 2026-09-20, dated 2026-09-22 14:21 (round 9g): 293 is this page's
+figure on the day and is **not the suite today**. The whole
+`test_zk60_native*.py` suite was last measured at **530** (round 9c,
+2026-09-21) and needed `MemoryMax=8G`, which is the standing cap since; the
+figures re-taken after that are the toy gate's seven modules — **204 tests,
+210.0 s** — and the record guard alone — **29 tests** — both in §8.8 below.
+No suite figure on this page is the current one except §8.8's.)*
+
 ## 6. The RUN gate's pins
 
 The run gate (`scripts/zk60_native_run_gate.py`, `zk60_native_rg_*.py`) is
@@ -828,6 +836,18 @@ integrator: name it `validation.json`, make `accepted` a list, and lift those
 two keys to the top level, as `results/zk60_native_captures_20260919/validation.json`
 does. (The check was made to fire here, by staging, and it passes: `checked`
 1, `mismatch` `[]`.)
+
+*(CORRECTED 2026-09-22 14:21 (round 9g): two sentences of this observation
+are withdrawn. **"Nothing here is wrong and no tool needs changing on either
+side" was wrong** — a check that skips itself silently is this gate's
+defect, not a naming disagreement, and round 9e fixed it here: `manifest_
+check` now REFUSES BY NAME when it finds no manifest, and reads
+`capture-validation.json` with a single `accepted` record under its own
+name. The delivered bundle was replayed again with **no shim**, the check
+fired on its own, and **zero figures of record moved** (§8.7 below). So the
+**ask of R9d.10 item 1 is withdrawn**: the integrator need not rename its
+manifest or reshape `accepted`. What remains is a preference — the two keys
+at the top level would be read; inside `accepted` they come back `null`.)*
 
 **Observation 2 — M's pad margin is the tightest yet seen.** On the new
 capture the masking commitment opens 252 distinct columns against its 256

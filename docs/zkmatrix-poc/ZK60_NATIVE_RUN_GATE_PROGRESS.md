@@ -1942,11 +1942,34 @@ development shape every domain pads, so the control has nothing to perturb
 there and is skipped by name — which is exactly why finding M-F1 waited for
 this round.
 
+*(CORRECTED 2026-09-21 (round 9b, finding P-F2) and re-stated 2026-09-22
+14:21 (round 9g): **when this was written M9-3 had never fired.** It read
+`index.geom`, which a `PlaneIndex` does not have, so it reported itself
+inapplicable rather than perturbing anything, and in both 125M passes the
+run-control stage raised before reaching it — so there was no record in
+which it fired, at any shape, and the refusal message report §13.7
+attributed to it is **CT-9's**. Round 9b repaired it and verified it at
+rung-P2 (§R9b.7); round 9c fired it at 125M in all three directions inside
+`dense-everything` (R9c.4). Its `ok` is still false because its own
+criterion asks for a draw-count message it cannot produce — see R9c's open
+item 2. Also stale in the sentence above: report §13.7's "Every control of
+rounds 1–8 that the shape admits is fired at 125M unchanged" was true only
+of the families a pass carried through, which is finding M-F3's story; the
+terminal and run-control families did not land at 125M until round 9c.)*
+
 ## R9.9 Results — N6, the records and the report
 
 Seven sentences of the report that said nothing can be or has been measured
 at 125M now carry a dated correction in place (§5, §9.11, §11.8, §11.10,
 §12.8, §12.10 and §2.3's `n = 1,024`). Nothing is rewritten.
+
+*(EXTENDED 2026-09-22 14:21 (round 9g): that sweep missed four sentences of
+the same kind — report §6.7, §7.9, §8.11 and §13.8's own "until it lands no
+125M record carries the whole table" — and two of the corrections it wrote
+(at §11.8 and §11.10) went stale inside round 9 itself when the full-arm
+pass landed. All six now carry their own dated block, and §13.9's table
+carries a pointer to them. R9g.4 lists every occurrence with its
+decision.)*
 
 ## R9.10 IN FLIGHT at the close — read the markers, then integrate
 
@@ -1961,7 +1984,7 @@ should do is `ls *.done`, read the exit codes, and integrate.
 |---|---|---|
 | `zero-full` | **LANDED**: the arm in 1,293.8 s (dense: 1,292.7), all seven exhibited, 8,256,579 entries / 0 differing / 1,792 leaves; masking 32,918 / 0 / 512; stage 13 **8,289,497 / 0 differing / 2,304 leaves**, four couplings respected, C1 128 pairs all data rows. Every figure differs from the dense bundle's by exactly **7,157**, the sampled-column difference | integrated in report §13.8, with **finding M-F4** beside it |
 | `dense-everything` | ONE 125M record carrying every stage | the only record that can read **28 at 10 / 5 / 4 / 9**; report §13.8 says explicitly that no record does until it lands |
-| `dense-controls2` | the CT / GQ / C1–C6 / CH families after the M-F3 repair | the count of controls that fire at 125M, which §13.7 currently gives only for M9-1..3 and round 8's M1–M6 |
+| `dense-controls2` | the CT / GQ / C1–C6 / CH families after the M-F3 repair | the count of controls that fire at 125M, which §13.7 currently gives only for M9-1..3 and round 8's M1–M6 — *(CORRECTED 2026-09-22 14:21, round 9g: `dense-controls2` CRASHED, exit 1, and delivered no control set; the families landed instead in `dense-everything`, round 9c)* |
 | `dense-final`, `zero-final` | the two (a)–(d) records re-taken on FROZEN bytes | these supersede the committed `m125-dense.json` / `m125-zero.json` for their tool pins; every figure must be identical |
 | `refresh` + `diff.sh` | **LANDED**: the ten development records re-run and leaf-diffed — **0 UNCLASSIFIED on all ten**, 2,855–4,140 identical leaves each, every difference one of nine tool hashes, one to three wall clocks, the seven `array_store` leaves or the five `shared_files` leaves. Not one rank, disclosed dimension, challenge count, slot check, control figure or channel count moved | integrated in report §13.8b. `refresh2` is a redundant second pass on the same frozen bytes |
 | `tests_native_all` | **LANDED**: **474 tests** (round 8: 432), one skip, one expected failure; five failures and one error, every one an earlier round's exact-set assertion that round 9 widened on purpose (report §13.8c) — all six now updated with the reason beside each | integrated; `tests_final` and `tests_run_gate_all` re-run them after the repairs |
@@ -2382,7 +2405,15 @@ round is always one round behind; round 9d should build its list from
 what is on disk.
 
 **The suite: 530 tests, OK** (round 9b: 507), one skip and one expected
-failure — **at `MemoryMax=8G`**. At 4G it is killed, and the measurement
+failure — **at `MemoryMax=8G`**.
+*(AS OF 2026-09-21, round 9c — dated here 2026-09-22 14:21 (round 9g).
+**530 is the last measurement of the WHOLE `test_zk60_native*.py` suite**
+and rounds 9d–9f have added tests to modules inside that pattern without
+re-running it: round 9e added 11 and round 9f 17. The figures that ARE
+current are the seven-module toy subset, **204 tests OK in 210.0 s**, and
+the record guard alone, **29 tests OK** — both round 9f, R9f.8. Anyone
+quoting a suite size should say which suite and as of when.)*
+At 4G it is killed, and the measurement
 says why: the suite minus this round's slot-IR module passes at 4G with a
 peak of 5,054 MB, because most of that is the RECLAIMABLE file-backed
 array stores; the module adds a few hundred MB of ANONYMOUS allocation
@@ -2420,6 +2451,14 @@ protocol doing its job.
    cap, split the suite, or make the bundle-reading tests share one
    loader — but decide it, and do not let a kill be read as a failure
    again.
+   *(DECIDED — the cap was raised; noted in place 2026-09-22 14:21 (round
+   9g). Every suite run since has used
+   `systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0`: round
+   9f's seven-module toy suite ran there (R9f.8), as did round 9e's. Round
+   9d's run is the one exception and it says so — it used 4G deliberately,
+   because the toy subset peaks at 553 MB. **8G is the standing cap for the
+   whole `test_zk60_native*.py` suite; 4G is enough for the toy subset
+   alone.** The suite was not split and the loader was not shared.)*
 5. **More than two blocks**, at any of the four development shapes that
    now carry 125M's padded-domain set.
 6. **The joint LAW** (O-R2 / G-R4) and **the hash layer's HIDING**
@@ -2631,6 +2670,15 @@ byte in any pinned file refused by name.
 Round 9c's 4 GiB single-process ceiling is untouched by this round: the toy
 subset peaks well under it (553 MB RSS observed), and no 125M work was run.
 
+*(CORRECTED 2026-09-22 14:21 (round 9g): "Round 9c's 4 GiB ceiling" reads
+backwards. Round 9c is the round that **found the whole suite had outgrown
+4 GiB** and ran it at `MemoryMax=8G`; 4 GiB is the cap this round chose for
+the toy subset, which is enough for it. From round 9e onward the toy subset
+is run at 8G too, so **8G is the standing cap** and the 4G here is round
+9d's own choice, correctly justified by the 553 MB peak. The 176-test
+figure is likewise as of 2026-09-22 10:09; it is 187 after round 9e and
+**204** after round 9f, with the record guard at **29**.)*
+
 ## R9d.9 What this round is NOT
 
 1. **It does not extend D22 to any other profile, tree or device path.** One
@@ -2668,6 +2716,20 @@ subset peaks well under it (553 MB RSS observed), and no 125M work was run.
    `privacy_review_complete` and `verifier_binary_sha256` to the top level, as
    `results/zk60_native_captures_20260919/validation.json` does. No tool
    changes on either side.
+
+   *(**WITHDRAWN 2026-09-22 (round 9e), noted here in place 2026-09-22
+   14:21 (round 9g).** The ask should never have gone to the other side: the
+   defect was this gate's, and round 9e fixed it here. `manifest_check` now
+   **REFUSES BY NAME** instead of skipping itself when it cannot find a
+   validation manifest, it reads a `capture-validation.json` with a single
+   `accepted` record as delivered, and the round-9d replay was re-run with
+   **no shim** — the check fires on its own and **zero figures of record
+   moved** (R9e.7, `vs9d.txt`). So **the integrator need not rename its
+   manifest or reshape `accepted`.** What is left of this item is a
+   preference and not a requirement: `privacy_review_complete` and
+   `verifier_binary_sha256` at the top level would be read, while inside
+   `accepted` they come back `null`. See R9e.5, R9e.7 and §8.7 of the D22
+   record.)*
 2. **To the security owner, the gap of R9d.4.** The statement should say in
    one line that D22 accepts a profile and that its evidence is the four
    captures of 2026-09-19 by digest, so "the accepted receipt" cannot be read
@@ -3262,3 +3324,49 @@ CONSTRUCTED, five DERIVED, four ARGUED, nine OPEN — the same table rung-K4
 and rung-P2 read. Records that ran only some stages read 2 / 5 / 4 / 17 or
 10 / 3 / 4 / 11, and that is bookkeeping about which stage ran, not a
 disagreement about a channel.
+
+## R9g.5 Item 3 — M9-3, and "every control … fired at 125M unchanged"
+
+Round 9b corrected both in its OWN section (§14.10). The owner's point is
+that the reader of §13.7 never sees §14.10. Both now carry the correction
+where the claim is made, and round 9c's closure is carried with it.
+
+| # | where | decision |
+|---|---|---|
+| 1 | report §13.7, the M9-3 row | **CORRECTED in place** — a WITHDRAWN block under the row: M9-3 had never fired (it read `index.geom`, absent from `PlaneIndex`), the quoted message is CT-9's, it was repaired in 9b and fired at 125M in 9c in all three directions, and its `ok` is still false because its own criterion is what is wrong |
+| 2 | report §13.7, the opening sentence | **CORRECTED in place** — true only of the families a pass carried through; the terminal and run-control families did not land at 125M until round 9c's `dense-everything`. CT-4 and CH-3 still do not fire there and each says why |
+| 3 | report §13.1, the round-9 headline | **checked, no correction owed** — its seven items make no claim about the control families; item 7's "P-1 … P-6 all firing" is true and was true in `m125-dense-full` |
+| 4 | ledger R9.8, "Three new ones, and the third could not exist before: **M9-3** …" | **CORRECTED in place**, with the same two facts |
+| 5 | ledger R9.10's `dense-controls2` row ("the count of controls that fire at 125M") | **CORRECTED in place** — that pass crashed and delivered no control set |
+| 6 | report §14.6, §14.7, §14.10; ledger R9b.7, R9c.4 | **already the correction** |
+| 7 | report §15.1 item 6, §15.2's decomposition table | **already current** — M9-3 fires, `ok: false`, with the reason |
+
+**What is still open and is named as open:** M9-3's ok-criterion (R9c.9
+item 2 — weaken it to what the mechanism tests, or retire M9-3 in favour of
+CT-9) and CH-3's self-report at 125M (R9c.9 item 3 — it should call itself
+inapplicable rather than `fires: false`). Round 9g decides neither.
+
+## R9g.6 Item 4 — R9d.10 item 1, withdrawn where it was written
+
+| # | where | decision |
+|---|---|---|
+| 1 | ledger R9d.10 item 1 ("Name it `validation.json`, make `accepted` a list …") | **CORRECTED in place** — a WITHDRAWN block at the item: the defect was this gate's, round 9e made `manifest_check` refuse by name, the delivered bundle replayed with no shim and zero figures moved, so the integrator need not rename anything. What is left is a preference |
+| 2 | D22 record §8.5, observation 1 ("Nothing here is wrong and no tool needs changing on either side … that is worth one line of agreement with the integrator") | **CORRECTED in place** — the same withdrawal, at the sentence that first made the ask |
+| 3 | ledger R9e.0 and R9e.7; D22 record §8.7 | **already the correction** |
+
+## R9g.7 Item 5 — the memory cap and the suite counts
+
+The rule applied: a figure stated as CURRENT is corrected; a figure stated
+inside a dated round section as that round's measurement is left and marked
+as of its date.
+
+| # | where | the figure | decision |
+|---|---|---|---|
+| 1 | report §15.11 / ledger R9c.8, "The suite: 530 tests, OK … at `MemoryMax=8G`" | 530 | **MARKED as of 2026-09-21** — it is still the last measurement of the WHOLE `test_zk60_native*.py` suite, and rounds 9e and 9f added 11 and 17 tests inside that pattern without re-running it, so 530 is a floor and not the count today. The current measured figures — toy subset **204**, record guard **29** — are named beside it |
+| 2 | ledger R9c.9 item 4, "The suite's 4 GiB cap … decide it" | — | **CORRECTED** — decided: the cap was raised, `MemoryMax=8G` is standing, the suite was not split and the loader not shared |
+| 3 | ledger R9d.8, "Round 9c's 4 GiB single-process ceiling is untouched by this round" | 176 | **CORRECTED** — it reads backwards (9c is the round that raised the cap to 8G); the 4G here is round 9d's own choice for the toy subset and is correctly justified at 553 MB. 176 marked as of 2026-09-22 10:09, with 187 and 204 after |
+| 4 | D22 record §5.3, "Ran 293 tests … OK" | 293 | **MARKED as of 2026-09-20**, with the current figures named |
+| 5 | D22 record §8.4 / ledger R9d.3, the `MemoryMax=4G` scope of round 9d's replay | — | **historical and correct** — that run really used 4G and had reason to; left alone |
+| 6 | report §6.6, §7.8, §8.10, §9.10, §10.7, §11.9, §12.9, §13.8c, §14.11 (232, 261, 290, 335, 184, 214/390, 256/432, 474, 507) | — | **historical, already dated** — each sits inside its own round's numbered section, each says which round it grew from, and none is stated as the count today. Left alone |
+| 7 | report §15.11's 4G/8G table, ledger R9c.8's reading of it | — | **correct as written** — a measurement of that day's suite, not a claim about today's cap |
+| 8 | D22 record §8.8 / ledger R9f.8, 204 + 29 | — | **current**, and now the figure the other entries point at |
