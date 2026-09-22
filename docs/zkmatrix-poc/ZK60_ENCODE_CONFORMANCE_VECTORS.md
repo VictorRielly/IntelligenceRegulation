@@ -254,7 +254,24 @@ opens.
 
 ### (c) The first Rust test of the harness is owed
 
-§6 is the exact test. It belongs on the review branch as
+**DONE — 2026-09-22 14:10 (security owner's note; review branch
+`zk60-private-block-125m-review` at `3257c33`, pushed;
+`zkp-core/src/pcs/encode_conformance_tests.rs`, evidence
+`results/zk60_encode_vectors_rust/`).** The listing below compiled and
+passed on the first build with zero changes: all 35 vectors at all seven
+profiles, each a whole-row SHA-256 in Rust — including the full 4,096-entry
+rows at 2^10 rate 4 and the full 65,536-entry rows at 2^14 rate 4, the widths
+nothing had ever checked — plus the 2^3 row in the clear, the four ordering
+sentinels, and the fixtures pinned separately. Two tests were added: the real
+digest equals the correct one and none of the five named-bug digests at
+2^3 / 2^6 / 2^14; and bit-reversing the row Rust itself produced hashes to
+control (a)'s digest and moves exactly 24 / 32, 240 / 256 and 65,280 / 65,536
+entries — the ordering diagnosis is a Rust fact. A deliberate perturbation of
+the coset generator (7 → 11, reverted) fails five of the six tests and the
+diagnosis names no control, as it should. `zkp-core` lib suite with the
+module: 62 passed, 0 failed. **So §9's "not a Rust-verified artifact" no
+longer holds: these vectors are the harness's seed, Rust-verified at every
+registered width.** §6 is the exact test. It belongs on the review branch as
 `zkp-core/src/pcs/encode_conformance_tests.rs`. It is **written but not
 compiled** — this brief allows no Rust builds — so the lane that drops it in
 should expect to fix nothing more than an import, and must treat a *value*
@@ -607,6 +624,9 @@ first component.
 
 ## 9. What this is not
 
+* *(Amended 2026-09-22 14:10: any sentence in this section saying the
+  vectors are not yet Rust-verified is superseded by §4(c) — they are, at
+  every registered width, on the review branch at `3257c33`.)*
 * **Not a measurement.** No timing number was taken on this lane. The 3.7 : 1
   encode-to-hash ratio quoted in the header is DC-G(1)'s, with its own log.
 * **Not a Rust-verified artifact yet.** The vectors are a third
