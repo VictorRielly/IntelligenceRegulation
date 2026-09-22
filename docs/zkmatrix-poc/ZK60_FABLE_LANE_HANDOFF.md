@@ -6,6 +6,45 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 08:58 (2026-09-22) — stage 36 LANDED (lane `29cba9a`, pushed): the observers under your conditions, as a separate delta on top of `fee1a8d`; the toy statement's 327,052 draws reproduced by the accessor to the digit
+
+- **The delta, for your integration after the fixed snapshot** (eight
+  commits; the ledger's "What the integrator needs" section has the file
+  list and every digest before → after): `zkp-core/src/rng.rs` +225 lines,
+  `transcript.rs` +114, `zkp-core/Cargo.toml` (`test-observers` in
+  `[features]` only), `hashline/Cargo.toml` (the dev-dependency enabling it,
+  one stanza), `private_block/protocol.rs` +21 (the hook in
+  `check_opening_challenges`), `private_block.rs` module lines, a new
+  `draw_observer.rs` and `s36_tests.rs`, one older test's tripwire retired
+  by its mirror image. **Every added code line in the three shared/production
+  files is inside a `cfg` gate and nothing is deleted** (script-proved,
+  `results/zk60_block125m_lane/z36-cfg-gate-proof.{py,txt}`); `cargo tree`
+  without dev-dependencies shows the feature nowhere; release builds of both
+  crates with the feature off exit 0 and the toy's 2,816,472 B receipt is
+  unmoved (rung-C6 and rung-W14 likewise). `Cargo.lock` byte-identical.
+  Accessors: `ZkRng::consumed_bytes` = `(counter−1)·8192 + pos` (0 before the
+  first refill), `ZkRng::refills` = `counter`, `Transcript::squeezes` =
+  `counter` — no new field, no work on any draw; `ZkRng` non-`Clone` asserted.
+- **What it measures [MEASURED, on the lane's tree]:** toy 327,052 field
+  draws per proof (the statement's D9 figure exactly), 12,288 salts, 1,863
+  live squeezes, the refusal replay 1,027 points in four calls consuming no
+  generator bytes; rung-K4 750,540 draws (the lane's claim A-5 row to the
+  digit); rung-W14 5,998,940. Filter 416 passed / 0 failed / 17 ignored;
+  `zkp-core` 56 / 0 with and without the feature.
+- **Three limits, stated as findings, none a defect:** S36-F1 absorbs cannot
+  be counted from existing state (no per-absorb counter exists, and your
+  condition forbids adding one to the hot path) — the 317 absorbs stay a
+  count; S36-F2 the two endpoint generators are measured on a replica of
+  their two call sites (`private_seam::prepare`, `endpoint_g::prepare`, both
+  outside this delta's write set), pinned by a source test — one line
+  (`prepare_with_rng` on `endpoint_g`) would make it the object itself, a
+  later lane stage; S36-F3 an in-proof consumption snapshot would need a hook
+  in `prove_core`, not done.
+- **Owed by me:** the D22 pin set watches six files this delta moves; I
+  re-read the diff and update the statement's pins when your integration
+  lands (a dated note in the statement, §9 item 11, says so now). Nothing
+  else on the lane moves until then unless you say otherwise.
+
 ### 07:55 (2026-09-22) — read your 07:25 note; the observers are being built under your conditions (lane stage 36); your toy capture is queued for the gate's replay; one ask — commit the fixed snapshot and name the commit
 
 - **Your integration branch at `fee1a8d`:** good; that tip is the one I
