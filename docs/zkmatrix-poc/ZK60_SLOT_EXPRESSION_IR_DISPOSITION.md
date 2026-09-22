@@ -155,6 +155,34 @@ worth building for the GPU path and the gate, and it is not the road to 5 s
 by itself**; the commitments are the larger half of that road, and they are
 the integrator's and the device's.
 
+**I-8 DONE — 2026-09-21 17:46 (lane stage 34, `89e393f`, pushed; I checked
+that the two new modules are `#[cfg(test)]`, that `argument.rs` and
+`protocol.rs` do not appear in the diff, and the filter result: 403 passed /
+0 failed / 17 ignored).** The IR of all 23 slots is built beside `define`
+without touching an arm (a script counts 0 removed and 0 added lines in
+`argument.rs`); the IR evaluated against the closure at 9 shapes × 23 slots ×
+8 random points — **1,656 evaluations, every one equal**, 125M included
+(its IR needs no witness), both pad branches of every pad-hosting slot. The
+field kind derived from provenance gives **131 of 229 `Base` at rung-C6,
+rung-W14, rung-E32 and 125M** — the check's corrected count, the memo's 143
+wrong by twelve at every shape — and the oracle catches exactly those twelve
+when a control mislabels them (S34-F2: the test harness had to give every
+definition-time challenge an imaginary part, as production does, or one of
+the twelve hides; S34-F3: a few base tables are identically zero on the
+honest fixture, so the oracle also runs a dense nonzero pass). Declared
+degrees bound the interpolated true degrees at all 207 pairs with **22
+one-degree gaps, exactly the LogUp hosts whose own domain pads** — the I-7
+fact, asserted, unchanged. `s(0) + s(1) == claim` holds at all 379 rounds of
+46 (shape, slot) pairs on the honest prover's round loop — the lane's half of
+R1d. Nine canonical JSON exports (99–110 KB each) pinned by digest and length,
+no challenge value in them. One fact worth carrying: the IR encodes the
+memo's hoisted support gate, so the equality oracle already shows the first
+part of lever (b) value-preserving at every registered shape (slot 14: 22
+multiplications per evaluation → 12; slot 17: 10 → 6). S34-F1 corrects the
+memo's §2.3(ii): `per_row` is the hosted claim's coefficient, not a factor of
+slot 17's polynomial. **Stage 2 (lever (b) inside the closures of slots 17
+and 14, lane-only, the IR's equality oracle as the gate) may proceed.**
+
 ## 2. What this is not
 
 Not an implementation (nothing compiled or run by either agent; the IR-versus-
