@@ -1,0 +1,104 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_encode_vectors/rust_test_listing.rs	2026-09-22 13:55:03.273499593 -0700
++++ /home/victor/wt-zk60-block125m-review/zkp-core/src/pcs/encode_conformance_tests.rs	2026-09-22 14:08:06.169351459 -0700
+@@ -187,6 +187,18 @@
+     String::new()
+ }
+ 
++/// `(Q, the `seeded` vector's correct digest)` for a profile in `PROFILES`.
++/// [added by the lane that first compiled this file] Two of the tests below
++/// need the profile row by name rather than by position.
++fn seeded_profile(log_n: u32, inv_rate: usize) -> (usize, &'static str) {
++    for (l, r, q, digests) in PROFILES {
++        if *l == log_n && *r == inv_rate {
++            return (*q, digests[4]); // 4 = `seeded`
++        }
++    }
++    panic!("no profile w{log_n}r{inv_rate} in PROFILES");
++}
++
+ fn encode(log_n: u32, inv_rate: usize, msg: &[Fp], pad: &[Fp]) -> Vec<Fp> {
+     let n = 1usize << log_n;
+     let nn = n * inv_rate;
+@@ -282,6 +294,82 @@
+     );
+ }
+ 
++/// [added by the lane that first compiled this file, 2026-09-22] The five
++/// NAMED BUGS are distinct from the truth in Rust too.
++///
++/// The controls are WRONG ENCODES, so they are not executed here — nothing in
++/// this crate implements them. What is checked is the property that makes a
++/// passing run mean something: the digest the real `encode_row_zk` produces is
++/// the CORRECT one *and* is none of the five control digests at that width, so
++/// no device that earns a named bug can also pass the conformance test. The
++/// count assertion keeps the control table from silently losing an entry.
++#[test]
++fn the_named_negative_controls_are_all_distinct_from_the_real_encode() {
++    // The three widths the control table covers.
++    for (log_n, inv_rate) in [(3u32, 4usize), (6, 4), (14, 4)] {
++        let (q, correct) = seeded_profile(log_n, inv_rate);
++        let (msg, pad) = inputs(4, log_n, inv_rate, q);
++        let got = sha256_hex(&encode(log_n, inv_rate, &msg, &pad));
++        assert_eq!(got.as_str(), correct, "w{log_n}r{inv_rate}-seeded");
++        let prefix = format!("w{log_n}:");
++        let mut named = 0;
++        for (digest, why) in CONTROL_DIGESTS {
++            if !why.starts_with(&prefix) {
++                continue;
++            }
++            named += 1;
++            assert_ne!(
++                got.as_str(),
++                *digest,
++                "the real encode reproduces a NAMED BUG at w{log_n}: {why}"
++            );
++        }
++        assert_eq!(named, 5, "all five named bugs must be listed at w{log_n}");
++    }
++}
++
++/// [added by the lane that first compiled this file, 2026-09-22] The ORDERING
++/// control, the one the running protocol is least able to see, reproduced from
++/// the REAL Rust encode.
++///
++/// No wrong NTT is implemented here: control (a) is, by the reference's own
++/// self-check S8, exactly `bitrev(correct)`, so permuting the row this crate
++/// really produced must hash to the control's digest. It does — at 2^3, 2^6
++/// and at the 125M width — which makes the named diagnosis of a bit-reversed
++/// device output a Rust-side fact rather than a Python prediction. The count
++/// of moved entries is pinned too: the permutation on 2^k points fixes
++/// 2^ceil(k/2) of them, 256 of 65,536 at the production width.
++#[test]
++fn the_ordering_control_is_the_real_rows_bit_reversal() {
++    fn bitrev(i: usize, log_nn: u32) -> usize {
++        i.reverse_bits() >> (usize::BITS - log_nn)
++    }
++    // (log_n, inv_rate, control (a)'s digest, entries differing from correct)
++    let cases: &[(u32, usize, &str, usize)] = &[
++        (3, 4, "5ada7fa09a9272e8b86a2a779dd9b0894a2965a6c94c56859b4ecb1e5633719b", 24),
++        (6, 4, "975a2b6eb272c06d84719faade776e555962816d9029178eaffaaad25226682f", 240),
++        (14, 4, "43c5b6d188567aebcae48fbb137290deed3a3423e1c1eacc8983f153dfce05a0", 65280),
++    ];
++    for (log_n, inv_rate, want, want_moved) in cases {
++        let (q, _correct) = seeded_profile(*log_n, *inv_rate);
++        let (msg, pad) = inputs(4, *log_n, *inv_rate, q);
++        let enc = encode(*log_n, *inv_rate, &msg, &pad);
++        let nn = enc.len();
++        let log_nn = nn.trailing_zeros();
++        let permuted: Vec<Fp> = (0..nn).map(|i| enc[bitrev(i, log_nn)]).collect();
++        assert_eq!(
++            sha256_hex(&permuted).as_str(),
++            *want,
++            "the bit-reversal of the real w{log_n}r{inv_rate}-seeded row is control (a)"
++        );
++        let moved = (0..nn).filter(|&i| permuted[i] != enc[i]).count();
++        assert_eq!(
++            moved, *want_moved,
++            "entries an ordering bug moves at w{log_n}r{inv_rate}"
++        );
++    }
++}
++
+ /// The four entries an ORDERING bug moves, at the production width: a device
+ /// that returns bit-reversed output leaves index 0 alone and moves these.
+ #[test]

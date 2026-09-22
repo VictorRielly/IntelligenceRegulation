@@ -1,0 +1,61 @@
+   Compiling zkp-core v0.1.0 (/home/victor/wt-zk60-block125m-review/zkp-core)
+    Finished `release` profile [optimized] target(s) in 7.30s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/zkp_core-784800963e6a1ad3)
+
+running 6 tests
+test pcs::encode_conformance_tests::encode_row_zk_matches_the_third_implementations_conformance_vectors ... FAILED
+test pcs::encode_conformance_tests::the_conformance_inputs_are_the_ones_the_vectors_were_built_from ... ok
+test pcs::encode_conformance_tests::the_named_negative_controls_are_all_distinct_from_the_real_encode ... FAILED
+test pcs::encode_conformance_tests::the_ordering_control_is_the_real_rows_bit_reversal ... FAILED
+test pcs::encode_conformance_tests::the_ordering_probes_at_the_125m_row_width_are_pinned ... FAILED
+test pcs::encode_conformance_tests::the_smallest_conformance_vector_matches_entry_by_entry ... FAILED
+
+failures:
+
+---- pcs::encode_conformance_tests::encode_row_zk_matches_the_third_implementations_conformance_vectors stdout ----
+
+thread 'pcs::encode_conformance_tests::encode_row_zk_matches_the_third_implementations_conformance_vectors' (825861) panicked at src/pcs/encode_conformance_tests.rs:219:13:
+assertion `left == right` failed: vector w3r4-zero_msg_seeded_pad
+  left: "70732cbf2e884e639f2bea5dc30bb4bd6e280e940a00b2857c4d31029dd2c49a"
+ right: "99f1f74e60240b0adf5e8ebc78b6286ed1945d4562c71696a5c6bbac40af88fe"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- pcs::encode_conformance_tests::the_named_negative_controls_are_all_distinct_from_the_real_encode stdout ----
+
+thread 'pcs::encode_conformance_tests::the_named_negative_controls_are_all_distinct_from_the_real_encode' (825863) panicked at src/pcs/encode_conformance_tests.rs:313:9:
+assertion `left == right` failed: w3r4-seeded
+  left: "604d040eec7ac75735806a9a13ec66d1c3acbbf0702af56dca2e6c4eeb937b98"
+ right: "ae6ff4f286d0821a33eb0a4a51da60e4677f2a248734ca9935f13a3b8d2901ec"
+
+---- pcs::encode_conformance_tests::the_ordering_control_is_the_real_rows_bit_reversal stdout ----
+
+thread 'pcs::encode_conformance_tests::the_ordering_control_is_the_real_rows_bit_reversal' (825864) panicked at src/pcs/encode_conformance_tests.rs:360:9:
+assertion `left == right` failed: the bit-reversal of the real w3r4-seeded row is control (a)
+  left: "1dad444a8e7b743d2acbe9daa971879274fa0064fd1b4c603b07bc1829ac2927"
+ right: "5ada7fa09a9272e8b86a2a779dd9b0894a2965a6c94c56859b4ecb1e5633719b"
+
+---- pcs::encode_conformance_tests::the_ordering_probes_at_the_125m_row_width_are_pinned stdout ----
+
+thread 'pcs::encode_conformance_tests::the_ordering_probes_at_the_125m_row_width_are_pinned' (825865) panicked at src/pcs/encode_conformance_tests.rs:379:5:
+assertion `left == right` failed: index 0
+  left: 9812891578262949780
+ right: 3655851916429667015
+
+---- pcs::encode_conformance_tests::the_smallest_conformance_vector_matches_entry_by_entry stdout ----
+
+thread 'pcs::encode_conformance_tests::the_smallest_conformance_vector_matches_entry_by_entry' (825866) panicked at src/pcs/encode_conformance_tests.rs:278:5:
+assertion `left == right` failed: the full encoded row at 2^3 -> 2^5
+  left: [18352292035096761263, 10005799962476613634, 6073352828845598824, 12573307826349090252, 3910358021446054498, 6228919303663126073, 18073504104308802261, 3867244997388374140, 16034244281479417597, 8170957320109331381, 11505404065881180787, 12286784609146022767, 7829212211496284645, 16815334055335737329, 14698647348722352997, 14479271317194838702, 11952732548092673337, 18359658463425399185, 7221020271894665598, 8261656373338497057, 8095701072088749545, 3349878045716874907, 10591233974235848200, 10427682961514806796, 15932923064261157395, 5135697501508464239, 4070254737773331791, 12992512367160020524, 6963110445406256390, 4515220228078570151, 16263216303634255973, 11650537912843039643]
+ right: [17001233229391541759, 9525882795350743510, 10685261833338387181, 11883848538122421164, 12135637215749084494, 14487658604129027219, 13956248148305193365, 728841911929532220, 17594403611113277726, 13323381216430728279, 11952886996136697578, 15462680855146825542, 6833670393533424550, 10031315790080029380, 17362465940490424173, 1030025762374198429, 17562784682548004046, 3730969806722800446, 6172047982576767076, 5693909200286625114, 1859001937226429571, 15037052584695150825, 9672972197962433396, 1881927289116817088, 18129160555214809121, 8351872777809323709, 15801800976565837046, 11592350932643550688, 7886103473328438184, 13884731224812854872, 11408272210597226156, 4027269886183593974]
+
+
+failures:
+    pcs::encode_conformance_tests::encode_row_zk_matches_the_third_implementations_conformance_vectors
+    pcs::encode_conformance_tests::the_named_negative_controls_are_all_distinct_from_the_real_encode
+    pcs::encode_conformance_tests::the_ordering_control_is_the_real_rows_bit_reversal
+    pcs::encode_conformance_tests::the_ordering_probes_at_the_125m_row_width_are_pinned
+    pcs::encode_conformance_tests::the_smallest_conformance_vector_matches_entry_by_entry
+
+test result: FAILED. 1 passed; 5 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

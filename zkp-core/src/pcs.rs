@@ -38,6 +38,12 @@ use rayon::prelude::*;
 mod backend;
 pub use backend::{Backend, Cpu, EncodedStore, NoExternal};
 
+/// [ZK60 encode conformance] The third implementation's vectors
+/// (`docs/zkmatrix-poc/ZK60_ENCODE_CONFORMANCE_VECTORS.md`) against the real
+/// `encode_row_zk`, at the production row widths. Test-only.
+#[cfg(test)]
+mod encode_conformance_tests;
+
 #[derive(Clone, Copy, Debug)]
 pub struct PcsParams {
     pub log_cols: u32,

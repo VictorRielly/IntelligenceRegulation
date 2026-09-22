@@ -1,0 +1,12 @@
+   Compiling zkp-core v0.1.0 (/home/victor/wt-zk60-block125m-review/zkp-core)
+    Finished `release` profile [optimized] target(s) in 8.22s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/zkp_core-784800963e6a1ad3)
+
+running 4 tests
+test pcs::encode_conformance_tests::encode_row_zk_matches_the_third_implementations_conformance_vectors ... ok
+test pcs::encode_conformance_tests::the_conformance_inputs_are_the_ones_the_vectors_were_built_from ... ok
+test pcs::encode_conformance_tests::the_ordering_probes_at_the_125m_row_width_are_pinned ... ok
+test pcs::encode_conformance_tests::the_smallest_conformance_vector_matches_entry_by_entry ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 56 filtered out; finished in 0.02s
+
