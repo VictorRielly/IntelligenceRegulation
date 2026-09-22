@@ -1,0 +1,78 @@
+path                                                 fork       main       lanebase   tip         who moved it
+------------------------------------------------------------------------------------------------------------------------
+hashline/src/zk.rs                                   c5b54753d0 ce8cc51648 d4280962af d4280962af  MAIN + LANE(pre-36)
+hashline/src/private_block/argument.rs               e62f46c29f e62f46c29f f7fa2ad421 f7fa2ad421  LANE(pre-36)
+hashline/src/private_attention/argument.rs           3343620eef 3343620eef 3343620eef 3343620eef  nobody
+zkp-core/src/sumcheck.rs                             56dbb8c742 56dbb8c742 56dbb8c742 56dbb8c742  nobody
+zkp-core/src/ntt.rs                                  97572d4f24 97572d4f24 97572d4f24 97572d4f24  nobody
+zkp-core/src/pcs.rs                                  2d9149564f 2d9149564f 6b8d1bfa1a 6b8d1bfa1a  LANE(pre-36)
+zkp-core/src/field.rs                                df3eb5a68e df3eb5a68e df3eb5a68e df3eb5a68e  nobody
+zkp-core/src/transcript.rs                           31ce3c9a72 31ce3c9a72 cc9752d0ef b8a228d9b3  LANE(pre-36) + DELTA-36
+zkp-core/src/merkle.rs                               77bc5f51e5 77bc5f51e5 6e7817bd76 6e7817bd76  LANE(pre-36)
+zkp-core/src/rng.rs                                  0d4a99abbc 0d4a99abbc 0d4a99abbc b9920aeb3a  DELTA-36
+hashline/src/lib.rs                                  fcb784d385 fcb784d385 fcb784d385 fcb784d385  nobody
+hashline/src/private_block.rs                        5d9dd178be 412a43f488 b4aeb6ed32 fa0daca679  MAIN + LANE(pre-36) + DELTA-36
+hashline/src/private_block/wire.rs                   5b11631d4c 5b11631d4c 99e69b5c92 99e69b5c92  LANE(pre-36)
+hashline/src/private_block/witness.rs                640754fb5b 640754fb5b b9b66c024e b9b66c024e  LANE(pre-36)
+hashline/src/private_seam.rs                         2f36c779e7 2f36c779e7 2f36c779e7 2f36c779e7  nobody
+hashline/src/pcs.rs                                  6d27f3a5bc 9537915b26 f16932674e f16932674e  MAIN + LANE(pre-36)
+hashline/src/merkle.rs                               06fd5f0bd7 06fd5f0bd7 06fd5f0bd7 06fd5f0bd7  nobody
+hashline/src/transcript.rs                           4850b2b4dc 4850b2b4dc 4850b2b4dc 4850b2b4dc  nobody
+hashline/src/field.rs                                1dc6c53b9d 1dc6c53b9d 1dc6c53b9d 1dc6c53b9d  nobody
+hashline/src/ntt.rs                                  a7f7ac0b83 a7f7ac0b83 a7f7ac0b83 a7f7ac0b83  nobody
+hashline/src/mle.rs                                  bffe83fb56 bffe83fb56 bffe83fb56 bffe83fb56  nobody
+hashline/src/sumcheck.rs                             f097dd71fa f097dd71fa f097dd71fa f097dd71fa  nobody
+hashline/src/tables_attn.rs                          5a874788e2 5a874788e2 5a874788e2 5a874788e2  nobody
+hashline/src/gpu/mod.rs                              a5ceeba218 706ca7fafb a5ceeba218 a5ceeba218  MAIN
+zkp-core/src/lib.rs                                  1c2a6ce175 1c2a6ce175 388f012fbb 388f012fbb  LANE(pre-36)
+zkp-core/src/pcs/backend.rs                          1734c03ce6 1734c03ce6 1734c03ce6 1734c03ce6  nobody
+hashline/src/private_block/layout.rs                 6cc8f6fed8 6cc8f6fed8 14758039fb 14758039fb  LANE(pre-36)
+hashline/src/private_block/protocol.rs               d9455a1054 d9455a1054 ac41223753 e0e617be61  LANE(pre-36) + DELTA-36
+hashline/src/native_capture.rs                       621f6459cc 621f6459cc 621f6459cc 621f6459cc  nobody
+zkp-core/src/mle.rs                                  b20c8b75c9 b20c8b75c9 b20c8b75c9 b20c8b75c9  nobody
+hashline/src/private_attention/layout.rs             17159dcc67 17159dcc67 17159dcc67 17159dcc67  nobody
+hashline/src/private_attention/protocol.rs           cf29722099 cf29722099 cf29722099 cf29722099  nobody
+zkp-core/Cargo.toml                                  b9038a52f3 b9038a52f3 b9038a52f3 90156d5893  DELTA-36
+hashline/Cargo.toml                                  eaba50ecf1 eaba50ecf1 e3acda1bf4 5633d1e46f  LANE(pre-36) + DELTA-36
+
+BOTH main and the lane moved these since the fork (a merge makes a NEW blob):
+    hashline/src/zk.rs
+    hashline/src/private_block.rs
+    hashline/src/pcs.rs
+
+pin-of-record / ALSO_ACCEPTED check against main 4751b93:
+   hashline/src/zk.rs                                   at the SECOND accepted digest
+   hashline/src/private_block/argument.rs               at the pin of record
+   hashline/src/private_attention/argument.rs           at the pin of record
+   zkp-core/src/sumcheck.rs                             at the pin of record
+   zkp-core/src/ntt.rs                                  at the pin of record
+   zkp-core/src/pcs.rs                                  at the pin of record
+   zkp-core/src/field.rs                                at the pin of record
+   zkp-core/src/transcript.rs                           at the pin of record
+   zkp-core/src/merkle.rs                               at the pin of record
+   zkp-core/src/rng.rs                                  at the pin of record
+   hashline/src/lib.rs                                  at the pin of record
+   hashline/src/private_block.rs                        at the SECOND accepted digest
+   hashline/src/private_block/wire.rs                   at the pin of record
+   hashline/src/private_block/witness.rs                at the pin of record
+   hashline/src/private_seam.rs                         at the pin of record
+   hashline/src/pcs.rs                                  at the SECOND accepted digest
+   hashline/src/merkle.rs                               at the pin of record
+   hashline/src/transcript.rs                           at the pin of record
+   hashline/src/field.rs                                at the pin of record
+   hashline/src/ntt.rs                                  at the pin of record
+   hashline/src/mle.rs                                  at the pin of record
+   hashline/src/sumcheck.rs                             at the pin of record
+   hashline/src/tables_attn.rs                          at the pin of record
+   hashline/src/gpu/mod.rs                              at the SECOND accepted digest
+   zkp-core/src/lib.rs                                  at the pin of record
+   zkp-core/src/pcs/backend.rs                          at the pin of record
+   hashline/src/private_block/layout.rs                 at the pin of record
+   hashline/src/private_block/protocol.rs               at the pin of record
+   hashline/src/native_capture.rs                       at the pin of record
+   zkp-core/src/mle.rs                                  at the pin of record
+   hashline/src/private_attention/layout.rs             at the pin of record
+   hashline/src/private_attention/protocol.rs           at the pin of record
+   zkp-core/Cargo.toml                                  NOT IN THE TOOL'S PIN SET
+   hashline/Cargo.toml                                  NOT IN THE TOOL'S PIN SET
+not accepted: 0

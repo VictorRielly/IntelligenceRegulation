@@ -1,0 +1,55 @@
+THE COMPILER'S OWN ANSWER: does a release build compile the observers?
+=====================================================================
+
+Three release builds at `29cba9a`, serialized on /tmp/zk-build.lock with the
+shared target directory, `--message-format=json` so that the artifact and the
+feature set come from cargo and not from a reading:
+
+  A  cargo build --release --offline -j 2 --manifest-path .../zkp-core/Cargo.toml
+  B  the same, --features test-observers                      (the CONTROL)
+  C  cargo build --release --offline -j 2 --manifest-path .../hashline/Cargo.toml
+
+cargo's own report of the zkp-core unit in each:
+
+  A  features []                  deps/libzkp_core-2e2f8973ebe8b594.{rlib,rmeta}
+  B  features ["test-observers"]  deps/libzkp_core-555a2f53e4b5b880.{rlib,rmeta}
+  C  features []                  deps/libzkp_core-345ceb9244bb3007.{rlib,rmeta}
+
+and the three identifiers the delta adds, counted in each artifact:
+
+  artifact                         consumed_bytes  OBSERVED_BLOCK_BYTES  squeezes
+  A rlib   (no feature)                  0                0                0
+  A rmeta  (no feature)                  0                0                0
+  B rlib   (--features test-observers)   3                2                2
+  B rmeta  (--features test-observers)   3                2                2
+  C rlib   (hashline release graph)      0                0                0
+  C rmeta  (hashline release graph)      0                0                0
+
+B is the control: it shows the grep discriminates. A and C show the release
+artifact carries none of the three.
+
+C is the one the lane could not make. `cargo tree -e features,no-dev` removes
+the dev edge by construction, so it prints the same thing whichever feature
+resolver is in force; under resolver version 1 a dev-dependency's features
+unify into the NORMAL dependency graph and `cargo build --release` of hashline
+WOULD compile the observers into zkp-core. C is cargo compiling the real
+release graph and reporting `features: []`, which settles it for this tree.
+
+Why this tree resolves that way, and how it could stop: there is no workspace
+manifest at the repository root; `cargo metadata` reports
+`workspace_members = [hashline]` and no `resolver` key anywhere, so the
+resolver is the one hashline's `edition = "2021"` selects -- version 2.
+Nothing in the delta, in the pin set or in any test asserts that. See finding
+P36-3.
+
+release/hashline (the binary) and release/libhashline.rlib were checked too:
+the binary contains none of `draw_observer`, `note_verdict`, `consumed_bytes`;
+the rlib's metadata string table contains the identifier `draw_observer`
+exactly as it already contained the pre-existing `#[cfg(test)]` module names
+`tamper`, `s35_tests` and `slot_ir_tests` -- an interned identifier, no symbol
+and no code (finding P36-7).
+
+Warnings: 0 from all three builds. The `--lib --tests` build reports 15
+warnings, every one of them in a file this delta does not touch
+(`review_tests.rs`, `s28_review_tests.rs`, `attention.rs`, `run.rs`,
+`rung_tests.rs`, `argument.rs`, `run_capture.rs`), so the stage added none.

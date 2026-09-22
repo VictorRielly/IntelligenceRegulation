@@ -1,0 +1,24 @@
+#!/bin/bash
+# The pre-read's own test pass: the reviewer's three tests, the toy family's
+# frozen gates, the 327,052 reproduction, the replica-fidelity test, the
+# non-Clone probe and stage 25's retired tripwire. `--nocapture` so that the
+# counts the tests print land in the log; nothing they print is a value.
+set -x
+R=/home/victor/wt-zk60-block125m-review/results/zk60_d22_preread_stage36
+export CARGO_TARGET_DIR=/home/victor/wt-zk60-attention-compile/hashline/target
+export CARGO_PROFILE_RELEASE_LTO=false
+export CARGO_PROFILE_RELEASE_CODEGEN_UNITS=8
+/home/victor/.cargo/bin/cargo test --release --offline -j 2 \
+    --manifest-path /home/victor/wt-zk60-block125m-review/hashline/Cargo.toml --lib -- \
+    --test-threads=1 --nocapture \
+    p36_preread_tests \
+    s36_tests::the_three_generators_of_a_toy_proof_draw_the_statements_327052_field_elements \
+    s36_tests::the_endpoint_replica_is_the_endpoint_preparers_own_draw_sequence \
+    s36_tests::assertions_five_and_seven_are_asserted_and_are_where_this_module_says_they_are \
+    s36_tests::the_three_generators_of_one_proof_are_three_separate_streams \
+    s25_tests::the_draw_accounting_assertions_are_no_longer_blocked_and_their_test_exists \
+    the_toy_schedule_digest_is_frozen \
+    the_toy_parameter_line_is_the_frozen_literal \
+    a_toy_receipt_made_before_the_lane_still_verifies \
+    > $R/p36-gate.log 2>&1
+echo "cargo test exit $?"

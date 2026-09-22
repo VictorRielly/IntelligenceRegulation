@@ -1,0 +1,38 @@
+zkp-core/src/rng.rs
+   fork 0d4a99abbc424286  main 0d4a99abbc424286  base 0d4a99abbc424286  tip b9920aeb3a12c2fd
+   main never moved it since the fork -> a clean merge IS the tip:
+   PREDICTED b9920aeb3a12c2fd45e7f50f701852086cdf8bf73530de4f7658d4b4c09c3b9f
+
+zkp-core/src/transcript.rs
+   fork 31ce3c9a72da3bd3  main 31ce3c9a72da3bd3  base cc9752d0ef9bcd6d  tip b8a228d9b33f7dbf
+   main never moved it since the fork -> a clean merge IS the tip:
+   PREDICTED b8a228d9b33f7dbf19cd631c7b9a08eb9465b56ab3c32ea40c06fee2416adad4
+
+hashline/src/private_block/protocol.rs
+   fork d9455a1054aab7e1  main d9455a1054aab7e1  base ac4122375397a155  tip e0e617be617a5486
+   main never moved it since the fork -> a clean merge IS the tip:
+   PREDICTED e0e617be617a548641cb33c8564cee86ee7d2af90f9c6487b5fb7af30113d45b
+
+hashline/src/private_block.rs
+   fork 5d9dd178beb70865  main 412a43f488f809a5  base b4aeb6ed32331b29  tip fa0daca6797501ec
+   BOTH moved it; main's change is 1 hunk(s) against the fork
+   the lane's tip ALREADY carries main's inserted lines, at the
+   same place -- both sides made the same change, so the merge is
+   the tip unchanged:
+      = mod norm_alias;
+      = #[cfg(test)]
+   PREDICTED fa0daca6797501ec9fe9ad93a5b890c0fa72165fbdb21c6854d4eaddac47ec94
+
+zkp-core/Cargo.toml
+   fork b9038a52f34e0ee8  main b9038a52f34e0ee8  base b9038a52f34e0ee8  tip 90156d589336ce79
+   main never moved it since the fork -> a clean merge IS the tip:
+   PREDICTED 90156d589336ce790a103f69c42aa5c2489c5c2b12e1c1ce12e3b7b1c1ea4891
+
+hashline/Cargo.toml
+   fork eaba50ecf1434ad8  main eaba50ecf1434ad8  base e3acda1bf4cf1a8c  tip 5633d1e46fd1c087
+   main never moved it since the fork -> a clean merge IS the tip:
+   PREDICTED 5633d1e46fd1c0878751283bf722a5cdbfb565bdf414aa521d7c160d4276fb38
+
+Every digest above is a PREDICTION of a clean three-way merge. The
+integrator states it assembles the lane as a fixed snapshot rather than
+merging the branch, so the tree it produces must be hashed as it is.

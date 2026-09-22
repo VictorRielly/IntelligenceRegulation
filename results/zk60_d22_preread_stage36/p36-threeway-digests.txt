@@ -1,0 +1,60 @@
+pinned paths: 32 (mask SOURCE 10 + PATH 20 + terminal 8 deduped)
+
+path                                                 main 4751b93     base fee1a8d     tip 29cba9a       verdict
+----------------------------------------------------------------------------------------------------------------
+hashline/src/zk.rs                                   ce8cc51648d0da51 d4280962af3a89b6 d4280962af3a89b6  PINNED / base!=main / unchanged by delta
+hashline/src/private_block/argument.rs               e62f46c29fe41848 f7fa2ad4213d925b f7fa2ad4213d925b  PINNED / base!=main / unchanged by delta
+hashline/src/private_attention/argument.rs           3343620eefa84842 3343620eefa84842 3343620eefa84842  PINNED / base==main / unchanged by delta
+zkp-core/src/sumcheck.rs                             56dbb8c742d970d3 56dbb8c742d970d3 56dbb8c742d970d3  PINNED / base==main / unchanged by delta
+zkp-core/src/ntt.rs                                  97572d4f242637d2 97572d4f242637d2 97572d4f242637d2  PINNED / base==main / unchanged by delta
+zkp-core/src/pcs.rs                                  2d9149564ff7f774 6b8d1bfa1a69293e 6b8d1bfa1a69293e  PINNED / base!=main / unchanged by delta
+zkp-core/src/field.rs                                df3eb5a68eb8f563 df3eb5a68eb8f563 df3eb5a68eb8f563  PINNED / base==main / unchanged by delta
+zkp-core/src/transcript.rs                           31ce3c9a72da3bd3 cc9752d0ef9bcd6d b8a228d9b33f7dbf  PINNED / base!=main / MOVED BY DELTA
+zkp-core/src/merkle.rs                               77bc5f51e5f11f15 6e7817bd767a8839 6e7817bd767a8839  PINNED / base!=main / unchanged by delta
+zkp-core/src/rng.rs                                  0d4a99abbc424286 0d4a99abbc424286 b9920aeb3a12c2fd  PINNED / base==main / MOVED BY DELTA
+hashline/src/lib.rs                                  fcb784d3853c9d3e fcb784d3853c9d3e fcb784d3853c9d3e  PINNED / base==main / unchanged by delta
+hashline/src/private_block.rs                        412a43f488f809a5 b4aeb6ed32331b29 fa0daca6797501ec  PINNED / base!=main / MOVED BY DELTA
+hashline/src/private_block/wire.rs                   5b11631d4c74b24d 99e69b5c92154ed2 99e69b5c92154ed2  PINNED / base!=main / unchanged by delta
+hashline/src/private_block/witness.rs                640754fb5b3acb85 b9b66c024e7ca68d b9b66c024e7ca68d  PINNED / base!=main / unchanged by delta
+hashline/src/private_seam.rs                         2f36c779e79c4d7a 2f36c779e79c4d7a 2f36c779e79c4d7a  PINNED / base==main / unchanged by delta
+hashline/src/pcs.rs                                  9537915b26b21ea9 f16932674e49dcf9 f16932674e49dcf9  PINNED / base!=main / unchanged by delta
+hashline/src/merkle.rs                               06fd5f0bd725599d 06fd5f0bd725599d 06fd5f0bd725599d  PINNED / base==main / unchanged by delta
+hashline/src/transcript.rs                           4850b2b4dc803176 4850b2b4dc803176 4850b2b4dc803176  PINNED / base==main / unchanged by delta
+hashline/src/field.rs                                1dc6c53b9d3b014b 1dc6c53b9d3b014b 1dc6c53b9d3b014b  PINNED / base==main / unchanged by delta
+hashline/src/ntt.rs                                  a7f7ac0b838747c4 a7f7ac0b838747c4 a7f7ac0b838747c4  PINNED / base==main / unchanged by delta
+hashline/src/mle.rs                                  bffe83fb5636f445 bffe83fb5636f445 bffe83fb5636f445  PINNED / base==main / unchanged by delta
+hashline/src/sumcheck.rs                             f097dd71fab7888e f097dd71fab7888e f097dd71fab7888e  PINNED / base==main / unchanged by delta
+hashline/src/tables_attn.rs                          5a874788e2058101 5a874788e2058101 5a874788e2058101  PINNED / base==main / unchanged by delta
+hashline/src/gpu/mod.rs                              706ca7fafb3e5411 a5ceeba218429637 a5ceeba218429637  PINNED / base!=main / unchanged by delta
+zkp-core/src/lib.rs                                  1c2a6ce1755df396 388f012fbb535617 388f012fbb535617  PINNED / base!=main / unchanged by delta
+zkp-core/src/pcs/backend.rs                          1734c03ce6897e78 1734c03ce6897e78 1734c03ce6897e78  PINNED / base==main / unchanged by delta
+hashline/src/private_block/layout.rs                 6cc8f6fed8bc55cc 14758039fbe9daa6 14758039fbe9daa6  PINNED / base!=main / unchanged by delta
+hashline/src/private_block/protocol.rs               d9455a1054aab7e1 ac4122375397a155 e0e617be617a5486  PINNED / base!=main / MOVED BY DELTA
+hashline/src/native_capture.rs                       621f6459ccf516eb 621f6459ccf516eb 621f6459ccf516eb  PINNED / base==main / unchanged by delta
+zkp-core/src/mle.rs                                  b20c8b75c9246471 b20c8b75c9246471 b20c8b75c9246471  PINNED / base==main / unchanged by delta
+hashline/src/private_attention/layout.rs             17159dcc677d47a9 17159dcc677d47a9 17159dcc677d47a9  PINNED / base==main / unchanged by delta
+hashline/src/private_attention/protocol.rs           cf29722099739cb7 cf29722099739cb7 cf29722099739cb7  PINNED / base==main / unchanged by delta
+zkp-core/Cargo.toml                                  b9038a52f34e0ee8 b9038a52f34e0ee8 90156d589336ce79  unpinned / base==main / MOVED BY DELTA
+hashline/Cargo.toml                                  eaba50ecf1434ad8 e3acda1bf4cf1a8c 5633d1e46fd1c087  unpinned / base!=main / MOVED BY DELTA
+hashline/src/private_block/endpoint_g.rs             -------- 6e3691d0bfa1c1fb 6e3691d0bfa1c1fb  unpinned / base!=main / unchanged by delta
+hashline/src/private_block/s25_tests.rs              -------- 84fddd2f054c6fb6 93e7590dada559d8  unpinned / base!=main / MOVED BY DELTA
+hashline/src/private_block/draw_observer.rs          -------- -------- d9bed79f99eeebb9  unpinned / base==main / MOVED BY DELTA
+hashline/src/private_block/s36_tests.rs              -------- -------- 924ba60ab7a00787  unpinned / base==main / MOVED BY DELTA
+
+summary
+  pinned files moved by the delta : 4
+  pinned files whose lane base differs from main 4751b93 : 13
+     base!=main: hashline/src/zk.rs
+     base!=main: hashline/src/private_block/argument.rs
+     base!=main: zkp-core/src/pcs.rs
+     base!=main: zkp-core/src/transcript.rs
+     base!=main: zkp-core/src/merkle.rs
+     base!=main: hashline/src/private_block.rs
+     base!=main: hashline/src/private_block/wire.rs
+     base!=main: hashline/src/private_block/witness.rs
+     base!=main: hashline/src/pcs.rs
+     base!=main: hashline/src/gpu/mod.rs
+     base!=main: zkp-core/src/lib.rs
+     base!=main: hashline/src/private_block/layout.rs
+     base!=main: hashline/src/private_block/protocol.rs
+  ALSO_ACCEPTED entries: ['hashline/src/zk.rs', 'hashline/src/private_block.rs', 'hashline/src/pcs.rs', 'hashline/src/gpu/mod.rs']

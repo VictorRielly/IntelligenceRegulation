@@ -297,6 +297,12 @@ mod s35_tests;
 mod draw_observer;
 #[cfg(test)]
 mod s36_tests;
+// REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
+// pre-read of stage 36): the reviewer's own tests of the observer hook and of
+// the endpoint replica's fidelity. NOT part of the lane's delta and not to be
+// integrated with it.
+#[cfg(test)]
+mod p36_preread_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]

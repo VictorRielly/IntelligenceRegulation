@@ -1,0 +1,154 @@
+   Compiling zkp-core v0.1.0 (/home/victor/wt-zk60-block125m-review/zkp-core)
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m-review/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:687:13
+    |
+687 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 1m 15s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-attention-compile/hashline/target/release/deps/hashline-1aad528bbc15b692)
+
+running 11 tests
+test private_block::grow_tests::the_toy_parameter_line_is_the_frozen_literal ... ok
+test private_block::grow_tests::the_toy_schedule_digest_is_frozen ... ok
+test private_block::p36_preread_tests::the_frozen_seams_own_prepare_constructs_the_generator_and_draws_nothing_itself ... P36 replica fidelity, the half stage 36 does not assert: the frozen seam's `prepare` constructs the generator and draws nothing itself before forwarding it
+ok
+test private_block::p36_preread_tests::the_observer_changes_no_value_no_verdict_and_no_generator_state ... P36 hook: Accepted — 9 draws (5 group + 4 proximity), values and verdict identical with and without the observer
+P36 hook: ZeroGroupMember — 4 draws (4 group + 0 proximity), values and verdict identical with and without the observer
+P36 hook: DependentProximity — 4 draws (2 group + 2 proximity), values and verdict identical with and without the observer
+ok
+test private_block::p36_preread_tests::the_observer_leaks_no_record_across_sessions_or_out_of_an_unwatched_call ... P36 session hygiene: records do not survive a session, and an unwatched call records nothing
+ok
+test private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies ... PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-0: 2816472 B, verify = Ok(())
+PRE-LANE /../results/zk60_rowfold_20260919/integration/native-block-1: 2816472 B, verify = Ok(())
+PRE-LANE /../results/zk60_private_block_evidence/owner_run1: 2816472 B, verify = Ok(())
+PRE-LANE /../results/zk60_attention_integration_20260919/block_public: 2816472 B, verify = Ok(())
+PRE-LANE: 4 archived toy receipts still verify under the lane's verifier
+ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_no_longer_blocked_and_their_test_exists ... S25 W-8: assertions 1-4 and 6 are UNBLOCKED and written — the integrator's accessor landed 2026-09-22 (stage 36), and `s36_tests` carries them
+ok
+test private_block::s36_tests::assertions_five_and_seven_are_asserted_and_are_where_this_module_says_they_are ... S36 assertions 5 and 7: the non-Clone probe passes with its two controls here and in zkp-core's own tests; stage 25's two scans are cited by name and still exist
+ok
+test private_block::s36_tests::the_endpoint_replica_is_the_endpoint_preparers_own_draw_sequence ... S36 replica fidelity: both endpoint preparers use their generator in exactly two places — the mask-row fill above `data_rows`, then the commitment — which is what `measure_endpoint` does
+ok
+test private_block::s36_tests::the_three_generators_of_a_toy_proof_draw_the_statements_327052_field_elements ... S36 D9's figure: 327052 fp() draws per toy proof = 320908 (block) + 6144 (two endpoints) — the accepted statement's 327,052; 12288 salts; 5626048 stream bytes over the three generators
+ok
+test private_block::s36_tests::the_three_generators_of_one_proof_are_three_separate_streams ... S36 clarification 5: three generators per single-block proof — one in `prove_inner_at`, one in each of `prepare_endpoints`' two owners — every one of them `ZkRng::from_os`, so three entropy reads and no more
+ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 492 filtered out; finished in 0.61s
+

@@ -1,0 +1,29 @@
+zkp-core/src/rng.rs
+   lines               136 ->    361   (+225)
+   gated lines          33 ->    227
+   comment/blank         9 ->    102
+   PRODUCTION lines     78 ->     78
+   residue sha256   11735c63d661a689 -> 11735c63d661a689   IDENTICAL
+
+zkp-core/src/transcript.rs
+   lines               244 ->    358   (+114)
+   gated lines          76 ->    175
+   comment/blank        37 ->     92
+   PRODUCTION lines    119 ->    119
+   residue sha256   3a58769b747ac343 -> 3a58769b747ac343   IDENTICAL
+
+hashline/src/private_block/protocol.rs
+   lines              1212 ->   1233   (+21)
+   gated lines          96 ->    106
+   comment/blank       374 ->    385
+   PRODUCTION lines    676 ->    676
+   residue sha256   bbbff45683eda64a -> bbbff45683eda64a   IDENTICAL
+
+hashline/src/private_block.rs
+   lines               995 ->   1006   (+11)
+   gated lines          80 ->     84
+   comment/blank       419 ->    426
+   PRODUCTION lines    449 ->    449
+   residue sha256   3ee0cab5dd001c5f -> 3ee0cab5dd001c5f   IDENTICAL
+
+VERDICT: every watched file's production residue is byte-identical across the delta
