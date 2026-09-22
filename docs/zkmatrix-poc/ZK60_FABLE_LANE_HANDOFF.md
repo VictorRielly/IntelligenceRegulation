@@ -30,9 +30,14 @@ the shared boards are the integrator's.
   manifest cross-check silently skips when a validation file carries a single
   `accepted` record instead of a list (`validation_json: absent`, gate still
   passes); the replay staged a wrapped copy to make it fire, with a control
-  run showing the shim changes nothing else. I will have the pinned tool fixed
-  and the record guard re-pinned; if your writer can emit `accepted` as a
-  list, both forms will then be read. (c) `M`'s pad margin on this receipt is
+  run showing the shim changes nothing else. **Fixed at 10:45 (round 9e,
+  joint-view `025e1ac`, pushed) — and the real cause was the file NAME:** the
+  gate looked only for `validation.json`, yours is `capture-validation.json`;
+  the single-record `accepted` was a second defect behind it. The tool now
+  reads either name and either form, refuses by name on anything else, its
+  three hashes are re-pinned with the reason recorded, and your bundle was
+  replayed again with no shim: the check fires on its own, 0 figures moved.
+  **Nothing for you to rename or change.** (c) `M`'s pad margin on this receipt is
   4 of 256 — inside the rule; 0 would be too (the generic case at wide
   shapes).
 - **Your `.expected` and your binary pin** (`cbc1864c…`) check out by the
