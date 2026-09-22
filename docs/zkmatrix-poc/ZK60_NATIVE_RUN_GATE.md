@@ -3671,3 +3671,453 @@ Not one was a measured figure.**
   still ARGUED (M-2, M-3), the joint LAW is still O-R2 / G-R4, and ruling
   R-3 travels with every joint figure here.
 * **Nothing here moves D8/D11 or ruling M-8's decision.**
+
+# 15. Round 9c (2026-09-21/22): three new shapes, the 125M records integrated, and the lane's slot IR as a cross-check
+
+## 15.1 The headline, in one line each
+
+1. **The three shapes lane stages 31-33 built all pass the whole gate, at
+   the first attempt, with the prediction written first.** `rung-C6`
+   (32 tokens / width 384 / hidden 512, correction **C-6**), `rung-W14`
+   (64 / 768 / 1024 at **`log_cols` 14** — 125M's row width) and
+   `rung-E32` (32 / 768 / 1024 with 125M's **32-data-row endpoint**):
+   six bundles, both opt-in arms, **46 of 46 slot checks on every one**,
+   every stage `ok`, the channel table the full **28 at 10 / 5 / 4 / 9**,
+   and all nine terminal controls firing at each.
+2. **Zero unexplained figures, three times over.** One classified
+   comparison table per shape against rung-K4 and rung-P2: **180 figures
+   — 55 invariant and all 55 identical, 61 block count, 64 scaling, 5
+   predictions checked and 5 of 5 held, 0 UNEXPLAINED** at every shape.
+3. **The prediction now derives three things it used to read**, and all
+   three are what these shapes exist for. Correction **C-6** from the
+   width alone (`D_max = isqrt(1 + width·32767²)`, window
+   `12 + bit_length(D_max)`, full top byte iff a multiple of eight),
+   which predicts `Dom::D`'s **17** helper planes and slot 14's **54**
+   terminals where it applies and 19 / 56 where it does not; the
+   `Dom::Tab` **lift** (`2^(log_cols − 8)`, so **64** at rung-W14 and
+   125M and 4 everywhere else); and the **endpoint's row count**
+   (`t_pad·d_pad >> endpoint_log_n`, plus `MASK_ROWS = 5`, and one more
+   for an internal boundary), which gives rung-E32's **32 / 37 / 38**.
+   All three hold at all six shapes — ON at C6, W14, E32 and 125M, OFF
+   at K4 and P2 — and were committed in `f2eb4a6` before the gate had
+   been run on any of the six bundles.
+4. **FINDING E32-F1: a bundle that names a commit its own shape does not
+   exist at.** `run-q-dense-e32` and `run-r-zero-e32` record
+   `source_commit: 4505ddf`; three of their 38 pinned digests are not
+   the blobs there, because `4505ddf` is the commit BEFORE `6d71b40`,
+   which is the one that adds `Shape::rung_e32`. All 38 match at
+   `6d71b40` and after, so the digests are honest and the LABEL is stale
+   by one commit — finding K4-F2's family, on the newest pair.
+5. **Task A: all three 125M passes that outlived round 9b are in.** The
+   two records of record, re-taken (exit 0, 174.0 s / 1,460 MB and
+   161.9 s / 1,452 MB), leaf-diffed, **0 unclassified**. And
+   `dense-everything` landed — twice, 2:17:40 and 2:09:58, the same
+   figures both times — which is the pass round 9b said did not exist:
+   **the whole channel table at 125M, 28 at 10 / 5 / 4 / 9.**
+6. **M9-3 fires at 125M, for the first time since its repair**, in all
+   three directions (F, Kv, T). Finding P-F2's repair is confirmed at the
+   shape the finding came from. Its `ok` is still false, and for the
+   reason §14.7 wrote down before this pass landed: it flips the whole
+   pad STATE, which the public-table count catches one step earlier, so
+   it cannot produce the draw-count message its own criterion demands.
+   **CT-9 produces that message here.** The criterion, not the control,
+   is what is wrong.
+7. **Task C: the lane's slot-IR export agrees with the hand port
+   everywhere.** Eight structural comparisons per slot at seven shapes —
+   **1,288 comparisons, 0 disagreements** — with seven controls showing a
+   wrong export is refused by name. Ruling I-8 is kept: the hand port
+   stays the evaluator and no figure comes from the export.
+8. **Dense against zero at the three shapes: 136 figures, 122 / 130 / 120
+   identical**, and every one of the 14 / 6 / 16 that differ is a
+   distinct-sampled-column count, the pad margin that derives from it, or
+   the pad block's rank, which IS that count. The same three classes
+   rounds 4, 5, 9 and 9b found.
+
+## 15.2 Task A: the two records of record, and `dense-everything`
+
+Round 9b closed with the two 125M records of record ENQUEUED and
+`dense-everything` still on the heavy lock. All three landed.
+
+| what | marker | exit | wall | peak | verdict |
+|---|---|---:|---:|---:|---|
+| `m125-dense` re-take | `…/p2/m125-dense-9b.done` | **0** | 174.0 s | 1,460 MB | 46/46, channel table 28 at 2/5/4/17 |
+| `m125-zero` re-take | `…/p2/m125-zero-9b.done` | **0** | 161.9 s | 1,452 MB | 46/46, the same |
+| `dense-everything` | `…/m125/dense-everything.done` | **1** | 2:17:40 | 5,484 MB | every stage RAN; see below |
+| `dense-everything2` | `…/m125/dense-everything2.done` | **1** | 2:09:58 | 5,484 MB | the same figures; its record is the one on disk |
+
+**The leaf diff of the two records of record.** 3,583 and 3,549 identical
+leaves, 18 and 37 changed, 273 and 288 new, **0 only in the old record**,
+and after round 9c's six new classes **0 UNCLASSIFIED**. Six classes
+because this is the first leaf diff of a 125M record: the predictor's
+derived `pad_rule`, `receipt` and definition-draw blocks (round 9b), the
+non-data-row law beside every commitment, the endpoint's spare mask row
+added to the PREDICTION, and the 125M driver's own peak RSS and total
+wall clock. **One predicted figure moves and it is named**: the zero
+record's two external endpoints predicted 4 non-data rows against a
+RECORDED 5 and said `non_data_rows_match: false`; round 9's law added the
+endpoint's spare mask row, which the dense record already carried, so the
+prediction is now 5 and matches. A prediction was corrected, not a
+measurement — the recorded 5 never moved.
+
+**`dense-everything`'s exit code, taken apart.** Nothing raised. Every
+one of its thirteen stages ran. Two report `ok: false`, and the whole of
+it is control bookkeeping
+(`results/zk60_native_run_gate_9c/dense_everything_exit1_decomposition.json`):
+
+| where | what | reading |
+|---|---|---|
+| stage 8 | **CT-4** did not fire | it needs a pre-stage-15 bundle passed with `--old` and the 125M driver was given none. **Skipped, with the reason, not faked** — the only one of the nine |
+| stage 6 | **CH-3** did not fire | CH-3 replaces the tag's profile with ANOTHER TAGGED PROFILE'S — and the one it substitutes is the 125M shape's. On the 125M bundle that substitution is the identity, so no refusal can exist. It reports `fires: false` instead of reporting itself inapplicable: the same shape of defect as P-F2, without the consequences |
+| stage 6 | **M9-3** fires but `ok: false` | headline 6 |
+
+And what it delivers, verified figure by figure rather than read off the
+log: **46 of 46** slot checks; all seven commitments exhibited with
+per-commitment entries **A@0 2,070,138 + H@0 1,989,171 + E-Input 42,753 +
+A@1 2,070,138 + H@1 1,989,171 + B0 59,612 + E-Output 42,753 = exactly the
+arm's 8,263,736**, 0 differing, 1,792 salted leaves; the masking layer
+32,918 / 0 / 512 over 50 rows and 34 functionals; the joint 8,296,654 and
+2,304, which is the sum of the two arms and **not a third verification**
+(§14.9); P-1 … P-6 and C1 … C6 all firing; and **the channel table 28 at
+10 / 5 / 4 / 9 at the 125M shape**, which is what round 9b's NEXT list
+asked for.
+
+## 15.3 The pins at the three new commits, and FINDING E32-F1
+
+Each of the six bundles pins 38 source files. Every digest was recomputed
+from the lane's committed blob at the commit the manifest names.
+
+| pair | commit | pins matching the blob | byte-identical to `4ccbad1` |
+|---|---|---:|---:|
+| `rung-C6` | `3e106e1` | **38 / 38** | 35 |
+| `rung-W14` | `11703c9` | **38 / 38** | 35 |
+| `rung-E32` | `4505ddf` (named) | **35 / 38** — finding E32-F1 | 35 |
+| `rung-E32` | `6d71b40` (actual) | **38 / 38** | 35 |
+
+The three that moved are the same three at every commit, and all three
+are **ADDITIONS ONLY** (0 lines deleted), read hunk by hunk:
+
+| file | numstat vs `4ccbad1` | what it is | does it reach a port? |
+|---|---|---|---|
+| `shape.rs` | 75 / 154 / **273 / 0** | the three `Shape::rung_*` constructors and their doc comments; ruling **S-6**'s named construction refusal in `Shape::new`; a doc comment on `a_groups` | **no.** Not one geometry function moved — not `true_size`, not `pads`, not `head_slot`, not `clog2`, not `slot_dims`, and `a_groups`'s code is byte-identical. S-6 refuses shapes whose padded token count reaches the row width; at the three new shapes `natural_log(Dom::T)` is 5, 6 and 5 against row widths of 10, 14 and 10, and on the refused family the two `a_groups` arms agree anyway |
+| `run.rs` | 7 / 14 / **21 / 0** | one `RUN_PROFILE_RUNG_*` constant and one `RunShape::rung_*` per shape (D17, one profile per shape) | **no.** The header's six absorbs and their order, the seven-word `run-shape`, `position_tag`, the stage loop, `BOUNDARY_SITES` and the opening order are byte-identical — and the replay's own confirmation is that it re-derives every challenge of six bundles written under three profile strings it had never seen |
+| `private_block.rs` | 7 / 14 / **23 / 0** | four `#[cfg(test)] mod` declarations and their comments | **no.** The module root; nothing is transcribed from it |
+
+`argument.rs`, `protocol.rs`, `layout.rs`, `pad.rs`, `plane_index.rs`,
+`run_capture.rs`, `boundary.rs`, `witness.rs`, `zk.rs` and all 26 shared
+files are **byte-identical at all three commits**.
+
+> **FINDING E32-F1 — a bundle whose commit label is one commit too
+> early.** `run-q-dense-e32` and `run-r-zero-e32` record `source_commit:
+> 4505ddf`. Their `run.rs`, `shape.rs` and `private_block.rs` digests are
+> NOT the blobs at `4505ddf`; they are the blobs at `6d71b40`, the very
+> next commit, which is the one that ADDS `Shape::rung_e32`. **A reader
+> checking these two bundles against the commit they name discovers that
+> the shape they are captures of does not exist there** — and gets three
+> mismatches, correctly. The digests themselves are honest: the writer
+> hashed the files it actually ran, and all 38 match at `6d71b40`,
+> `2d04d94` and `226f3b2`. What is stale is the label, almost certainly
+> because `HL_TEST_SOURCE_COMMIT` was read before the shape commit was
+> made. It costs nothing here, because this gate keys its pin tables on
+> the DIGEST and not on the commit; it is recorded because a pin table
+> whose commit is wrong is a pin table a reader cannot use, which is
+> finding K4-F2's family. The gate's own tables now list `6d71b40`,
+> `2d04d94` and `226f3b2` for that blob and say why.
+
+**Stage 35's claim, verified.** The lane's speed stage says its work
+changes nothing sent, absorbed or drawn. Between `4ccbad1` and the lane
+tip `fee1a8d`, `argument.rs` is the ONLY port-relevant file that moved
+(137 added, 18 removed); every other file these ports transcribe is
+byte-identical. Read hunk by hunk, the change is confined to the two
+`poly` closures of slots 14 (`SC_DZC`) and 17 (`SC_SZC`) and is four
+rewrites, each an identity of the same polynomial:
+
+* **(b)(iii)** `k(c).mul(x)` becomes `x.mul_base(k(c).c0)` for thirteen
+  public constants. They are `Fp2::from_i64` of public integers, so the
+  imaginary part is zero and the two are the same field element;
+* **(b)(ii)** `k_den·d` and `k_den·dm`, each formed twice, formed once —
+  `k_den.mul(y).mul(d)` becoming `(k_den·d).mul(y)` is reassociation;
+* **(b)(i)** `Σᵢ μᵢ·g·cᵢ` becomes `g·Σᵢ μᵢcᵢ` at both slots (eleven
+  clauses and five). Distributivity in a commutative ring;
+* `limbs(v, ix)` becomes a closure over a precomputed weight vector of
+  the SAME `pow256(kk)`, with the `256⁰` multiply by one dropped.
+
+Plus two `#[cfg(test)]` differential gates that hand the closure's
+captures to the verbatim `89e393f` body. **No table is added, removed or
+reordered; no `definition_challenges` draw, no absorb, no `pad_on`, no
+`n_pad`, no declared degree and no push order moves.** The claim is
+**UPHELD** for everything these ports model. It also does not bind here:
+all six bundles pin the `4ccbad1` `argument.rs`, the digest the terminal
+port's table already accepts. It was verified because Task C reads the
+stage-34 export, which lives at that same tip.
+
+## 15.4 The prediction, written and committed before the gate was run
+
+`f2eb4a6`, before any of the six bundles had been through the gate. The
+module gained a `corrections_and_geometry` block, and it is validated on
+**three committed records at three shapes** (rung-K4, rung-P2, 125M) in
+every one of the six runs — **21 validations, 0 mismatches**.
+
+| derived from the shape alone | rung-C6 | rung-W14 | rung-E32 | (K4 / P2) | (125M) |
+|---|---|---|---|---|---|
+| `D_max` | 642,099 | 908,065 | 908,065 | 321,049 | 908,065 |
+| `norm_wrho` derived / declared | 32 / 32 | 32 / 32 | 32 / 32 | 31 / 31 | 32 / 32 |
+| correction **C-6** | **on** | **on** | **on** | off | on |
+| `Dom::D` helper planes predicted / declared | 17 / 17 | 17 / 17 | 17 / 17 | 19 / 19 | 17 / 17 |
+| slot 14 terminals predicted / declared | 54 / 54 | 54 / 54 | 54 / 54 | 56 / 56 | 54 / 54 |
+| `Dom::Tab` lift | 4 | **64** | 4 | 4 | **64** |
+| endpoint cube → data rows | 2^14 → 16 | 2^16 → 4 | 2^15 → **32** | 4 | 2^19 → 32 |
+| endpoint commitment rows | 21 | 9 | **37** | 9 | 37 |
+| internal boundary rows | 22 | 10 | **38** | 10 | 38 |
+
+And the pad rule, which round 9b made derived: at all three new shapes
+`T`, `Kv` and `F` do not pad while `Ht`, `L`, `D`, `Q`, `S` and `Tab` do
+— 125M's own set — and the derived definition-draw count of all **eight**
+zero-check slots equals the capture's declaration at all three shapes,
+24 of 24.
+
+**What the predictor derives, and what it still READS.** It derives the
+pad rule, correction C-6, the `Dom::Tab` lift, the endpoint's rows, the
+receipt's degrees and rounds, the replay's positions and challenges, the
+hash layer's columns, bytes and tree depth, the masking layer's lengths
+and the C-4 headroom, and every commitment's disclosed dimension,
+generator count and non-data rows. It does **not** derive `a_rows` and
+`h_rows` — the A and H commitments' row counts are read from the
+capture's declared geometry, so the largest column's byte class is read
+with them — and it does not derive the domain logs other than `Tab`'s,
+because `domain_log_at`'s lift is the plane index table's business and
+the module says so. Those are the two figures at these shapes that the
+prediction names but does not earn.
+
+**One correction to the brief this round was given.** The 56,960-byte
+column class is **125M's `H`** (7,120 rows × 8), and no development shape
+reaches it: at rung-W14 the largest opened-column digest is 4,216 bytes
+(`A`, 527 rows) and the row width buys the Merkle DEPTH and the encoded
+width, not the column byte class. The shape that reproduces a 125M byte
+class exactly is **rung-E32**, whose endpoint column digest is **296
+bytes** — 125M's own — and whose largest is 19,328 bytes, the largest of
+any development bundle.
+
+## 15.5 The whole gate at the three shapes
+
+Both bundles of each pair, both opt-in arms, `--old` and
+`--cross-profile` supplied so that every control family can fire.
+
+| bundle | ok | wall | peak | slots | replay pos / chal | hash cols / bytes | preimage / differing / leaves | mask | joint |
+|---|---|---:|---:|---|---|---|---|---|---|
+| `run-m-dense-c6` | **yes** | 283.6 s | 513 MB | **46/46** | 251 / 7,294 | 2,304 / 11,579,392 | 1,510,974 / **0** / 1,792 | 32,136 / 0 / 512 | 1,543,110 / 2,304 |
+| `run-n-zero-c6` | **yes** | 284.5 s | 526 MB | **46/46** | 251 / 7,294 | 2,304 / 11,579,392 | 1,522,467 / **0** / 1,792 | 32,136 / 0 / 512 | 1,554,603 / 2,304 |
+| `run-o-dense-w14` | **yes** | 1,410.2 s | 1,255 MB | **46/46** | 251 / 3,860 | 2,304 / 4,206,592 | 2,180,241 / **0** / 1,792 | 32,494 / 0 / 512 | 2,212,735 / 2,304 |
+| `run-p-zero-w14` | **yes** | 1,416.5 s | 1,256 MB | **46/46** | 251 / 3,860 | 2,304 / 4,206,592 | 2,180,750 / **0** / 1,792 | 32,494 / 0 / 512 | 2,213,244 / 2,304 |
+| `run-q-dense-e32` | **yes** | 417.0 s | 625 MB | **46/46** | 251 / 11,162 | 2,304 / 19,378,176 | 2,462,544 / **0** / 1,792 | 32,262 / 0 / 512 | 2,494,806 / 2,304 |
+| `run-r-zero-e32` | **yes** | 450.4 s | 627 MB | **46/46** | 251 / 11,162 | 2,304 / 19,378,176 | 2,481,556 / **0** / 1,792 | 32,262 / 0 / 512 | 2,513,818 / 2,304 |
+
+Every one of the replay, hash-layer and joint figures above was PREDICTED
+to the unit before the run. The channel table is **28 at 10 / 5 / 4 / 9**
+on all six.
+
+**The one figure worth reading twice is rung-W14's preimage time.** The
+full-preimage arm is **508 s** of the 1,410 s, against 74 s at rung-C6
+and 107 s at rung-E32 — and rung-W14 has FEWER rows than either (527 and
+436, against 1,337/1,408 and 2,209/2,416). The cost is the row WIDTH:
+every row is re-encoded to 2^16 rather than 2^12, and that is the arm
+that touches the encoded cube. It is the first development shape where
+the gate's own cost profile looks like 125M's, and it is why the run was
+enqueued on the heavy lock and measured rather than assumed.
+
+**The gate refused all six bundles first, and was right to.**
+`stage1_integrity` came back `checked: false` with *"a RUN-LAYER source
+pin moved or is missing, so this gate has not read the Rust that decides
+what this stage would be computing. NOTHING HERE SAYS THE BUNDLE IS BAD,
+and the absence of a figure is not a figure"*, then `stage8` refused on
+`shape.rs`, then the masking arm refused on `shape.rs` again through its
+OWN table. Three separate tables, three separate refusals, each cleared
+only by reading the hunks and writing the reading down. That is round 6's
+finding K4-F2 machinery working on three shapes at once, and it is the
+reason §15.3 exists.
+
+## 15.6 The comparison tables: 180 figures a shape, 0 unexplained
+
+Each new shape against rung-K4 and rung-P2, every figure classified.
+
+| | rung-C6 | rung-W14 | rung-E32 |
+|---|---:|---:|---:|
+| figures compared | 180 | 180 | 180 |
+| INVARIANT (and identical) | **55 / 55** | **55 / 55** | **55 / 55** |
+| BLOCK COUNT (L=2 against L=3) | 61 | 61 | 61 |
+| SCALES | 64 | 64 | 64 |
+| predictions checked / held | 5 / 5 | 5 / 5 | 5 / 5 |
+| **UNEXPLAINED** | **0** | **0** | **0** |
+
+The invariants that hold at all three: `A` discloses 0 and `H` discloses
+2 at every commitment of every stage, the endpoints and boundaries
+disclose 0, the boundary's reserved rank is 6 of 6, `M` is 50 rows and 34
+functionals, the slot table is 23, `a_groups` is 36 and `h_groups` 9, the
+three-role generator count is 154, and the channel array is 28 entries.
+
+> **The first run of this table reported TWO broken invariants, and they
+> were the harness, not the gate.** `channels/constructed` came out 10
+> against 2 and `channels/open` 9 against 17 — because the rung-K4 record
+> I fed it was a DEFAULT-ARM record, whose channel table is 28 at
+> 2/5/4/17 precisely because `--full-preimage` and `--mask-cfs` did not
+> run there. Both-arms records on both sides and the invariant holds. It
+> is written down because the tool did exactly what it should: it refused
+> to call a difference a shape effect, and it named the two figures.
+
+## 15.7 Dense against zero, at each of the three shapes
+
+| | rung-C6 | rung-W14 | rung-E32 |
+|---|---:|---:|---:|
+| figures compared | 136 | 136 | 136 |
+| identical | **122** | **130** | **120** |
+| differ | 14 | 6 | 16 |
+
+Every differing figure, at all three, is one of three things: a
+**distinct opened column count**, the **pad margin** that is
+`256 − that count`, or the **pad block's exact rank**, which IS that
+count. Nothing else moves between a fully dense generic witness and the
+all-zero one — no disclosed dimension, no slot check, no preimage
+figure, no mask figure, no channel count. rung-W14 differs least (6)
+because with 527 and 436 rows there are fewer commitments whose sampled
+columns can collide differently; rung-E32 most (16), with the largest row
+counts of any development bundle. **A count of distinct sampled columns
+is a property of the challenge, not of the witness**, and the gate has
+said so since round 4.
+
+## 15.8 The controls at the three shapes
+
+All nine terminal controls fire on all six bundles (CT-4 included — an
+`--old` bundle was supplied here, unlike at 125M). **CT-9 fires in FOUR
+directions at each of the three shapes**: `Dom::T`, `Dom::Kv` and
+`Dom::F` made to consume the padded arithmetic — finding M-F1's own
+direction, which exists here because these are 125M's padded-domain set —
+and the mirror on `Dom::L`. C1 … C6, the hash-rule family, GQ-1 … GQ-7,
+P-1 … P-6 and round 8's masking controls all fire. No control anywhere in
+this round was skipped except CT-4 and CH-6 at 125M, and both say why.
+
+## 15.9 What rung-W14 and rung-E32 buy, exactly
+
+| 125M property | rung-W14 | rung-E32 | 125M |
+|---|---|---|---|
+| row width `log_cols` | **14** | 10 | 14 |
+| encoded columns | **65,536** | 4,096 | 65,536 |
+| Merkle depth | **16** | 12 | 16 |
+| `Dom::Tab` lift | **×64** | ×4 | ×64 |
+| head dimension | **64** | **64** | 64 |
+| correction C-6 | **on** | **on** | on |
+| endpoint data rows | 4 | **32** | 32 |
+| endpoint commitment rows | 9 | **37** | 37 |
+| internal boundary rows | 10 | **38** | 38 |
+| endpoint column digest | 72 B | **296 B** | 296 B |
+| `a_rows` / `h_rows` | 527 / 436 | 2,209 / 2,416 | 5,681 / 7,120 |
+
+Neither holds the other's, which is what lane stage 33 said in writing
+before either was run here. Together they put 125M's row geometry AND
+125M's endpoint row count inside the ordinary suite, at 50 MB and 33 MB
+instead of 281 MB.
+
+## 15.10 Task C: the lane's slot IR, read as a cross-check
+
+Lane stage 34 exports every registered shape's twenty-three slot
+polynomials as canonical JSON (`zk60-slot-ir/1`), each file pinned by
+SHA-256 and by length in a Rust test, carrying table ids, kinds, field
+kinds, degrees and coefficient PROVENANCE and no challenge value.
+`zk60_native_rg_slotir` reads it — **checking each file against the
+lane's own pin before reading a byte of it** — and makes eight structural
+comparisons per slot at every shape a bundle exists for:
+
+1. table count, against the capture's;
+2. the table KIND sequence in push order, against the capture's;
+3. the PRIVATE plane sequence, against the plane index table — which is
+   the object `SlotCtx` resolves every table by name through, and
+   `cx.expect` refuses any other order, so agreeing with the plane index
+   IS agreeing with the port;
+4. the PUBLIC table sequence, against this port's `PUBLIC_SPEC`;
+5. the declared degree, three ways (export, capture, the shape's triple);
+6. main and extension rounds;
+7. `pad_on`, against `PadGeometry.pads` over the domains the slot HOSTS;
+8. the byte-limb LogUp helper count, against `lookups_at` — with the one
+   extra pair helper `Dom::S` and `Dom::F` carry (`H_SEXP`, `H_FACT`)
+   identified BY NAME in the plane index rather than subtracted by hand,
+   and slots 02, 19 and 20 excluded with the reason written out.
+
+**7 shapes × 23 slots × 8 = 1,288 comparisons, 0 disagreements.**
+
+**The first run reported ELEVEN, and every one was in the new reader's
+own label map** — public-table labels guessed before the export's were
+read (`the causal mask` against `causal mask over the Dom::S cube`), the
+endpoint plane named `EP` there and by its role in the plane index, and
+the pair helper counted into the byte-limb helpers. Not one was in the
+port and not one was in the export. They are recorded because they show
+the comparison has teeth: an unmapped label is a disagreement, not a
+silent pass. **Seven controls** make that a statement rather than a hope:
+a dropped table, two private planes swapped, `pad_on` flipped, a declared
+degree moved, a group-bit count moved, a LogUp helper turned into a
+public table, and a one-byte change to the file itself — which must be
+refused by the lane's pin before a byte is compared. All seven fire.
+
+What it confirms where it matters: correction C-6 moves slot 14's table
+count by exactly two and no other slot's, between rung-P2 and rung-C6;
+`pad_on` differs between rung-K4 and rung-P2 at exactly slots 02, 16 and
+18 — **finding M-F1's own statement, made against the lane's data instead
+of against this port**; and rung-C6, rung-W14 and rung-E32 carry 125M's
+`pad_on` vector slot for slot. The port's `lookups_at` gives 19 helpers
+for `Dom::D` where C-6 is off and 17 where it is on, and the export's
+helper columns agree at all seven shapes.
+
+**Ruling I-8 is kept.** The hand port is the gate's evaluator. Nothing
+here is evaluated, nothing here is consumed by the terminal identity, and
+no figure the gate reports comes from the export. `zk60_native_rg_slotir`
+is deliberately NOT in the gate's hashed tool list, for the same reason
+`_predict`, `_m125controls` and `_recclass` are not: a cross-check is not
+the gate.
+
+## 15.11 The records re-taken, the leaf diff, and the suite
+
+Round 9c moved three PIN TABLES — `rg_runpins`, `rg_terminals` and
+`rg_mask` — and all three are in the gate's hashed tool list, so every
+record of record was re-run under the final bytes and diffed leaf by
+leaf.
+
+**Twenty diffs in one summary** (`all_twenty_records_unchanged.json`):
+the ten default records, rounds 7 and 8's eight, and the two 125M records
+task A integrated.
+
+| | the ten default records | round 7's four | round 8's four | the two 125M |
+|---|---:|---:|---:|---:|
+| identical leaves | 2,873–4,184 | 6,525–6,614 | 8,746–8,835 | 3,549–3,583 |
+| changed | **5–6** | 68–73 | 73–78 | 18 / 37 |
+| new | **0** | **0** | **0** | 273 / 288 |
+| only in the OLD record | **0** | **0** | **0** | **0** |
+| **UNCLASSIFIED** | **0** | **0** | **0** | **0** |
+
+Across the twenty: **106,285 identical leaves, 692 changed, 561 new, 0
+only in the old record, 0 unclassified.** The changed leaves are 170 wall
+clocks, 69 tool hashes and the rest stage-11's per-commitment timings.
+**The eighteen development and round-7/8 records gain NO new leaf at
+all** — this round added no control, no block and no field to a record,
+only three pin tables, each naming commits the older bundles are not
+written at. Not one rank, disclosed dimension, challenge count, slot
+check, preimage figure, mask figure, control figure or channel count
+differs on any of the twenty, at any shape.
+
+**The three 125M records pin the PRE-9c tool bytes, deliberately.** They
+were re-taken under round 9b's final bytes and this round moved three pin
+tables after that. What moved in those three files is three (file,
+digest) readings each, for shapes those bundles are not at; **no figure
+in any of the three records is in question**, and re-taking them is not
+worth a 125M pass, so **no new 125M computation was started in this round
+at all**. They are the first thing the next round re-takes.
+
+**A note the next round should keep.** Round 9c's closing sequence ran
+DETACHED (`results/zk60_native_run_gate_9c/finish.sh`): it waited for the
+three gate passes, then ran the comparison tables, the refresh, the leaf
+diff and the suite. The session died to an authentication outage at about
+20:10; the sequence carried on and its three heavy steps landed exit 0 at
+21:14. Its fourth step, the whole suite at `MemoryMax=4G`, was **KILLED
+(exit 137)** — an OOM, not a failure, leaving a partial log whose dot line
+shows failures that the run never got to summarise. The cause was in this
+round's own new test: the live arm of the slot-IR cross-check called
+`sir.run` once per test method, and each call opens all seven bundles,
+including the 281 MB 125M array store. It is computed once for the class
+now. **The no-hangup protocol did its job; the 4G cap caught a test that
+should not have been allocating that much in the first place.**

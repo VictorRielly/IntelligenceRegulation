@@ -194,15 +194,24 @@ class TheRecord(unittest.TestCase):
 class TheComparisonReRun(unittest.TestCase):
     """The live arm: the comparison itself, on whatever bundles are here."""
 
+    # The comparison is run ONCE for the whole class.  Each `sir.run` opens
+    # every bundle it is given -- at 125M that is a 281 MB array store and
+    # at rung-W14 a 42 MB one -- so running it per test method was four
+    # times the peak for the same figures, and it is what took the whole
+    # native suite over `MemoryMax=4G` in round 9c's first closing pass.
+    @classmethod
+    def setUpClass(cls):
+        cls.out = sir.run(list(LIVE))
+
     def test_no_disagreement_at_any_shape_with_a_bundle(self):
-        out = sir.run(list(LIVE))
+        out = self.out
         self.assertEqual(out["disagreements"], 0,
                          [x["disagreements"] for x in out["per_shape"]])
         self.assertEqual(out["comparisons"], 8 * 23 * len(LIVE))
 
     def test_the_declared_degree_agrees_three_ways(self):
         """Export, capture and the shape's own `slots` triple."""
-        out = sir.run(list(LIVE))
+        out = self.out
         for x in out["per_shape"]:
             for row in x["slots"]:
                 with self.subTest(shape=x["shape"], slot=row["slot"]):
@@ -211,14 +220,14 @@ class TheComparisonReRun(unittest.TestCase):
                     self.assertEqual(d["export"], d["shape"])
 
     def test_pad_on_agrees_with_this_ports_pad_geometry(self):
-        out = sir.run(list(LIVE))
+        out = self.out
         for x in out["per_shape"]:
             for row in x["slots"]:
                 with self.subTest(shape=x["shape"], slot=row["slot"]):
                     self.assertTrue(row["pad_on"]["equal"])
 
     def test_the_two_bilinear_slots_carry_log2_kv_heads_group_bits(self):
-        out = sir.run(list(LIVE))
+        out = self.out
         for x in out["per_shape"]:
             for row in x["slots"]:
                 if row["slot"] in (8, 9):
