@@ -4121,3 +4121,44 @@ round's own new test: the live arm of the slot-IR cross-check called
 including the 281 MB 125M array store. It is computed once for the class
 now. **The no-hangup protocol did its job; the 4G cap caught a test that
 should not have been allocating that much in the first place.**
+
+## 15.12 What this round is NOT
+
+* **Not a privacy claim and not a privacy acceptance.** Three more shapes
+  that exercise a correction, a row width and an endpoint row count are
+  three more shapes that exercise a correction, a row width and an
+  endpoint row count. Nothing here establishes a privacy property, and
+  `run.json` still carries `privacy_review_complete: false` on all six
+  bundles.
+* **Not a statement that the 125M records are current.** This round moved
+  three PIN TABLES, so `m125-dense.json`, `m125-zero.json` and
+  `m125-dense-everything.json` pin the pre-9c bytes of
+  `zk60_native_rg_terminals`, `_runpins` and `_mask`. What moved in those
+  three files is three (file, digest) readings each, for shapes those
+  bundles are not at; **no figure in any of the three is in question**,
+  and no new 125M computation was started for that reason. They are the
+  first thing the next round re-takes.
+* **Not 125M.** `rung-W14` holds 125M's row WIDTH and `rung-E32` its
+  endpoint ROW COUNT; neither holds the other's, and no development shape
+  holds 125M's token count, its `Dom::S` cube or its 281 MB of bundle.
+* **Two blocks at each of the three shapes.** `L = 2` exercises one
+  internal boundary, and every joint figure here is a two-block figure.
+* **The slot-IR cross-check is a cross-check.** Ruling I-8 stands: the
+  hand port is the gate's evaluator, the export is read for its STRUCTURE
+  and never for a value, and no figure the gate reports comes from it.
+  Agreement there says the two agree about the SHAPE of every slot
+  polynomial and says nothing about any number the gate computes.
+* **Finding E32-F1 costs nothing here and is not a defect of the
+  bundles.** The digests are honest; a commit label is stale by one
+  commit. It is recorded because a pin table whose commit is wrong is a
+  pin table a reader cannot use.
+* **M9-3's `ok: false` at 125M is not a failure of the gate**, and the
+  repaired control firing in three directions is not a privacy result
+  either. What it shows is that finding P-F2's repair works at the shape
+  the finding came from.
+* **The gate still cannot see the witness**, the hash layer's HIDING is
+  still ARGUED (M-2, M-3), the joint LAW is still O-R2 / G-R4, and ruling
+  R-3 travels with every joint figure here — `joint == sum of the parts`
+  is a consistency check of this model's coordinate classes and not
+  evidence that the commitments' blinding is independent.
+* **Nothing here moves D8/D11 or ruling M-8's decision.**

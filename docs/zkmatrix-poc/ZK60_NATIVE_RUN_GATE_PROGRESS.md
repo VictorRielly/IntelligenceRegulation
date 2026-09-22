@@ -2180,13 +2180,13 @@ cross-check of the hand port.
 
 | # | item | state |
 |---|---|---|
-| Q0 | ledger skeleton, round 9c opened | in flight |
-| Q1 | Task A — the two 125M records of record and `dense-everything`, leaf-diffed and integrated | pending |
-| Q2 | Task B — pins at the three new shapes, hunk by hunk, incl. stage 35's claim | pending |
-| Q3 | Task B — the prediction at the three shapes, written and committed BEFORE the gate is run | pending |
-| Q4 | Task B — the whole gate on all six bundles, both arms | pending |
-| Q5 | Task C — the lane's slot-IR export read and compared with the hand port | pending |
-| Q6 | report section "Round 9c", the suite | pending |
+| Q0 | ledger skeleton, round 9c opened | done — `93c4d1d` |
+| Q1 | Task A — the two 125M records of record and `dense-everything`, leaf-diffed and integrated | done — `9992652`, §R9c.4, report §15.2 |
+| Q2 | Task B — pins at the three new shapes, hunk by hunk, incl. stage 35's claim | done — `f2eb4a6`, §R9c.5, report §15.3; **finding E32-F1** |
+| Q3 | Task B — the prediction at the three shapes, written and committed BEFORE the gate is run | done — `f2eb4a6` (committed before any run), §R9c.5, report §15.4 |
+| Q4 | Task B — the whole gate on all six bundles, both arms | done — `3e28d91`, §R9c.6, report §15.5–15.9 |
+| Q5 | Task C — the lane's slot-IR export read and compared with the hand port | done — `9cd5397`, `bfa9038`, §R9c.7, report §15.10 |
+| Q6 | report section "Round 9c", the records re-taken, the suite | done — `e3bc0ad`, `465d6fb`, §R9c.8, report §15 and §15.11 |
 
 ## R9c.3 Commands and logs (round 9c)
 
@@ -2246,3 +2246,79 @@ one was in the new reader's own label map; none was in the port and none
 in the export. Seven controls show the comparison refuses a wrong export
 by name. Ruling I-8 is kept: nothing here is evaluated and no figure the
 gate reports comes from the export.
+
+## R9c.6 Results — Q4, the whole gate at the three new shapes
+
+Report §15.5–15.9. **Six bundles, both arms, 46 of 46 slot checks on
+every one**, every stage `ok`, the channel table the full 28 at
+10 / 5 / 4 / 9, all nine terminal controls firing and CT-9 in four
+directions at each shape. 283.6 / 284.5 s at 513 / 526 MB (rung-C6),
+1,410.2 / 1,416.5 s at ~1,256 MB (rung-W14), 417.0 / 450.4 s at ~626 MB
+(rung-E32). The comparison tables: **180 figures a shape, 55 invariant
+and all 55 identical, 61 block count, 64 scaling, 5 of 5 predictions
+held, 0 UNEXPLAINED** at each. Dense against zero: 136 figures,
+122 / 130 / 120 identical, every difference a distinct-sampled-column
+count or the pad margin or pad-block rank that derives from it.
+
+Two things worth keeping.
+
+1. **The gate refused all six bundles three times before computing a
+   figure** — the run-layer pin table on `run.rs`, the terminal port's on
+   `shape.rs`, and the mask port's OWN table on `shape.rs` again. Each
+   refusal was cleared only by reading the hunks and writing the reading
+   down, which is finding K4-F2's machinery working on three shapes at
+   once.
+2. **rung-W14's full-preimage arm is 508 s of its 1,410 s**, against 74 s
+   at rung-C6 and 107 s at rung-E32 — and rung-W14 has FEWER rows than
+   either. The cost is the row WIDTH: 2^16 encoded columns instead of
+   2^12. It is the first development shape whose cost profile looks like
+   125M's.
+
+## R9c.8 Results — Q6, the records re-taken and the suite
+
+Report §15.11. Three pin tables moved, all three in the gate's hashed
+tool list, so every record of record was re-run and diffed: **twenty
+diffs, 106,285 identical leaves, 692 changed, 561 new, 0 only in the old
+record, 0 UNCLASSIFIED**, and the eighteen development and round-7/8
+records gain no new leaf at all.
+
+**The three 125M records deliberately pin the pre-9c bytes.** What moved
+in the three tool files is three (file, digest) readings each, for
+shapes those bundles are not at; no figure in them is in question, and
+**no new 125M computation was started in this round**.
+
+**The closing sequence and its one failure.** `finish.sh` ran detached,
+survived the session's death to an authentication outage at ~20:10 on
+2026-09-21, and landed its three heavy steps exit 0 at 21:14. Its fourth
+step — the whole suite at `MemoryMax=4G` — was KILLED (exit 137). An
+OOM, not a test failure. The cause was this round's own new test: the
+slot-IR cross-check's live arm called `sir.run(LIVE)` once per test
+METHOD and each call opens all seven bundles, the 125M one a 281 MB
+array store. Computed once per class now (`465d6fb`).
+
+## R9c.9 NEXT after round 9c
+
+0. **Re-take the three 125M records** (`m125-dense`, `m125-zero`,
+   `m125-dense-everything`): they pin the pre-9c bytes of
+   `rg_terminals`, `rg_runpins` and `rg_mask`. Two are three minutes
+   each; `dense-everything` is two and a quarter hours and is the only
+   pass that carries the whole channel table at 125M.
+1. **Report finding E32-F1 to the lane.** The rung-E32 bundles' manifest
+   names `4505ddf`, one commit before `Shape::rung_e32` exists. The fix
+   is in the writer's `HL_TEST_SOURCE_COMMIT`, not here.
+2. **M9-3's ok-criterion.** It demands a refusal naming two DRAW counts
+   and its own mechanism cannot produce one, because the public-table
+   count catches the perturbation first. Either weaken the criterion to
+   what the mechanism tests, or retire M9-3 in favour of CT-9, which
+   does produce that message. Recorded, not decided.
+3. **CH-3 at 125M.** It substitutes the 125M profile, so at the 125M
+   shape it is the identity and cannot refuse. It should report itself
+   inapplicable rather than `fires: false` — P-F2's shape of defect,
+   without the consequences.
+4. **More than two blocks**, at any of the four development shapes that
+   now carry 125M's padded-domain set.
+5. **The joint LAW** (O-R2 / G-R4) and **the hash layer's HIDING**
+   (M-2, M-3) are exactly where rounds 7–9b left them, and they remain
+   the two largest things between this gate and a privacy argument.
+6. Nothing in this round moves D8/D11 or ruling M-8's decision, and
+   nothing in it is a privacy acceptance.
