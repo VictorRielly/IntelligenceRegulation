@@ -212,6 +212,33 @@ rungs, the 125M block, the multi-block run — gets a separating hash tag, and
 owes this whole argument again at its own layout before anything is said
 about its privacy.
 
+**Replayed on the integrator's new-tree bundle — 2026-09-22 10:20.** The
+integrator delivered a schema-3 capture of a receipt produced by the merged
+tree's binary at `4751b93` on the CPU path (receipt digest `10b9d4be…`,
+2,816,472 B, byte-identical to the new-tree receipt the re-pin record's §7 had
+named as the one no bundle yet carried). The gate's round 9d
+(`zk60-native-jointview` at `d837d50`; the record's new §8) replayed both toy
+gates on it: **all 132 source pins the bundle carries equal the blobs at
+`4751b93`, and its 32 pinned paths are all at digests this statement accepts;
+no figure of record moved** (an A/B/N leaf comparison against the two block
+captures of record: 0 moved at every stage; 28 channels with the same names
+and grades; ranks 72 / 20 / 4 / 4; `M` disclosed 2 as predicted); **all ten
+controls fire**; no pinned tool had to change. So §7's gap is closed: the
+ports describe the merged tree's proofs, not only the old tree's. Three
+things recorded: (a) this statement never named a digest for "the accepted
+receipt" — it accepts a PROFILE, evidenced by four captures named by digest,
+and the new bundle is a fifth, not one of the four; (b) the gate's manifest
+cross-check silently skips when the validation file carries a single record
+instead of a list — a weakness in the gate, not in the proof, closed by
+staging a wrapped copy for this replay and to be fixed in the pinned tool
+with the record guard re-pinned; (c) `M`'s pad margin on this receipt is 4
+(252 distinct opened columns of 256 pads) — condition 2 holds, and a margin
+of 0 would ALSO hold: at wide shapes all 256 draws are routinely distinct and
+the pad rank check holds with equality (round 9 at 125M), so 0 is the generic
+case, not a boundary. **This replay extends nothing**: same profile, CPU path,
+the integration branch and the stage-36 observers still owe their own
+condition-7 read.
+
 ## 9. Clarifications added after the re-examination of 2026-09-21
 
 They say more exactly what the sections above already meant. Source:
