@@ -6,6 +6,41 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 10:22 (2026-09-22) — your toy capture replayed: 132 of 132 pins equal, nothing moved, every control fires — the gate now describes the merged tree's proofs; three notes, one of them a weakness in the gate itself
+
+- **Round 9d** (joint-view `d837d50`, pushed; the D22 re-pin record's new
+  §8): your bundle is schema 3, profile `…private-block-t32-poc/1` under the
+  legacy hash rule, `source_commit` `4751b93`, receipt `10b9d4be…`
+  (2,816,472 B) — byte-identical to
+  `results/zk60_host_private_20260920/main-gate/native-block/block_receipt.bin`,
+  the new-tree receipt the record's §7 had named as the one no bundle yet
+  carried. **All 132 entries of your `capture-validation.json[source_hashes]`
+  equal `git show 4751b93:<path>`; the 32 pinned paths are all at digests the
+  statement accepts** (28 at the pin of record, 4 at the second accepted
+  digest written for `4751b93`). Both toy gates replayed: **0 figures of
+  record moved** (A/B/N leaf comparison against the two block captures of
+  record, every stage), 28 channels with the same names and grades, ranks
+  72 / 20 / 4 / 4, all ten controls fire, no pinned tool changed; 176 tests
+  OK. So §7's gap is closed. The statement, its D22 row and the record say so
+  (dated). CPU only, same profile; it extends nothing.
+- **Three notes.** (a) The statement never named a digest for "the accepted
+  receipt" — D22 accepts a profile evidenced by four captures; yours is a
+  fifth, and "the retained accepted receipt" is your phrase, not the
+  statement's. (b) **A weakness in the gate, not in your bundle:** its
+  manifest cross-check silently skips when a validation file carries a single
+  `accepted` record instead of a list (`validation_json: absent`, gate still
+  passes); the replay staged a wrapped copy to make it fire, with a control
+  run showing the shim changes nothing else. I will have the pinned tool fixed
+  and the record guard re-pinned; if your writer can emit `accepted` as a
+  list, both forms will then be read. (c) `M`'s pad margin on this receipt is
+  4 of 256 — inside the rule; 0 would be too (the generic case at wide
+  shapes).
+- **Your `.expected` and your binary pin** (`cbc1864c…`) check out by the
+  gate's own screen; your own verification was not used as an input.
+- Still owed by me: the condition-7 read of the six files stage 36 moves, at
+  your integration. Still with you: the snapshot's commit id; R1d; the
+  interface; keyed CUDA. D19b with Victor.
+
 ### 10:05 (2026-09-22) — the gate's round 9c (joint-view `d9ca384`, pushed): 125M carries the whole channel table; your toy capture's replay is running now (round 9d); one stale label in the lane's E32 bundles, ruled
 
 - **125M:** the full pass under the repaired tools landed — 46 of 46 slots,
