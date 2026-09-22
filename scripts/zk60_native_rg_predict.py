@@ -185,6 +185,113 @@ def pad_rule(bundle) -> dict:
     }
 
 
+MASK_ROWS = 5     # layout.rs: the endpoint's mask rows above its data rows
+U8_LOG = 8        # layout.rs: the byte table's natural log
+D_HELPERS_C6_OFF = 19   # `Dom::D`'s helper planes when the norm top byte is
+D_HELPERS_C6_ON = 17    # not full / is full: correction C-6's four lookups
+SLOT14_TERMINALS_C6_OFF = 56
+SLOT14_TERMINALS_C6_ON = 54
+
+
+def _isqrt(n: int) -> int:
+    import math
+    return math.isqrt(n)
+
+
+def corrections_and_geometry(bundle) -> dict:
+    """[ROUND 9c] The three things the three new shapes are FOR, each derived
+    from `run.json["shape"]`'s own numbers and then compared with what the
+    capture declares.  Round 9b's pad rule reads the plane index for the
+    helper counts and the domain logs; these three do not.
+
+    * **correction C-6** (`Shape::norm_top_is_full_byte`).  `D_max =
+      isqrt(1 + width * 32767^2)`, the norm window is `NORM_TN + 1 +
+      bit_length(D_max) = 12 + bit_length(D_max)`, and the window FILLS its
+      top byte limb exactly when that is a multiple of eight -- which needs
+      `width > 256`.  When it does, the `scaled(top, 1 << 0)` lookup IS the
+      `byte(top)` lookup already in the list, so FOUR lookups (`rho` and
+      `sigma` of `norm_a` and of `norm_m`) are dropped: `Dom::D` carries two
+      helper planes fewer and slot 14 two terminals fewer.
+    * **the `Dom::Tab` lift** (ruling P-3).  The byte table's natural log is
+      8 and it is served at the ROW WIDTH, so its domain log is `log_cols`
+      and the lift is `2^(log_cols - 8)` -- 4 at every development shape so
+      far and **64** at `rung-W14` and 125M.
+    * **the endpoint's ROW COUNT.**  The external endpoint commits the
+      padded `Dom::D` cube, `t_pad * d_pad` words, in rows of
+      `2^endpoint_log_n`; its commitment has `MASK_ROWS = 5` more, and an
+      internal boundary has one more than that, the run layer's second
+      reserved IO-tab row.
+    """
+    sh = bundle.shape.raw
+    d_max = _isqrt(1 + sh["width"] * 32767 ** 2)
+    wrho = 12 + d_max.bit_length()
+    c6 = wrho % 8 == 0
+    logs = domain_logs(bundle)
+    helps = helper_counts(bundle)
+    ep_data = (sh["t_pad"] * sh["d_pad"]) >> sh["endpoint_log_n"]
+    roles = [r for st in bundle.stages for r in st.roles]
+    ep = [r for r in roles if r["commitment_kind"] == "external-endpoint"]
+    ib = [r for r in roles if r["commitment_kind"] == "internal-boundary"]
+    s14 = len(bundle.stages[0].slots[14]["terminals"])
+    return {
+        "correction_c6": {
+            "d_max": d_max,
+            "norm_wrho_derived": wrho,
+            "norm_wrho_declared": sh.get("norm_wrho"),
+            "norm_wrho_equal": wrho == sh.get("norm_wrho"),
+            "norm_top_is_full_byte": c6,
+            "why": "the window is 12 + bit_length(D_max) and C-6 applies "
+            "exactly when that is a multiple of 8, which needs width > 256",
+            "lookups_dropped": 4 if c6 else 0,
+            "d_helper_planes_predicted":
+                D_HELPERS_C6_ON if c6 else D_HELPERS_C6_OFF,
+            "d_helper_planes_declared": helps.get("D"),
+            "d_helper_planes_equal":
+                (D_HELPERS_C6_ON if c6 else D_HELPERS_C6_OFF) == helps.get("D"),
+            "slot14_terminals_predicted":
+                SLOT14_TERMINALS_C6_ON if c6 else SLOT14_TERMINALS_C6_OFF,
+            "slot14_terminals_declared": s14,
+            "slot14_terminals_equal":
+                (SLOT14_TERMINALS_C6_ON if c6 else SLOT14_TERMINALS_C6_OFF) == s14,
+        },
+        "tab_lift": {
+            "natural_log": U8_LOG,
+            "domain_log_predicted": sh["log_cols"],
+            "domain_log_declared": logs.get("Tab"),
+            "domain_log_equal": logs.get("Tab") == sh["log_cols"],
+            "lift_factor": 1 << (sh["log_cols"] - U8_LOG),
+            "why": "ruling P-3 serves the byte table at the row width",
+        },
+        "endpoint": {
+            "cube_words": sh["t_pad"] * sh["d_pad"],
+            "endpoint_log_n": sh["endpoint_log_n"],
+            "data_rows_predicted": ep_data,
+            "commitment_rows_predicted": ep_data + MASK_ROWS,
+            "commitment_rows_declared_by_the_shape": sh["endpoint_rows"],
+            "commitment_rows_equal":
+                ep_data + MASK_ROWS == sh["endpoint_rows"],
+            "external_endpoints_declared":
+                sorted({(r["data_rows"], r["commitment"]["rows"]) for r in ep}),
+            "external_endpoints_equal": all(
+                r["data_rows"] == ep_data
+                and r["commitment"]["rows"] == ep_data + MASK_ROWS for r in ep),
+            "internal_boundary_rows_predicted": ep_data + MASK_ROWS + 1,
+            "internal_boundaries_declared":
+                sorted({(r["data_rows"], r["commitment"]["rows"]) for r in ib}),
+            "internal_boundaries_equal": all(
+                r["commitment"]["rows"] == ep_data + MASK_ROWS + 1 for r in ib),
+            "column_digest_bytes_of_the_largest_commitment":
+                max(r["commitment"]["rows"] for r in roles) * 8,
+            "why": "the endpoint commits the padded Dom::D cube in rows of "
+            "2^endpoint_log_n, plus MASK_ROWS = 5; an internal boundary has "
+            "one more, the run layer's second reserved IO-tab row",
+        },
+        "what_this_is_not": "a check of the prover.  These are three "
+        "statements about the SHAPE, derived from its own seven numbers, "
+        "and compared with what the capture declares about itself",
+    }
+
+
 def receipt(bundle) -> dict:
     """[ROUND 9b] The segment lengths, and the one arithmetic statement that
     relates two shapes with the same padded layout.
@@ -358,6 +465,7 @@ def predict(bundle) -> dict:
         "shape_independent": {k: v[0] for k, v in SHAPE_INDEPENDENT.items()},
         "shape_independent_why": {k: v[1] for k, v in SHAPE_INDEPENDENT.items()},
         "pad_rule": pads,
+        "corrections_and_geometry": corrections_and_geometry(bundle),
         "receipt": receipt(bundle),
         "replay": {
             "positions_checked": positions,

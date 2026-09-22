@@ -1,0 +1,302 @@
+{
+ "base": "4ccbad1",
+ "finding_E32_F1": {
+  "consequence_for_this_round": "none for any figure: the gate reads the digests, not the label, and the three files that differ are the three shape-registration files, whose content at `6d71b40` is exactly the additions read above.  It is reported because a pin table whose COMMIT is wrong is a pin table a reader cannot use, which is finding K4-F2's family",
+  "the_other_four_bundles": "rung-C6 at `3e106e1` and rung-W14 at `11703c9`: 38 of 38 pins match the blob at the named commit",
+  "the_reading": "`4505ddf` is 'Stage 33 task 2: the independent Python layout model mirrors ruling S-6' -- the commit BEFORE `6d71b40`, which is the commit that ADDS `Shape::rung_e32`.  A reader checking these bundles against the commit they name finds that the shape they are captures of does not exist there.  All 38 pins match at `6d71b40` and at every commit from there to stage 33's close, so the DIGESTS are honest and the writer hashed the files it actually ran; what is stale is the commit LABEL, by one commit.  The likely cause is the same one the lane's own note describes for a detached job: `HL_TEST_SOURCE_COMMIT` was set from `git rev-parse` before the shape commit was made",
+  "the_three": [
+   "src/private_block/run.rs",
+   "src/private_block/shape.rs",
+   "src/private_block.rs"
+  ],
+  "verified_at": {
+   "226f3b2": 0,
+   "2d04d94": 0,
+   "4505ddf": 3,
+   "6d71b40": 0
+  },
+  "verified_at_meaning": "pins that do NOT match the blob at that commit",
+  "what": "the two rung-E32 bundles record `source_commit: 4505ddf`, and three of their 38 pinned digests are NOT the blobs at that commit"
+ },
+ "per_bundle": [
+  {
+   "all_pins_match_the_blob": true,
+   "bundle": "run-m-dense-c6",
+   "byte_identical_to_4ccbad1": 35,
+   "commit": "3e106e1",
+   "mismatches": [],
+   "missing_at_that_commit": [],
+   "moved": [
+    {
+     "base_digest": "9a0ae11f9248",
+     "file": "src/private_block/run.rs",
+     "here_digest": "e161190b2626",
+     "numstat": [
+      7,
+      0
+     ]
+    },
+    {
+     "base_digest": "502ba5caac76",
+     "file": "src/private_block/shape.rs",
+     "here_digest": "3791ef61cd3c",
+     "numstat": [
+      75,
+      0
+     ]
+    },
+    {
+     "base_digest": "c51a2126c1b6",
+     "file": "src/private_block.rs",
+     "here_digest": "d2edf509beac",
+     "numstat": [
+      7,
+      0
+     ]
+    }
+   ],
+   "pins": 38
+  },
+  {
+   "all_pins_match_the_blob": true,
+   "bundle": "run-n-zero-c6",
+   "byte_identical_to_4ccbad1": 35,
+   "commit": "3e106e1",
+   "mismatches": [],
+   "missing_at_that_commit": [],
+   "moved": [
+    {
+     "base_digest": "9a0ae11f9248",
+     "file": "src/private_block/run.rs",
+     "here_digest": "e161190b2626",
+     "numstat": [
+      7,
+      0
+     ]
+    },
+    {
+     "base_digest": "502ba5caac76",
+     "file": "src/private_block/shape.rs",
+     "here_digest": "3791ef61cd3c",
+     "numstat": [
+      75,
+      0
+     ]
+    },
+    {
+     "base_digest": "c51a2126c1b6",
+     "file": "src/private_block.rs",
+     "here_digest": "d2edf509beac",
+     "numstat": [
+      7,
+      0
+     ]
+    }
+   ],
+   "pins": 38
+  },
+  {
+   "all_pins_match_the_blob": true,
+   "bundle": "run-o-dense-w14",
+   "byte_identical_to_4ccbad1": 35,
+   "commit": "11703c9",
+   "mismatches": [],
+   "missing_at_that_commit": [],
+   "moved": [
+    {
+     "base_digest": "9a0ae11f9248",
+     "file": "src/private_block/run.rs",
+     "here_digest": "472950d55257",
+     "numstat": [
+      14,
+      0
+     ]
+    },
+    {
+     "base_digest": "502ba5caac76",
+     "file": "src/private_block/shape.rs",
+     "here_digest": "b891869adb3d",
+     "numstat": [
+      154,
+      0
+     ]
+    },
+    {
+     "base_digest": "c51a2126c1b6",
+     "file": "src/private_block.rs",
+     "here_digest": "11976471fa79",
+     "numstat": [
+      14,
+      0
+     ]
+    }
+   ],
+   "pins": 38
+  },
+  {
+   "all_pins_match_the_blob": true,
+   "bundle": "run-p-zero-w14",
+   "byte_identical_to_4ccbad1": 35,
+   "commit": "11703c9",
+   "mismatches": [],
+   "missing_at_that_commit": [],
+   "moved": [
+    {
+     "base_digest": "9a0ae11f9248",
+     "file": "src/private_block/run.rs",
+     "here_digest": "472950d55257",
+     "numstat": [
+      14,
+      0
+     ]
+    },
+    {
+     "base_digest": "502ba5caac76",
+     "file": "src/private_block/shape.rs",
+     "here_digest": "b891869adb3d",
+     "numstat": [
+      154,
+      0
+     ]
+    },
+    {
+     "base_digest": "c51a2126c1b6",
+     "file": "src/private_block.rs",
+     "here_digest": "11976471fa79",
+     "numstat": [
+      14,
+      0
+     ]
+    }
+   ],
+   "pins": 38
+  },
+  {
+   "all_pins_match_the_blob": false,
+   "bundle": "run-q-dense-e32",
+   "byte_identical_to_4ccbad1": 35,
+   "commit": "4505ddf",
+   "mismatches": [
+    {
+     "blob": "472950d55257410829146f558b6fd733cc461a382a3bd0618f0e6456ed201c24",
+     "file": "src/private_block/run.rs",
+     "pinned": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0"
+    },
+    {
+     "blob": "0ef1599fce07f3a13c51ca17162b4f443d6aa913eb433fd2e56357af869ef469",
+     "file": "src/private_block/shape.rs",
+     "pinned": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911"
+    },
+    {
+     "blob": "0a2e7c2fdb206f557315b36087130f40f38daddf952747f23d1dec6594d8282d",
+     "file": "src/private_block.rs",
+     "pinned": "0529e5488063e20b47fa191cb39e1edceee13117cc5734701c1d1d0e72d1ef7a"
+    }
+   ],
+   "missing_at_that_commit": [],
+   "moved": [
+    {
+     "base_digest": "9a0ae11f9248",
+     "file": "src/private_block/run.rs",
+     "here_digest": "472950d55257",
+     "numstat": [
+      14,
+      0
+     ]
+    },
+    {
+     "base_digest": "502ba5caac76",
+     "file": "src/private_block/shape.rs",
+     "here_digest": "0ef1599fce07",
+     "numstat": [
+      211,
+      0
+     ]
+    },
+    {
+     "base_digest": "c51a2126c1b6",
+     "file": "src/private_block.rs",
+     "here_digest": "0a2e7c2fdb20",
+     "numstat": [
+      23,
+      0
+     ]
+    }
+   ],
+   "pins": 38
+  },
+  {
+   "all_pins_match_the_blob": false,
+   "bundle": "run-r-zero-e32",
+   "byte_identical_to_4ccbad1": 35,
+   "commit": "4505ddf",
+   "mismatches": [
+    {
+     "blob": "472950d55257410829146f558b6fd733cc461a382a3bd0618f0e6456ed201c24",
+     "file": "src/private_block/run.rs",
+     "pinned": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0"
+    },
+    {
+     "blob": "0ef1599fce07f3a13c51ca17162b4f443d6aa913eb433fd2e56357af869ef469",
+     "file": "src/private_block/shape.rs",
+     "pinned": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911"
+    },
+    {
+     "blob": "0a2e7c2fdb206f557315b36087130f40f38daddf952747f23d1dec6594d8282d",
+     "file": "src/private_block.rs",
+     "pinned": "0529e5488063e20b47fa191cb39e1edceee13117cc5734701c1d1d0e72d1ef7a"
+    }
+   ],
+   "missing_at_that_commit": [],
+   "moved": [
+    {
+     "base_digest": "9a0ae11f9248",
+     "file": "src/private_block/run.rs",
+     "here_digest": "472950d55257",
+     "numstat": [
+      14,
+      0
+     ]
+    },
+    {
+     "base_digest": "502ba5caac76",
+     "file": "src/private_block/shape.rs",
+     "here_digest": "0ef1599fce07",
+     "numstat": [
+      211,
+      0
+     ]
+    },
+    {
+     "base_digest": "c51a2126c1b6",
+     "file": "src/private_block.rs",
+     "here_digest": "0a2e7c2fdb20",
+     "numstat": [
+      23,
+      0
+     ]
+    }
+   ],
+   "pins": 38
+  }
+ ],
+ "readings": {
+  "src/private_block.rs": "ADDITIONS ONLY (7 / 14 / 23 lines, 0 deleted): `#[cfg(test)] mod` declarations for `c6_tests`, `w14_tests`, `e32_tests` and `s33_tests`, with their doc comments.  The module root; nothing is transcribed from it.",
+  "src/private_block/run.rs": "ADDITIONS ONLY (7 / 14 / 21 lines, 0 deleted): one `RUN_PROFILE_RUNG_*` constant and one `RunShape::rung_*` constructor per shape, D17's one profile per shape.  The header's six absorbs, the seven-word shape, `position_tag`, the stage loop, `BOUNDARY_SITES` and the opening order are byte-identical -- the same reading round 9b gave at `4ccbad1`, and the gate's own confirmation is that the replay re-derives every challenge of a bundle written under three profile strings it had never seen.",
+  "src/private_block/shape.rs": "ADDITIONS ONLY at every one of the three commits (75 / 154 / 273 lines, 0 deleted).  Read hunk by hunk: (a) `Shape::rung_c6`, `Shape::rung_w14` and `Shape::rung_e32`, each one `Shape::new(...)` with seven numbers and a doc comment -- not one geometry function is touched; (b) stage 33's ruling S-6 refusal inside `Shape::new`'s validation, which REFUSES the family whose padded token count reaches the row width; (c) a doc comment on `Shape::a_groups` saying its first arm is unreachable after that refusal.  **Does it reach a port?**  The three constructors are the round's subject.  The S-6 refusal cannot: `natural_log(Dom::T)` is 5, 6 and 5 against row widths of 10, 14 and 10 at the three new shapes, so no shape a bundle here is written at is anywhere near the refused family, and on that family the two `a_groups` arms agree anyway (the lane proves it, and the reason -- `t_pad` a power of two makes every offset a multiple of the row width -- is checkable by reading).  `a_groups` itself is byte-identical in its code."
+ },
+ "stage_35_claim": {
+  "and_it_does_not_apply_here_anyway": "no bundle in this round pins the stage-35 `argument.rs`: all six pin the `4ccbad1` digest, which is the one the terminal port's pin table already accepts.  The claim is verified because Task C reads the stage-34 export, which lives at the same tip",
+  "claim": "the lane's stage 35 says its speed work changes nothing sent, absorbed or drawn, with an old-vs-new differential oracle",
+  "hunks_read": [
+   "lever (b)(iii): `k(c).mul(x)` becomes `x.mul_base(k(c).c0)` for the thirteen public constants of slots 14 and 17.  The constants are `Fp2::from_i64` of public integers, so their imaginary part is zero and the two are the same field element; the change is which multiplication routine runs",
+   "lever (b)(ii): `k_den * d` and `k_den * dm`, each formed twice in slot 14's closure, are formed once and reused.  `k_den.mul(y).mul(d)` becomes `(k_den*d).mul(y)`, which is reassociation",
+   "lever (b)(i): `sum_i mu_i * g * c_i` becomes `g * sum_i mu_i c_i` at slots 14 (eleven clauses) and 17 (five).  Distributivity; the gate `g` is a table value and multiplies the same clause batch",
+   "`limbs(v, &ix)` becomes a closure `lb` over a precomputed weight vector of the SAME `pow256(kk)`, with the `256^0` multiply by one dropped.  Same sum",
+   "two `#[cfg(test)]` blocks that hand the closure's captures to `s35_tests` and one `#[cfg(test)] s35.check(...)` call per arm: not compiled into a production build"
+  ],
+  "scope": "`argument.rs` is the ONLY port-relevant file that moved between `4ccbad1` and the lane tip `fee1a8d` (137 added, 18 deleted); `protocol.rs`, `layout.rs`, `pad.rs`, `plane_index.rs`, `run_capture.rs`, `boundary.rs`, `witness.rs` and `zk.rs` are byte-identical",
+  "verdict": "UPHELD for everything these ports model.  No table is added, removed or reordered; no `definition_challenges` draw, no absorb, no `pad_on`, no `n_pad`, no declared degree and no push order moves; every rewrite is an identity of the same polynomial (distributivity, reassociation, a multiply by one dropped, and a constant with zero imaginary part taking the base-field multiply).  Slots 14 and 17 are two of the twenty-three the hand port evaluates, and after the rewrite they are the same function of the same tables"
+ },
+ "what": "round 9c, task B part 1: every source pin of the six new bundles verified against the lane's committed blob at the commit the manifest names, and every pinned file that moved since `4ccbad1` (round 9b's accepted commit) read hunk by hunk"
+}
