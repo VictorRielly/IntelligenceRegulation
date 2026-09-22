@@ -19,7 +19,12 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 CAPTURES = os.path.join(ROOT, "results", "zk60_native_captures_20260919")
 
-from zk60_native_jv_capture import load_all, manifest_check  # noqa: E402
+from zk60_native_jv_capture import (  # noqa: E402
+    MANIFEST_NAMES,
+    ManifestRefusal,
+    load_all,
+    manifest_check,
+)
 from zk60_native_jv_cfs import (  # noqa: E402
     CfsView,
     m_pad_block_rank,
@@ -700,6 +705,241 @@ class GateRecord(unittest.TestCase):
         for row in rec["stage3_masking_commitment_view"]["per_capture"]:
             self.assertTrue(row["derived_mask_evaluation"]["ok"])
         self.assertTrue(rec["stage6_negative_controls"]["pad_budget_boundary"]["ok"])
+
+
+# =====================================================================
+#  round 9e (2026-09-22): the manifest cross-check refuses BY NAME
+# =====================================================================
+class ManifestCheckRefusesByName(unittest.TestCase):
+    """`manifest_check` may not skip itself quietly.
+
+    Round 9d replayed a delivered bundle and the gate passed with its
+    manifest cross-check silently OFF (`ZK60_NATIVE_D22_REPIN_4751B93.md`
+    §8.5 observation 1): the file was called `capture-validation.json` and
+    the check knew one name, so it reported `validation_json: absent` and
+    the gate ran to the end.  Three neighbouring shapes -- a single
+    `accepted` record, an unparsable file, an `accepted` that is neither --
+    raised `TypeError`/`JSONDecodeError` naming neither the directory nor
+    the file.  These tests pin the fixed behaviour: read BOTH shapes of
+    `accepted`, and refuse by name in every case where the cross-check
+    cannot be made.
+
+    The synthetic capture below is the smallest document `Capture` accepts;
+    `manifest_check` reads only a capture's file name, size, digest and
+    `proof_sha256`, so nothing witness-bearing is needed or invented.
+    """
+
+    AS_DELIVERED = (
+        "/home/victor/IntelligenceRegulation/results/"
+        "zk60_security_probe_repin_20260922"
+    )
+    STEM = "aa" * 32
+
+    def _dir(self, manifest=None, *, name="validation.json", raw=None,
+             flip_artifact=False):
+        import hashlib
+        import json
+        import tempfile
+        d = tempfile.mkdtemp()
+        self.addCleanup(__import__("shutil").rmtree, d)
+        os.makedirs(os.path.join(d, "captures"))
+        doc = {
+            "schema": 3,
+            "kind": "zk60-verifier-observations",
+            "coverage": "native-all-slots-v1",
+            "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+            "transcript_domain": "hashline-zk-mr1/private-block-t32-poc/1",
+            "proof_sha256": self.STEM,
+            "proof_bytes": 2816472,
+            "source_commit": "0" * 40,
+        }
+        p = os.path.join(d, "captures", self.STEM + ".json")
+        with open(p, "w") as fh:
+            json.dump(doc, fh, indent=1, sort_keys=True)
+            fh.write("\n")
+        if raw is not None:
+            with open(os.path.join(d, name), "w") as fh:
+                fh.write(raw)
+        elif manifest is not None:
+            with open(p, "rb") as fh:
+                blob = fh.read()
+            man = dict(manifest)
+            man["artifacts"] = {
+                "captures/" + self.STEM + ".json": {
+                    "sha256": ("00" * 32 if flip_artifact
+                               else hashlib.sha256(blob).hexdigest()),
+                    "bytes": len(blob),
+                },
+            }
+            with open(os.path.join(d, name), "w") as fh:
+                json.dump(man, fh, indent=1, sort_keys=True)
+                fh.write("\n")
+        return d
+
+    def _accepted(self, stem=None):
+        return {
+            "canonical_capture_reproduced": True,
+            "native_reverified": True,
+            "proof_sha256": stem or self.STEM,
+            "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+        }
+
+    # ------------------------------------------------- the two shapes read
+    def test_a_single_accepted_record_is_read_and_cross_checked(self):
+        """The shape round 9d had to shim around: `accepted` is ONE record."""
+        d = self._dir({"accepted": self._accepted(),
+                       "source_commit": "1" * 40})
+        out = manifest_check(d, load_all(d))
+        self.assertEqual(out["validation_json"], "present")
+        self.assertEqual(out["checked"], 1)
+        self.assertEqual(out["mismatch"], [])
+        self.assertEqual(out["source_commit"], "1" * 40)
+
+    def test_the_integrators_delivered_bundle_is_read_and_cross_checked(self):
+        """The same, on the real thing: the integrator's bundle of
+        2026-09-22, READ-ONLY, under its own name `capture-validation.json`
+        with a single `accepted` record.  It is uncommitted in the main
+        tree, so its absence is a skip with a reason, never a pass."""
+        if not os.path.isdir(self.AS_DELIVERED):
+            self.skipTest(
+                "the integrator's bundle is uncommitted in the main tree and "
+                "is not on this box: " + self.AS_DELIVERED)
+        self.assertFalse(
+            os.path.exists(os.path.join(self.AS_DELIVERED, "validation.json")),
+            "this case exists because the bundle carries NO validation.json",
+        )
+        self.assertTrue(
+            os.path.exists(
+                os.path.join(self.AS_DELIVERED, "capture-validation.json")))
+        caps = load_all(self.AS_DELIVERED)
+        self.assertEqual(len(caps), 1)
+        out = manifest_check(self.AS_DELIVERED, caps)
+        self.assertEqual(out["validation_json"], "present")
+        self.assertEqual(out["checked"], 1)
+        self.assertEqual(out["mismatch"], [])
+        self.assertEqual(
+            out["source_commit"], "4751b93ff4566e16fe07c61bd23d4cc2352f9f0b")
+
+    def test_a_list_of_accepted_records_is_read(self):
+        """The shape this lane's own writer produces, unchanged."""
+        d = self._dir({"accepted": [self._accepted()]})
+        out = manifest_check(d, load_all(d))
+        self.assertEqual(out["checked"], 1)
+        self.assertEqual(out["mismatch"], [])
+        cs, _ = caps()
+        of_record = manifest_check(CAPTURES, cs)
+        self.assertEqual(of_record["checked"], 4)
+        self.assertEqual(of_record["mismatch"], [])
+
+    def test_the_records_of_record_are_answered_exactly_as_before_the_fix(self):
+        """The load-bearing compatibility claim, machine-checked against the
+        PRE-FIX bytes: on the directory the committed records were produced
+        from, the fixed function returns what `d837d50`'s function returned,
+        key for key.  This is why the records of record keep passing."""
+        import subprocess
+        import types
+        src = subprocess.run(
+            ["git", "--no-pager", "-C", ROOT, "show",
+             "d837d50:scripts/zk60_native_jv_capture.py"],
+            check=True, capture_output=True, text=True).stdout
+        pre = types.ModuleType("jv_capture_pre_fix")
+        exec(compile(src, "git:d837d50:zk60_native_jv_capture.py", "exec"),
+             pre.__dict__)
+        cs, _ = caps()
+        self.assertEqual(
+            manifest_check(CAPTURES, cs),
+            pre.manifest_check(CAPTURES, pre.load_all(CAPTURES)),
+            "the fix changed the answer on the directory of record; the "
+            "committed records' manifest blocks would move",
+        )
+
+    # ------------------------------------------------ the named refusals
+    def test_an_absent_validation_file_is_refused_by_name(self):
+        d = self._dir()
+        with self.assertRaises(ManifestRefusal) as cm:
+            manifest_check(d, load_all(d))
+        msg = str(cm.exception)
+        self.assertIn(d, msg)
+        for name in MANIFEST_NAMES:
+            self.assertIn(name, msg)
+
+    def test_an_unreadable_validation_file_is_refused_by_name(self):
+        d = self._dir(raw="{not json\n")
+        with self.assertRaises(ManifestRefusal) as cm:
+            manifest_check(d, load_all(d))
+        self.assertIn(os.path.join(d, "validation.json"), str(cm.exception))
+
+    def test_an_accepted_that_is_neither_shape_is_refused_by_name(self):
+        for bad in ("yes", 3, None):
+            with self.subTest(accepted=bad):
+                d = self._dir({"accepted": bad})
+                with self.assertRaises(ManifestRefusal) as cm:
+                    manifest_check(d, load_all(d))
+                msg = str(cm.exception)
+                self.assertIn(os.path.join(d, "validation.json"), msg)
+                self.assertIn("`accepted`", msg)
+        d = self._dir({"accepted": [{"no_proof_sha256": True}]})
+        with self.assertRaises(ManifestRefusal) as cm:
+            manifest_check(d, load_all(d))
+        self.assertIn("proof_sha256", str(cm.exception))
+
+    def test_a_manifest_that_disagrees_with_the_bundle_is_refused_by_name(self):
+        """Three disagreements, each naming what disagrees.  Before the fix
+        the first two came back in a `mismatch` list that NEITHER gate folds
+        into its `ok`, so the gate passed on them."""
+        d = self._dir({"accepted": [self._accepted()]}, flip_artifact=True)
+        with self.assertRaises(ManifestRefusal) as cm:
+            manifest_check(d, load_all(d))
+        self.assertIn("captures/" + self.STEM + ".json", str(cm.exception))
+
+        d = self._dir({"accepted": [self._accepted("bb" * 32)]})
+        with self.assertRaises(ManifestRefusal) as cm:
+            manifest_check(d, load_all(d))
+        self.assertIn("not in the accepted list", str(cm.exception))
+        self.assertIn(self.STEM[:16], str(cm.exception))
+
+        rec = self._accepted()
+        rec["native_reverified"] = False
+        d = self._dir({"accepted": [rec]})
+        with self.assertRaises(ManifestRefusal) as cm:
+            manifest_check(d, load_all(d))
+        self.assertIn("not reproduced/re-verified", str(cm.exception))
+
+    # --------------------------------------- the one declared way through
+    def test_absence_can_be_declared_by_the_caller_and_is_recorded(self):
+        d = self._dir()
+        out = manifest_check(d, load_all(d), no_validation_file=True)
+        self.assertEqual(out["validation_json"], "absent")
+        self.assertTrue(out["declared_absent_by_the_caller"])
+        self.assertEqual(out["names_looked_for"], list(MANIFEST_NAMES))
+
+    def test_a_declaration_of_absence_that_is_false_is_refused_by_name(self):
+        d = self._dir({"accepted": [self._accepted()]})
+        with self.assertRaises(ManifestRefusal) as cm:
+            manifest_check(d, load_all(d), no_validation_file=True)
+        self.assertIn(os.path.join(d, "validation.json"), str(cm.exception))
+
+    # ------------------------------------------------- the two gates' exit
+    def test_both_gates_refuse_and_return_3_instead_of_running(self):
+        """The callers' half of the fix: the refusal is raised before any
+        analysis, so a bundle with no manifest costs nothing and produces NO
+        record -- rather than a green one with the check switched off."""
+        import contextlib
+        import io
+        import tempfile
+        import zk60_native_privacy_gate as p10
+        d = self._dir()
+        for name, main in (("joint_view", gate.main), ("privacy_gate", p10.main)):
+            with self.subTest(gate=name):
+                ev = tempfile.mkdtemp()
+                self.addCleanup(__import__("shutil").rmtree, ev)
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err):
+                    rc = main(["--captures", d, "--evidence", ev])
+                self.assertEqual(rc, 3)
+                self.assertIn("REFUSED (manifest cross-check)", err.getvalue())
+                self.assertEqual(os.listdir(ev), [],
+                                 "a refused run must write no record")
 
 
 if __name__ == "__main__":

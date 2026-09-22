@@ -54,7 +54,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from zk60_native_jv_capture import load_all, manifest_check  # noqa: E402
+from zk60_native_jv_capture import (  # noqa: E402
+    ManifestRefusal,
+    load_all,
+    manifest_check,
+)
 from zk60_native_jv_cfs import CfsView, terminal_identity  # noqa: E402
 from zk60_native_jv_field import F2_ZERO, P, f2_add, f2_mul_base, f2_sub  # noqa: E402
 from zk60_native_jv_joint import singleton_pair_rows  # noqa: E402
@@ -981,6 +985,12 @@ def main(argv=None):
                     help="'full' (default) or a count, for a shorter verification pass")
     ap.add_argument("--controls-on", default="first",
                     choices=("first", "all", "none"))
+    # [ROUND 9e] the ONLY way past a missing manifest, and it is recorded in
+    # the record: before this flag existed the check skipped itself quietly.
+    ap.add_argument("--no-validation-file", action="store_true",
+                    help="declare, on the record, that this capture directory "
+                         "carries no validation manifest; without it a missing "
+                         "manifest is a refusal, not a pass")
     args = ap.parse_args(argv)
 
     t0 = time.time()
@@ -988,6 +998,12 @@ def main(argv=None):
     if not caps:
         print("no captures found", file=sys.stderr)
         return 2
+    try:
+        manifest = manifest_check(
+            args.captures, caps, no_validation_file=args.no_validation_file)
+    except ManifestRefusal as exc:
+        print(f"REFUSED (manifest cross-check): {exc}", file=sys.stderr)
+        return 3
     record = {
         "gate": "zk60-native-privacy-gate-P10",
         "version": 2,
@@ -1014,7 +1030,7 @@ def main(argv=None):
         ],
         "zero_witness_acceptance_test": ZERO_WITNESS_TEST,
         "captures_dir": os.path.abspath(args.captures),
-        "manifest": manifest_check(args.captures, caps),
+        "manifest": manifest,
         "tool_sha256": tool_hashes(),
         "fixed_inputs": {
             "zero": "the all-zero hidden input, the same one the Rust zero-witness "

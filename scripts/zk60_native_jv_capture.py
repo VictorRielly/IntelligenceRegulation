@@ -119,30 +119,131 @@ def load_all(directory: str):
     return caps
 
 
-def manifest_check(directory: str, caps):
-    """Cross-check the retained manifest's artifact hashes for the JSON bundles."""
-    path = os.path.join(directory, "validation.json")
-    if not os.path.exists(path):
-        return {"validation_json": "absent"}
-    with open(path) as fh:
-        man = json.load(fh)
+class ManifestRefusal(Exception):
+    """The manifest cross-check could not be made, and says so BY NAME.
+
+    [ROUND 9e, 2026-09-22]  Until this date `manifest_check` returned
+    `{"validation_json": "absent"}` whenever the file it looked for was not
+    at the one name it knew, and both gates then ran to the end and passed
+    with their manifest cross-check SKIPPED and nothing saying so (round 9d
+    found it on a delivered bundle: `ZK60_NATIVE_D22_REPIN_4751B93.md` §8.5
+    observation 1).  The other three ways of failing were no better: a
+    single `accepted` record, an unparsable file and an `accepted` that is
+    neither raised `TypeError`/`JSONDecodeError` from inside a dict literal,
+    naming neither the directory nor the file.
+
+    A cross-check that cannot be made is now a refusal that names the
+    directory, the file and the reason.  The ONE way to proceed without a
+    manifest is for the caller to say so explicitly
+    (`no_validation_file=True`), which is recorded in the record.
+    """
+
+
+# The names a capture directory's manifest is accepted under.  `validation.json`
+# is this lane's own name (`results/zk60_native_captures_20260919/`);
+# `capture-validation.json` is the name the integrator's capture runner writes,
+# the one round 9d had to shim around.  A directory carrying both is read at the
+# first name in this order.
+MANIFEST_NAMES = ("validation.json", "capture-validation.json")
+
+
+def _accepted_records(path: str, man):
+    """The manifest's `accepted` as a list of records, in EITHER shape.
+
+    A list (this lane's writer, one entry per capture) or a single record
+    (the integrator's runner, which stores what one `check_bundle` call
+    returns).  Anything else is a refusal.
+    """
+    acc = man.get("accepted")
+    if isinstance(acc, list):
+        records = acc
+    elif isinstance(acc, dict):
+        records = [acc]
+    else:
+        raise ManifestRefusal(
+            f"{path}: `accepted` is {type(acc).__name__}, which is neither a "
+            "list of per-capture records nor a single record; the manifest "
+            "cross-check cannot be made and this gate will not pass without it"
+        )
+    for i, rec in enumerate(records):
+        if not isinstance(rec, dict) or "proof_sha256" not in rec:
+            raise ManifestRefusal(
+                f"{path}: `accepted`[{i}] is not a record carrying "
+                "`proof_sha256`; the manifest cross-check cannot be made"
+            )
+    return records
+
+
+def manifest_check(directory: str, caps, *, no_validation_file: bool = False):
+    """Cross-check the retained manifest's artifact hashes for the JSON bundles.
+
+    Refuses by name (`ManifestRefusal`) when the manifest is absent, cannot be
+    read, carries no usable `accepted`, or disagrees with the bundle on disk.
+    `no_validation_file=True` is the caller declaring, on the record, that this
+    directory has no manifest at all; then and only then the check is skipped,
+    and the record says who declared it.
+    """
+    path = None
+    for name in MANIFEST_NAMES:
+        candidate = os.path.join(directory, name)
+        if os.path.exists(candidate):
+            path = candidate
+            break
+    if path is None:
+        if no_validation_file:
+            return {
+                "validation_json": "absent",
+                "declared_absent_by_the_caller": True,
+                "names_looked_for": list(MANIFEST_NAMES),
+            }
+        raise ManifestRefusal(
+            f"{directory}: no validation file "
+            f"({', '.join(MANIFEST_NAMES)}); the manifest cross-check cannot "
+            "be made.  Deliver the manifest, or declare its absence "
+            "explicitly (`--no-validation-file`), which is recorded"
+        )
+    if no_validation_file:
+        raise ManifestRefusal(
+            f"{path}: the caller declared this directory has no validation "
+            "file, and it has one; withdraw the declaration or name the "
+            "directory that has none"
+        )
+    try:
+        with open(path) as fh:
+            man = json.load(fh)
+    except (OSError, ValueError) as exc:
+        raise ManifestRefusal(
+            f"{path}: the validation file cannot be read "
+            f"({type(exc).__name__}: {exc}); the manifest cross-check cannot "
+            "be made and this gate will not pass without it"
+        ) from exc
+    if not isinstance(man, dict):
+        raise ManifestRefusal(
+            f"{path}: the validation file is {type(man).__name__}, not an "
+            "object; the manifest cross-check cannot be made"
+        )
     out = {"validation_json": "present", "checked": 0, "mismatch": []}
     for cap in caps:
         key = "captures/" + os.path.basename(cap.path)
         rec = man.get("artifacts", {}).get(key)
-        if rec is None:
+        if not isinstance(rec, dict):
             out["mismatch"].append(f"{key}: not in the manifest")
             continue
         out["checked"] += 1
-        if rec["sha256"] != cap.sha256 or rec["bytes"] != cap.bytes:
+        if rec.get("sha256") != cap.sha256 or rec.get("bytes") != cap.bytes:
             out["mismatch"].append(f"{key}: manifest hash/size differs from the file on disk")
-    accepted = {a["proof_sha256"]: a for a in man.get("accepted", [])}
+    accepted = {a["proof_sha256"]: a for a in _accepted_records(path, man)}
     for cap in caps:
         a = accepted.get(cap.proof_sha256)
         if a is None:
             out["mismatch"].append(f"{cap.proof_sha256[:16]}: not in the accepted list")
-        elif not (a["canonical_capture_reproduced"] and a["native_reverified"]):
+        elif not (a.get("canonical_capture_reproduced") and a.get("native_reverified")):
             out["mismatch"].append(f"{cap.proof_sha256[:16]}: not reproduced/re-verified")
+    if out["mismatch"]:
+        raise ManifestRefusal(
+            f"{path}: the manifest disagrees with the bundle on disk: "
+            + "; ".join(out["mismatch"])
+        )
     out["privacy_review_complete"] = man.get("privacy_review_complete")
     out["source_commit"] = man.get("source_commit")
     out["verifier_binary_sha256"] = man.get("verifier_binary_sha256")

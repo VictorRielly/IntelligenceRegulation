@@ -1,0 +1,31 @@
+pre-fix module: git:d837d50:scripts/zk60_native_jv_capture.py
+in-tree module: /home/victor/wt-zk60-jointview/scripts/zk60_native_jv_capture.py
+
+1. the integrator's directory as delivered (capture-validation.json, accepted = ONE record)
+  PRE-FIX    RETURNED {"validation_json": "absent"}
+  IN-TREE    RETURNED {"validation_json": "absent"}
+
+2. validation.json, accepted = ONE record
+  PRE-FIX    RAISED TypeError: string indices must be integers
+  IN-TREE    RAISED TypeError: string indices must be integers
+
+3. validation.json, unreadable
+  PRE-FIX    RAISED JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+  IN-TREE    RAISED JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+4. validation.json, accepted = neither
+  PRE-FIX    RAISED TypeError: string indices must be integers
+  IN-TREE    RAISED TypeError: string indices must be integers
+
+5. CONTROL: the four captures of record (validation.json, accepted = a list)
+  PRE-FIX    RETURNED {"checked": 4, "mismatch": [], "privacy_review_complete": false, "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75", "validation_json": "present", "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"}
+  IN-TREE    RETURNED {"checked": 4, "mismatch": [], "privacy_review_complete": false, "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75", "validation_json": "present", "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"}
+
+6. a manifest that DISAGREES with the bundle
+  PRE-FIX    RETURNED {"checked": 1, "mismatch": ["captures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json: manifest hash/size differs from the file on disk"], "privacy_review_complete": null, "source_commit": null, "validation_json": "present", "verifier_binary_sha256": null}
+  IN-TREE    RETURNED {"checked": 1, "mismatch": ["captures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json: manifest hash/size differs from the file on disk"], "privacy_review_complete": null, "source_commit": null, "validation_json": "present", "verifier_binary_sha256": null}
+
+7. no validation file at all
+  PRE-FIX    RETURNED {"validation_json": "absent"}
+  IN-TREE    RETURNED {"validation_json": "absent"}
+

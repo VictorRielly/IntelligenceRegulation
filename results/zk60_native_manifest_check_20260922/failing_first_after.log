@@ -1,0 +1,31 @@
+pre-fix module: git:d837d50:scripts/zk60_native_jv_capture.py
+in-tree module: /home/victor/wt-zk60-jointview/scripts/zk60_native_jv_capture.py
+
+1. the integrator's directory as delivered (capture-validation.json, accepted = ONE record)
+  PRE-FIX    RETURNED {"validation_json": "absent"}
+  IN-TREE    RETURNED {"checked": 1, "mismatch": [], "privacy_review_complete": null, "source_commit": "4751b93ff4566e16fe07c61bd23d4cc2352f9f0b", "validation_json": "present", "verifier_binary_sha256": null}
+
+2. validation.json, accepted = ONE record
+  PRE-FIX    RAISED TypeError: string indices must be integers
+  IN-TREE    RETURNED {"checked": 1, "mismatch": [], "privacy_review_complete": null, "source_commit": null, "validation_json": "present", "verifier_binary_sha256": null}
+
+3. validation.json, unreadable
+  PRE-FIX    RAISED JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+  IN-TREE    RAISED ManifestRefusal: /tmp/tmpn9ypzb8x/tmppnu3xsxt/validation.json: the validation file cannot be read (JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)); the manifest cross-check cannot be made and this gate will not pass without it
+
+4. validation.json, accepted = neither
+  PRE-FIX    RAISED TypeError: string indices must be integers
+  IN-TREE    RAISED ManifestRefusal: /tmp/tmpn9ypzb8x/tmputeuy7o_/validation.json: `accepted` is str, which is neither a list of per-capture records nor a single record; the manifest cross-check cannot be made and this gate will not pass without it
+
+5. CONTROL: the four captures of record (validation.json, accepted = a list)
+  PRE-FIX    RETURNED {"checked": 4, "mismatch": [], "privacy_review_complete": false, "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75", "validation_json": "present", "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"}
+  IN-TREE    RETURNED {"checked": 4, "mismatch": [], "privacy_review_complete": false, "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75", "validation_json": "present", "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"}
+
+6. a manifest that DISAGREES with the bundle
+  PRE-FIX    RETURNED {"checked": 1, "mismatch": ["captures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json: manifest hash/size differs from the file on disk"], "privacy_review_complete": null, "source_commit": null, "validation_json": "present", "verifier_binary_sha256": null}
+  IN-TREE    RAISED ManifestRefusal: /tmp/tmpn9ypzb8x/tmpesrrc861/validation.json: the manifest disagrees with the bundle on disk: captures/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json: manifest hash/size differs from the file on disk
+
+7. no validation file at all
+  PRE-FIX    RETURNED {"validation_json": "absent"}
+  IN-TREE    RAISED ManifestRefusal: /tmp/tmpn9ypzb8x/tmp_jb34j67: no validation file (validation.json, capture-validation.json); the manifest cross-check cannot be made.  Deliver the manifest, or declare its absence explicitly (`--no-validation-file`), which is recorded
+

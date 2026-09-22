@@ -62,7 +62,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from zk60_native_jv_capture import load_all, manifest_check  # noqa: E402
+from zk60_native_jv_capture import (  # noqa: E402
+    ManifestRefusal,
+    load_all,
+    manifest_check,
+)
 from zk60_native_jv_cfs import (  # noqa: E402
     CfsView,
     m_pad_block_rank,
@@ -532,6 +536,12 @@ def main(argv=None):
     ap.add_argument("--captures", required=True)
     ap.add_argument("--evidence", required=True)
     ap.add_argument("--skip-exact-pad-rank", action="store_true")
+    # [ROUND 9e] the ONLY way past a missing manifest, and it is recorded in
+    # the record: before this flag existed the check skipped itself quietly.
+    ap.add_argument("--no-validation-file", action="store_true",
+                    help="declare, on the record, that this capture directory "
+                         "carries no validation manifest; without it a missing "
+                         "manifest is a refusal, not a pass")
     args = ap.parse_args(argv)
 
     t0 = time.time()
@@ -539,6 +549,12 @@ def main(argv=None):
     if not caps:
         print("no captures found", file=sys.stderr)
         return 2
+    try:
+        manifest = manifest_check(
+            args.captures, caps, no_validation_file=args.no_validation_file)
+    except ManifestRefusal as exc:
+        print(f"REFUSED (manifest cross-check): {exc}", file=sys.stderr)
+        return 3
     record = {
         "gate": "zk60-native-joint-view",
         "version": 1,
@@ -546,7 +562,7 @@ def main(argv=None):
         "privacy_property_established": False,
         "d8_d11_endpoint_root_obligation": "open, untouched by this gate",
         "captures_dir": os.path.abspath(args.captures),
-        "manifest": manifest_check(args.captures, caps),
+        "manifest": manifest,
         "tool_sha256": tool_hashes(),
         "captures": [
             {
