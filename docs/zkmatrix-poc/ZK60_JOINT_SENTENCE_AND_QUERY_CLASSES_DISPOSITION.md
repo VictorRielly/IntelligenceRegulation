@@ -142,7 +142,14 @@ a document on the lane with the pinning test named per row
 (`ZK60_HASH_FUNCTION_SEPARATION_TABLE.md`). Still blocked on the integrator's
 accessor: five of the seven assertions of the draw-accounting test; the lane
 carries a test that fails the day the accessor lands, so it cannot be
-forgotten.
+forgotten. *(CLOSED 2026-09-22: the integrator authorised the accessors on
+2026-09-22 07:25 and lane stage 36 built them (`29cba9a`; the delta
+`fee1a8d..a8e4939`) — all seven assertions are live, the tripwire retired by
+its mirror image; measured: 327,052 field draws per toy proof exactly,
+1,863 live squeezes, the refusal replay 1,027 points consuming no generator
+bytes, three generators; the statement's §9 item 11 records it. Two limits
+stand: absorbs cannot be counted from existing state (317 stay a count), and
+the endpoint generators are measured on a replica of their call sites.)*
 
 **J-7a (2026-09-21 14:19) — a declared coincidence's separator must be
 CHECKED by a test, not stated in a comment.** Lane stage 32 added a profile

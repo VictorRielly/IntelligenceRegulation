@@ -153,7 +153,11 @@ keep is that `BoundarySpec` derives the geometry once and that preparation,
 metadata and opening all use that one spec. The single-proximity-row control
 stays, labelled as a deliberately weakened construction.)* **U-2** — moot under
 M-7 (external endpoints unchanged). **U-3** — accepted: the transcript type
-has no counter accessor and lives in a forbidden file, so a segment header
+has no counter accessor and lives in a forbidden file *(since 2026-09-22 it
+has a read-only squeeze counter under a test-only feature — lane stage 36,
+authorised by the integrator; the position tag below stays as designed,
+because the tag is a public verifier-side value and the counter is
+test-only)*, so a segment header
 carries a 32-byte position tag squeezed from a *discarded clone*; it is a
 public function of public transcript data, re-derived and compared by the
 verifier, never absorbed, never adopted; framing is 120 bytes per segment and
@@ -480,7 +484,9 @@ record's shape — and the lane says so.]
   **10 constructed, 5 derived, 4 argued, 9 open**.
 - **Still open, and why**: the *law* of the blinding on the fibre the preimage
   lives in (the lemma's and the composition's job, with its owed
-  draw-accounting test); the hiding of unopened leaves (argued, in the model);
+  draw-accounting test *— the test is live since 2026-09-22, lane stage 36:
+  all seven assertions, 327,052 draws per toy proof measured exactly; what
+  stays owed is the LAW, not the count*); the hiding of unopened leaves (argued, in the model);
   the honest unmasked rounds of a slot (no capture carries them, by the
   capture rule); a writer-side pin for `zk.rs` and seven `zkp-core` files that
   no bundle pins; the 125M shape; the private-attention profile. **No privacy
