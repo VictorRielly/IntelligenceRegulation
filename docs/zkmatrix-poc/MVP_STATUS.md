@@ -120,7 +120,12 @@ inputs. It does not move that figure.
 (added 2026-09-21 00:06).** Privacy is **accepted for one artifact only**, the
 small test block (register D22); it was re-confirmed last night against the
 integrator's newly merged code, and its checks now watch every source file on
-its path. For the shaped block and a run, **nothing is accepted**, and this is
+its path. *2026-09-22: the integrator delivered a capture of a proof made by
+the merged code's own binary; the gate replayed on it — every one of its 132
+source pins matches the tree the acceptance names, no figure of record moved,
+all ten tamper controls fire — so the acceptance now rests on the merged
+tree's proofs as well as the old tree's. Same scope: that one small block, on
+the CPU.* For the shaped block and a run, **nothing is accepted**, and this is
 the honest state of the five-step argument:
 
 | Step | Development sizes (two head geometries) | The 125M shape |
