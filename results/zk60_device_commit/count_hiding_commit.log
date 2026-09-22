@@ -1,0 +1,265 @@
+==========================================================================
+125M   (source: /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/model_m125.json)
+  log_cols 14  inv_rate 4  opened columns 256  pads/row 256
+==========================================================================
+
+  -- commitment A: 5,681 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 36 claim group(s)
+     systematic data held             744,620,032 B  (   710.1 MiB)
+     pad rows held                     11,634,688 B  (    11.1 MiB)
+     ENCODED matrix                 2,978,480,128 B  (  2840.5 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed            2,978,480,128 B  (  2840.5 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 49,479,680 + leaves 65,536 + nodes 65,535 = 49,610,751
+     random stream bytes: pads 23,269,376 + salts 2,097,152 = 25,366,528
+     SENT: columns 11,776,000 + clear vectors 9,850,880 = 21,626,880 B
+
+  -- commitment H: 7,120 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 9 claim group(s)
+     systematic data held             933,232,640 B  (   890.0 MiB)
+     pad rows held                     14,581,760 B  (    13.9 MiB)
+     ENCODED matrix                 3,732,930,560 B  (  3560.0 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed            3,732,930,560 B  (  3560.0 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 61,931,520 + leaves 65,536 + nodes 65,535 = 62,062,591
+     random stream bytes: pads 29,163,520 + salts 2,097,152 = 31,260,672
+     SENT: columns 14,723,072 + clear vectors 2,662,400 = 17,385,472 B
+
+  -- commitment endpoint-in: 37 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 1 claim group(s)
+     systematic data held               4,849,664 B  (     4.6 MiB)
+     pad rows held                         75,776 B  (     0.1 MiB)
+     ENCODED matrix                    19,398,656 B  (    18.5 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed               19,398,656 B  (    18.5 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 327,680 + leaves 65,536 + nodes 65,535 = 458,751
+     random stream bytes: pads 151,552 + salts 2,097,152 = 2,248,704
+     SENT: columns 217,088 + clear vectors 532,480 = 749,568 B
+
+  -- commitment endpoint-out: 37 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 1 claim group(s)
+     systematic data held               4,849,664 B  (     4.6 MiB)
+     pad rows held                         75,776 B  (     0.1 MiB)
+     ENCODED matrix                    19,398,656 B  (    18.5 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed               19,398,656 B  (    18.5 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 327,680 + leaves 65,536 + nodes 65,535 = 458,751
+     random stream bytes: pads 151,552 + salts 2,097,152 = 2,248,704
+     SENT: columns 217,088 + clear vectors 532,480 = 749,568 B
+
+  -- the four commitments together
+     encoded matrices               6,750,208,000 B  (  6.29 GiB)
+     column bytes hashed            6,750,208,000 B  (  6.29 GiB)
+     BLAKE3 compressions              112,590,844
+     random stream bytes               61,124,608 B
+
+  -- RECEIPT RECONCILIATION against model_m125.json (which grow_tests.rs:708-727 asserts part by part)
+     OK a_opening                  counted     21,626,880   model     21,626,880
+     OK endpoint_openings          counted      1,499,136   model      1,499,136
+     OK h_opening                  counted     17,385,472   model     17,385,472
+     OK header_and_three_roots     counted            136   model            136
+     OK mask_opening               counted        243,712   model        243,712
+     OK slots                      counted         28,016   model         28,016
+     OK total                      counted     40,783,352   model     40,783,352
+     -> RECONCILES
+
+==========================================================================
+rung-W14   (source: /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/model_rung_w14.json)
+  log_cols 14  inv_rate 4  opened columns 256  pads/row 256
+==========================================================================
+
+  -- commitment A: 527 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 36 claim group(s)
+     systematic data held              69,074,944 B  (    65.9 MiB)
+     pad rows held                      1,079,296 B  (     1.0 MiB)
+     ENCODED matrix                   276,299,776 B  (   263.5 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed              276,299,776 B  (   263.5 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 4,587,520 + leaves 65,536 + nodes 65,535 = 4,718,591
+     random stream bytes: pads 2,158,592 + salts 2,097,152 = 4,255,744
+     SENT: columns 1,220,608 + clear vectors 9,850,880 = 11,071,488 B
+
+  -- commitment H: 436 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 9 claim group(s)
+     systematic data held              57,147,392 B  (    54.5 MiB)
+     pad rows held                        892,928 B  (     0.9 MiB)
+     ENCODED matrix                   228,589,568 B  (   218.0 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed              228,589,568 B  (   218.0 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 3,801,088 + leaves 65,536 + nodes 65,535 = 3,932,159
+     random stream bytes: pads 1,785,856 + salts 2,097,152 = 3,883,008
+     SENT: columns 1,034,240 + clear vectors 2,662,400 = 3,696,640 B
+
+  -- commitment endpoint-in: 9 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 1 claim group(s)
+     systematic data held               1,179,648 B  (     1.1 MiB)
+     pad rows held                         18,432 B  (     0.0 MiB)
+     ENCODED matrix                     4,718,592 B  (     4.5 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed                4,718,592 B  (     4.5 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 131,072 + leaves 65,536 + nodes 65,535 = 262,143
+     random stream bytes: pads 36,864 + salts 2,097,152 = 2,134,016
+     SENT: columns 159,744 + clear vectors 532,480 = 692,224 B
+
+  -- commitment endpoint-out: 9 rows, n = 16,384, nn = 65,536, Q = 256, tree depth 16, 1 claim group(s)
+     systematic data held               1,179,648 B  (     1.1 MiB)
+     pad rows held                         18,432 B  (     0.0 MiB)
+     ENCODED matrix                     4,718,592 B  (     4.5 MiB)
+     coset powers                         524,288 B
+     salts                              2,097,152 B
+     Merkle tree (all levels)           4,194,272 B
+     column bytes hashed                4,718,592 B  (     4.5 MiB)
+     leaf bytes hashed                  4,194,304 B
+     inner nodes                           65,535
+     BLAKE3 compressions: columns 131,072 + leaves 65,536 + nodes 65,535 = 262,143
+     random stream bytes: pads 36,864 + salts 2,097,152 = 2,134,016
+     SENT: columns 159,744 + clear vectors 532,480 = 692,224 B
+
+  -- the four commitments together
+     encoded matrices                 514,326,528 B  (  0.48 GiB)
+     column bytes hashed              514,326,528 B  (  0.48 GiB)
+     BLAKE3 compressions                9,175,036
+     random stream bytes               12,406,784 B
+
+  -- RECEIPT RECONCILIATION against model_rung_w14.json (which grow_tests.rs:708-727 asserts part by part)
+     OK a_opening                  counted     11,071,488   model     11,071,488
+     OK endpoint_openings          counted      1,384,448   model      1,384,448
+     OK h_opening                  counted      3,696,640   model      3,696,640
+     OK header_and_three_roots     counted            136   model            136
+     OK mask_opening               counted        243,712   model        243,712
+     OK slots                      counted         24,624   model         24,624
+     OK total                      counted     16,421,048   model     16,421,048
+     -> RECONCILES
+
+==========================================================================
+toy   (source: /home/victor/wt-zk60-block125m/results/zk60_block125m_lane/model_toy.json)
+  log_cols 8  inv_rate 8  opened columns 256  pads/row 256
+==========================================================================
+
+  -- commitment A: 455 rows, n = 256, nn = 2,048, Q = 256, tree depth 11, 35 claim group(s)
+     systematic data held                 931,840 B  (     0.9 MiB)
+     pad rows held                        931,840 B  (     0.9 MiB)
+     ENCODED matrix                     7,454,720 B  (     7.1 MiB)
+     coset powers                          16,384 B
+     salts                                 65,536 B
+     Merkle tree (all levels)             131,040 B
+     column bytes hashed                7,454,720 B  (     7.1 MiB)
+     leaf bytes hashed                    131,072 B
+     inner nodes                            2,047
+     BLAKE3 compressions: columns 122,880 + leaves 2,048 + nodes 2,047 = 126,975
+     random stream bytes: pads 1,863,680 + salts 65,536 = 1,929,216
+     SENT: columns 1,032,192 + clear vectors 294,912 = 1,327,104 B
+
+  -- commitment H: 384 rows, n = 256, nn = 2,048, Q = 256, tree depth 11, 9 claim group(s)
+     systematic data held                 786,432 B  (     0.8 MiB)
+     pad rows held                        786,432 B  (     0.8 MiB)
+     ENCODED matrix                     6,291,456 B  (     6.0 MiB)
+     coset powers                          16,384 B
+     salts                                 65,536 B
+     Merkle tree (all levels)             131,040 B
+     column bytes hashed                6,291,456 B  (     6.0 MiB)
+     leaf bytes hashed                    131,072 B
+     inner nodes                            2,047
+     BLAKE3 compressions: columns 102,400 + leaves 2,048 + nodes 2,047 = 106,495
+     random stream bytes: pads 1,572,864 + salts 65,536 = 1,638,400
+     SENT: columns 886,784 + clear vectors 81,920 = 968,704 B
+
+  -- commitment endpoint-in: 7 rows, n = 256, nn = 2,048, Q = 256, tree depth 11, 1 claim group(s)
+     systematic data held                  14,336 B  (     0.0 MiB)
+     pad rows held                         14,336 B  (     0.0 MiB)
+     ENCODED matrix                       114,688 B  (     0.1 MiB)
+     coset powers                          16,384 B
+     salts                                 65,536 B
+     Merkle tree (all levels)             131,040 B
+     column bytes hashed                  114,688 B  (     0.1 MiB)
+     leaf bytes hashed                    131,072 B
+     inner nodes                            2,047
+     BLAKE3 compressions: columns 2,048 + leaves 2,048 + nodes 2,047 = 6,143
+     random stream bytes: pads 28,672 + salts 65,536 = 94,208
+     SENT: columns 114,688 + clear vectors 16,384 = 131,072 B
+
+  -- commitment endpoint-out: 7 rows, n = 256, nn = 2,048, Q = 256, tree depth 11, 1 claim group(s)
+     systematic data held                  14,336 B  (     0.0 MiB)
+     pad rows held                         14,336 B  (     0.0 MiB)
+     ENCODED matrix                       114,688 B  (     0.1 MiB)
+     coset powers                          16,384 B
+     salts                                 65,536 B
+     Merkle tree (all levels)             131,040 B
+     column bytes hashed                  114,688 B  (     0.1 MiB)
+     leaf bytes hashed                    131,072 B
+     inner nodes                            2,047
+     BLAKE3 compressions: columns 2,048 + leaves 2,048 + nodes 2,047 = 6,143
+     random stream bytes: pads 28,672 + salts 65,536 = 94,208
+     SENT: columns 114,688 + clear vectors 16,384 = 131,072 B
+
+  -- the four commitments together
+     encoded matrices                  13,975,552 B  (  0.01 GiB)
+     column bytes hashed               13,975,552 B  (  0.01 GiB)
+     BLAKE3 compressions                  245,756
+     random stream bytes                3,756,032 B
+
+  -- RECEIPT RECONCILIATION against model_toy.json (which grow_tests.rs:708-727 asserts part by part)
+     OK a_opening                  counted      1,327,104   model      1,327,104
+     OK endpoint_openings          counted        262,144   model        262,144
+     OK h_opening                  counted        968,704   model        968,704
+     OK header_and_three_roots     counted            136   model            136
+     OK mask_opening               counted        243,712   model        243,712
+     OK slots                      counted         14,672   model         14,672
+     OK total                      counted      2,816,472   model      2,816,472
+     -> RECONCILES
+
+==========================================================================
+RESIDENT DEVICE BYTES, 125M   [COUNTED from the same shapes]
+==========================================================================
+
+  A: 5,681 rows
+    whole-commitment residency (no chunking)
+      message+pad staging (rows x (n+Q) x 8)     756,254,720 B ( 0.70 GiB)
+      encoded matrix    (rows x nn x 8)        2,978,480,128 B ( 2.77 GiB)
+      leaves            (nn x 32)                  2,097,152 B
+      coset powers + twiddles (nn x 8 x 2)         1,048,576 B
+      PEAK                                     3,737,880,576 B ( 3.48 GiB)
+    ROW chunk   256: stage    34,078,720 B + encoded slab    134,217,728 B ( 0.16 GiB) + the whole encoded matrix must still exist somewhere for the column pass
+    ROW chunk   512: stage    68,157,440 B + encoded slab    268,435,456 B ( 0.31 GiB) + the whole encoded matrix must still exist somewhere for the column pass
+    ROW chunk  1024: stage   136,314,880 B + encoded slab    536,870,912 B ( 0.63 GiB) + the whole encoded matrix must still exist somewhere for the column pass
+    COLUMN chunk  4096: one slab rows x 4096 x 8 =    186,155,008 B ( 0.17 GiB)
+    COLUMN chunk  8192: one slab rows x 8192 x 8 =    372,310,016 B ( 0.35 GiB)
+    COLUMN chunk 16384: one slab rows x 16384 x 8 =    744,620,032 B ( 0.69 GiB)
+
+  H: 7,120 rows
+    whole-commitment residency (no chunking)
+      message+pad staging (rows x (n+Q) x 8)     947,814,400 B ( 0.88 GiB)
+      encoded matrix    (rows x nn x 8)        3,732,930,560 B ( 3.48 GiB)
+      leaves            (nn x 32)                  2,097,152 B
+      coset powers + twiddles (nn x 8 x 2)         1,048,576 B
+      PEAK                                     4,683,890,688 B ( 4.36 GiB)
+    ROW chunk   256: stage    34,078,720 B + encoded slab    134,217,728 B ( 0.16 GiB) + the whole encoded matrix must still exist somewhere for the column pass
+    ROW chunk   512: stage    68,157,440 B + encoded slab    268,435,456 B ( 0.31 GiB) + the whole encoded matrix must still exist somewhere for the column pass
+    ROW chunk  1024: stage   136,314,880 B + encoded slab    536,870,912 B ( 0.63 GiB) + the whole encoded matrix must still exist somewhere for the column pass
+    COLUMN chunk  4096: one slab rows x 4096 x 8 =    233,308,160 B ( 0.22 GiB)
+    COLUMN chunk  8192: one slab rows x 8192 x 8 =    466,616,320 B ( 0.43 GiB)
+    COLUMN chunk 16384: one slab rows x 16384 x 8 =    933,232,640 B ( 0.87 GiB)
+
+wrote /home/victor/IntelligenceRegulation/results/zk60_device_commit/counts.json
+every shape reconciles with its committed layout model
