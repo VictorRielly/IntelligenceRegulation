@@ -268,6 +268,17 @@ mod e32_tests;
 // which no registered shape does, becomes a NAMED construction refusal.
 #[cfg(test)]
 mod s33_tests;
+// STAGE 34 (ruling I-8 of the slot expression IR disposition): the twenty-three
+// slot polynomials written down as DATA beside the closures, with the closures
+// as the oracle. `cfg(test)` on purpose and not merely for tidiness — the
+// stage's whole claim is that no execution path changes and no byte moves, and
+// a module no production build compiles is the strongest form of it. The
+// base-field classification is DERIVED from each table's provenance and never
+// declared (ruling I-2, the check's finding IR-C1).
+#[cfg(test)]
+mod slot_ir;
+#[cfg(test)]
+mod slot_ir_tests;
 #[cfg(test)]
 mod tamper;
 #[cfg(test)]
