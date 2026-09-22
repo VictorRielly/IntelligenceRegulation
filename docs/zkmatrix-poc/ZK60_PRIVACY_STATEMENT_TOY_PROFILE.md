@@ -335,7 +335,7 @@ written except where noted.
     re-read by the security owner at integration, and this statement's pin
     set updated then — until then it pins main as before.** Condition 6's
     "three fresh reads" is asserted by the same test. *Pre-read done
-    2026-09-22 11:52 (`ZK60_D22_CONDITION7_PREREAD_STAGE36.md` on the lane's
+    2026-09-22 11:42 (`ZK60_D22_CONDITION7_PREREAD_STAGE36.md` on the lane's
     review branch): every condition holds against the delta; the production
     residue of the four moved source files is byte-identical by an
     independent method and the release graph resolves the core crate with no
