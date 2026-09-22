@@ -432,6 +432,9 @@ impl SlotIr {
     pub(super) fn sum_nodes(&self) -> usize {
         self.nodes.iter().filter(|n| matches!(n.body, NodeBody::Sum { .. })).count()
     }
+    fn term_degree(&self, t: &SlotTerm, d: &[usize]) -> usize {
+        t.wrapper.len() + t.inner.iter().map(|f| Self::factor_degree(f, d)).sum::<usize>()
+    }
 
     /// every node refers only to nodes already defined, and every table id is
     /// in range — the invariant the interpreter's single forward pass needs
@@ -480,6 +483,158 @@ impl SlotIr {
         }
         Ok(())
     }
+}
+
+// ---------------------------------------------------------------- the export (stage 1b)
+
+/// **THE SCHEMA VERSION of the JSON export.** It goes in the file, so a
+/// reader that knows one version can refuse another instead of guessing.
+pub(super) const EXPORT_SCHEMA: &str = "zk60-slot-ir/1";
+
+fn json_str(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('"');
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '\n' => out.push_str("\\n"),
+            c if (c as u32) < 0x20 => out.push_str(&format!("\\u{:04x}", c as u32)),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
+/// A coefficient, as the export carries it: its PROVENANCE always, and its
+/// VALUE only where the provenance says the value is a public constant of
+/// the shape. **A challenge-dependent coefficient's value never leaves this
+/// process**, which is what makes the export a per-SHAPE artefact rather
+/// than a per-proof one (and is why the Python gate reads the structure here
+/// and the values from the transcript it re-derives itself).
+fn json_coef(c: &Coef) -> String {
+    if c.value_is_public() {
+        format!("{{\"prov\":{},\"value\":\"{}+{}u\"}}", json_str(&c.prov.label()), c.value.c0.0, c.value.c1.0)
+    } else {
+        format!("{{\"prov\":{}}}", json_str(&c.prov.label()))
+    }
+}
+
+fn json_factor(f: &Factor) -> String {
+    match f {
+        Factor::Table(t) => format!("{{\"table\":{t}}}"),
+        Factor::Node(n) => format!("{{\"node\":{n}}}"),
+    }
+}
+
+fn kind_label(k: &TableKind) -> String {
+    match k {
+        TableKind::Eq { start, point_len } => format!("eq(start={start},|point|={point_len})"),
+        TableKind::GroupEq { bits } => format!("group_eq(bits={bits})"),
+        TableKind::Public => "pub".to_string(),
+        TableKind::Support { dom } => format!("supp({dom:?})"),
+        TableKind::PlaneA => "A".to_string(),
+        TableKind::HelperH => "H".to_string(),
+        TableKind::Endpoint => "EP".to_string(),
+    }
+}
+
+fn prov_label(p: &TableProv) -> String {
+    match p {
+        TableProv::EqOfChallenges => "eq-of-challenges".to_string(),
+        TableProv::PublicFromShape => "public-from-shape".to_string(),
+        TableProv::PublicWithChallenge(why) => format!("public-with-challenge:{why}"),
+        TableProv::Committed { fixed_coords, extension_slice_coef } => format!("committed(fixed={fixed_coords},ext-slice-coef={extension_slice_coef})"),
+    }
+}
+
+impl SlotIr {
+    /// this slot's IR as one canonical JSON object, on one line per element
+    /// so that a human diff of two shapes is readable
+    fn to_json(&self) -> String {
+        let d = self.recompute_degrees();
+        let mut o = String::new();
+        o.push_str("  {\n");
+        o.push_str(&format!("   \"slot\":{},\"name\":{},\"kind\":{},\n", self.slot, json_str(self.name), json_str(&format!("{:?}", self.kind))));
+        o.push_str(&format!(
+            "   \"main_rounds\":{},\"extension_rounds\":{},\"declared_degree\":{},\"max_product_degree\":{},\n",
+            self.main_rounds,
+            self.extension_rounds,
+            self.degree,
+            self.max_term_degree()
+        ));
+        o.push_str(&format!("   \"pad_on\":{},\"group_bits\":{},\n", self.pad_on, self.group_bits.map(|b| b.to_string()).unwrap_or_else(|| "null".to_string())));
+        o.push_str("   \"tables\":[\n");
+        for (i, t) in self.tables.iter().enumerate() {
+            o.push_str(&format!(
+                "    {{\"id\":{},\"kind\":{},\"field\":{},\"prov\":{},\"label\":{}}}{}\n",
+                t.id,
+                json_str(&kind_label(&t.kind)),
+                json_str(t.field().label()),
+                json_str(&prov_label(&t.prov)),
+                json_str(&t.label),
+                if i + 1 == self.tables.len() { "" } else { "," }
+            ));
+        }
+        o.push_str("   ],\n   \"nodes\":[\n");
+        for (i, n) in self.nodes.iter().enumerate() {
+            let body = match &n.body {
+                NodeBody::Affine { konst, terms } => {
+                    let ts: Vec<String> = terms.iter().map(|(c, t)| format!("{{\"coef\":{},\"table\":{t}}}", json_coef(c))).collect();
+                    format!("\"affine\",\"konst\":{},\"terms\":[{}]", json_coef(konst), ts.join(","))
+                }
+                NodeBody::Sum { subterms } => {
+                    let ts: Vec<String> = subterms
+                        .iter()
+                        .map(|s| {
+                            let fs: Vec<String> = s.factors.iter().map(json_factor).collect();
+                            format!("{{\"coef\":{},\"factors\":[{}]}}", json_coef(&s.coef), fs.join(","))
+                        })
+                        .collect();
+                    format!("\"sum\",\"subterms\":[{}]", ts.join(","))
+                }
+            };
+            o.push_str(&format!("    {{\"id\":{},\"degree\":{},\"label\":{},\"body\":{body}}}{}\n", n.id, n.degree, json_str(&n.label), if i + 1 == self.nodes.len() { "" } else { "," }));
+        }
+        o.push_str("   ],\n   \"terms\":[\n");
+        for (i, t) in self.terms.iter().enumerate() {
+            let ws: Vec<String> = t.wrapper.iter().map(|w| w.to_string()).collect();
+            let is: Vec<String> = t.inner.iter().map(json_factor).collect();
+            o.push_str(&format!(
+                "    {{\"coef\":{},\"wrapper\":[{}],\"inner\":[{}],\"degree\":{},\"note\":{}}}{}\n",
+                json_coef(&t.coef),
+                ws.join(","),
+                is.join(","),
+                self.term_degree(t, &d),
+                json_str(&t.note),
+                if i + 1 == self.terms.len() { "" } else { "," }
+            ));
+        }
+        o.push_str("   ]\n  }");
+        o
+    }
+}
+
+/// **THE SHAPE'S EXPORT (stage 1b of ruling I-8).** The twenty-three slot
+/// IRs of one shape as one canonical JSON document: the same bytes every
+/// run, because nothing in it depends on a challenge, a witness or an
+/// iteration order. The independent Python gate reads it as a CROSS-CHECK of
+/// its hand port — ruling I-8 keeps the hand port and one hand-ported family
+/// forever, so this file never becomes the gate's only source.
+pub(super) fn export_shape(key: &str, profile: &str, irs: &[SlotIr]) -> String {
+    let mut o = String::new();
+    o.push_str("{\n");
+    o.push_str(&format!(" \"schema\":{},\n", json_str(EXPORT_SCHEMA)));
+    o.push_str(&format!(" \"shape\":{},\n \"profile\":{},\n", json_str(key), json_str(profile)));
+    o.push_str(&format!(" \"slot_count\":{},\n", irs.len()));
+    o.push_str(&format!(" \"tables\":{},\n", irs.iter().map(|i| i.tables.len()).sum::<usize>()));
+    o.push_str(&format!(" \"tables_base_field\":{},\n", irs.iter().map(|i| i.base_field_tables()).sum::<usize>()));
+    o.push_str(" \"slots\":[\n");
+    let bodies: Vec<String> = irs.iter().map(|i| i.to_json()).collect();
+    o.push_str(&bodies.join(",\n"));
+    o.push_str("\n ]\n}\n");
+    o
 }
 
 // ---------------------------------------------------------------- the builder

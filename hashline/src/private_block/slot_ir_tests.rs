@@ -27,7 +27,7 @@
 use super::argument::{build_tables_at, define, Ctx, Points, ProverData, SlotDef, TABLES_PAR_MIN};
 use super::layout::*;
 use super::shape::Shape;
-use super::slot_ir::{build_slot_ir, field_kind, FieldKind, IrPoints, SlotIr, TableProv};
+use super::slot_ir::{build_slot_ir, export_shape, field_kind, FieldKind, IrPoints, SlotIr, TableProv, EXPORT_SCHEMA};
 use super::witness;
 use crate::field::{Fp, Fp2};
 use crate::transcript::Transcript;
@@ -678,4 +678,82 @@ fn the_slot_irs_counts_agree_with_the_drafters_inventory_except_where_the_arm_sa
     eprintln!("S34 inventory: {compared} (shape, slot) rows compared; table count, rounds, declared degree, term count and max product degree agree at every one");
     eprintln!("S34 inventory: the base-field count differs at {field_kind_diffs} rows, by {base_short} tables in all — the drafter's column is the MEMO's classification, which ruling I-2 corrects (finding IR-C1)");
     assert!(field_kind_diffs > 0, "the drafter's base-field column agrees everywhere, which would mean finding IR-C1 is not reproduced here");
+}
+
+// ---------------------------------------------------------------- stage 1b, the export
+
+/// where the exported IR of each shape is written, and where the drafter's
+/// inventory extract lives
+fn export_dir() -> std::path::PathBuf {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).parent().expect("the crate has a parent").join("results/zk60_block125m_lane/x34-slot-ir")
+}
+
+/// **THE PINNED EXPORT DIGESTS, one per registered shape.** A shape's export
+/// is a function of the shape alone — no challenge value, no witness value,
+/// no iteration order — so its SHA-256 is a constant of this lane, and a
+/// change to the IR that the oracle tests happen not to see still moves one
+/// of these.
+const EXPORT_DIGESTS: [(&str, &str, usize); 9] = [
+    ("toy", "12e7ed013f6ca106232e2f3be87ecce6a82e7382df75c45aabe0a13f358f6bfc", 99_232),
+    ("rung", "506d06db2158a16952975a29e5b36d7213761b2ce7fce28ba260d24e8bf774ad", 109_631),
+    ("rung_g", "5cb8323a2a6607f38860e6c79ec1ee9b2f37fb4468cd7cf053fb77838f17d496", 109_635),
+    ("rung_k4", "e40501335cd10bfe75c04cf49d5b184426472e420658c8c7ade794a17a7f0401", 109_637),
+    ("rung_p2", "fa11ed91ecf9662d446d123ee3c7b9ef190e099a8b40b3656ff92ab4ae80d677", 107_276),
+    ("rung_c6", "120b116474c7265ebe75bbb122b87e2d5c1db10f068f5c951de2d133d2b4a9ba", 105_384),
+    ("rung_w14", "d207b45cae6a43a950cb641c75ad2f8c1c8d3698a4255bc61c973d0a6aa9d3ad", 105_395),
+    ("rung_e32", "500aefdcf6655f4c40aeb8a36d9651b51992f8427bd6aa6981eb0bbc031c04a7", 105_393),
+    ("m125", "2e8cdb877d4938a63d92dc8f4b054e59ff296456c56063f61c1ad8e39e948d39", 105_382),
+];
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    use sha2::{Digest, Sha256};
+    let mut h = Sha256::new();
+    h.update(bytes);
+    h.finalize().iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// **STAGE 1b.** The canonical JSON export of every registered shape's
+/// twenty-three slot IRs, written into the lane's evidence directory and
+/// pinned by digest and by length.
+///
+/// What the export is FOR (ruling I-8): the independent Python gate reads it
+/// as a CROSS-CHECK of its own hand port of the slot schedule. It does not
+/// replace the hand port — the hand port is not retired until the gate has
+/// predicted, from the shape alone, the draw counts and degrees the export
+/// declares, and one hand-ported family stays as an independent check
+/// forever. That is how the independence the memo's §6 says is lost is kept.
+///
+/// What the export deliberately does NOT contain: any coefficient value that
+/// depends on a challenge (only its provenance), any witness value, any
+/// table payload, any claim point. A challenge is per PROOF and this file is
+/// per SHAPE.
+#[test]
+fn the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape() {
+    std::fs::create_dir_all(export_dir()).expect("the evidence directory");
+    let mut rows: Vec<(String, String, usize)> = Vec::new();
+    for sh in every_shape() {
+        let key = shape_key(&sh);
+        let irs = every_ir(&sh);
+        let text = export_shape(key, sh.profile, &irs);
+        // canonical: the same bytes when built again from a second walk
+        let again = export_shape(key, sh.profile, &every_ir(&sh));
+        assert_eq!(text, again, "{key}: the export is not the same on a second walk");
+        assert!(text.contains(EXPORT_SCHEMA), "{key}: the export does not name its schema");
+        assert!(!text.contains("\"value\":\"0+0u\"") || text.contains("\"prov\":\"kbase:0\""), "{key}: a zero value with no base provenance");
+        let digest = sha256_hex(text.as_bytes());
+        let path = export_dir().join(format!("slot_ir_{key}.json"));
+        std::fs::write(&path, text.as_bytes()).unwrap_or_else(|e| panic!("writing {}: {e}", path.display()));
+        eprintln!("S34 export {key}: {} bytes, sha256 {digest}", text.len());
+        rows.push((key.to_string(), digest, text.len()));
+    }
+    // the structural coincidence the memo's §7 rests on, now a byte fact: at
+    // rung-W14 and 125M the slot structure is identical, so the two exports
+    // differ only in the header (shape key, profile) and the round counts
+    let (w14, m125) = (rows.iter().find(|r| r.0 == "rung_w14").unwrap(), rows.iter().find(|r| r.0 == "m125").unwrap());
+    assert_ne!(w14.1, m125.1, "rung-W14 and 125M export the same bytes, which cannot be: their round counts differ");
+    for (key, digest, len) in &rows {
+        let pin = EXPORT_DIGESTS.iter().find(|(k, _, _)| k == key).unwrap_or_else(|| panic!("no pin for {key}"));
+        assert_eq!(digest, pin.1, "{key}: the export digest moved (length {len}, pinned length {})", pin.2);
+        assert_eq!(*len, pin.2, "{key}: the export length moved");
+    }
 }
