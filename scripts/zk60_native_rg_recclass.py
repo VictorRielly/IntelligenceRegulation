@@ -164,6 +164,56 @@ CLASSES_ROUND_9B = (
      "terminal port names one more accepted digest"),
 )
 CLASSES = CLASSES + CLASSES_ROUND_9B
+
+# **ROUND 9c (2026-09-21).**  The first leaf diff of a 125M record of
+# record -- round 9b enqueued the two re-takes and they landed after it
+# closed -- so two families of leaf appear here that no development record
+# has:
+#
+#   (1) the PREDICTION block.  Round 9b rewrote `zk60_native_rg_predict` to
+#       DERIVE the pad rule and the receipt instead of reading them (report
+#       Sec. 14.3), so the block embedded in a record gains `pad_rule`,
+#       `receipt`, the two `replay/definition_draws_*` lists and, on every
+#       commitment, `spare_mask_rows` and `the_law`.  One PREDICTED figure
+#       moves with it and is named on purpose: at the two external
+#       endpoints the old zero record predicted 4 non-data rows against a
+#       RECORDED 5 and said `non_data_rows_match: false`; round 9's law
+#       added the endpoint's spare mask row, which the dense record of
+#       record already carried, so the prediction is now 5 and matches.
+#       The recorded `non_data_rows_by_row_roles` is 5 in both records,
+#       before and after -- a prediction was corrected, not a measurement;
+#   (2) peak RSS and the total wall clock.  Only the 125M driver records
+#       them, so `peak_rss_mb`, `total_seconds` and the per-stage
+#       `peak_rss_mb_before/after` have never been diffed before.  They are
+#       the wall-clock class under another name.
+#
+# Everything else stays UNCLASSIFIED on purpose.
+CLASSES_ROUND_9C = (
+    (lambda p: p.startswith("prediction/pad_rule"),
+     "the prediction's DERIVED pad-rule block (round 9b: the predictor "
+     "derives what it used to read)"),
+    (lambda p: p.startswith("prediction/receipt"),
+     "the prediction's DERIVED receipt block (round 9b: degrees, rounds "
+     "per slot and the segment bytes they imply)"),
+    (lambda p: p.startswith("prediction/replay/definition_draws_"),
+     "the prediction's two definition-draw lists, split into DERIVED and "
+     "still-read-from-the-capture (round 9b)"),
+    (lambda p: p.startswith("prediction/per_commitment/")
+     and (p.endswith("/spare_mask_rows") or p.endswith("/the_law")),
+     "the non-data-row law, written beside every commitment (round 9)"),
+    (lambda p: p.startswith("prediction/per_commitment/")
+     and (p.endswith("/predicted_non_data_rows")
+          or p.endswith("/non_data_rows_match")),
+     "the external endpoint's spare mask row, added to the PREDICTION "
+     "(round 9); the recorded row count did not move and the prediction "
+     "now matches it"),
+    (lambda p: p == "peak_rss_mb" or p == "total_seconds"
+     or p.endswith("/peak_rss_mb_before") or p.endswith("/peak_rss_mb_after"),
+     "peak RSS and the total wall clock (the 125M driver's own resource "
+     "figures; the wall-clock class under another name)"),
+)
+CLASSES = CLASSES + CLASSES_ROUND_9C
+
 NOTE_ROUND_9B = (
     "  Round 9b adds two classes: control CT-9, appended to the terminal "
     "control family so that the pad rule's draw arithmetic is a regression "
@@ -173,6 +223,20 @@ NOTE_ROUND_9B = (
     "port's source-pin record.  No slot check, rank, disclosed dimension, "
     "challenge count or channel count was meant to move at any shape, and "
     "an UNCLASSIFIED leaf is the round's result."
+)
+NOTE_ROUND_9C = (
+    "  Round 9c adds six classes, all of them first seen because this is "
+    "the first leaf diff of a 125M RECORD OF RECORD: the prediction's "
+    "derived pad-rule, receipt and definition-draw blocks (round 9b "
+    "rewrote the predictor to derive what it used to read), the non-data-"
+    "row law beside every commitment, the external endpoint's spare mask "
+    "row added to the PREDICTION -- the one predicted figure that moves, "
+    "4 -> 5 at the two endpoints of the zero record, against a RECORDED 5 "
+    "that did not move, so a prediction was corrected and not a "
+    "measurement -- and the 125M driver's own peak RSS and total wall "
+    "clock.  No slot check, rank, disclosed dimension, challenge count, "
+    "preimage figure, mask figure, control figure or channel count "
+    "differs."
 )
 NOTE_ROUND_9 = (
     "  Round 9 adds three classes: the `array_store` block of the /5-run "
@@ -232,7 +296,8 @@ def summarise(diffs: dict) -> dict:
         "what": "the superseded bundles re-run under the current tools and "
         "diffed leaf by leaf against their previous round's records",
         "note": (NOTE + NOTE_ROUND_4 + NOTE_ROUND_6 + NOTE_ROUND_7
-                 + NOTE_ROUND_8 + NOTE_ROUND_9 + NOTE_ROUND_9B),
+                 + NOTE_ROUND_8 + NOTE_ROUND_9 + NOTE_ROUND_9B
+                 + NOTE_ROUND_9C),
         "per_bundle": [],
         "unclassified": [],
     }

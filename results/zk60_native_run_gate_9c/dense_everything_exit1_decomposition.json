@@ -1,0 +1,123 @@
+{
+ "counts_verified": {
+  "P_controls_all_fire": true,
+  "arm_total": 8263736,
+  "commitments_exhibited": [
+   "A@0",
+   "H@0",
+   "E-Input",
+   "A@1",
+   "H@1",
+   "B0",
+   "E-Output"
+  ],
+  "entries_differing": 0,
+  "joint": {
+   "differing": 0,
+   "entries": 8296654,
+   "is_the_sum_of_the_two_arms": true,
+   "leaves": 2304,
+   "ruling": "the joint entry count is the SUM of the two arms and not a third verification (report Sec. 14.9)"
+  },
+  "mask": {
+   "differing": 0,
+   "entries": 32918,
+   "functional": 34,
+   "leaves": 512,
+   "rows": 50
+  },
+  "not_exhibited": [],
+  "per_commitment_entries": {
+   "A@0": 2070138,
+   "A@1": 2070138,
+   "B0": 59612,
+   "E-Input": 42753,
+   "E-Output": 42753,
+   "H@0": 1989171,
+   "H@1": 1989171
+  },
+  "per_commitment_sum": 8263736,
+  "salted_leaves": 1792,
+  "slot_checks": [
+   46,
+   46
+  ],
+  "sum_equals_arm_total": true,
+  "terminal_controls_that_fire": 8,
+  "terminal_controls_total": 9
+ },
+ "job": {
+  "log": "results/zk60_native_run_gate_m125/dense-everything2.log",
+  "marker_exit_code": 1,
+  "note": "two identical jobs ran (dense-everything at 15:08 and a second session's dense-everything2 at 18:21); both exit 1 with the same two stages false and the same figures, and the record on disk is the second one's, whose 28 tool digests are the tool bytes now in the tree",
+  "peak_rss_mb": 5484,
+  "wall_clock_seconds": 7797.8
+ },
+ "record": "results/zk60_native_run_gate_m125/m125-dense-everything.json",
+ "stages_false": [
+  {
+   "ct4": {
+    "control": "CT-4",
+    "fires": false,
+    "skipped": "no old bundle was supplied (--old)",
+    "what": "an OLD bundle, written before stage 15, carries no plane index table"
+   },
+   "skipped_not_faked": true,
+   "stage": "stage8_plane_index_and_terminals",
+   "the_identity_itself": {
+    "ok": true,
+    "slot_checks_equal": 46,
+    "slot_checks_expected": 46
+   },
+   "the_reason": "CT-4 needs an OLD (pre-stage-15) bundle passed with --old to have anything to perturb; the 125M driver was not given one.  It is the only control of the nine that did not fire",
+   "why": "one terminal control, CT-4, did not fire"
+  },
+  {
+   "ch3": {
+    "control": "CH-3",
+    "fires": false,
+    "mechanism": "the profile the bundle's own shape declares",
+    "no_rule_is_returned": false,
+    "refusal": "",
+    "refusals": 0,
+    "what": "the tag's profile replaced by another TAGGED profile's (the 125M shape's)"
+   },
+   "ch3_reading": "CH-3 replaces the tag's profile with ANOTHER TAGGED PROFILE'S -- and the one it substitutes is the 125M shape's.  On the 125M bundle that substitution is the identity, so no refusal can exist.  The control is not applicable at the one shape it names, and it reports fires:false rather than saying so",
+   "ch6": [
+    {
+     "control": "CH-6",
+     "why": "no legacy-rule bundle was supplied"
+    }
+   ],
+   "m9_3": {
+    "fires": true,
+    "ok": false,
+    "per_domain_refusals": [
+     "slot 18: the port declares 1 public tables, the capture has 0",
+     "slot 16: the port declares 3 public tables, the capture has 2",
+     "slot 2: the port declares 1 public tables, the capture has 0"
+    ]
+   },
+   "m9_3_reading": "FIRST RUN OF THE REPAIRED M9-3 AT 125M, and it fires in all three directions (F, Kv, T) -- finding P-F2's repair is confirmed at the shape the finding came from.  Its ok is false because the control demands a refusal naming the two DRAW counts, and flipping the whole pad STATE is caught one step earlier by the public-table count, exactly as report Sec. 14.7 predicted in writing before this pass landed.  CT-9, which flips the draw arithmetic alone, DOES produce that message here",
+   "run_controls_C1_to_C6_ok": true,
+   "stage": "stage6_negative_controls",
+   "why": "one hash-rule control (CH-3) is a no-op at this shape, and control M9-3's own ok-criterion asks for a message its mechanism cannot produce"
+  }
+ ],
+ "the_whole_channel_table_at_125M": {
+  "counts": {
+   "argued": 4,
+   "constructed": 10,
+   "derived": 5,
+   "open": 9
+  },
+  "ok": true,
+  "total": 28
+ },
+ "this_is_not": [
+  "a privacy acceptance",
+  "a privacy result",
+  "a statement that CT-4, CH-3 or M9-3's ok-criterion are healthy: two of the three are findings of this round"
+ ],
+ "what": "the 125M pass `dense-everything` landed with EXIT 1; this is the exit code taken apart, leaf by leaf, from the record it wrote.  Every stage RAN -- nothing raised -- and the two stages that report ok:false do so for control BOOKKEEPING, not for a failed check."
+}

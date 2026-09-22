@@ -48,7 +48,7 @@
   "what": "the hash rule, DERIVED here from the profile the bundle's shape names and then compared with the bundle's declared hash_tag (ruling T-7: re-derive, never consume)"
  },
  "ok": true,
- "peak_rss_mb": 1451,
+ "peak_rss_mb": 1452,
  "prediction": {
   "a_groups": 36,
   "blocks": 2,
@@ -110,6 +110,256 @@
   },
   "n_slots": 23,
   "opened_cols": 256,
+  "pad_rule": {
+   "all_derived_counts_equal_the_capture": true,
+   "disagreements": [],
+   "domains": [
+    {
+     "domain": "D",
+     "domain_log": 19,
+     "host_slot": 14,
+     "padded_size": 524288,
+     "pads": true,
+     "true_size": 393216
+    },
+    {
+     "domain": "F",
+     "domain_log": 20,
+     "host_slot": 18,
+     "padded_size": 1048576,
+     "pads": false,
+     "true_size": 1048576
+    },
+    {
+     "domain": "Ht",
+     "domain_log": 13,
+     "host_slot": 17,
+     "padded_size": 8192,
+     "pads": true,
+     "true_size": 6144
+    },
+    {
+     "domain": "Kv",
+     "domain_log": 17,
+     "host_slot": 16,
+     "padded_size": 131072,
+     "pads": false,
+     "true_size": 131072
+    },
+    {
+     "domain": "L",
+     "domain_log": 14,
+     "host_slot": 3,
+     "padded_size": 16384,
+     "pads": true,
+     "true_size": 4608
+    },
+    {
+     "domain": "Q",
+     "domain_log": 19,
+     "host_slot": 15,
+     "padded_size": 524288,
+     "pads": true,
+     "true_size": 393216
+    },
+    {
+     "domain": "S",
+     "domain_log": 22,
+     "host_slot": 17,
+     "padded_size": 4194304,
+     "pads": true,
+     "true_size": 3145728
+    },
+    {
+     "domain": "T",
+     "domain_log": 9,
+     "host_slot": 2,
+     "padded_size": 512,
+     "pads": false,
+     "true_size": 512
+    },
+    {
+     "domain": "Tab",
+     "domain_log": 14,
+     "host_slot": 19,
+     "padded_size": 16384,
+     "pads": true,
+     "true_size": 256
+    }
+   ],
+   "domains_that_do_not_pad": [
+    "F",
+    "Kv",
+    "T"
+   ],
+   "domains_that_pad": [
+    "D",
+    "Ht",
+    "L",
+    "Q",
+    "S",
+    "Tab"
+   ],
+   "per_zero_check_slot": [
+    {
+     "declared_by_the_capture": 17,
+     "equal": true,
+     "helpers_in_mu": 0,
+     "hosts": [
+      "T"
+     ],
+     "mu_base": 6,
+     "n_pad": 0,
+     "name": "SC_TZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 17,
+     "slot": 2,
+     "tau_domain": "T",
+     "tau_draws": 9,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 16,
+     "equal": true,
+     "helpers_in_mu": 0,
+     "hosts": [
+      "L"
+     ],
+     "mu_base": 0,
+     "n_pad": 1,
+     "name": "SC_LZC",
+     "nu": 0,
+     "pad_on": true,
+     "predicted_definition_draws": 16,
+     "slot": 3,
+     "tau_domain": "L",
+     "tau_draws": 14,
+     "zeta": 1
+    },
+    {
+     "declared_by_the_capture": 51,
+     "equal": true,
+     "helpers_in_mu": 17,
+     "hosts": [
+      "D"
+     ],
+     "mu_base": 28,
+     "n_pad": 1,
+     "name": "SC_DZC",
+     "nu": 2,
+     "pad_on": true,
+     "predicted_definition_draws": 51,
+     "slot": 14,
+     "tau_domain": "D",
+     "tau_draws": 19,
+     "zeta": 1
+    },
+    {
+     "declared_by_the_capture": 31,
+     "equal": true,
+     "helpers_in_mu": 7,
+     "hosts": [
+      "Q"
+     ],
+     "mu_base": 8,
+     "n_pad": 1,
+     "name": "SC_QZC",
+     "nu": 2,
+     "pad_on": true,
+     "predicted_definition_draws": 31,
+     "slot": 15,
+     "tau_domain": "Q",
+     "tau_draws": 19,
+     "zeta": 1
+    },
+    {
+     "declared_by_the_capture": 26,
+     "equal": true,
+     "helpers_in_mu": 6,
+     "hosts": [
+      "Kv"
+     ],
+     "mu_base": 7,
+     "n_pad": 0,
+     "name": "SC_KVZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 26,
+     "slot": 16,
+     "tau_domain": "Kv",
+     "tau_draws": 17,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 40,
+     "equal": true,
+     "helpers_in_mu": 8,
+     "hosts": [
+      "Ht",
+      "S"
+     ],
+     "mu_base": 14,
+     "n_pad": 1,
+     "name": "SC_SZC",
+     "nu": 2,
+     "pad_on": true,
+     "predicted_definition_draws": 40,
+     "slot": 17,
+     "tau_domain": "S",
+     "tau_draws": 22,
+     "zeta": 1
+    },
+    {
+     "declared_by_the_capture": 31,
+     "equal": true,
+     "helpers_in_mu": 5,
+     "hosts": [
+      "F"
+     ],
+     "mu_base": 9,
+     "n_pad": 0,
+     "name": "SC_FZC",
+     "nu": 2,
+     "pad_on": false,
+     "predicted_definition_draws": 31,
+     "slot": 18,
+     "tau_domain": "F",
+     "tau_draws": 20,
+     "zeta": 0
+    },
+    {
+     "declared_by_the_capture": 19,
+     "equal": true,
+     "helpers_in_mu": 0,
+     "hosts": [
+      "Tab"
+     ],
+     "mu_base": 3,
+     "n_pad": 1,
+     "name": "SC_TAB",
+     "nu": 0,
+     "pad_on": true,
+     "predicted_definition_draws": 19,
+     "slot": 19,
+     "tau_domain": "Tab",
+     "tau_draws": 14,
+     "zeta": 1
+    }
+   ],
+   "slots_whose_draw_count_is_derived_here": [
+    2,
+    3,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
+   "the_rule": "tau(log dom) + mu(base + n_pad) + nu + zeta(n_pad), with pad_on = any(Shape::pads(d)) over the domains the slot hosts (argument.rs:936, pad.rs:361-369)",
+   "what_this_is_not": "a check of the prover: the capture's declared count is an INPUT.  What it predicts is that the port will consume exactly this many, and the gate's own confirmation is that the slot's terminal identity holds -- `Ctx.pad_draws` refuses BY NAME on any mismatch, which is finding M-F1's repair"
+  },
   "per_commitment": [
    {
     "claims": 122,
@@ -122,7 +372,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 74,
     "predicted_non_data_rows": 246,
-    "rows": 5681
+    "rows": 5681,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 51,
@@ -135,7 +387,9 @@
     "predicted_disclosed_dimension": 2,
     "predicted_generators": 20,
     "predicted_non_data_rows": 104,
-    "rows": 7120
+    "rows": 7120,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 1,
@@ -144,11 +398,13 @@
     "key": "E-Input",
     "kind": "external-endpoint",
     "non_data_rows_by_row_roles": 5,
-    "non_data_rows_match": false,
+    "non_data_rows_match": true,
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 4,
-    "predicted_non_data_rows": 4,
-    "rows": 37
+    "predicted_non_data_rows": 5,
+    "rows": 37,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 122,
@@ -161,7 +417,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 74,
     "predicted_non_data_rows": 246,
-    "rows": 5681
+    "rows": 5681,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 51,
@@ -174,7 +432,9 @@
     "predicted_disclosed_dimension": 2,
     "predicted_generators": 20,
     "predicted_non_data_rows": 104,
-    "rows": 7120
+    "rows": 7120,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 2,
@@ -187,7 +447,9 @@
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 6,
     "predicted_non_data_rows": 6,
-    "rows": 38
+    "rows": 38,
+    "spare_mask_rows": 0,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    },
    {
     "claims": 1,
@@ -196,14 +458,77 @@
     "key": "E-Output",
     "kind": "external-endpoint",
     "non_data_rows_by_row_roles": 5,
-    "non_data_rows_match": false,
+    "non_data_rows_match": true,
     "predicted_disclosed_dimension": 0,
     "predicted_generators": 4,
-    "predicted_non_data_rows": 4,
-    "rows": 37
+    "predicted_non_data_rows": 5,
+    "rows": 37,
+    "spare_mask_rows": 1,
+    "the_law": "non-data rows = 2 * claims + 2 (the proximity pair) + 1 for an external endpoint's spare mask row"
    }
   ],
   "q_heads": 12,
+  "receipt": {
+   "bytes_per_round_per_degree": 16,
+   "degrees": [
+    4,
+    4,
+    3,
+    4,
+    4,
+    2,
+    2,
+    2,
+    3,
+    3,
+    2,
+    2,
+    2,
+    2,
+    5,
+    5,
+    4,
+    5,
+    4,
+    3,
+    2,
+    2,
+    2
+   ],
+   "endpoint_rows": 37,
+   "rounds_of_slots_16_and_18": 39,
+   "segment_bytes_declared": [
+    40033896,
+    41051720
+   ],
+   "sumcheck_rounds_per_slot": [
+    20,
+    20,
+    10,
+    15,
+    23,
+    11,
+    11,
+    11,
+    10,
+    13,
+    11,
+    11,
+    11,
+    12,
+    20,
+    20,
+    18,
+    23,
+    21,
+    15,
+    15,
+    20,
+    20
+   ],
+   "the_law": "a stage of a shape whose slots 16 and 18 have one degree less sends 624 bytes less per stage, everything else being equal",
+   "total_segment_bytes": 81085616
+  },
   "replay": {
    "bilinear_definition_draws_derived_and_compared": [
     {
@@ -219,7 +544,34 @@
    ],
    "challenges_checked": 27828,
    "definition_draws_are_read_from_the_capture": true,
+   "definition_draws_derived_for": [
+    2,
+    3,
+    8,
+    9,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
    "definition_draws_per_stage": 446,
+   "definition_draws_still_read_from_the_capture": [
+    0,
+    1,
+    4,
+    5,
+    6,
+    7,
+    10,
+    11,
+    12,
+    13,
+    20,
+    21,
+    22
+   ],
    "m_proximity_rhos_per_stage": [
     48,
     48
@@ -288,14 +640,17 @@
    {
     "bundles_written_at_them": [
      "m125-capture-dense-l2",
-     "m125-capture-zero-l2"
+     "m125-capture-zero-l2",
+     "run-k-dense-p2",
+     "run-l-zero-p2"
     ],
     "bytes": 36123,
     "declared": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
     "file": "src/private_block/boundary.rs",
     "git_blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
     "lane_commits": [
-     "f4697f9ccad82304c56dee8c53da3bf107d98b1e"
+     "f4697f9ccad82304c56dee8c53da3bf107d98b1e",
+     "4ccbad1b1da0a23449ac06461740750a6818c6e8"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split **production +22 / -0** and `#[cfg(test)] mod tests` **+22 / -6**.  STAGE 26 again.  In production: one accessor, `index() -> u64` (the boundary's own index, a PUBLIC word of the run statement), and a 16-line doc comment saying that a boundary is the one commitment on the path with no generator of its own -- it is handed the run's single stream -- and naming the domain it WOULD use (`hash_domain::boundary_seed_domain(index, spec.digest())`) without calling it.  In the tests: a `test_generator(spec)` helper and six call sites that now seed from that domain instead of the module's `DOMAIN` label.  **Not one geometry accessor moved**: `data_rows`, `commitment_rows`, `site_rows`, `prox_row`, `mask_row`, `MAX_SITES` and ruling M-1's refusal are byte-identical, and the ports read only those"
@@ -318,14 +673,17 @@
    {
     "bundles_written_at_them": [
      "m125-capture-dense-l2",
-     "m125-capture-zero-l2"
+     "m125-capture-zero-l2",
+     "run-k-dense-p2",
+     "run-l-zero-p2"
     ],
     "bytes": 85434,
     "declared": "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6",
     "file": "src/private_block/run_capture.rs",
     "git_blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
     "lane_commits": [
-     "f4697f9ccad82304c56dee8c53da3bf107d98b1e"
+     "f4697f9ccad82304c56dee8c53da3bf107d98b1e",
+     "4ccbad1b1da0a23449ac06461740750a6818c6e8"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **368 added, 23 removed, 36 hunks**, and this file has no test module (its tests are `run_capture_tests.rs`, which no bundle pins), so the whole diff is production.  STAGE 27, and it is two changes.  (1) **The `/5-run` array store**: `SCHEMA_V5`, `ARRAY_MIN = 256`, `CaptureOpts`, `schema_of(arrays)`, an `ArrayStore` that appends an array's little-endian image to one blob, deduplicates by SHA-256 and returns `{array, elem, len, offset, bytes}`, and the six emission sites that now route through it -- an opened column's `values`, an opening group's `vector`, `proximity_rhos`, `proximity_vector`, the M opening's `q` and `prox`, and a public table's `values`.  The 23 removed lines are those same six `write!`s and the `SOURCE_FILES` constant, each re-emitted.  **Not one field name, member order, kind, coverage string or transcript label moves**, and `ALLOWED_KEYS` gains exactly two entries, `array` and `elem` (format 12: `offset`, `len`, `bytes` and `sha256` were already on it).  A `/4-run` bundle is still written when `HL_RUN_CAPTURE_ARRAYS=store` is absent, and the writer's own `the_array_store_and_the_classic_encoding_carry_the_same_values` captures one run twice in one process and asserts byte-for-byte equality of the expanded store with the classic encoding.  `zk60_native_rg_arrays` is this lane's reader for it, proved against a re-encoded development bundle (round 9, item N1).  (2) **`SOURCE_FILES` 8 -> `OWN_SOURCE_FILES` 15 + `SHARED_SOURCE_FILES` 23 = 38 pins**, plus `NOT_ON_THE_RUNS_PATH` naming `timing.rs` with its reason.  That is the writer-side ask R6.8 item 1 and R8.9 item 4, GRANTED: see `SHARED_LAYER_PINS` below"
@@ -335,9 +693,9 @@
    "src/private_block/plane_index.rs": "zk60_native_rg_terminals.PORTED_FROM (one digest, 9de8320a8477...); a moved pin makes every slot of every stage NOT CHECKED"
   },
   "pins_at_a_read_digest": [
-   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9",
+   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1",
    "src/private_block/run.rs: f24676c4bb38 -- read at f4697f9",
-   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9"
+   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1"
   ],
   "pins_missing_from_the_bundle": [],
   "pins_that_moved": [],
@@ -1268,7 +1626,7 @@
    "exact_rank_of_the_pad_block": 255,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 47.5,
+   "seconds": 45.6,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -2578,7 +2936,8 @@
     },
     "argument_definitions_this_port_implements": {
      "909670c96562": "pre-repair",
-     "dd8469cb0279": "repaired"
+     "dd8469cb0279": "repaired",
+     "ec3f97443245": "repaired"
     },
     "bilinear_definition_reason": "stage 20's repair of finding S19-F1: the group bits are sumcheck variables shared by both private factors, with a public `eq(r_g, .)` over the leading lkv variables and degree 3 (`|v| ig.at(v).mul(v[iq]).mul(v[ik])`).  Read at `argument.rs:1126-1187`; the whole diff against the stage-18 digest is these two slots, the `B::group_eq` helper and a #[cfg(test)] accessor -- no other slot's polynomial moved",
     "bilinear_definition_selected_by_the_argument_pin": "repaired",
@@ -2587,7 +2946,8 @@
      "src/private_block/argument.rs: dd8469cb0279 -- stage 20's repair of finding S19-F1: the group bits are sumcheck variables shared by both private factors, with a public `eq(r_g, .)` over the leading lkv variables and degree 3 (`|v| ig.at(v).mul(v[iq]).mul(v[ik])`).  Read at `argument.rs:1126-1187`; the whole diff against the stage-18 digest is these two slots, the `B::group_eq` helper and a #[cfg(test)] accessor -- no other slot's polynomial moved",
      "src/private_block/layout.rs: 14758039fbe9 -- stage 23 (ruling S-1), at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../layout.rs` is **34 added, 0 removed, ONE hunk, and every added line is a `///` doc comment** on `domain_log_at`: the invariant `log(Dom::Tab) == log_cols`, why the privacy argument's Fact 1 is false on `H` without it, and that `Shape::new` now refuses a shape that breaks it.  **Not one byte of code moved**, so `N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, every plane order and every row count this port reads are byte-identical",
      "src/private_block/protocol.rs: 9e24fd2e1cf2 -- stage 26 (the ruling on finding B-1), at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../protocol.rs` is **10 added, 1 removed, ONE hunk**, and nine of the ten added lines are a comment.  The one statement: the single-block prover's OS-seeded blinding generator takes `hash_domain::single_block_seed_domain(sh)` -- a versioned use literal, the prover's role byte and the profile string -- instead of the bare profile bytes, at every UNFROZEN profile.  **That generator is not the transcript**: no absorb, no squeeze, no label and no published byte moves, and the slot loop, the `(beta, gamma, alpha)` draw, `tagged_transcript`, `endpoint_pcs_params` and every row count are byte-identical",
-     "src/private_block/shape.rs: 14ea01ee5a68 -- stages 23, 24 and 27, at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../shape.rs` is **123 added, 0 removed, two hunks -- ADDITIONS ONLY**, and they are of two kinds.  (i) `Shape::m125()`, one constructor delegating to the UNCHANGED `Shape::new` (512 tokens, width 768, hidden 2048, 12 query heads of 64 over 4 key-value heads, log_cols 14, inverse rate 4, f_e 9, endpoint_rows 37).  (ii) THREE NAMED REFUSALS in `Shape::new`, each of which would have been a silent wrongness at a bigger shape: ruling S-1, `log(Dom::Tab) == log_cols` (the invariant `layout.rs`'s new comment explains); ruling S-3, `head_dim < 2^log_cols`, or the score slot's two private factors would share their whole tail and their column keys would collide; and ruling C-4, `L_s + MASK_Q <= MASK_MSG` for every slot -- exactly the assertion `zk.rs::mask_commit` makes, lifted to the shape so a shape that cannot carry its own masks is refused before a proof.  **Not one geometry function this port reads moved**, and every dimension is re-derived here from `run.json[\"shape\"]` and compared with the shape's own `slots` array"
+     "src/private_block/shape.rs: 14ea01ee5a68 -- stages 23, 24 and 27, at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../shape.rs` is **123 added, 0 removed, two hunks -- ADDITIONS ONLY**, and they are of two kinds.  (i) `Shape::m125()`, one constructor delegating to the UNCHANGED `Shape::new` (512 tokens, width 768, hidden 2048, 12 query heads of 64 over 4 key-value heads, log_cols 14, inverse rate 4, f_e 9, endpoint_rows 37).  (ii) THREE NAMED REFUSALS in `Shape::new`, each of which would have been a silent wrongness at a bigger shape: ruling S-1, `log(Dom::Tab) == log_cols` (the invariant `layout.rs`'s new comment explains); ruling S-3, `head_dim < 2^log_cols`, or the score slot's two private factors would share their whole tail and their column keys would collide; and ruling C-4, `L_s + MASK_Q <= MASK_MSG` for every slot -- exactly the assertion `zk.rs::mask_commit` makes, lifted to the shape so a shape that cannot carry its own masks is refused before a proof.  **Not one geometry function this port reads moved**, and every dimension is re-derived here from `run.json[\"shape\"]` and compared with the shape's own `slots` array",
+     "src/private_block/pad.rs: f8b1f6c26d18 -- stage 22, at commit 3247a89, and UNCHANGED at f4697f9 and 4ccbad1.  `git diff 0426ad2 3247a89 -- .../pad.rs` is **2 added, 2 removed, two hunks, both inside `mod tests`**: `Shape::rung_k4()` is added to the shape list of two test loops (the masked-length check and the declared-degree range).  **Not one production line moved.**  So the pad rule this port transcribes is byte-identical from round 1 to round 9b, which is what makes finding M-F1 a defect of the PORT alone and not of a moved Rust file"
     ],
     "pins_missing_from_the_bundle": [],
     "pins_that_moved": [],
@@ -3625,7 +3985,7 @@
    },
    "rows_total": 25814,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 2.0,
+   "seconds": 2.2,
    "sum_of_parts_fp": 4
   }
  },
@@ -4665,7 +5025,8 @@
     },
     "argument_definitions_this_port_implements": {
      "909670c96562": "pre-repair",
-     "dd8469cb0279": "repaired"
+     "dd8469cb0279": "repaired",
+     "ec3f97443245": "repaired"
     },
     "bilinear_definition_reason": "stage 20's repair of finding S19-F1: the group bits are sumcheck variables shared by both private factors, with a public `eq(r_g, .)` over the leading lkv variables and degree 3 (`|v| ig.at(v).mul(v[iq]).mul(v[ik])`).  Read at `argument.rs:1126-1187`; the whole diff against the stage-18 digest is these two slots, the `B::group_eq` helper and a #[cfg(test)] accessor -- no other slot's polynomial moved",
     "bilinear_definition_selected_by_the_argument_pin": "repaired",
@@ -4674,7 +5035,8 @@
      "src/private_block/argument.rs: dd8469cb0279 -- stage 20's repair of finding S19-F1: the group bits are sumcheck variables shared by both private factors, with a public `eq(r_g, .)` over the leading lkv variables and degree 3 (`|v| ig.at(v).mul(v[iq]).mul(v[ik])`).  Read at `argument.rs:1126-1187`; the whole diff against the stage-18 digest is these two slots, the `B::group_eq` helper and a #[cfg(test)] accessor -- no other slot's polynomial moved",
      "src/private_block/layout.rs: 14758039fbe9 -- stage 23 (ruling S-1), at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../layout.rs` is **34 added, 0 removed, ONE hunk, and every added line is a `///` doc comment** on `domain_log_at`: the invariant `log(Dom::Tab) == log_cols`, why the privacy argument's Fact 1 is false on `H` without it, and that `Shape::new` now refuses a shape that breaks it.  **Not one byte of code moved**, so `N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, every plane order and every row count this port reads are byte-identical",
      "src/private_block/protocol.rs: 9e24fd2e1cf2 -- stage 26 (the ruling on finding B-1), at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../protocol.rs` is **10 added, 1 removed, ONE hunk**, and nine of the ten added lines are a comment.  The one statement: the single-block prover's OS-seeded blinding generator takes `hash_domain::single_block_seed_domain(sh)` -- a versioned use literal, the prover's role byte and the profile string -- instead of the bare profile bytes, at every UNFROZEN profile.  **That generator is not the transcript**: no absorb, no squeeze, no label and no published byte moves, and the slot loop, the `(beta, gamma, alpha)` draw, `tagged_transcript`, `endpoint_pcs_params` and every row count are byte-identical",
-     "src/private_block/shape.rs: 14ea01ee5a68 -- stages 23, 24 and 27, at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../shape.rs` is **123 added, 0 removed, two hunks -- ADDITIONS ONLY**, and they are of two kinds.  (i) `Shape::m125()`, one constructor delegating to the UNCHANGED `Shape::new` (512 tokens, width 768, hidden 2048, 12 query heads of 64 over 4 key-value heads, log_cols 14, inverse rate 4, f_e 9, endpoint_rows 37).  (ii) THREE NAMED REFUSALS in `Shape::new`, each of which would have been a silent wrongness at a bigger shape: ruling S-1, `log(Dom::Tab) == log_cols` (the invariant `layout.rs`'s new comment explains); ruling S-3, `head_dim < 2^log_cols`, or the score slot's two private factors would share their whole tail and their column keys would collide; and ruling C-4, `L_s + MASK_Q <= MASK_MSG` for every slot -- exactly the assertion `zk.rs::mask_commit` makes, lifted to the shape so a shape that cannot carry its own masks is refused before a proof.  **Not one geometry function this port reads moved**, and every dimension is re-derived here from `run.json[\"shape\"]` and compared with the shape's own `slots` array"
+     "src/private_block/shape.rs: 14ea01ee5a68 -- stages 23, 24 and 27, at commit f4697f9.  `git diff 3247a89 f4697f9 -- .../shape.rs` is **123 added, 0 removed, two hunks -- ADDITIONS ONLY**, and they are of two kinds.  (i) `Shape::m125()`, one constructor delegating to the UNCHANGED `Shape::new` (512 tokens, width 768, hidden 2048, 12 query heads of 64 over 4 key-value heads, log_cols 14, inverse rate 4, f_e 9, endpoint_rows 37).  (ii) THREE NAMED REFUSALS in `Shape::new`, each of which would have been a silent wrongness at a bigger shape: ruling S-1, `log(Dom::Tab) == log_cols` (the invariant `layout.rs`'s new comment explains); ruling S-3, `head_dim < 2^log_cols`, or the score slot's two private factors would share their whole tail and their column keys would collide; and ruling C-4, `L_s + MASK_Q <= MASK_MSG` for every slot -- exactly the assertion `zk.rs::mask_commit` makes, lifted to the shape so a shape that cannot carry its own masks is refused before a proof.  **Not one geometry function this port reads moved**, and every dimension is re-derived here from `run.json[\"shape\"]` and compared with the shape's own `slots` array",
+     "src/private_block/pad.rs: f8b1f6c26d18 -- stage 22, at commit 3247a89, and UNCHANGED at f4697f9 and 4ccbad1.  `git diff 0426ad2 3247a89 -- .../pad.rs` is **2 added, 2 removed, two hunks, both inside `mod tests`**: `Shape::rung_k4()` is added to the shape list of two test loops (the masked-length check and the declared-degree range).  **Not one production line moved.**  So the pad rule this port transcribes is byte-identical from round 1 to round 9b, which is what makes finding M-F1 a defect of the PORT alone and not of a moved Rust file"
     ],
     "pins_missing_from_the_bundle": [],
     "pins_that_moved": [],
@@ -4838,57 +5200,57 @@
  ],
  "timings": [
   {
-   "peak_rss_mb_after": 586,
+   "peak_rss_mb_after": 587,
    "peak_rss_mb_before": 35,
    "raised": null,
    "seconds": 1.0,
    "stage": "load"
   },
   {
-   "peak_rss_mb_after": 586,
-   "peak_rss_mb_before": 586,
+   "peak_rss_mb_after": 587,
+   "peak_rss_mb_before": 587,
    "raised": null,
-   "seconds": 1.2,
+   "seconds": 1.3,
    "stage": "replay"
   },
   {
-   "peak_rss_mb_after": 586,
-   "peak_rss_mb_before": 586,
+   "peak_rss_mb_after": 587,
+   "peak_rss_mb_before": 587,
    "raised": null,
    "seconds": 0.7,
    "stage": "hash"
   },
   {
-   "peak_rss_mb_after": 1451,
-   "peak_rss_mb_before": 586,
+   "peak_rss_mb_after": 1452,
+   "peak_rss_mb_before": 587,
    "raised": null,
-   "seconds": 103.3,
+   "seconds": 91.9,
    "stage": "terminals"
   },
   {
-   "peak_rss_mb_after": 1451,
-   "peak_rss_mb_before": 1451,
+   "peak_rss_mb_after": 1452,
+   "peak_rss_mb_before": 1452,
    "raised": null,
-   "seconds": 63.2,
+   "seconds": 60.2,
    "stage": "commitments"
   },
   {
-   "peak_rss_mb_after": 1451,
-   "peak_rss_mb_before": 1451,
+   "peak_rss_mb_after": 1452,
+   "peak_rss_mb_before": 1452,
    "raised": null,
-   "seconds": 5.6,
+   "seconds": 5.8,
    "stage": "boundary"
   },
   {
-   "peak_rss_mb_after": 1451,
-   "peak_rss_mb_before": 1451,
+   "peak_rss_mb_after": 1452,
+   "peak_rss_mb_before": 1452,
    "raised": null,
    "seconds": 1.0,
    "stage": "preimage"
   },
   {
-   "peak_rss_mb_after": 1451,
-   "peak_rss_mb_before": 1451,
+   "peak_rss_mb_after": 1452,
+   "peak_rss_mb_before": 1452,
    "raised": null,
    "seconds": 0.0,
    "stage": "channels"
@@ -4903,27 +5265,28 @@
   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
   "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
+  "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
   "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
-  "zk60_native_rg_controls.py": "ba18ad88a3912bd48a16175ae911c5a4bcb70bbe2dff6a48d8fa0eed79daf8e0",
-  "zk60_native_rg_gcontrols.py": "5ea109409fc9d0a28d888aa7890b82eea7b5eb826a05991e4c99aca2c7d94f57",
-  "zk60_native_rg_gqa.py": "f0bd1fd20c7756ffcc56d85f965e6a3f1a3778b1ebf8251b9f83eafd1c3788b4",
+  "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
+  "zk60_native_rg_gcontrols.py": "eee6192b617a8f056133ba5e5fcb7e155f8376167a53b29a6db70d41579ef818",
+  "zk60_native_rg_gqa.py": "9f7c3379df6d9c4de7772de2819c7aa146e5f1227779178c7a3f9cfe8b67eacc",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
   "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
-  "zk60_native_rg_mask.py": "a273c7c03fc10b19a5beaccb19058c704d8bea4809cabcc9f56a018aa29f392e",
+  "zk60_native_rg_mask.py": "92e18ad4ca4cbcc510ff94f339b74c688e3968d824ff4dec1bd2dc011e439ef9",
   "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
   "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
-  "zk60_native_rg_runpins.py": "1e94fd1b830261057c32c8fc70c4d566cf3302c9dd645e8bd40aa6069a2f34ea",
-  "zk60_native_rg_tcontrols.py": "6ebe2bd6282c98eda0858448c201c67dd394f018e47c55a64b8c1ccd82f897df",
-  "zk60_native_rg_terminals.py": "acb5166d3678bf4cdad469c40b9705d3bc4c6c216865dc9fb2742bb83e9a4352",
-  "zk60_native_run_gate.py": "344ae2b359a96531d22af772cab4da257f15f2a8acc4211c75299fade88cf542"
+  "zk60_native_rg_runpins.py": "7db3a63a1cc2dc63b5eb2a827da960d047ddbb7df60033fad00a4e7eacd83433",
+  "zk60_native_rg_tcontrols.py": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
+  "zk60_native_rg_terminals.py": "d4e1d61573eb8ac1e3e16608fe7b193b99a907307acfdd960c0134c786b40be2",
+  "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"
  },
- "total_seconds": 176.0,
+ "total_seconds": 161.9,
  "what_it_does_not_show": [
   "linear channels of ONE captured two-block run at the 125M shape, at that run's real challenges.  Two runs are not a distribution and two blocks are not twelve",
   "the hash layer's HIDING is still ARGUED: every OPENED column is re-hashed and re-authenticated, which says nothing about what an unopened leaf hides (M-2, M-3)",
