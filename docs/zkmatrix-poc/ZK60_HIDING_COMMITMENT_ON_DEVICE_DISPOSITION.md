@@ -135,6 +135,52 @@ integration lands, a capture from a device-produced proof for the Python
 gate's hash layer (the independent check). Stage 0 is not anyone's to skip:
 without the D19 tag integrated there is no tagged commit to accelerate.
 
+**DC-G(1) MEASURED — 2026-09-22 13:38 (review branch `81c519a`, pushed;
+test-only harness on the real functions with synthetic rows, reproducing
+the enclosing call's Merkle root at every shape, which is what licenses
+comparing the clocks). The compression count's verdict is REVERSED: the
+encode is the larger half, by about 3.7 to 1.** At 125M [MEASURED, three
+repetitions in one process, two agreeing heavy runs, shared box, 22 threads,
+peak 4.44 GiB]: `A` (5,681 rows) encode 1.270 s (50.7%), column hashing
+0.338 s (13.5%), leaves and tree 0.025 s, pads and salts 0.027 s, whole
+2.504 s; `H` (7,120 rows) encode 1.631 s (51.6%), hashing 0.438 s (13.8%),
+tree 0.019 s, whole 3.161 s; the two endpoints 0.048 s each; `M` (50 rows
+over 2^12, its own encode in `zk::mask_commit_tagged`, not this call)
+0.021 s. **A block's five commitments sum to 5.78 s, of which all column
+hashing is 0.79 s (13.7%) and the whole Merkle layer 0.12 s (2.0%).** The
+parts sum to the whole within run-to-run spread and reproduce the prover's
+own phase clocks at 81% and 90% (2.504 against `A: commit` 3.076 s; 3.161
+against `H: commit` 3.499 s — the prover's process holds more resident
+memory at those points). rung-W14 shows the same ratio (3.7 : 1 and 3.5 :
+1). Keying costs nothing measurable (keyed 0.028 s, unkeyed 0.028 s, legacy
+0.027 s at rung-W14).
+
+**Consequences, ruled.** (1) **The keyed CUDA column hasher is worth 13–14%
+of a commitment and under 5% of the prove; it moves down the list.** The
+device target in the commitment is the ENCODE (the NTT), and the byte trap
+of DC-A (output ordering) is exactly the trap of a device NTT — the
+conformance question moves from the hash to the transform. (2) "Encode on
+the device, hash on the host" is a NEW entry point, not a flag: today's
+device entry returns leaves, not the encoded matrix, and the matrix would
+have to come back (2.98 / 3.73 GB per commitment — a transfer whose cost
+nobody has measured; [MODEL] a few tenths of a second at nominal bus rates,
+which I do not carry as a number). (3) **A new finding, and the cheapest
+item on this page — request R2a to the integrator:** `commit_zk_owned_with_tag`
+allocates its encoded matrix as `vec![Fp::ZERO; rows · nn]`
+(`zkp-core/src/pcs.rs:732` and `:789`, and `:221` on the non-hiding path
+[READ]); `Fp` is a user struct, so no zeroed-allocation shortcut applies,
+2.98 / 3.73 GB of zeros are written, and `encode_row_zk` then overwrites
+every entry — a test on the review branch proves the encoding is identical
+from a zeroed and from a `0xA5`-filled buffer. Measured cold against warm,
+the dead zero stores are **0.237 + 0.302 s per 125M block — about 0.54 s,
+3.1% of the prove — from one allocation, with no protocol consequence and
+no byte moved**; the remaining 0.645 + 0.924 s of that allocation is page
+faulting that would move into the encode, and buffer reuse across blocks
+(`A` and `H` are both live to the opening) is a run-driver question, priced
+only. **This is the integrator's file; it is offered as R2a, with the
+review branch's test as the oracle. It is a counted candidate until it is
+measured in the prover, and no page of this project relays it as coming.**
+
 ## 2. What this is not
 
 Not an implementation; nothing compiled or run on a device by either agent.
