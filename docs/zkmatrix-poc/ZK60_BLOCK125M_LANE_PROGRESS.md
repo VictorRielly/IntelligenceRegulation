@@ -11079,3 +11079,181 @@ deleted or modified line inside any `SC_*` arm. The ordinary filter may not
 grow by more than about two minutes.
 
 **Evidence prefix**: `results/zk60_block125m_lane/x34-*`.
+
+### Tasks 1–3 — the IR, the builder and the interpreter
+
+**`hashline/src/private_block/slot_ir.rs` (new, 1,530 lines, `#[cfg(test)]`).**
+The module is `cfg(test)` on purpose and not for tidiness: the stage's claim
+is that no execution path changes and no byte moves, and a module no
+production build compiles is the strongest available form of it. `capture`,
+`run_capture` and `plane_index` are there already for the same reason.
+
+| piece | what it is |
+|---|---|
+| `TableKind` | `Eq { start, point_len }`, `GroupEq { bits }` (the bilinear slots' group gate), `Public`, `Support { dom }`, `PlaneA`, `HelperH`, `Endpoint` |
+| `TableProv` | **what BUILT the table**: `EqOfChallenges`, `PublicFromShape`, `PublicWithChallenge(why)`, `Committed { fixed_coords, extension_slice_coef }` |
+| `FieldKind` | **derived, never written** — see ruling I-2 below |
+| `Coef` | a value and a `CoefProv`: `One`, `NegOne`, `Base(why)` (a public base-field constant with the shape fact or module constant that fixes it), `Challenge(label)`, `Mu(k)`, `Nu(k)`, `Zeta(j)` (only under `pad_on`). **Seven, and no product variant** — see finding S34-F1 |
+| `NodeBody` | `Affine { konst, terms }` (degree 1) and `Sum { subterms }`, a subterm being a coefficient times a product of factors; an empty factor list is a clause's inhomogeneous constant |
+| `Node` | label, body and a degree **computed by the pusher** from the body and the nodes it refers to — a caller cannot write a degree of its own choosing, and `recompute_degrees` re-derives every one independently |
+| `SlotTerm` | `coef * prod(wrapper) * prod(inner)`; the wrapper is the zero-check's `eq(tau, ·)` and, where the term carries it, the pad support gate |
+| `SlotIr` | one slot at one shape: rounds, DECLARED degree, `pad_on`, `group_bits`, tables, nodes, terms — plus `max_term_degree`, `monomials`, `affine_forms`, `sum_nodes`, `is_well_formed` |
+| `SlotIr::eval` | the interpreter: one forward pass over the nodes, then the terms. The simplest correct one — no common-subexpression pass, no reassociation, no specialisation by field kind. A faster one is stage 2's problem |
+
+**RULING I-2, ENCODED RATHER THAN DOCUMENTED.** `TableRef` has **no field
+kind to set**: `field_kind(&TableProv)` is the only producer of a
+`FieldKind` in the module, and it says base-field exactly where no challenge
+and no extension-valued input enters the construction — no `Coord::Fixed`
+coordinate (so no `priv_table` `eqf` weighting), no extension slice
+coefficient (so no `H` column's `u`), no challenge in a public payload, and
+not an `eq`. The twelve tables of finding IR-C1 come out `Extension` **by
+the rule and not by a list**, and a thirteenth of the same kind at a future
+shape would too.
+
+**The builder mirrors `argument::define` arm by arm** — sixteen arms over
+twenty-three slots, each drawing the same challenges in the same order and
+pushing the same tables in the same order, so a table id here is the
+closure's `v[..]` index there. **Not one line of `argument.rs` is touched**
+(the diff of that file is empty; see the gates).
+
+### Task 4 — the five oracles (`slot_ir_tests.rs`, all in the ordinary filter)
+
+**How the two are driven side by side.** Two transcripts in the same initial
+state, one walk of the slot order on each: `define` on the first, the IR
+builder on the second. Nothing else absorbs into either, so the two stay in
+lockstep and the IR carries the same challenge VALUES as the closure it is
+compared against. **A mirror that drew one challenge too many or too few
+would move every later slot's values and fail the equality** — which is what
+makes a hand transcription safe, and it is the device `plane_index.rs`
+already uses for the push order.
+
+| oracle | what it measured |
+|---|---|
+| **(a) IR = closure** | **207 (shape, slot) pairs, 8 random points each = 1,656 evaluations, every one equal**, at all NINE registered shapes **including 125M** — the IR needs no witness, so the 10 GiB shape is reachable from the ordinary filter here. Random points, not a witness's cube: a single wrong coefficient survives with probability ≤ `deg/|F|` ≈ 2^-125 per point |
+| **(a) threads** | the same equality at `RAYON_NUM_THREADS` 1, 2 and 8 (92 evaluations at rung-P2, identical). **Nothing in the IR or the interpreter is parallel** — there is no rayon call in either — and the census says so by measuring |
+| **(a) pad branches** | the branch is a property of the SHAPE, so the registry is what covers it: slot 03/14/15/17/19 pad-on at 8 shapes and off at 1 (the toy carries no pad rule), slot 02 on at 3 and off at 6. Both arms of all six pad-hosting slots are asserted, not hoped for |
+| **(b) degree** | at every one of the 207 pairs, by interpolation on a random line with exact forward differences: the closure's TRUE degree never exceeds the DECLARED one, and the IR's computed `max_term_degree` **equals** the measured degree everywhere. **22 pairs have a one-degree gap, and they are exactly the four LogUp hosts whose own domain pads** — slots 14/15/16/18 at rung, rung-G and rung-K4, slots 14/15 at the five shapes where `Dom::Kv` and `Dom::F` are exact, none at the toy. Recorded as an ASSERTED FACT; ruling I-7 leaves the declared degrees alone |
+| **(c) `FieldKind`** | at the eight shapes whose tables the filter can build, **every table the IR calls `Base` has a zero imaginary part in every word of the table the prover actually builds** — on the honest dense witness AND on a dense nonzero stream |
+| **(c) control** | the memo's own classification written back into the IR at rung-W14: **all twelve** tables are caught |
+| **(d) inventory** | **207 rows** against the drafter's `slot_ir_counts.json`: table count, main and extension rounds, declared degree, term count and max product degree agree at every one |
+| **(e) IR-C19** | `s(0) + s(1) == claim` at **all 379 rounds of 46 (shape, slot) pairs** on the honest prover's own round loop, transliterated here |
+
+**The base-field census, per shape, against the check's 131 of 229.**
+
+| shape | tables | base by the IR's rule | identically zero on the honest fixture | extension tables with a nonzero imaginary part |
+|---|--:|--:|--:|--:|
+| toy | 217 | 120 | 2 | 93 of 97 |
+| rung | 234 | 134 | 5 | 100 of 100 |
+| rung-G | 234 | 134 | 5 | 100 of 100 |
+| rung-K4 | 234 | 134 | 8 | 100 of 100 |
+| rung-P2 | 231 | 131 | 8 | 96 of 100 |
+| rung-C6 | 229 | 131 | 4 | 94 of 98 |
+| **rung-W14** | **229** | **131** | 6 | 94 of 98 |
+| rung-E32 | 229 | 131 | 6 | 94 of 98 |
+| **125M** | **229** | **131** | — (tables not built) | — |
+
+**rung-W14 and 125M are 131 of 229, the check's corrected count, and the
+memo's 143 is wrong by twelve at every registered shape** — the inventory
+comparison reports the difference at 90 rows (the seven matmul slots, the
+two bilinear slots and `SC_TAB`, at nine shapes) and 108 tables in all,
+which is exactly 12 per shape.
+
+### Task 5 — the JSON export (stage 1b), and its schema
+
+Nine files in `results/zk60_block125m_lane/x34-slot-ir/`, one per registered
+shape, each pinned by SHA-256 **and** by length in `slot_ir_tests.rs`:
+
+| shape | bytes | sha256 |
+|---|--:|---|
+| toy | 99,232 | `12e7ed013f6ca106232e2f3be87ecce6a82e7382df75c45aabe0a13f358f6bfc` |
+| rung | 109,631 | `506d06db2158a16952975a29e5b36d7213761b2ce7fce28ba260d24e8bf774ad` |
+| rung-G | 109,635 | `5cb8323a2a6607f38860e6c79ec1ee9b2f37fb4468cd7cf053fb77838f17d496` |
+| rung-K4 | 109,637 | `e40501335cd10bfe75c04cf49d5b184426472e420658c8c7ade794a17a7f0401` |
+| rung-P2 | 107,276 | `fa11ed91ecf9662d446d123ee3c7b9ef190e099a8b40b3656ff92ab4ae80d677` |
+| rung-C6 | 105,384 | `120b116474c7265ebe75bbb122b87e2d5c1db10f068f5c951de2d133d2b4a9ba` |
+| rung-W14 | 105,395 | `d207b45cae6a43a950cb641c75ad2f8c1c8d3698a4255bc61c973d0a6aa9d3ad` |
+| rung-E32 | 105,393 | `500aefdcf6655f4c40aeb8a36d9651b51992f8427bd6aa6981eb0bbc031c04a7` |
+| 125M | 105,382 | `2e8cdb877d4938a63d92dc8f4b054e59ff296456c56063f61c1ad8e39e948d39` |
+
+**THE SCHEMA, `zk60-slot-ir/1`**, so the Python gate can read it without
+reading the Rust. Top level: `schema`, `shape` (the registry key), `profile`
+(the profile string), `slot_count`, `tables`, `tables_base_field`, and
+`slots`, an array of twenty-three objects in slot order. Each slot object:
+
+* `slot`, `name`, `kind` (`Private` / `Standalone` / `Host`);
+* `main_rounds`, `extension_rounds`, `declared_degree` (what the round
+  message length is built from) and `max_product_degree` (what the graph
+  attains — the two differ by one at the LogUp hosts that pad);
+* `pad_on`, and `group_bits` — `null` except at the two bilinear slots,
+  where it is `log2(kv_heads)` and a reader can check it against the shape;
+* `tables`: `{id, kind, field, prov, label}` in PUSH ORDER, which is also
+  the order the masked terminals arrive in `SlotProof::terms`. `field` is
+  `base` or `ext` and is DERIVED from `prov`;
+* `nodes`: `{id, degree, label, body}` topologically ordered, `body` either
+  `"affine"` with `konst` and `terms` (`{coef, table}`) or `"sum"` with
+  `subterms` (`{coef, factors}`), a factor being `{"table":i}` or
+  `{"node":j}`;
+* `terms`: `{coef, wrapper, inner, degree, note}`.
+
+A coefficient is `{"prov": "..."}`, plus `"value": "<re>+<im>u"` **only
+where the provenance says the value is a public constant of the shape**
+(`one`, `neg-one`, `kbase:…`). A challenge-dependent value never leaves the
+process: 4,378 coefficients across the nine files carry a public value and
+2,296 carry provenance only, checked by a reader over the written files.
+That is what makes the export a per-SHAPE artefact that can be pinned at
+all — the gate reads the STRUCTURE here and the VALUES from the transcript
+it re-derives itself.
+
+**Ruling I-8's condition is kept**: this is a CROSS-CHECK of the gate's hand
+port, not a replacement. The hand port is not retired until the gate has
+predicted, from the shape alone, the draw counts and degrees the export
+declares, and one hand-ported family stays as an independent check forever.
+
+### Findings
+
+**S34-F1 (against the design memo, message only).** The memo's §2.3(ii)
+writes slot 17's second top-level term as `nu0*per_row * [t1, t28] * <host_rs>`.
+The CLOSURE multiplies only `nu0` there: `per_row` is the coefficient of the
+HOSTED claim (`hosted = vec![(SC_RS, nu[0].mul(k(per_row))), …]`, which
+enters the claimed SUM), not a factor of the polynomial. The IR carries
+`nu0`, and had it carried `nu0*per_row` the equality oracle would have
+rejected it at every shape where `per_row > 1`.
+
+**S34-F2 (a fixture trap this stage walked into and closed).** With a
+BASE-FIELD tag `g_u8`, `table_values_u8_at(len, g_u8) = k(i % 256) + g_u8`
+is a base-field column and **finding IR-C1's twelfth table becomes
+invisible to any oracle**. The first version of the harness used the older
+definition sweeps' scalars (`g_u8 = 13`) and the control failed to catch the
+mislabel for exactly that reason. All five definition-time challenges now
+have a nonzero imaginary part, as they do in production, where each is
+`gamma * TAG_*` or a drawn challenge.
+
+**S34-F3 (the degenerate-fixture pattern again).** On the honest dense
+witness, **2 to 8 base-labelled tables per shape are identically zero**, and
+a mislabel of one of those is invisible — a zero word can hide a nonzero
+imaginary part but can never create one. The `FieldKind` oracle therefore
+runs twice, on the honest witness and on a dense nonzero stream, and the
+control runs on the dense pass. The count of identically-zero base tables is
+reported per shape rather than left implicit.
+
+**S34-F4 (a difference of transcription convention, not of content).** The
+drafter's inventory and this IR disagree on `ir_affine_forms`,
+`ir_sum_of_product_nodes` and `ir_monomials` at the big slots (for example
+`SC_TAB`: 4 sum nodes here against 5, 12 monomials against 21). Reading the
+arm: both graphs compute the same polynomial — this one is proved equal to
+the CLOSURE, which is the authority — and the difference is where the pad
+term's node boundary is drawn (the drafter makes the batched pad term its
+own node; here its two groups are subterms of the zero-check node) and how a
+flattened monomial is counted. **Every load-bearing column agrees at all 207
+rows.** Worth noting in passing: the drafter's own generated detail file
+carries the IR-C1 error in plain sight — `t3 pub base table values U8` in
+the `SC_TAB` section of `slot_ir_detail_m125.txt`.
+
+**What lever (b) already gets for free, and it is worth saying.** The IR
+encodes the memo's HOISTED form — the support gate multiplies the clause SUM
+once, where the closure multiplies each of the eleven (slot 14) or five
+(slot 17) clauses separately. The equality oracle therefore already proves,
+at every registered shape and both pad branches, that **the hoist is
+value-preserving**: 22 muls become 12 at slot 14 and 10 become 6 at slot 17
+with the same field element out. That is half of lever (b) with its
+"moves no byte" argument measured rather than argued.

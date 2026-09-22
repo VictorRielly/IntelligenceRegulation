@@ -27,7 +27,7 @@
 use super::argument::{build_tables_at, define, Ctx, Points, ProverData, SlotDef, TABLES_PAR_MIN};
 use super::layout::*;
 use super::shape::Shape;
-use super::slot_ir::{build_slot_ir, export_shape, field_kind, FieldKind, IrPoints, SlotIr, TableProv, EXPORT_SCHEMA};
+use super::slot_ir::{build_slot_ir, export_shape, field_kind, FieldKind, IrPoints, SlotIr, TableKind, TableProv, EXPORT_SCHEMA};
 use super::witness;
 use crate::field::{Fp, Fp2};
 use crate::transcript::Transcript;
@@ -756,4 +756,48 @@ fn the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_
         assert_eq!(digest, pin.1, "{key}: the export digest moved (length {len}, pinned length {})", pin.2);
         assert_eq!(*len, pin.2, "{key}: the export length moved");
     }
+}
+
+/// **THE S19-F1 REPAIR, STATED AS DATA AND CHECKED AGAINST THE SHAPE.** The
+/// two bilinear slots sum over the key-value GROUP, so the group bits are
+/// SUMCHECK VARIABLES under a public `eq` over the LEADING variables, not
+/// fixed coordinates of both factors. The IR carries that as
+/// `group_bits = Some(log2(kv_heads))` and a `GroupEq { bits }` table at
+/// `start == 0`, and a reader of the export can check both from the shape
+/// alone — which is the whole point of putting it in the export.
+///
+/// At one key-value head the gate is ABSENT: no table, no degree, no
+/// transcript byte, the frozen toy's path byte for byte.
+#[test]
+fn the_bilinear_slots_carry_the_shapes_key_value_group_bits_and_no_other_slot_does() {
+    let mut with_gate = 0usize;
+    let mut without = 0usize;
+    for sh in every_shape() {
+        let lkv = sh.kv_heads.trailing_zeros() as usize;
+        for ir in every_ir(&sh) {
+            if ir.slot != SC_SCORE && ir.slot != SC_PV {
+                assert_eq!(ir.group_bits, None, "{}: slot {} carries group bits", sh.name, ir.slot);
+                assert!(!ir.tables.iter().any(|t| matches!(t.kind, TableKind::GroupEq { .. })), "{}: slot {} carries a group gate", sh.name, ir.slot);
+                continue;
+            }
+            assert_eq!(ir.group_bits, Some(lkv), "{}: slot {} does not carry log2(kv_heads)", sh.name, ir.slot);
+            let gates: Vec<&TableKind> = ir.tables.iter().map(|t| &t.kind).filter(|k| matches!(k, TableKind::GroupEq { .. })).collect();
+            if lkv == 0 {
+                assert!(gates.is_empty(), "{}: slot {} has a group gate at one key-value head", sh.name, ir.slot);
+                assert_eq!(ir.degree, 2, "{}: slot {} is not degree 2 at one key-value head", sh.name, ir.slot);
+                assert_eq!(ir.terms[0].wrapper.len(), 0, "{}: slot {} wraps something at one key-value head", sh.name, ir.slot);
+                without += 1;
+            } else {
+                assert_eq!(gates.len(), 1, "{}: slot {} has {} group gates", sh.name, ir.slot, gates.len());
+                assert!(matches!(gates[0], TableKind::GroupEq { bits } if *bits == lkv), "{}: slot {} gate is not over log2(kv_heads) variables", sh.name, ir.slot);
+                // the gate is the term's WRAPPER and table 0, so it reads the
+                // LEADING variables, where the group sits
+                assert_eq!(ir.terms[0].wrapper, vec![0], "{}: slot {} does not wrap its two factors in the group gate", sh.name, ir.slot);
+                assert_eq!(ir.degree, 3, "{}: slot {} is not degree 3 with a group gate", sh.name, ir.slot);
+                with_gate += 1;
+            }
+        }
+    }
+    eprintln!("S34 group bits: {with_gate} bilinear slots with a group gate, {without} without it (one key-value head)");
+    assert_eq!((with_gate, without), (16, 2), "the registry does not cover both arms of the group gate");
 }
