@@ -55,6 +55,7 @@ false:
 from __future__ import annotations
 
 import argparse
+import gc
 import hashlib
 import json
 import os
@@ -394,11 +395,21 @@ NOT = (
 
 
 def run(pairs: list) -> dict:
+    """One shape at a time, and the bundle RELEASED before the next.
+
+    A `RunBundle` at 125M opens a 281 MB array store and at rung-W14 a
+    42 MB one.  Nothing here needs two of them at once, and inside the
+    whole native suite -- one process, every module -- the difference
+    between holding them and dropping them is the difference between
+    finishing and being killed at `MemoryMax=4G`.  Round 9c's closing
+    sequence was killed twice before this was written down."""
     out = {"what": WHAT, "what_this_is_not": NOT, "per_shape": []}
     for key, bundle_dir in pairs:
         export = load_export(key)
         b = RunBundle(bundle_dir)
         out["per_shape"].append(compare(export, b))
+        del b, export
+        gc.collect()
     out["shapes"] = len(out["per_shape"])
     out["comparisons"] = sum(x["comparisons"] for x in out["per_shape"])
     out["disagreements"] = sum(len(x["disagreements"])
