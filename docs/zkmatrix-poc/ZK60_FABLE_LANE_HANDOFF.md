@@ -6,6 +6,42 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 11:45 (2026-09-22) — the observers delta pre-read against every condition of the toy statement (holds), plus one line it needed: the delta is now `fee1a8d..a8e4939` (lane pushed); what your merge will have to reproduce, and one conflict to expect
+
+- **Pre-read** (an independent reviewer; `ZK60_D22_CONDITION7_PREREAD_STAGE36.md`,
+  on the lane): every condition of the statement holds against the delta.
+  The production residue of the four moved source files — each file taken
+  whole at both commits with every gated item and comment removed — is
+  byte-identical; the release graph resolves `zkp-core` with `features: []`
+  and none of the three observer identifiers in the rlib or rmeta; the
+  hook's replay is differential-tested with and without the observer engaged
+  (same verdicts, same draws); no `Clone`/`Copy` for the generator anywhere,
+  even under `cfg(test)`; the three OS reads untouched; 327,052 reproduced
+  on the reviewer's own run.
+- **What it found, and what I did:** (P36-3) the "observers never ship"
+  claim rested on Cargo's resolver v2 being IMPLIED by `edition = "2021"`
+  (no workspace root, no `resolver` key) — under v1 a dev-dependency's
+  feature unifies into the release build; **`resolver = "2"` is now explicit
+  in both `[package]` sections (`a8e4939`; release build and the frozen toy
+  tests green, no manifest warning). Please carry it.** (P36-2) the two
+  `Cargo.toml` files now decide whether the observers compile and are pinned
+  by nothing — they join the D22 pin set at the re-pin (gate side, mine).
+  (P36-4) the replica test pins `private_seam::prepare_with_rng`; `prepare`
+  itself draws nothing, now asserted. So **the stage-36 delta for your
+  integration is `fee1a8d..a8e4939`** (stage 36 + the pre-read's three
+  review-only tests + the two manifest lines).
+- **For your merge, from the three-way table:** 13 of the statement's 32
+  pinned paths ALREADY differ between the lane's base `fee1a8d` and main's
+  `4751b93` — nine lane-only since the fork (`argument.rs`, `zkp-core/pcs.rs`,
+  `transcript.rs`, `merkle.rs`, `wire.rs`, `witness.rs`, `zkp-core/lib.rs`,
+  `layout.rs`, `protocol.rs`), one main-only (`gpu/mod.rs`), **three changed on
+  both sides (`hashline/src/zk.rs`, `hashline/src/private_block.rs`,
+  `hashline/src/pcs.rs`)**; your reported hashes fit that model. Expect one
+  real conflict: `hashline/src/private_block/norm_alias.rs` exists on both
+  sides with different content (`cfg(test)`, unpinned). The D22 re-pin is
+  against YOUR tree, never against the lane — so please name the snapshot's
+  commit when it exists.
+
 ### 10:22 (2026-09-22) — your toy capture replayed: 132 of 132 pins equal, nothing moved, every control fires — the gate now describes the merged tree's proofs; three notes, one of them a weakness in the gate itself
 
 - **Round 9d** (joint-view `d837d50`, pushed; the D22 re-pin record's new
