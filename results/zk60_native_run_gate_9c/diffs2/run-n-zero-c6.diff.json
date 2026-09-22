@@ -1,0 +1,303 @@
+{
+ "changed": [
+  {
+   "new": "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
+   "old": "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1",
+   "path": "run_layer_source_pins/pins_at_a_read_digest/[0]"
+  },
+  {
+   "new": "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
+   "old": "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1",
+   "path": "run_layer_source_pins/pins_at_a_read_digest/[2]"
+  },
+  {
+   "new": 304.4,
+   "old": 284.5,
+   "path": "seconds"
+  },
+  {
+   "new": 2.76,
+   "old": 2.72,
+   "path": "stage11_full_preimage/per_commitment/[0]/layout_seconds"
+  },
+  {
+   "new": 0.78,
+   "old": 0.72,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_groups_seconds"
+  },
+  {
+   "new": 0.05,
+   "old": 0.04,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_proximity_seconds"
+  },
+  {
+   "new": 5.67,
+   "old": 5.66,
+   "path": "stage11_full_preimage/per_commitment/[0]/pads_seconds"
+  },
+  {
+   "new": 18.37,
+   "old": 17.75,
+   "path": "stage11_full_preimage/per_commitment/[0]/seconds"
+  },
+  {
+   "new": 6.5,
+   "old": 6.43,
+   "path": "stage11_full_preimage/per_commitment/[0]/solve_seconds"
+  },
+  {
+   "new": 6.99,
+   "old": 6.61,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.03,
+   "old": 1.91,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.64,
+   "old": 2.56,
+   "path": "stage11_full_preimage/per_commitment/[1]/layout_seconds"
+  },
+  {
+   "new": 5.17,
+   "old": 5.12,
+   "path": "stage11_full_preimage/per_commitment/[1]/pads_seconds"
+  },
+  {
+   "new": 15.48,
+   "old": 14.65,
+   "path": "stage11_full_preimage/per_commitment/[1]/seconds"
+  },
+  {
+   "new": 5.37,
+   "old": 5.32,
+   "path": "stage11_full_preimage/per_commitment/[1]/solve_seconds"
+  },
+  {
+   "new": 6.69,
+   "old": 6.11,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.69,
+   "old": 0.58,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.57,
+   "old": 2.54,
+   "path": "stage11_full_preimage/per_commitment/[2]/layout_seconds"
+  },
+  {
+   "new": 0.11,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[2]/pads_seconds"
+  },
+  {
+   "new": 2.83,
+   "old": 2.85,
+   "path": "stage11_full_preimage/per_commitment/[2]/seconds"
+  },
+  {
+   "new": 0.13,
+   "old": 0.15,
+   "path": "stage11_full_preimage/per_commitment/[2]/solve_seconds"
+  },
+  {
+   "new": 0.12,
+   "old": 0.14,
+   "path": "stage11_full_preimage/per_commitment/[2]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.65,
+   "old": 2.64,
+   "path": "stage11_full_preimage/per_commitment/[3]/layout_seconds"
+  },
+  {
+   "new": 0.76,
+   "old": 0.79,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_groups_seconds"
+  },
+  {
+   "new": 5.67,
+   "old": 5.66,
+   "path": "stage11_full_preimage/per_commitment/[3]/pads_seconds"
+  },
+  {
+   "new": 17.99,
+   "old": 18.06,
+   "path": "stage11_full_preimage/per_commitment/[3]/seconds"
+  },
+  {
+   "new": 6.48,
+   "old": 6.49,
+   "path": "stage11_full_preimage/per_commitment/[3]/solve_seconds"
+  },
+  {
+   "new": 6.8,
+   "old": 6.83,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.98,
+   "old": 2.02,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.56,
+   "old": 2.54,
+   "path": "stage11_full_preimage/per_commitment/[4]/layout_seconds"
+  },
+  {
+   "new": 0.17,
+   "old": 0.18,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_groups_seconds"
+  },
+  {
+   "new": 0.02,
+   "old": 0.03,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_proximity_seconds"
+  },
+  {
+   "new": 5.14,
+   "old": 5.05,
+   "path": "stage11_full_preimage/per_commitment/[4]/pads_seconds"
+  },
+  {
+   "new": 15.45,
+   "old": 14.94,
+   "path": "stage11_full_preimage/per_commitment/[4]/seconds"
+  },
+  {
+   "new": 5.33,
+   "old": 5.26,
+   "path": "stage11_full_preimage/per_commitment/[4]/solve_seconds"
+  },
+  {
+   "new": 6.86,
+   "old": 6.39,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.62,
+   "old": 0.69,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.91,
+   "old": 2.5,
+   "path": "stage11_full_preimage/per_commitment/[5]/layout_seconds"
+  },
+  {
+   "new": 0.03,
+   "old": 0.02,
+   "path": "stage11_full_preimage/per_commitment/[5]/msg_groups_seconds"
+  },
+  {
+   "new": 0.19,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[5]/pads_seconds"
+  },
+  {
+   "new": 3.34,
+   "old": 2.81,
+   "path": "stage11_full_preimage/per_commitment/[5]/seconds"
+  },
+  {
+   "new": 0.22,
+   "old": 0.16,
+   "path": "stage11_full_preimage/per_commitment/[5]/solve_seconds"
+  },
+  {
+   "new": 0.19,
+   "old": 0.14,
+   "path": "stage11_full_preimage/per_commitment/[5]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.76,
+   "old": 2.61,
+   "path": "stage11_full_preimage/per_commitment/[6]/layout_seconds"
+  },
+  {
+   "new": 0.13,
+   "old": 0.11,
+   "path": "stage11_full_preimage/per_commitment/[6]/pads_seconds"
+  },
+  {
+   "new": 3.09,
+   "old": 2.87,
+   "path": "stage11_full_preimage/per_commitment/[6]/seconds"
+  },
+  {
+   "new": 0.15,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[6]/solve_seconds"
+  },
+  {
+   "new": 0.16,
+   "old": 0.12,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 76.6,
+   "old": 74.0,
+   "path": "stage11_full_preimage/seconds"
+  },
+  {
+   "new": 6.06,
+   "old": 5.96,
+   "path": "stage12_mask_and_cfs/per_stage/[0]/seconds"
+  },
+  {
+   "new": 5.97,
+   "old": 5.75,
+   "path": "stage12_mask_and_cfs/per_stage/[1]/seconds"
+  },
+  {
+   "new": 12.04,
+   "old": 11.73,
+   "path": "stage12_mask_and_cfs/seconds"
+  },
+  {
+   "new": 3.8,
+   "old": 3.3,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 0.8,
+   "old": 0.7,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "bbff3f4298d1f40d395b6babe2a767475b45725aed4ad534385fb42525aef733",
+   "old": "9b437d2b0082d0144e627799249c2a8a434669db4a4050791cc5ab88536ee86d",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  }
+ ],
+ "identical_leaves": 6867,
+ "leaves_new": 6940,
+ "leaves_old": 6922,
+ "only_in_the_new_record": [
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[4]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[5]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[6]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[7]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[8]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[9]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[2]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[3]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[4]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[4]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[5]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[6]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[7]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[8]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[9]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[2]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[3]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[4]"
+ ],
+ "only_in_the_old_record": []
+}

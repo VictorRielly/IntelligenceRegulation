@@ -1,0 +1,14 @@
++ P=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c
++ W=/home/victor/wt-zk60-jointview
++ flock /tmp/zk-heavy.lock systemd-run --user --scope -q -p MemoryMax=8G -p MemorySwapMax=0 bash /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/refresh2.sh
++ echo 'refresh2 exit=0'
+refresh2 exit=0
++ bash /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diff2.sh
++ echo 'diff2 exit=0'
+diff2 exit=0
++ systemd-run --user --scope -q -p MemoryMax=4G -p MemorySwapMax=0 python3 -m unittest discover -s /home/victor/wt-zk60-jointview/tests -p 'test_zk60_native*.py'
+/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/finish2.sh: line 10: 789575 Killed                  systemd-run --user --scope -q -p MemoryMax=4G -p MemorySwapMax=0 python3 -m unittest discover -s $W/tests -p 'test_zk60_native*.py' > $P/tests_native_all.log 2>&1
++ echo 'suite exit=137'
+suite exit=137
++ date
+Tue Sep 22 09:31:34 PDT 2026

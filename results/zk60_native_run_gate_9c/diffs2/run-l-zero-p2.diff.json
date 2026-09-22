@@ -1,0 +1,318 @@
+{
+ "changed": [
+  {
+   "new": "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
+   "old": "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1",
+   "path": "run_layer_source_pins/pins_at_a_read_digest/[0]"
+  },
+  {
+   "new": "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
+   "old": "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1",
+   "path": "run_layer_source_pins/pins_at_a_read_digest/[2]"
+  },
+  {
+   "new": 197.5,
+   "old": 247.0,
+   "path": "seconds"
+  },
+  {
+   "new": 2.64,
+   "old": 3.27,
+   "path": "stage11_full_preimage/per_commitment/[0]/layout_seconds"
+  },
+  {
+   "new": 0.59,
+   "old": 0.81,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_groups_seconds"
+  },
+  {
+   "new": 3.69,
+   "old": 4.8,
+   "path": "stage11_full_preimage/per_commitment/[0]/pads_seconds"
+  },
+  {
+   "new": 12.44,
+   "old": 15.95,
+   "path": "stage11_full_preimage/per_commitment/[0]/seconds"
+  },
+  {
+   "new": 4.32,
+   "old": 5.64,
+   "path": "stage11_full_preimage/per_commitment/[0]/solve_seconds"
+  },
+  {
+   "new": 4.23,
+   "old": 5.42,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.19,
+   "old": 1.55,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.53,
+   "old": 3.22,
+   "path": "stage11_full_preimage/per_commitment/[1]/layout_seconds"
+  },
+  {
+   "new": 0.14,
+   "old": 0.18,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_groups_seconds"
+  },
+  {
+   "new": 0.02,
+   "old": 0.03,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_proximity_seconds"
+  },
+  {
+   "new": 2.72,
+   "old": 3.54,
+   "path": "stage11_full_preimage/per_commitment/[1]/pads_seconds"
+  },
+  {
+   "new": 9.28,
+   "old": 11.74,
+   "path": "stage11_full_preimage/per_commitment/[1]/seconds"
+  },
+  {
+   "new": 2.89,
+   "old": 3.74,
+   "path": "stage11_full_preimage/per_commitment/[1]/solve_seconds"
+  },
+  {
+   "new": 3.5,
+   "old": 4.3,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.32,
+   "old": 0.42,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.56,
+   "old": 3.11,
+   "path": "stage11_full_preimage/per_commitment/[2]/layout_seconds"
+  },
+  {
+   "new": 0.08,
+   "old": 0.11,
+   "path": "stage11_full_preimage/per_commitment/[2]/pads_seconds"
+  },
+  {
+   "new": 2.73,
+   "old": 3.34,
+   "path": "stage11_full_preimage/per_commitment/[2]/seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[2]/solve_seconds"
+  },
+  {
+   "new": 0.07,
+   "old": 0.09,
+   "path": "stage11_full_preimage/per_commitment/[2]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.6,
+   "old": 3.33,
+   "path": "stage11_full_preimage/per_commitment/[3]/layout_seconds"
+  },
+  {
+   "new": 0.61,
+   "old": 0.78,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_groups_seconds"
+  },
+  {
+   "new": 0.04,
+   "old": 0.06,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_proximity_seconds"
+  },
+  {
+   "new": 3.77,
+   "old": 4.7,
+   "path": "stage11_full_preimage/per_commitment/[3]/pads_seconds"
+  },
+  {
+   "new": 12.73,
+   "old": 15.78,
+   "path": "stage11_full_preimage/per_commitment/[3]/seconds"
+  },
+  {
+   "new": 4.42,
+   "old": 5.53,
+   "path": "stage11_full_preimage/per_commitment/[3]/solve_seconds"
+  },
+  {
+   "new": 4.4,
+   "old": 5.39,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.24,
+   "old": 1.47,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.59,
+   "old": 3.29,
+   "path": "stage11_full_preimage/per_commitment/[4]/layout_seconds"
+  },
+  {
+   "new": 0.16,
+   "old": 0.19,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_groups_seconds"
+  },
+  {
+   "new": 2.87,
+   "old": 3.85,
+   "path": "stage11_full_preimage/per_commitment/[4]/pads_seconds"
+  },
+  {
+   "new": 9.52,
+   "old": 12.15,
+   "path": "stage11_full_preimage/per_commitment/[4]/seconds"
+  },
+  {
+   "new": 3.05,
+   "old": 4.06,
+   "path": "stage11_full_preimage/per_commitment/[4]/solve_seconds"
+  },
+  {
+   "new": 3.52,
+   "old": 4.32,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.32,
+   "old": 0.41,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.6,
+   "old": 3.2,
+   "path": "stage11_full_preimage/per_commitment/[5]/layout_seconds"
+  },
+  {
+   "new": 0.11,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[5]/pads_seconds"
+  },
+  {
+   "new": 2.86,
+   "old": 3.49,
+   "path": "stage11_full_preimage/per_commitment/[5]/seconds"
+  },
+  {
+   "new": 0.14,
+   "old": 0.16,
+   "path": "stage11_full_preimage/per_commitment/[5]/solve_seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.12,
+   "path": "stage11_full_preimage/per_commitment/[5]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.62,
+   "old": 3.17,
+   "path": "stage11_full_preimage/per_commitment/[6]/layout_seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.11,
+   "path": "stage11_full_preimage/per_commitment/[6]/pads_seconds"
+  },
+  {
+   "new": 2.81,
+   "old": 3.41,
+   "path": "stage11_full_preimage/per_commitment/[6]/seconds"
+  },
+  {
+   "new": 0.11,
+   "old": 0.14,
+   "path": "stage11_full_preimage/per_commitment/[6]/solve_seconds"
+  },
+  {
+   "new": 0.07,
+   "old": 0.09,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.0,
+   "old": 0.01,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 52.4,
+   "old": 65.9,
+   "path": "stage11_full_preimage/seconds"
+  },
+  {
+   "new": 5.9,
+   "old": 6.97,
+   "path": "stage12_mask_and_cfs/per_stage/[0]/seconds"
+  },
+  {
+   "new": 5.82,
+   "old": 6.2,
+   "path": "stage12_mask_and_cfs/per_stage/[1]/seconds"
+  },
+  {
+   "new": 11.73,
+   "old": 13.19,
+   "path": "stage12_mask_and_cfs/seconds"
+  },
+  {
+   "new": 3.5,
+   "old": 4.3,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 0.4,
+   "old": 0.6,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "dad273d3b429723da956103ad4ee2aa7a5a900773d8902927f046f67875aad77",
+   "old": "92e18ad4ca4cbcc510ff94f339b74c688e3968d824ff4dec1bd2dc011e439ef9",
+   "path": "tool_sha256/zk60_native_rg_mask.py"
+  },
+  {
+   "new": "bbff3f4298d1f40d395b6babe2a767475b45725aed4ad534385fb42525aef733",
+   "old": "7db3a63a1cc2dc63b5eb2a827da960d047ddbb7df60033fad00a4e7eacd83433",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  },
+  {
+   "new": "f17491a1215823ea30271da263f9103ae511df66f9f081947eb20b52df58dea2",
+   "old": "d4e1d61573eb8ac1e3e16608fe7b193b99a907307acfdd960c0134c786b40be2",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  }
+ ],
+ "identical_leaves": 6672,
+ "leaves_new": 6748,
+ "leaves_old": 6730,
+ "only_in_the_new_record": [
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[4]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[5]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[6]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[7]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[8]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[9]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[2]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[3]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[4]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[4]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[5]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[6]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[7]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[8]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[9]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[2]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[3]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[4]"
+ ],
+ "only_in_the_old_record": []
+}

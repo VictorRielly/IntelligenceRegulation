@@ -142,7 +142,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 170.7,
+ "seconds": 171.6,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -876,14 +876,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.6,
+    "layout_seconds": 2.59,
     "msg_groups_seconds": 0.67,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.33,
+    "pads_seconds": 3.5,
     "preimage_exhibited": true,
-    "seconds": 11.54,
+    "seconds": 11.85,
     "solve_findings": [],
-    "solve_seconds": 4.04,
+    "solve_seconds": 4.21,
     "solved": true,
     "steps": [
      {
@@ -1504,8 +1504,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.84,
-     "seconds_vectors_and_claims": 1.01
+     "seconds_opened_columns": 3.9,
+     "seconds_vectors_and_claims": 1.1
     }
    },
    {
@@ -1525,14 +1525,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.48,
-    "msg_groups_seconds": 0.15,
+    "layout_seconds": 2.55,
+    "msg_groups_seconds": 0.14,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.44,
+    "pads_seconds": 2.41,
     "preimage_exhibited": true,
-    "seconds": 8.26,
+    "seconds": 8.28,
     "solve_findings": [],
-    "solve_seconds": 2.61,
+    "solve_seconds": 2.57,
     "solved": true,
     "steps": [
      {
@@ -1755,8 +1755,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 2.88,
-     "seconds_vectors_and_claims": 0.26
+     "seconds_opened_columns": 2.86,
+     "seconds_vectors_and_claims": 0.27
     }
    },
    {
@@ -1776,14 +1776,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.61,
+    "layout_seconds": 2.49,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.09,
+    "pads_seconds": 0.07,
     "preimage_exhibited": true,
-    "seconds": 2.81,
+    "seconds": 2.66,
     "solve_findings": [],
-    "solve_seconds": 0.11,
+    "solve_seconds": 0.09,
     "solved": true,
     "steps": [
      {
@@ -1900,14 +1900,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.5,
-    "msg_groups_seconds": 0.64,
+    "layout_seconds": 2.57,
+    "msg_groups_seconds": 0.62,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.38,
+    "pads_seconds": 3.35,
     "preimage_exhibited": true,
-    "seconds": 11.42,
+    "seconds": 11.58,
     "solve_findings": [],
-    "solve_seconds": 4.06,
+    "solve_seconds": 4.01,
     "solved": true,
     "steps": [
      {
@@ -2528,8 +2528,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.69,
-     "seconds_vectors_and_claims": 1.13
+     "seconds_opened_columns": 3.88,
+     "seconds_vectors_and_claims": 1.08
     }
    },
    {
@@ -2549,14 +2549,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.46,
-    "msg_groups_seconds": 0.14,
+    "layout_seconds": 2.62,
+    "msg_groups_seconds": 0.13,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.41,
+    "pads_seconds": 2.55,
     "preimage_exhibited": true,
-    "seconds": 8.13,
+    "seconds": 8.44,
     "solve_findings": [],
-    "solve_seconds": 2.57,
+    "solve_seconds": 2.7,
     "solved": true,
     "steps": [
      {
@@ -2779,7 +2779,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 2.8,
+     "seconds_opened_columns": 2.81,
      "seconds_vectors_and_claims": 0.27
     }
    },
@@ -2800,12 +2800,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.54,
+    "layout_seconds": 2.74,
     "msg_groups_seconds": 0.02,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.11,
+    "pads_seconds": 0.1,
     "preimage_exhibited": true,
-    "seconds": 2.8,
+    "seconds": 2.98,
     "solve_findings": [],
     "solve_seconds": 0.13,
     "solved": true,
@@ -2918,7 +2918,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.11,
+     "seconds_opened_columns": 0.1,
      "seconds_vectors_and_claims": 0.01
     }
    },
@@ -2939,14 +2939,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.62,
-    "msg_groups_seconds": 0.61,
+    "layout_seconds": 2.72,
+    "msg_groups_seconds": 0.65,
     "msg_proximity_seconds": 0.04,
     "pads_seconds": 3.56,
     "preimage_exhibited": true,
-    "seconds": 11.6,
+    "seconds": 11.87,
     "solve_findings": [],
-    "solve_seconds": 4.21,
+    "solve_seconds": 4.26,
     "solved": true,
     "steps": [
      {
@@ -3567,8 +3567,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.75,
-     "seconds_vectors_and_claims": 0.98
+     "seconds_opened_columns": 3.84,
+     "seconds_vectors_and_claims": 1.01
     }
    },
    {
@@ -3588,14 +3588,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.58,
-    "msg_groups_seconds": 0.13,
+    "layout_seconds": 2.63,
+    "msg_groups_seconds": 0.14,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.36,
+    "pads_seconds": 2.38,
     "preimage_exhibited": true,
-    "seconds": 8.04,
+    "seconds": 8.3,
     "solve_findings": [],
-    "solve_seconds": 2.51,
+    "solve_seconds": 2.54,
     "solved": true,
     "steps": [
      {
@@ -3818,8 +3818,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 2.67,
-     "seconds_vectors_and_claims": 0.25
+     "seconds_opened_columns": 2.81,
+     "seconds_vectors_and_claims": 0.29
     }
    },
    {
@@ -3839,14 +3839,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.47,
+    "layout_seconds": 2.39,
     "msg_groups_seconds": 0.02,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.11,
+    "pads_seconds": 0.12,
     "preimage_exhibited": true,
-    "seconds": 2.7,
+    "seconds": 2.66,
     "solve_findings": [],
-    "solve_seconds": 0.13,
+    "solve_seconds": 0.15,
     "solved": true,
     "steps": [
      {
@@ -3957,7 +3957,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.09,
+     "seconds_opened_columns": 0.1,
      "seconds_vectors_and_claims": 0.0
     }
    },
@@ -3978,12 +3978,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.46,
+    "layout_seconds": 2.53,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
     "pads_seconds": 0.08,
     "preimage_exhibited": true,
-    "seconds": 2.64,
+    "seconds": 2.71,
     "solve_findings": [],
     "solve_seconds": 0.1,
     "solved": true,
@@ -4088,7 +4088,7 @@
   ],
   "requested": true,
   "salted_leaves_authenticated": 2560,
-  "seconds": 70.0,
+  "seconds": 71.4,
   "this_is_not_a_privacy_result": true,
   "view_entries_compared": 1097847,
   "view_entries_differing": 0,
@@ -4457,7 +4457,7 @@
    "exact_rank_of_the_pad_block": 249,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.5,
+   "seconds": 3.4,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -9051,7 +9051,7 @@
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
-  "zk60_native_rg_runpins.py": "9b437d2b0082d0144e627799249c2a8a434669db4a4050791cc5ab88536ee86d",
+  "zk60_native_rg_runpins.py": "bbff3f4298d1f40d395b6babe2a767475b45725aed4ad534385fb42525aef733",
   "zk60_native_rg_tcontrols.py": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
   "zk60_native_rg_terminals.py": "f17491a1215823ea30271da263f9103ae511df66f9f081947eb20b52df58dea2",
   "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"

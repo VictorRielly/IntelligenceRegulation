@@ -1,0 +1,318 @@
+{
+ "no_measured_figure_moved": true,
+ "note": "every difference is one of: a wall clock, a tool SHA-256, the two NEW record blocks (hash_rule and stage 9), the replay naming its rule, the new fields about captured public tables (empty on a bundle that carries none), the reworded OPEN reason of the eleven slots, or the insertion of ONE channel entry, which shifts every later entry's index.  No rank, disclosed dimension, challenge count, slot check or control figure differs.  Round 4 adds four classes: the new stage 10 block, ruling R-3's correction note beside every joint figure, the terminal port naming which definition of the two bilinear slots is in force, and the one channel entry whose reason gained R-3's sentence.  Round 6 adds one class: the new `run_layer_source_pins` block, which is the pin table for `run_capture.rs`, `run.rs` and `boundary.rs` that finding K4-F2 said did not exist.  Round 7 adds one class: the new `stage11_full_preimage` block, which on a default run carries only the sentence saying the arm was not requested and which three channels therefore stay OPEN.  Round 8 adds two classes: the new `stage12_mask_and_cfs` block, which on a default run carries only the sentence saying the arm was not requested and which four channels therefore stay OPEN.  The channel array grows from 25 entries to 28 -- M's q, M's proximity vector and M's own opened columns are graded separately, as the TOY gate already grades them -- and that growth is the existing channel class.  The second is the new `stage13_joint_run_preimage` block, which on a default run says only that it needs both arms.  Round 9 adds three classes: the `array_store` block of the /5-run loader, the `shared_files` block of the extended pin table, and the dated correction inside NOT_PINNABLE_FROM_A_BUNDLE.  Finding M-F1's repair to the seven zero-check ports moved a tool hash and NOT ONE SLOT CHECK at a development shape, because every domain pads there -- which is the whole reason the finding waited for the 125M shape.  Round 9b adds two classes: control CT-9, appended to the terminal control family so that the pad rule's draw arithmetic is a regression at every shape and not only at 125M (finding M-F1's control M9-3 had never fired -- finding P-F2); and `pad.rs` joining the checked pin table (finding P-F1), which adds one accepted digest to the terminal port's source-pin record.  No slot check, rank, disclosed dimension, challenge count or channel count was meant to move at any shape, and an UNCLASSIFIED leaf is the round's result.  Round 9c adds six classes, all of them first seen because this is the first leaf diff of a 125M RECORD OF RECORD: the prediction's derived pad-rule, receipt and definition-draw blocks (round 9b rewrote the predictor to derive what it used to read), the non-data-row law beside every commitment, the external endpoint's spare mask row added to the PREDICTION -- the one predicted figure that moves, 4 -> 5 at the two endpoints of the zero record, against a RECORDED 5 that did not move, so a prediction was corrected and not a measurement -- and the 125M driver's own peak RSS and total wall clock.  No slot check, rank, disclosed dimension, challenge count, preimage figure, mask figure, control figure or channel count differs.",
+ "per_bundle": [
+  {
+   "bundle": "mask-run-g-dense-s20",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 46,
+    "tool hashes": 1,
+    "wall clock": 17
+   },
+   "changed": 64,
+   "identical_leaves": 8760,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "mask-run-h-zero-s20",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 48,
+    "tool hashes": 1,
+    "wall clock": 17
+   },
+   "changed": 66,
+   "identical_leaves": 8758,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "mask-run-i-dense-k4",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 50,
+    "tool hashes": 1,
+    "wall clock": 18
+   },
+   "changed": 69,
+   "identical_leaves": 8839,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "mask-run-j-zero-k4",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 49,
+    "tool hashes": 1,
+    "wall clock": 17
+   },
+   "changed": 67,
+   "identical_leaves": 8841,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "pre-run-g-dense-s20",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 44,
+    "tool hashes": 1,
+    "wall clock": 13
+   },
+   "changed": 58,
+   "identical_leaves": 6540,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "pre-run-h-zero-s20",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 41,
+    "tool hashes": 1,
+    "wall clock": 12
+   },
+   "changed": 54,
+   "identical_leaves": 6544,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "pre-run-i-dense-k4",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 48,
+    "tool hashes": 1,
+    "wall clock": 13
+   },
+   "changed": 62,
+   "identical_leaves": 6620,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "pre-run-j-zero-k4",
+   "by_class": {
+    "the new stage 11 block (round 7's full preimage, off by default)": 48,
+    "tool hashes": 1,
+    "wall clock": 14
+   },
+   "changed": 63,
+   "identical_leaves": 6619,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-a-tame",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 3
+   },
+   "changed": 4,
+   "identical_leaves": 2875,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-b-zero",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 2
+   },
+   "changed": 3,
+   "identical_leaves": 2876,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-c-tame",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 2
+   },
+   "changed": 3,
+   "identical_leaves": 3682,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-d-zero",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 2
+   },
+   "changed": 3,
+   "identical_leaves": 3682,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-e-tame-tagged",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 3
+   },
+   "changed": 4,
+   "identical_leaves": 4019,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-f-zero-tagged",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 1
+   },
+   "changed": 2,
+   "identical_leaves": 4021,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-g-dense-s20",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 2
+   },
+   "changed": 3,
+   "identical_leaves": 4103,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-h-zero-s20",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 2
+   },
+   "changed": 3,
+   "identical_leaves": 4103,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-i-dense-k4",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 1
+   },
+   "changed": 2,
+   "identical_leaves": 4188,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-j-zero-k4",
+   "by_class": {
+    "tool hashes": 1,
+    "wall clock": 2
+   },
+   "changed": 3,
+   "identical_leaves": 4187,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-k-dense-p2",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 42,
+    "tool hashes": 3,
+    "wall clock": 14
+   },
+   "changed": 61,
+   "identical_leaves": 6669,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-l-zero-p2",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 39,
+    "tool hashes": 3,
+    "wall clock": 14
+   },
+   "changed": 58,
+   "identical_leaves": 6672,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-m-dense-c6",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 35,
+    "tool hashes": 1,
+    "wall clock": 12
+   },
+   "changed": 50,
+   "identical_leaves": 6872,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-n-zero-c6",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 38,
+    "tool hashes": 1,
+    "wall clock": 14
+   },
+   "changed": 55,
+   "identical_leaves": 6867,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-o-dense-w14",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 47,
+    "tool hashes": 1,
+    "wall clock": 14
+   },
+   "changed": 64,
+   "identical_leaves": 6667,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-p-zero-w14",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 43,
+    "tool hashes": 1,
+    "wall clock": 14
+   },
+   "changed": 60,
+   "identical_leaves": 6671,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-q-dense-e32",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 38,
+    "tool hashes": 1,
+    "wall clock": 11
+   },
+   "changed": 52,
+   "identical_leaves": 7128,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  },
+  {
+   "bundle": "run-r-zero-e32",
+   "by_class": {
+    "the new run-layer source-pin block (finding K4-F2)": 20,
+    "the new stage 11 block (round 7's full preimage, off by default)": 37,
+    "tool hashes": 1,
+    "wall clock": 13
+   },
+   "changed": 53,
+   "identical_leaves": 7127,
+   "only_in_the_new_record": 18,
+   "only_in_the_old_record": 0
+  }
+ ],
+ "unclassified": [],
+ "what": "the superseded bundles re-run under the current tools and diffed leaf by leaf against their previous round's records"
+}

@@ -69,7 +69,13 @@
      "m125-capture-dense-l2",
      "m125-capture-zero-l2",
      "run-k-dense-p2",
-     "run-l-zero-p2"
+     "run-l-zero-p2",
+     "run-m-dense-c6",
+     "run-n-zero-c6",
+     "run-o-dense-w14",
+     "run-p-zero-w14",
+     "run-q-dense-e32",
+     "run-r-zero-e32"
     ],
     "bytes": 36123,
     "declared": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
@@ -77,7 +83,10 @@
     "git_blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
     "lane_commits": [
      "f4697f9ccad82304c56dee8c53da3bf107d98b1e",
-     "4ccbad1b1da0a23449ac06461740750a6818c6e8"
+     "4ccbad1b1da0a23449ac06461740750a6818c6e8",
+     "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
+     "11703c94df428c3e53dbc6c37eac835e348f5bf9",
+     "4505ddfa24fc99ff57fa086be8c73dae8117875c"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split **production +22 / -0** and `#[cfg(test)] mod tests` **+22 / -6**.  STAGE 26 again.  In production: one accessor, `index() -> u64` (the boundary's own index, a PUBLIC word of the run statement), and a 16-line doc comment saying that a boundary is the one commitment on the path with no generator of its own -- it is handed the run's single stream -- and naming the domain it WOULD use (`hash_domain::boundary_seed_domain(index, spec.digest())`) without calling it.  In the tests: a `test_generator(spec)` helper and six call sites that now seed from that domain instead of the module's `DOMAIN` label.  **Not one geometry accessor moved**: `data_rows`, `commitment_rows`, `site_rows`, `prox_row`, `mask_row`, `MAX_SITES` and ruling M-1's refusal are byte-identical, and the ports read only those"
@@ -102,7 +111,13 @@
      "m125-capture-dense-l2",
      "m125-capture-zero-l2",
      "run-k-dense-p2",
-     "run-l-zero-p2"
+     "run-l-zero-p2",
+     "run-m-dense-c6",
+     "run-n-zero-c6",
+     "run-o-dense-w14",
+     "run-p-zero-w14",
+     "run-q-dense-e32",
+     "run-r-zero-e32"
     ],
     "bytes": 85434,
     "declared": "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6",
@@ -110,7 +125,10 @@
     "git_blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
     "lane_commits": [
      "f4697f9ccad82304c56dee8c53da3bf107d98b1e",
-     "4ccbad1b1da0a23449ac06461740750a6818c6e8"
+     "4ccbad1b1da0a23449ac06461740750a6818c6e8",
+     "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
+     "11703c94df428c3e53dbc6c37eac835e348f5bf9",
+     "4505ddfa24fc99ff57fa086be8c73dae8117875c"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **368 added, 23 removed, 36 hunks**, and this file has no test module (its tests are `run_capture_tests.rs`, which no bundle pins), so the whole diff is production.  STAGE 27, and it is two changes.  (1) **The `/5-run` array store**: `SCHEMA_V5`, `ARRAY_MIN = 256`, `CaptureOpts`, `schema_of(arrays)`, an `ArrayStore` that appends an array's little-endian image to one blob, deduplicates by SHA-256 and returns `{array, elem, len, offset, bytes}`, and the six emission sites that now route through it -- an opened column's `values`, an opening group's `vector`, `proximity_rhos`, `proximity_vector`, the M opening's `q` and `prox`, and a public table's `values`.  The 23 removed lines are those same six `write!`s and the `SOURCE_FILES` constant, each re-emitted.  **Not one field name, member order, kind, coverage string or transcript label moves**, and `ALLOWED_KEYS` gains exactly two entries, `array` and `elem` (format 12: `offset`, `len`, `bytes` and `sha256` were already on it).  A `/4-run` bundle is still written when `HL_RUN_CAPTURE_ARRAYS=store` is absent, and the writer's own `the_array_store_and_the_classic_encoding_carry_the_same_values` captures one run twice in one process and asserts byte-for-byte equality of the expanded store with the classic encoding.  `zk60_native_rg_arrays` is this lane's reader for it, proved against a re-encoded development bundle (round 9, item N1).  (2) **`SOURCE_FILES` 8 -> `OWN_SOURCE_FILES` 15 + `SHARED_SOURCE_FILES` 23 = 38 pins**, plus `NOT_ON_THE_RUNS_PATH` naming `timing.rs` with its reason.  That is the writer-side ask R6.8 item 1 and R8.9 item 4, GRANTED: see `SHARED_LAYER_PINS` below"
@@ -120,9 +138,9 @@
    "src/private_block/plane_index.rs": "zk60_native_rg_terminals.PORTED_FROM (one digest, 9de8320a8477...); a moved pin makes every slot of every stage NOT CHECKED"
   },
   "pins_at_a_read_digest": [
-   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1",
+   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
    "src/private_block/run.rs: e161190b2626 -- read at 3e106e1",
-   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1"
+   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf"
   ],
   "pins_missing_from_the_bundle": [],
   "pins_that_moved": [],
@@ -344,7 +362,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 283.6,
+ "seconds": 292.1,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -1023,14 +1041,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.56,
-    "msg_groups_seconds": 0.67,
-    "msg_proximity_seconds": 0.04,
-    "pads_seconds": 5.49,
+    "layout_seconds": 2.61,
+    "msg_groups_seconds": 0.69,
+    "msg_proximity_seconds": 0.05,
+    "pads_seconds": 5.77,
     "preimage_exhibited": true,
-    "seconds": 17.56,
+    "seconds": 18.21,
     "solve_findings": [],
-    "solve_seconds": 6.2,
+    "solve_seconds": 6.51,
     "solved": true,
     "steps": [
      {
@@ -1651,8 +1669,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 6.79,
-     "seconds_vectors_and_claims": 1.91
+     "seconds_opened_columns": 6.94,
+     "seconds_vectors_and_claims": 2.06
     }
    },
    {
@@ -1672,14 +1690,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.44,
-    "msg_groups_seconds": 0.18,
-    "msg_proximity_seconds": 0.03,
-    "pads_seconds": 4.78,
+    "layout_seconds": 2.64,
+    "msg_groups_seconds": 0.17,
+    "msg_proximity_seconds": 0.02,
+    "pads_seconds": 4.94,
     "preimage_exhibited": true,
-    "seconds": 14.55,
+    "seconds": 14.92,
     "solve_findings": [],
-    "solve_seconds": 4.99,
+    "solve_seconds": 5.13,
     "solved": true,
     "steps": [
      {
@@ -1902,8 +1920,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 6.36,
-     "seconds_vectors_and_claims": 0.66
+     "seconds_opened_columns": 6.45,
+     "seconds_vectors_and_claims": 0.62
     }
    },
    {
@@ -1923,12 +1941,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.55,
+    "layout_seconds": 2.58,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.12,
+    "pads_seconds": 0.11,
     "preimage_exhibited": true,
-    "seconds": 2.83,
+    "seconds": 2.84,
     "solve_findings": [],
     "solve_seconds": 0.13,
     "solved": true,
@@ -2026,7 +2044,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.13,
+     "seconds_opened_columns": 0.12,
      "seconds_vectors_and_claims": 0.01
     }
    },
@@ -2047,14 +2065,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.75,
-    "msg_groups_seconds": 0.7,
+    "layout_seconds": 2.74,
+    "msg_groups_seconds": 0.72,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 5.63,
+    "pads_seconds": 5.57,
     "preimage_exhibited": true,
-    "seconds": 18.25,
+    "seconds": 18.03,
     "solve_findings": [],
-    "solve_seconds": 6.37,
+    "solve_seconds": 6.33,
     "solved": true,
     "steps": [
      {
@@ -2675,8 +2693,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 7.0,
-     "seconds_vectors_and_claims": 2.05
+     "seconds_opened_columns": 6.78,
+     "seconds_vectors_and_claims": 2.1
     }
    },
    {
@@ -2696,14 +2714,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.55,
-    "msg_groups_seconds": 0.16,
+    "layout_seconds": 2.49,
+    "msg_groups_seconds": 0.19,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 5.09,
+    "pads_seconds": 4.92,
     "preimage_exhibited": true,
-    "seconds": 14.68,
+    "seconds": 14.4,
     "solve_findings": [],
-    "solve_seconds": 5.28,
+    "solve_seconds": 5.13,
     "solved": true,
     "steps": [
      {
@@ -2926,7 +2944,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 6.17,
+     "seconds_opened_columns": 6.09,
      "seconds_vectors_and_claims": 0.6
     }
    },
@@ -2947,14 +2965,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.51,
+    "layout_seconds": 2.55,
     "msg_groups_seconds": 0.02,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.14,
+    "pads_seconds": 0.17,
     "preimage_exhibited": true,
-    "seconds": 2.83,
+    "seconds": 2.93,
     "solve_findings": [],
-    "solve_seconds": 0.17,
+    "solve_seconds": 0.2,
     "solved": true,
     "steps": [
      {
@@ -3065,7 +3083,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.14,
+     "seconds_opened_columns": 0.17,
      "seconds_vectors_and_claims": 0.01
     }
    },
@@ -3086,12 +3104,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.59,
+    "layout_seconds": 2.46,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
     "pads_seconds": 0.13,
     "preimage_exhibited": true,
-    "seconds": 2.89,
+    "seconds": 2.75,
     "solve_findings": [],
     "solve_seconds": 0.15,
     "solved": true,
@@ -3189,14 +3207,14 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.14,
-     "seconds_vectors_and_claims": 0.01
+     "seconds_opened_columns": 0.13,
+     "seconds_vectors_and_claims": 0.0
     }
    }
   ],
   "requested": true,
   "salted_leaves_authenticated": 1792,
-  "seconds": 73.6,
+  "seconds": 74.1,
   "this_is_not_a_privacy_result": true,
   "view_entries_compared": 1510974,
   "view_entries_differing": 0,
@@ -3735,7 +3753,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 5.95,
+    "seconds": 6.99,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -4839,7 +4857,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 5.72,
+    "seconds": 6.63,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -5630,7 +5648,7 @@
   "profile": "hashline-zk-mr1/private-run-rung-c6-t32-dev/1",
   "requested": true,
   "salted_leaves_authenticated": 512,
-  "seconds": 11.68,
+  "seconds": 13.63,
   "source_pins": {
    "accepted": [
     {
@@ -9958,7 +9976,7 @@
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
-  "zk60_native_rg_runpins.py": "9b437d2b0082d0144e627799249c2a8a434669db4a4050791cc5ab88536ee86d",
+  "zk60_native_rg_runpins.py": "bbff3f4298d1f40d395b6babe2a767475b45725aed4ad534385fb42525aef733",
   "zk60_native_rg_tcontrols.py": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
   "zk60_native_rg_terminals.py": "f17491a1215823ea30271da263f9103ae511df66f9f081947eb20b52df58dea2",
   "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"

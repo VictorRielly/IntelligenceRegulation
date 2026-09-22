@@ -1,0 +1,348 @@
+{
+ "changed": [
+  {
+   "new": "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
+   "old": "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1",
+   "path": "run_layer_source_pins/pins_at_a_read_digest/[0]"
+  },
+  {
+   "new": "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
+   "old": "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1",
+   "path": "run_layer_source_pins/pins_at_a_read_digest/[2]"
+  },
+  {
+   "new": 1574.1,
+   "old": 1410.2,
+   "path": "seconds"
+  },
+  {
+   "new": 44.17,
+   "old": 42.28,
+   "path": "stage11_full_preimage/per_commitment/[0]/layout_seconds"
+  },
+  {
+   "new": 9.35,
+   "old": 8.97,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_groups_seconds"
+  },
+  {
+   "new": 0.7,
+   "old": 0.58,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_proximity_seconds"
+  },
+  {
+   "new": 24.18,
+   "old": 23.64,
+   "path": "stage11_full_preimage/per_commitment/[0]/pads_seconds"
+  },
+  {
+   "new": 128.29,
+   "old": 117.29,
+   "path": "stage11_full_preimage/per_commitment/[0]/seconds"
+  },
+  {
+   "new": 34.23,
+   "old": 33.19,
+   "path": "stage11_full_preimage/per_commitment/[0]/solve_seconds"
+  },
+  {
+   "new": 36.89,
+   "old": 31.14,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 12.59,
+   "old": 10.34,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 42.91,
+   "old": 42.11,
+   "path": "stage11_full_preimage/per_commitment/[1]/layout_seconds"
+  },
+  {
+   "new": 1.93,
+   "old": 1.8,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_groups_seconds"
+  },
+  {
+   "new": 0.35,
+   "old": 0.31,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_proximity_seconds"
+  },
+  {
+   "new": 10.96,
+   "old": 9.64,
+   "path": "stage11_full_preimage/per_commitment/[1]/pads_seconds"
+  },
+  {
+   "new": 75.41,
+   "old": 72.13,
+   "path": "stage11_full_preimage/per_commitment/[1]/seconds"
+  },
+  {
+   "new": 13.23,
+   "old": 11.74,
+   "path": "stage11_full_preimage/per_commitment/[1]/solve_seconds"
+  },
+  {
+   "new": 16.25,
+   "old": 15.58,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.85,
+   "old": 2.54,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 41.92,
+   "old": 41.15,
+   "path": "stage11_full_preimage/per_commitment/[2]/layout_seconds"
+  },
+  {
+   "new": 0.14,
+   "old": 0.17,
+   "path": "stage11_full_preimage/per_commitment/[2]/msg_groups_seconds"
+  },
+  {
+   "new": 0.15,
+   "old": 0.17,
+   "path": "stage11_full_preimage/per_commitment/[2]/msg_proximity_seconds"
+  },
+  {
+   "new": 0.71,
+   "old": 0.76,
+   "path": "stage11_full_preimage/per_commitment/[2]/pads_seconds"
+  },
+  {
+   "new": 43.8,
+   "old": 43.16,
+   "path": "stage11_full_preimage/per_commitment/[2]/seconds"
+  },
+  {
+   "new": 1.0,
+   "old": 1.11,
+   "path": "stage11_full_preimage/per_commitment/[2]/solve_seconds"
+  },
+  {
+   "new": 0.84,
+   "old": 0.86,
+   "path": "stage11_full_preimage/per_commitment/[2]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 47.08,
+   "old": 41.67,
+   "path": "stage11_full_preimage/per_commitment/[3]/layout_seconds"
+  },
+  {
+   "new": 10.65,
+   "old": 9.06,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_groups_seconds"
+  },
+  {
+   "new": 0.7,
+   "old": 0.61,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_proximity_seconds"
+  },
+  {
+   "new": 28.75,
+   "old": 24.73,
+   "path": "stage11_full_preimage/per_commitment/[3]/pads_seconds"
+  },
+  {
+   "new": 131.87,
+   "old": 118.87,
+   "path": "stage11_full_preimage/per_commitment/[3]/seconds"
+  },
+  {
+   "new": 40.11,
+   "old": 34.4,
+   "path": "stage11_full_preimage/per_commitment/[3]/solve_seconds"
+  },
+  {
+   "new": 32.18,
+   "old": 31.37,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 12.19,
+   "old": 11.12,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 41.44,
+   "old": 40.32,
+   "path": "stage11_full_preimage/per_commitment/[4]/layout_seconds"
+  },
+  {
+   "new": 1.93,
+   "old": 1.76,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_groups_seconds"
+  },
+  {
+   "new": 0.31,
+   "old": 0.29,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_proximity_seconds"
+  },
+  {
+   "new": 9.65,
+   "old": 9.28,
+   "path": "stage11_full_preimage/per_commitment/[4]/pads_seconds"
+  },
+  {
+   "new": 73.38,
+   "old": 69.65,
+   "path": "stage11_full_preimage/per_commitment/[4]/seconds"
+  },
+  {
+   "new": 11.9,
+   "old": 11.34,
+   "path": "stage11_full_preimage/per_commitment/[4]/solve_seconds"
+  },
+  {
+   "new": 17.51,
+   "old": 15.37,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.4,
+   "old": 2.5,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 46.74,
+   "old": 40.4,
+   "path": "stage11_full_preimage/per_commitment/[5]/layout_seconds"
+  },
+  {
+   "new": 0.34,
+   "old": 0.32,
+   "path": "stage11_full_preimage/per_commitment/[5]/msg_groups_seconds"
+  },
+  {
+   "new": 0.19,
+   "old": 0.17,
+   "path": "stage11_full_preimage/per_commitment/[5]/msg_proximity_seconds"
+  },
+  {
+   "new": 1.26,
+   "old": 1.09,
+   "path": "stage11_full_preimage/per_commitment/[5]/pads_seconds"
+  },
+  {
+   "new": 50.05,
+   "old": 43.42,
+   "path": "stage11_full_preimage/per_commitment/[5]/seconds"
+  },
+  {
+   "new": 1.8,
+   "old": 1.58,
+   "path": "stage11_full_preimage/per_commitment/[5]/solve_seconds"
+  },
+  {
+   "new": 1.42,
+   "old": 1.37,
+   "path": "stage11_full_preimage/per_commitment/[5]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.07,
+   "old": 0.06,
+   "path": "stage11_full_preimage/per_commitment/[5]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 47.03,
+   "old": 40.7,
+   "path": "stage11_full_preimage/per_commitment/[6]/layout_seconds"
+  },
+  {
+   "new": 0.18,
+   "old": 0.14,
+   "path": "stage11_full_preimage/per_commitment/[6]/msg_groups_seconds"
+  },
+  {
+   "new": 0.18,
+   "old": 0.16,
+   "path": "stage11_full_preimage/per_commitment/[6]/msg_proximity_seconds"
+  },
+  {
+   "new": 0.87,
+   "old": 0.73,
+   "path": "stage11_full_preimage/per_commitment/[6]/pads_seconds"
+  },
+  {
+   "new": 49.34,
+   "old": 42.63,
+   "path": "stage11_full_preimage/per_commitment/[6]/seconds"
+  },
+  {
+   "new": 1.23,
+   "old": 1.03,
+   "path": "stage11_full_preimage/per_commitment/[6]/solve_seconds"
+  },
+  {
+   "new": 1.02,
+   "old": 0.85,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 552.6,
+   "old": 507.5,
+   "path": "stage11_full_preimage/seconds"
+  },
+  {
+   "new": 7.53,
+   "old": 6.3,
+   "path": "stage12_mask_and_cfs/per_stage/[0]/seconds"
+  },
+  {
+   "new": 7.4,
+   "old": 6.51,
+   "path": "stage12_mask_and_cfs/per_stage/[1]/seconds"
+  },
+  {
+   "new": 14.95,
+   "old": 12.82,
+   "path": "stage12_mask_and_cfs/seconds"
+  },
+  {
+   "new": 43.5,
+   "old": 42.0,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 0.4,
+   "old": 0.5,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "bbff3f4298d1f40d395b6babe2a767475b45725aed4ad534385fb42525aef733",
+   "old": "9b437d2b0082d0144e627799249c2a8a434669db4a4050791cc5ab88536ee86d",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  }
+ ],
+ "identical_leaves": 6667,
+ "leaves_new": 6749,
+ "leaves_old": 6731,
+ "only_in_the_new_record": [
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[4]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[5]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[6]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[7]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[8]",
+  "run_layer_source_pins/per_file/[0]/bundles_written_at_them/[9]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[2]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[3]",
+  "run_layer_source_pins/per_file/[0]/lane_commits/[4]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[4]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[5]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[6]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[7]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[8]",
+  "run_layer_source_pins/per_file/[2]/bundles_written_at_them/[9]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[2]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[3]",
+  "run_layer_source_pins/per_file/[2]/lane_commits/[4]"
+ ],
+ "only_in_the_old_record": []
+}

@@ -1,0 +1,193 @@
++ W=/home/victor/wt-zk60-jointview
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c
++ mkdir -p /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate/run-a-tame
++ b=run-a-tame
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-a-tame.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate/run-a-tame.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-a-tame.diff.json
+identical leaves: 2875
+only in the old record: 0
+only in the new record: 0
+changed: 4
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate/run-b-zero
++ b=run-b-zero
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-b-zero.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate/run-b-zero.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-b-zero.diff.json
+identical leaves: 2876
+only in the old record: 0
+only in the new record: 0
+changed: 3
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_planeindex/run-c-tame
++ b=run-c-tame
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-c-tame.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_planeindex/run-c-tame.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-c-tame.diff.json
+identical leaves: 3682
+only in the old record: 0
+only in the new record: 0
+changed: 3
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_planeindex/run-d-zero
++ b=run-d-zero
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-d-zero.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_planeindex/run-d-zero.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-d-zero.diff.json
+identical leaves: 3682
+only in the old record: 0
+only in the new record: 0
+changed: 3
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_tagged/run-e-tame-tagged
++ b=run-e-tame-tagged
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-e-tame-tagged.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_tagged/run-e-tame-tagged.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-e-tame-tagged.diff.json
+identical leaves: 4019
+only in the old record: 0
+only in the new record: 0
+changed: 4
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_tagged/run-f-zero-tagged
++ b=run-f-zero-tagged
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-f-zero-tagged.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_tagged/run-f-zero-tagged.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-f-zero-tagged.diff.json
+identical leaves: 4021
+only in the old record: 0
+only in the new record: 0
+changed: 2
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_s20/run-g-dense-s20
++ b=run-g-dense-s20
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-g-dense-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_s20/run-g-dense-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-g-dense-s20.diff.json
+identical leaves: 4103
+only in the old record: 0
+only in the new record: 0
+changed: 3
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_s20/run-h-zero-s20
++ b=run-h-zero-s20
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-h-zero-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_s20/run-h-zero-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-h-zero-s20.diff.json
+identical leaves: 4103
+only in the old record: 0
+only in the new record: 0
+changed: 3
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_k4/run-i-dense-k4
++ b=run-i-dense-k4
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-i-dense-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k4/run-i-dense-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-i-dense-k4.diff.json
+identical leaves: 4188
+only in the old record: 0
+only in the new record: 0
+changed: 2
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_k4/run-j-zero-k4
++ b=run-j-zero-k4
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-j-zero-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k4/run-j-zero-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-j-zero-k4.diff.json
+identical leaves: 4187
+only in the old record: 0
+only in the new record: 0
+changed: 3
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_p2/run-k-dense-p2
++ b=run-k-dense-p2
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-k-dense-p2.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_p2/run-k-dense-p2.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-k-dense-p2.diff.json
+identical leaves: 6669
+only in the old record: 0
+only in the new record: 18
+changed: 61
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_p2/run-l-zero-p2
++ b=run-l-zero-p2
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-l-zero-p2.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_p2/run-l-zero-p2.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-l-zero-p2.diff.json
+identical leaves: 6672
+only in the old record: 0
+only in the new record: 18
+changed: 58
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_9c/run-m-dense-c6
++ b=run-m-dense-c6
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-m-dense-c6.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-m-dense-c6.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-m-dense-c6.diff.json
+identical leaves: 6872
+only in the old record: 0
+only in the new record: 18
+changed: 50
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_9c/run-n-zero-c6
++ b=run-n-zero-c6
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-n-zero-c6.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-n-zero-c6.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-n-zero-c6.diff.json
+identical leaves: 6867
+only in the old record: 0
+only in the new record: 18
+changed: 55
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_9c/run-o-dense-w14
++ b=run-o-dense-w14
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-o-dense-w14.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-o-dense-w14.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-o-dense-w14.diff.json
+identical leaves: 6667
+only in the old record: 0
+only in the new record: 18
+changed: 64
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_9c/run-p-zero-w14
++ b=run-p-zero-w14
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-p-zero-w14.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-p-zero-w14.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-p-zero-w14.diff.json
+identical leaves: 6671
+only in the old record: 0
+only in the new record: 18
+changed: 60
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_9c/run-q-dense-e32
++ b=run-q-dense-e32
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-q-dense-e32.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-q-dense-e32.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-q-dense-e32.diff.json
+identical leaves: 7128
+only in the old record: 0
+only in the new record: 18
+changed: 52
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4 zk60_native_run_gate_p2/run-k-dense-p2 zk60_native_run_gate_p2/run-l-zero-p2 zk60_native_run_gate_9c/run-m-dense-c6 zk60_native_run_gate_9c/run-n-zero-c6 zk60_native_run_gate_9c/run-o-dense-w14 zk60_native_run_gate_9c/run-p-zero-w14 zk60_native_run_gate_9c/run-q-dense-e32 zk60_native_run_gate_9c/run-r-zero-e32
+++ basename zk60_native_run_gate_9c/run-r-zero-e32
++ b=run-r-zero-e32
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/run-r-zero-e32.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-r-zero-e32.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-r-zero-e32.diff.json
+identical leaves: 7127
+only in the old record: 0
+only in the new record: 18
+changed: 53
++ for b in run-g-dense-s20 run-h-zero-s20 run-i-dense-k4 run-j-zero-k4
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/pre-run-g-dense-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-g-dense-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-g-dense-s20.diff.json
+identical leaves: 6540
+only in the old record: 0
+only in the new record: 0
+changed: 58
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/mask-run-g-dense-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-g-dense-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-g-dense-s20.diff.json
+identical leaves: 8760
+only in the old record: 0
+only in the new record: 0
+changed: 64
++ for b in run-g-dense-s20 run-h-zero-s20 run-i-dense-k4 run-j-zero-k4
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/pre-run-h-zero-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-h-zero-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-h-zero-s20.diff.json
+identical leaves: 6544
+only in the old record: 0
+only in the new record: 0
+changed: 54
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/mask-run-h-zero-s20.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-h-zero-s20.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-h-zero-s20.diff.json
+identical leaves: 8758
+only in the old record: 0
+only in the new record: 0
+changed: 66
++ for b in run-g-dense-s20 run-h-zero-s20 run-i-dense-k4 run-j-zero-k4
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/pre-run-i-dense-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-i-dense-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-i-dense-k4.diff.json
+identical leaves: 6620
+only in the old record: 0
+only in the new record: 0
+changed: 62
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/mask-run-i-dense-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-i-dense-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-i-dense-k4.diff.json
+identical leaves: 8839
+only in the old record: 0
+only in the new record: 0
+changed: 69
++ for b in run-g-dense-s20 run-h-zero-s20 run-i-dense-k4 run-j-zero-k4
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/pre-run-j-zero-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_preimage/run-j-zero-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-j-zero-k4.diff.json
+identical leaves: 6619
+only in the old record: 0
+only in the new record: 0
+changed: 63
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recdiff.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2/mask-run-j-zero-k4.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-j-zero-k4.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-j-zero-k4.diff.json
+identical leaves: 8841
+only in the old record: 0
+only in the new record: 0
+changed: 67
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_recclass.py /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-g-dense-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-h-zero-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-i-dense-k4.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/mask-run-j-zero-k4.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-g-dense-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-h-zero-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-i-dense-k4.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/pre-run-j-zero-k4.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-a-tame.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-b-zero.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-c-tame.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-d-zero.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-e-tame-tagged.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-f-zero-tagged.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-g-dense-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-h-zero-s20.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-i-dense-k4.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-j-zero-k4.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-k-dense-p2.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-l-zero-p2.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-m-dense-c6.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-n-zero-c6.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-o-dense-w14.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-p-zero-w14.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-q-dense-e32.diff.json /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/diffs2/run-r-zero-e32.diff.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/all_twentysix_records_unchanged.json
+/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/all_twentysix_records_unchanged.json: 26 bundles, 0 unclassified leaves

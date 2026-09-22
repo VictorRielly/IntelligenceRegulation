@@ -69,7 +69,13 @@
      "m125-capture-dense-l2",
      "m125-capture-zero-l2",
      "run-k-dense-p2",
-     "run-l-zero-p2"
+     "run-l-zero-p2",
+     "run-m-dense-c6",
+     "run-n-zero-c6",
+     "run-o-dense-w14",
+     "run-p-zero-w14",
+     "run-q-dense-e32",
+     "run-r-zero-e32"
     ],
     "bytes": 36123,
     "declared": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
@@ -77,7 +83,10 @@
     "git_blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
     "lane_commits": [
      "f4697f9ccad82304c56dee8c53da3bf107d98b1e",
-     "4ccbad1b1da0a23449ac06461740750a6818c6e8"
+     "4ccbad1b1da0a23449ac06461740750a6818c6e8",
+     "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
+     "11703c94df428c3e53dbc6c37eac835e348f5bf9",
+     "4505ddfa24fc99ff57fa086be8c73dae8117875c"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split **production +22 / -0** and `#[cfg(test)] mod tests` **+22 / -6**.  STAGE 26 again.  In production: one accessor, `index() -> u64` (the boundary's own index, a PUBLIC word of the run statement), and a 16-line doc comment saying that a boundary is the one commitment on the path with no generator of its own -- it is handed the run's single stream -- and naming the domain it WOULD use (`hash_domain::boundary_seed_domain(index, spec.digest())`) without calling it.  In the tests: a `test_generator(spec)` helper and six call sites that now seed from that domain instead of the module's `DOMAIN` label.  **Not one geometry accessor moved**: `data_rows`, `commitment_rows`, `site_rows`, `prox_row`, `mask_row`, `MAX_SITES` and ruling M-1's refusal are byte-identical, and the ports read only those"
@@ -102,7 +111,13 @@
      "m125-capture-dense-l2",
      "m125-capture-zero-l2",
      "run-k-dense-p2",
-     "run-l-zero-p2"
+     "run-l-zero-p2",
+     "run-m-dense-c6",
+     "run-n-zero-c6",
+     "run-o-dense-w14",
+     "run-p-zero-w14",
+     "run-q-dense-e32",
+     "run-r-zero-e32"
     ],
     "bytes": 85434,
     "declared": "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6",
@@ -110,7 +125,10 @@
     "git_blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
     "lane_commits": [
      "f4697f9ccad82304c56dee8c53da3bf107d98b1e",
-     "4ccbad1b1da0a23449ac06461740750a6818c6e8"
+     "4ccbad1b1da0a23449ac06461740750a6818c6e8",
+     "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
+     "11703c94df428c3e53dbc6c37eac835e348f5bf9",
+     "4505ddfa24fc99ff57fa086be8c73dae8117875c"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **368 added, 23 removed, 36 hunks**, and this file has no test module (its tests are `run_capture_tests.rs`, which no bundle pins), so the whole diff is production.  STAGE 27, and it is two changes.  (1) **The `/5-run` array store**: `SCHEMA_V5`, `ARRAY_MIN = 256`, `CaptureOpts`, `schema_of(arrays)`, an `ArrayStore` that appends an array's little-endian image to one blob, deduplicates by SHA-256 and returns `{array, elem, len, offset, bytes}`, and the six emission sites that now route through it -- an opened column's `values`, an opening group's `vector`, `proximity_rhos`, `proximity_vector`, the M opening's `q` and `prox`, and a public table's `values`.  The 23 removed lines are those same six `write!`s and the `SOURCE_FILES` constant, each re-emitted.  **Not one field name, member order, kind, coverage string or transcript label moves**, and `ALLOWED_KEYS` gains exactly two entries, `array` and `elem` (format 12: `offset`, `len`, `bytes` and `sha256` were already on it).  A `/4-run` bundle is still written when `HL_RUN_CAPTURE_ARRAYS=store` is absent, and the writer's own `the_array_store_and_the_classic_encoding_carry_the_same_values` captures one run twice in one process and asserts byte-for-byte equality of the expanded store with the classic encoding.  `zk60_native_rg_arrays` is this lane's reader for it, proved against a re-encoded development bundle (round 9, item N1).  (2) **`SOURCE_FILES` 8 -> `OWN_SOURCE_FILES` 15 + `SHARED_SOURCE_FILES` 23 = 38 pins**, plus `NOT_ON_THE_RUNS_PATH` naming `timing.rs` with its reason.  That is the writer-side ask R6.8 item 1 and R8.9 item 4, GRANTED: see `SHARED_LAYER_PINS` below"
@@ -120,9 +138,9 @@
    "src/private_block/plane_index.rs": "zk60_native_rg_terminals.PORTED_FROM (one digest, 9de8320a8477...); a moved pin makes every slot of every stage NOT CHECKED"
   },
   "pins_at_a_read_digest": [
-   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1",
+   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
    "src/private_block/run.rs: 9a0ae11f9248 -- read at 4ccbad1",
-   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1"
+   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf"
   ],
   "pins_missing_from_the_bundle": [],
   "pins_that_moved": [],
@@ -344,7 +362,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 247.0,
+ "seconds": 197.5,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -1023,14 +1041,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.27,
-    "msg_groups_seconds": 0.81,
+    "layout_seconds": 2.64,
+    "msg_groups_seconds": 0.59,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 4.8,
+    "pads_seconds": 3.69,
     "preimage_exhibited": true,
-    "seconds": 15.95,
+    "seconds": 12.44,
     "solve_findings": [],
-    "solve_seconds": 5.64,
+    "solve_seconds": 4.32,
     "solved": true,
     "steps": [
      {
@@ -1651,8 +1669,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 5.42,
-     "seconds_vectors_and_claims": 1.55
+     "seconds_opened_columns": 4.23,
+     "seconds_vectors_and_claims": 1.19
     }
    },
    {
@@ -1672,14 +1690,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.22,
-    "msg_groups_seconds": 0.18,
-    "msg_proximity_seconds": 0.03,
-    "pads_seconds": 3.54,
+    "layout_seconds": 2.53,
+    "msg_groups_seconds": 0.14,
+    "msg_proximity_seconds": 0.02,
+    "pads_seconds": 2.72,
     "preimage_exhibited": true,
-    "seconds": 11.74,
+    "seconds": 9.28,
     "solve_findings": [],
-    "solve_seconds": 3.74,
+    "solve_seconds": 2.89,
     "solved": true,
     "steps": [
      {
@@ -1902,8 +1920,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 4.3,
-     "seconds_vectors_and_claims": 0.42
+     "seconds_opened_columns": 3.5,
+     "seconds_vectors_and_claims": 0.32
     }
    },
    {
@@ -1923,14 +1941,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.11,
+    "layout_seconds": 2.56,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.11,
+    "pads_seconds": 0.08,
     "preimage_exhibited": true,
-    "seconds": 3.34,
+    "seconds": 2.73,
     "solve_findings": [],
-    "solve_seconds": 0.13,
+    "solve_seconds": 0.09,
     "solved": true,
     "steps": [
      {
@@ -2026,7 +2044,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.09,
+     "seconds_opened_columns": 0.07,
      "seconds_vectors_and_claims": 0.0
     }
    },
@@ -2047,14 +2065,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.33,
-    "msg_groups_seconds": 0.78,
-    "msg_proximity_seconds": 0.06,
-    "pads_seconds": 4.7,
+    "layout_seconds": 2.6,
+    "msg_groups_seconds": 0.61,
+    "msg_proximity_seconds": 0.04,
+    "pads_seconds": 3.77,
     "preimage_exhibited": true,
-    "seconds": 15.78,
+    "seconds": 12.73,
     "solve_findings": [],
-    "solve_seconds": 5.53,
+    "solve_seconds": 4.42,
     "solved": true,
     "steps": [
      {
@@ -2675,8 +2693,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 5.39,
-     "seconds_vectors_and_claims": 1.47
+     "seconds_opened_columns": 4.4,
+     "seconds_vectors_and_claims": 1.24
     }
    },
    {
@@ -2696,14 +2714,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.29,
-    "msg_groups_seconds": 0.19,
+    "layout_seconds": 2.59,
+    "msg_groups_seconds": 0.16,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 3.85,
+    "pads_seconds": 2.87,
     "preimage_exhibited": true,
-    "seconds": 12.15,
+    "seconds": 9.52,
     "solve_findings": [],
-    "solve_seconds": 4.06,
+    "solve_seconds": 3.05,
     "solved": true,
     "steps": [
      {
@@ -2926,8 +2944,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 4.32,
-     "seconds_vectors_and_claims": 0.41
+     "seconds_opened_columns": 3.52,
+     "seconds_vectors_and_claims": 0.32
     }
    },
    {
@@ -2947,14 +2965,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.2,
+    "layout_seconds": 2.6,
     "msg_groups_seconds": 0.02,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.13,
+    "pads_seconds": 0.11,
     "preimage_exhibited": true,
-    "seconds": 3.49,
+    "seconds": 2.86,
     "solve_findings": [],
-    "solve_seconds": 0.16,
+    "solve_seconds": 0.14,
     "solved": true,
     "steps": [
      {
@@ -3065,7 +3083,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.12,
+     "seconds_opened_columns": 0.1,
      "seconds_vectors_and_claims": 0.01
     }
    },
@@ -3086,14 +3104,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.17,
+    "layout_seconds": 2.62,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.11,
+    "pads_seconds": 0.09,
     "preimage_exhibited": true,
-    "seconds": 3.41,
+    "seconds": 2.81,
     "solve_findings": [],
-    "solve_seconds": 0.14,
+    "solve_seconds": 0.11,
     "solved": true,
     "steps": [
      {
@@ -3189,14 +3207,14 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.09,
-     "seconds_vectors_and_claims": 0.01
+     "seconds_opened_columns": 0.07,
+     "seconds_vectors_and_claims": 0.0
     }
    }
   ],
   "requested": true,
   "salted_leaves_authenticated": 1792,
-  "seconds": 65.9,
+  "seconds": 52.4,
   "this_is_not_a_privacy_result": true,
   "view_entries_compared": 860852,
   "view_entries_differing": 0,
@@ -3735,7 +3753,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 6.97,
+    "seconds": 5.9,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -4839,7 +4857,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 6.2,
+    "seconds": 5.82,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -5630,7 +5648,7 @@
   "profile": "hashline-zk-mr1/private-run-rung-p2-t32-dev/1",
   "requested": true,
   "salted_leaves_authenticated": 512,
-  "seconds": 13.19,
+  "seconds": 11.73,
   "source_pins": {
    "accepted": [
     {
@@ -6204,7 +6222,7 @@
    "exact_rank_of_the_pad_block": 250,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 4.3,
+   "seconds": 3.5,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -8003,7 +8021,7 @@
    },
    "rows_total": 3022,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 0.6,
+   "seconds": 0.4,
    "sum_of_parts_fp": 4
   }
  },
@@ -9711,16 +9729,16 @@
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
   "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
-  "zk60_native_rg_mask.py": "92e18ad4ca4cbcc510ff94f339b74c688e3968d824ff4dec1bd2dc011e439ef9",
+  "zk60_native_rg_mask.py": "dad273d3b429723da956103ad4ee2aa7a5a900773d8902927f046f67875aad77",
   "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
   "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
-  "zk60_native_rg_runpins.py": "7db3a63a1cc2dc63b5eb2a827da960d047ddbb7df60033fad00a4e7eacd83433",
+  "zk60_native_rg_runpins.py": "bbff3f4298d1f40d395b6babe2a767475b45725aed4ad534385fb42525aef733",
   "zk60_native_rg_tcontrols.py": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
-  "zk60_native_rg_terminals.py": "d4e1d61573eb8ac1e3e16608fe7b193b99a907307acfdd960c0134c786b40be2",
+  "zk60_native_rg_terminals.py": "f17491a1215823ea30271da263f9103ae511df66f9f081947eb20b52df58dea2",
   "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"
  },
  "version": 1,
