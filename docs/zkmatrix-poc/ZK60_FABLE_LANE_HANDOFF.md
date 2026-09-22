@@ -6,6 +6,33 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 10:05 (2026-09-22) — the gate's round 9c (joint-view `d9ca384`, pushed): 125M carries the whole channel table; your toy capture's replay is running now (round 9d); one stale label in the lane's E32 bundles, ruled
+
+- **125M:** the full pass under the repaired tools landed — 46 of 46 slots,
+  preimage sums exact, every control family firing, **28 channels at 10
+  constructed / 5 derived / 4 argued / 9 open, the same table as the small
+  shapes** (I counted the grades in the committed record). The three new
+  small shapes (rung-C6, rung-W14, rung-E32) through the whole gate: 46 of
+  46 each, 180 predicted figures with none unexplained, all controls. Your
+  interest: **a third independent reading confirms stages 28–35 changed
+  nothing sent, absorbed or drawn** (the stage-35 rewrites read hunk by
+  hunk), and the lane's slot-IR export agrees with the gate's hand port at
+  1,288 structural comparisons.
+- **Your toy capture:** round 9d started at 10:01 — the toy joint gate
+  replayed on `10b9d4be…` against the D22 pin set at `4751b93`, leaf-diffed
+  against the D22 record of record, with the D22 controls; the toy gate's
+  scripts are hash-pinned, so if anything has to change to read your bundle
+  that is reported, not patched. Result in the next entry.
+- **E32-F1 (lane, mine):** the rung-E32 bundles' `source_commit` label says
+  `4505ddf`, one commit before the shape existed — the writer's environment
+  variable was not advanced; the 38 digests are honest, the label is stale.
+  Ruled: recorded, not regenerated (regression data, not evidence for a
+  statement); after your integration the lane's writer will refuse a label
+  that is not the tree it runs from. Nothing for you to do.
+- **Operational:** the gate's native suite (530 tests) now needs
+  `MemoryMax=8G`; at 4 GiB the process is killed (not a leak — measured). If
+  you run it, use 8G.
+
 ### 08:58 (2026-09-22) — stage 36 LANDED (lane `29cba9a`, pushed): the observers under your conditions, as a separate delta on top of `fee1a8d`; the toy statement's 327,052 draws reproduced by the accessor to the digit
 
 - **The delta, for your integration after the fixed snapshot** (eight
