@@ -14,6 +14,44 @@ its path; **[COUNTED]** from the code or the shape, by the script committed
 under `results/zk60_device_commit/`; **[MODEL]** anything estimated. No
 number in this memo is a prediction of a proving time.
 
+## The eight things worth knowing, before the detail
+
+1. **A private block makes five hiding commitments, not two** — `A`, `H`,
+   two endpoints and the mask — and the counts here **reconcile digit for
+   digit with every shape's receipt total** (40,783,352 B at 125M,
+   16,421,048 at rung-W14, 2,816,472 at the toy), which is the evidence
+   that §1 describes the commitment the prover really makes. [COUNTED, §2]
+2. **The commitment is column hashing.** 112,197,120 of a 125M block's
+   112,721,404 BLAKE3 compressions are column digests; the Merkle tree and
+   the salted leaves together are 0.46%. Accelerating the tree accelerates
+   nothing. [COUNTED, §2.2]
+3. **The likeliest way to get a device version wrong is the NTT's output
+   ORDERING**, not the hashing: `transform` bit-reverses its input and
+   returns natural order, so a decimation-in-frequency device NTT permutes
+   the columns and changes the root while every value stays correct. Three
+   more forms of the same trap in §1 step 5.
+4. **The keyed change has three `b3_iv` sites per kernel, not one.** In
+   BLAKE3's keyed mode the key words replace the IV at the chunk start
+   *and* as the chaining value of every parent node (verified against
+   blake3 1.8.7's own source). A kernel that keys only the chunk start is
+   exactly right for every column of ≤128 rows and wrong above that. [§4.2]
+5. **Only one of the four keys ever needs to reach the device.** Leaves are
+   salted and the tree is built on the host, so the device needs
+   `column_key()` alone; `leaf_key()`, `node_key()` and the transcript key
+   never leave the host. [§4.3]
+6. **CL1's chunking is worth 6.4× on the peak**: 1.78 GiB against
+   11.31 GiB for the commit phase of a 125M block, on a card of 8,188 MiB.
+   But commitments *plus* the round loop reach 6.46 GiB — 81% — and that
+   figure has no measurement behind it. [COUNTED, §3.3]
+7. **rung-W14 does not take the chunked arm.** Its largest `rows·nn·8` is
+   276 MB against a 1 GiB threshold, so the shape a device change is
+   validated on first exercises `k_hash_cols` and never
+   `k_hash_cols_stream` unless `HL_ZK_CHUNK=force`. [COUNTED, §3.2]
+8. **The tagged path is not in main.** `hashtag.rs` and the six keyed
+   functions are lane-only at `a8e4939`; there is no "declines the
+   accelerator" site in main's tree yet, and a keyed kernel written before
+   the D19 integration would have nothing to serve. [§4.6]
+
 ## Sections
 
 1. The byte-level contract — what `commit_zk_owned_with_tag` computes, in order
