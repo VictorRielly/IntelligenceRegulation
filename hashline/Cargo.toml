@@ -35,6 +35,13 @@ zeroize = { version = "1.8.2", optional = true }
 cudarc = { version = "0.13", default-features = false, features = ["driver", "nvrtc", "cuda-12040", "dynamic-linking", "std"], optional = true }
 
 [dev-dependencies]
+# [ZK60 stage 36] the same zkp-core the library already depends on, named
+# again HERE so that TEST targets link it with its read-only test observers
+# (`ZkRng::consumed_bytes`, `Transcript::squeezes`) switched on. A
+# dev-dependency reaches test targets only: `cargo build --release` does not
+# read this section, so the library and the binary link zkp-core with the
+# feature OFF and compile the code paths they always did.
+zkp-core = { path = "../zkp-core", features = ["test-observers"] }
 # [ZK60 private block] the portable exact-integer reference kernel, used ONLY by
 # tests (witness-vs-kernel parity of the private block, disposition condition 6).
 # A path dependency inside this checkout: nothing is fetched, the offline build

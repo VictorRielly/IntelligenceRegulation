@@ -5,6 +5,21 @@ edition = "2021"
 publish = false
 description = "Maintained CPU proof primitives extracted from hashline; experimental protocol security"
 
+[features]
+# [ZK60 stage 36] The READ-ONLY TEST OBSERVERS: `ZkRng::consumed_bytes` /
+# `ZkRng::refills` and `Transcript::squeezes`. Every line they add is inside
+# `#[cfg(any(test, feature = "test-observers"))]`, so a build without this
+# feature compiles the same code paths it always did.
+#
+# It exists because `cfg(test)` is NOT enabled in this crate when a
+# DEPENDENT's tests link it: hashline's lane tests see zkp-core as an
+# ordinary library. A dependent that needs the observers switches this on in
+# its `[dev-dependencies]` — where it reaches test targets and nothing else.
+#
+# It is deliberately NOT in `default` and NOT in any normal dependency of any
+# crate. Nothing in the library, the binary or a release build turns it on.
+test-observers = []
+
 [dependencies]
 blake3 = "1.8"
 rayon = "1.11"
