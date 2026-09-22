@@ -223,7 +223,7 @@ mod tests {
         assert_eq!(r.consumed_bytes(), 0, "a generator that has drawn nothing has consumed nothing");
         assert_eq!(r.refills(), 0, "a generator that has drawn nothing has refilled");
         let mut want = 0u64;
-        let mut check = |r: &ZkRng, want: u64| {
+        let check = |r: &ZkRng, want: u64| {
             assert_eq!(r.consumed_bytes(), want, "the accessor and the hand count disagree");
             let blocks = want.div_ceil(ZkRng::OBSERVED_BLOCK_BYTES);
             assert_eq!(r.refills(), blocks, "the refill count is not the consumption in whole blocks");

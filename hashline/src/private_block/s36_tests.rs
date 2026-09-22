@@ -687,10 +687,18 @@ fn consumption_does_not_depend_on_the_witness_or_on_the_public_statement() {
 /// text of every module on the path, finds every buffer a generator filled
 /// (`rng.fp_vec`, `rng.fp2_vec`, `rng.bytes32` bound to a name, and the
 /// `for x in &mut <slice> { *x = rng.fp(); }` idiom), and then finds every
-/// later assignment INTO one of those buffers. Three are found and they are
-/// the three declared; a fourth would fail here, which is the whole point —
-/// a reused buffer, a repeated slice or a re-entered commit path must be a
-/// failure and not a silence.
+/// later assignment INTO one of those buffers. **Four sites are found and
+/// all four are declared** — the two overwrite relations, at each of the
+/// two mask-commit entry points (`mask_commit` keeps its own body beside
+/// `mask_commit_tagged`, so each relation is written twice). The third
+/// declared relation is not an overwrite and cannot show up in that scan,
+/// because the position it writes is never drawn; it is checked directly,
+/// together with the loop bound that makes it true and the segment term
+/// that counts `n - 1` draws for that row rather than `n`.
+///
+/// A FIFTH site would fail here, which is the whole point — a reused
+/// buffer, a repeated slice or a re-entered commit path must be a failure
+/// and not a silence.
 #[test]
 fn the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares() {
     // every production file a block proof's randomness passes through
