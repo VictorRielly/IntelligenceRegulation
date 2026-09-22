@@ -1470,15 +1470,25 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
                 let (nm, x2, z16, dm) = (at(A_YM), at(A_X2), at(A_Z16), v[idm]);
                 let (nr, ns) = (limbs(v, &i_nr), limbs(v, &i_ns));
                 let (mr, ms) = (limbs(v, &i_mr), limbs(v, &i_ms));
-                let c0 = k_num.mul(v[ig]).mul(x).add(k_dv.mul(d)).sub(k_den.mul(y).mul(d)).sub(nr);
-                let c1 = ns.add(nr).add(Fp2::ONE).sub(k_den.mul(d));
+                // **STAGE 35, LEVER (b)(ii): the two sub-products this arm
+                // recomputes.** `k_den * d` is formed twice — once inside
+                // c0's `k_den.mul(y).mul(d)`, which is `(k_den * d) * y`
+                // reassociated, and once outright in c1 — and `k_den * dm`
+                // twice in the same way in c6 and c7. Each is formed once
+                // here. They are the ONLY pair the check's §5 found and the
+                // only pair reading this arm turns up: `at(p)`, the two norm
+                // gains, `delta`-like intermediates and the four limb folds
+                // are already shared by a `let`.
+                let (kd, kdm) = (k_den.mul(d), k_den.mul(dm));
+                let c0 = k_num.mul(v[ig]).mul(x).add(k_dv.mul(d)).sub(kd.mul(y)).sub(nr);
+                let c1 = ns.add(nr).add(Fp2::ONE).sub(kd);
                 let c2 = x.add(k(32768)).sub(l2(A_XL0));
                 let c3 = ao.add(k(32768)).sub(l2(A_AL0));
                 let c4 = x1.add(k(32768)).sub(l2(A_X1L0));
                 let c5 = x1.sub(x).sub(ao);
                 // norm_m: the identical relation with gamma_m and xres1 (T1 C.1)
-                let c6 = k_num.mul(v[igm]).mul(x1).add(k_dv.mul(dm)).sub(k_den.mul(nm).mul(dm)).sub(mr);
-                let c7 = ms.add(mr).add(Fp2::ONE).sub(k_den.mul(dm));
+                let c6 = k_num.mul(v[igm]).mul(x1).add(k_dv.mul(dm)).sub(kdm.mul(nm)).sub(mr);
+                let c7 = ms.add(mr).add(Fp2::ONE).sub(kdm);
                 // residual 2 and z16's int16 class (T1 C.2, T2 C.2)
                 let c8 = x2.add(k(32768)).sub(l2(A_X2L0));
                 let c9 = x2.sub(x1).sub(z16);
