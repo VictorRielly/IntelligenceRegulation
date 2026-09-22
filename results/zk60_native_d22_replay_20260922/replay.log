@@ -1,0 +1,40 @@
+Running scope as unit: run-ra9f3b27c0f5b450ea1f1fe3e2a4bfd89.scope
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922
++ S=/home/victor/wt-zk60-jointview/scripts
++ AS_DELIVERED=/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922
++ date
+Tue Sep 22 10:07:23 PDT 2026
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_privacy_gate.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/bundle --evidence /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/p10_staged --columns full --controls-on all
+10b9d4be3c0af4a4 block: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/p10_staged/privacy_gate.json (62.5 s)
++ echo 'p10_staged exit=0'
+p10_staged exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_privacy_gate.py --captures /home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/p10_as_delivered --columns full --controls-on all
+10b9d4be3c0af4a4 block: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/p10_as_delivered/privacy_gate.json (61.5 s)
++ echo 'p10_as_delivered exit=0'
+p10_as_delivered exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/bundle --evidence /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/jointview_staged
+stage1_transcript_replay: ok
+stage2_commitment_side_joint_view: ok
+stage3_masking_commitment_view: ok
+stage4_stacked: ok
+stage5_zero_witness_gate: ok
+stage6_negative_controls: ok
+stage7_terminal_polynomial_port: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/jointview_staged/joint_view.json (10.9 s)
++ echo 'jointview_staged exit=0'
+jointview_staged exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py --captures /home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/jointview_as_delivered
+stage1_transcript_replay: ok
+stage2_commitment_side_joint_view: ok
+stage3_masking_commitment_view: ok
+stage4_stacked: ok
+stage5_zero_witness_gate: ok
+stage6_negative_controls: ok
+stage7_terminal_polynomial_port: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/jointview_as_delivered/joint_view.json (10.9 s)
++ echo 'jointview_as_delivered exit=0'
+jointview_as_delivered exit=0
++ date
+Tue Sep 22 10:09:49 PDT 2026

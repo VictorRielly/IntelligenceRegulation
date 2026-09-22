@@ -1,0 +1,63 @@
+new    : /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/p10_staged/privacy_gate.json
+record : /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json
+
+== 1. the record, outside per_capture ==
+  /receipt_length_is_the_same_within_a_profile/hashline-zk-mr1/private-attention-t32-poc/1
+    record [2245800]
+    new    <absent>
+
+manifest, record : {"checked": 4, "mismatch": [], "privacy_review_complete": false, "source_commit": "2b5c65c3c430d6d6dd7ac24ab0c115181e36ca75", "validation_json": "present", "verifier_binary_sha256": "fec86a7b39fe3069a389e98ae3156eb7359b7e36386fd451a7b4390a70f56d1d"}
+manifest, new    : {"checked": 1, "mismatch": [], "privacy_review_complete": null, "source_commit": "4751b93ff4566e16fe07c61bd23d4cc2352f9f0b", "validation_json": "present", "verifier_binary_sha256": null}
+seconds, record  : 226.7   new: 62.5
+receipt lengths, new: {"hashline-zk-mr1/private-block-t32-poc/1": [2816472]}
+
+== 2. the per-capture subtree ==
+A = 40083e7ac8f3f6c7 (record of record, block)
+B = 7d334e069c84f0c1 (record of record, block)
+N = 10b9d4be3c0af4a4 (the new bundle)
+
+leaves differing A vs B (receipt-specific, expected): 99
+leaves differing A vs N: 99
+leaves differing B vs N: 67
+
+== 3. FIGURES THAT MOVED: 0 ==
+(a leaf identical on both block captures of record, different on the new one)
+  none
+
+== 4. leaves that differ between A and N but NOT between A and B and NOT between B and N ==
+  0 (N agrees with B where A differs: the receipt-specific leaves A happens to hold alone)
+
+== 5. the figures the statement names, read off each record ==
+figure                                                                A            B            N
+-------------------------------------------------------------------------------------------------
+proof_bytes                                                     2816472      2816472      2816472
+ok                                                                 True         True         True
+grade.channels                                                       28           28           28
+grade.constructed                                                    11           11           11
+grade.derived                                                         2            2            2
+grade.argued                                                          8            8            8
+grade.open                                                            7            7            7
+grade.ok                                                           True         True         True
+grade.failures                                                        0            0            0
+transcript_replay.ok                                               True         True         True
+controls.all_fire                                                  True         True         True
+controls.ok                                                        True         True         True
+controls, number of names                                            10           10           10
+controls.honest_again                                              True         True         True
+controls M.all_fire                                                True         True         True
+masking_commitment_M_opening.ok                                    True         True         True
+
+channel statuses, channel by channel (name -> status):
+  all 28 channels: same name and same status on A, B and N
+
+== 6. the controls, name by name ==
+  ok    unsatisfiable_group_vector_0                                   True / True / True
+  ok    unsatisfiable_group_vector_256                                 True / True / True
+  ok    witness_bearing_logup_value                                    True / True / True
+  ok    one_pad_fewer_than_the_distinct_opened_columns                 True / True / True
+  ok    shared_blinding_unknown_between_two_commitments                True / True / True
+  ok    second_fixed_input_off_the_disclosed_identity                  True / True / True
+  ok    cfs_zero_transcript                                            True / True / True
+  ok    mask_commitment_M/one_pad_fewer_than_the_distinct_opened_columns True / True / True
+  ok    mask_commitment_M/functional_order_permuted                    True / True / True
+  ok    mask_commitment_M/second_functional_leaked                     True / True / True

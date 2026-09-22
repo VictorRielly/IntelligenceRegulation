@@ -1,0 +1,86 @@
+== 0. the commit ==
+rev-parse 4751b93 = 4751b93ff4566e16fe07c61bd23d4cc2352f9f0b
+capture-validation.json[source_commit] = 4751b93ff4566e16fe07c61bd23d4cc2352f9f0b
+agree: True
+bundle[source_commit]                  = 4751b93ff4566e16fe07c61bd23d4cc2352f9f0b
+agree: True
+
+== A. every source hash the bundle records, against the blobs at 4751b93 ==
+files recorded by the bundle: 132
+equal to the blob at 4751b93: 132
+MISMATCH: 0
+
+== B. the D22 pin set, file by file ==
+distinct pinned paths: 32 (mask_commit 10 + 20, terminal_polys 8)
+
+path                                                 in bundle verdict
+----------------------------------------------------------------------
+hashline/src/field.rs                                yes       pin of record
+hashline/src/gpu/mod.rs                              yes       second accepted digest
+hashline/src/lib.rs                                  yes       pin of record
+hashline/src/merkle.rs                               yes       pin of record
+hashline/src/mle.rs                                  yes       pin of record
+hashline/src/native_capture.rs                       yes       pin of record
+hashline/src/ntt.rs                                  yes       pin of record
+hashline/src/pcs.rs                                  yes       second accepted digest
+hashline/src/private_attention/argument.rs           yes       pin of record
+hashline/src/private_attention/layout.rs             yes       pin of record
+hashline/src/private_attention/protocol.rs           yes       pin of record
+hashline/src/private_block.rs                        yes       second accepted digest
+hashline/src/private_block/argument.rs               yes       pin of record
+hashline/src/private_block/layout.rs                 yes       pin of record
+hashline/src/private_block/protocol.rs               yes       pin of record
+hashline/src/private_block/wire.rs                   yes       pin of record
+hashline/src/private_block/witness.rs                yes       pin of record
+hashline/src/private_seam.rs                         yes       pin of record
+hashline/src/sumcheck.rs                             yes       pin of record
+hashline/src/tables_attn.rs                          yes       pin of record
+hashline/src/transcript.rs                           yes       pin of record
+hashline/src/zk.rs                                   yes       second accepted digest
+zkp-core/src/field.rs                                yes       pin of record
+zkp-core/src/lib.rs                                  yes       pin of record
+zkp-core/src/merkle.rs                               yes       pin of record
+zkp-core/src/mle.rs                                  yes       pin of record
+zkp-core/src/ntt.rs                                  yes       pin of record
+zkp-core/src/pcs.rs                                  yes       pin of record
+zkp-core/src/pcs/backend.rs                          yes       pin of record
+zkp-core/src/rng.rs                                  yes       pin of record
+zkp-core/src/sumcheck.rs                             yes       pin of record
+zkp-core/src/transcript.rs                           yes       pin of record
+
+pin of record: 28
+second accepted digest: 4
+NOT ACCEPTED: 0
+absent from the bundle: 0
+
+== B.1 the files whose digest is the SECOND accepted one ==
+hashline/src/gpu/mod.rs
+  pin of record a5ceeba218429637cb73f9dc5c28fcf3508c7d071ea288be110f7e43078b4229
+  bundle        706ca7fafb3e54114ca7c7241541a52ed6238764314f2877585071a1be37a31c
+  why accepted: main at 4751b93: 426 added lines in two hunks and 0 removed or modified -- three re-exports and the host buffer pool.  `backend()` and `enabled()` are untouched, and both hunks are above them in the f
+hashline/src/pcs.rs
+  pin of record 6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8
+  bundle        9537915b26b21ea906b0098d14afedf65c3d33320619bd380d4987d0c5fcf5a7
+  why accepted: main at 4751b93: 47 added lines, 0 removed -- the two arms of `commit_planes`, one `#[cfg(feature = "gpu-cuda")]` and one returning None without it.  Nothing on this profile's path calls it; the priva
+hashline/src/private_block.rs
+  pin of record 5d9dd178beb708650d37a0af2bb7736e20c797cbb39d5ca7dfdadc300b48e001
+  bundle        412a43f488f809a5b479cf20690f06e35d79807c39d380f52abddb8966b09cf7
+  why accepted: main at 4751b93: TWO LINES, `#[cfg(test)] mod norm_alias;`.  A test module declaration and nothing else (results/zk60_native_pathpins/pb_pcs.diff.txt)
+hashline/src/zk.rs
+  pin of record c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310
+  bundle        ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b
+  why accepted: main at 4751b93 (2026-09-20 20:52), the integrator's host/private work: every item this port transcribes is byte-identical, see REPIN_HISTORY
+
+== C. artifacts and the binary ==
+captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.expected
+  manifest b491fb948141cc8df7cc11bb3f75466810d39f26e2c3a127fa5b4a7965ca73a3 112 B
+  on disk  b491fb948141cc8df7cc11bb3f75466810d39f26e2c3a127fa5b4a7965ca73a3 112 B  -> equal
+captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.json
+  manifest e8d3c55bb16e4784e4873fb2683841096b813ff1264e2e23fdde6f71f43dd527 9251420 B
+  on disk  e8d3c55bb16e4784e4873fb2683841096b813ff1264e2e23fdde6f71f43dd527 9251420 B  -> equal
+captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.receipt
+  manifest 10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b 2816472 B
+  on disk  10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b 2816472 B  -> equal
+verifier binary /home/victor/IntelligenceRegulation/hashline/target-gpu/release/deps/hashline-75d0767c271c429f
+  manifest cbc1864c65541ab4fc7211ae47b4f95c56fab9063873b9be867f9ef0f88dbbb8
+  on disk  cbc1864c65541ab4fc7211ae47b4f95c56fab9063873b9be867f9ef0f88dbbb8  -> equal

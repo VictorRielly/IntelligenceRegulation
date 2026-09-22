@@ -1,0 +1,29 @@
+{
+ "files": {
+  "captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.expected": {
+   "bytes": 112,
+   "copied_from": "/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922/captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.expected",
+   "sha256": "b491fb948141cc8df7cc11bb3f75466810d39f26e2c3a127fa5b4a7965ca73a3"
+  },
+  "captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.json": {
+   "bytes": 9251420,
+   "copied_from": "/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922/captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.json",
+   "sha256": "e8d3c55bb16e4784e4873fb2683841096b813ff1264e2e23fdde6f71f43dd527"
+  },
+  "captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.receipt": {
+   "bytes": 2816472,
+   "copied_from": "/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922/captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.receipt",
+   "sha256": "10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b"
+  }
+ },
+ "keys_the_shim_changes": [
+  "accepted"
+ ],
+ "source_directory": "/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922",
+ "source_manifest": "capture-validation.json",
+ "source_manifest_sha256": "ff415259047756c1634f73fe10cb8c68d2d7e908f90745ba77384cd4f5722fc4",
+ "staged_at": "/home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/bundle",
+ "the_bundle_is_not_committed_here": "it is the integrator's, uncommitted in the main tree; only its digests are recorded",
+ "validation_json_sha256": "f57cef789ee950b3ac1e4efc3a63b7c477ec850035ce5b51d39cf092ddb2a221",
+ "what_the_shim_does": "accepted: one record -> a one-element list; no other key differs and no value is recomputed"
+}

@@ -1,0 +1,24 @@
+committed: /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/jointview_staged/joint_view.json
+current  : /home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/jointview_as_delivered/joint_view.json
+differing paths: 7
+  [  1x] /captures_dir
+          committed: '/home/victor/wt-zk60-jointview/results/zk60_native_d22_replay_20260922/bundle'
+          current  : '/home/victor/IntelligenceRegulation/results/zk60_security_probe_repin_20260922'
+  [  1x] /manifest/checked
+          committed: 1
+          current  : <absent>
+  [  1x] /manifest/mismatch
+          committed: []
+          current  : <absent>
+  [  1x] /manifest/privacy_review_complete
+          committed: None
+          current  : <absent>
+  [  1x] /manifest/source_commit
+          committed: '4751b93ff4566e16fe07c61bd23d4cc2352f9f0b'
+          current  : <absent>
+  [  1x] /manifest/validation_json
+          committed: 'present'
+          current  : 'absent'
+  [  1x] /manifest/verifier_binary_sha256
+          committed: None
+          current  : <absent>
