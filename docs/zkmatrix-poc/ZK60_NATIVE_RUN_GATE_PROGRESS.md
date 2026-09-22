@@ -3682,12 +3682,18 @@ privacy property, and no figure of record may move.
 
 | # | item | state |
 |---|---|---|
-| U1 | are all three really ON the attention profile's path? | PENDING |
-| U2 | the three pins at main's `4751b93`, and where the pin lives | PENDING |
-| U3 | failing first: before, a tampered tree passes both toy gates | PENDING |
-| U4 | the re-pin of the three records of record, with its reason | PENDING |
-| U5 | the toy gate's modules and the record guard | PENDING |
-| U6 | this section and §8.9 of the D22 record | PENDING |
+| U1 | are all three really ON the attention profile's path? | DONE — R9h.4, **all three are**, by call site at `4751b93`; none is `#[cfg(test)]` |
+| U2 | the three pins at main's `4751b93`, and where the pin lives | DONE — R9h.5, `scripts/zk60_native_profile_pins.py`, four readings agree |
+| U3 | failing first: before, a tampered tree passes both toy gates | DONE — R9h.6, `failing_first_before.log` / `_after.log`, three trees, refused by name per file |
+| U4 | the re-pin of the three records of record, with its reason | DONE — R9h.7, `repin_diff.txt`, **0 unexpected** |
+| U5 | the toy gate's modules and the record guard | DONE — R9h.8 |
+| U6 | this section and §8.9 of the D22 record | DONE — §8.9 and this section |
+
+**Headline: the three files the attention profile's prover and verifier
+reach, and nothing compared, are pinned; both toy gates refuse by name when
+one moves; and zero figures moved.** The three guarded records differ from
+their committed bytes in two tool digests — one of them a new leaf — and the
+clocks, and in nothing else.
 
 ## R9h.2 Scope (hard)
 
@@ -3848,12 +3854,114 @@ shape check, or a prover's range refusal, passed every check the gate had.
 
 ## R9h.7 Results — U4, the re-pin
 
-PENDING.
+Three tool digests move, so every record naming them was re-taken with the
+command in its own README (`run.sh`, all three exit 0, marker `run.done` = 0):
+
+| tool | at `28853ac` | now | why |
+|---|---|---|---|
+| `zk60_native_profile_pins.py` | *(new)* | `3689bbb3…` | the three pins |
+| `zk60_native_privacy_gate.py` | `819079dd…` | `040891a7…` | the call before any analysis, and the exit-3 refusal |
+| `zk60_native_joint_view.py` | `97601b89…` | `383b4f97…` | the same |
+
+| record | before | after | what moved |
+|---|---|---|---|
+| `results/zk60_native_privacy_gate/privacy_gate.json` | 224.8 s | **225.2 s**, four captures `ok` | 3 leaves: 1 tool hash, 1 NEW tool hash, `seconds` |
+| `results/zk60_native_privacy_gate_channels/privacy_gate.json` | 221.3 s | **221.6 s**, four captures `ok` | the same 3 leaves |
+| `results/zk60_native_joint_view/joint_view.json` | 20.9 s | **21.3 s**, every stage `ok` | 5 leaves: 1 tool hash, 1 NEW tool hash, three `seconds` |
+
+`repin_diff.txt` compares each with its own committed bytes at `28853ac`
+leaf by leaf: **0 unexpected differences** — no channel, rank, dimension,
+control or count moved. The reason is written into the guard's own record
+(`results/zk60_native_gate_record_refresh/README.md`, which now carries a
+third 2026-09-22 row) and into each of the three record directories' READMEs.
+`zk60_native_mask_commit.py`, `zk60_native_terminal_polys.py` and
+`zk60_native_manifest_pins.py` are byte-identical, so the 122 + 8 run-gate
+records they are named by are untouched.
 
 ## R9h.8 Results — U5, the suite
 
-PENDING.
+`tests.test_zk60_native_{capture,gate_record,joint_view,mask_commit,privacy_gate,terminal_polys,small_model_groups}`,
+inside the 8 GiB scope: **Ran 217 tests in 211.2 s, OK (skipped=1, expected
+failures=1)**, marker `suite.done` = 0 — 204 in
+round 9f, and the thirteen new ones are this round's. The record guard alone
+(`tests.test_zk60_native_gate_record`): **42 tests, 0.090 s, OK** — 29 in
+round 9f. The one skip and the one expected failure are the pre-existing
+ones.
+Before the re-pin the same guard was **42 tests, FAILED (failures=1)**
+(`guard_before.log`): the records named the old gate bytes, which is exactly
+what the re-pin is for.
+
+The thirteen are in `tests/test_zk60_native_gate_record.py`, class
+`TheAttentionProfilesPathIsPinned`: the pins are main's digests, read
+independently in the test; the check passes on this tree with no second
+digest in play; no other pin table — the two Rust ones or round 9f's
+manifests — names them differently; a changed byte in EACH of the three, and
+a missing file, are refused by name; an unchanged copy passes (the control);
+the profile's six files are all pinned and the module's two lists together
+are exactly those six; every `use crate::<m>` in those six resolves to a
+pinned file, with `causal_oracle.rs` the one allowed exception and its reason
+read out of `FIXTURE_PATH_NOT_PINNED`; none of the three is cfg-gated at its
+declaration; both gates call the check, list the tool and hash it; both call
+it with no profile argument and before `load_all`; both return 3 writing no
+record; and the lane's digests are recorded, equal to main's, with the
+accepted set empty.
 
 ## R9h.9 What this round is NOT
 
-PENDING.
+1. **It is not a privacy acceptance and establishes no privacy property.**
+   Both gates still write `privacy_property_established: false`; the seven
+   OPEN channels stay open; D8/D11, the joint LAW and the hash layer's
+   hiding are untouched. A pin says "these are the bytes that were reasoned
+   about"; it says nothing about what the argument over those bytes proves.
+2. **No figure of record moved**, and it is machine-checked
+   (`repin_diff.txt`, 0 unexpected on all three records).
+3. **It does not re-open D22, the Rust pin tables, or §§8.1–8.8 of the D22
+   record.** It adds three files of a profile the pin set had covered only
+   in part.
+4. **It does not pin `hashline/src/gpu/cuda.rs`** (§R9g.8's other unpinned
+   file): it is feature-gated behind `gpu-cuda` and off every profile's path
+   in the build the captures were made in, and the D22 record's §1.4 and §7
+   say so. Nor does it pin `private_attention/tests.rs`, which is
+   `#[cfg(test)]`, or `hashline/src/causal_oracle.rs`, which the attention
+   root reaches only from `synthetic_fixture` — the public-fixture path the
+   owner's own words put outside "prover and verifier reach".
+5. **It does not fix the accepted statement's count, which the main tree
+   owns.** The sentence that needs the security owner's hand, in
+   `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` (the note at line ~54 and the
+   passage at ~363): *"The pin set of §5 condition 7 is therefore 31
+   files"* → **"The pin set of §5 condition 7 is therefore 37 files: 35 Rust
+   files and the two Cargo manifests. (The figure 31, written into that note
+   at 2026-09-22 14:50, counted the 29 files of the block profile's path plus
+   the two manifests and omitted `private_attention/{argument,layout,
+   protocol}.rs`, pinned since round 1 / round 5; round 9h added
+   `private_attention.rs`, `private_attention/wire.rs` and
+   `private_attention/witness.rs`, so the same arithmetic would now read
+   34.)"** — and the residual sentence in the same note, *"Named residuals,
+   still open: the private-attention profile's three files … appear in no
+   pin table"*, becomes **"CLOSED 2026-09-22 (gate round 9h): the three are
+   pinned at `4751b93` in `scripts/zk60_native_profile_pins.py`, which both
+   toy gates call before any analysis; `hashline/src/gpu/cuda.rs` remains
+   unpinned and off this profile's CPU path."** Until the owner applies
+   them, the statement undercounts and names a residual that is closed.
+6. **It does not widen the Rust capture writer.** A bundle still carries
+   digests for 38 Rust files and for none of these three (nor for the two
+   manifests, round 9f's residual): the delivered bundle's `source_hashes`
+   happens to carry all three — that is the capture VALIDATION manifest, not
+   the writer's list — but a receipt still cannot be checked against them
+   from inside. That is a Rust-side change for the integrator
+   (`hashline/src/native_capture.rs`), named here as a residual for the
+   second time.
+
+## R9h.10 NEXT after round 9h
+
+1. **The security owner applies R9h.9 item 5** — two sentences in
+   `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` — and R9g.11's five blocks, which
+   are still unapplied.
+2. **At the integration re-pin**: these three need no move (the lane's bytes
+   are identical to main's); round 9f's two manifests do, to `0c746b9d…` /
+   `10d99a63…`, against the integrator's merged tree.
+3. **Still open, unchanged by this round**: the capture writer's 38-file
+   list (item 6 above), one malformed manifest shape refused without a name
+   (round 9e's residual), GS-13 and GS-14 on the main tree, and a whole-suite
+   figure (530 is from round 9c; rounds 9e, 9f and 9h have added 41 tests
+   inside that pattern without re-running it).

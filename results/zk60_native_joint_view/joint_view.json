@@ -47,7 +47,7 @@
  "ok": true,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 20.9,
+ "seconds": 21.3,
  "stage1_transcript_replay": {
   "ok": true,
   "per_capture": [
@@ -113,7 +113,7 @@
    "pad_margin": 0,
    "q_pad": 256,
    "role": "Input",
-   "seconds": 1.7
+   "seconds": 1.6
   },
   "pad_block_exact_rank_cross_check": {
    "capture": "40083e7ac8f3f6c7",
@@ -1696,7 +1696,7 @@
    "distinct_columns": 246,
    "exact_rank_of_a_row_pad_block": 246,
    "full_rank": true,
-   "seconds": 1.5
+   "seconds": 1.7
   },
   "ok": true,
   "per_capture": [
@@ -3491,7 +3491,7 @@
   }
  },
  "tool_sha256": {
-  "zk60_native_joint_view.py": "97601b8994508e3a308e7dd18f4d62b73fe2c00795641c8222483303e6910e50",
+  "zk60_native_joint_view.py": "383b4f97e4c14592d642b3fbc43d494168bf7e21f8bc241e409cd3b4fab9c9b0",
   "zk60_native_jv_capture.py": "11f598d1472eac3cdffd69555452ae112c9c9841e8cd74bed97e2165f2e6e904",
   "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
@@ -3501,6 +3501,7 @@
   "zk60_native_jv_smallmodel.py": "620e676cd9981c0f8098dea8165220a79a55a6167fb52983f4708fb397d73a33",
   "zk60_native_manifest_pins.py": "1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6",
   "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
+  "zk60_native_profile_pins.py": "3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec",
   "zk60_native_terminal_polys.py": "3ad8b71c6927f0d828aac0c97d891c8a89a4c963149f83c1e1e563d90f64b869"
  },
  "version": 1

@@ -1,0 +1,44 @@
+========================================================================
+results/zk60_native_privacy_gate/privacy_gate.json
+  allowed    /seconds
+               28853ac 224.8
+               now      225.2
+  allowed    /tool_sha256/zk60_native_privacy_gate.py
+               28853ac '819079ddeacd0bcc415f06edb363590cd045baa9a96ec410d7a32978e82b3b56'
+               now      '040891a757fc6efb991a57a02d4c713a31059ff0dcbe70b754df2ce4b31a7f98'
+  allowed    /tool_sha256/zk60_native_profile_pins.py
+               28853ac <absent>
+               now      '3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec'
+  3 allowed, 0 unexpected, 3 differing leaves in all
+========================================================================
+results/zk60_native_privacy_gate_channels/privacy_gate.json
+  allowed    /seconds
+               28853ac 221.3
+               now      221.6
+  allowed    /tool_sha256/zk60_native_privacy_gate.py
+               28853ac '819079ddeacd0bcc415f06edb363590cd045baa9a96ec410d7a32978e82b3b56'
+               now      '040891a757fc6efb991a57a02d4c713a31059ff0dcbe70b754df2ce4b31a7f98'
+  allowed    /tool_sha256/zk60_native_profile_pins.py
+               28853ac <absent>
+               now      '3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec'
+  3 allowed, 0 unexpected, 3 differing leaves in all
+========================================================================
+results/zk60_native_joint_view/joint_view.json
+  allowed    /seconds
+               28853ac 20.9
+               now      21.3
+  allowed    /stage2_commitment_side_joint_view/pad_block_at_the_full_budget/seconds
+               28853ac 1.7
+               now      1.6
+  allowed    /stage3_masking_commitment_view/m_pad_block_exact_rank_cross_check/seconds
+               28853ac 1.5
+               now      1.7
+  allowed    /tool_sha256/zk60_native_joint_view.py
+               28853ac '97601b8994508e3a308e7dd18f4d62b73fe2c00795641c8222483303e6910e50'
+               now      '383b4f97e4c14592d642b3fbc43d494168bf7e21f8bc241e409cd3b4fab9c9b0'
+  allowed    /tool_sha256/zk60_native_profile_pins.py
+               28853ac <absent>
+               now      '3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec'
+  5 allowed, 0 unexpected, 5 differing leaves in all
+========================================================================
+VERDICT: only the two callers' hashes, the new tool's hash and the clocks moved

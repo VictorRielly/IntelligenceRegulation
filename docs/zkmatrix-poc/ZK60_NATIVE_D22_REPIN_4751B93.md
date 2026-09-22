@@ -1127,3 +1127,114 @@ both manifests (lane commit `a8e4939`).
 pin over the Rust tree, and nothing in §§8.1–8.7 above. It is one more
 bookkeeping pin in the toy gate; it is not a privacy acceptance and it
 establishes no privacy property.
+
+### 8.9 The private-attention profile's three files join the pin set — 2026-09-22 (round 9h)
+
+Round 9g read the pin tables out rather than the prose
+(`ZK60_NATIVE_RUN_GATE_PROGRESS.md` §R9g.8) and found three Rust files in
+none of them — not in `zk60_native_mask_commit.SOURCE_PINS`/`PATH_PINS`, not
+in `zk60_native_terminal_polys.SOURCE_PINS`, not in any `zk60_native_rg_*`
+table, not in the Rust capture writer's 38-file list:
+`hashline/src/private_attention.rs`, `private_attention/wire.rs`,
+`private_attention/witness.rs`. **Two of the four toy captures of record are
+attention-profile receipts**, so for those two the gates read artifacts whose
+prover and verifier reach three files nothing compares, and condition 7 of §5
+("every file on the path") was not met for them. The security owner ruled on
+2026-09-22 that the three join the pin set. Round 9h is that one change.
+Evidence and commands: `results/zk60_native_profile_pins_20260922/`; ledger
+section R9h.
+
+**They are on the path, by call site at `4751b93`.**
+`private_attention.rs` is the profile's root — `hashline/src/lib.rs:49`
+declares `pub mod private_attention;` with no `cfg` and no feature gate, and
+the file holds `AttentionPublic`, `prepare_endpoints`, `compute_output`,
+`prove`/`prove_with_stats`, `verify`, `verify_bytes` and
+`Receipt::{to_bytes, from_bytes}`. `witness.rs` is the prover's integer
+witness (`witness::build` at `private_attention.rs:277` and `:236`; its
+`Witness` is `protocol::prove_inner`'s argument). `wire.rs` is on both sides
+(`wire::validate` is the first statement of `protocol::verify_inner`,
+`protocol.rs:419`; `encode`/`decode` are `to_bytes`/`from_bytes`, so
+`verify_bytes` decodes through it). **None is `#[cfg(test)]`**: the root
+declares `mod wire;` (45) and `mod witness;` (46) with no attribute above
+them, and `#[cfg(test)] mod tests;` is the next line — the same distinction
+that kept the block profile's five test-only modules out of round 5's table.
+With these three, the attention profile's six files are complete
+(`argument.rs`, `layout.rs`, `protocol.rs` were already pinned by
+`zk60_native_terminal_polys`).
+
+**The three pins**, read from main at `4751b93`:
+
+| path | sha256 | git blob |
+|---|---|---|
+| `hashline/src/private_attention.rs` | `dfc02d91356974b0cf4c6c0c672ec14660aa4b90b808236de81486272f010923` | `1bc8f891…` |
+| `hashline/src/private_attention/wire.rs` | `a35a468cf19eb672e5428c3286a3ece15f73e96e20291a220cf38dd4104dbdff` | `26e21669…` |
+| `hashline/src/private_attention/witness.rs` | `795cf6292e366bc48d1c1987b9a3173f9a19e266de537f72a9e738bdb5133ee0` | `0c9f7b60…` |
+
+Four independent readings agree (`bundle_crosscheck.txt`): main at
+`4751b93`, the block lane at `a8e4939`, the gate's worktree, and the
+delivered new-tree bundle's 132-entry `source_hashes` (§8.1's bundle).
+**The lane's bytes are identical to main's**, so unlike §8.8's two manifests
+there is no post-integration digest to expect and nothing for the
+integrator's re-pin to move.
+
+**Where the pin lives.** A new module,
+`scripts/zk60_native_profile_pins.py`, called by both toy gates before they
+read anything (exit **3**, no record, on a refusal), **unconditionally** —
+a gate run reads a capture directory holding both profiles, so a
+per-profile branch would never be taken differently, and for a block run
+these three are files that must not have moved either. Not in
+`zk60_native_mask_commit.PATH_PINS` for §8.8's reason (122 committed records
+name its bytes), and deliberately not folded into
+`zk60_native_manifest_pins.py`: that module is the two Cargo manifests and
+finding P36-2, and a Rust source pin under a name that says "manifest" would
+mislead the reader at the moment the refusal fires. **Digest only, no
+content assertion** — §8.8's manifests need one because a manifest can be
+re-pinned blind and still ship a feature; the property here is *these are
+the bytes the four captures were produced and verified by*, which a sha256
+is exactly.
+
+**Failing first** (`failing_first_before.log`, taken before the gates were
+wired, and `failing_first_after.log`). Three synthetic trees, each a copy of
+every file the toy gate pins with one file tampered with — `mod wire;` made
+`pub`, the `hiding_ok(&r.h_open, …)` clause deleted from the verifier's
+`validate`, the prover's `(lo..=hi)` range refusal disabled:
+
+| case | before (`28853ac`) | after |
+|---|---|---|
+| each tampered tree, against every pin check the gate had | **30, 8 and 2 pinned files checked, no refusal** in all three; neither gate's source mentions `private_attention.rs`, `private_attention/` or `profile_pins` | — |
+| the same three trees, the profile pins | — | refused, each **naming its own file** |
+| the tree as it stands / the lane at `a8e4939` | — | accepted |
+| the two gates, check pointed at a tampered tree | no such check | `main()` → **3**, `REFUSED (attention profile pins): …`, **no record written** |
+
+**The re-pin.** Three tool digests move —
+`zk60_native_profile_pins.py` (new, `3689bbb3…`),
+`zk60_native_privacy_gate.py` (`819079dd…` → `040891a7…`) and
+`zk60_native_joint_view.py` (`97601b89…` → `383b4f97…`), the last two for
+the call alone — so the three guarded records were re-taken with the
+commands in their own READMEs and compared leaf by leaf with their committed
+bytes at `28853ac` (`repin_diff.txt`): **only those tool leaves, one of them
+new, and `seconds`; 0 unexpected** (3, 3 and 5 differing leaves). Figures:
+224.8 → **225.2 s**, 221.3 → **221.6 s**, 20.9 → **21.3 s**, all `ok`. The
+reason is written into the
+guard's own record (`results/zk60_native_gate_record_refresh/README.md`) and
+into each record directory's README.
+
+**The suite**: the toy gate's seven modules **217 tests, 211.2 s, OK**
+(skipped=1, expected failures=1; 204 in round 9f), and the record guard
+alone **42 tests, OK** (29 in round 9f; the thirteen new ones are this
+round's).
+Before the re-pin that guard was red in exactly one test — the records named
+the old gate bytes — which is what a re-pin is for (`guard_before.log`).
+
+**The pin set's size.** Machine-counted over the tables, the union was 34
+distinct paths (32 Rust + the 2 Cargo manifests) and is now **37** (35
+Rust + 2). By the accepted statement's own arithmetic the number goes **31 →
+34**; that 31 counts the 29 files of the BLOCK path plus the two manifests
+and omits `private_attention/{argument,layout,protocol}.rs`, which the tables
+have pinned since round 1 / round 5. Both numbers are recorded so the next
+reader is not surprised by either.
+
+**What this does not touch.** No figure of record, no channel, no control,
+no Rust file (this lane writes none), and nothing in §§8.1–8.8 above. It is
+one more bookkeeping pin in the toy gate; it is not a privacy acceptance and
+it establishes no privacy property.

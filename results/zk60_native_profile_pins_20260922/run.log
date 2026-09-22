@@ -1,0 +1,35 @@
+Running scope as unit: run-r76ba379eb4474d279c583343dd9e9b20.scope
++ S=/home/victor/wt-zk60-jointview/scripts
++ R=/home/victor/wt-zk60-jointview/results
++ C=/home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919
++ date
+Tue Sep 22 14:59:57 PDT 2026
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_privacy_gate.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate --columns full --controls-on all
+40083e7ac8f3f6c7 block: ok
+7d334e069c84f0c1 block: ok
+6c5e83fd1b2d8c16 attention: ok
+c26d1f05754be35c attention: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json (225.2 s)
++ echo 'repin_p10 exit=0'
+repin_p10 exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_privacy_gate.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels --columns full --controls-on all
+40083e7ac8f3f6c7 block: ok
+7d334e069c84f0c1 block: ok
+6c5e83fd1b2d8c16 attention: ok
+c26d1f05754be35c attention: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json (221.6 s)
++ echo 'repin_channels exit=0'
+repin_channels exit=0
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_joint_view.py --captures /home/victor/wt-zk60-jointview/results/zk60_native_captures_20260919 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_joint_view
+stage1_transcript_replay: ok
+stage2_commitment_side_joint_view: ok
+stage3_masking_commitment_view: ok
+stage4_stacked: ok
+stage5_zero_witness_gate: ok
+stage6_negative_controls: ok
+stage7_terminal_polynomial_port: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_joint_view/joint_view.json (21.3 s)
++ echo 'repin_jointview exit=0'
+repin_jointview exit=0
++ date
+Tue Sep 22 15:07:45 PDT 2026

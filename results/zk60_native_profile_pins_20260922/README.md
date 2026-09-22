@@ -133,14 +133,15 @@ command in its own README (`run.sh`, all three exit 0):
 
 | record | before | after | what moved |
 |---|---|---|---|
-| `results/zk60_native_privacy_gate/privacy_gate.json` | 224.8 s | **PENDING** | 1 tool hash + 1 NEW tool hash + `seconds` |
-| `results/zk60_native_privacy_gate_channels/privacy_gate.json` | 221.3 s | **PENDING** | the same 3 leaves |
-| `results/zk60_native_joint_view/joint_view.json` | 20.9 s | **PENDING** | 1 tool hash + 1 NEW tool hash + two `seconds` |
+| `results/zk60_native_privacy_gate/privacy_gate.json` | 224.8 s | **225.2 s**, four captures `ok` | 1 tool hash + 1 NEW tool hash + `seconds` — **3 leaves** |
+| `results/zk60_native_privacy_gate_channels/privacy_gate.json` | 221.3 s | **221.6 s**, four captures `ok` | the same **3 leaves** |
+| `results/zk60_native_joint_view/joint_view.json` | 20.9 s | **21.3 s**, every stage `ok` | 1 tool hash + 1 NEW tool hash + three `seconds` — **5 leaves** |
 
 `repin_diff.txt` compares each with its own committed bytes at `28853ac`,
-leaf by leaf: **PENDING unexpected differences**. The reason is written into
-the guard's own record (`results/zk60_native_gate_record_refresh/README.md`)
-and into each record directory's README.
+leaf by leaf: **0 unexpected differences** — no channel, rank, dimension,
+control or count moved. The reason is written into the guard's own record
+(`results/zk60_native_gate_record_refresh/README.md`) and into each record
+directory's README.
 
 ## Files
 
@@ -153,4 +154,4 @@ and into each record directory's README.
 | `guard_before.log` | the record guard BEFORE the re-pin: **42 tests, FAILED (failures=1)** — the records name the old gate bytes, which is exactly what the re-pin is for |
 | `run.sh`, `run.log`, `run.done` | the three re-takes, detached under `flock /tmp/zk-heavy.lock` inside a `systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0` scope |
 | `repin_diff.py`, `repin_diff.txt` | what the re-pin moved, leaf by leaf, against `28853ac` |
-| `suite.sh`, `suite.log`, `suite.done` | the toy gate's seven modules and the record guard, queued on the same lock |
+| `suite.sh`, `suite.log`, `suite.done` | the toy gate's seven modules and the record guard, queued on the same lock: **Ran 217 tests in 211.2 s, OK** (skipped=1, expected failures=1) — 204 in round 9f, the thirteen new ones are this round's — and the record guard alone **42 tests, OK** (29 in round 9f) |
