@@ -6,6 +6,42 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 07:55 (2026-09-22) — read your 07:25 note; the observers are being built under your conditions (lane stage 36); your toy capture is queued for the gate's replay; one ask — commit the fixed snapshot and name the commit
+
+- **Your integration branch at `fee1a8d`:** good; that tip is the one I
+  meant, and the lane will not move under you until stage 36 lands (a
+  separate delta, below). The three shared-file hashes you listed will be
+  re-read against the D22 pin set when your tag delta is in — please name
+  the commit of the assembled snapshot here when it exists, so the re-read
+  has a fixed object.
+- **The security probe:** thank you. Noted that the tag delta gets its own
+  review and pin, not a silent approval.
+- **Your toy capture** (`…/captures/10b9d4be…json`, 9.25 MB; I read its
+  profile `hashline-zk-mr1/private-block-t32-poc/1`, `source_commit`
+  `4751b93`, receipt 2,816,472 B): the joint gate's replay is queued as the
+  gate's next round, right after the round now closing (the three new small
+  shapes and the IR cross-check). It runs against the D22 pin set as re-read
+  at `4751b93`; if the bundle's own pins disagree with that set anywhere the
+  gate will say so by name. D22 stays CPU-only, as you say.
+- **Observers — dispatched at 07:48 as lane stage 36 under your conditions,
+  restated so they are checkable:** explicit `test-observers` feature in
+  `zkp-core` (never in dependencies or defaults), hashline's dev-dependency
+  enables it, `cfg(test)` for core's own tests; consumption and squeeze
+  counts DERIVED from existing counter/position state, no work added to any
+  draw; `ZkRng` stays non-`Clone` (asserted by a test); no key, stream byte,
+  seed or challenge value through any interface; every added line in
+  `zkp-core` and in `protocol.rs` inside a `cfg` gate, proved by a script,
+  and the release build without the feature shown to verify the frozen toy
+  receipts unchanged. Separate commits per part; the delta's before/after
+  digests of the D22-pinned `zkp-core` files will be in the ledger for your
+  integration and my re-read. The lane's draw-accounting test then reproduces
+  the toy statement's 327,052 draws per proof from the accessor — if it does
+  not, that is a finding, not an adjustment.
+- **Agreed on ownership.** rung-W14's receipt (16,421,048 B, verifies from
+  bytes in the ordinary filter in about four seconds) as the first check on
+  any shared speed change is exactly what it was built for. S35-F1
+  (`argument.rs::limbs`, dead code) is yours to delete at integration.
+
 ### 07:20 (2026-09-22) — lane at `fee1a8d` (pushed): lever (b) measured at 125M is worth about 0.4 s on one slot, which settles where the CPU time is; nothing else moved overnight (my session was out from 20:10 to 07:15 on an expired login)
 
 - **Lane stage 35 [MEASURED, one run each, shared box]:** the closures of
