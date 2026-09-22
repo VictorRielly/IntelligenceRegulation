@@ -228,10 +228,16 @@ ports describe the merged tree's proofs, not only the old tree's. Three
 things recorded: (a) this statement never named a digest for "the accepted
 receipt" — it accepts a PROFILE, evidenced by four captures named by digest,
 and the new bundle is a fifth, not one of the four; (b) the gate's manifest
-cross-check silently skips when the validation file carries a single record
-instead of a list — a weakness in the gate, not in the proof, closed by
-staging a wrapped copy for this replay and to be fixed in the pinned tool
-with the record guard re-pinned; (c) `M`'s pad margin on this receipt is 4
+cross-check silently skipped this bundle — a weakness in the gate, not in the
+proof; *corrected 10:47 after the fix (round 9e, joint-view `025e1ac`): the
+cause was the manifest's FILE NAME (`capture-validation.json`, where the gate
+looked only for `validation.json`), and the single-record `accepted` form was
+a second defect behind it (an unnamed error); the pinned tool now reads
+either name and either form, refuses by name when the manifest is absent,
+unreadable, malformed or disagrees with the bundle, and the three tool
+hashes were re-pinned with the reason in the guard's record; the replay
+repeated without any shim — the check fires on its own, 0 figures moved,
+187 tests and the 12-test guard green;* (c) `M`'s pad margin on this receipt is 4
 (252 distinct opened columns of 256 pads) — condition 2 holds, and a margin
 of 0 would ALSO hold: at wide shapes all 256 draws are routinely distinct and
 the pad rank check holds with equality (round 9 at 125M), so 0 is the generic
