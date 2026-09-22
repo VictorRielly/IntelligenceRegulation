@@ -1,0 +1,379 @@
+{
+ "changed": [
+  {
+   "new": 232.4,
+   "old": 287.3,
+   "path": "seconds"
+  },
+  {
+   "new": 0.61,
+   "old": 0.66,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_groups_seconds"
+  },
+  {
+   "new": 3.64,
+   "old": 4.17,
+   "path": "stage11_full_preimage/per_commitment/[0]/pads_seconds"
+  },
+  {
+   "new": 12.39,
+   "old": 14.02,
+   "path": "stage11_full_preimage/per_commitment/[0]/seconds"
+  },
+  {
+   "new": 4.29,
+   "old": 4.86,
+   "path": "stage11_full_preimage/per_commitment/[0]/solve_seconds"
+  },
+  {
+   "new": 4.02,
+   "old": 4.92,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.3,
+   "old": 1.44,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.58,
+   "old": 3.17,
+   "path": "stage11_full_preimage/per_commitment/[1]/layout_seconds"
+  },
+  {
+   "new": 0.16,
+   "old": 0.22,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_groups_seconds"
+  },
+  {
+   "new": 0.02,
+   "old": 0.03,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_proximity_seconds"
+  },
+  {
+   "new": 2.69,
+   "old": 3.3,
+   "path": "stage11_full_preimage/per_commitment/[1]/pads_seconds"
+  },
+  {
+   "new": 9.08,
+   "old": 10.86,
+   "path": "stage11_full_preimage/per_commitment/[1]/seconds"
+  },
+  {
+   "new": 2.87,
+   "old": 3.54,
+   "path": "stage11_full_preimage/per_commitment/[1]/solve_seconds"
+  },
+  {
+   "new": 3.27,
+   "old": 3.72,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.32,
+   "old": 0.39,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.65,
+   "old": 2.78,
+   "path": "stage11_full_preimage/per_commitment/[2]/layout_seconds"
+  },
+  {
+   "new": 0.07,
+   "old": 0.08,
+   "path": "stage11_full_preimage/per_commitment/[2]/pads_seconds"
+  },
+  {
+   "new": 2.82,
+   "old": 2.98,
+   "path": "stage11_full_preimage/per_commitment/[2]/seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.1,
+   "path": "stage11_full_preimage/per_commitment/[2]/solve_seconds"
+  },
+  {
+   "new": 0.07,
+   "old": 0.09,
+   "path": "stage11_full_preimage/per_commitment/[2]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.63,
+   "old": 3.08,
+   "path": "stage11_full_preimage/per_commitment/[3]/layout_seconds"
+  },
+  {
+   "new": 0.62,
+   "old": 0.72,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_groups_seconds"
+  },
+  {
+   "new": 0.05,
+   "old": 0.04,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_proximity_seconds"
+  },
+  {
+   "new": 3.79,
+   "old": 4.16,
+   "path": "stage11_full_preimage/per_commitment/[3]/pads_seconds"
+  },
+  {
+   "new": 12.63,
+   "old": 14.09,
+   "path": "stage11_full_preimage/per_commitment/[3]/seconds"
+  },
+  {
+   "new": 4.45,
+   "old": 4.92,
+   "path": "stage11_full_preimage/per_commitment/[3]/solve_seconds"
+  },
+  {
+   "new": 4.18,
+   "old": 4.81,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.31,
+   "old": 1.23,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.61,
+   "old": 2.76,
+   "path": "stage11_full_preimage/per_commitment/[4]/layout_seconds"
+  },
+  {
+   "new": 0.14,
+   "old": 0.15,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_groups_seconds"
+  },
+  {
+   "new": 2.69,
+   "old": 3.03,
+   "path": "stage11_full_preimage/per_commitment/[4]/pads_seconds"
+  },
+  {
+   "new": 9.16,
+   "old": 10.09,
+   "path": "stage11_full_preimage/per_commitment/[4]/seconds"
+  },
+  {
+   "new": 2.85,
+   "old": 3.2,
+   "path": "stage11_full_preimage/per_commitment/[4]/solve_seconds"
+  },
+  {
+   "new": 3.32,
+   "old": 3.67,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.34,
+   "old": 0.43,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.59,
+   "old": 2.7,
+   "path": "stage11_full_preimage/per_commitment/[5]/layout_seconds"
+  },
+  {
+   "new": 2.86,
+   "old": 3.02,
+   "path": "stage11_full_preimage/per_commitment/[5]/seconds"
+  },
+  {
+   "new": 0.11,
+   "old": 0.15,
+   "path": "stage11_full_preimage/per_commitment/[5]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.73,
+   "old": 2.93,
+   "path": "stage11_full_preimage/per_commitment/[6]/layout_seconds"
+  },
+  {
+   "new": 0.58,
+   "old": 0.63,
+   "path": "stage11_full_preimage/per_commitment/[6]/msg_groups_seconds"
+  },
+  {
+   "new": 0.04,
+   "old": 0.05,
+   "path": "stage11_full_preimage/per_commitment/[6]/msg_proximity_seconds"
+  },
+  {
+   "new": 3.74,
+   "old": 4.4,
+   "path": "stage11_full_preimage/per_commitment/[6]/pads_seconds"
+  },
+  {
+   "new": 12.51,
+   "old": 13.94,
+   "path": "stage11_full_preimage/per_commitment/[6]/seconds"
+  },
+  {
+   "new": 4.36,
+   "old": 5.08,
+   "path": "stage11_full_preimage/per_commitment/[6]/solve_seconds"
+  },
+  {
+   "new": 4.13,
+   "old": 4.53,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.24,
+   "old": 1.34,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.66,
+   "old": 2.92,
+   "path": "stage11_full_preimage/per_commitment/[7]/layout_seconds"
+  },
+  {
+   "new": 2.85,
+   "old": 3.62,
+   "path": "stage11_full_preimage/per_commitment/[7]/pads_seconds"
+  },
+  {
+   "new": 9.49,
+   "old": 11.14,
+   "path": "stage11_full_preimage/per_commitment/[7]/seconds"
+  },
+  {
+   "new": 3.01,
+   "old": 3.78,
+   "path": "stage11_full_preimage/per_commitment/[7]/solve_seconds"
+  },
+  {
+   "new": 3.46,
+   "old": 3.97,
+   "path": "stage11_full_preimage/per_commitment/[7]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.32,
+   "old": 0.42,
+   "path": "stage11_full_preimage/per_commitment/[7]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.6,
+   "old": 3.01,
+   "path": "stage11_full_preimage/per_commitment/[8]/layout_seconds"
+  },
+  {
+   "new": 0.13,
+   "old": 0.16,
+   "path": "stage11_full_preimage/per_commitment/[8]/pads_seconds"
+  },
+  {
+   "new": 2.88,
+   "old": 3.33,
+   "path": "stage11_full_preimage/per_commitment/[8]/seconds"
+  },
+  {
+   "new": 0.16,
+   "old": 0.19,
+   "path": "stage11_full_preimage/per_commitment/[8]/solve_seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.12,
+   "path": "stage11_full_preimage/per_commitment/[8]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.63,
+   "old": 3.01,
+   "path": "stage11_full_preimage/per_commitment/[9]/layout_seconds"
+  },
+  {
+   "new": 0.01,
+   "old": 0.02,
+   "path": "stage11_full_preimage/per_commitment/[9]/msg_groups_seconds"
+  },
+  {
+   "new": 0.01,
+   "old": 0.02,
+   "path": "stage11_full_preimage/per_commitment/[9]/msg_proximity_seconds"
+  },
+  {
+   "new": 0.08,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[9]/pads_seconds"
+  },
+  {
+   "new": 2.81,
+   "old": 3.28,
+   "path": "stage11_full_preimage/per_commitment/[9]/seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.16,
+   "path": "stage11_full_preimage/per_commitment/[9]/solve_seconds"
+  },
+  {
+   "new": 0.08,
+   "old": 0.1,
+   "path": "stage11_full_preimage/per_commitment/[9]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 76.7,
+   "old": 86.8,
+   "path": "stage11_full_preimage/seconds"
+  },
+  {
+   "new": 6.02,
+   "old": 8.17,
+   "path": "stage12_mask_and_cfs/per_stage/[0]/seconds"
+  },
+  {
+   "new": 6.13,
+   "old": 7.68,
+   "path": "stage12_mask_and_cfs/per_stage/[1]/seconds"
+  },
+  {
+   "new": 6.06,
+   "old": 7.21,
+   "path": "stage12_mask_and_cfs/per_stage/[2]/seconds"
+  },
+  {
+   "new": 18.25,
+   "old": 23.1,
+   "path": "stage12_mask_and_cfs/seconds"
+  },
+  {
+   "new": 3.5,
+   "old": 3.8,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": 1.1,
+   "old": 1.2,
+   "path": "stage4_the_boundary/whole_run/seconds"
+  },
+  {
+   "new": "dad273d3b429723da956103ad4ee2aa7a5a900773d8902927f046f67875aad77",
+   "old": "92e18ad4ca4cbcc510ff94f339b74c688e3968d824ff4dec1bd2dc011e439ef9",
+   "path": "tool_sha256/zk60_native_rg_mask.py"
+  },
+  {
+   "new": "9b437d2b0082d0144e627799249c2a8a434669db4a4050791cc5ab88536ee86d",
+   "old": "7db3a63a1cc2dc63b5eb2a827da960d047ddbb7df60033fad00a4e7eacd83433",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  },
+  {
+   "new": "f17491a1215823ea30271da263f9103ae511df66f9f081947eb20b52df58dea2",
+   "old": "d4e1d61573eb8ac1e3e16608fe7b193b99a907307acfdd960c0134c786b40be2",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  }
+ ],
+ "identical_leaves": 8834,
+ "leaves_new": 8908,
+ "leaves_old": 8908,
+ "only_in_the_new_record": [],
+ "only_in_the_old_record": []
+}

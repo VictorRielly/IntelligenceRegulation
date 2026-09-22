@@ -1,0 +1,349 @@
+{
+ "changed": [
+  {
+   "new": 190.8,
+   "old": 230.8,
+   "path": "seconds"
+  },
+  {
+   "new": 2.49,
+   "old": 2.73,
+   "path": "stage11_full_preimage/per_commitment/[0]/layout_seconds"
+  },
+  {
+   "new": 0.59,
+   "old": 0.6,
+   "path": "stage11_full_preimage/per_commitment/[0]/msg_groups_seconds"
+  },
+  {
+   "new": 3.72,
+   "old": 4.09,
+   "path": "stage11_full_preimage/per_commitment/[0]/pads_seconds"
+  },
+  {
+   "new": 12.31,
+   "old": 13.54,
+   "path": "stage11_full_preimage/per_commitment/[0]/seconds"
+  },
+  {
+   "new": 4.35,
+   "old": 4.72,
+   "path": "stage11_full_preimage/per_commitment/[0]/solve_seconds"
+  },
+  {
+   "new": 4.21,
+   "old": 4.61,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.21,
+   "old": 1.43,
+   "path": "stage11_full_preimage/per_commitment/[0]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.64,
+   "old": 2.68,
+   "path": "stage11_full_preimage/per_commitment/[1]/layout_seconds"
+  },
+  {
+   "new": 0.14,
+   "old": 0.15,
+   "path": "stage11_full_preimage/per_commitment/[1]/msg_groups_seconds"
+  },
+  {
+   "new": 2.74,
+   "old": 3.02,
+   "path": "stage11_full_preimage/per_commitment/[1]/pads_seconds"
+  },
+  {
+   "new": 9.27,
+   "old": 10.22,
+   "path": "stage11_full_preimage/per_commitment/[1]/seconds"
+  },
+  {
+   "new": 2.9,
+   "old": 3.19,
+   "path": "stage11_full_preimage/per_commitment/[1]/solve_seconds"
+  },
+  {
+   "new": 3.39,
+   "old": 3.86,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.31,
+   "old": 0.44,
+   "path": "stage11_full_preimage/per_commitment/[1]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.55,
+   "old": 2.72,
+   "path": "stage11_full_preimage/per_commitment/[2]/layout_seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.08,
+   "path": "stage11_full_preimage/per_commitment/[2]/pads_seconds"
+  },
+  {
+   "new": 2.75,
+   "old": 2.9,
+   "path": "stage11_full_preimage/per_commitment/[2]/seconds"
+  },
+  {
+   "new": 0.11,
+   "old": 0.09,
+   "path": "stage11_full_preimage/per_commitment/[2]/solve_seconds"
+  },
+  {
+   "new": 2.66,
+   "old": 2.94,
+   "path": "stage11_full_preimage/per_commitment/[3]/layout_seconds"
+  },
+  {
+   "new": 0.6,
+   "old": 0.76,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_groups_seconds"
+  },
+  {
+   "new": 0.04,
+   "old": 0.06,
+   "path": "stage11_full_preimage/per_commitment/[3]/msg_proximity_seconds"
+  },
+  {
+   "new": 3.84,
+   "old": 4.38,
+   "path": "stage11_full_preimage/per_commitment/[3]/pads_seconds"
+  },
+  {
+   "new": 12.62,
+   "old": 14.41,
+   "path": "stage11_full_preimage/per_commitment/[3]/seconds"
+  },
+  {
+   "new": 4.48,
+   "old": 5.2,
+   "path": "stage11_full_preimage/per_commitment/[3]/solve_seconds"
+  },
+  {
+   "new": 4.29,
+   "old": 4.79,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.14,
+   "old": 1.42,
+   "path": "stage11_full_preimage/per_commitment/[3]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.54,
+   "old": 2.95,
+   "path": "stage11_full_preimage/per_commitment/[4]/layout_seconds"
+  },
+  {
+   "new": 0.14,
+   "old": 0.17,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_groups_seconds"
+  },
+  {
+   "new": 0.02,
+   "old": 0.03,
+   "path": "stage11_full_preimage/per_commitment/[4]/msg_proximity_seconds"
+  },
+  {
+   "new": 2.73,
+   "old": 3.17,
+   "path": "stage11_full_preimage/per_commitment/[4]/pads_seconds"
+  },
+  {
+   "new": 9.04,
+   "old": 10.91,
+   "path": "stage11_full_preimage/per_commitment/[4]/seconds"
+  },
+  {
+   "new": 2.88,
+   "old": 3.36,
+   "path": "stage11_full_preimage/per_commitment/[4]/solve_seconds"
+  },
+  {
+   "new": 3.24,
+   "old": 4.08,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.34,
+   "old": 0.48,
+   "path": "stage11_full_preimage/per_commitment/[4]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.5,
+   "old": 3.21,
+   "path": "stage11_full_preimage/per_commitment/[5]/layout_seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.14,
+   "path": "stage11_full_preimage/per_commitment/[5]/pads_seconds"
+  },
+  {
+   "new": 2.73,
+   "old": 3.5,
+   "path": "stage11_full_preimage/per_commitment/[5]/seconds"
+  },
+  {
+   "new": 0.13,
+   "old": 0.17,
+   "path": "stage11_full_preimage/per_commitment/[5]/solve_seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.11,
+   "path": "stage11_full_preimage/per_commitment/[5]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.59,
+   "old": 3.27,
+   "path": "stage11_full_preimage/per_commitment/[6]/layout_seconds"
+  },
+  {
+   "new": 0.58,
+   "old": 0.86,
+   "path": "stage11_full_preimage/per_commitment/[6]/msg_groups_seconds"
+  },
+  {
+   "new": 3.91,
+   "old": 5.09,
+   "path": "stage11_full_preimage/per_commitment/[6]/pads_seconds"
+  },
+  {
+   "new": 12.48,
+   "old": 16.16,
+   "path": "stage11_full_preimage/per_commitment/[6]/seconds"
+  },
+  {
+   "new": 4.53,
+   "old": 5.99,
+   "path": "stage11_full_preimage/per_commitment/[6]/solve_seconds"
+  },
+  {
+   "new": 4.15,
+   "old": 5.28,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 1.15,
+   "old": 1.57,
+   "path": "stage11_full_preimage/per_commitment/[6]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.64,
+   "old": 3.24,
+   "path": "stage11_full_preimage/per_commitment/[7]/layout_seconds"
+  },
+  {
+   "new": 0.02,
+   "old": 0.03,
+   "path": "stage11_full_preimage/per_commitment/[7]/msg_proximity_seconds"
+  },
+  {
+   "new": 2.75,
+   "old": 4.26,
+   "path": "stage11_full_preimage/per_commitment/[7]/pads_seconds"
+  },
+  {
+   "new": 9.24,
+   "old": 12.4,
+   "path": "stage11_full_preimage/per_commitment/[7]/seconds"
+  },
+  {
+   "new": 2.93,
+   "old": 4.44,
+   "path": "stage11_full_preimage/per_commitment/[7]/solve_seconds"
+  },
+  {
+   "new": 3.29,
+   "old": 4.22,
+   "path": "stage11_full_preimage/per_commitment/[7]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 0.34,
+   "old": 0.45,
+   "path": "stage11_full_preimage/per_commitment/[7]/verification/seconds_vectors_and_claims"
+  },
+  {
+   "new": 2.63,
+   "old": 3.17,
+   "path": "stage11_full_preimage/per_commitment/[8]/layout_seconds"
+  },
+  {
+   "new": 0.1,
+   "old": 0.16,
+   "path": "stage11_full_preimage/per_commitment/[8]/pads_seconds"
+  },
+  {
+   "new": 2.86,
+   "old": 3.51,
+   "path": "stage11_full_preimage/per_commitment/[8]/seconds"
+  },
+  {
+   "new": 0.13,
+   "old": 0.19,
+   "path": "stage11_full_preimage/per_commitment/[8]/solve_seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.13,
+   "path": "stage11_full_preimage/per_commitment/[8]/verification/seconds_opened_columns"
+  },
+  {
+   "new": 2.44,
+   "old": 3.04,
+   "path": "stage11_full_preimage/per_commitment/[9]/layout_seconds"
+  },
+  {
+   "new": 0.09,
+   "old": 0.1,
+   "path": "stage11_full_preimage/per_commitment/[9]/pads_seconds"
+  },
+  {
+   "new": 2.64,
+   "old": 3.25,
+   "path": "stage11_full_preimage/per_commitment/[9]/seconds"
+  },
+  {
+   "new": 0.11,
+   "old": 0.12,
+   "path": "stage11_full_preimage/per_commitment/[9]/solve_seconds"
+  },
+  {
+   "new": 76.0,
+   "old": 90.9,
+   "path": "stage11_full_preimage/seconds"
+  },
+  {
+   "new": 3.4,
+   "old": 3.7,
+   "path": "stage3_per_commitment/pad_block_exact_rank_cross_check/seconds"
+  },
+  {
+   "new": "dad273d3b429723da956103ad4ee2aa7a5a900773d8902927f046f67875aad77",
+   "old": "92e18ad4ca4cbcc510ff94f339b74c688e3968d824ff4dec1bd2dc011e439ef9",
+   "path": "tool_sha256/zk60_native_rg_mask.py"
+  },
+  {
+   "new": "9b437d2b0082d0144e627799249c2a8a434669db4a4050791cc5ab88536ee86d",
+   "old": "7db3a63a1cc2dc63b5eb2a827da960d047ddbb7df60033fad00a4e7eacd83433",
+   "path": "tool_sha256/zk60_native_rg_runpins.py"
+  },
+  {
+   "new": "f17491a1215823ea30271da263f9103ae511df66f9f081947eb20b52df58dea2",
+   "old": "d4e1d61573eb8ac1e3e16608fe7b193b99a907307acfdd960c0134c786b40be2",
+   "path": "tool_sha256/zk60_native_rg_terminals.py"
+  }
+ ],
+ "identical_leaves": 6614,
+ "leaves_new": 6682,
+ "leaves_old": 6682,
+ "only_in_the_new_record": [],
+ "only_in_the_old_record": []
+}
