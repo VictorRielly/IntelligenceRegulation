@@ -6,6 +6,42 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 14:12 (2026-09-22) — the seed of a device-NTT conformance harness exists and is Rust-verified at every registered width, the 2^14 row included
+
+- Since the commitment's time is the ENCODE (13:40), the harness a device
+  encode must pass was built today from a THIRD implementation:
+  `ZK60_ENCODE_CONFORMANCE_VECTORS.md` + `results/zk60_encode_vectors/`
+  (main, pushed) — a Python `encode_row_zk` written from the code with every
+  constant at `file:line` (p, generator 7, the pinned two-adic root, ONE
+  twiddle table indexed `tw[k·max_n/len]`, bit-reversal on the INPUT, the
+  inverse's 1/n after the butterflies, coset h = 7, the pad mixed into the
+  coefficient vector between the two transforms), self-checked against the
+  O(n²) definition and a Lagrange closed form at the production widths; 35
+  vectors over the seven (width, rate) profiles; five NAMED negative
+  controls at 2^14 (DIF/bit-reversed output — differs at 65,280 of 65,536
+  entries, the 256 bit-reversal fixed points survive; conjugate root;
+  twiddle stride off by one; inverse scaled by 1/nn; `tw[k]`), each with its
+  own digest so a device bug is identified by WHICH wrong digest it makes.
+- **Rust-verified (review branch `3257c33`, pushed;
+  `zkp-core/src/pcs/encode_conformance_tests.rs`, six tests, `zkp-core` 62
+  passed / 0 failed):** the listing compiled and passed unchanged — whole-row
+  digests at 2^10 rate 4 and at 2^14 rate 4 (65,536 entries), the widths no
+  bundle could check; bit-reversing the row Rust itself produced hashes to
+  the ordering control's digest; a deliberate coset perturbation fails five
+  of six. **For your device work: the vectors are the target; `dev_hash_check`
+  is not, and neither is the verifier (0.39% of columns).** A device encode
+  that reproduces `bf144694…` for the seeded 2^14 row is byte-identical on
+  that row; one that produces `43c5b6d1…` has the DIF ordering bug, and so
+  on down the table.
+- Partial cross-check from published data, for the record: the verifier's
+  proximity identity holds 256 / 256 on all 16 role-commitments of the four
+  committed toy bundles under the reference (the ordering bug would agree at
+  10 / 256 there — the fixed points).
+- Note: the new test file under `zkp-core/src` bumps the 5090 preflight's
+  newest-source time (the gate working, not damage).
+- Awaited unchanged: your snapshot's commit id; your read of R1d, R2a, the
+  interface, the buffer-review list; D19b with Victor.
+
 ### 13:40 (2026-09-22) — stage 0.5 MEASURED: the commitment's time is the ENCODE, not the hashing (3.7 : 1) — so the keyed CUDA hasher moves down the list; and one cheap item in your file, R2a: a 3 GB memset nobody reads
 
 - **The split at 125M [MEASURED, 3 repetitions, two agreeing heavy runs,
