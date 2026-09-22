@@ -2150,3 +2150,40 @@ the bytes it finds when it STARTS, not when it was enqueued.**
    largest things between this gate and a privacy argument.
 6. Nothing in this round moves D8/D11 or ruling M-8's decision, and
    nothing in it is a privacy acceptance.
+
+# ROUND 9c (2026-09-21 18:45 PDT) — three new shapes, the 125M records integrated, and the lane's slot IR as a cross-check
+
+## R9c.0 Why there is a round 9c
+
+Round 9b closed with two 125M records of record ENQUEUED and with
+`dense-everything` — the one 125M pass that can carry the whole channel
+table — still on the heavy lock. All three have landed. Separately, lane
+stages 31-33 added three profiles beside `rung-P2`, each with a two-block
+capture pair, and lane stage 34 exported every registered shape's 23 slot
+polynomials as canonical JSON. This round integrates the landed 125M
+records, puts the three new shapes through the whole gate with the
+prediction written first, and uses the lane's export as an independent
+cross-check of the hand port.
+
+## R9c.1 Input (READ-ONLY, never copied into this repository)
+
+| bundle | shape | witness | source commit | where |
+|---|---|---|---|---|
+| `run-m-dense-c6` | `rung-C6` | dense generic | `3e106e1` | lane repo |
+| `run-n-zero-c6` | `rung-C6` | all-zero | `3e106e1` | lane repo |
+| `run-o-dense-w14` | `rung-W14` | dense generic | `11703c9` | `/home/victor/zk60-artifacts` |
+| `run-p-zero-w14` | `rung-W14` | all-zero | `11703c9` | `/home/victor/zk60-artifacts` |
+| `run-q-dense-e32` | `rung-E32` | dense generic | (read from the bundle) | lane repo |
+| `run-r-zero-e32` | `rung-E32` | all-zero | (read from the bundle) | lane repo |
+
+## R9c.2 Status
+
+| # | item | state |
+|---|---|---|
+| Q0 | ledger skeleton, round 9c opened | in flight |
+| Q1 | Task A — the two 125M records of record and `dense-everything`, leaf-diffed and integrated | pending |
+| Q2 | Task B — pins at the three new shapes, hunk by hunk, incl. stage 35's claim | pending |
+| Q3 | Task B — the prediction at the three shapes, written and committed BEFORE the gate is run | pending |
+| Q4 | Task B — the whole gate on all six bundles, both arms | pending |
+| Q5 | Task C — the lane's slot-IR export read and compared with the hand port | pending |
+| Q6 | report section "Round 9c", the suite | pending |
