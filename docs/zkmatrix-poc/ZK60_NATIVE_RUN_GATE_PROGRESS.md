@@ -2343,3 +2343,45 @@ protocol doing its job.
    the two largest things between this gate and a privacy argument.
 7. Nothing in this round moves D8/D11 or ruling M-8's decision, and
    nothing in it is a privacy acceptance.
+
+# ROUND 9d (2026-09-22 10:05 PDT) — the TOY joint gate replayed on the integrator's new-tree capture
+
+## R9d.0 Why there is a round 9d
+
+This round is about the **toy** gate, not the run gate. The D22 re-read of
+`4751b93` (`ZK60_NATIVE_D22_REPIN_4751B93.md`) closed with one thing it
+could not do (§7): it re-ran the gates on the **four captures of
+2026-09-19**, which were made by the `c5b54753…` bytes of `zk.rs`, because
+**no capture bundle in the schema the gate reads existed from the new
+tree**. At 07:25 on 2026-09-22 the integrator delivered exactly that
+bundle and asked for the joint gate to be replayed on it. This round is
+that replay.
+
+## R9d.1 Input (READ-ONLY, never modified, not committed here)
+
+## R9d.2 Status
+
+| # | item | state |
+|---|---|---|
+| T1 | what the bundle is (schema, profile, pins, digests) | OPEN |
+| T2 | the pins, file by file, against `4751b93` and the D22 record | OPEN |
+| T3 | the replay: the toy joint gate, and the leaf diff | OPEN |
+| T4 | the controls | OPEN |
+| T5 | the report and this ledger | OPEN |
+| T6 | the toy gate's tests and the record guard | OPEN |
+
+## R9d.3 Commands and logs (round 9d)
+
+## R9d.4 Results — T1, what the bundle is
+
+## R9d.5 Results — T2, the pins
+
+## R9d.6 Results — T3, the replay and the leaf diff
+
+## R9d.7 Results — T4, the controls
+
+## R9d.8 Results — T6, the suite
+
+## R9d.9 What this round is NOT
+
+## R9d.10 NEXT after round 9d
