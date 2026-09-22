@@ -334,4 +334,16 @@ written except where noted.
     `Cargo.toml`, `private_block/protocol.rs`, `private_block.rs`) will be
     re-read by the security owner at integration, and this statement's pin
     set updated then — until then it pins main as before.** Condition 6's
-    "three fresh reads" is asserted by the same test.
+    "three fresh reads" is asserted by the same test. *Pre-read done
+    2026-09-22 11:52 (`ZK60_D22_CONDITION7_PREREAD_STAGE36.md` on the lane's
+    review branch): every condition holds against the delta; the production
+    residue of the four moved source files is byte-identical by an
+    independent method and the release graph resolves the core crate with no
+    feature and no observer symbol. Two things it adds to the re-pin: the two
+    `Cargo.toml` files now decide whether the observers compile and are
+    pinned by nothing — they join the pin set at the re-pin; and the
+    exclusion rested on Cargo's resolver v2 being implied by the edition —
+    `resolver = "2"` is now written explicitly in both manifests. Thirteen of
+    the pinned paths already differ between the lane's base and the pinned
+    main tree, so the re-pin is against the integrator's merged tree, never
+    against the lane.*
