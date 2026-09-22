@@ -1,0 +1,12 @@
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ A=/home/victor/zk60-artifacts
++ W=/home/victor/wt-zk60-jointview
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py --pair rung_g:/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-g-dense-s20 --pair rung_k4:/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --pair rung_p2:/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2 --pair rung_c6:/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-m-dense-c6 --pair rung_w14:/home/victor/zk60-artifacts/run-o-dense-w14 --pair rung_e32:/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-q-dense-e32 --pair m125:/home/victor/zk60-artifacts/m125-capture-dense-l2 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c --name slot_ir_crosscheck
+rung_g     run-g-dense-s20          184 comparisons, 0 disagreements
+rung_k4    run-i-dense-k4           184 comparisons, 0 disagreements
+rung_p2    run-k-dense-p2           184 comparisons, 0 disagreements
+rung_c6    run-m-dense-c6           184 comparisons, 0 disagreements
+rung_w14   run-o-dense-w14          184 comparisons, 0 disagreements
+rung_e32   run-q-dense-e32          184 comparisons, 0 disagreements
+m125       m125-capture-dense-l2    184 comparisons, 0 disagreements
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/slot_ir_crosscheck.json
