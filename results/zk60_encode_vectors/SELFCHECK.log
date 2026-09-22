@@ -1,0 +1,98 @@
+zk60 encode conformance vectors -- a third implementation
+source read: /home/victor/wt-zk60-block125m @ a8e4939 (zkp-core/src/{field,ntt,pcs}.rs)
+
+== SELF-CHECKS (the reference against the DEFINITION) ==
+S1  the field and the root, against field.rs's own pins
+  [PASS] p = 2^64 - 2^32 + 1  0xffffffff00000001
+  [PASS] two_adic_root(32) == 1753635133440165772 (field.rs:305)
+  [PASS] two_adic_root(1) == p-1 (field.rs:303)
+  [PASS] two_adic_root(k) has exact order 2^k for k <= 20
+  [PASS] 7 is a non-residue: 7^((p-1)/2) == -1 (field.rs:325)
+S2  forward transform == direct O(n^2) evaluation at omega^i
+  [PASS] n = 2^0
+  [PASS] n = 2^1
+  [PASS] n = 2^2
+  [PASS] n = 2^3
+  [PASS] n = 2^4
+  [PASS] n = 2^6
+S3  inverse == direct interpolation (1/n AFTER the transform)
+  [PASS] n = 2^1
+  [PASS] round trip n = 2^1
+  [PASS] n = 2^2
+  [PASS] round trip n = 2^2
+  [PASS] n = 2^3
+  [PASS] round trip n = 2^3
+  [PASS] n = 2^4
+  [PASS] round trip n = 2^4
+  [PASS] n = 2^6
+  [PASS] round trip n = 2^6
+S4  the shared table's max_log does not change any output
+  [PASS] n = 2^3 over max_log in {n,n+1,10,16}
+  [PASS] n = 2^4 over max_log in {n,n+1,10,16}
+  [PASS] n = 2^6 over max_log in {n,n+1,10,16}
+S5  zero-padded forward == evaluation at the nn-th roots (ntt.rs:157-170's own property)
+  [PASS] n = 64 -> nn = 256
+S6  encode_row_zk == f_data + Z_n * g_pad on the coset, by direct evaluation
+  [PASS] n = 2^3, rate 4, Q = 4
+  [PASS]   coset disjoint from G_n (no systematic column)
+  [PASS] n = 2^4, rate 4, Q = 8
+  [PASS]   coset disjoint from G_n (no systematic column)
+  [PASS] n = 2^6, rate 4, Q = 32
+  [PASS]   coset disjoint from G_n (no systematic column)
+  [PASS] n = 2^6, rate 8, Q = 64
+  [PASS]   coset disjoint from G_n (no systematic column)
+S7  the reference's OWN message interpolation is consistent: encode with Q = 0 re-evaluates the message on G_n
+  [PASS] interpolate then evaluate on G_n returns the message
+S8  the DIF control really is the SAME transform with the output permuted
+  [PASS] n = 2^3: dif(x) == bitrev(dit(x))
+  [PASS] n = 2^4: dif(x) == bitrev(dit(x))
+  [PASS] n = 2^6: dif(x) == bitrev(dit(x))
+  [PASS] n = 2^8: dif(x) == bitrev(dit(x))
+S9  the PRODUCTION widths against a closed form (no NTT): the Lagrange basis L_k(x) = w^k (x^n - 1) / (n (x - w^k))
+  [PASS] n = 2^8 rate 8, message = e_0
+  [PASS] n = 2^8 rate 8, message = e_255
+  [PASS] n = 2^10 rate 4, message = e_0
+  [PASS] n = 2^10 rate 4, message = e_1023
+  [PASS] n = 2^14 rate 4, message = e_0
+  [PASS] n = 2^14 rate 4, message = e_16383
+S10 the PAD path by direct evaluation: f = Z_n * g_pad on the coset when the message is zero
+  [PASS] n = 2^8 rate 8, Q = 256, all positions
+  [PASS] n = 2^14 rate 4, Q = 256, 128 positions
+
+self-checks: ALL PASS
+
+== VECTORS ==
+           n = 2^3  rate 4 nn = 32     Q = 4    5 vectors
+           n = 2^4  rate 4 nn = 64     Q = 8    5 vectors
+           n = 2^6  rate 4 nn = 256    Q = 32   5 vectors
+           n = 2^8  rate 4 nn = 1024   Q = 256  5 vectors
+           n = 2^8  rate 8 nn = 2048   Q = 256  5 vectors
+           n = 2^10 rate 4 nn = 4096   Q = 256  5 vectors
+           n = 2^14 rate 4 nn = 65536  Q = 256  5 vectors
+  total: 35 vectors over 7 (width, rate) profiles
+
+== NEGATIVE CONTROLS ==
+  n = 2^14 nn = 65536 : 5 controls, all digests distinct from each other and from the correct row
+  n = 2^3  nn = 32    : 5 controls, all digests distinct from each other and from the correct row
+  n = 2^6  nn = 256   : 5 controls, all digests distinct from each other and from the correct row
+
+== CROSS-CHECK against committed capture bundles ==
+    sensitivity (same role, wrong encodes): dif_output_order 10/256, conjugate_root 0/256, stride_off_by_one 0/256, inverse_scaled_by_nn 0/256, stride_one 0/256
+  40083e7ac8f3 A       n = 256   nn = 2048  rows = 455   256/256 opened columns agree
+  40083e7ac8f3 H       n = 256   nn = 2048  rows = 384   256/256 opened columns agree
+  40083e7ac8f3 Input   n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+  40083e7ac8f3 Output  n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+  6c5e83fd1b2d A       n = 256   nn = 2048  rows = 306   256/256 opened columns agree
+  6c5e83fd1b2d H       n = 256   nn = 2048  rows = 290   256/256 opened columns agree
+  6c5e83fd1b2d Input   n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+  6c5e83fd1b2d Output  n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+  7d334e069c84 A       n = 256   nn = 2048  rows = 455   256/256 opened columns agree
+  7d334e069c84 H       n = 256   nn = 2048  rows = 384   256/256 opened columns agree
+  7d334e069c84 Input   n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+  7d334e069c84 Output  n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+  c26d1f05754b A       n = 256   nn = 2048  rows = 306   256/256 opened columns agree
+  c26d1f05754b H       n = 256   nn = 2048  rows = 290   256/256 opened columns agree
+  c26d1f05754b Input   n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+  c26d1f05754b Output  n = 256   nn = 2048  rows = 7     256/256 opened columns agree
+
+wrote vectors.json, full_rows.json, negative_controls.json, capture_crosscheck.json

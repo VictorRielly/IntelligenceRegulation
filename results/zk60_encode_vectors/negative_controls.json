@@ -1,0 +1,349 @@
+{
+ "meta": {
+  "kind": "zk60-encode-negative-controls"
+ },
+ "entries": [
+  {
+   "vector": "w14r4-seeded",
+   "n": 16384,
+   "nn": 65536,
+   "q_pad": 256,
+   "correct_sha256": "bf144694ffbd31733ee32a4de9f5c1f8bd50a1f4b568dc95dec5c595ab9733c1",
+   "controls": [
+    {
+     "bug": "dif_output_order",
+     "description": "(a) decimation-in-frequency: the final transform returns its output in BIT-REVERSED order (every value right, every column at the wrong index)",
+     "sha256": "43c5b6d188567aebcae48fbb137290deed3a3423e1c1eacc8983f153dfce05a0",
+     "entries_differing_from_correct": 65280,
+     "first8": [
+      3655851916429667015,
+      15144069108932809041,
+      11435626743206504631,
+      3277438521140267176,
+      15167150223992195325,
+      18044828318888418473,
+      9182262122211332320,
+      8778504688964917197
+     ],
+     "probes": {
+      "1": 15144069108932809041,
+      "32768": 3177249528031755686,
+      "65535": 4160362776790354634
+     }
+    },
+    {
+     "bug": "conjugate_root",
+     "description": "(b) the other two-adic root: the forward and inverse twiddle tables swapped (omega^-1 where the CPU uses omega)",
+     "sha256": "6abd622c06b9c742d7f0ad07ebfa49c6194c192ac7d3638b39ae1525cf2bafa6",
+     "entries_differing_from_correct": 65536,
+     "first8": [
+      3917915208269026699,
+      14437455021866894303,
+      1142885939519208241,
+      14892146482262716485,
+      2821938320005999335,
+      11660299358044170274,
+      17022757913830340045,
+      12948955074485562028
+     ],
+     "probes": {
+      "1": 14437455021866894303,
+      "32768": 13578784983758256613,
+      "65535": 9034578587973947583
+     }
+    },
+    {
+     "bug": "stride_off_by_one",
+     "description": "(c) an off-by-one twiddle stride: tw[k*(max_n/len) + 1] instead of tw[k*(max_n/len)]",
+     "sha256": "630836315e82f365f48e55de9bcc3267a047941cec0b079ff6850b6288385afd",
+     "entries_differing_from_correct": 65536,
+     "first8": [
+      7728594396085445328,
+      2462839037455211855,
+      9035066989181443915,
+      8964456783677592151,
+      17469470723208913839,
+      94636772901264431,
+      9837281295796610388,
+      13323347124980229117
+     ],
+     "probes": {
+      "1": 2462839037455211855,
+      "32768": 8753465009778819614,
+      "65535": 12172314682305174835
+     }
+    },
+    {
+     "bug": "inverse_scaled_by_nn",
+     "description": "(d) the inverse NTT scaled by 1/nn instead of 1/n",
+     "sha256": "de18aaaf03ec8167ed1234de92b484ea4768228734978615ee0f43d231621b73",
+     "entries_differing_from_correct": 65536,
+     "first8": [
+      16067101462638895511,
+      2049500707096062140,
+      2823342509913629460,
+      11043886981069177935,
+      10041706163257971517,
+      18385990320615536872,
+      6566107190633198160,
+      7226689763613586679
+     ],
+     "probes": {
+      "1": 2049500707096062140,
+      "32768": 17732073435874684380,
+      "65535": 12058482541478433667
+     }
+    },
+    {
+     "bug": "stride_one",
+     "description": "(bonus) the shared max-size table indexed as if it were the per-size table: tw[k] instead of tw[k*(max_n/len)]",
+     "sha256": "5c9b895cc6bbda95d410e6b2154591dd1430cd2a4d6c15b203a4818e3f4fb147",
+     "entries_differing_from_correct": 65536,
+     "first8": [
+      1189669279120591453,
+      4743531237852104360,
+      9544702215205417072,
+      16084860259687624913,
+      15584777089875957610,
+      1701624095468601537,
+      6057605292955402939,
+      14443116687247976706
+     ],
+     "probes": {
+      "1": 4743531237852104360,
+      "32768": 8240400251923902429,
+      "65535": 7967175801800949094
+     }
+    }
+   ]
+  },
+  {
+   "vector": "w3r4-seeded",
+   "n": 8,
+   "nn": 32,
+   "q_pad": 4,
+   "correct_sha256": "ae6ff4f286d0821a33eb0a4a51da60e4677f2a248734ca9935f13a3b8d2901ec",
+   "controls": [
+    {
+     "bug": "dif_output_order",
+     "description": "(a) decimation-in-frequency: the final transform returns its output in BIT-REVERSED order (every value right, every column at the wrong index)",
+     "sha256": "5ada7fa09a9272e8b86a2a779dd9b0894a2965a6c94c56859b4ecb1e5633719b",
+     "entries_differing_from_correct": 24,
+     "first8": [
+      17001233229391541759,
+      17562784682548004046,
+      17594403611113277726,
+      18129160555214809121,
+      12135637215749084494,
+      1859001937226429571,
+      6833670393533424550,
+      7886103473328438184
+     ],
+     "probes": {
+      "1": 17562784682548004046,
+      "16": 9525882795350743510,
+      "31": 4027269886183593974
+     }
+    },
+    {
+     "bug": "conjugate_root",
+     "description": "(b) the other two-adic root: the forward and inverse twiddle tables swapped (omega^-1 where the CPU uses omega)",
+     "sha256": "a13c24bf7eefe7138ec0618d3ceeb195f5fb7b5df9fa22923052accd7f40a349",
+     "entries_differing_from_correct": 32,
+     "first8": [
+      2143702580871415383,
+      9600908228103114278,
+      741243101621048623,
+      4805841920114423359,
+      2973438186015787833,
+      11441337337440276504,
+      18351871159046695708,
+      10485535181954304305
+     ],
+     "probes": {
+      "1": 9600908228103114278,
+      "16": 17784138230483440118,
+      "31": 5720576707146146460
+     }
+    },
+    {
+     "bug": "stride_off_by_one",
+     "description": "(c) an off-by-one twiddle stride: tw[k*(max_n/len) + 1] instead of tw[k*(max_n/len)]",
+     "sha256": "f41a39821ba0c89e0c1a5f6af106fd5585f87ac19c8561c31dbb9075724f5495",
+     "entries_differing_from_correct": 32,
+     "first8": [
+      13749202713021286639,
+      13785151132255747930,
+      1638977712747601495,
+      14140263077489126035,
+      16015794577639618050,
+      14553631864989012083,
+      11131558942597789251,
+      10167587262422650250
+     ],
+     "probes": {
+      "1": 13785151132255747930,
+      "16": 16214238700647698001,
+      "31": 1940720889115811309
+     }
+    },
+    {
+     "bug": "inverse_scaled_by_nn",
+     "description": "(d) the inverse NTT scaled by 1/nn instead of 1/n",
+     "sha256": "a8dc9a8c515839ce561c709c1839a61a4a801c6f47eac9de7f94bc53db9b56a7",
+     "entries_differing_from_correct": 32,
+     "first8": [
+      5009030062364939643,
+      6147036356506117421,
+      2838907103905746498,
+      15629907645146890642,
+      17861465853828740325,
+      5542867099526695050,
+      10661237110409454905,
+      7517538410769441507
+     ],
+     "probes": {
+      "1": 6147036356506117421,
+      "16": 14748476831880100504,
+      "31": 3906769132857270270
+     }
+    },
+    {
+     "bug": "stride_one",
+     "description": "(bonus) the shared max-size table indexed as if it were the per-size table: tw[k] instead of tw[k*(max_n/len)]",
+     "sha256": "f50360b21ff79bedf887e6c18cd5032f4c64be3fa1d4c354f8335e70513e9798",
+     "entries_differing_from_correct": 32,
+     "first8": [
+      2147069313851596702,
+      15682613770044350833,
+      2957727453890534663,
+      13891215477083069122,
+      10535785368305307549,
+      12463467760751610307,
+      4144492113287805426,
+      19467464462564765
+     ],
+     "probes": {
+      "1": 15682613770044350833,
+      "16": 8091481216091560313,
+      "31": 5196735577322279412
+     }
+    }
+   ]
+  },
+  {
+   "vector": "w6r4-seeded",
+   "n": 64,
+   "nn": 256,
+   "q_pad": 32,
+   "correct_sha256": "36b00bbf2c8ffa5e222993e8cd8dc86be05f3cd955e07a58b84e1c499f022142",
+   "controls": [
+    {
+     "bug": "dif_output_order",
+     "description": "(a) decimation-in-frequency: the final transform returns its output in BIT-REVERSED order (every value right, every column at the wrong index)",
+     "sha256": "975a2b6eb272c06d84719faade776e555962816d9029178eaffaaad25226682f",
+     "entries_differing_from_correct": 240,
+     "first8": [
+      8414989975678736461,
+      14206027220668992920,
+      8509526790473231489,
+      16298530411434721274,
+      6373161265102559652,
+      16037605326115021657,
+      16842790206811412454,
+      5746446300758489505
+     ],
+     "probes": {
+      "1": 14206027220668992920,
+      "128": 2396296784672686601,
+      "255": 2764376989484775668
+     }
+    },
+    {
+     "bug": "conjugate_root",
+     "description": "(b) the other two-adic root: the forward and inverse twiddle tables swapped (omega^-1 where the CPU uses omega)",
+     "sha256": "b509d53ba1d7c22e7525f30defdb2c4b6532b488efcb321e1daa6e4e51d20806",
+     "entries_differing_from_correct": 256,
+     "first8": [
+      7217329729577734944,
+      9114608858741732289,
+      15862860900862332437,
+      3920929635381059543,
+      9519735741225329082,
+      816492930741936724,
+      7171857326194850372,
+      13141399527677240094
+     ],
+     "probes": {
+      "1": 9114608858741732289,
+      "128": 1430298154330495963,
+      "255": 4803937945389882303
+     }
+    },
+    {
+     "bug": "stride_off_by_one",
+     "description": "(c) an off-by-one twiddle stride: tw[k*(max_n/len) + 1] instead of tw[k*(max_n/len)]",
+     "sha256": "1df89df5af5f4e0b3a110d109b72d4b6260ce79ab1d088fc583f79c332538327",
+     "entries_differing_from_correct": 256,
+     "first8": [
+      8399208620095480216,
+      8960909804614607725,
+      12705949762343671340,
+      2478864915916236608,
+      11934717556178329502,
+      13584478695862315644,
+      6234814199788098803,
+      14040032715014863460
+     ],
+     "probes": {
+      "1": 8960909804614607725,
+      "128": 10295837160024721255,
+      "255": 5762079304051362306
+     }
+    },
+    {
+     "bug": "inverse_scaled_by_nn",
+     "description": "(d) the inverse NTT scaled by 1/nn instead of 1/n",
+     "sha256": "04c150e35b0faecc01af4b7b1e8af280c46c56ca589bc850b6f2c688cd4bfced",
+     "entries_differing_from_correct": 256,
+     "first8": [
+      1482751134444977555,
+      11205679325435325556,
+      14320719343439081596,
+      582856480856205823,
+      11713907935666646300,
+      14062927274562632129,
+      6579036317523708229,
+      6067798423369618791
+     ],
+     "probes": {
+      "1": 11205679325435325556,
+      "128": 2007432039729618526,
+      "255": 16820155975782664313
+     }
+    },
+    {
+     "bug": "stride_one",
+     "description": "(bonus) the shared max-size table indexed as if it were the per-size table: tw[k] instead of tw[k*(max_n/len)]",
+     "sha256": "5ffb585b01b46729508d0abc190b5affce4f6d4f552dc56095da2109d50f8cc8",
+     "entries_differing_from_correct": 256,
+     "first8": [
+      5285774611747169434,
+      3042463922988095457,
+      2362323961491312880,
+      10701877067091891989,
+      2412910893008680322,
+      1292826938157672391,
+      1476903621844664713,
+      2951550952447827969
+     ],
+     "probes": {
+      "1": 3042463922988095457,
+      "128": 946461012506558367,
+      "255": 3008506170382113723
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,208 @@
+{
+ "meta": {
+  "kind": "zk60-encode-capture-crosscheck",
+  "identity": "sum_i rho_i * encoded[i][j] == Enc(prox_vec)[j] for every opened column j (pcs.rs:1100-1145)",
+  "what_it_does_not_cover": "only the 256 opened columns of each commitment; the rows themselves are private and are not in the bundle"
+ },
+ "checks": [
+  {
+   "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "A",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 455,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": [],
+   "sensitivity_columns_agreeing_under_each_bug": {
+    "dif_output_order": 10,
+    "conjugate_root": 0,
+    "stride_off_by_one": 0,
+    "inverse_scaled_by_nn": 0,
+    "stride_one": 0
+   }
+  },
+  {
+   "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "H",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 384,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "Input",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "40083e7ac8f3f6c749f12de31ddd9c0e779a016c33fb50180003c60d7cf0716b.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "Output",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "A",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 306,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "H",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 290,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "Input",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "6c5e83fd1b2d8c16d0cf06d46553e9f66e0557873ed1c54673975a6849a8f6c9.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "Output",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "A",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 455,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "H",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 384,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "Input",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "7d334e069c84f0c182e1b86e08c62c565f6c407164764d61335c1fdc958b1d43.json",
+   "profile": "hashline-zk-mr1/private-block-t32-poc/1",
+   "role": "Output",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "A",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 306,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "H",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 290,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "Input",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  },
+  {
+   "capture": "c26d1f05754be35c516d674f5e23a443d8fc4cc181e44619c7c4be32e122b9a6.json",
+   "profile": "hashline-zk-mr1/private-attention-t32-poc/1",
+   "role": "Output",
+   "n": 256,
+   "nn": 2048,
+   "q_pad": 256,
+   "rows": 7,
+   "columns_checked": 256,
+   "columns_agreeing": 256,
+   "columns_disagreeing": []
+  }
+ ]
+}
