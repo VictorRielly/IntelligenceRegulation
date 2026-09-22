@@ -11370,3 +11370,34 @@ agrees with the IR's computed one everywhere; the premise of the
 integrator's cheapest lever is checked at 379 rounds; and a canonical,
 digest-pinned export gives the independent Python gate something to check
 its hand port against.
+
+## Stage 35 — lever (b) inside the closures of slots 17 and 14, without moving a byte (2026-09-21, 17:5x–)
+
+**Status: OPEN, skeleton written 2026-09-21 17:58 PDT** on the lane tip
+`89e393f` (pushed). The work is stage 2 of ruling **I-4** of
+`docs/zkmatrix-poc/ZK60_SLOT_EXPRESSION_IR_DISPOSITION.md`: lever (b) —
+shared sub-expressions, the hoisted support gate, base-field constants —
+inside the closures of the two most expensive slots, **17 `SC_SZC`** (the
+softmax zero-check) and **14 `SC_DZC`** (the D zero-check). Lane-only:
+ruling I-4 says the loop over evaluation points and the fold live in
+`zkp-core/src/sumcheck.rs`, so a closure can only change what happens INSIDE
+one evaluation, and that is exactly what lever (b) is.
+
+| task | what | state |
+|---|---|---|
+| 1 | **the oracle first**: the two closure bodies copied verbatim from `89e393f` into `s35_tests.rs`, driven on the REAL definition-time captures, differentially against the production closure at every registered shape and both pad branches; plus the new closure against the stage-34 IR; plus a pin of the declared degree and of the table list and order | OPEN |
+| 2 | **lever (b)(i)** — the support gate hoisted out of the clause batch (the IR's own grouping: 22 multiplications become 12 at slot 14, 10 become 6 at slot 17) | OPEN |
+| 3 | **lever (b)(ii)/(iii)** — the shared sub-products the closures recompute, and the public base-field constants through `mul_base` instead of a full extension multiplication | OPEN |
+| 4 | **measure**: rung-W14 three runs before and after, `PB-SLOTSTEP` masked-sumcheck seconds for slots 17 and 14 and the total prove; then ONE 125M dense run against the two same-day baselines | OPEN |
+| 5 | the gates, the commits and this ledger section closed | OPEN |
+
+**The rules this stage works under** are the lane's, plus its own, which are
+stricter than stage 34's in one direction and looser in another: the diff of
+`argument.rs` may touch **only the two arms** `SC_DZC` and `SC_SZC` (stage 34
+touched none), and **nothing sent, absorbed or drawn may change** — the
+closure's VALUE at every point identical, the tables list and their order
+unchanged, the declared degree unchanged, no new draw, no reordered absorb,
+the verifier untouched, every registered receipt-length and digest pin green
+by name. No registered profile moves.
+
+**Evidence prefix**: `results/zk60_block125m_lane/y35-*`.
