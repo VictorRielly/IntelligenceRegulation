@@ -1,0 +1,27 @@
+{
+ "the_cap": {
+  "at_MemoryMax_4G": "KILLED (exit 137), twice in the closing sequence and once more after the slot-IR reader was made to hold one bundle at a time",
+  "at_MemoryMax_8G": "exit 0, 530 tests, 8:01",
+  "measured_peak_rss_mb": {
+   "whole suite at 8G": 5764,
+   "whole suite minus the slot-IR module, at 4G": 5054
+  },
+  "per_module_sweep": "tests_per_module.log -- 19 modules, all OK",
+  "the_reading": "the whole suite WITHOUT this round's slot-IR module passes at 4G (exit 0, 7:21) at a peak of 5,054 MB -- above the cap, because most of that is the reclaimable file-backed array stores of the capture bundles.  Adding the slot-IR module adds a few hundred MB of ANONYMOUS allocation late in that process, and anonymous memory cannot be reclaimed, so the cgroup kills it.  The module alone is 22 tests, 3.3 s and 366 MB.  **The suite is not leaking; it has simply grown past a 4 GiB single-process cap.**",
+  "what_was_done_about_it": "the slot-IR reader now releases each `RunBundle` and collects before opening the next, which is right regardless; and this round reports the suite at 8G with the 4G measurement beside it rather than quietly raising the cap and saying nothing.  A per-module sweep (one process per module) is also recorded: EVERY module passes alone, which is the 4G-compatible way to run it today"
+ },
+ "the_result": {
+  "expected_failures": 1,
+  "log": "tests_native_all_8g.log",
+  "new_this_round": 23,
+  "outcome": "OK",
+  "round_9b": 507,
+  "skips": 1,
+  "tests": 530
+ },
+ "this_is_not": [
+  "a measured-figure change: not one test asserting a rank, a slot check or a channel count changed its expectation",
+  "a licence to raise the cap silently next round"
+ ],
+ "what": "round 9c's whole native suite, and the memory ceiling it now sits on.  The suite is ONE process: `unittest discover` imports every module and runs them in order, and nothing frees between them."
+}

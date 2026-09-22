@@ -1,0 +1,36 @@
+.....s......./home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......................................................................................................................................................................................................................................................./usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..........................................................................................................................................Command terminated by signal 9
+	Command being timed: "systemd-run --user --scope -q -p MemoryMax=4G -p MemorySwapMax=0 python3 -m unittest discover -s tests -p test_zk60_native*.py"
+	User time (seconds): 439.50
+	System time (seconds): 6.38
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 7:24.42
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 5175412
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2842403
+	Voluntary context switches: 339
+	Involuntary context switches: 2355
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 529904
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
