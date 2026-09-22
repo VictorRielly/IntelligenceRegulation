@@ -609,6 +609,60 @@ bundles unless labelled otherwise.
   rule is ported from, had been listed as unpinned since a statement that
   stopped being true at stage 27; it is pinned now, and no production line of
   it has moved since round 1.
+- **Round 9c (10:02, 2026-09-22; `zk60-native-jointview` at `d9ca384`,
+  pushed; native suite 530). The 125M shape now carries the WHOLE channel
+  table, and three more small shapes went through the whole gate.**
+  1. **125M, complete.** The one pass that could carry every control family
+     under the repaired tools (`dense-everything`) landed twice with the same
+     figures: 46 of 46 slots; the seven commitments' preimage entries summing
+     exactly to 8,263,736, none differing, 1,792 leaves; masking 32,918 / 0 /
+     512; the joint sum 8,296,654; **channels 28 at 10 constructed / 5 derived
+     / 4 argued / 9 open — the same table as the development shapes** (I
+     counted the grades in the committed record myself). The 14:26 correction
+     of 2026-09-21 is therefore closed on its second and third points: the
+     terminal and run-control families fire at 125M, and the control written
+     for finding M-F1 (M9-3) fires at 125M in all three directions. Its
+     `ok: false` is the wording the round predicted (a public-table check
+     pre-empts the message it demands), not a failure. The two records of
+     record were re-taken (174 s / 1,460 MB and 162 s / 1,452 MB) with nothing
+     unclassified.
+  2. **rung-C6, rung-W14, rung-E32** (the lane's stages 31–33: correction
+     C-6; the 2^14 row width with head size 64 — 125M's slot structure exactly;
+     the 125M endpoint's 32 data / 37 commitment rows): predictions committed
+     before any run derive C-6's dropped lookups, the ×64 table lift and the
+     endpoint rows, 21 validations, none wrong; **six bundles, 46 of 46 each,
+     every stage ok, 28 at 10 / 5 / 4 / 9, every control family firing, 180
+     figures with none unexplained at each shape**; dense against zero
+     differs only in sampled-column counts and what derives from them.
+     rung-W14 costs 1,410 s and 1.26 GB (508 s of it the 2^16-wide preimage).
+     Correction to my own brief: the 56,960-byte column-digest class is
+     125M's `H` and no small shape reaches it; rung-E32 reproduces the
+     296-byte endpoint digest instead.
+  3. **The lane's speed stages changed nothing sent, absorbed or drawn** —
+     the four rewrites of stage 35 read hunk by hunk, each an identity — the
+     third independent reading of that claim.
+  4. **The lane's slot-IR export read as a cross-check of the hand port:**
+     7 shapes × 23 slots × 8 = 1,288 structural comparisons, 0 disagreements
+     (the first run's eleven were all in the new reader's label map — none in
+     the port, none in the export). Ruling I-8 kept: the hand port remains
+     the evaluator.
+  5. **Finding E32-F1 (the lane's, recorded here for the lane):** the rung-E32
+     bundles' `source_commit` label names `4505ddf`, one commit BEFORE
+     `Shape::rung_e32` existed; the 38 digests are honest (35 match that
+     commit, the three that do not are the files the next commit added), the
+     label is stale — the writer's environment variable was not advanced. The
+     gate now asserts the stale label by machine. **Ruling: record, do not
+     regenerate** (the bundles are regression data, not evidence for any
+     statement); after integration the lane's writer refuses a label that is
+     not the tree it runs from.
+  6. **The native suite has outgrown a 4 GiB single-process cap**: 530 tests
+     pass at 8 GiB; at 4 GiB the process is killed (measured: the suite
+     without the new slot-IR reader peaks at 5,054 MB, mostly reclaimable
+     file-backed pages; the reader adds 366 MB of anonymous memory). Not a
+     leak; run the suites at `MemoryMax=8G` from now on, and no suite result
+     at 4G is to be read as a failure of the tools.
+  What this is not: still linear channels, two-block runs, no privacy claim
+  about any run; ruling R-3's sentence beside every joint figure.
 - **Prediction before measurement.** 180 figures predicted from the shape and
   validated on both development shapes first: 55 shape-independent figures
   identical at all three shapes, 61 block-count figures, 64 scaling figures as
