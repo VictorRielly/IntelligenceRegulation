@@ -2806,3 +2806,20 @@ the counts of record, and were produced by the tools now in the tree.
 4. **It does not extend the gate to any new bundle shape** beyond the second
    manifest name and the single `accepted` record. A bundle in a third shape
    is now a refusal, which is the intended behaviour.
+
+# ROUND 9f (2026-09-22 11:58 PDT) — the two Cargo manifests join the pin set (finding P36-2)
+
+## R9f.0 Why there is a round 9f
+
+*(skeleton — filled as the round lands)*
+
+## R9f.1 Status
+
+| # | item | state |
+|---|---|---|
+| T1 | the two manifests pinned at `4751b93`, with the reason naming P36-2 | IN FLIGHT |
+| T2 | the CONTENT assertion (not only a digest), with its three cases | IN FLIGHT |
+| T3 | failing-first: the pre-change gate accepts `default = ["test-observers"]` | IN FLIGHT |
+| T4 | the re-pin of the records of record, reason in the guard's own record | IN FLIGHT |
+| T5 | the toy gate's modules and the record guard | IN FLIGHT |
+| T6 | this section and §8.8 of the D22 record | IN FLIGHT |
