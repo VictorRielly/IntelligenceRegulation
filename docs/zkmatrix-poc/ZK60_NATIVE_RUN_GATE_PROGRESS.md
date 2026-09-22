@@ -749,6 +749,10 @@ the list, each named in the tool rather than merely absent:
    (15 `private_block` + 23 shared, none under `private_attention/`). The
    two attention captures therefore still reach three files nothing
    compares. Carried forward at R9f.10 item 3 and re-stated in §R9g.8.)*
+   *(**CLOSED 2026-09-22 15:12 (round 9h, §R9h.4–§R9h.7)**: the three are
+   pinned at `4751b93` in `scripts/zk60_native_profile_pins.py`, which both
+   toy gates call before any analysis; the profile's six files are now all
+   pinned.)*
 
 ## R5.6 Results — Item B: the toy gates re-run, and why each tool hash moved
 
@@ -862,6 +866,8 @@ dimension, challenge count, slot check and channel count asserted by rounds
    four toy captures reach.
    *(STILL OPEN as of 2026-09-22 14:21 (round 9g), checked against the
    current pin tables — see R5.5c item 3 above and §R9g.8.)*
+   *(**CLOSED 2026-09-22 15:12 (round 9h)**: pinned in
+   `scripts/zk60_native_profile_pins.py`, both gates calling it — §R9h.5.)*
 3. **A shape with `lkv > 2`.** 125M's `lkv` is 2, so rung-K4 exercises the
    case that shape needs; eight or more key-value groups are still unread.
    *(STILL OPEN as of 2026-09-22 14:21 (round 9g), checked: every shape this
@@ -1162,6 +1168,9 @@ figure and no set, so every assertion of rounds 1–5 passes as written.
    `zk60_native_terminal_polys.SOURCE_PINS` (8, which pins the attention
    profile's `argument.rs`, `layout.rs` and `protocol.rs` but not these), in
    any `zk60_native_rg_runpins` table, or in the writer's 38 — see §R9g.8.)*
+   *(**CLOSED 2026-09-22 15:12 (round 9h)**: pinned in
+   `scripts/zk60_native_profile_pins.py` — §R9h.5. The writer's 38 still do
+   not name them: that residual stands, §R9h.9 item 6.)*
 3. **A shape with `lkv > 2`** (R5.8 item 3, still open).
 4. The masked sumcheck / CFS channel, still the largest open one a port
    could close, and `zk60_native_pg_pcs` at `MSG != PAD`.
@@ -3202,7 +3211,8 @@ what the re-pin is for.
    the integrator (`hashline/src/native_capture.rs`), named here as a
    residual.
 3. **The attention profile's path** is still not widened (round 5's
-   residual), and one malformed manifest shape in `manifest_check` is still
+   residual) — *(**CLOSED 2026-09-22 15:12, round 9h**)* — and one malformed
+   manifest shape in `manifest_check` is still
    refused without a name (round 9e's residual). Both are cheapest at the
    next re-take of the three records.
 
@@ -3248,7 +3258,7 @@ The seven items this round sweeps, each named by the owner:
 | S4 | item 3 — M9-3 and "every control … unchanged", everywhere it repeats | DONE — R9g.5, `c4e8eb3`; 7 places, 4 corrected in place |
 | S5 | item 4 — R9d.10 item 1's withdrawal, visible at the original sentence | DONE — R9g.6, `c4e8eb3`; 2 corrected in place |
 | S6 | item 5 — the memory cap and the suite counts | DONE — R9g.7, `c4e8eb3`; 8 places, 4 corrected, 4 marked as of their date |
-| S7 | item 6 — the private-attention profile's present pin status | DONE — R9g.8, `fb52e52`; **STILL UNPINNED**, on the open list |
+| S7 | item 6 — the private-attention profile's present pin status | DONE — R9g.8, `fb52e52`; **STILL UNPINNED** at 14:21, on the open list — **and PINNED at 15:12 the same day by round 9h** |
 | S8 | item 7 — the P-rulings for slots 08/09, and where GS-13 stands | DONE — R9g.9, `fb52e52`; **GS-13 STILL OPEN**, and a namespace collision resolved |
 | S9 | the final grep, and the sentences owed to the MAIN TREE | DONE — R9g.10 (110 lines swept, 0 bare) and R9g.11 (five sentences) |
 | S10 | the record guard, showing nothing pinned moved | DONE — R9g.12 |
@@ -3386,6 +3396,14 @@ as of its date.
 | 8 | D22 record §8.8 / ledger R9f.8, 204 + 29 | — | **current**, and now the figure the other entries point at |
 
 ## R9g.8 Item 6 — the private-attention profile: STILL UNPINNED, and that is the answer
+
+*(**CLOSED the same day, 2026-09-22 15:12, by round 9h** — the security
+owner ruled on this finding and the three files are now pinned at
+`4751b93` in `scripts/zk60_native_profile_pins.py`, which both toy gates
+call before any analysis. §R9h.4 has the path evidence, §R9h.5 the digests.
+Everything below is the finding as it stood at 14:21 and is left as written.
+`hashline/src/gpu/cuda.rs`, the other file this section names, is still
+unpinned and still off every profile's path in the captures' build.)*
 
 The owner asked for the present status rather than a correction, and the
 present status is that **nothing has closed this**. Three files are on the
@@ -3638,7 +3656,9 @@ directories shows exactly three modified files, all of them documents:
    was written; the corrections sit beside them, dated, with the round that
    closed each one named.
 5. **It closes nothing that was open.** The attention profile's three files
-   are still unpinned (R9g.8), GS-13 is still open (R9g.9), `lkv > 2` is
+   are still unpinned (R9g.8) *(— closed the next hour by round 9h,
+   2026-09-22 15:12; true as written at 14:21)*, GS-13 is still open
+   (R9g.9), `lkv > 2` is
    still unread, M9-3's ok-criterion and CH-3's self-report are still
    R9c.9's items 2 and 3, and the joint LAW (O-R2 / G-R4) and the hash
    layer's HIDING (M-2, M-3) are exactly where rounds 7–9f left them.
@@ -3654,6 +3674,8 @@ directories shows exactly three modified files, all of them documents:
 2. **The attention profile's path**, R5.5c item 3 / R9f.10 item 3: the one
    thing this sweep found still genuinely open on the pin side. Cheapest at
    the next re-take of the three records of record.
+   *(**DONE 2026-09-22 15:12 — round 9h**, and taken exactly that way: the
+   three pins landed with the re-take of the three records.)*
 3. **A whole-suite figure.** 530 is from round 9c and rounds 9e and 9f have
    added 28 tests inside that pattern without re-running it; one 8G pass
    would replace a floor with a number.
