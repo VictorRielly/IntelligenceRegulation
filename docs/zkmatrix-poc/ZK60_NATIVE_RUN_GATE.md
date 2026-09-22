@@ -927,6 +927,29 @@ Three checks stand between a carried table and the polynomial that reads it.
    table periodic in the byte class after the P-3 lift with a small
    BASE-FIELD integer recovered from every one of its 256 entries.
 
+> *(DATED NOTE, 2026-09-22 14:21 (round 9g), on which P-rulings these are
+> and what is superseded. **"Ruling P-2" and "the P-3 lift" here are the
+> LAYOUT MEMO's disposition rulings**
+> (`ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md`, P-1 … P-8), not round
+> 7's preimage controls P-1 … P-6 — two unrelated namespaces, flagged at
+> §11.6. **Item 4 of the S19-F1 disposition's process rulings
+> (`ZK60_BLOCK125M_S19F1_DISPOSITION.md` §7) says the layout memo's
+> grouped-attention section and its rulings P-1 … P-8 are superseded FOR
+> THE TWO BILINEAR SLOTS — 08 `SC_SCORE` and 09 `SC_PV` — by the S19-F1
+> repair**, and that a note is owed against them. Neither of the two uses
+> above is one of the superseded ones: P-2 is about a weight fold vanishing
+> off its own input support and P-3 about the lookup lift, and this gate
+> ports the repaired definition of slots 08 and 09 (lane stage 20, rounds
+> 4–6; §8 and §12.3, where their `ext = 2` and their extra degree are the
+> repair's own arithmetic). **The note is still owed against the MAIN-TREE
+> layout memo and disposition**, which this lane cannot edit — the exact
+> sentence is proposed in the ledger's §R9g.11. And the non-linear channel
+> at a shaped layout, **gap GS-13**, is **still open by name** — the shaped
+> rank memo's §7 table and §8, and the shaped disposition's "still open on
+> the whole path" line, all carry it, and nothing on this lane closes it.
+> What this gate covers of the non-linear side is C4's narrow sense and no
+> more; §12.8 says so.)*
+
 **What it does NOT establish, and this is the honest limit of the round:**
 that a folded weight table is the fold of the weight matrix the statement
 names. No bundle carries a weight. The port checks the capture's own
@@ -2072,6 +2095,18 @@ Each is shown to PASS on the honest capture first, and each makes the
 construction refuse **by name**, at the thing that moved. Nothing on disk is
 written: every perturbation is applied to the layout object in memory, and a
 test re-digests the bundle directory afterwards.
+
+> *(NAMESPACE NOTE, added 2026-09-22 14:21 (round 9g), because two
+> different things in this project are called P-n. **`P-1 … P-6` here and
+> everywhere else in this report are round 7's PREIMAGE CONTROLS** and
+> nothing else. The layout memo's disposition
+> (`ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md`) has its own rulings
+> **P-1 … P-8** — the pad invariant, public weights vanishing off their
+> support, the lookup-summation lift and so on — and §7.4 of this report
+> cites two of those, "ruling P-2" and "the P-3 lift", by their disposition
+> names. The two sets are unrelated. The disposition's rulings are the ones
+> the S19-F1 disposition supersedes **for the two bilinear slots**; see the
+> note at §7.4.)*
 
 | control | what moves | what fires |
 |---|---|---|

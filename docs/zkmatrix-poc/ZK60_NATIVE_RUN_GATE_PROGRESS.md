@@ -3370,3 +3370,75 @@ as of its date.
 | 6 | report §6.6, §7.8, §8.10, §9.10, §10.7, §11.9, §12.9, §13.8c, §14.11 (232, 261, 290, 335, 184, 214/390, 256/432, 474, 507) | — | **historical, already dated** — each sits inside its own round's numbered section, each says which round it grew from, and none is stated as the count today. Left alone |
 | 7 | report §15.11's 4G/8G table, ledger R9c.8's reading of it | — | **correct as written** — a measurement of that day's suite, not a claim about today's cap |
 | 8 | D22 record §8.8 / ledger R9f.8, 204 + 29 | — | **current**, and now the figure the other entries point at |
+
+## R9g.8 Item 6 — the private-attention profile: STILL UNPINNED, and that is the answer
+
+The owner asked for the present status rather than a correction, and the
+present status is that **nothing has closed this**. Three files are on the
+attention profile's path and no table on this lane pins them:
+
+| file | in `mask_commit.PATH_PINS` (20)? | in `mask_commit.SOURCE_PINS` (10)? | in `terminal_polys.SOURCE_PINS` (8)? | in any `rg_*` table? | in the writer's 38? |
+|---|---|---|---|---|---|
+| `hashline/src/private_attention.rs` | no | no | no | no | no |
+| `hashline/src/private_attention/wire.rs` | no | no | no | no | no |
+| `hashline/src/private_attention/witness.rs` | no | no | no | no | no |
+
+Read out of the tools on 2026-09-22, not from prose. The writer's 38 are
+`OWN_SOURCE_FILES` (15, all under `private_block/`) plus
+`SHARED_SOURCE_FILES` (23, `hashline` roots and `zkp-core`); **no path under
+`private_attention/` is in either list**. What IS pinned for that profile is
+its `argument.rs`, `layout.rs` and `protocol.rs`, by
+`zk60_native_terminal_polys.SOURCE_PINS` (and `argument.rs` again by
+`mask_commit.SOURCE_PINS`) — so the residual is exactly these three files
+and no more.
+
+**Why it matters, plainly:** two of the four toy captures of record are
+ATTENTION receipts, so the gates read artifacts whose prover and verifier
+reach three files nothing compares. A change to any of them would not trip
+a pin. Nothing today is known to be wrong; the point of a pin is that the
+next change is not silent.
+
+**It is on the open list, not the corrected list.** Recorded as a residual
+at R5.5c item 3, carried at R5.8 item 2, R6.8 item 2 and R9f.10 item 3, and
+all four of those now carry a dated "STILL OPEN as of 2026-09-22" marker
+pointing here. Round 9g changes no tool, so it does not close it either.
+The cheapest moment to close it is the next re-take of the three records of
+record, which is what R9f.10 item 3 already says.
+
+`hashline/src/gpu/cuda.rs` is the one other file on this lane that nothing
+pins. It is feature-gated behind `gpu-cuda` and off every profile's path in
+the build the captures were made in (`gpu/mod.rs`, which holds `backend()`,
+IS pinned), and the D22 record's §1.4 and §7 say so.
+
+## R9g.9 Item 7 — the P-rulings for slots 08/09, and where GS-13 stands
+
+**First, a name collision this sweep had to resolve before it could answer.**
+`P-1 … P-6` in the run-gate report are **round 7's preimage controls**.
+`P-1 … P-8` in `ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md` are the
+**layout memo's rulings**. Thirteen places in the report say `P-1 … P-6`
+and mean the controls; two places (§7.4) say `ruling P-2` and `the P-3
+lift` and mean the rulings. A namespace note is now at §11.6 and a dated
+note at §7.4, so a reader cannot mistake one for the other.
+
+| # | where | decision |
+|---|---|---|
+| 1 | report §7.4, "a weight fold vanishing off its own input support (ruling P-2)" and "periodic in the byte class after the P-3 lift" | **CORRECTED with a dated note** — these are the layout disposition's rulings; item 4 of the S19-F1 disposition's §7 supersedes P-1 … P-8 **for the two bilinear slots**, and neither of these two uses is one of the superseded ones (P-2 is about weight folds, P-3 about the lookup lift). The note says so and points at the repair |
+| 2 | report §11.6 | **NAMESPACE NOTE added** — the two P-n sets named apart |
+| 3 | report §8 (round 4's opening) and §12.3 | **already correct** — both name the repair: §8 gives finding S19-F1 in full with the disposition's own reference, §12.3 says the two bilinear slots "are the ones stage 20 repaired (finding S19-F1)" and carries its arithmetic (`ext = 2`, degree +1 when `lkv > 0`) |
+| 4 | ledger R4.0 item 1 | **already correct** — the repair, the completeness failure, and the disposition cited by name |
+| 5 | GS-13, anywhere on this branch | **no occurrence** — the gap is named only in main-tree documents, so there is nothing here to correct. Its status is stated at §7.4's note instead |
+
+**Where GS-13 stands, checked rather than assumed:** **STILL OPEN.** It is
+gap GS-13 of `ZK60_GENERIC_RANK_LEMMA_SHAPED.md` — "the non-linear channel
+is worse at a shaped layout than at the toy: slot degrees reach 5 against
+the toy's 4, the two bilinear closures now carry a public `eq` factor, and
+eight slots carry a support indicator" — and three main-tree documents list
+it as open today: the memo's §7 gap table (line 1379), the memo's own
+still-open list (line 1408) and the shaped disposition's "Still open on the
+whole path" line (line 134). `ZK60_GENERIC_RANK_LEMMA_SHAPED_CHECK.md` line
+405 puts it out of scope rather than closing it. Nothing on this lane
+touches it: what the run gate covers of the non-linear side is C4's narrow
+sense, and report §12.8 lists "anything nonlinear" as not established.
+Note also **GS-14**, in the same table: a linear-view argument cannot see a
+completeness defect of any kind — which is S19-F1's own lesson and the
+reason the repair is a lane-side fact and not a gate-side one.
