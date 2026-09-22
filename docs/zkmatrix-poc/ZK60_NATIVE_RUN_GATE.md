@@ -4108,19 +4108,43 @@ in any of the three records is in question**, and re-taking them is not
 worth a 125M pass, so **no new 125M computation was started in this round
 at all**. They are the first thing the next round re-takes.
 
-**A note the next round should keep.** Round 9c's closing sequence ran
-DETACHED (`results/zk60_native_run_gate_9c/finish.sh`): it waited for the
-three gate passes, then ran the comparison tables, the refresh, the leaf
-diff and the suite. The session died to an authentication outage at about
-20:10; the sequence carried on and its three heavy steps landed exit 0 at
-21:14. Its fourth step, the whole suite at `MemoryMax=4G`, was **KILLED
-(exit 137)** — an OOM, not a failure, leaving a partial log whose dot line
-shows failures that the run never got to summarise. The cause was in this
-round's own new test: the live arm of the slot-IR cross-check called
-`sir.run` once per test method, and each call opens all seven bundles,
-including the 281 MB 125M array store. It is computed once for the class
-now. **The no-hangup protocol did its job; the 4G cap caught a test that
-should not have been allocating that much in the first place.**
+**The suite: 530 tests, OK**, one skip and one recorded expected failure
+(round 9b: 507; the 23 new ones are the slot-IR module and the runpins
+test that asserts finding E32-F1). **It needed `MemoryMax=8G`, and that
+is this section's other result.**
+
+| run | cap | outcome | peak RSS |
+|---|---|---|---:|
+| whole suite | 4G | **KILLED (137)** | 5,054 MB |
+| whole suite MINUS the slot-IR module | 4G | OK, 7:21 | 5,054 MB |
+| the slot-IR module alone | 4G | OK, 3.3 s | 366 MB |
+| whole suite | 8G | **OK, 8:01, 530 tests** | 5,764 MB |
+| per-module sweep, one process each | 4G | **every module OK** | — |
+
+The reading, and it is not the one the first two kills suggested: the
+suite has been running ABOVE 4 GiB of RSS for some time and surviving,
+because most of that is the **reclaimable file-backed** array stores of
+the capture bundles. This round's module adds a few hundred MB of
+**anonymous** allocation late in the same process, and anonymous memory
+cannot be reclaimed — so the cgroup kills it. The suite is not leaking
+and no test got slower; it has outgrown a 4 GiB single-process cap. The
+slot-IR reader now releases each `RunBundle` before opening the next
+(right regardless, and it took the module's own peak from 428 to 366 MB),
+and the next round has a choice to make: raise the cap, split the suite,
+or make the bundle-reading tests share one loader.
+
+**Two things the closing sequence taught, both worth keeping.** It ran
+DETACHED (`results/zk60_native_run_gate_9c/finish.sh` and `finish2.sh`):
+the session died to an authentication outage at about 20:10 on
+2026-09-21, and the sequence carried on and landed its heavy steps exit 0
+at 21:14 — the no-hangup protocol doing exactly its job. And the FIRST
+refresh was incomplete: it used round 9b's list, which does not include
+the records round 9b itself produced, and `rg_runpins` moved once more
+afterwards. **A refresh list that is copied forward from the previous
+round is a refresh list that is always one round behind.** The second
+refresh enumerates twenty-six records — the eighteen, the rung-P2 pair
+and this round's own six — and round 9d should build its list from what
+is on disk, not from this one.
 
 ## 15.12 What this round is NOT
 

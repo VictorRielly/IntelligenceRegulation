@@ -2287,14 +2287,31 @@ in the three tool files is three (file, digest) readings each, for
 shapes those bundles are not at; no figure in them is in question, and
 **no new 125M computation was started in this round**.
 
-**The closing sequence and its one failure.** `finish.sh` ran detached,
-survived the session's death to an authentication outage at ~20:10 on
-2026-09-21, and landed its three heavy steps exit 0 at 21:14. Its fourth
-step — the whole suite at `MemoryMax=4G` — was KILLED (exit 137). An
-OOM, not a test failure. The cause was this round's own new test: the
-slot-IR cross-check's live arm called `sir.run(LIVE)` once per test
-METHOD and each call opens all seven bundles, the 125M one a 281 MB
-array store. Computed once per class now (`465d6fb`).
+**TWENTY-SIX records, not eighteen.** The first refresh copied round
+9b's list forward, and that list does not contain the records round 9b
+itself produced (the rung-P2 pair) or this round's own six; then the
+pin-table edit that puts finding E32-F1 under a machine assertion moved
+`rg_runpins` again. The second refresh enumerates all twenty-six:
+**153,930 identical leaves, 986 changed, 144 new, 0 only in the old
+record, 0 UNCLASSIFIED**. A refresh list copied forward from the previous
+round is always one round behind; round 9d should build its list from
+what is on disk.
+
+**The suite: 530 tests, OK** (round 9b: 507), one skip and one expected
+failure — **at `MemoryMax=8G`**. At 4G it is killed, and the measurement
+says why: the suite minus this round's slot-IR module passes at 4G with a
+peak of 5,054 MB, because most of that is the RECLAIMABLE file-backed
+array stores; the module adds a few hundred MB of ANONYMOUS allocation
+late in the same process, and that cannot be reclaimed. The module alone
+is 22 tests, 3.3 s, 366 MB, and every module passes alone in a
+per-module sweep. The suite is not leaking — it has outgrown a 4 GiB
+single-process cap, and that is recorded rather than papered over
+(`the_suite_and_its_memory_ceiling.json`).
+
+**The closing sequence ran detached** (`finish.sh`, then `finish2.sh`)
+and survived the session's death to an authentication outage at ~20:10 on
+2026-09-21, landing its heavy steps exit 0 at 21:14 — the no-hangup
+protocol doing its job.
 
 ## R9c.9 NEXT after round 9c
 
@@ -2315,10 +2332,14 @@ array store. Computed once per class now (`465d6fb`).
    shape it is the identity and cannot refuse. It should report itself
    inapplicable rather than `fires: false` — P-F2's shape of defect,
    without the consequences.
-4. **More than two blocks**, at any of the four development shapes that
+4. **The suite's 4 GiB cap.** It now needs 8G in one process. Raise the
+   cap, split the suite, or make the bundle-reading tests share one
+   loader — but decide it, and do not let a kill be read as a failure
+   again.
+5. **More than two blocks**, at any of the four development shapes that
    now carry 125M's padded-domain set.
-5. **The joint LAW** (O-R2 / G-R4) and **the hash layer's HIDING**
+6. **The joint LAW** (O-R2 / G-R4) and **the hash layer's HIDING**
    (M-2, M-3) are exactly where rounds 7–9b left them, and they remain
    the two largest things between this gate and a privacy argument.
-6. Nothing in this round moves D8/D11 or ruling M-8's decision, and
+7. Nothing in this round moves D8/D11 or ruling M-8's decision, and
    nothing in it is a privacy acceptance.
