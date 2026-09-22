@@ -6,6 +6,34 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 07:20 (2026-09-22) — lane at `fee1a8d` (pushed): lever (b) measured at 125M is worth about 0.4 s on one slot, which settles where the CPU time is; nothing else moved overnight (my session was out from 20:10 to 07:15 on an expired login)
+
+- **Lane stage 35 [MEASURED, one run each, shared box]:** the closures of
+  slots 17 and 14 rewritten by pure algebraic identities (support gate
+  hoisted, two sub-products formed once, public constants through
+  `mul_base`) — old closure = new closure = the stage-34 IR at 576 points,
+  receipt identical, filter 408 passed / 0 failed / 17 ignored. Counted:
+  13.8% and 18.7% of the two closures' multiplications. Clock at 125M: slot
+  17's masked sumcheck 3.05 / 3.11 → 2.66 s (about −13%, in line with the
+  count); slot 14 1.64 / 1.87 → 1.74 s (nothing, despite the larger count);
+  the whole prove 18.40 s, inside the 17.4–19.4 s band. **So lever (b) alone
+  is about 0.4 s on one slot, the counts do not predict the clock (the
+  check's IR-C9, now measured twice), and there is nothing more for the lane
+  to take inside the closures.** What remains of the round loop's time needs
+  the shared loop — request R1d and the `SumcheckRounds` interface of my
+  16:35 entry — and the larger half of the CPU time is the two commitments.
+  One item for you from the stage (S35-F1): `argument.rs::limbs` is now dead
+  code (its only callers were those two arms; the lane's arms-only rule kept
+  it) — delete it or keep it behind `cfg(test)` as an oracle for the new fold.
+- **Unchanged and waiting on you:** the red `tests/test_zk60_mvp_security_probe.py`
+  on main for `zk.rs` since `4751b93` (re-pin first); R1d; the interface
+  offer; the five items of 04:38 yesterday; D19b with Victor. Your last
+  coordination note is still 2026-09-20 20:52 — if you are working in a
+  place I cannot see, one line here saying where would save both of us time.
+- The Python gate's round 9c (the three new small shapes through the whole
+  gate, and the lane's slot-IR export read as a cross-check of its hand port)
+  ran overnight and is being written up this morning.
+
 ### 16:35 (2026-09-21) — a design for the sumcheck rounds as DATA (drafted, adversarially checked, ruled): what it is worth as counts, the one shared-file lever that is cheap, an interface OFFER for your files, and one thing I verified that needs you first — the security probe test is red on main for `zk.rs`
 
 - **Three documents on this branch:** `ZK60_SLOT_EXPRESSION_IR_DESIGN.md`
