@@ -114,6 +114,7 @@ struct Rep {
     pads: f64,
     pows: f64,
     alloc: f64,
+    rezero: f64,
     encode: f64,
     hash: f64,
     tree: f64,
@@ -170,6 +171,21 @@ fn one_rep(params: &PcsParams, rows: usize, ntt: &NttTables, zko: &ZkOpts, tag: 
     let t = Instant::now();
     let mut encoded = vec![Fp::ZERO; rows * nn];
     r.alloc = secs(t);
+
+    // ---- 3b. THE SAME ZEROING AGAIN, on pages now faulted in. This is NOT
+    // part of the commitment and is not in the parts sum; it is here to split
+    // part 3 into its two costs. `alloc` is page faults PLUS the zero stores;
+    // `rezero` is the zero stores alone. `encode_row_zk` overwrites every
+    // element of every row before it transforms (`pcs.rs:661-664`, proved
+    // empirically by `stage05_the_zeroing_is_dead_work`), so the zero stores
+    // are dead work — and `rezero` is what deleting them would recover. The
+    // page faults are not recoverable: they would simply move into the
+    // encode. Measuring here costs one extra pass and distorts nothing, since
+    // in the production path the `vec!` has already warmed these pages before
+    // the encode runs.
+    let t = Instant::now();
+    encoded.fill(Fp::ZERO);
+    r.rezero = secs(t);
 
     // ---- 4. encode (the prover's own rayon loop, `pcs.rs:791-794`)
     let t = Instant::now();
@@ -246,6 +262,7 @@ fn report(what: &str, shape: &str, params: &PcsParams, rows: usize, ntt: &NttTab
     line("pads + salts", reps.iter().map(|r| r.pads).collect(), whole_med);
     line("coset powers", reps.iter().map(|r| r.pows).collect(), whole_med);
     line("alloc+zero encoded", reps.iter().map(|r| r.alloc).collect(), whole_med);
+    line("  (of which: stores)", reps.iter().map(|r| r.rezero).collect(), whole_med);
     line("ENCODE", reps.iter().map(|r| r.encode).collect(), whole_med);
     line("HASH (columns)", reps.iter().map(|r| r.hash).collect(), whole_med);
     line("leaves + tree", reps.iter().map(|r| r.tree).collect(), whole_med);
@@ -262,11 +279,13 @@ fn report(what: &str, shape: &str, params: &PcsParams, rows: usize, ntt: &NttTab
     ]
     .iter()
     .sum();
+    let rez = stat(reps.iter().map(|r| r.rezero).collect()).1;
     eprintln!(
-        "S05 [{shape}] {what}: parts sum {sum:.3} s against whole {whole_med:.3} s (residue {:+.3} s, {:+.1}%); encode/hash ratio {:.2}; peak RSS so far {:.2} GiB",
+        "S05 [{shape}] {what}: parts sum {sum:.3} s against whole {whole_med:.3} s (residue {:+.3} s, {:+.1}%); ENCODE/HASH ratio {:.2}; dead zero stores {rez:.3} s = {:.1}% of the whole (the '(of which)' line is NOT in the sum); peak RSS so far {:.2} GiB",
         whole_med - sum,
         100.0 * (whole_med - sum) / whole_med,
         enc / hsh,
+        100.0 * rez / whole_med,
         peak_rss_mib() / 1024.0
     );
     (enc, hsh, whole_med)
@@ -374,6 +393,45 @@ fn stage05_rung_w14_keyed_vs_unkeyed_hash() {
     eprintln!("S05 |   unkeyed, same body                | {ul:8.3} | {um:8.3} | {uh:8.3} |");
     eprintln!("S05 |   legacy hash_columns (fast path)   | {ll:8.3} | {lm:8.3} | {lhi:8.3} |");
     eprintln!("S05 [rung-W14] keying costs {:+.1}% of the column-hash phase; the legacy fast path is {:+.1}% against the keyed body", 100.0 * (km - um) / um, 100.0 * (lm - km) / km);
+}
+
+/// **The 30%-of-the-commitment finding, proved rather than read.**
+/// `commit_zk_owned_with_tag` allocates its encoded matrix as
+/// `vec![Fp::ZERO; rows * nn]`, and `Fp` is a user struct, so the standard
+/// library's `alloc_zeroed` specialisation does not apply and every one of
+/// the `rows * nn` elements is written with a zero. `encode_row_zk` then
+/// overwrites every element of every row before it transforms
+/// (`pcs.rs:661-664`: `out[..n]` is copied from the coefficients, `out[n..]`
+/// is assigned `Fp::ZERO`, and `ntt.forward(out)` writes the whole row).
+///
+/// Reading the source is an argument; this is a measurement. Encode the same
+/// rows into a buffer pre-filled with a NON-ZERO sentinel and into a zeroed
+/// buffer, and compare: if a single element of the output depended on the
+/// prior contents, the two would differ. They do not, so the zeroing is dead
+/// work — 33% of `A`'s commitment and 41% of `H`'s at 125M.
+#[test]
+fn stage05_the_zeroing_is_dead_work() {
+    let sh = Shape::rung_w14();
+    let params = pcs_params_at(&sh);
+    let zko = ZkOpts::standard(&params);
+    let ntt = NttTables::new(ntt_log_at(&sh));
+    let (n, nn, rows) = (params.cols(), params.enc_cols(), 40usize);
+    let mut data = vec![Fp::ZERO; rows * n];
+    fill_uniform(&mut data, n, 0xDEAD_BEEF);
+    let mut rng = ZkRng::new(0xDEAD_BEEF, DOM);
+    let pads = rng.fp_vec(rows * zko.q_pad);
+    let pows = pcs::coset_powers(zko.coset, nn);
+
+    let run = |init: Fp| {
+        let mut e = vec![init; rows * nn];
+        e.par_chunks_mut(nn).zip(data.par_chunks(n)).zip(pads.par_chunks(zko.q_pad)).for_each(|((er, dr), pr)| pcs::encode_row_zk(&ntt, dr, pr, &pows, er));
+        e
+    };
+    let from_zero = run(Fp::ZERO);
+    let from_sentinel = run(Fp::new(0xA5A5_A5A5_A5A5_A5A5));
+    assert_eq!(from_zero, from_sentinel, "the encode reads the buffer it is given: the pre-zeroing is NOT dead work and this finding is wrong");
+    assert!(from_zero.iter().any(|v| *v != Fp::ZERO), "the encode wrote nothing: the control is vacuous");
+    eprintln!("S05 the encoded matrix's pre-zeroing is DEAD WORK: {rows} rows x {nn} columns encode identically from a zeroed and from a 0xA5.. buffer");
 }
 
 /// The value control promised in this module's capture rule: does the encode

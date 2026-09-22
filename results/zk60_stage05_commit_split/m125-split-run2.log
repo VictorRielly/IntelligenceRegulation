@@ -1,0 +1,45 @@
+Running scope as unit: run-r5d9642df6e4545398f282a9a48e5f164.scope
+
+running 1 test
+test private_block::stage05_commit_split::stage05_commit_split_m125 ... S05 [125M] rayon threads 22 | MALLOC_MMAP_THRESHOLD_=131072 | [MEASURED, 3 runs, one shared box, NOT quiesced] | synthetic rows, no witness, no GPU
+S05 [125M] A: 5681 rows, n = 16384 (744620032 B of message), encoded 65536 (2978480128 B), Q = 256, keyed column digest: true
+S05 | part                   |      min |   median |      max | share |
+S05 | pads + salts           |    0.026 |    0.027 |    0.029 |   1.1% |
+S05 | coset powers           |    0.000 |    0.000 |    0.000 |   0.0% |
+S05 | alloc+zero encoded     |    0.865 |    0.882 |    1.325 |  35.2% |
+S05 |   (of which: stores)   |    0.233 |    0.237 |    0.240 |   9.5% |
+S05 | ENCODE                 |    1.216 |    1.270 |    1.316 |  50.7% |
+S05 | HASH (columns)         |    0.330 |    0.338 |    0.339 |  13.5% |
+S05 | leaves + tree          |    0.024 |    0.025 |    0.029 |   1.0% |
+S05 | WHOLE (one call)       |    2.488 |    2.504 |    2.883 | 100.0% |
+S05 [125M] A: parts sum 2.543 s against whole 2.504 s (residue -0.038 s, -1.5%); ENCODE/HASH ratio 3.75; dead zero stores 0.237 s = 9.5% of the whole (the '(of which)' line is NOT in the sum); peak RSS so far 3.54 GiB
+S05 [125M] H: 7120 rows, n = 16384 (933232640 B of message), encoded 65536 (3732930560 B), Q = 256, keyed column digest: true
+S05 | part                   |      min |   median |      max | share |
+S05 | pads + salts           |    0.032 |    0.032 |    0.033 |   1.0% |
+S05 | coset powers           |    0.000 |    0.000 |    0.000 |   0.0% |
+S05 | alloc+zero encoded     |    1.200 |    1.226 |    1.326 |  38.8% |
+S05 |   (of which: stores)   |    0.291 |    0.302 |    0.333 |   9.6% |
+S05 | ENCODE                 |    1.610 |    1.631 |    1.677 |  51.6% |
+S05 | HASH (columns)         |    0.429 |    0.438 |    0.441 |  13.8% |
+S05 | leaves + tree          |    0.007 |    0.019 |    0.027 |   0.6% |
+S05 | WHOLE (one call)       |    3.145 |    3.161 |    3.488 | 100.0% |
+S05 [125M] H: parts sum 3.346 s against whole 3.161 s (residue -0.185 s, -5.9%); ENCODE/HASH ratio 3.73; dead zero stores 0.302 s = 9.6% of the whole (the '(of which)' line is NOT in the sum); peak RSS so far 4.44 GiB
+S05 [125M] endpoint: 37 rows, n = 16384 (4849664 B of message), encoded 65536 (19398656 B), Q = 256, keyed column digest: true
+S05 | part                   |      min |   median |      max | share |
+S05 | pads + salts           |    0.003 |    0.003 |    0.003 |   5.8% |
+S05 | coset powers           |    0.000 |    0.000 |    0.000 |   0.7% |
+S05 | alloc+zero encoded     |    0.005 |    0.005 |    0.006 |  11.4% |
+S05 |   (of which: stores)   |    0.001 |    0.001 |    0.002 |   3.1% |
+S05 | ENCODE                 |    0.010 |    0.010 |    0.010 |  21.4% |
+S05 | HASH (columns)         |    0.003 |    0.005 |    0.006 |  10.2% |
+S05 | leaves + tree          |    0.023 |    0.027 |    0.027 |  55.8% |
+S05 | WHOLE (one call)       |    0.045 |    0.048 |    0.049 | 100.0% |
+S05 [125M] endpoint: parts sum 0.050 s against whole 0.048 s (residue -0.003 s, -5.3%); ENCODE/HASH ratio 2.11; dead zero stores 0.001 s = 3.1% of the whole (the '(of which)' line is NOT in the sum); peak RSS so far 4.44 GiB
+S05 [125M] M (zk::mask_commit_tagged, 50 rows over 2^12): whole 0.0172 / 0.0205 / 0.0222 s (min/median/max), never split
+S05 [125M] ANSWER: A encode 1.270 s against hash 0.338 s (whole 2.504 s); H encode 1.631 s against hash 0.438 s (whole 3.161 s)
+S05 [125M] the prover's own phase clock on this box: A: commit 3.076 s, H: commit 3.499 s (q28-baseline-dense.log); 3.069 / 3.431 s (q28-m125-final-dense.log)
+S05 [125M] peak RSS of this process: 4.44 GiB (VmHWM)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 507 filtered out; finished in 40.57s
+
