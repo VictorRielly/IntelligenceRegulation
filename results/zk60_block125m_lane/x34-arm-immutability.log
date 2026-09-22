@@ -1,0 +1,5 @@
+base 226f3b2  tip HEAD  file hashline/src/private_block/argument.rs
+`define`'s match block in the base version: lines 1118..1731, 26 `SC_* =>` arm heads (16 outer arms over 23 slots, plus the inner matmul matches)
+removed lines in the whole file: 0
+added   lines in the whole file: 0
+VERDICT: no line of argument.rs is deleted or modified, so no line of any SC_* arm is

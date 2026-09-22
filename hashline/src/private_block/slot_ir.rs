@@ -191,8 +191,15 @@ pub(super) enum CoefProv {
     Nu(usize),
     /// `zeta^j`, the pad rule's batching power — present only under `pad_on`
     Zeta(u32),
-    /// a product of two provenances, e.g. `nu[0] * per_row`
-    Product(Box<CoefProv>, Box<CoefProv>),
+    // **FINDING S34-F1: there is no product variant, and the memo's one
+    // example of one is not in any polynomial.** §2.3(ii) writes slot 17's
+    // row-sum host term with the coefficient `nu0 * per_row`; the closure
+    // multiplies only `nu0` there, because `per_row` is the coefficient of
+    // the HOSTED CLAIM (`hosted = vec![(SC_RS, nu[0].mul(k(per_row))), ..]`)
+    // and enters the claimed sum, not the slot polynomial. Every coefficient
+    // of every arm is one of the seven above. A variant nothing constructs is
+    // a warning and an invitation to guess, so it is not here; if an arm ever
+    // needs a product, it is one line and a note in the ledger.
 }
 
 impl CoefProv {
@@ -202,8 +209,7 @@ impl CoefProv {
     pub(super) fn value_is_public(&self) -> bool {
         match self {
             CoefProv::One | CoefProv::NegOne | CoefProv::Base(_) => true,
-            CoefProv::Product(a, b) => a.value_is_public() && b.value_is_public(),
-            _ => false,
+            CoefProv::Challenge(_) | CoefProv::Mu(_) | CoefProv::Nu(_) | CoefProv::Zeta(_) => false,
         }
     }
     pub(super) fn label(&self) -> String {
@@ -215,7 +221,6 @@ impl CoefProv {
             CoefProv::Mu(k) => format!("chal:mu[{k}]"),
             CoefProv::Nu(k) => format!("chal:nu[{k}]"),
             CoefProv::Zeta(j) => format!("chal:zeta^{j}"),
-            CoefProv::Product(a, b) => format!("({} * {})", a.label(), b.label()),
         }
     }
 }
@@ -622,7 +627,9 @@ impl SlotIr {
 /// iteration order. The independent Python gate reads it as a CROSS-CHECK of
 /// its hand port — ruling I-8 keeps the hand port and one hand-ported family
 /// forever, so this file never becomes the gate's only source.
-pub(super) fn export_shape(key: &str, profile: &str, irs: &[SlotIr]) -> String {
+pub(super) fn export_shape(key: &str, irs: &[SlotIr]) -> String {
+    let profile = irs.first().map(|i| i.profile.as_str()).unwrap_or("");
+    assert!(irs.iter().all(|i| i.profile == profile), "an export mixes two profiles");
     let mut o = String::new();
     o.push_str("{\n");
     o.push_str(&format!(" \"schema\":{},\n", json_str(EXPORT_SCHEMA)));

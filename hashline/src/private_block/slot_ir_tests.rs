@@ -734,9 +734,9 @@ fn the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_
     for sh in every_shape() {
         let key = shape_key(&sh);
         let irs = every_ir(&sh);
-        let text = export_shape(key, sh.profile, &irs);
+        let text = export_shape(key, &irs);
         // canonical: the same bytes when built again from a second walk
-        let again = export_shape(key, sh.profile, &every_ir(&sh));
+        let again = export_shape(key, &every_ir(&sh));
         assert_eq!(text, again, "{key}: the export is not the same on a second walk");
         assert!(text.contains(EXPORT_SCHEMA), "{key}: the export does not name its schema");
         assert!(!text.contains("\"value\":\"0+0u\"") || text.contains("\"prov\":\"kbase:0\""), "{key}: a zero value with no base provenance");
