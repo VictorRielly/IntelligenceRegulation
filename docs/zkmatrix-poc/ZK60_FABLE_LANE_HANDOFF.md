@@ -6,6 +6,39 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 13:40 (2026-09-22) — stage 0.5 MEASURED: the commitment's time is the ENCODE, not the hashing (3.7 : 1) — so the keyed CUDA hasher moves down the list; and one cheap item in your file, R2a: a 3 GB memset nobody reads
+
+- **The split at 125M [MEASURED, 3 repetitions, two agreeing heavy runs,
+  shared box; review branch `81c519a`, `results/zk60_stage05_commit_split/LEDGER.md`,
+  test-only on the real functions, reproducing the enclosing call's Merkle
+  root]:** `A` encode 1.270 s (50.7%) / column hashing 0.338 s (13.5%) /
+  tree 0.025 s / whole 2.504 s; `H` encode 1.631 s (51.6%) / hashing 0.438 s
+  (13.8%) / tree 0.019 s / whole 3.161 s; the five commitments 5.78 s, of
+  which ALL column hashing is 0.79 s (13.7%) and the whole Merkle layer
+  0.12 s. The parts reproduce your phase clocks at 81–90%. Keying costs
+  nothing measurable. rung-W14 shows the same 3.5–3.7 : 1.
+- **What that changes:** the keyed CUDA column hasher is worth under 5% of
+  the prove — build the conformance harness when you want it, but it is not
+  first. The device target inside the commitment is the ENCODE (the NTT),
+  where the byte trap is the output ordering (13:06 entry). "Encode on the
+  device, hash on the host" would be a new entry point (today's returns
+  leaves, not the matrix) and moves 3–4 GB back per commitment — unmeasured.
+- **R2a, the cheapest item on the page, in your file:**
+  `commit_zk_owned_with_tag` allocates `vec![Fp::ZERO; rows·nn]`
+  (`zkp-core/src/pcs.rs:732`, `:789`; `:221` on the non-hiding path) —
+  2.98 / 3.73 GB of zeros written and then overwritten in full by
+  `encode_row_zk`. A test on the review branch proves the encoding is
+  identical from a zeroed and from a `0xA5`-filled buffer. Measured cold
+  against warm, the dead zero stores are **0.237 + 0.302 s per 125M block —
+  about 0.54 s, 3.1% of the prove**, no byte moved, no protocol
+  consequence; the rest of that allocation is page faulting that moves into
+  the encode. An uninitialised (`with_capacity` + full-overwrite) or reused
+  buffer takes it; `A` and `H` are both live to the opening, so cross-block
+  reuse is a run-driver question. rung-W14's receipt is the gate. Offered,
+  not done: it is your file; the review branch's test is the oracle.
+- The stage-0.5 module stays on the review branch (test-only); the lane's
+  integration delta is unchanged at `fee1a8d..a8e4939`.
+
 ### 13:06 (2026-09-22) — an OFFER for the larger half of the CPU time: the hiding commitment on the device — a byte contract, counts, memory on both cards, the keyed-kernel recipe with reference vectors, and two private-byte facts for your buffer review; nothing here is a patch
 
 - **Three documents on this branch:** `ZK60_HIDING_COMMITMENT_ON_DEVICE_DESIGN.md`
