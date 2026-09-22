@@ -1,0 +1,78 @@
++ W=/home/victor/wt-zk60-jointview
++ P=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c
++ T=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125table.py
++ C=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_witcmp.py
++ K4=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-i-dense-k4.json
++ P2=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_p2/run-k-dense-p2.json
++ for s in c6:run-m-dense-c6 w14:run-o-dense-w14 e32:run-q-dense-e32
++ k=c6
++ b=run-m-dense-c6
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125table.py --m125 /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-m-dense-c6.json --dev /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-i-dense-k4.json:rung-K4 --dev /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_p2/run-k-dense-p2.json:rung-P2 --prediction /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/prediction_c6_dense.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/comparison_table_c6.json
+180 figures: invariant 55, block count 61, scales 64, unexplained 0
+invariants identical at all three shapes: 55
+BROKEN INVARIANTS: 0
+predictions checked: 5, missed: 0
+UNEXPLAINED: 0
+-> /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/comparison_table_c6.json
++ for s in c6:run-m-dense-c6 w14:run-o-dense-w14 e32:run-q-dense-e32
++ k=w14
++ b=run-o-dense-w14
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125table.py --m125 /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-o-dense-w14.json --dev /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-i-dense-k4.json:rung-K4 --dev /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_p2/run-k-dense-p2.json:rung-P2 --prediction /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/prediction_w14_dense.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/comparison_table_w14.json
+180 figures: invariant 55, block count 61, scales 64, unexplained 0
+invariants identical at all three shapes: 55
+BROKEN INVARIANTS: 0
+predictions checked: 5, missed: 0
+UNEXPLAINED: 0
+-> /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/comparison_table_w14.json
++ for s in c6:run-m-dense-c6 w14:run-o-dense-w14 e32:run-q-dense-e32
++ k=e32
++ b=run-q-dense-e32
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125table.py --m125 /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-q-dense-e32.json --dev /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_mask/run-i-dense-k4.json:rung-K4 --dev /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_p2/run-k-dense-p2.json:rung-P2 --prediction /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/prediction_e32_dense.json --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/comparison_table_e32.json
+180 figures: invariant 55, block count 61, scales 64, unexplained 0
+invariants identical at all three shapes: 55
+BROKEN INVARIANTS: 0
+predictions checked: 5, missed: 0
+UNEXPLAINED: 0
+-> /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/comparison_table_e32.json
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_witcmp.py --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-m-dense-c6.json --label rung-C6-dense --witness dense --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-n-zero-c6.json --label rung-C6-zero --witness all-zero --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/witness_comparison_c6_dense_vs_zero.json
+136 figures, 122 identical, 14 differ -> /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/witness_comparison_c6_dense_vs_zero.json
+  DIFFERS: distinct opened columns/0:A [251, 249]
+  DIFFERS: pad margin/0:A [5, 7]
+  DIFFERS: distinct opened columns/0:H [249, 252]
+  DIFFERS: pad margin/0:H [7, 4]
+  DIFFERS: distinct opened columns/0:Input [250, 247]
+  DIFFERS: pad margin/0:Input [6, 9]
+  DIFFERS: distinct opened columns/1:H [245, 252]
+  DIFFERS: pad margin/1:H [11, 4]
+  DIFFERS: distinct opened columns/1:Input [247, 250]
+  DIFFERS: pad margin/1:Input [9, 6]
+  DIFFERS: distinct opened columns/1:Output [251, 255]
+  DIFFERS: pad margin/1:Output [5, 1]
+  DIFFERS: pad block/distinct columns [247, 250]
+  DIFFERS: pad block/exact rank [247, 250]
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_witcmp.py --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-o-dense-w14.json --label rung-W14-dense --witness dense --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-p-zero-w14.json --label rung-W14-zero --witness all-zero --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/witness_comparison_w14_dense_vs_zero.json
+136 figures, 130 identical, 6 differ -> /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/witness_comparison_w14_dense_vs_zero.json
+  DIFFERS: distinct opened columns/0:A [255, 256]
+  DIFFERS: pad margin/0:A [1, 0]
+  DIFFERS: distinct opened columns/0:Input [256, 255]
+  DIFFERS: pad margin/0:Input [0, 1]
+  DIFFERS: distinct opened columns/1:Output [256, 255]
+  DIFFERS: pad margin/1:Output [0, 1]
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_witcmp.py --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-q-dense-e32.json --label rung-E32-dense --witness dense --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/run-r-zero-e32.json --label rung-E32-zero --witness all-zero --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/witness_comparison_e32_dense_vs_zero.json
+136 figures, 120 identical, 16 differ -> /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/witness_comparison_e32_dense_vs_zero.json
+  DIFFERS: distinct opened columns/0:A [250, 248]
+  DIFFERS: pad margin/0:A [6, 8]
+  DIFFERS: distinct opened columns/0:H [247, 253]
+  DIFFERS: pad margin/0:H [9, 3]
+  DIFFERS: distinct opened columns/0:Input [251, 249]
+  DIFFERS: pad margin/0:Input [5, 7]
+  DIFFERS: distinct opened columns/1:A [250, 253]
+  DIFFERS: pad margin/1:A [6, 3]
+  DIFFERS: distinct opened columns/1:H [250, 251]
+  DIFFERS: pad margin/1:H [6, 5]
+  DIFFERS: distinct opened columns/1:Input [245, 247]
+  DIFFERS: pad margin/1:Input [11, 9]
+  DIFFERS: distinct opened columns/1:Output [245, 242]
+  DIFFERS: pad margin/1:Output [11, 14]
+  DIFFERS: pad block/distinct columns [245, 247]
+  DIFFERS: pad block/exact rank [245, 247]

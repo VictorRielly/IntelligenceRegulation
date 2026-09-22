@@ -388,6 +388,52 @@ PINNED_IF_PRESENT = {
             "`slot_dims` -- and every dimension is re-derived here from "
             "`run.json[\"shape\"]` and compared with the shape's own `slots` "
             "array",
+        # [ROUND 9c] stages 31, 32 and 33: three more shapes, and ruling
+        # S-6's construction refusal.  The reading is one reading, because
+        # the three diffs are the same diff three times over.
+        "3791ef61cd3c29356f3b71e8c271378ca8a31cd2bef7fb963d2e7ac8be7c8224":
+            "stage 31, at commit 3e106e1.  `git diff 4ccbad1 3e106e1 -- "
+            ".../shape.rs` is **75 added, 0 removed -- ADDITIONS ONLY**: "
+            "`Shape::rung_c6()` with its doc comment (32 tokens, width 384, "
+            "hidden 512, 12 query heads of 32 over 4 key-value heads, "
+            "log_cols 10, endpoint_rows 21).  It is `rung_p2`'s geometry "
+            "with the head dimension widened from 8 to 32, which is the "
+            "smallest move that takes the width past 256 and so makes "
+            "`Shape::norm_top_is_full_byte` TRUE -- correction **C-6**, "
+            "four norm lookups dropped, `Dom::D` at 17 helper planes "
+            "instead of 19 and slot 14 at 54 terminals instead of 56.  "
+            "`lookups_at` in this port already implements C-6 (`norm_top = "
+            "norm_wrho != 8 * ln`), and the prediction derives the flag "
+            "from the width alone.  **Not one geometry function this port "
+            "reads moved**",
+        "b891869adb3d3df2564ba0f2524e8ec6dcbfa6a3c5a1139a39420b4f4e68c645":
+            "stage 32, at commit 11703c9.  `git diff 4ccbad1 11703c9 -- "
+            ".../shape.rs` is **154 added, 0 removed -- ADDITIONS ONLY**: "
+            "rung-C6's constructor above plus `Shape::rung_w14()` (64 "
+            "tokens, width 768, hidden 1024, 12 heads of 64 over 4, "
+            "**log_cols 14**, endpoint_rows 9) and their doc comments.  "
+            "rung-W14 is 125M's ROW GEOMETRY at a development size: a "
+            "2^14-word message encoded to 2^16, Merkle depth 16, the byte "
+            "table lifted by 64, and 125M's own head size.  **Not one "
+            "geometry function this port reads moved**",
+        "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911":
+            "stage 33, at commit 6d71b40 (the rung-E32 bundles NAME "
+            "`4505ddf`, which does not carry this blob -- finding E32-F1).  "
+            "`git diff 4ccbad1 6d71b40 -- .../shape.rs` is **273 added, 0 "
+            "removed -- ADDITIONS ONLY**, of three kinds.  (i) the three "
+            "constructors `rung_c6`, `rung_w14` and `rung_e32` (the last: "
+            "32 tokens, width 768, hidden 1024, 12 heads of 64 over 4, "
+            "log_cols 10, **endpoint_rows 37** -- 125M's own 32 data rows "
+            "and 37 commitment rows).  (ii) **ruling S-6**, a named "
+            "construction refusal in `Shape::new`: a shape whose padded "
+            "token count reaches the row width is refused, because it "
+            "would reach `Shape::a_groups`'s first arm, which no "
+            "registered shape takes.  It cannot fire at any shape this "
+            "gate reads -- `natural_log(Dom::T)` is 5, 6 and 5 against row "
+            "widths of 10, 14 and 10 -- and on the refused family the two "
+            "arms agree anyway.  (iii) a doc comment on `a_groups` saying "
+            "so; `a_groups`'s code is byte-identical.  **Not one geometry "
+            "function this port reads moved**",
     },
     # [ROUND 9b, finding P-F1] `pad.rs`, the file this port transcribes the
     # pad rule from (`PadGeometry`: `BitForm` at pad.rs:124,

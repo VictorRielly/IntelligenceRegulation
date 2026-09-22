@@ -2187,3 +2187,62 @@ cross-check of the hand port.
 | Q4 | Task B — the whole gate on all six bundles, both arms | pending |
 | Q5 | Task C — the lane's slot-IR export read and compared with the hand port | pending |
 | Q6 | report section "Round 9c", the suite | pending |
+
+## R9c.3 Commands and logs (round 9c)
+
+Every command below is in `results/zk60_native_run_gate_9c/` as a script,
+with its log and its `.done` marker. The three whole-gate passes ran
+DETACHED under `flock /tmp/zk-heavy.lock` inside `systemd-run --user
+--scope -p MemoryMax=8G -p MemorySwapMax=0`; the light work ran at 4G.
+**No new 125M computation was started in this round.**
+
+| what | script | log / marker |
+|---|---|---|
+| the pins of all six bundles, against the lane's blobs | (one-off, recorded) | `pins_at_the_three_new_shapes.json` |
+| the prediction at the three new shapes, and the three new derivations checked where C-6 is OFF | `predict.sh` | `predict.log`, `.done`, `prediction_{c6,w14,e32}_{dense,zero}.json`, `prediction_check_{k4,p2,m125}.json` |
+| the whole gate at rung-C6, both bundles, both arms | `run_c6.sh` | `run_c6.log` / `run_c6b.log`, `.done`, `run-{m,n}-*.json`, `time-*.log` |
+| the whole gate at rung-E32 | `run_e32.sh` | `run_e32.log`, `.done` |
+| the whole gate at rung-W14 | `run_w14.sh` | `run_w14.log`, `.done` |
+| one comparison table per shape, and dense against zero | `tables.sh` | `tables.log`, `comparison_table_*.json`, `witness_comparison_*.json` |
+| the lane's slot-IR export as a cross-check | `slotir.sh` | `slotir.log`, `slot_ir_crosscheck.json` |
+| the eighteen records of record re-taken under this round's tools | `before.sh`, `refresh.sh`, `diff.sh` | `refresh.log`, `.done`, `diffs/`, `all_twenty_records_unchanged.json` |
+| the suite | `python3 -m unittest discover -s tests -p 'test_zk60_native*.py'` | `tests_native_all.log`, `.done` |
+
+## R9c.4 Results — Q1, Task A
+
+Report §15.1 and §15.2. Three 125M passes landed after round 9b closed
+and all three are integrated: the two records of record (exit 0 each,
+174.0 s / 1,460 MB and 161.9 s / 1,452 MB, **0 unclassified leaves**
+against the committed bytes after round 9c's six new classes) and
+`dense-everything`, which is the pass round 9b said did not exist — **the
+whole channel table at 125M, 28 at 10 / 5 / 4 / 9**. Its exit 1 is taken
+apart leaf by leaf in
+`results/zk60_native_run_gate_9c/dense_everything_exit1_decomposition.json`:
+nothing raised, every stage ran, CT-4 was skipped for want of an `--old`
+bundle, CH-3 is the identity at the one shape it names, and **M9-3 fires
+at 125M for the first time since its repair, in all three directions**,
+with the `ok: false` that report §14.7 predicted in writing.
+
+## R9c.5 Results — Q2 and Q3, the pins and the prediction
+
+Report §15.3 and §15.4. 38 pins per bundle, all recomputed from the
+lane's committed blobs; 35 of 38 byte-identical to `4ccbad1` and the
+three that moved ADDITIONS ONLY, read hunk by hunk. **Finding E32-F1**:
+the rung-E32 bundles name a source commit at which the shape they capture
+does not exist. Stage 35's "nothing sent, absorbed or drawn changed" is
+UPHELD for everything these ports model, read hunk by hunk. The
+prediction gained a `corrections_and_geometry` block that derives
+correction C-6, the `Dom::Tab` lift and the endpoint's row count from the
+shape's own numbers; it was committed in `f2eb4a6`, before the gate had
+been run on any of the six bundles.
+
+## R9c.7 Results — Q5, Task C
+
+Report §15.10. `zk60_native_rg_slotir` reads lane stage 34's export,
+checks each file against the lane's own pinned length and digest, and
+makes **eight structural comparisons per slot at seven shapes — 1,288
+comparisons, 0 disagreements**. The first run reported eleven and every
+one was in the new reader's own label map; none was in the port and none
+in the export. Seven controls show the comparison refuses a wrong export
+by name. Ruling I-8 is kept: nothing here is evaluated and no figure the
+gate reports comes from the export.

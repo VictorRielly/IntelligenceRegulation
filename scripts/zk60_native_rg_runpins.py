@@ -482,6 +482,35 @@ RUN_LAYER_PINS = {
             "bundles": ("run-k-dense-p2", "run-l-zero-p2"),
             "bytes": 45313,
         },
+        # [ROUND 9c] stage 31: the rung-C6 run profile, the same two lines.
+        "e161190b262691481ce9a52c21c8278b3d5859e68cf4c069c1257ef248c2b612": {
+            "blob": "f6d59415f90d1cefc60ead43f75260b234340eca",
+            "commits": ("3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",),
+            "bundles": ("run-m-dense-c6", "run-n-zero-c6"),
+            "bytes": 45755,
+        },
+        # [ROUND 9c] stage 32: the rung-W14 run profile.  The rung-E32
+        # bundles NAME `4505ddf`, which is this same blob -- see finding
+        # E32-F1 in the round-9c report: their shape.rs and
+        # private_block.rs digests are the ones at `6d71b40`, one commit
+        # later, and their run.rs digest is the one at `6d71b40` too, so
+        # this entry covers the W14 pair only.
+        "472950d55257410829146f558b6fd733cc461a382a3bd0618f0e6456ed201c24": {
+            "blob": "04843cea18f3bce4c6d5b8b074bba8c837163bd6",
+            "commits": ("11703c94df428c3e53dbc6c37eac835e348f5bf9",
+                        "4505ddfa24fc99ff57fa086be8c73dae8117875c"),
+            "bundles": ("run-o-dense-w14", "run-p-zero-w14"),
+            "bytes": 46205,
+        },
+        # [ROUND 9c] stage 33: the rung-E32 run profile.
+        "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0": {
+            "blob": "6af1c39cec721e4a16db27de7906f78f82de5d98",
+            "commits": ("6d71b405de9863a7a95dc166ba932f6e12e5a2d0",
+                        "2d04d941f1e7e4e52b72f7d1434060779814405e",
+                        "226f3b2c6aed44fe9b1f495cd7c7e34b900e4e90"),
+            "bundles": ("run-q-dense-e32", "run-r-zero-e32"),
+            "bytes": 46667,
+        },
     },
     "src/private_block/boundary.rs": {
         "9860c35d4db93afa52ba4287ac949209dc3d93957da51a6aeee91b0951a215e6": {
@@ -721,6 +750,46 @@ READINGS = {
         "order `M, A, H, Input(, Output)` are byte-identical -- which is why "
         "the rung-P2 replay re-derives every challenge of a bundle written "
         "under a profile string this gate had never seen",
+    ("src/private_block/run.rs",
+     "e161190b262691481ce9a52c21c8278b3d5859e68cf4c069c1257ef248c2b612"):
+        "[ROUND 9c] `git diff 4ccbad1 3e106e1 -- run.rs`: **7 added, 0 "
+        "removed, two hunks -- ADDITIONS ONLY**, and they are letter for "
+        "letter the rung-P2 pair one stage earlier.  STAGE 31: "
+        "`RUN_PROFILE_RUNG_C6 = "
+        "\"hashline-zk-mr1/private-run-rung-c6-t32-dev/1\"` (D17, one "
+        "profile per shape, so rung-C6 gets its own hash-tag key set and "
+        "no existing profile moves) and `RunShape::rung_c6(l)` delegating "
+        "to the UNCHANGED `RunShape::new`.  **Nothing this port "
+        "transcribes moved**: `RunStatement::transcript`'s six absorbs and "
+        "their order, the seven-word `run-shape`, `position_tag`, the "
+        "stage loop's `pb-run-stage` / `pb-run-block` / boundary order, "
+        "`BOUNDARY_SITES`, `in_site` / `out_site` and the opening order "
+        "`M, A, H, Input(, Output)` are byte-identical",
+    ("src/private_block/run.rs",
+     "472950d55257410829146f558b6fd733cc461a382a3bd0618f0e6456ed201c24"):
+        "[ROUND 9c] `git diff 3e106e1 11703c9 -- run.rs`: **7 added, 0 "
+        "removed, two hunks -- ADDITIONS ONLY**, the same two lines again.  "
+        "STAGE 32: `RUN_PROFILE_RUNG_W14 = "
+        "\"hashline-zk-mr1/private-run-rung-w14-t64-dev/1\"` and "
+        "`RunShape::rung_w14(l)`.  Read against `4ccbad1` the file is **14 "
+        "added, 0 removed** -- rung-C6's two lines and rung-W14's two -- "
+        "and every absorb, tag, stage-loop step and opening order named in "
+        "the entry above is byte-identical.  This blob is also what the "
+        "commit the rung-E32 bundles NAME (`4505ddf`) carries, which is "
+        "part of finding E32-F1 and not of this reading",
+    ("src/private_block/run.rs",
+     "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0"):
+        "[ROUND 9c] `git diff 11703c9 6d71b40 -- run.rs`: **7 added, 0 "
+        "removed, two hunks -- ADDITIONS ONLY**, the same two lines a "
+        "third time.  STAGE 33: `RUN_PROFILE_RUNG_E32 = "
+        "\"hashline-zk-mr1/private-run-rung-e32-t32-dev/1\"` and "
+        "`RunShape::rung_e32(l)`.  Against `4ccbad1` the whole file is "
+        "**21 added, 0 removed**: three constants and three constructors, "
+        "one per new shape, and not one line of what the replay reads.  "
+        "**The rung-E32 bundles record `source_commit: 4505ddf`, which "
+        "does NOT carry this blob** -- `4505ddf` is the commit before "
+        "`Shape::rung_e32` exists.  The commits listed here are the ones "
+        "that do carry it, and the mismatch is finding E32-F1",
     ("src/private_block/boundary.rs",
      "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581"):
         "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split "

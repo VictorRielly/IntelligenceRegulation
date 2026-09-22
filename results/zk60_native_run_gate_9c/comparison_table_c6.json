@@ -1,0 +1,1553 @@
+{
+ "BROKEN_INVARIANTS": [],
+ "PREDICTIONS_THAT_MISSED": [],
+ "counts": {
+  "block count": 61,
+  "invariant": 55,
+  "scales": 64,
+  "unexplained": 0
+ },
+ "figures_compared": 180,
+ "invariants_present_only_at_some_shapes": 0,
+ "invariants_that_are_identical_at_all_three_shapes": 55,
+ "ok": true,
+ "per_class": {
+  "block count": [
+   {
+    "figure": "replay/segment position tags ok",
+    "identical": false,
+    "m125": 2,
+    "rung-K4": 3,
+    "rung-P2": 2,
+    "why_it_moves": "two per stage"
+   },
+   {
+    "figure": "disclosed/1:Output",
+    "identical": false,
+    "m125": 0,
+    "rung-K4": "(absent)",
+    "rung-P2": 0,
+    "why_it_moves": "the output endpoint is opened in the LAST stage, which is stage 2 at L = 3 and stage 1 at L = 2"
+   },
+   {
+    "figure": "rank_P1/1:Output",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": "(absent)",
+    "rung-P2": 4,
+    "why_it_moves": "the output endpoint is opened in the LAST stage, which is stage 2 at L = 3 and stage 1 at L = 2"
+   },
+   {
+    "figure": "rows/1:Output",
+    "identical": false,
+    "m125": 21,
+    "rung-K4": "(absent)",
+    "rung-P2": 9,
+    "why_it_moves": "the output endpoint is opened in the LAST stage, which is stage 2 at L = 3 and stage 1 at L = 2"
+   },
+   {
+    "figure": "distinct opened columns/1:Output",
+    "identical": false,
+    "m125": 251,
+    "rung-K4": "(absent)",
+    "rung-P2": 245,
+    "why_it_moves": "the output endpoint is opened in the LAST stage, which is stage 2 at L = 3 and stage 1 at L = 2"
+   },
+   {
+    "figure": "pad count/1:Output",
+    "identical": false,
+    "m125": 256,
+    "rung-K4": "(absent)",
+    "rung-P2": 256,
+    "why_it_moves": "the output endpoint is opened in the LAST stage, which is stage 2 at L = 3 and stage 1 at L = 2"
+   },
+   {
+    "figure": "pad margin/1:Output",
+    "identical": false,
+    "m125": 5,
+    "rung-K4": "(absent)",
+    "rung-P2": 11,
+    "why_it_moves": "the output endpoint is opened in the LAST stage, which is stage 2 at L = 3 and stage 1 at L = 2"
+   },
+   {
+    "figure": "k0/1:Output",
+    "identical": false,
+    "m125": 0,
+    "rung-K4": "(absent)",
+    "rung-P2": 0,
+    "why_it_moves": "the output endpoint is opened in the LAST stage, which is stage 2 at L = 3 and stage 1 at L = 2"
+   },
+   {
+    "figure": "whole run/sum of parts",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "one copy of H's LogUp identity per stage: 4 at L = 2, 6 at L = 3"
+   },
+   {
+    "figure": "whole run/joint",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "one copy of H's LogUp identity per stage: 4 at L = 2, 6 at L = 3"
+   },
+   {
+    "figure": "whole run/identified rows",
+    "identical": false,
+    "m125": 64,
+    "rung-K4": 24,
+    "rung-P2": 16,
+    "why_it_moves": "2 * boundary data rows per equality slot, and L = 2 has four equality slots where L = 3 has six"
+   },
+   {
+    "figure": "preimage/attempted",
+    "identical": false,
+    "m125": [
+     "B0",
+     "E-Input",
+     "E-Output"
+    ],
+    "rung-K4": [
+     "B0",
+     "B1",
+     "E-Input",
+     "E-Output"
+    ],
+    "rung-P2": [
+     "B0",
+     "E-Input",
+     "E-Output"
+    ],
+    "why_it_moves": "L = 3 has four singleton-group commitments, L = 2 has three"
+   },
+   {
+    "figure": "preimage/commitments exhibited",
+    "identical": false,
+    "m125": 3,
+    "rung-K4": 4,
+    "rung-P2": 3,
+    "why_it_moves": "L = 3 has four singleton-group commitments, L = 2 has three"
+   },
+   {
+    "figure": "terminals/checks equal",
+    "identical": false,
+    "m125": 46,
+    "rung-K4": 69,
+    "rung-P2": 46,
+    "why_it_moves": "23 slots per stage: 46 at L = 2, 69 at L = 3"
+   },
+   {
+    "figure": "terminals/checks expected",
+    "identical": false,
+    "m125": 46,
+    "rung-K4": 69,
+    "rung-P2": 46,
+    "why_it_moves": "23 slots per stage: 46 at L = 2, 69 at L = 3"
+   },
+   {
+    "figure": "terminals/matching the stored terminal_polynomial",
+    "identical": false,
+    "m125": 46,
+    "rung-K4": 69,
+    "rung-P2": 46,
+    "why_it_moves": "23 slots per stage: 46 at L = 2, 69 at L = 3"
+   },
+   {
+    "figure": "hash layer/openings",
+    "identical": false,
+    "m125": 9,
+    "rung-K4": 13,
+    "rung-P2": 9,
+    "why_it_moves": "3L + 1 PCS openings plus L masking ones"
+   },
+   {
+    "figure": "disclosed/2:A",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rank_P1/2:A",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 74,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rows/2:A",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 727,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "distinct opened columns/2:A",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 253,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad count/2:A",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 256,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad margin/2:A",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 3,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "k0/2:A",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "disclosed/2:H",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 2,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rank_P1/2:H",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 20,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rows/2:H",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 720,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "distinct opened columns/2:H",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 244,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad count/2:H",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 256,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad margin/2:H",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 12,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "k0/2:H",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "disclosed/2:Input",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rank_P1/2:Input",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 6,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rows/2:Input",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 10,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "distinct opened columns/2:Input",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 249,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad count/2:Input",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 256,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad margin/2:Input",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 7,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "k0/2:Input",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "disclosed/2:Output",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rank_P1/2:Output",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 4,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "rows/2:Output",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 9,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "distinct opened columns/2:Output",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 250,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad count/2:Output",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 256,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "pad margin/2:Output",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 6,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "k0/2:Output",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "stage 2 exists only at L = 3"
+   },
+   {
+    "figure": "disclosed/M@2",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "likewise"
+   },
+   {
+    "figure": "rows/M@2",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 50,
+    "rung-P2": "(absent)",
+    "why_it_moves": "likewise"
+   },
+   {
+    "figure": "opened columns/M@2",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 256,
+    "rung-P2": "(absent)",
+    "why_it_moves": "likewise"
+   },
+   {
+    "figure": "boundary 1/reserved rows",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 10,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/generators on the reserved block",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 6,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/rank on the reserved block",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 6,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/rank over all rows",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 6,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/full row rank",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": true,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/disclosed on the reserved block",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/three-role parts",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": {
+     "A@1": 0,
+     "A@2": 0,
+     "B1": 0
+    },
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/three-role sum",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/three-role joint",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/three-role generators",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 154,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "boundary 1/aliasing lost to the identification",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 0,
+    "rung-P2": "(absent)",
+    "why_it_moves": "the second internal boundary exists only at L = 3"
+   },
+   {
+    "figure": "pair/stages 1 and 2 with boundary 1/joint",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 4,
+    "rung-P2": "(absent)",
+    "why_it_moves": "likewise"
+   },
+   {
+    "figure": "pair/stages 1 and 2 with boundary 1/sum",
+    "identical": false,
+    "m125": "(absent)",
+    "rung-K4": 4,
+    "rung-P2": "(absent)",
+    "why_it_moves": "likewise"
+   }
+  ],
+  "invariant": [
+   {
+    "figure": "replay/run binding reproduced",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_must_not_move": "the replay either reproduces everything or it does not"
+   },
+   {
+    "figure": "replay/challenges NOT re-derived",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "the replay either reproduces everything or it does not"
+   },
+   {
+    "figure": "replay/hash rule",
+    "identical": true,
+    "m125": "blake3-keyed/1",
+    "rung-K4": "blake3-keyed/1",
+    "rung-P2": "blake3-keyed/1",
+    "why_it_must_not_move": "the replay either reproduces everything or it does not"
+   },
+   {
+    "figure": "integrity/findings",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "zero at every shape"
+   },
+   {
+    "figure": "disclosed/0:A",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "A's disclosed dimension is a rank of the BLINDING structure -- mask rows, proximity rows, pads -- and that structure is a function of a_groups (36 at all three shapes), not of the geometry"
+   },
+   {
+    "figure": "rank_P1/0:A",
+    "identical": true,
+    "m125": 74,
+    "rung-K4": 74,
+    "rung-P2": 74,
+    "why_it_must_not_move": "2(a_groups + 1) = 74"
+   },
+   {
+    "figure": "pad count/0:A",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "Q = 256 pads per row at every shape so far"
+   },
+   {
+    "figure": "k0/0:A",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "the disclosed dimension over Fp2 classes"
+   },
+   {
+    "figure": "disclosed/0:H",
+    "identical": true,
+    "m125": 2,
+    "rung-K4": 2,
+    "rung-P2": 2,
+    "why_it_must_not_move": "H's 2 is the public LogUp identity, and the gate checks that it IS that identity"
+   },
+   {
+    "figure": "rank_P1/0:H",
+    "identical": true,
+    "m125": 20,
+    "rung-K4": 20,
+    "rung-P2": 20,
+    "why_it_must_not_move": "2(h_groups + 1) = 20"
+   },
+   {
+    "figure": "pad count/0:H",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "Q = 256 pads per row at every shape so far"
+   },
+   {
+    "figure": "k0/0:H",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "the disclosed dimension over Fp2 classes"
+   },
+   {
+    "figure": "disclosed/0:Input",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "a singleton-group commitment"
+   },
+   {
+    "figure": "pad count/0:Input",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "Q = 256 pads per row at every shape so far"
+   },
+   {
+    "figure": "k0/0:Input",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "the disclosed dimension over Fp2 classes"
+   },
+   {
+    "figure": "disclosed/1:A",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "A's disclosed dimension is a rank of the BLINDING structure -- mask rows, proximity rows, pads -- and that structure is a function of a_groups (36 at all three shapes), not of the geometry"
+   },
+   {
+    "figure": "rank_P1/1:A",
+    "identical": true,
+    "m125": 74,
+    "rung-K4": 74,
+    "rung-P2": 74,
+    "why_it_must_not_move": "2(a_groups + 1) = 74"
+   },
+   {
+    "figure": "pad count/1:A",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "Q = 256 pads per row at every shape so far"
+   },
+   {
+    "figure": "k0/1:A",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "the disclosed dimension over Fp2 classes"
+   },
+   {
+    "figure": "disclosed/1:H",
+    "identical": true,
+    "m125": 2,
+    "rung-K4": 2,
+    "rung-P2": 2,
+    "why_it_must_not_move": "H's 2 is the public LogUp identity, and the gate checks that it IS that identity"
+   },
+   {
+    "figure": "rank_P1/1:H",
+    "identical": true,
+    "m125": 20,
+    "rung-K4": 20,
+    "rung-P2": 20,
+    "why_it_must_not_move": "2(h_groups + 1) = 20"
+   },
+   {
+    "figure": "pad count/1:H",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "Q = 256 pads per row at every shape so far"
+   },
+   {
+    "figure": "k0/1:H",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "the disclosed dimension over Fp2 classes"
+   },
+   {
+    "figure": "disclosed/1:Input",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "a singleton-group commitment"
+   },
+   {
+    "figure": "pad count/1:Input",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "Q = 256 pads per row at every shape so far"
+   },
+   {
+    "figure": "k0/1:Input",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "the disclosed dimension over Fp2 classes"
+   },
+   {
+    "figure": "disclosed/M@0",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "M commits no witness data"
+   },
+   {
+    "figure": "rows/M@0",
+    "identical": true,
+    "m125": 50,
+    "rung-K4": 50,
+    "rung-P2": 50,
+    "why_it_must_not_move": "layout.rs: M_ROWS = 2 * N_SLOTS + 4, a constant of the slot table"
+   },
+   {
+    "figure": "opened columns/M@0",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "the mask domain's own column count"
+   },
+   {
+    "figure": "disclosed/M@1",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "M commits no witness data"
+   },
+   {
+    "figure": "rows/M@1",
+    "identical": true,
+    "m125": 50,
+    "rung-K4": 50,
+    "rung-P2": 50,
+    "why_it_must_not_move": "layout.rs: M_ROWS = 2 * N_SLOTS + 4, a constant of the slot table"
+   },
+   {
+    "figure": "opened columns/M@1",
+    "identical": true,
+    "m125": 256,
+    "rung-K4": 256,
+    "rung-P2": 256,
+    "why_it_must_not_move": "the mask domain's own column count"
+   },
+   {
+    "figure": "pad block/full rank",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_must_not_move": "H-pad"
+   },
+   {
+    "figure": "boundary 0/generators on the reserved block",
+    "identical": true,
+    "m125": 6,
+    "rung-K4": 6,
+    "rung-P2": 6,
+    "why_it_must_not_move": "2(G + 1) = 6"
+   },
+   {
+    "figure": "boundary 0/rank on the reserved block",
+    "identical": true,
+    "m125": 6,
+    "rung-K4": 6,
+    "rung-P2": 6,
+    "why_it_must_not_move": "ruling M-8's figure"
+   },
+   {
+    "figure": "boundary 0/rank over all rows",
+    "identical": true,
+    "m125": 6,
+    "rung-K4": 6,
+    "rung-P2": 6,
+    "why_it_must_not_move": "the figure M-1 says is worthless on its own; it is still the same"
+   },
+   {
+    "figure": "boundary 0/full row rank",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_must_not_move": "ruling M-8's figure"
+   },
+   {
+    "figure": "boundary 0/disclosed on the reserved block",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "ruling M-8's figure"
+   },
+   {
+    "figure": "boundary 0/three-role parts",
+    "identical": true,
+    "m125": {
+     "A@0": 0,
+     "A@1": 0,
+     "B0": 0
+    },
+    "rung-K4": {
+     "A@0": 0,
+     "A@1": 0,
+     "B0": 0
+    },
+    "rung-P2": {
+     "A@0": 0,
+     "A@1": 0,
+     "B0": 0
+    },
+    "why_it_must_not_move": "74 + 6 + 74 generators, and every part 0"
+   },
+   {
+    "figure": "boundary 0/three-role sum",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "74 + 6 + 74 generators, and every part 0"
+   },
+   {
+    "figure": "boundary 0/three-role joint",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "74 + 6 + 74 generators, and every part 0"
+   },
+   {
+    "figure": "boundary 0/three-role generators",
+    "identical": true,
+    "m125": 154,
+    "rung-K4": 154,
+    "rung-P2": 154,
+    "why_it_must_not_move": "74 + 6 + 74 generators, and every part 0"
+   },
+   {
+    "figure": "boundary 0/aliasing lost to the identification",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_must_not_move": "0"
+   },
+   {
+    "figure": "pair/stages 0 and 1 with boundary 0/joint",
+    "identical": true,
+    "m125": 4,
+    "rung-K4": 4,
+    "rung-P2": 4,
+    "why_it_must_not_move": "two adjacent stages and the boundary between them disclose two copies of H's LogUp identity, 4 Fp, at every shape"
+   },
+   {
+    "figure": "pair/stages 0 and 1 with boundary 0/sum",
+    "identical": true,
+    "m125": 4,
+    "rung-K4": 4,
+    "rung-P2": 4,
+    "why_it_must_not_move": "two adjacent stages and the boundary between them disclose two copies of H's LogUp identity, 4 Fp, at every shape"
+   },
+   {
+    "figure": "preimage/half",
+    "identical": true,
+    "m125": "message only",
+    "rung-K4": "message only",
+    "rung-P2": "message only",
+    "why_it_must_not_move": "round 1's arm is the message half"
+   },
+   {
+    "figure": "preimage/free field elements per position",
+    "identical": true,
+    "m125": [
+     0,
+     1
+    ],
+    "rung-K4": [
+     0,
+     1
+    ],
+    "rung-P2": [
+     0,
+     1
+    ],
+    "why_it_must_not_move": "0 for a boundary, 1 for an endpoint"
+   },
+   {
+    "figure": "terminals/slots covered",
+    "identical": true,
+    "m125": 23,
+    "rung-K4": 23,
+    "rung-P2": 23,
+    "why_it_must_not_move": "23 slots at every shape of this schedule"
+   },
+   {
+    "figure": "terminals/public tables taken from the capture",
+    "identical": true,
+    "m125": 15,
+    "rung-K4": 15,
+    "rung-P2": 15,
+    "why_it_must_not_move": "the same fifteen statement-dependent tables"
+   },
+   {
+    "figure": "group factor/definition in force",
+    "identical": true,
+    "m125": "repaired",
+    "rung-K4": "repaired",
+    "rung-P2": "repaired",
+    "why_it_must_not_move": "the repaired definition"
+   },
+   {
+    "figure": "channels/total",
+    "identical": true,
+    "m125": 28,
+    "rung-K4": 28,
+    "rung-P2": 28,
+    "why_it_must_not_move": "the channel array is a property of the gate"
+   },
+   {
+    "figure": "channels/argued",
+    "identical": true,
+    "m125": 4,
+    "rung-K4": 4,
+    "rung-P2": 4,
+    "why_it_must_not_move": "the channel array is a property of the gate"
+   },
+   {
+    "figure": "channels/constructed",
+    "identical": true,
+    "m125": 10,
+    "rung-K4": 10,
+    "rung-P2": 10,
+    "why_it_must_not_move": "the channel array is a property of the gate"
+   },
+   {
+    "figure": "channels/derived",
+    "identical": true,
+    "m125": 5,
+    "rung-K4": 5,
+    "rung-P2": 5,
+    "why_it_must_not_move": "the channel array is a property of the gate"
+   },
+   {
+    "figure": "channels/open",
+    "identical": true,
+    "m125": 9,
+    "rung-K4": 9,
+    "rung-P2": 9,
+    "why_it_must_not_move": "the channel array is a property of the gate"
+   }
+  ],
+  "scales": [
+   {
+    "figure": "replay/transcript positions",
+    "identical": false,
+    "m125": 251,
+    "predicted": 251,
+    "prediction_held": true,
+    "rung-K4": 375,
+    "rung-P2": 251,
+    "why_it_moves": "1 + L(1 + 5 slots + 2) + 2 per opening"
+   },
+   {
+    "figure": "replay/challenges re-derived",
+    "identical": false,
+    "m125": 7294,
+    "predicted": 7294,
+    "prediction_held": true,
+    "rung-K4": 6854,
+    "rung-P2": 4560,
+    "why_it_moves": "the proximity rho of every row of every opening dominates"
+   },
+   {
+    "figure": "replay/final transcript counter",
+    "identical": false,
+    "m125": 7870,
+    "rung-K4": 7686,
+    "rung-P2": 5136,
+    "why_it_moves": "every squeeze, compared or not"
+   },
+   {
+    "figure": "integrity/segment byte lengths",
+    "identical": false,
+    "m125": [
+     7259640,
+     7474648
+    ],
+    "rung-K4": [
+     4575304,
+     4597832,
+     4765736
+    ],
+    "rung-P2": [
+     4574904,
+     4765336
+    ],
+    "why_it_moves": "the receipt's own size"
+   },
+   {
+    "figure": "rows/0:A",
+    "identical": false,
+    "m125": 1337,
+    "rung-K4": 727,
+    "rung-P2": 727,
+    "why_it_moves": "the commitment's own row count"
+   },
+   {
+    "figure": "distinct opened columns/0:A",
+    "identical": false,
+    "m125": 251,
+    "rung-K4": 250,
+    "rung-P2": 253,
+    "why_it_moves": "the number of DISTINCT indices among 256 drawn with replacement out of the encoded width, which is 4,096 at the rungs and 65,536 here"
+   },
+   {
+    "figure": "pad margin/0:A",
+    "identical": false,
+    "m125": 5,
+    "rung-K4": 6,
+    "rung-P2": 3,
+    "why_it_moves": "256 minus the distinct count"
+   },
+   {
+    "figure": "rows/0:H",
+    "identical": false,
+    "m125": 1408,
+    "rung-K4": 720,
+    "rung-P2": 720,
+    "why_it_moves": "the commitment's own row count"
+   },
+   {
+    "figure": "distinct opened columns/0:H",
+    "identical": false,
+    "m125": 249,
+    "rung-K4": 247,
+    "rung-P2": 250,
+    "why_it_moves": "the number of DISTINCT indices among 256 drawn with replacement out of the encoded width, which is 4,096 at the rungs and 65,536 here"
+   },
+   {
+    "figure": "pad margin/0:H",
+    "identical": false,
+    "m125": 7,
+    "rung-K4": 9,
+    "rung-P2": 6,
+    "why_it_moves": "256 minus the distinct count"
+   },
+   {
+    "figure": "rank_P1/0:Input",
+    "identical": true,
+    "m125": 4,
+    "rung-K4": 4,
+    "rung-P2": 4,
+    "why_it_moves": "2(G + 1) for the opening's own group count: 4 for an endpoint, 6 for a boundary"
+   },
+   {
+    "figure": "rows/0:Input",
+    "identical": false,
+    "m125": 21,
+    "rung-K4": 9,
+    "rung-P2": 9,
+    "why_it_moves": "the commitment's own row count"
+   },
+   {
+    "figure": "distinct opened columns/0:Input",
+    "identical": false,
+    "m125": 250,
+    "rung-K4": 247,
+    "rung-P2": 250,
+    "why_it_moves": "the number of DISTINCT indices among 256 drawn with replacement out of the encoded width, which is 4,096 at the rungs and 65,536 here"
+   },
+   {
+    "figure": "pad margin/0:Input",
+    "identical": false,
+    "m125": 6,
+    "rung-K4": 9,
+    "rung-P2": 6,
+    "why_it_moves": "256 minus the distinct count"
+   },
+   {
+    "figure": "rows/1:A",
+    "identical": false,
+    "m125": 1337,
+    "rung-K4": 727,
+    "rung-P2": 727,
+    "why_it_moves": "the commitment's own row count"
+   },
+   {
+    "figure": "distinct opened columns/1:A",
+    "identical": true,
+    "m125": 250,
+    "rung-K4": 250,
+    "rung-P2": 250,
+    "why_it_moves": "the number of DISTINCT indices among 256 drawn with replacement out of the encoded width, which is 4,096 at the rungs and 65,536 here"
+   },
+   {
+    "figure": "pad margin/1:A",
+    "identical": true,
+    "m125": 6,
+    "rung-K4": 6,
+    "rung-P2": 6,
+    "why_it_moves": "256 minus the distinct count"
+   },
+   {
+    "figure": "rows/1:H",
+    "identical": false,
+    "m125": 1408,
+    "rung-K4": 720,
+    "rung-P2": 720,
+    "why_it_moves": "the commitment's own row count"
+   },
+   {
+    "figure": "distinct opened columns/1:H",
+    "identical": false,
+    "m125": 245,
+    "rung-K4": 247,
+    "rung-P2": 251,
+    "why_it_moves": "the number of DISTINCT indices among 256 drawn with replacement out of the encoded width, which is 4,096 at the rungs and 65,536 here"
+   },
+   {
+    "figure": "pad margin/1:H",
+    "identical": false,
+    "m125": 11,
+    "rung-K4": 9,
+    "rung-P2": 5,
+    "why_it_moves": "256 minus the distinct count"
+   },
+   {
+    "figure": "rank_P1/1:Input",
+    "identical": true,
+    "m125": 6,
+    "rung-K4": 6,
+    "rung-P2": 6,
+    "why_it_moves": "2(G + 1) for the opening's own group count: 4 for an endpoint, 6 for a boundary"
+   },
+   {
+    "figure": "rows/1:Input",
+    "identical": false,
+    "m125": 22,
+    "rung-K4": 10,
+    "rung-P2": 10,
+    "why_it_moves": "the commitment's own row count"
+   },
+   {
+    "figure": "distinct opened columns/1:Input",
+    "identical": false,
+    "m125": 247,
+    "rung-K4": 246,
+    "rung-P2": 249,
+    "why_it_moves": "the number of DISTINCT indices among 256 drawn with replacement out of the encoded width, which is 4,096 at the rungs and 65,536 here"
+   },
+   {
+    "figure": "pad margin/1:Input",
+    "identical": false,
+    "m125": 9,
+    "rung-K4": 10,
+    "rung-P2": 7,
+    "why_it_moves": "256 minus the distinct count"
+   },
+   {
+    "figure": "pad block/distinct columns",
+    "identical": false,
+    "m125": 247,
+    "rung-K4": 246,
+    "rung-P2": 249,
+    "why_it_moves": "likewise"
+   },
+   {
+    "figure": "pad block/exact rank",
+    "identical": false,
+    "m125": 247,
+    "rung-K4": 246,
+    "rung-P2": 249,
+    "why_it_moves": "likewise"
+   },
+   {
+    "figure": "boundary 0/reserved rows",
+    "identical": false,
+    "m125": 22,
+    "rung-K4": 10,
+    "rung-P2": 10,
+    "why_it_moves": "the boundary's own row count, data + 2*sites + 2: 38 at 125M (32 data rows) against 10 at the rungs (4)"
+   },
+   {
+    "figure": "whole run/generators x classes",
+    "identical": false,
+    "m125": "206 x 5590",
+    "rung-K4": "308 x 4505",
+    "rung-P2": "206 x 3006",
+    "why_it_moves": "206 generators at L = 2 against 308 at L = 3, and the classes grow with the message width"
+   },
+   {
+    "figure": "terminals/public tables rebuilt",
+    "identical": false,
+    "m125": 13,
+    "rung-K4": 16,
+    "rung-P2": 13,
+    "why_it_moves": "per stage, or per shape's own table set"
+   },
+   {
+    "figure": "terminals/public table structure checks",
+    "identical": false,
+    "m125": 30,
+    "rung-K4": 45,
+    "rung-P2": 30,
+    "why_it_moves": "per stage, or per shape's own table set"
+   },
+   {
+    "figure": "terminals/derived group points used",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "per stage, or per shape's own table set"
+   },
+   {
+    "figure": "terminals/controls that fire",
+    "identical": true,
+    "m125": 9,
+    "rung-K4": 9,
+    "rung-P2": 9,
+    "why_it_moves": "per stage, or per shape's own table set"
+   },
+   {
+    "figure": "terminals/controls total",
+    "identical": true,
+    "m125": 9,
+    "rung-K4": 9,
+    "rung-P2": 9,
+    "why_it_moves": "per stage, or per shape's own table set"
+   },
+   {
+    "figure": "public tables/carried",
+    "identical": false,
+    "m125": 56,
+    "rung-K4": 93,
+    "rung-P2": 56,
+    "why_it_moves": "per stage"
+   },
+   {
+    "figure": "public tables/length checked",
+    "identical": false,
+    "m125": 56,
+    "rung-K4": 93,
+    "rung-P2": 56,
+    "why_it_moves": "per stage"
+   },
+   {
+    "figure": "public tables/digest checked",
+    "identical": false,
+    "m125": 56,
+    "rung-K4": 93,
+    "rung-P2": 56,
+    "why_it_moves": "per stage"
+   },
+   {
+    "figure": "hash layer/columns checked",
+    "identical": false,
+    "m125": 2304,
+    "predicted": 2304,
+    "prediction_held": true,
+    "rung-K4": 3328,
+    "rung-P2": 2304,
+    "why_it_moves": ""
+   },
+   {
+    "figure": "hash layer/columns authenticated",
+    "identical": false,
+    "m125": 2304,
+    "predicted": 2304,
+    "prediction_held": true,
+    "rung-K4": 3328,
+    "rung-P2": 2304,
+    "why_it_moves": ""
+   },
+   {
+    "figure": "hash layer/bytes hashed",
+    "identical": false,
+    "m125": 11579392,
+    "predicted": 11579392,
+    "prediction_held": true,
+    "rung-K4": 9275392,
+    "rung-P2": 6189056,
+    "why_it_moves": "256 columns of `rows` field elements per opening"
+   },
+   {
+    "figure": "hash layer/controls that fire",
+    "identical": true,
+    "m125": 7,
+    "rung-K4": 7,
+    "rung-P2": 7,
+    "why_it_moves": "the control set is the same; a pass that supplies no cross-profile bundle fires fewer"
+   },
+   {
+    "figure": "group factor/lkv",
+    "identical": true,
+    "m125": 2,
+    "rung-K4": 2,
+    "rung-P2": 2,
+    "why_it_moves": "clog2(kv_heads): 2 at 125M and at rung-K4, 1 at rung-G -- the axis round 5 was written for"
+   },
+   {
+    "figure": "group factor/coordinate_entries_compared",
+    "identical": false,
+    "m125": 104,
+    "rung-K4": 138,
+    "rung-P2": 92,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/coordinate_lists_rederived_and_compared",
+    "identical": false,
+    "m125": 8,
+    "rung-K4": 12,
+    "rung-P2": 8,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/definition_challenge_counts_compared",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/dimension_sets_derived_and_compared",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/fixed_coordinates_compared_with_a_rederived_challenge",
+    "identical": false,
+    "m125": 48,
+    "rung-K4": 66,
+    "rung-P2": 44,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/group_point_entries_compared",
+    "identical": false,
+    "m125": 8,
+    "rung-K4": 12,
+    "rung-P2": 8,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/group_points_derived_and_compared",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/slots_examined",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/slots with a derived point",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/controls that fire",
+    "identical": true,
+    "m125": 13,
+    "rung-K4": 13,
+    "rung-P2": 13,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/controls total",
+    "identical": true,
+    "m125": 13,
+    "rung-K4": 13,
+    "rung-P2": 13,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/the repaired polynomial holds",
+    "identical": false,
+    "m125": 4,
+    "rung-K4": 6,
+    "rung-P2": 4,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/the pre-repair polynomial holds",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/group factors equal to one",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "group factor/terminal products that are zero",
+    "identical": true,
+    "m125": 0,
+    "rung-K4": 0,
+    "rung-P2": 0,
+    "why_it_moves": "a count that follows the slot and stage count"
+   },
+   {
+    "figure": "run controls/named",
+    "identical": true,
+    "m125": [
+     "C1_two_claims_share_one_reserved_pair",
+     "C2_a_single_proximity_row",
+     "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+     "C4_a_claim_whose_source_stage_is_wrong",
+     "C5_a_stage_file_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns"
+    ],
+    "rung-K4": [
+     "C1_two_claims_share_one_reserved_pair",
+     "C2_a_single_proximity_row",
+     "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+     "C4_a_claim_whose_source_stage_is_wrong",
+     "C5_a_stage_file_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns"
+    ],
+    "rung-P2": [
+     "C1_two_claims_share_one_reserved_pair",
+     "C2_a_single_proximity_row",
+     "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+     "C4_a_claim_whose_source_stage_is_wrong",
+     "C5_a_stage_file_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns"
+    ],
+    "why_it_moves": "the control set of a pass that ran them"
+   },
+   {
+    "figure": "run controls/all fire",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_moves": "the control set of a pass that ran them"
+   },
+   {
+    "figure": "run controls/C1_two_claims_share_one_reserved_pair",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_moves": "the control set of a pass that ran them"
+   },
+   {
+    "figure": "run controls/C2_a_single_proximity_row",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_moves": "the control set of a pass that ran them"
+   },
+   {
+    "figure": "run controls/C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_moves": "the control set of a pass that ran them"
+   },
+   {
+    "figure": "run controls/C4_a_claim_whose_source_stage_is_wrong",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_moves": "the control set of a pass that ran them"
+   },
+   {
+    "figure": "run controls/C5_a_stage_file_swapped_between_the_two_bundles",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_moves": "the control set of a pass that ran them"
+   },
+   {
+    "figure": "run controls/C6_one_pad_fewer_than_the_distinct_opened_columns",
+    "identical": true,
+    "m125": true,
+    "rung-K4": true,
+    "rung-P2": true,
+    "why_it_moves": "the control set of a pass that ran them"
+   }
+  ],
+  "unexplained": []
+ },
+ "predictions_checked": 5,
+ "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+ "shapes": [
+  "125M (2 blocks)",
+  "rung-K4",
+  "rung-P2"
+ ],
+ "the_only_acceptable_outcome": "an empty unexplained set and an empty broken-invariant set.  A non-empty one is the round's result and belongs in the report's headline, not in a footnote",
+ "this_is_not_a_privacy_result": true,
+ "unexplained": [],
+ "what": "every figure of the 125M record beside the two development shapes', classified as INVARIANT (a law of the report says it must not move), BLOCK COUNT (L = 2 against L = 3), SCALES (with the prediction beside it where this round predicted it) or UNEXPLAINED"
+}
