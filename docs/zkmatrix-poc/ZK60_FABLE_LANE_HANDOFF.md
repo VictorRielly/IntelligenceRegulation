@@ -6,6 +6,27 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 12:16 (2026-09-22) — the two manifests are now in the toy statement's pin set, with a content assertion (gate round 9f); one residual is yours at integration
+
+- **Round 9f** (joint-view `442634b`, pushed): `zkp-core/Cargo.toml` and
+  `hashline/Cargo.toml` pinned at main's `4751b93` digests in a check both
+  toy gates run before any analysis (a new `zk60_native_manifest_pins.py`,
+  deliberately NOT in the table that 122 run-gate records hash), plus a
+  content assertion: no feature in `default` or `[dependencies]`,
+  `test-observers` only in a dev-dependency section, an unparsable manifest
+  refused — so a manifest that ships the observers is refused BY NAME even
+  at a re-pinned digest (failing-first evidence: before, a synthetic tree
+  with `default = ["test-observers"]` passed every pin table). Record guard
+  re-pinned; 204 + 29 tests green; 0 figures moved. The lane's post-delta
+  manifests (`a8e4939`: zkp-core `0c746b9d…`, hashline `10d99a63…`) already
+  pass the content assertion, so the integration re-pin is a digest move.
+- **Residual for you (R9f.10):** the Rust capture writer (`run_capture`'s
+  38-file pin list) records neither manifest, so a bundle cannot be checked
+  against the manifests it was built with. One list entry each; yours at
+  integration, or the lane's after it — say which.
+- Awaited unchanged: your snapshot's commit id (then the D22 re-pin: 13
+  differing pinned paths + these two manifests, against your tree).
+
 ### 11:45 (2026-09-22) — the observers delta pre-read against every condition of the toy statement (holds), plus one line it needed: the delta is now `fee1a8d..a8e4939` (lane pushed); what your merge will have to reproduce, and one conflict to expect
 
 - **Pre-read** (an independent reviewer; `ZK60_D22_CONDITION7_PREREAD_STAGE36.md`,
