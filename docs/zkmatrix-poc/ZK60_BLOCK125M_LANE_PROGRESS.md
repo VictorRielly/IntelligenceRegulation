@@ -11373,7 +11373,7 @@ its hand port against.
 
 ## Stage 35 — lever (b) inside the closures of slots 17 and 14, without moving a byte (2026-09-21, 17:5x–)
 
-**Status: OPEN, skeleton written 2026-09-21 17:58 PDT** on the lane tip
+**Status: CLOSED 2026-09-21 18:45 PDT.** Opened 2026-09-21 17:58 PDT on the lane tip
 `89e393f` (pushed). The work is stage 2 of ruling **I-4** of
 `docs/zkmatrix-poc/ZK60_SLOT_EXPRESSION_IR_DISPOSITION.md`: lever (b) —
 shared sub-expressions, the hoisted support gate, base-field constants —
@@ -11385,11 +11385,11 @@ one evaluation, and that is exactly what lever (b) is.
 
 | task | what | state |
 |---|---|---|
-| 1 | **the oracle first**: the two closure bodies copied verbatim from `89e393f` into `s35_tests.rs`, driven on the REAL definition-time captures, differentially against the production closure at every registered shape and both pad branches; plus the new closure against the stage-34 IR; plus a pin of the declared degree and of the table list and order | OPEN |
-| 2 | **lever (b)(i)** — the support gate hoisted out of the clause batch (the IR's own grouping: 22 multiplications become 12 at slot 14, 10 become 6 at slot 17) | OPEN |
-| 3 | **lever (b)(ii)/(iii)** — the shared sub-products the closures recompute, and the public base-field constants through `mul_base` instead of a full extension multiplication | OPEN |
-| 4 | **measure**: rung-W14 three runs before and after, `PB-SLOTSTEP` masked-sumcheck seconds for slots 17 and 14 and the total prove; then ONE 125M dense run against the two same-day baselines | OPEN |
-| 5 | the gates, the commits and this ledger section closed | OPEN |
+| 1 | **the oracle first**: the two closure bodies copied verbatim from `89e393f` into `s35_tests.rs`, driven on the REAL definition-time captures, differentially against the production closure at every registered shape and both pad branches; plus the new closure against the stage-34 IR; plus a pin of the declared degree and of the table list and order | **DONE** (`fa3ed3b`) |
+| 2 | **lever (b)(i)** — the support gate hoisted out of the clause batch (the IR's own grouping: 22 multiplications become 12 at slot 14, 10 become 6 at slot 17) | **DONE** (`52dbaa2`) |
+| 3 | **lever (b)(ii)/(iii)** — the shared sub-products the closures recompute, and the public base-field constants through `mul_base` instead of a full extension multiplication | **DONE** (`ed77271`, `9e11312`) |
+| 4 | **measure**: rung-W14 three runs before and after, `PB-SLOTSTEP` masked-sumcheck seconds for slots 17 and 14 and the total prove; then ONE 125M dense run against the two same-day baselines | **DONE** |
+| 5 | the gates, the commits and this ledger section closed | **DONE** |
 
 **The rules this stage works under** are the lane's, plus its own, which are
 stricter than stage 34's in one direction and looser in another: the diff of
@@ -11401,3 +11401,259 @@ the verifier untouched, every registered receipt-length and digest pin green
 by name. No registered profile moves.
 
 **Evidence prefix**: `results/zk60_block125m_lane/y35-*`.
+
+### Task 1 — the oracle, written and green BEFORE anything changed (`fa3ed3b`)
+
+**The problem this stage had to solve first, and how.** Stage 28's method is
+that the OLD form and the NEW form are run on the same inputs in the same
+test, the old form copied verbatim from the parent commit so that it is an
+oracle and not a second name for the code under test. A slot's closure makes
+that hard: it captures thirty-odd definition-time values — the table index
+map, `mu` and `nu`, the LogUp column descriptions, the pad-rule groups, the
+two support gates, `lam`, `alpha`, `beta`, `g_exp` — and **none of them is
+reachable from a sibling module**, because `B`, `Gate`, `PadTerm`, `LkT`,
+`limbs`, `helper_sum` and `k` are all private to `argument.rs`.
+
+So the arm hands them over. Two `#[cfg(test)]` statements per arm — a
+capture record built just before the closure, and a call just after it —
+and `s35_tests.rs` holds the two closure bodies **as they stand at
+`89e393f`, verbatim**, together with verbatim copies of the five helpers
+they call. The consequences are worth spelling out:
+
+* the comparison runs **on every definition of slots 14 and 17 anywhere in
+  the crate's tests**, at every registered shape and on both sides of every
+  pad branch, without any test having to arrange it. Four random points per
+  definition; the filter defines these slots many hundreds of times;
+* **the new form is the production closure itself**, passed as `&dyn Fn`,
+  never a copy of it — the weakness stage 28's ledger warns about is closed
+  in the one direction that matters;
+* nothing is compiled into a production build: in `cfg(not(test))` the two
+  statements and their clones do not exist.
+
+**The second leg is the stage-34 IR**, and it is independent of the first.
+`slot_ir.rs` is not touched by this stage (the forbidden-files proof says so
+with a diff), and its equality oracle proved the IR equal to the closure AT
+`89e393f` over 1,656 evaluations. So `old == IR` is pinned and `IR == new`
+is re-proved here at 32 points per shape — **576 random points over 9 shapes
+x 2 slots, every one equal** — which gives `old == new` a second time, by a
+route that hands no capture over and that reaches the 125M shape.
+
+**The pins task 1 added**, all green at `fa3ed3b` where the new form was
+still the old one, and green at every commit since:
+
+| test | what it holds |
+|---|---|
+| `the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape` | the differential above, driven once over the registry: 72 (point, slot) comparisons on the walk, and the assertion that the arm's hook **fired** — a hook compiled out would leave the counter where it was |
+| `the_two_rewritten_closures_equal_the_stage_34_ir_at_every_registered_shape` | 576 points, 9 shapes x 2 slots |
+| `the_table_list_the_order_and_the_declared_degree_of_the_two_slots_are_where_they_were` | **18 (shape, slot) rows**: table count, the `Tab` variant sequence in PUSH ORDER, main rounds, extension rounds and declared degree, against literals read out of the digest-pinned `x34-slot-ir/*.json`. The table order decides the `v[..]` indices and the order the masked terminals are absorbed in; the degree decides every round message's length |
+| `multiplying_by_a_constant_with_no_imaginary_part_is_exactly_mul_base` | the one implementation identity lever (b)(iii) rests on, on all thirteen constants of the two arms, 6,656 comparisons |
+| `the_rewrite_removes_the_counted_multiplications_at_every_registered_shape` | the four-rung count ladder, per shape and per slot |
+
+### Tasks 2 and 3 — the three changes, one commit each
+
+**Every one of them is value-preserving, and the reason is written per
+change rather than asserted once.** `Fp` is an exact field with canonical
+representatives everywhere (`zkp-core/src/field.rs:1-9`), so reassociation
+and redistribution are not approximations: the field element out is the same
+word.
+
+| # | commit | the change | why the value cannot move |
+|---|---|---|---|
+| (i) | `52dbaa2` | **the support gate hoisted out of the clause batch** at both slots: `sum_i mu_i g c_i` becomes `g sum_i mu_i c_i`. Eleven multiplications by `g` become one at slot 14, five become one at slot 17 | distributivity. `g` is one field element at each evaluation point whatever the pad boundary does — 0 or 1 at a cube point, arbitrary at an interpolated one, and distributivity does not care. **The stage-34 IR already encodes this grouping**, so the IR leg covers it at every shape. Only `gs` is hoisted at slot 17: `ght` gates the row-sum host term and is a different table (finding S9-F7) |
+| (ii) | `ed77271` | **the two sub-products slot 14 recomputes**: `k_den * d` (inside c0's `k_den.mul(y).mul(d)`, which is `(k_den * d) * y` reassociated, and outright in c1) and `k_den * dm` (c6, c7) | associativity and commutativity. This is the only pair the check's §5 found and the only pair reading the arm turns up; **slot 17 gets nothing from this lever and the ladder says so**, because `delta`, `sr` and the `at(p)` reads are already shared by a `let` |
+| (iii) | `9e11312` | **the public constants through `mul_base`**: slot 14's `p1` in `l2` (five calls), the four byte-limb folds, `kd`/`kdm`, `k_num` and `k_dv` in c0 and c6 and the two host shifts; slot 17's `1 << F_P` in c2, `1 << SH_S` in `host_s` and the three byte-limb folds. The limb folds also **drop the `256^0` weight** | for a constant with zero imaginary part, `x.mul(c)` **IS** `x.mul_base(c.c0)` — `Fp2::mul` computes `(a c0 + b c1 * 7, a c1 + b c0)` and `c1 = 0` collapses it to `mul_base`'s body character for character. An identity of the implementation, not a ring law, and the stage tests it on all thirteen constants. `limbs` folds from `Fp2::ZERO` and multiplies the first limb by a runtime `Fp2::ONE`; `Fp2::ZERO.add(x.mul(Fp2::ONE))` is `x`, so taking the first limb AS the running sum is not even a reassociation |
+
+**THE COUNT [COUNTED], per evaluation, in the check's own unit** (a full
+`Fp2::mul` is five base multiplications, `mul_base` is two, additions are
+free), at the four shapes with 125M's limb structure (`limbs_norm` 4,
+`limbs_sigma_s` 3, `limbs_p` 2):
+
+| slot | `89e393f` | after (i) | after (ii) | after (iii) | the whole closure | share of the closure |
+|---|--:|--:|--:|--:|--:|--:|
+| 17 `SC_SZC` | 175 | 155 | 155 | **119** | 405 | **13.8%** |
+| 14 `SC_DZC` | 320 | 270 | 260 | **165** | 828 | **18.7%** |
+
+The "whole closure" column adds what neither form changes: `helper_sum` and
+`PadTerm::eval`, both outside the two arms. At the toy, where the profile
+carries no pad rule, `g` is `Fp2::ONE` and the hoist saves the same count on
+multiplications by one. **Against the check's own lever (b) figure of 14.2%
+of the 125M baseline**: that figure is over all twenty-three slots, and
+these two are 83% of the baseline, so 11-12% of the whole baseline is what
+this stage's changed lines can be worth [COUNTED, derived]. **Ruling I-1
+stands: none of this is a time**, which the measurement below makes very
+concrete.
+
+### Task 4 — the measurement
+
+**rung-W14, three runs before and three after** [MEASURED, three runs each,
+shared box, **NOT quiesced** — another lane held the heavy lock throughout
+and the box carried load 1.6]. Same binary path, same command, same env
+(`HL_PB_TIMING=1`), the `PB-SLOTSTEP` masked-sumcheck line of each slot and
+the prover's own wall clock. `y35-w14-before.log` (at `fa3ed3b`, the arms
+still the parent's) against `y35-w14-after.log` (at `9e11312`).
+
+| figure | before min / median / max | after min / median / max | reading |
+|---|---|---|---|
+| slot 17 masked sumcheck, s | 0.307 / **0.351** / 0.366 | 0.341 / **0.351** / 0.369 | **the medians are identical; the ranges all but coincide** |
+| slot 14 masked sumcheck, s | 0.794 / **0.826** / 0.829 | 0.790 / **0.805** / 0.826 | −2.5% at the median, ranges overlap |
+| prove, s | 3.816 / **3.871** / 3.903 | 3.662 / **3.741** / 3.852 | −3.4% at the median, ranges overlap |
+| receipt, B | 16,421,048 | 16,421,048 | **identical** |
+
+**Said plainly: at rung-W14 the change is inside run-to-run spread.** Every
+one of the three comparisons has overlapping ranges, and slot 17's medians
+are the same number to three decimals. The shape is why: rung-W14's two big
+cubes are 2^16 words, the round loop there is short, and the per-evaluation
+arithmetic is not what the seconds are made of at that size. A count of
+13.8% that does not show at 2^16 is exactly the situation ruling I-1
+describes.
+
+**125M, ONE dense run, against the two same-day baselines** [MEASURED, one
+run, shared box]. `y35-m125-after.log`, exit 0, started 18:29 PDT once the
+heavy lock freed, detached under `flock /tmp/zk-heavy.lock` inside a 12 GiB
+`systemd-run` scope with `MALLOC_MMAP_THRESHOLD_=131072`, the same command
+and the same env (`HL_PB_TIMING=1 HL_PB_WEIGHTS=dense`) as
+`q28-m125-final-dense.log`. Only one 125M run was spent, because the two
+committed baselines are the same prover on the same day and the brief
+allows them as the baseline.
+
+| figure | `q28-m125-final-dense` (stage 28) | `r29-m125-bfcensus` (stage 29) | **this run** |
+|---|--:|--:|--:|
+| **slot 17 masked sumcheck, s** | 3.054 | 3.107 | **2.660** |
+| slot 14 masked sumcheck, s | 1.642 | 1.872 | **1.741** |
+| prove, s | 17.401 | 19.357 | **18.405** |
+| **receipt, B** | 40,783,352 | 40,783,352 | **40,783,352** |
+| peak RSS, MiB | 10,156 | 10,141 | 10,149 |
+| verify from bytes, s | 1.15 | 1.34 | 1.21 |
+| slot 17 tables: build, s (untouched) | 0.251 | 0.510 | 0.689 |
+| `A: commit`, s (shared, untouched) | 3.069 | 3.552 | 3.017 |
+| `H: commit`, s (shared, untouched) | 3.431 | 3.923 | 3.873 |
+| `H: LogUp helper inverses`, s (untouched) | 1.079 | 1.202 | 1.348 |
+
+**How to read it honestly, line by line.**
+
+* **Slot 17's masked sumcheck is below BOTH baselines, and the baselines are
+  0.053 s apart.** 2.660 s against 3.054 and 3.107 is −12.9% and −14.4%,
+  against a baseline spread of 1.7% on that same line. It is one run, so it
+  is not a confidence interval; but the two baselines agree with each other
+  far more closely than either agrees with this run, and the counted figure
+  for slot 17's closure is 13.8%. **This is the one place where the count
+  and the clock say the same thing.**
+* **The neighbouring phases this stage does not touch got SLOWER in this
+  run**, not faster: slot 17's table build 0.251/0.510 -> 0.689, the LogUp
+  helper inverses 1.079/1.202 -> 1.348, `H: commit` 3.431/3.923 -> 3.873.
+  The box was busier than stage 28's. That makes slot 17's sumcheck number
+  harder to explain away, not easier.
+* **Slot 14's masked sumcheck, 1.741 s, is INSIDE the two baselines**
+  (1.642 and 1.872). Nothing measurable, and it is the slot with the LARGER
+  counted saving. Said plainly: the count does not predict the clock, which
+  is the check's IR-C9 measured once more.
+* **The total prove, 18.405 s, is inside the 17.40-19.36 s the two baselines
+  already span.** The honest sentence is unchanged from stage 29: **one 125M
+  block proves in 17.4-19.4 s on this laptop**, and this stage does not
+  narrow it. A 0.4 s saving on one slot sits under a 2 s run-to-run band.
+* **The receipt is the same 40,783,352 bytes and the test's own assertions
+  pass**, which is the point of the stage.
+
+### Task 5 — the gates
+
+| gate | result |
+|---|---|
+| the whole `--lib private_` filter at the tip | **408 passed / 0 failed / 17 ignored, 529.66 s, exit 0** (`y35-gate-private.log`) — stage 34's 403 plus this stage's five, nothing lost, and 40 s FASTER than stage 34's 569 s on a box that was no quieter |
+| the stage's own tests alone, at every commit | `y35-a2-oracle.log`, `y35-b1-hoist.log`, `y35-b2-shared.log`, `y35-b3-mulbase.log`: **5 passed / 0 failed, ~1.05 s** at each of the four |
+| the differential against the verbatim `89e393f` bodies | green at all four commits: 72 (point, slot) comparisons per registry walk, nine shapes, slot 17's pad branch taken at eight and not taken at one |
+| the stage-34 IR oracle | `slot_ir_tests::the_slot_ir_evaluates_to_the_closure_at_every_registered_shape_and_slot` and `...the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`, both `... ok` — **the strongest gate here, because `slot_ir.rs` did not change and the closures must still equal it** — plus this stage's own 576-point leg |
+| **the arms-only proof** | `python3 results/zk60_block125m_lane/y35-arms-only.py 89e393f HEAD`: every hunk of `argument.rs` inside the `SC_DZC` (base 1401..1472) or the `SC_SZC` (base 1587..1660) arm, **0 hunks outside** |
+| the forbidden-files proof | `git diff --stat 89e393f HEAD -- <the no-edit list>` prints **nothing** |
+| the toy byte-frozen gates, BY NAME | `grow_tests::the_toy_schedule_digest_is_frozen`, `grow_tests::the_toy_parameter_line_is_the_frozen_literal`, `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — all three `... ok` in `y35-gate-private.log` |
+| the development profiles' pins, BY NAME | `k4_tests::the_rung_k4_shape_is_the_four_key_value_head_geometry_it_claims`, `p2_tests::the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move`, `c6_tests::the_new_shape_is_rung_p2_with_the_head_dimension_moved`, `w14_tests::the_new_shape_is_the_125m_head_axis_at_the_smallest_admissible_token_count`, `e32_tests::the_new_shape_is_125ms_endpoint_row_count_at_a_ten_log_endpoint`, `w14_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14` — all `... ok` |
+| the 125M receipt length | **40,783,352 B**, asserted by the test itself in `y35-m125-after.log` |
+| 125M runs spent | **one**, the final one; the baseline is the two committed same-day logs |
+
+### Findings
+
+**S35-F1 — `argument.rs::limbs` is now dead code, and this lane may not
+remove it.** Slots 17 and 14 were its only callers; after lever (b)(iii)
+both fold their limbs through the arm-local `lb`, and the test build reports
+**15 warnings where it reported 14**. The function is at line 825, outside
+both arms, and the stage's own rule is that the diff of this file stays
+inside the two arms — so the warning is left standing rather than papered
+over. **Handover: delete `limbs` or put it behind `cfg(test)`.** It is worth
+keeping as a `cfg(test)` oracle for `lb` rather than deleting outright.
+
+**S35-F2 — the count and the clock disagree, again, and in the direction
+the check predicted.** Slot 14 has the larger counted saving (155 units per
+evaluation against slot 17's 56, and 18.7% of its closure against 13.8%) and
+shows **nothing** at 125M, while slot 17 shows the full counted figure. The
+check's IR-C9 said the count model over-weights slot 17 against slot 14 by
+2.1x when measured; here the SAVING behaves the other way round from what
+the count alone would suggest. One run each way, so this is an observation
+and not a law — but it is one more reason not to carry a counted percentage
+to a slot's seconds.
+
+### What was tried and DROPPED
+
+* **Factoring the support gate across the HOST terms as well.** At slot 14
+  both host terms carry `g`, so `v0*(other + g S) + nu0 v1 g H1 + nu1 v2 g H2`
+  can be regrouped as `v0*other + g*(v0 S + nu0 v1 H1 + nu1 v2 H2)`. Counted:
+  it saves **one** `Fp2::mul` of the slot's ~110, five base units of 828, and
+  it makes the closure's correspondence with the stage-34 IR's term list less
+  direct. Dropped as gold-plating. At slot 17 the same regrouping is
+  count-NEUTRAL (five multiplications either way, because `ght` and `gs` are
+  different tables), and it was dropped there for that reason.
+* **Changing `limbs`, `helper_sum`, `Gate` or `PadTerm` themselves.** All
+  four are outside the arms. `helper_sum`'s `den` already uses `mul_base`
+  for its base coefficients; `PadTerm::eval`'s weights are powers of `zeta`,
+  a challenge, so no `mul_base` applies there; `PadTerm::eval` pays one
+  `mu.mul(acc)` even with no group at all, which is the memo's §3.5 finding
+  and is a one-line change for whoever owns that function.
+* **`add_base` for the `k(32768)`, `k(-MASK_SCORE)` and `2^(SH_*-1)`
+  constants.** Value-identical and free of risk, but an addition costs zero
+  in the check's unit, so it would buy a diff and no count.
+* **Lowering the declared degree** (ruling I-7): excluded by the ruling, and
+  it would move bytes.
+
+### What remains for stage 3, and what it waits on
+
+Levers **(c)** (finite differences, 31.2% of the baseline) and **(a)**
+(base-field tables, 14.4%) **cannot be taken from a closure**: both need a
+range of pair indices or the whole round, which lives in
+`zkp-core/src/sumcheck.rs`. They wait on ruling I-5's `SumcheckRounds`
+interface, and request **R1d** (one redundant evaluation per pair index,
+15.8%) waits on the same integrator. Ruling I-5's precondition is unchanged
+and is not this lane's to close: `tests/test_zk60_mvp_security_probe.py` is
+red on main for `hashline/src/zk.rs` since `4751b93`.
+
+**The honest headline of this stage.** Lever (b) is taken in full inside the
+two closures that are 83% of the counted baseline, with byte identity
+demonstrated three ways; it is worth a **counted** 13.8% of slot 17's
+closure and 18.7% of slot 14's; and what it is worth on the clock is **one
+measured 0.4 s on slot 17's masked sumcheck at 125M and nothing anywhere
+else that a shared box can distinguish from noise**. The prove stays inside
+17.4-19.4 s. The road to 5 s is still the two commitments and the device,
+exactly as ruling I-9 says.
+
+**The crate's warnings: 15**, the tip's 14 plus finding S35-F1's dead
+`limbs`. Neither `s35_tests.rs` nor either arm adds any other.
+
+**THE COMMITS OF STAGE 35**, in order:
+
+| commit | what |
+|---|---|
+| `e2467e0` | the ledger skeleton: the five tasks, the rules, the evidence prefix |
+| `fa3ed3b` | **task 1, the oracle before the change**: `s35_tests.rs` with the two `89e393f` closure bodies verbatim, the arms' two `#[cfg(test)]` capture statements each, the IR leg, the table/degree pins, the `mul_base` identity and the count ladder — 5 passed with the new form still the old one |
+| `52dbaa2` | **lever (b)(i)**: the support gate hoisted, 22 -> 12 at slot 14 and 10 -> 6 at slot 17; the four-rung ladder; the three before-timings |
+| `ed77271` | **lever (b)(ii)**: `k_den*d` and `k_den*dm` formed once |
+| `9e11312` | **lever (b)(iii)**: the thirteen public constants through `mul_base`, the limb folds' `256^0` dropped; finding S35-F1 |
+| this one | the measurements, the gates and this section, closed |
+
+### What this stage is NOT
+
+Not a byte change: the toy's 2,816,472 B, the two rungs', rung-K4's,
+rung-W14's 16,421,048 B and 125M's 40,783,352 B are all where they were,
+and the three ways the closures were held to their parent say why. Not a
+privacy or a soundness claim: no table, no challenge, no absorb, no draw
+and no declared degree moved, and the verifier was not opened. Not a speed
+result at rung-W14 — the measurement there is inside run-to-run spread and
+the section says so in those words. Not a 5-second step: one 125M block
+still proves in 17.4-19.4 s, and 79% of that is in files this lane may not
+edit.

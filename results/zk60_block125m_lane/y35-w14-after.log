@@ -1,0 +1,762 @@
+=== run 1 ===
+
+running 1 test
+test private_block::w14_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14 ... S32 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the rotation live on the 64-wide head
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.000 s |       196608 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |        65536 |
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.015 s |        65536 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.000 s |       196608 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |        65536 |
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.014 s |        65536 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         1600 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |           64 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |           64 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.005 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.013 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.000 s |       327680 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.002 s |        65536 |
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.031 s |        65536 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.008 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.001 s |          768 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.008 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.001 s |          768 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.009 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.002 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.008 s |      3932160 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.805 s |        65536 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.270 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.021 s |      1376256 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.246 s |        65536 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.077 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.006 s |       294912 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.099 s |        16384 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.070 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.003 s |      1966080 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.369 s |        65536 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.117 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.012 s |      1310720 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.209 s |        65536 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.093 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.003 s |       180224 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.039 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.031 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.006 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.012 s |       196608 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.013 s |        65536 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.010 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.012 s |       196608 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.013 s |        65536 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.014 s |            1 |
+PB-TIMING prove [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 42 phases, wall 3.852 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING prove | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING prove | setup: layout, endpoint owners, OS randomness | setup        |    0.000 |   0.0% |   963 A+H rows |        77 |        77 |
+PB-TIMING prove | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |        77 |        77 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.028 |   0.7% |  8634368 words |       143 |       143 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.007 |   0.2% |  4882432 words |       179 |       179 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.001 |   0.0% |   131072 words |       179 |       179 |
+PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.076 |   2.0% |  4030464 words |       179 |       179 |
+PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.315 |   8.2% |       527 rows |       456 |       456 |
+PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.021 |   0.5% |        50 rows |       456 |       456 |
+PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    0.166 |   4.3% |  4882432 words |       512 |       512 |
+PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.004 |   0.1% |   131072 words |       513 |       513 |
+PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.000 |   0.0% |            0 - |       513 |       513 |
+PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |       513 |       513 |
+PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.025 |   0.7% |  1671168 words |       513 |       513 |
+PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.247 |   6.4% |       436 rows |       731 |       731 |
+PB-TIMING prove | slot 00 01 SS row sums norm_a (private)      | norm         |    0.021 |   0.6% |    131072 cube |       732 |       732 |
+PB-TIMING prove | slot 01 01m SS row sums norm_m (private)     | norm         |    0.021 |   0.5% |    131072 cube |       732 |       732 |
+PB-TIMING prove | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       732 |       732 |
+PB-TIMING prove | slot 03 08 limb zero-check                   | norm         |    0.025 |   0.7% |     32768 cube |       732 |       732 |
+PB-TIMING prove | slot 04 07 masked row sums + selector (private) | attention    |    0.042 |   1.1% |    131072 cube |       732 |       732 |
+PB-TIMING prove | slot 05 09Q matmul (private)                 | attention    |    0.006 |   0.2% |      2048 cube |       732 |       732 |
+PB-TIMING prove | slot 06 09K matmul (private)                 | attention    |    0.006 |   0.1% |      2048 cube |       732 |       732 |
+PB-TIMING prove | slot 07 09V matmul (private)                 | attention    |    0.005 |   0.1% |      2048 cube |       732 |       732 |
+PB-TIMING prove | slot 08 10 score matmul (private, bilinear)  | attention    |    0.009 |   0.2% |      1024 cube |       732 |       732 |
+PB-TIMING prove | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.010 |   0.3% |      1024 cube |       732 |       732 |
+PB-TIMING prove | slot 10 12 Wo matmul (private)               | attention    |    0.005 |   0.1% |      2048 cube |       732 |       732 |
+PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.007 |   0.2% |      2048 cube |       732 |       732 |
+PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.006 |   0.2% |      2048 cube |       732 |       732 |
+PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.005 |   0.1% |      2048 cube |       732 |       732 |
+PB-TIMING prove | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    1.084 |  28.2% |    131072 cube |       760 |       760 |
+PB-TIMING prove | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.346 |   9.0% |    131072 cube |       760 |       760 |
+PB-TIMING prove | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.176 |   4.6% |     32768 cube |       760 |       760 |
+PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.490 |  12.7% |    131072 cube |       760 |       760 |
+PB-TIMING prove | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.314 |   8.1% |    131072 cube |       760 |       760 |
+PB-TIMING prove | slot 19 TAB table helper zero-check          | lookup-table |    0.073 |   1.9% |     32768 cube |       760 |       760 |
+PB-TIMING prove | slot 20 ZS zero-sum row                      | lookup-table |    0.007 |   0.2% |     32768 cube |       760 |       760 |
+PB-TIMING prove | slot 21 IO-in endpoint equality              | endpoints    |    0.035 |   0.9% |    131072 cube |       760 |       760 |
+PB-TIMING prove | slot 22 IO-out endpoint equality             | endpoints    |    0.038 |   1.0% |    131072 cube |       760 |       760 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.1% |        50 rows |       760 |       760 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.156 |   4.1% |     122 claims |       427 |       759 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.052 |   1.4% |      51 claims |       155 |       759 |
+PB-TIMING prove | open endpoint IN (pcs::open_zk)              | openings     |    0.008 |   0.2% |         9 rows |       148 |       759 |
+PB-TIMING prove | open endpoint OUT (pcs::open_zk)             | openings     |    0.007 |   0.2% |         9 rows |       144 |       759 |
+PB-TIMING prove | SUM OF PHASES                                |              |    3.850 |  99.9% |
+PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |    3.852 | 100.0% |
+PB-TIMING prove | unaccounted (wall - sum)                     |              |    0.002 |   0.1% |
+PB-TIMING prove HALF setup             0.000 s    0.0%  (2 phases)
+PB-TIMING prove HALF commit            0.890 s   23.1%  (12 phases)
+PB-TIMING prove HALF norm              0.068 s    1.8%  (4 phases)
+PB-TIMING prove HALF attention         1.094 s   28.4%  (10 phases)
+PB-TIMING prove HALF feed-forward      0.332 s    8.6%  (4 phases)
+PB-TIMING prove HALF residual          1.084 s   28.2%  (1 phases)
+PB-TIMING prove HALF lookup-table      0.080 s    2.1%  (2 phases)
+PB-TIMING prove HALF endpoints         0.073 s    1.9%  (2 phases)
+PB-TIMING prove HALF openings          0.228 s    5.9%  (5 phases)
+PB-TIMING prove SPLIT attention 1.094 s (28.4%) | feed-forward 0.332 s (8.6%) | the rest 2.424 s (62.9%) — of the 3.852 s wall
+PB-TIMING prove NOTE slot 14 (D zero-check) is the one MIXED slot — 1.084 s (28.2%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.013 |        | 16421048 B     |       160 |       759 |
+PB-TIMING verify [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 31 phases, wall 0.499 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |   963 A+H rows |       160 |       759 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |       160 |       759 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.002 |   0.4% |        2 roots |       160 |       759 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.015 |   3.0% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.015 |   3.0% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       160 |       759 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.008 |   1.5% |     32768 cube |       160 |       759 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.027 |   5.3% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.002 |   0.5% |      2048 cube |       160 |       759 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.4% |      2048 cube |       160 |       759 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.4% |      2048 cube |       160 |       759 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |      1024 cube |       160 |       759 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |      1024 cube |       160 |       759 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.5% |      2048 cube |       160 |       759 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   0.9% |      2048 cube |       160 |       759 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   0.9% |      2048 cube |       160 |       759 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.004 |   0.8% |      2048 cube |       160 |       759 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.040 |   8.1% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.045 |   9.0% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.014 |   2.8% |     32768 cube |       160 |       759 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.047 |   9.5% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.000 |   0.0% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.028 |   5.5% |     32768 cube |       160 |       759 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.007 |   1.4% |     32768 cube |       160 |       759 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |    131072 cube |       160 |       759 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |    131072 cube |       160 |       759 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   0.8% |        50 rows |       160 |       759 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.151 |  30.2% |     122 claims |       161 |       759 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.050 |  10.0% |      51 claims |       161 |       759 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.012 |   2.4% |         9 rows |       161 |       759 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.011 |   2.2% |         9 rows |       161 |       759 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.497 |  99.8% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.499 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.2% |
+PB-TIMING verify HALF setup             0.002 s    0.4%  (3 phases)
+PB-TIMING verify HALF norm              0.038 s    7.6%  (4 phases)
+PB-TIMING verify HALF attention         0.143 s   28.6%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.013 s    2.6%  (4 phases)
+PB-TIMING verify HALF residual          0.040 s    8.1%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.034 s    6.9%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.227 s   45.6%  (5 phases)
+PB-TIMING verify SPLIT attention 0.143 s (28.6%) | feed-forward 0.013 s (2.6%) | the rest 0.342 s (68.5%) — of the 0.499 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.040 s (8.1%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.008 |        | 16421048 B     |       161 |       759 |
+PB-TIMING verify [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 31 phases, wall 0.496 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |   963 A+H rows |       161 |       759 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |       161 |       759 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.002 |   0.4% |        2 roots |       162 |       759 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.014 |   2.9% |    131072 cube |       164 |       759 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.016 |   3.2% |    131072 cube |       164 |       759 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       164 |       759 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.007 |   1.4% |     32768 cube |       164 |       759 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.026 |   5.2% |    131072 cube |       165 |       759 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.002 |   0.5% |      2048 cube |       165 |       759 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.003 |   0.5% |      2048 cube |       165 |       759 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.5% |      2048 cube |       165 |       759 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |      1024 cube |       165 |       759 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |      1024 cube |       165 |       759 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.002 |   0.4% |      2048 cube |       165 |       759 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.0% |      2048 cube |       165 |       759 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.1% |      2048 cube |       165 |       759 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.006 |   1.2% |      2048 cube |       165 |       759 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.044 |   8.8% |    131072 cube |       166 |       759 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.040 |   8.1% |    131072 cube |       166 |       759 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.016 |   3.3% |     32768 cube |       166 |       759 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.039 |   7.9% |    131072 cube |       166 |       759 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.000 |   0.0% |    131072 cube |       166 |       759 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.026 |   5.3% |     32768 cube |       166 |       759 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.007 |   1.4% |     32768 cube |       166 |       759 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |    131072 cube |       166 |       759 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |    131072 cube |       166 |       759 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   0.8% |        50 rows |       166 |       759 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.161 |  32.4% |     122 claims |       172 |       759 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.045 |   9.0% |      51 claims |       172 |       759 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.010 |   2.1% |         9 rows |       172 |       759 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.011 |   2.1% |         9 rows |       172 |       759 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.495 |  99.8% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.496 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.2% |
+PB-TIMING verify HALF setup             0.002 s    0.5%  (3 phases)
+PB-TIMING verify HALF norm              0.037 s    7.5%  (4 phases)
+PB-TIMING verify HALF attention         0.131 s   26.5%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.016 s    3.3%  (4 phases)
+PB-TIMING verify HALF residual          0.044 s    8.8%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.034 s    6.8%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.230 s   46.4%  (5 phases)
+PB-TIMING verify SPLIT attention 0.131 s (26.5%) | feed-forward 0.016 s (3.3%) | the rest 0.347 s (70.0%) — of the 0.496 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.044 s (8.8%) counted under 'residual', hosting one attention and one feed-forward matmul
+rung-W14 DENSE one block: prove 3.95 s, verify from bytes 0.50 s, frame 16421048 B
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.002 |        | 16421047 B     |       172 |       759 |
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 491 filtered out; finished in 5.22s
+
+=== run 2 ===
+
+running 1 test
+test private_block::w14_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14 ... S32 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the rotation live on the 64-wide head
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.000 s |       196608 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |        65536 |
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.014 s |        65536 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.000 s |       196608 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |        65536 |
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.016 s |        65536 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.006 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         1600 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |           64 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |           64 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.004 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.014 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.000 s |       327680 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |        65536 |
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.030 s |        65536 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.009 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.001 s |          768 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.008 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.001 s |          768 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.011 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.006 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.006 s |      3932160 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.790 s |        65536 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.263 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.014 s |      1376256 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.222 s |        65536 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.073 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.006 s |       294912 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.102 s |        16384 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.061 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.011 s |      1966080 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.351 s |        65536 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.110 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.014 s |      1310720 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.168 s |        65536 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.081 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.006 s |       180224 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.030 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.030 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.006 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.010 s |       196608 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.013 s |        65536 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.010 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.010 s |       196608 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.013 s |        65536 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.008 s |            1 |
+PB-TIMING prove [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 42 phases, wall 3.662 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING prove | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING prove | setup: layout, endpoint owners, OS randomness | setup        |    0.000 |   0.0% |   963 A+H rows |        77 |        77 |
+PB-TIMING prove | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |        77 |        77 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.028 |   0.8% |  8634368 words |       143 |       143 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.008 |   0.2% |  4882432 words |       179 |       179 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.000 |   0.0% |   131072 words |       179 |       179 |
+PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.062 |   1.7% |  4030464 words |       179 |       179 |
+PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.278 |   7.6% |       527 rows |       455 |       455 |
+PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.018 |   0.5% |        50 rows |       456 |       456 |
+PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    0.174 |   4.8% |  4882432 words |       511 |       511 |
+PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.007 |   0.2% |   131072 words |       512 |       512 |
+PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.000 |   0.0% |            0 - |       512 |       512 |
+PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |       512 |       512 |
+PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.027 |   0.7% |  1671168 words |       512 |       512 |
+PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.226 |   6.2% |       436 rows |       731 |       731 |
+PB-TIMING prove | slot 00 01 SS row sums norm_a (private)      | norm         |    0.022 |   0.6% |    131072 cube |       731 |       731 |
+PB-TIMING prove | slot 01 01m SS row sums norm_m (private)     | norm         |    0.024 |   0.7% |    131072 cube |       731 |       731 |
+PB-TIMING prove | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       731 |       731 |
+PB-TIMING prove | slot 03 08 limb zero-check                   | norm         |    0.026 |   0.7% |     32768 cube |       731 |       731 |
+PB-TIMING prove | slot 04 07 masked row sums + selector (private) | attention    |    0.041 |   1.1% |    131072 cube |       731 |       731 |
+PB-TIMING prove | slot 05 09Q matmul (private)                 | attention    |    0.005 |   0.1% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 06 09K matmul (private)                 | attention    |    0.005 |   0.1% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 07 09V matmul (private)                 | attention    |    0.006 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 08 10 score matmul (private, bilinear)  | attention    |    0.009 |   0.2% |      1024 cube |       731 |       731 |
+PB-TIMING prove | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.012 |   0.3% |      1024 cube |       731 |       731 |
+PB-TIMING prove | slot 10 12 Wo matmul (private)               | attention    |    0.005 |   0.1% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.008 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.009 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.008 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    1.060 |  28.9% |    131072 cube |       762 |       762 |
+PB-TIMING prove | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.311 |   8.5% |    131072 cube |       762 |       762 |
+PB-TIMING prove | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.169 |   4.6% |     32768 cube |       762 |       762 |
+PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.473 |  12.9% |    131072 cube |       763 |       763 |
+PB-TIMING prove | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.263 |   7.2% |    131072 cube |       764 |       764 |
+PB-TIMING prove | slot 19 TAB table helper zero-check          | lookup-table |    0.066 |   1.8% |     32768 cube |       764 |       764 |
+PB-TIMING prove | slot 20 ZS zero-sum row                      | lookup-table |    0.007 |   0.2% |     32768 cube |       764 |       764 |
+PB-TIMING prove | slot 21 IO-in endpoint equality              | endpoints    |    0.032 |   0.9% |    131072 cube |       764 |       764 |
+PB-TIMING prove | slot 22 IO-out endpoint equality             | endpoints    |    0.032 |   0.9% |    131072 cube |       764 |       764 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.004 |   0.1% |        50 rows |       764 |       764 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.157 |   4.3% |     122 claims |       431 |       763 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.059 |   1.6% |      51 claims |       158 |       763 |
+PB-TIMING prove | open endpoint IN (pcs::open_zk)              | openings     |    0.010 |   0.3% |         9 rows |       152 |       763 |
+PB-TIMING prove | open endpoint OUT (pcs::open_zk)             | openings     |    0.006 |   0.2% |         9 rows |       147 |       763 |
+PB-TIMING prove | SUM OF PHASES                                |              |    3.660 |  99.9% |
+PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |    3.662 | 100.0% |
+PB-TIMING prove | unaccounted (wall - sum)                     |              |    0.002 |   0.1% |
+PB-TIMING prove HALF setup             0.000 s    0.0%  (2 phases)
+PB-TIMING prove HALF commit            0.829 s   22.6%  (12 phases)
+PB-TIMING prove HALF norm              0.072 s    2.0%  (4 phases)
+PB-TIMING prove HALF attention         1.038 s   28.3%  (10 phases)
+PB-TIMING prove HALF feed-forward      0.288 s    7.9%  (4 phases)
+PB-TIMING prove HALF residual          1.060 s   28.9%  (1 phases)
+PB-TIMING prove HALF lookup-table      0.073 s    2.0%  (2 phases)
+PB-TIMING prove HALF endpoints         0.064 s    1.8%  (2 phases)
+PB-TIMING prove HALF openings          0.237 s    6.5%  (5 phases)
+PB-TIMING prove SPLIT attention 1.038 s (28.3%) | feed-forward 0.288 s (7.9%) | the rest 2.335 s (63.8%) — of the 3.662 s wall
+PB-TIMING prove NOTE slot 14 (D zero-check) is the one MIXED slot — 1.060 s (28.9%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.012 |        | 16421048 B     |       163 |       763 |
+PB-TIMING verify [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 31 phases, wall 0.467 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |   963 A+H rows |       163 |       763 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |       163 |       763 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.002 |   0.4% |        2 roots |       163 |       763 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.013 |   2.8% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.014 |   3.1% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       163 |       763 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.007 |   1.5% |     32768 cube |       163 |       763 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.028 |   5.9% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.6% |      2048 cube |       163 |       763 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.5% |      2048 cube |       163 |       763 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.001 |   0.3% |      2048 cube |       163 |       763 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |      1024 cube |       163 |       763 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |      1024 cube |       163 |       763 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.002 |   0.4% |      2048 cube |       163 |       763 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.004 |   0.9% |      2048 cube |       163 |       763 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.005 |   1.0% |      2048 cube |       163 |       763 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.004 |   0.9% |      2048 cube |       163 |       763 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.040 |   8.6% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.039 |   8.4% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.016 |   3.3% |     32768 cube |       163 |       763 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.042 |   8.9% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.000 |   0.0% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.031 |   6.7% |     32768 cube |       163 |       763 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.006 |   1.2% |     32768 cube |       163 |       763 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |    131072 cube |       163 |       763 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |    131072 cube |       163 |       763 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   0.8% |        50 rows |       163 |       763 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.143 |  30.6% |     122 claims |       165 |       763 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.040 |   8.5% |      51 claims |       165 |       763 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.011 |   2.4% |         9 rows |       165 |       763 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.009 |   2.0% |         9 rows |       165 |       763 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.466 |  99.8% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.467 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.2% |
+PB-TIMING verify HALF setup             0.002 s    0.4%  (3 phases)
+PB-TIMING verify HALF norm              0.035 s    7.4%  (4 phases)
+PB-TIMING verify HALF attention         0.132 s   28.3%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.013 s    2.8%  (4 phases)
+PB-TIMING verify HALF residual          0.040 s    8.6%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.037 s    7.9%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.207 s   44.3%  (5 phases)
+PB-TIMING verify SPLIT attention 0.132 s (28.3%) | feed-forward 0.013 s (2.8%) | the rest 0.321 s (68.6%) — of the 0.467 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.040 s (8.6%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.008 |        | 16421048 B     |       165 |       763 |
+PB-TIMING verify [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 31 phases, wall 0.485 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |   963 A+H rows |       165 |       763 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |       165 |       763 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.002 |   0.4% |        2 roots |       166 |       763 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.012 |   2.5% |    131072 cube |       168 |       763 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.011 |   2.4% |    131072 cube |       168 |       763 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       168 |       763 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.008 |   1.6% |     32768 cube |       168 |       763 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.029 |   6.1% |    131072 cube |       169 |       763 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.6% |      2048 cube |       169 |       763 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.4% |      2048 cube |       169 |       763 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.4% |      2048 cube |       169 |       763 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |      1024 cube |       169 |       763 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |      1024 cube |       169 |       763 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.5% |      2048 cube |       169 |       763 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.003 |   0.6% |      2048 cube |       169 |       763 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.003 |   0.7% |      2048 cube |       169 |       763 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.004 |   0.8% |      2048 cube |       169 |       763 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.041 |   8.5% |    131072 cube |       170 |       763 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.042 |   8.6% |    131072 cube |       170 |       763 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.014 |   3.0% |     32768 cube |       170 |       763 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.042 |   8.6% |    131072 cube |       170 |       763 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.000 |   0.0% |    131072 cube |       170 |       763 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.033 |   6.9% |     32768 cube |       170 |       763 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.007 |   1.4% |     32768 cube |       170 |       763 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |    131072 cube |       170 |       763 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |    131072 cube |       170 |       763 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   0.8% |        50 rows |       170 |       763 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.150 |  31.0% |     122 claims |       172 |       763 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.049 |  10.1% |      51 claims |       172 |       763 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.010 |   2.0% |         9 rows |       172 |       763 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.010 |   2.0% |         9 rows |       172 |       763 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.484 |  99.8% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.485 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.2% |
+PB-TIMING verify HALF setup             0.002 s    0.4%  (3 phases)
+PB-TIMING verify HALF norm              0.031 s    6.5%  (4 phases)
+PB-TIMING verify HALF attention         0.137 s   28.3%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.010 s    2.1%  (4 phases)
+PB-TIMING verify HALF residual          0.041 s    8.5%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.040 s    8.2%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.222 s   45.8%  (5 phases)
+PB-TIMING verify SPLIT attention 0.137 s (28.3%) | feed-forward 0.010 s (2.1%) | the rest 0.337 s (69.5%) — of the 0.485 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.041 s (8.5%) counted under 'residual', hosting one attention and one feed-forward matmul
+rung-W14 DENSE one block: prove 3.76 s, verify from bytes 0.49 s, frame 16421048 B
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.002 |        | 16421047 B     |       172 |       763 |
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 491 filtered out; finished in 4.99s
+
+=== run 3 ===
+
+running 1 test
+test private_block::w14_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_w14 ... S32 CENSUS [one dense block]: 12/12 head slots live, 4/4 key-value groups live and pairwise different, the upper hidden half live, the rotation live on the 64-wide head
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.000 s |       196608 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |        65536 |
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.014 s |        65536 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.000 s |       196608 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.002 s |        65536 |
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.014 s |        65536 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         1600 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |           64 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |           64 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.000 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.005 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.007 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.010 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.000 s |       327680 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.001 s |        65536 |
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.031 s |        65536 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.009 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.006 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.001 s |          768 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.007 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.001 s |          768 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.011 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.001 s |         2048 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |         1024 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.000 s |         1024 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.005 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.010 s |      3932160 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.826 s |        65536 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.265 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.012 s |      1376256 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.232 s |        65536 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.072 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.007 s |       294912 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.094 s |        16384 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.069 s |            1 |
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.003 s |      1966080 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.341 s |        65536 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.113 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.015 s |      1310720 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.207 s |        65536 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.083 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.006 s |       180224 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.037 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.031 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.001 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.006 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.011 s |       196608 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.011 s |        65536 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.011 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.010 s |       196608 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |        65536 |
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.011 s |        65536 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.010 s |            1 |
+PB-TIMING prove [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 42 phases, wall 3.741 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING prove | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING prove | setup: layout, endpoint owners, OS randomness | setup        |    0.000 |   0.0% |   963 A+H rows |        77 |        77 |
+PB-TIMING prove | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |        77 |        77 |
+PB-TIMING prove | A: allocate + witness planes -> committed rows | commit       |    0.029 |   0.8% |  8634368 words |       143 |       143 |
+PB-TIMING prove | A: lookup values + the byte histogram        | commit       |    0.007 |   0.2% |  4882432 words |       179 |       179 |
+PB-TIMING prove | A: exp/act indices + their two histograms    | commit       |    0.000 |   0.0% |   131072 words |       179 |       179 |
+PB-TIMING prove | A: mask + proximity rows (fresh randomness)  | commit       |    0.064 |   1.7% |  4030464 words |       179 |       179 |
+PB-TIMING prove | A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.295 |   7.9% |       527 rows |       455 |       455 |
+PB-TIMING prove | M: mask commit (zk::mask_commit, ONE call)   | commit       |    0.022 |   0.6% |        50 rows |       456 |       456 |
+PB-TIMING prove | H: LogUp helper inverses (six lookup domains) | commit       |    0.154 |   4.1% |  4882432 words |       512 |       512 |
+PB-TIMING prove | H: exp + activation helper inverses          | commit       |    0.004 |   0.1% |   131072 words |       513 |       513 |
+PB-TIMING prove | H: release the four witness buffers (S2 drops) | commit       |    0.000 |   0.0% |            0 - |       513 |       513 |
+PB-TIMING prove | H: the three table helpers                   | commit       |    0.000 |   0.0% |    49152 words |       513 |       513 |
+PB-TIMING prove | H: mask rows + the zero-sum rows             | commit       |    0.032 |   0.9% |  1671168 words |       513 |       513 |
+PB-TIMING prove | H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call) | commit       |    0.224 |   6.0% |       436 rows |       731 |       731 |
+PB-TIMING prove | slot 00 01 SS row sums norm_a (private)      | norm         |    0.021 |   0.6% |    131072 cube |       731 |       731 |
+PB-TIMING prove | slot 01 01m SS row sums norm_m (private)     | norm         |    0.021 |   0.6% |    131072 cube |       731 |       731 |
+PB-TIMING prove | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       731 |       731 |
+PB-TIMING prove | slot 03 08 limb zero-check                   | norm         |    0.023 |   0.6% |     32768 cube |       731 |       731 |
+PB-TIMING prove | slot 04 07 masked row sums + selector (private) | attention    |    0.042 |   1.1% |    131072 cube |       731 |       731 |
+PB-TIMING prove | slot 05 09Q matmul (private)                 | attention    |    0.006 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 06 09K matmul (private)                 | attention    |    0.007 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 07 09V matmul (private)                 | attention    |    0.006 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 08 10 score matmul (private, bilinear)  | attention    |    0.008 |   0.2% |      1024 cube |       731 |       731 |
+PB-TIMING prove | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.012 |   0.3% |      1024 cube |       731 |       731 |
+PB-TIMING prove | slot 10 12 Wo matmul (private)               | attention    |    0.005 |   0.1% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 11 13G gate matmul (private)            | feed-forward |    0.008 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 12 13U up matmul (private)              | feed-forward |    0.009 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 13 13D down matmul (private)            | feed-forward |    0.007 |   0.2% |      2048 cube |       731 |       731 |
+PB-TIMING prove | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    1.103 |  29.5% |    131072 cube |       760 |       760 |
+PB-TIMING prove | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.318 |   8.5% |    131072 cube |       760 |       760 |
+PB-TIMING prove | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.169 |   4.5% |     32768 cube |       760 |       760 |
+PB-TIMING prove | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.458 |  12.2% |    131072 cube |       761 |       761 |
+PB-TIMING prove | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.306 |   8.2% |    131072 cube |       761 |       761 |
+PB-TIMING prove | slot 19 TAB table helper zero-check          | lookup-table |    0.076 |   2.0% |     32768 cube |       761 |       761 |
+PB-TIMING prove | slot 20 ZS zero-sum row                      | lookup-table |    0.007 |   0.2% |     32768 cube |       761 |       761 |
+PB-TIMING prove | slot 21 IO-in endpoint equality              | endpoints    |    0.033 |   0.9% |    131072 cube |       761 |       761 |
+PB-TIMING prove | slot 22 IO-out endpoint equality             | endpoints    |    0.032 |   0.8% |    131072 cube |       761 |       761 |
+PB-TIMING prove | open M (zk::mask_open, ONE call)             | openings     |    0.005 |   0.1% |        50 rows |       761 |       761 |
+PB-TIMING prove | open A (schedule audit + pcs::open_zk)       | openings     |    0.155 |   4.1% |     122 claims |       428 |       760 |
+PB-TIMING prove | open H (schedule audit + pcs::open_zk)       | openings     |    0.057 |   1.5% |      51 claims |       156 |       760 |
+PB-TIMING prove | open endpoint IN (pcs::open_zk)              | openings     |    0.007 |   0.2% |         9 rows |       149 |       760 |
+PB-TIMING prove | open endpoint OUT (pcs::open_zk)             | openings     |    0.008 |   0.2% |         9 rows |       145 |       760 |
+PB-TIMING prove | SUM OF PHASES                                |              |    3.739 |  99.9% |
+PB-TIMING prove | WALL CLOCK OF THE CALL                       |              |    3.741 | 100.0% |
+PB-TIMING prove | unaccounted (wall - sum)                     |              |    0.002 |   0.1% |
+PB-TIMING prove HALF setup             0.000 s    0.0%  (2 phases)
+PB-TIMING prove HALF commit            0.831 s   22.2%  (12 phases)
+PB-TIMING prove HALF norm              0.065 s    1.7%  (4 phases)
+PB-TIMING prove HALF attention         1.032 s   27.6%  (10 phases)
+PB-TIMING prove HALF feed-forward      0.330 s    8.8%  (4 phases)
+PB-TIMING prove HALF residual          1.103 s   29.5%  (1 phases)
+PB-TIMING prove HALF lookup-table      0.082 s    2.2%  (2 phases)
+PB-TIMING prove HALF endpoints         0.065 s    1.7%  (2 phases)
+PB-TIMING prove HALF openings          0.231 s    6.2%  (5 phases)
+PB-TIMING prove SPLIT attention 1.032 s (27.6%) | feed-forward 0.330 s (8.8%) | the rest 2.378 s (63.5%) — of the 3.741 s wall
+PB-TIMING prove NOTE slot 14 (D zero-check) is the one MIXED slot — 1.103 s (29.5%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING prove | encode to bytes (wire::encode)               | frame        |    0.013 |        | 16421048 B     |       161 |       760 |
+PB-TIMING verify [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 31 phases, wall 0.473 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |   963 A+H rows |       161 |       760 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |       161 |       760 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.002 |   0.4% |        2 roots |       161 |       760 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.010 |   2.2% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.011 |   2.4% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       161 |       760 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.007 |   1.6% |     32768 cube |       161 |       760 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.023 |   4.9% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.5% |      2048 cube |       161 |       760 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.4% |      2048 cube |       161 |       760 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.5% |      2048 cube |       161 |       760 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |      1024 cube |       161 |       760 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |      1024 cube |       161 |       760 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.6% |      2048 cube |       161 |       760 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.004 |   0.9% |      2048 cube |       161 |       760 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.003 |   0.7% |      2048 cube |       161 |       760 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.004 |   0.9% |      2048 cube |       161 |       760 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.042 |   8.9% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.048 |  10.2% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.014 |   2.9% |     32768 cube |       161 |       760 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.038 |   8.0% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.000 |   0.0% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.029 |   6.2% |     32768 cube |       161 |       760 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.007 |   1.5% |     32768 cube |       161 |       760 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |    131072 cube |       161 |       760 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |    131072 cube |       161 |       760 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   0.8% |        50 rows |       161 |       760 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.148 |  31.2% |     122 claims |       163 |       760 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.044 |   9.2% |      51 claims |       163 |       760 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.011 |   2.4% |         9 rows |       163 |       760 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.010 |   2.2% |         9 rows |       163 |       760 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.472 |  99.8% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.473 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.2% |
+PB-TIMING verify HALF setup             0.002 s    0.4%  (3 phases)
+PB-TIMING verify HALF norm              0.029 s    6.2%  (4 phases)
+PB-TIMING verify HALF attention         0.133 s   28.1%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.012 s    2.5%  (4 phases)
+PB-TIMING verify HALF residual          0.042 s    8.9%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.037 s    7.8%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.217 s   45.9%  (5 phases)
+PB-TIMING verify SPLIT attention 0.133 s (28.1%) | feed-forward 0.012 s (2.5%) | the rest 0.327 s (69.1%) — of the 0.473 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.042 s (8.9%) counted under 'residual', hosting one attention and one feed-forward matmul
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.007 |        | 16421048 B     |       163 |       760 |
+PB-TIMING verify [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)] 31 phases, wall 0.476 s (HL_PB_TIMING=1; diagnostics on a shared box, not a receipt)
+PB-TIMING verify | phase                                        | half         |  seconds | % wall |           size |   RSS MiB |   HWM MiB |
+PB-TIMING verify | setup: layout + frame shape validation       | setup        |    0.000 |   0.0% |   963 A+H rows |       163 |       760 |
+PB-TIMING verify | setup: NTT tables                            | setup        |    0.000 |   0.0% |   65536 domain |       163 |       760 |
+PB-TIMING verify | transcript header + the A and H roots        | setup        |    0.002 |   0.4% |        2 roots |       164 |       760 |
+PB-TIMING verify | slot 00 01 SS row sums norm_a (private)      | norm         |    0.012 |   2.4% |    131072 cube |       165 |       760 |
+PB-TIMING verify | slot 01 01m SS row sums norm_m (private)     | norm         |    0.014 |   2.9% |    131072 cube |       165 |       760 |
+PB-TIMING verify | slot 02 02 norm squares zero-check (hosts 01, 01m) | norm         |    0.000 |   0.0% |       128 cube |       165 |       760 |
+PB-TIMING verify | slot 03 08 limb zero-check                   | norm         |    0.007 |   1.4% |     32768 cube |       165 |       760 |
+PB-TIMING verify | slot 04 07 masked row sums + selector (private) | attention    |    0.026 |   5.6% |    131072 cube |       166 |       760 |
+PB-TIMING verify | slot 05 09Q matmul (private)                 | attention    |    0.003 |   0.6% |      2048 cube |       166 |       760 |
+PB-TIMING verify | slot 06 09K matmul (private)                 | attention    |    0.002 |   0.4% |      2048 cube |       166 |       760 |
+PB-TIMING verify | slot 07 09V matmul (private)                 | attention    |    0.002 |   0.4% |      2048 cube |       166 |       760 |
+PB-TIMING verify | slot 08 10 score matmul (private, bilinear)  | attention    |    0.000 |   0.0% |      1024 cube |       166 |       760 |
+PB-TIMING verify | slot 09 11 PV matmul (private, bilinear)     | attention    |    0.000 |   0.0% |      1024 cube |       166 |       760 |
+PB-TIMING verify | slot 10 12 Wo matmul (private)               | attention    |    0.003 |   0.6% |      2048 cube |       166 |       760 |
+PB-TIMING verify | slot 11 13G gate matmul (private)            | feed-forward |    0.005 |   1.1% |      2048 cube |       166 |       760 |
+PB-TIMING verify | slot 12 13U up matmul (private)              | feed-forward |    0.003 |   0.7% |      2048 cube |       166 |       760 |
+PB-TIMING verify | slot 13 13D down matmul (private)            | feed-forward |    0.004 |   0.9% |      2048 cube |       166 |       760 |
+PB-TIMING verify | slot 14 03 D zero-check (hosts 12, 13D)      | residual     |    0.037 |   7.8% |    131072 cube |       167 |       760 |
+PB-TIMING verify | slot 15 04 Q zero-check (hosts 09Q, 11)      | attention    |    0.042 |   8.9% |    131072 cube |       167 |       760 |
+PB-TIMING verify | slot 16 05 KV zero-check (hosts 09K, 09V)    | attention    |    0.015 |   3.1% |     32768 cube |       167 |       760 |
+PB-TIMING verify | slot 17 06 softmax zero-check (hosts 07, 10) | attention    |    0.035 |   7.3% |    131072 cube |       167 |       760 |
+PB-TIMING verify | slot 18 14 F zero-check (hosts 13G, 13U)     | feed-forward |    0.000 |   0.0% |    131072 cube |       167 |       760 |
+PB-TIMING verify | slot 19 TAB table helper zero-check          | lookup-table |    0.033 |   6.8% |     32768 cube |       167 |       760 |
+PB-TIMING verify | slot 20 ZS zero-sum row                      | lookup-table |    0.008 |   1.7% |     32768 cube |       167 |       760 |
+PB-TIMING verify | slot 21 IO-in endpoint equality              | endpoints    |    0.000 |   0.0% |    131072 cube |       167 |       760 |
+PB-TIMING verify | slot 22 IO-out endpoint equality             | endpoints    |    0.000 |   0.0% |    131072 cube |       167 |       760 |
+PB-TIMING verify | verify M (zk::mask_verify, ONE call)         | openings     |    0.004 |   0.9% |        50 rows |       167 |       760 |
+PB-TIMING verify | verify A (schedule audit + pcs::verify_zk)   | openings     |    0.153 |  32.2% |     122 claims |       173 |       760 |
+PB-TIMING verify | verify H (schedule audit + pcs::verify_zk)   | openings     |    0.045 |   9.4% |      51 claims |       173 |       760 |
+PB-TIMING verify | verify endpoint IN (pcs::verify_zk)          | openings     |    0.010 |   2.2% |         9 rows |       173 |       760 |
+PB-TIMING verify | verify endpoint OUT (pcs::verify_zk)         | openings     |    0.010 |   2.1% |         9 rows |       173 |       760 |
+PB-TIMING verify | SUM OF PHASES                                |              |    0.475 |  99.8% |
+PB-TIMING verify | WALL CLOCK OF THE CALL                       |              |    0.476 | 100.0% |
+PB-TIMING verify | unaccounted (wall - sum)                     |              |    0.001 |   0.2% |
+PB-TIMING verify HALF setup             0.002 s    0.4%  (3 phases)
+PB-TIMING verify HALF norm              0.032 s    6.8%  (4 phases)
+PB-TIMING verify HALF attention         0.128 s   26.8%  (10 phases)
+PB-TIMING verify HALF feed-forward      0.013 s    2.7%  (4 phases)
+PB-TIMING verify HALF residual          0.037 s    7.8%  (1 phases)
+PB-TIMING verify HALF lookup-table      0.041 s    8.6%  (2 phases)
+PB-TIMING verify HALF endpoints         0.000 s    0.0%  (2 phases)
+PB-TIMING verify HALF openings          0.223 s   46.8%  (5 phases)
+PB-TIMING verify SPLIT attention 0.128 s (26.8%) | feed-forward 0.013 s (2.7%) | the rest 0.335 s (70.3%) — of the 0.476 s wall
+PB-TIMING verify NOTE slot 14 (D zero-check) is the one MIXED slot — 0.037 s (7.8%) counted under 'residual', hosting one attention and one feed-forward matmul
+rung-W14 DENSE one block: prove 3.84 s, verify from bytes 0.48 s, frame 16421048 B
+PB-TIMING verify | decode from bytes (wire::decode)             | frame        |    0.002 |        | 16421047 B     |       173 |       760 |
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 491 filtered out; finished in 5.06s
+
