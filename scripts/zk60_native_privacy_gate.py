@@ -64,6 +64,12 @@ from zk60_native_jv_field import F2_ZERO, P, f2_add, f2_mul_base, f2_sub  # noqa
 from zk60_native_jv_joint import singleton_pair_rows  # noqa: E402
 from zk60_native_jv_pcs import RoleView  # noqa: E402
 from zk60_native_jv_replay import Replay  # noqa: E402
+# [ROUND 9f] the two Cargo manifests that decide whether the test-only
+# observers can compile into a release build (pre-read finding P36-2).
+from zk60_native_manifest_pins import (  # noqa: E402
+    ManifestPinError,
+    check_manifest_pins,
+)
 from zk60_native_mask_commit import (  # noqa: E402
     MaskModel,
     MaskPreimage,
@@ -82,6 +88,8 @@ TOOLS = [
     "zk60_native_pg_pcs.py",
     "zk60_native_pg_cfs.py",
     "zk60_native_mask_commit.py",
+    # [ROUND 9f] the Cargo-manifest pins and their content assertion
+    "zk60_native_manifest_pins.py",
     "zk60_native_jv_field.py",
     "zk60_native_jv_capture.py",
     "zk60_native_jv_replay.py",
@@ -992,6 +1000,17 @@ def main(argv=None):
                          "carries no validation manifest; without it a missing "
                          "manifest is a refusal, not a pass")
     args = ap.parse_args(argv)
+
+    # [ROUND 9f] BEFORE anything is read: the two Cargo manifests that decide
+    # whether the test-only observers can reach a release build (finding
+    # P36-2). A moved manifest, or one that ships the feature, stops the gate
+    # here with a message naming the file -- condition 7 of the toy profile's
+    # privacy statement (register D22), the same rule the Rust path pins obey.
+    try:
+        check_manifest_pins()
+    except ManifestPinError as exc:
+        print(f"REFUSED (Cargo manifest pins): {exc}", file=sys.stderr)
+        return 3
 
     t0 = time.time()
     caps = load_all(args.captures)

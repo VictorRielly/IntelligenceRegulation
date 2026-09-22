@@ -2811,15 +2811,237 @@ the counts of record, and were produced by the tools now in the tree.
 
 ## R9f.0 Why there is a round 9f
 
-*(skeleton — filled as the round lands)*
+Round 9e closed a check that skipped itself. This round closes a check that
+did not exist. Finding **P36-2** of the stage-36 pre-read
+(`ZK60_D22_CONDITION7_PREREAD_STAGE36.md` §7, review branch, read-only):
+after the observers delta the question *"can a release build compile
+`ZkRng::consumed_bytes` and `Transcript::squeezes`?"* is answered by
+`zkp-core/Cargo.toml` (the `test-observers` feature must stay out of
+`default`) and by `hashline/Cargo.toml` (it must stay in
+`[dev-dependencies]`) — and **by no Rust source at all**. A one-word edit in
+either would put the accessors into the production library with every Rust
+file, every `cfg` gate and every existing pin unchanged, and neither manifest
+was pinned by anything: not by `zk60_native_mask_commit.SOURCE_PINS` /
+`PATH_PINS`, not by `zk60_native_terminal_polys.SOURCE_PINS`, not by the Rust
+capture writer's 38-file list.
+
+The owner's ruling of 2026-09-20 22:06 — *the pin set is extended to every
+file on the path* — was about Rust files. This delta makes two manifests
+load-bearing for the first time. Round 9f is that one change and nothing
+else.
 
 ## R9f.1 Status
 
 | # | item | state |
 |---|---|---|
-| T1 | the two manifests pinned at `4751b93`, with the reason naming P36-2 | IN FLIGHT |
-| T2 | the CONTENT assertion (not only a digest), with its three cases | IN FLIGHT |
-| T3 | failing-first: the pre-change gate accepts `default = ["test-observers"]` | IN FLIGHT |
-| T4 | the re-pin of the records of record, reason in the guard's own record | IN FLIGHT |
-| T5 | the toy gate's modules and the record guard | IN FLIGHT |
-| T6 | this section and §8.8 of the D22 record | IN FLIGHT |
+| T1 | the two manifests pinned at `4751b93`, with the reason naming P36-2 | DONE — R9f.4 |
+| T2 | the CONTENT assertion (not only a digest), with its cases | DONE — R9f.5, 17 tests |
+| T3 | failing-first: the pre-change gate accepts `default = ["test-observers"]` | DONE — R9f.6, `failing_first_before.log` |
+| T4 | the re-pin of the records of record, reason in the guard's own record | DONE — R9f.7, `repin_diff.txt`, 0 unexpected |
+| T5 | the toy gate's seven modules and the record guard | DONE — R9f.8 |
+| T6 | this section and §8.8 of the D22 record | DONE — §8.8 and this section |
+
+**Headline: the two files that decide the production-identity claim are
+pinned, by digest and by content, and zero figures moved.** The three
+guarded records differ from their committed bytes in two tool digests — one
+of them a new leaf — and the clocks, and in nothing else.
+
+## R9f.2 Scope (hard)
+
+1. **One change**: two pins and one content assertion, in a new tool the two
+   toy gates call before any analysis. No Rust file is touched (this lane
+   does not write Rust), no capture is re-made, no bundle is read.
+2. **The Rust pin tables keep their bytes.** `zk60_native_mask_commit.py` is
+   named by **122** committed records' `tool_sha256` maps and
+   `zk60_native_terminal_polys.py` by 8 (plus its own `port_sha256`), each
+   asserted equal to the tool in the tree by its own test. Changing either
+   would stale the whole run-gate series. R9f.5 says what was done instead.
+3. **Main's digests, not the lane's.** The pins are read from `4751b93`, the
+   commit the rest of the D22 pin set is read at. The lane's stage-36
+   manifests are recorded as *expected after integration* and deliberately
+   not accepted.
+4. Nothing in this round is a privacy acceptance, and no figure of record may
+   move.
+
+## R9f.3 Commands, logs and evidence
+
+Evidence: `results/zk60_native_manifest_pins_20260922/` (`README.md` there
+tabulates it). The three gate runs were detached under
+`flock /tmp/zk-heavy.lock` inside a
+`systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0` scope, with
+the suite queued on the same lock so that it self-started when they were
+done; markers `run.done` / `suite.done`.
+
+| # | what | command | log |
+|---|---|---|---|
+| 1 | the hole, against the pre-change bytes | `python3 results/zk60_native_manifest_pins_20260922/failing_first.py` | `failing_first_before.log` (taken before the gates were wired), `failing_first_after.log` |
+| 2 | the guard before the re-pin | `python3 -m unittest tests.test_zk60_native_gate_record` | `guard_before.log` |
+| 3-5 | the three re-takes | `run.sh` (the command in each record directory's README, unchanged) | `run.log`, `run.done` |
+| 6 | what the re-pin moved | `python3 …/repin_diff.py` | `repin_diff.txt` |
+| 7 | the seven modules and the record guard | `suite.sh` | `suite.log`, `suite.done` |
+
+## R9f.4 Results — T1, the two pins
+
+Read from main at `4751b93`
+(`git --no-pager -C <main tree> show 4751b93:<path> | sha256sum`), which is
+also what this lane's worktree carries for both files:
+
+| path | sha256 | git blob | what it decides |
+|---|---|---|---|
+| `zkp-core/Cargo.toml` | `b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842` | `e3d46e4e…` | where a `test-observers`-style feature is declared, and whether `default` switches it on for every build. At `4751b93` there is no `[features]` table at all |
+| `hashline/Cargo.toml` | `eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a` | `8a670755…` | the only place that enables a zkp-core feature, and whether it does so from `[dev-dependencies]` or from `[dependencies]`. At `4751b93` it enables none |
+
+**Expected after integration, recorded and NOT accepted.** The block lane's
+tip `a8e4939` carries the stage-36 manifests: `0c746b9d…` (zkp-core, with
+`[features] test-observers = []` and an explicit `resolver = "2"`) and
+`10d99a63…` (hashline, the dev-dependency that enables it). They sit in
+`EXPECTED_AFTER_INTEGRATION` with their commit and what they add; the pin
+moves once, against the integrator's merged tree, after those bytes have
+been read there. The content assertion already accepts them, so that re-pin
+will be a digest move and nothing more. (The pre-read's §6 table quotes a
+third pair, `90156d58…` / `5633d1e4…`: those are the REVIEW worktree's bytes,
+taken before P36-3 added the resolver line. Neither pair is accepted here,
+and the difference is worth knowing when the integrator's tree is hashed.)
+
+## R9f.5 Results — T2, the content assertion, and where the pins live
+
+**A digest alone would be silent** the day somebody re-pins it without
+reading the file. So the same check parses both manifests, on every call,
+after the digest and whatever the digest said, and refuses **by name**:
+
+* `zkp-core/Cargo.toml`: `[features]`'s `default` must be **absent or
+  empty** — no feature at all on by default — and the token `test-observers`
+  may appear **only in a `[features]` table**, so in no `[dependencies]`, no
+  `[build-dependencies]` and no `[target.*.dependencies]` section;
+* `hashline/Cargo.toml`: the token may appear **only in a dev-dependency
+  section** (`[dev-dependencies]`, `[target.*.dev-dependencies]`);
+* a manifest the scanner cannot parse is **refused, not passed**.
+
+Python 3.10 on this box has no `tomllib` (3.11+), no `tomli` and no `toml`,
+so the manifests are read by a small quote-aware scanner written for the
+purpose (`read_manifest`, `section_kind`, `_array_items`), whose own
+behaviour is tested: a `#` inside a string, a trailing comment, a multi-line
+array with a comment inside it, a quoted `target."cfg(…)"` header, and four
+malformed inputs that must raise.
+
+**Where the pins live, and why not in `PATH_PINS`.** In a new module,
+`scripts/zk60_native_manifest_pins.py`, called by both gates before they read
+anything (exit **3**, no record, on a refusal). `zk60_native_mask_commit.py`
+— where the Rust path pins live — is named by 122 committed records'
+`tool_sha256` maps, the whole run-gate series over the real 125M bundles,
+each asserted equal to the tool bytes in the tree by its own test; one byte
+changed there would stale ~115 of them. The new file confines the re-pin to
+the three records of record, exactly round 9e's set. The record guard holds
+the two tables together: it fails if either manifest is unpinned, if any Rust
+pin table ever names one at a different digest, or if a gate stops calling
+the check.
+
+**17 tests**, in `tests/test_zk60_native_gate_record.py` (class
+`TheCargoManifestsArePinnedAndAsserted`): the pins are main's digests, read
+independently in the test; the check passes on this tree with no second
+digest in play; no other pin table names them differently; a changed byte in
+either manifest, and a missing manifest, are refused by name; the feature in
+`default` is refused by name (and so is any OTHER feature in `default`); the
+feature in a normal dependency section is refused; declared in `[features]`
+and enabled only from `[dev-dependencies]` — the shape the integration will
+bring — is accepted, as is a `[target."cfg(unix)".dev-dependencies]`; absent
+entirely, as at `4751b93`, is accepted; four wrong sections in hashline are
+each refused by name; an unparsable manifest is refused; both gates call the
+check, list the tool, and return 3 writing no record.
+
+## R9f.6 Results — T3, failing first
+
+`failing_first.py` loads `zk60_native_mask_commit.py` and
+`zk60_native_terminal_polys.py` **as they stood at `025e1ac`, straight out of
+git**, so the pre-change column keeps printing after the change has landed.
+The tree is synthetic: a copy of every file the toy gate pins, with
+`zkp-core/Cargo.toml` replaced by the pinned bytes plus
+`default = ["test-observers"]`.
+
+| case | before (`025e1ac`) | after |
+|---|---|---|
+| 1. the tampered tree, both Rust pin tables | **30 and 8 pinned files checked, NO refusal**; neither gate's source mentions `Cargo.toml`, `manifest_pins` or `test-observers` | — |
+| 2. the same tree, the manifest pins | — | refused, naming `zkp-core/Cargo.toml`, digest against digest |
+| 3. the same tree, **digest force-accepted** | — | still refused, by the content assertion: `[features] default = ["test-observers"]`, line 9, naming the file and P36-2 |
+| 4. hashline with the observers in `[dependencies]`, digest force-accepted | — | refused, naming the section and the line |
+| 5. the LANE's real manifests at `a8e4939`, digests force-accepted | — | **accepted** — `default` absent, the token only in `[features]` and `[dev-dependencies]` |
+| 6. CONTROL: the tree as it stands | — | accepted, both digests equal to their pins |
+| 7. the two gates, check pointed at the tampered tree | **no such check** | `main()` → **3**, `REFUSED (Cargo manifest pins): …`, no record written |
+
+Case 1 is the hole exactly as P36-2 describes it: the tampered manifest
+passed every check the gate had. Case 3 is the reason the assertion is not
+only a digest.
+
+## R9f.7 Results — T4, the re-pin
+
+Three tool digests move, so every record naming them was re-taken with the
+command in its own README:
+
+| tool | at `025e1ac` | now | why |
+|---|---|---|---|
+| `zk60_native_manifest_pins.py` | *(new)* | `1b08589a…` | the pins and the content assertion |
+| `zk60_native_privacy_gate.py` | `abaa316d…` | `819079dd…` | the call before any analysis, and the exit-3 refusal |
+| `zk60_native_joint_view.py` | `c66181aa…` | `97601b89…` | the same |
+
+| record | before | after | what moved |
+|---|---|---|---|
+| `results/zk60_native_privacy_gate/privacy_gate.json` | 224.9 s | **224.8 s**, four captures `ok` | 3 leaves: 1 tool hash, 1 NEW tool hash, `seconds` |
+| `results/zk60_native_privacy_gate_channels/privacy_gate.json` | 222.1 s | **221.3 s**, four captures `ok` | the same 3 leaves |
+| `results/zk60_native_joint_view/joint_view.json` | 20.7 s | **20.9 s**, every stage `ok` | 4 leaves: 1 tool hash, 1 NEW tool hash, two `seconds` |
+
+`repin_diff.txt` compares each with its own committed bytes at `025e1ac` leaf
+by leaf: **0 unexpected differences** — no channel, rank, dimension, control
+or count moved. The reason is written into the guard's own record
+(`results/zk60_native_gate_record_refresh/README.md`, which now carries both
+2026-09-22 rows) and into each record directory's README;
+`results/zk60_native_joint_view/README.md` was created in this round, because
+that directory had none.
+
+## R9f.8 Results — T5, the suite
+
+`tests.test_zk60_native_{capture,gate_record,joint_view,mask_commit,privacy_gate,terminal_polys,small_model_groups}`,
+inside the 8 GiB scope: **Ran 204 tests in 210.0 s, OK (skipped=1, expected
+failures=1)**, marker `suite.done` = 0 — 187 in round 9e, and the seventeen
+new ones are this round's. The one skip is the pre-existing one. The record
+guard alone (`tests.test_zk60_native_gate_record`): **29 tests, 0.073 s,
+OK** — 12 in round 9e; the three re-taken records agree with their own
+grades, carry the counts of record and were produced by the tools now in the
+tree, and the two manifests are pinned, asserted and called by both gates.
+Before the re-pin the same guard was **29 tests, FAILED (failures=1)**
+(`guard_before.log`): the records named the old gate bytes, which is exactly
+what the re-pin is for.
+
+## R9f.9 What this round is NOT
+
+1. **It is not a privacy acceptance and establishes no privacy property.**
+   Both gates still write `privacy_property_established: false`; the seven
+   OPEN channels stay open; D8/D11, the joint LAW and the hash layer's hiding
+   are untouched.
+2. **No figure of record moved**, and it is machine-checked (`repin_diff.txt`,
+   0 unexpected on all three records).
+3. **It does not re-open D22, the Rust pin tables, or §§8.1–8.7 of the D22
+   record.** It adds two pins of a kind the pin set did not have before.
+4. **It does not assert a resolver version** (pre-read finding P36-3). At
+   `4751b93` there is no `resolver` key to assert, and refusing a manifest
+   for not having one would refuse the tree as it stands. The digest pin
+   covers it from here: a manifest that dropped or lowered the key the lane
+   added would not match its pin.
+5. **It does not pin the lane's manifests.** They are recorded; the move is
+   the integrator's re-pin.
+
+## R9f.10 NEXT after round 9f
+
+1. **At the integration re-pin**: move these two pins to the merged tree's
+   bytes (expected `0c746b9d…` / `10d99a63…`), beside the four Rust files the
+   pre-read's §6 table lists, and re-read `norm_alias.rs`, which the pre-read
+   flags as a real textual conflict.
+2. **The capture writer still does not record the manifests.** P36-2's
+   remedy is complete on the Python side only: a bundle carries digests for
+   38 Rust files and for neither manifest, so a receipt cannot be checked
+   against the manifests it was built with. That is a Rust-side change for
+   the integrator (`hashline/src/native_capture.rs`), named here as a
+   residual.
+3. **The attention profile's path** is still not widened (round 5's
+   residual), and one malformed manifest shape in `manifest_check` is still
+   refused without a name (round 9e's residual). Both are cheapest at the
+   next re-take of the three records.

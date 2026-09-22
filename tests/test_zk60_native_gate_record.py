@@ -344,5 +344,321 @@ class ThePathPinsCoverThePath(unittest.TestCase):
         self.assertEqual(len(self.mc.FIXTURE_PATH_NOT_PINNED), 3)
 
 
+# =====================================================================
+#  round 9f (2026-09-22): the two Cargo manifests
+# =====================================================================
+class TheCargoManifestsArePinnedAndAsserted(unittest.TestCase):
+    """Finding P36-2 of the stage-36 pre-read: after the observers delta the
+    two Cargo manifests -- and no Rust source -- decide whether the read-only
+    test observers can compile into a release build, and neither was pinned.
+
+    The pins live in `scripts/zk60_native_manifest_pins.py` rather than in
+    `zk60_native_mask_commit.PATH_PINS` for one reason, written down in that
+    module's header: `mask_commit.py` is named by 122 committed records'
+    `tool_sha256` maps (the whole run-gate series over the real 125M
+    bundles), each asserted equal to the tool bytes in the tree by its own
+    test, so a byte changed there demands a re-take this round has no
+    business running.  What THIS class insists on is that the separation
+    costs nothing: the two manifests are pinned, the digests are the ones
+    main carries at `4751b93`, both gates call the check, and the content
+    assertion refuses a manifest that ships the observers BY NAME even at a
+    digest somebody re-pinned without reading it.
+    """
+
+    # read independently of the tool, from the integrator's main branch at
+    # 4751b93 (the commit the whole D22 pin set is read at):
+    #   git --no-pager -C <main tree> show 4751b93:<path> | sha256sum
+    PINS_OF_RECORD = {
+        "zkp-core/Cargo.toml":
+            "b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842",
+        "hashline/Cargo.toml":
+            "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a",
+    }
+
+    @classmethod
+    def setUpClass(cls):
+        import zk60_native_manifest_pins as mp
+        import zk60_native_mask_commit as mc
+        import zk60_native_terminal_polys as tp
+        cls.mp, cls.mc, cls.tp = mp, mc, tp
+
+    # ------------------------------------------------------------ the pins
+    def test_both_manifests_are_pinned_at_mains_digests(self):
+        pinned = {p.path: p.sha256 for p in self.mp.MANIFEST_PINS}
+        self.assertEqual(pinned, self.PINS_OF_RECORD)
+        for pin in self.mp.MANIFEST_PINS:
+            self.assertIn("P36-2", pin.why,
+                          "a pin's reason must say why the file is load-bearing")
+
+    def test_the_pins_are_at_the_bytes_in_this_tree_and_nowhere_else(self):
+        """The check passes here, and no OTHER pin table claims these two
+        files (if one ever does, the two must agree -- see below)."""
+        got = self.mp.check_manifest_pins()
+        self.assertEqual(sorted(got), sorted(self.PINS_OF_RECORD))
+        for path, rec in got.items():
+            self.assertEqual(rec["sha256"], self.PINS_OF_RECORD[path])
+            self.assertNotIn("accepted_as", rec,
+                             "the tree is at the pin of record, not at a "
+                             "second accepted digest")
+
+    def test_no_other_pin_table_names_them_at_a_different_digest(self):
+        others = {p.path: p.sha256 for p in
+                  list(self.mc.SOURCE_PINS) + list(self.mc.PATH_PINS)
+                  + list(self.tp.SOURCE_PINS)}
+        for path, sha in self.PINS_OF_RECORD.items():
+            if path in others:
+                self.assertEqual(
+                    others[path], sha,
+                    f"{path}: the Rust pin tables and the manifest pins "
+                    "disagree; one of them is stale")
+
+    def test_a_changed_byte_in_either_manifest_is_refused_by_name(self):
+        import shutil
+        import tempfile
+        for pin in self.mp.MANIFEST_PINS:
+            with self.subTest(path=pin.path):
+                with tempfile.TemporaryDirectory() as tmp:
+                    for other in self.mp.MANIFEST_PINS:
+                        dst = os.path.join(tmp, other.path)
+                        os.makedirs(os.path.dirname(dst), exist_ok=True)
+                        shutil.copyfile(os.path.join(ROOT, other.path), dst)
+                    with open(os.path.join(tmp, pin.path), "a") as fh:
+                        fh.write("\n# one comment more\n")
+                    with self.assertRaises(self.mp.ManifestPinError) as cm:
+                        self.mp.check_manifest_pins(root=tmp)
+                    msg = str(cm.exception)
+                    self.assertIn(pin.path, msg)
+                    self.assertIn("MISMATCH", msg)
+
+    def test_a_missing_manifest_is_refused_by_name(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(self.mp.ManifestPinError) as cm:
+                self.mp.check_manifest_pins(root=tmp)
+            self.assertIn("zkp-core/Cargo.toml", str(cm.exception))
+
+    # --------------------------------------------- the content assertion
+    #  The three cases the round was asked for, each with the digest
+    #  FORCE-ACCEPTED, which is what a re-pin done without reading the file
+    #  would look like: only the content assertion can refuse then.
+    ZKP_CORE_HEAD = (
+        '[package]\nname = "zkp-core"\nversion = "0.1.0"\n'
+        'edition = "2021"\npublish = false\n\n'
+    )
+    HASHLINE_HEAD = (
+        '[package]\nname = "hashline"\nversion = "0.1.0"\n'
+        'edition = "2021"\n\n[dependencies]\n'
+        'zkp-core = { path = "../zkp-core" }\nblake3 = "1.8"\n\n'
+    )
+
+    def _accepting(self, rel, text):
+        """`check_manifest_pins` over a tree holding just these two files,
+        with every digest accepted, so the content assertion is what speaks."""
+        import hashlib
+        import shutil
+        import tempfile
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
+        also = {}
+        for pin in self.mp.MANIFEST_PINS:
+            dst = os.path.join(tmp, pin.path)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            if pin.path == rel:
+                with open(dst, "w") as fh:
+                    fh.write(text)
+                also[rel] = {hashlib.sha256(text.encode()).hexdigest():
+                             ("n/a", "force-accepted by this test")}
+            else:
+                shutil.copyfile(os.path.join(ROOT, pin.path), dst)
+        return lambda: self.mp.check_manifest_pins(root=tmp, also=also)
+
+    def test_case_1_the_feature_in_default_is_refused_by_name(self):
+        """The one-word edit finding P36-2 names."""
+        text = (self.ZKP_CORE_HEAD
+                + '[features]\ndefault = ["test-observers"]\n'
+                  'test-observers = []\n\n[dependencies]\nblake3 = "1.8"\n')
+        with self.assertRaises(self.mp.ManifestPinError) as cm:
+            self._accepting("zkp-core/Cargo.toml", text)()
+        msg = str(cm.exception)
+        self.assertIn("zkp-core/Cargo.toml", msg)
+        self.assertIn("BY DEFAULT", msg)
+        self.assertIn("default = [\"test-observers\"]", msg)
+        self.assertIn("P36-2", msg)
+
+    def test_case_1b_any_other_feature_in_default_is_refused_too(self):
+        """`default` must be EMPTY, not merely free of this one name: a
+        feature that is on by default is a feature the next reader has to
+        re-derive the release graph for."""
+        text = (self.ZKP_CORE_HEAD
+                + '[features]\ndefault = ["std"]\nstd = []\n'
+                  'test-observers = []\n')
+        with self.assertRaises(self.mp.ManifestPinError) as cm:
+            self._accepting("zkp-core/Cargo.toml", text)()
+        self.assertIn("BY DEFAULT", str(cm.exception))
+
+    def test_case_1c_the_feature_in_a_normal_dependency_is_refused(self):
+        text = (self.ZKP_CORE_HEAD
+                + '[features]\ntest-observers = []\n\n[dependencies]\n'
+                  'blake3 = { version = "1.8", features = ["test-observers"] }\n')
+        with self.assertRaises(self.mp.ManifestPinError) as cm:
+            self._accepting("zkp-core/Cargo.toml", text)()
+        self.assertIn("[dependencies]", str(cm.exception))
+
+    def test_case_2_declared_and_enabled_only_from_dev_dependencies(self):
+        """The shape the integration will bring: zkp-core DECLARES the
+        feature and puts it in no default; hashline enables it from
+        `[dev-dependencies]` and nowhere else.  Both accepted."""
+        core = (self.ZKP_CORE_HEAD
+                + '[features]\ntest-observers = []\n\n[dependencies]\n'
+                  'blake3 = "1.8"\n')
+        got = self._accepting("zkp-core/Cargo.toml", core)()
+        ca = got["zkp-core/Cargo.toml"]["content_assertion"]
+        self.assertEqual(ca["features_default"], "absent")
+        self.assertIn("[features]", ca["test-observers"])
+
+        hl = (self.HASHLINE_HEAD + '[dev-dependencies]\n'
+              'zkp-core = { path = "../zkp-core", features = ["test-observers"] }\n')
+        got = self._accepting("hashline/Cargo.toml", hl)()
+        ca = got["hashline/Cargo.toml"]["content_assertion"]
+        self.assertIn("[dev-dependencies]", ca["test-observers"])
+
+    def test_case_2b_a_target_specific_dev_dependency_is_accepted(self):
+        hl = (self.HASHLINE_HEAD
+              + '[target."cfg(unix)".dev-dependencies]\n'
+                'zkp-core = { path = "../zkp-core", features = ["test-observers"] }\n')
+        got = self._accepting("hashline/Cargo.toml", hl)()
+        self.assertIn('[target."cfg(unix)".dev-dependencies]',
+                      got["hashline/Cargo.toml"]["content_assertion"]
+                      ["test-observers"])
+
+    def test_case_3_absent_entirely_as_at_4751b93_is_accepted(self):
+        """The tree as it stands: neither manifest mentions the feature."""
+        got = self.mp.check_manifest_pins()
+        for path, rec in got.items():
+            self.assertEqual(rec["content_assertion"]["test-observers"],
+                             "absent", path)
+            self.assertEqual(rec["content_assertion"]["features_default"],
+                             "absent", path)
+
+    def test_the_feature_outside_dev_dependencies_in_hashline_is_refused(self):
+        for section, line in (
+            ("[dependencies]",
+             'zkp-core = { path = "../zkp-core", features = ["test-observers"] }'),
+            ("[features]", 'debug-draws = ["zkp-core/test-observers"]'),
+            ("[build-dependencies]",
+             'zkp-core = { path = "../zkp-core", features = ["test-observers"] }'),
+            ('[target."cfg(unix)".dependencies]',
+             'zkp-core = { path = "../zkp-core", features = ["test-observers"] }'),
+        ):
+            with self.subTest(section=section):
+                hl = (self.HASHLINE_HEAD + section + "\n" + line + "\n")
+                with self.assertRaises(self.mp.ManifestPinError) as cm:
+                    self._accepting("hashline/Cargo.toml", hl)()
+                msg = str(cm.exception)
+                self.assertIn("hashline/Cargo.toml", msg)
+                self.assertIn(section.strip("[]"), msg)
+
+    def test_a_manifest_the_scanner_cannot_read_is_refused_not_passed(self):
+        text = self.ZKP_CORE_HEAD + '[features\ntest-observers = []\n'
+        with self.assertRaises(self.mp.ManifestPinError) as cm:
+            self._accepting("zkp-core/Cargo.toml", text)()
+        self.assertIn("cannot be read as TOML", str(cm.exception))
+
+    # -------------------------------------------------- the scanner itself
+    def test_the_scanner_reads_comments_quotes_and_multi_line_arrays(self):
+        target = 'target."cfg(any(unix, windows))".dev-dependencies'
+        text = (
+            '[package]\n'
+            'name = "x"  # a trailing comment\n'
+            'description = "a # inside a string is not a comment"\n'
+            "[features]\n"
+            "default = [\n"
+            "  # a comment inside the array\n"
+            '  "a",\n'
+            '  "b",\n'
+            "]\n"
+            "[" + target + "]\n"
+            'y = { path = "../y", features = ["test-observers"] }\n'
+        )
+        entries = self.mp.read_manifest(text)
+        by_key = {(e.section, e.key): e for e in entries}
+        self.assertEqual(by_key[("package", "description")].value,
+                         '"a # inside a string is not a comment"')
+        self.assertEqual(self.mp._array_items(
+            by_key[("features", "default")].value), ["a", "b"])
+        self.assertEqual(by_key[(target, "y")].kind, "dev-dependencies")
+        self.assertEqual(self.mp.section_kind("dependencies"), "dependencies")
+        self.assertEqual(self.mp.section_kind("target.'cfg(unix)'.dependencies"),
+                         "dependencies")
+        for bad in ('[features\nx = 1\n', 'x = [1,\n', 'nonsense\n',
+                    'x = "unterminated\n'):
+            with self.subTest(bad=bad):
+                with self.assertRaises(ValueError):
+                    self.mp.read_manifest(bad)
+
+    # ------------------------------------------------------- the two gates
+    def test_both_gates_call_the_check_and_name_the_tool(self):
+        import zk60_native_joint_view as jv
+        import zk60_native_privacy_gate as p10
+        for name, gate in (("joint_view", jv), ("privacy_gate", p10)):
+            with self.subTest(gate=name):
+                self.assertIs(gate.check_manifest_pins,
+                              self.mp.check_manifest_pins)
+                self.assertIn("zk60_native_manifest_pins.py", gate.TOOLS,
+                              "a tool whose bytes decide a refusal must be in "
+                              "the record's tool_sha256 map")
+                self.assertIn("zk60_native_manifest_pins.py",
+                              gate.tool_hashes())
+
+    def test_both_gates_refuse_and_return_3_instead_of_running(self):
+        """The callers' half: the refusal comes before anything is read, so
+        it costs nothing and writes NO record."""
+        import contextlib
+        import io
+        import shutil
+        import tempfile
+        import zk60_native_joint_view as jv
+        import zk60_native_privacy_gate as p10
+
+        def raiser():
+            raise self.mp.ManifestPinError(
+                "manifest pin MISMATCH for zkp-core/Cargo.toml: (test)")
+
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
+        for name, gate in (("joint_view", jv), ("privacy_gate", p10)):
+            with self.subTest(gate=name):
+                ev = os.path.join(tmp, name)
+                os.makedirs(ev)
+                keep = gate.check_manifest_pins
+                gate.check_manifest_pins = raiser
+                err = io.StringIO()
+                try:
+                    with contextlib.redirect_stderr(err):
+                        rc = gate.main(["--captures", tmp, "--evidence", ev])
+                finally:
+                    gate.check_manifest_pins = keep
+                self.assertEqual(rc, 3)
+                self.assertIn("REFUSED (Cargo manifest pins)", err.getvalue())
+                self.assertIn("zkp-core/Cargo.toml", err.getvalue())
+                self.assertEqual(os.listdir(ev), [],
+                                 "a refused run must write no record")
+
+    # --------------------------------------- what the integration will bring
+    def test_the_post_integration_digests_are_recorded_and_not_accepted(self):
+        """The lane's own manifests (`a8e4939`) are written down so the next
+        reader does not have to find them, and are NOT in the accepted set:
+        the pin moves once, against the integrator's merged tree."""
+        after = self.mp.EXPECTED_AFTER_INTEGRATION
+        for path in self.PINS_OF_RECORD:
+            self.assertIn(path, after)
+            self.assertNotEqual(after[path]["sha256"],
+                                self.PINS_OF_RECORD[path])
+            self.assertNotIn(after[path]["sha256"],
+                             self.mp.ALSO_ACCEPTED.get(path, {}))
+            self.assertTrue(after[path]["would_the_content_assertion_accept_it"])
+        self.assertEqual(self.mp.ALSO_ACCEPTED, {})
+
+
 if __name__ == "__main__":
     unittest.main()

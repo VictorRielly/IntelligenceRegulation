@@ -32,6 +32,25 @@ is a privacy acceptance and nothing here establishes a privacy property.**
 > `docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md`. **No number quoted in
 > any report changed.**
 
+> **2026-09-22 (round 9f): `privacy_gate.json` was RE-TAKEN again, and only
+> the clock and two tool digests moved — one of them new.** Finding P36-2 of
+> the stage-36 pre-read: `zkp-core/Cargo.toml` (the `test-observers` feature
+> must stay out of `default`) and `hashline/Cargo.toml` (it must stay in
+> `[dev-dependencies]`) decide whether the read-only test observers can
+> compile into a release build, and **nothing pinned either file**. Both are
+> now pinned at main's `4751b93` bytes in the new
+> `scripts/zk60_native_manifest_pins.py`, with a CONTENT assertion beside the
+> digest, and this gate calls the check before it reads anything and exits 3
+> on a refusal. The documented command reproduced this record leaf for leaf
+> apart from `tool_sha256/zk60_native_privacy_gate.py`, the NEW
+> `tool_sha256/zk60_native_manifest_pins.py` leaf and `seconds` (222.1 s →
+> **221.3 s**, four captures `ok`, marker `0`): **3 differing leaves, 0
+> unexpected**. The comparison is
+> `results/zk60_native_manifest_pins_20260922/repin_diff.txt`, the reason is
+> in `results/zk60_native_gate_record_refresh/README.md`, and the reading is
+> §8.8 of `docs/zkmatrix-poc/ZK60_NATIVE_D22_REPIN_4751B93.md`. **No number
+> quoted in any report changed.**
+
 | file | what it is |
 |---|---|
 | `privacy_gate.json` | the P10 gate's record AFTER the masking commitment M was ported: 28 channels, **11 CONSTRUCTED / 2 DERIVED / 8 ARGUED / 7 OPEN** on every one of the four captures, with M's own stage (`masking_commitment_M_opening`) and M's three controls |

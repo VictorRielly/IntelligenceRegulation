@@ -1,0 +1,43 @@
+pre-change modules: git:025e1ac:scripts/zk60_native_mask_commit.py
+                    git:025e1ac:scripts/zk60_native_terminal_polys.py
+in-tree module:     /home/victor/wt-zk60-jointview/scripts/zk60_native_manifest_pins.py
+
+the synthetic tree: every pinned file copied from the worktree, with
+  zkp-core/Cargo.toml = the pinned bytes + `[features] default = ["test-observers"]`
+  its sha256 2af0bb668527ed46edc4710866a9b088ed89963a0bace7642d87f9fbdf5d5353
+
+1. the PRE-CHANGE gate on that tree (bytes at 025e1ac)
+  PRE mask     RETURNED 30 pinned files checked, NO refusal
+  PRE terms    RETURNED 8 pinned files checked, NO refusal
+  PRE privacy_ga mentions NONE of (Cargo.toml, manifest_pins, test-observers)
+  PRE joint_view mentions NONE of (Cargo.toml, manifest_pins, test-observers)
+  => the tampered manifest passes every check the gate had.
+
+2. the SAME tree, in-tree check: the digest
+  IN-TREE      RAISED ManifestPinError: manifest pin MISMATCH for zkp-core/Cargo.toml:
+                        pinned sha256 b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842 (git blob e3d46e4e2d52eda49a3ae10611345b538384f090)
+                        found  sha256 2af0bb668527ed46edc4710866a9b088ed89963a0bace7642d87f9fbdf5d5353 (git blob 43d8d7be6accf42a9888f6932559018b405c205d)
+                        what it is: finding P36-2: the crate's `[features]` table is where a `test-observers`-style feature would be declared and where `default` would switch it on for every build, including a release one. At 4751b93 there is no `[features]` table at all
+                      This manifest is pinned because it, and not any Rust source, decides whether the test-only observers compile into a release build (finding P36-2). Condition 7 of the toy profile's privacy statement (register D22) SUSPENDS step 3 until the file is re-read and re-pinned: read the diff, write the one-line reading in the ledger, and only then add the digest. Do NOT re-pin to make this pass.
+
+3. the SAME tree with that digest FORCE-ACCEPTED (a re-pin done without reading the file)
+  IN-TREE      RAISED ManifestPinError: manifest REFUSED: zkp-core/Cargo.toml switches feature(s) on BY DEFAULT -- [features] default = ["test-observers"] (line 9).
+                        a default feature is compiled into every build of this crate, including `cargo build --release` and including every dependent that does not ask for it.
+                        why this is a refusal: the feature may be DECLARED here and nothing more: a `default` that switches any feature on, or the token inside a normal dependency section, would compile the observers into every build
+                        finding P36-2: `default = ["test-observers"]` is the one-word edit that would put the read-only test observers into the production library with every Rust source and every other pin unchanged.
+
+4. hashline/Cargo.toml with the observers enabled from [dependencies]
+  IN-TREE      RAISED ManifestPinError: manifest REFUSED: hashline/Cargo.toml mentions the test-only feature `test-observers` in [dependencies] (line 28: zkp-core = { path = "../zkp-core", features = ["test-observers"] }).
+                        it may appear only in: [dev-dependencies]
+                        why this is a refusal: a dev-dependency reaches TEST targets only, so the feature may be enabled there and nowhere else; `cargo build --release` does not read that section
+                        finding P36-2 (ZK60_D22_CONDITION7_PREREAD_STAGE36.md section 7): these two manifests decide whether the read-only test observers compile into a release build, and no Rust source, no `cfg` gate and no other pin would change if they did. Re-pinning the digest does NOT get past this check.
+
+5. the LANE's real manifests at a8e4939 (read-only, from the main checkout)
+  IN-TREE      RETURNED hashline/Cargo.toml: default=absent, test-observers [dev-dependencies] zkp-core (line 48); zkp-core/Cargo.toml: default=absent, test-observers [features] test-observers (line 25)
+
+6. CONTROL: the tree exactly as it stands
+  IN-TREE      RETURNED hashline/Cargo.toml: eaba50ecf1434ad8… == pin of record; zkp-core/Cargo.toml: b9038a52f34e0ee8… == pin of record
+
+7. the two gates, with the check pointed at the tampered tree
+  joint_view   has NO manifest-pin check (pre-change)
+  privacy_gate has NO manifest-pin check (pre-change)

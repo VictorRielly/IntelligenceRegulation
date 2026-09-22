@@ -98,11 +98,16 @@ far:
 |---|---|---|---|
 | 2026-09-20 | `zk60_native_privacy_gate.py`, `zk60_native_mask_commit.py` (new), `zk60_native_jv_cfs.py` | commit `d360466` ported M's row layout and closed M's three OPEN channels; one of the two records had never been re-taken and the other was stale in one key | this directory (above) |
 | **2026-09-22 (round 9e)** | `zk60_native_jv_capture.py` (`191f8bc9…` → `11f598d1…`), `zk60_native_privacy_gate.py` (`c33a27fb…` → `abaa316d…`), `zk60_native_joint_view.py` (`ca48c67a…` → `c66181aa…`) | the manifest cross-check **skipped itself silently** on a delivered bundle whose manifest is named `capture-validation.json` and whose `accepted` is one record (round 9d, `ZK60_NATIVE_D22_REPIN_4751B93.md` §8.5 observation 1, §8.7). `manifest_check` now reads either name and either shape and **refuses by name** where the cross-check cannot be made; the two gates take the declaration flag and exit 3 on a refusal. The gates' own bytes moved only because each lists the other's file in its `TOOLS` table | `results/zk60_native_manifest_check_20260922/` |
+| **2026-09-22 (round 9f)** | `zk60_native_manifest_pins.py` (**new**, `1b08589a…`), `zk60_native_privacy_gate.py` (`abaa316d…` → `819079dd…`), `zk60_native_joint_view.py` (`c66181aa…` → `97601b89…`) | finding **P36-2** of the stage-36 pre-read: after the observers delta, `zkp-core/Cargo.toml` (the feature must stay out of `default`) and `hashline/Cargo.toml` (it must stay in `[dev-dependencies]`) decide whether the read-only test observers compile into a release build, and **nothing pinned either file**. Both are now pinned at main's `4751b93` bytes, with a CONTENT assertion beside the digest so that a manifest which ships the observers is refused by name even at a re-pinned digest. The two gates call the check before any analysis and exit 3 on a refusal; their bytes moved for that call alone, and the new file is in both `TOOLS` tables. The Rust pin tables (`mask_commit.py`, `terminal_polys.py`) were deliberately left byte-identical: they are named by 122 and 8 committed records | `results/zk60_native_manifest_pins_20260922/` |
 
-**What the 2026-09-22 re-pin did NOT move.** The three records were re-taken
-with the commands in their own READMEs and compared leaf by leaf with their
-committed bytes at `d837d50` (`repin_diff.txt` in that directory): the only
-differences are the three `tool_sha256` entries above and `seconds`. In
+**What the 2026-09-22 re-pins did NOT move.** In BOTH rounds the three
+records were re-taken with the commands in their own READMEs and compared
+leaf by leaf with their committed bytes — round 9e against `d837d50`, round
+9f against `025e1ac` (`repin_diff.txt` in each round's own directory) — and
+in both the only differences are the `tool_sha256` entries named above and
+`seconds`. Round 9f adds one leaf rather than moving it: the new
+`zk60_native_manifest_pins.py` entry, which is what makes the record name
+every tool whose bytes can turn a run into a refusal. For round 9e, in
 particular each record's `manifest` block is **identical**, because the
 directory they are taken from has always had a `validation.json` with a list
 `accepted` — the shape the fix leaves alone. A test pins that: the fixed

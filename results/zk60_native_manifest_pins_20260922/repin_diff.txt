@@ -1,0 +1,41 @@
+========================================================================
+results/zk60_native_privacy_gate/privacy_gate.json
+  allowed    /seconds
+               025e1ac 224.9
+               now      224.8
+  allowed    /tool_sha256/zk60_native_manifest_pins.py
+               025e1ac <absent>
+               now      '1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6'
+  allowed    /tool_sha256/zk60_native_privacy_gate.py
+               025e1ac 'abaa316dd96d720e83cba02e57fa76e732aa3ed0e3a2c3245180f3de92fc9bad'
+               now      '819079ddeacd0bcc415f06edb363590cd045baa9a96ec410d7a32978e82b3b56'
+  3 allowed, 0 unexpected, 3 differing leaves in all
+========================================================================
+results/zk60_native_privacy_gate_channels/privacy_gate.json
+  allowed    /seconds
+               025e1ac 222.1
+               now      221.3
+  allowed    /tool_sha256/zk60_native_manifest_pins.py
+               025e1ac <absent>
+               now      '1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6'
+  allowed    /tool_sha256/zk60_native_privacy_gate.py
+               025e1ac 'abaa316dd96d720e83cba02e57fa76e732aa3ed0e3a2c3245180f3de92fc9bad'
+               now      '819079ddeacd0bcc415f06edb363590cd045baa9a96ec410d7a32978e82b3b56'
+  3 allowed, 0 unexpected, 3 differing leaves in all
+========================================================================
+results/zk60_native_joint_view/joint_view.json
+  allowed    /seconds
+               025e1ac 20.7
+               now      20.9
+  allowed    /stage2_commitment_side_joint_view/pad_block_at_the_full_budget/seconds
+               025e1ac 1.5
+               now      1.7
+  allowed    /tool_sha256/zk60_native_joint_view.py
+               025e1ac 'c66181aa43d3fe875f7e2c6b9500f81f243d8940e4f95b3e0c7870bd3978c75c'
+               now      '97601b8994508e3a308e7dd18f4d62b73fe2c00795641c8222483303e6910e50'
+  allowed    /tool_sha256/zk60_native_manifest_pins.py
+               025e1ac <absent>
+               now      '1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6'
+  4 allowed, 0 unexpected, 4 differing leaves in all
+========================================================================
+VERDICT: only the two callers' hashes, the new tool's hash and the clocks moved

@@ -942,3 +942,122 @@ manifest whose `artifacts` key is present but is not an object raises
 silently, but it does not name the file. Closing it changes the tool's bytes
 again and so costs another re-take of all three guarded records; it is left
 for the next time those records are re-taken for another reason.
+
+### 8.8 The two Cargo manifests join the pin set — 2026-09-22 (round 9f)
+
+Finding **P36-2** of the stage-36 pre-read
+(`ZK60_D22_CONDITION7_PREREAD_STAGE36.md` §7, review branch): after the
+observers delta the question *"can a release build compile
+`ZkRng::consumed_bytes` and `Transcript::squeezes`?"* is answered by two files
+and nothing else — `zkp-core/Cargo.toml` (the feature must stay out of
+`default`) and `hashline/Cargo.toml` (it must stay in `[dev-dependencies]`) —
+and **neither was pinned by anything**: not by
+`zk60_native_mask_commit.SOURCE_PINS`/`PATH_PINS`, not by
+`zk60_native_terminal_polys.SOURCE_PINS`, not by the Rust capture writer's
+38-file list. A one-word edit in either would put the accessors into the
+production library with every Rust source, every `cfg` gate and every pin
+unchanged. The owner's ruling of 2026-09-20 22:06 — *the pin set is extended
+to every file on the path* — was about Rust files; this delta makes two
+manifests load-bearing for the first time. Round 9f is that one change.
+Evidence and commands: `results/zk60_native_manifest_pins_20260922/`; ledger
+section R9f.
+
+**The two pins**, read from main at `4751b93` — the commit the rest of the
+D22 pin set is read at, and the bytes this lane's worktree also carries:
+
+| path | sha256 | git blob | what it decides |
+|---|---|---|---|
+| `zkp-core/Cargo.toml` | `b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842` | `e3d46e4e…` | where a `test-observers`-style feature is declared, and whether `default` switches it on for every build. At `4751b93` there is no `[features]` table at all |
+| `hashline/Cargo.toml` | `eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a` | `8a670755…` | the only place that enables a zkp-core feature, and whether it does so from `[dev-dependencies]` (test targets only) or from `[dependencies]` (library and binary). At `4751b93` it enables none |
+
+**A content assertion, not only a digest.** A digest is silent the day
+somebody re-pins it without reading the file, so the same check also parses
+both manifests and refuses **by name** one that ships the observers:
+`zkp-core`'s `[features]` `default` must be absent or empty (no feature at all
+on by default) and the token `test-observers` may appear **only** in its
+`[features]` table — its declaration — and so in no `[dependencies]`,
+`[build-dependencies]` or `[target.*.dependencies]` section; in `hashline` it
+may appear **only** in a dev-dependency section (`[dev-dependencies]` or
+`[target.*.dev-dependencies]`), and so not in `[dependencies]`, not in
+`[features]`, not anywhere else. The module's header paraphrases the first of
+those as "not in a normal dependency section"; the enforced rule is the
+stricter one above, and `MANIFEST_POLICY.allowed_sections` is where it is
+written as data. Python 3.10 on this box has no `tomllib`, no `tomli` and no `toml`,
+so the manifests are read by a small quote-aware scanner written for the
+purpose, whose own behaviour is tested and which **refuses anything it cannot
+parse** rather than passing it.
+
+**Failing first** (`failing_first_before.log`, taken before the change, and
+`failing_first_after.log`). On a synthetic tree holding a copy of every file
+the toy gate pins, with `zkp-core/Cargo.toml` replaced by the pinned bytes
+plus `default = ["test-observers"]`:
+
+| case | before (bytes at `025e1ac`) | after |
+|---|---|---|
+| the tampered tree, both Rust pin tables | 30 and 8 pinned files checked, **no refusal**; neither gate's source mentions `Cargo.toml`, `manifest_pins` or `test-observers` | — |
+| the same tree, manifest pins | — | refused, naming `zkp-core/Cargo.toml`, digest against digest |
+| the same tree with that **digest force-accepted** | — | still refused: `[features] default = ["test-observers"]` (line 9), naming the file and P36-2 |
+| `hashline` with the observers enabled from `[dependencies]`, digest force-accepted | — | refused, naming the section and the line |
+| the LANE's real manifests at `a8e4939`, digests force-accepted | — | **accepted**: `default` absent, the token only in `[features]` (zkp-core) and `[dev-dependencies]` (hashline) |
+| the tree as it stands | — | accepted, both digests equal to their pins |
+| the two gates, check pointed at the tampered tree | no such check | `main()` → **3**, `REFUSED (Cargo manifest pins): …`, **no record written** |
+
+**Where the pins live, and why not in `PATH_PINS`.** In a new module,
+`scripts/zk60_native_manifest_pins.py`, called by both gates before they read
+anything. `zk60_native_mask_commit.py` — where the Rust path pins live — is
+named by **122** committed records' `tool_sha256` maps, the whole RUN-gate
+series over the real 125M bundles, each asserted equal to the tool bytes in
+the tree by its own test; one byte changed there would stale ~115 run-gate
+records and demand their re-take on bundles this round has no business
+re-running (`terminal_polys.py`: 8 records plus its own `port_sha256`). The
+new file confines the re-pin to the three records of record — exactly round
+9e's set. The record guard holds the two tables together: it fails if either
+manifest is unpinned, if a Rust pin table ever names one at a different
+digest, or if a gate stops calling the check.
+
+**The re-pin.** Three tool digests move:
+
+| tool | at `025e1ac` | now | why it moved |
+|---|---|---|---|
+| `zk60_native_manifest_pins.py` | *(did not exist)* | `1b08589a…` | the pins and the content assertion |
+| `zk60_native_privacy_gate.py` | `abaa316d…` | `819079dd…` | the call, before any analysis, and the exit-3 refusal |
+| `zk60_native_joint_view.py` | `c66181aa…` | `97601b89…` | the same |
+
+The three guarded records were re-taken with the commands in their own
+READMEs and compared leaf by leaf with their committed bytes
+(`repin_diff.txt`): **the only differences are those three `tool_sha256`
+leaves — one of them new — and `seconds`** (3, 3 and 4 differing leaves,
+**0 unexpected**; 224.9 → 224.8 s, 222.1 → 221.3 s, 20.7 → 20.9 s, all
+`ok`). No channel, rank, dimension, control or count moved. The reason is
+written into the guard's own record
+(`results/zk60_native_gate_record_refresh/README.md`) and into each record
+directory's README, as every re-pin before this one was — including a new
+README for `results/zk60_native_joint_view/`, which had none.
+
+**The suite**: the toy gate's seven modules **204 tests, 210.0 s, OK**
+(skipped=1, expected failures=1; 187 in round 9e, the seventeen new ones are
+the pins'), and the record guard alone **29 tests, OK** (12 in round 9e).
+Before the re-pin that guard was red in exactly one test — the records named
+the old gate bytes — which is what a re-pin is for (`guard_before.log`).
+
+**What the pins are NOT yet at.** The block lane (`a8e4939`) already carries
+the stage-36 manifests — `zkp-core` with `[features] test-observers = []` and
+an explicit `resolver = "2"`, `hashline` with the dev-dependency that enables
+it — sha256 `0c746b9d…` and `10d99a63…`. They are **recorded and deliberately
+not accepted**: the pin moves once, against the integrator's merged tree,
+after those bytes have been read there. The content assertion already passes
+on them, so the re-pin will be a digest move and nothing more. (The pre-read's
+table quotes a third pair, `90156d58…` / `5633d1e4…`, taken in the REVIEW
+worktree before P36-3 added the resolver line; neither pair is accepted here.)
+
+**On P36-3, the resolver.** Nothing here asserts a resolver version: at
+`4751b93` there is no `resolver` key to assert, and refusing a manifest for
+not having one would refuse the tree as it stands. The digest pin covers it
+from now on — a manifest that dropped or lowered the key the lane added would
+not match its pin — and the lane has written `resolver = "2"` explicitly in
+both manifests (lane commit `a8e4939`).
+
+**What this does not touch.** No figure of record, no channel, no control, no
+pin over the Rust tree, and nothing in §§8.1–8.7 above. It is one more
+bookkeeping pin in the toy gate; it is not a privacy acceptance and it
+establishes no privacy property.
