@@ -339,11 +339,19 @@ written except where noted.
     review branch): every condition holds against the delta; the production
     residue of the four moved source files is byte-identical by an
     independent method and the release graph resolves the core crate with no
-    feature and no observer symbol. Two things it adds to the re-pin: the two
-    `Cargo.toml` files now decide whether the observers compile and are
-    pinned by nothing — they join the pin set at the re-pin; and the
-    exclusion rested on Cargo's resolver v2 being implied by the edition —
-    `resolver = "2"` is now written explicitly in both manifests. Thirteen of
+    feature and no observer symbol. Two things it adds: the two `Cargo.toml` files now decide whether
+    the observers compile and were pinned by nothing — **since 12:14 they are
+    pinned** (gate round 9f, `zk60-native-jointview` at `442634b`) at their
+    main digests (`zkp-core/Cargo.toml` `b9038a52…`, `hashline/Cargo.toml`
+    `eaba50ec…`), in a check both toy gates run before any analysis, together
+    with a CONTENT assertion that refuses by name any manifest putting a
+    feature in `default` or in `[dependencies]`, or enabling the observers
+    anywhere but a dev-dependency — so a future manifest that ships the
+    observers is refused even at a re-pinned digest (failing-first evidence
+    kept; the record guard re-pinned; 204 tests and 29 guard tests green);
+    and the exclusion rested on Cargo's resolver v2 being implied by the
+    edition — `resolver = "2"` is now written explicitly in both manifests.
+    The pin set of §5 condition 7 is therefore 31 files. Thirteen of
     the pinned paths already differ between the lane's base and the pinned
     main tree, so the re-pin is against the integrator's merged tree, never
     against the lane.*
