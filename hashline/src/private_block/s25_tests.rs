@@ -1492,21 +1492,52 @@ fn the_generator_is_never_cloned_and_each_prover_constructs_exactly_one() {
     eprintln!("S25 W-8(5): ZkRng implements neither Clone nor Copy (type-level, with controls); prove_run and prove_inner_at construct exactly one generator each and pass it on by &mut");
 }
 
-/// **What W-8 still OWES, and to whom** — so that the work list's row is not
-/// read as closed. Assertions 1–4 and 6 of the memo's §3.1 need a
-/// consumption accessor on `ZkRng` (`counter·8192 + pos`), which is
-/// `zkp-core/src/rng.rs` and another engineer's file; the request went out on
-/// 2026-09-21 03:25. This test records the blockage AS A FACT of the code —
-/// the fields are private and there is no accessor — so that the day one
-/// lands, this test fails and the four assertions get written.
+/// **W-8 IS NO LONGER BLOCKED — the tripwire fired, and this is what
+/// replaces it (stage 36, 2026-09-22).**
+///
+/// Until 2026-09-22 this test asserted the BLOCKAGE as a fact of the code:
+/// `ZkRng`'s four fields were private, no accessor existed, and the test
+/// said in its own words that *"the day one lands, this test fails and the
+/// four assertions get written"*. The integrator authorised the accessor at
+/// 07:25 that morning, stage 36 landed it, and the old assertion failed
+/// exactly as designed.
+///
+/// What is asserted now is the other side of the same fact, so the row
+/// cannot be lost either way:
+///
+/// 1. the accessor IS there, and is the read-only, `cfg`-gated one that was
+///    asked for — `consumed_bytes` and `refills` on `ZkRng`, inside
+///    `#[cfg(any(test, feature = "test-observers"))]`, with the four fields
+///    still private;
+/// 2. `Transcript::squeezes` is there under the same gate (finding U-3);
+/// 3. and the draw-accounting test that owes assertions 1-4 and 6 EXISTS
+///    and is named — if `s36_tests` is deleted, this fails and says which
+///    assertions went with it.
 #[test]
-fn the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor() {
+fn the_draw_accounting_assertions_are_no_longer_blocked_and_their_test_exists() {
     let rng = source("../zkp-core/src/rng.rs");
     assert!(rng.contains("pub struct ZkRng {\n    key: [u8; 32],\n    counter: u64,\n    buf: Vec<u8>,\n    pos: usize,\n}"), "ZkRng's fields moved; re-read what is observable before trusting this");
-    for accessor in ["pub fn consumed", "pub fn pos(", "pub fn counter(", "pub(crate) fn consumed"] {
-        assert!(!rng.contains(accessor), "the integrator's consumption accessor (`{accessor}`) has landed: assertions 1-4 and 6 of the memo's §3.1 are no longer blocked and are owed on this lane");
+    assert!(rng.contains("#[cfg(any(test, feature = \"test-observers\"))]\nimpl ZkRng {"), "the consumption accessor is no longer behind the `test-observers` gate; a production build may now compile it");
+    for accessor in ["pub fn consumed_bytes(&self) -> u64", "pub fn refills(&self) -> u64"] {
+        assert!(rng.contains(accessor), "the consumption accessor `{accessor}` is gone; assertions 1-4 and 6 of the memo's §3.1 are blocked again");
     }
-    eprintln!("S25 W-8: assertions 1-4 and 6 remain BLOCKED — `ZkRng`'s four fields are private and it publishes no consumption accessor (requested of the integrator 2026-09-21 03:25)");
+    // it stayed READ-ONLY and derived: no new field, and the hot draw is
+    // what it was
+    assert!(!rng.contains("pub fn consumed_bytes(&mut self)"), "the consumption accessor takes the generator mutably");
+    assert!(rng.contains("pub fn next_u64(&mut self) -> u64 {\n        if self.pos + 8 > self.buf.len() {\n            self.refill();\n        }"), "`next_u64` changed; the accessor was supposed to add no work to the hot draw");
+    let tr = source("../zkp-core/src/transcript.rs");
+    assert!(tr.contains("#[cfg(any(test, feature = \"test-observers\"))]\nimpl Transcript {"), "the squeeze counter is no longer behind the `test-observers` gate");
+    assert!(tr.contains("pub fn squeezes(&self) -> u64"), "the squeeze counter is gone; finding U-3 is open again");
+    let s36 = source("src/private_block/s36_tests.rs");
+    for owed in [
+        "fn a_block_proof_consumes_exactly_the_counted_stream_at_every_shape()",
+        "fn the_three_generators_of_a_toy_proof_draw_the_statements_327052_field_elements()",
+        "fn consumption_does_not_depend_on_the_witness_or_on_the_public_statement()",
+        "fn the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares()",
+    ] {
+        assert!(s36.contains(owed), "the draw-accounting test `{owed}` is gone; W-8's assertions 1-4 and 6 are unasserted again");
+    }
+    eprintln!("S25 W-8: assertions 1-4 and 6 are UNBLOCKED and written — the integrator's accessor landed 2026-09-22 (stage 36), and `s36_tests` carries them");
 }
 
 // ---------------------------------------------------------------------------

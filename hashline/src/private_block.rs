@@ -296,6 +296,8 @@ mod s35_tests;
 #[cfg(test)]
 mod draw_observer;
 #[cfg(test)]
+mod s36_tests;
+#[cfg(test)]
 mod tamper;
 #[cfg(test)]
 mod tests;
