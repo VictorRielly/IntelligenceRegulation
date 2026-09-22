@@ -432,12 +432,24 @@ RUN_LAYER_PINS = {
         # [ROUND 9] stage 27: the /5-run array store and the shared pins.
         # [ROUND 9b] byte-identical at 4ccbad1, which the rung-P2 bundles
         # pin: `git diff f4697f9 4ccbad1` does not touch this file.
+        # [ROUND 9c] byte-identical at `3e106e1` (rung-C6),
+        # `11703c9` (rung-W14) and `4505ddf` -- the commit the
+        # rung-E32 bundles NAME, where this file is unchanged even
+        # though `run.rs` is not (finding E32-F1).  Three more
+        # commits and six more bundles on a digest that did not
+        # move, which IS the statement that it did not move.
         "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6": {
             "blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
             "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
-                        "4ccbad1b1da0a23449ac06461740750a6818c6e8"),
+                        "4ccbad1b1da0a23449ac06461740750a6818c6e8",
+                        "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
+                        "11703c94df428c3e53dbc6c37eac835e348f5bf9",
+                        "4505ddfa24fc99ff57fa086be8c73dae8117875c"),
             "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
-                        "run-k-dense-p2", "run-l-zero-p2"),
+                        "run-k-dense-p2", "run-l-zero-p2",
+                        "run-m-dense-c6", "run-n-zero-c6",
+                        "run-o-dense-w14", "run-p-zero-w14",
+                        "run-q-dense-e32", "run-r-zero-e32"),
             "bytes": 85434,
         },
     },
@@ -534,12 +546,24 @@ RUN_LAYER_PINS = {
         # [ROUND 9] stage 26.
         # [ROUND 9b] byte-identical at 4ccbad1, which the rung-P2 bundles
         # pin: `git diff f4697f9 4ccbad1` does not touch this file.
+        # [ROUND 9c] byte-identical at `3e106e1` (rung-C6),
+        # `11703c9` (rung-W14) and `4505ddf` -- the commit the
+        # rung-E32 bundles NAME, where this file is unchanged even
+        # though `run.rs` is not (finding E32-F1).  Three more
+        # commits and six more bundles on a digest that did not
+        # move, which IS the statement that it did not move.
         "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581": {
             "blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
             "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
-                        "4ccbad1b1da0a23449ac06461740750a6818c6e8"),
+                        "4ccbad1b1da0a23449ac06461740750a6818c6e8",
+                        "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
+                        "11703c94df428c3e53dbc6c37eac835e348f5bf9",
+                        "4505ddfa24fc99ff57fa086be8c73dae8117875c"),
             "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
-                        "run-k-dense-p2", "run-l-zero-p2"),
+                        "run-k-dense-p2", "run-l-zero-p2",
+                        "run-m-dense-c6", "run-n-zero-c6",
+                        "run-o-dense-w14", "run-p-zero-w14",
+                        "run-q-dense-e32", "run-r-zero-e32"),
             "bytes": 36123,
         },
     },

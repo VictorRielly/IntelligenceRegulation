@@ -1,0 +1,73 @@
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2
++ mkdir -p /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9c/before2
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate/run-a-tame.json
+++ basename zk60_native_run_gate/run-a-tame
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate/run-b-zero.json
+++ basename zk60_native_run_gate/run-b-zero
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_planeindex/run-c-tame.json
+++ basename zk60_native_run_gate_planeindex/run-c-tame
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_planeindex/run-d-zero.json
+++ basename zk60_native_run_gate_planeindex/run-d-zero
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_tagged/run-e-tame-tagged.json
+++ basename zk60_native_run_gate_tagged/run-e-tame-tagged
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_tagged/run-f-zero-tagged.json
+++ basename zk60_native_run_gate_tagged/run-f-zero-tagged
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_s20/run-g-dense-s20.json
+++ basename zk60_native_run_gate_s20/run-g-dense-s20
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_s20/run-h-zero-s20.json
+++ basename zk60_native_run_gate_s20/run-h-zero-s20
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_k4/run-i-dense-k4.json
+++ basename zk60_native_run_gate_k4/run-i-dense-k4
++ for p in zk60_native_run_gate/run-a-tame zk60_native_run_gate/run-b-zero zk60_native_run_gate_planeindex/run-c-tame zk60_native_run_gate_planeindex/run-d-zero zk60_native_run_gate_tagged/run-e-tame-tagged zk60_native_run_gate_tagged/run-f-zero-tagged zk60_native_run_gate_s20/run-g-dense-s20 zk60_native_run_gate_s20/run-h-zero-s20 zk60_native_run_gate_k4/run-i-dense-k4 zk60_native_run_gate_k4/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_k4/run-j-zero-k4.json
+++ basename zk60_native_run_gate_k4/run-j-zero-k4
++ for p in zk60_native_run_gate_preimage/run-g-dense-s20 zk60_native_run_gate_preimage/run-h-zero-s20 zk60_native_run_gate_preimage/run-i-dense-k4 zk60_native_run_gate_preimage/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_preimage/run-g-dense-s20.json
+++ basename zk60_native_run_gate_preimage/run-g-dense-s20
++ for p in zk60_native_run_gate_preimage/run-g-dense-s20 zk60_native_run_gate_preimage/run-h-zero-s20 zk60_native_run_gate_preimage/run-i-dense-k4 zk60_native_run_gate_preimage/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_preimage/run-h-zero-s20.json
+++ basename zk60_native_run_gate_preimage/run-h-zero-s20
++ for p in zk60_native_run_gate_preimage/run-g-dense-s20 zk60_native_run_gate_preimage/run-h-zero-s20 zk60_native_run_gate_preimage/run-i-dense-k4 zk60_native_run_gate_preimage/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_preimage/run-i-dense-k4.json
+++ basename zk60_native_run_gate_preimage/run-i-dense-k4
++ for p in zk60_native_run_gate_preimage/run-g-dense-s20 zk60_native_run_gate_preimage/run-h-zero-s20 zk60_native_run_gate_preimage/run-i-dense-k4 zk60_native_run_gate_preimage/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_preimage/run-j-zero-k4.json
+++ basename zk60_native_run_gate_preimage/run-j-zero-k4
++ for p in zk60_native_run_gate_mask/run-g-dense-s20 zk60_native_run_gate_mask/run-h-zero-s20 zk60_native_run_gate_mask/run-i-dense-k4 zk60_native_run_gate_mask/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_mask/run-g-dense-s20.json
+++ basename zk60_native_run_gate_mask/run-g-dense-s20
++ for p in zk60_native_run_gate_mask/run-g-dense-s20 zk60_native_run_gate_mask/run-h-zero-s20 zk60_native_run_gate_mask/run-i-dense-k4 zk60_native_run_gate_mask/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_mask/run-h-zero-s20.json
+++ basename zk60_native_run_gate_mask/run-h-zero-s20
++ for p in zk60_native_run_gate_mask/run-g-dense-s20 zk60_native_run_gate_mask/run-h-zero-s20 zk60_native_run_gate_mask/run-i-dense-k4 zk60_native_run_gate_mask/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_mask/run-i-dense-k4.json
+++ basename zk60_native_run_gate_mask/run-i-dense-k4
++ for p in zk60_native_run_gate_mask/run-g-dense-s20 zk60_native_run_gate_mask/run-h-zero-s20 zk60_native_run_gate_mask/run-i-dense-k4 zk60_native_run_gate_mask/run-j-zero-k4
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_mask/run-j-zero-k4.json
+++ basename zk60_native_run_gate_mask/run-j-zero-k4
++ for p in run-k-dense-p2 run-l-zero-p2
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_p2/run-k-dense-p2.json
++ for p in run-k-dense-p2 run-l-zero-p2
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_p2/run-l-zero-p2.json
++ for p in run-m-dense-c6 run-n-zero-c6 run-o-dense-w14 run-p-zero-w14 run-q-dense-e32 run-r-zero-e32
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_9c/run-m-dense-c6.json
++ for p in run-m-dense-c6 run-n-zero-c6 run-o-dense-w14 run-p-zero-w14 run-q-dense-e32 run-r-zero-e32
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_9c/run-n-zero-c6.json
++ for p in run-m-dense-c6 run-n-zero-c6 run-o-dense-w14 run-p-zero-w14 run-q-dense-e32 run-r-zero-e32
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_9c/run-o-dense-w14.json
++ for p in run-m-dense-c6 run-n-zero-c6 run-o-dense-w14 run-p-zero-w14 run-q-dense-e32 run-r-zero-e32
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_9c/run-p-zero-w14.json
++ for p in run-m-dense-c6 run-n-zero-c6 run-o-dense-w14 run-p-zero-w14 run-q-dense-e32 run-r-zero-e32
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_9c/run-q-dense-e32.json
++ for p in run-m-dense-c6 run-n-zero-c6 run-o-dense-w14 run-p-zero-w14 run-q-dense-e32 run-r-zero-e32
++ git --no-pager -C /home/victor/wt-zk60-jointview show HEAD:results/zk60_native_run_gate_9c/run-r-zero-e32.json

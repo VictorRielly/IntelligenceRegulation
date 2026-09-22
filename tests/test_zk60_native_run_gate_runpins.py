@@ -61,6 +61,11 @@ IN_SCOPE = (
     "run-i-dense-k4", "run-j-zero-k4",
     # [ROUND 9b] the two rung-P2 bundles, lane stage 30 at `4ccbad1`
     "run-k-dense-p2", "run-l-zero-p2",
+    # [ROUND 9c] lane stages 31 and 33.  The rung-W14 pair is NOT here:
+    # like the 125M bundles it is 50 MB and lives outside the lane's
+    # results directory, so it is in W14_IN_SCOPE below.
+    "run-m-dense-c6", "run-n-zero-c6",
+    "run-q-dense-e32", "run-r-zero-e32",
 )
 # [ROUND 9] the two 125M bundles are the first in scope that live OUTSIDE
 # the Rust lane's results directory: they are 281 MB and 273 MB and are kept
@@ -70,8 +75,17 @@ IN_SCOPE = (
 # the test says which names it skipped rather than silently narrowing.
 M125_DIR = os.environ.get("ZK60_M125_BUNDLES", "/home/victor/zk60-artifacts")
 M125_IN_SCOPE = ("m125-capture-dense-l2", "m125-capture-zero-l2")
+# [ROUND 9c] the rung-W14 pair, 50.6 MB and 49.5 MB, kept beside the 125M
+# captures for the same reason and in scope for the pin tables the same way.
+W14_IN_SCOPE = ("run-o-dense-w14", "run-p-zero-w14")
+# [ROUND 9c] FINDING E32-F1: these two declare `source_commit: 4505ddf`,
+# one commit BEFORE `Shape::rung_e32` exists, so their `run.rs` digest is
+# not the blob at the commit they name.  The digests are honest -- all 38
+# match at `6d71b40` and after -- and the label is what is stale.
+E32_F1 = ("run-q-dense-e32", "run-r-zero-e32")
 HAVE_M125 = all(os.path.isdir(os.path.join(M125_DIR, b))
                 for b in M125_IN_SCOPE)
+HAVE_W14 = all(os.path.isdir(os.path.join(M125_DIR, b)) for b in W14_IN_SCOPE)
 HAVE_BUNDLES = all(os.path.isdir(os.path.join(BUNDLES, b)) for b in IN_SCOPE)
 HAVE_LANE = os.path.isdir(os.path.join(LANE, ".git")) or os.path.exists(
     os.path.join(LANE, ".git"))
@@ -101,7 +115,8 @@ NEWLY_PINNED = (
 
 
 def _bundle(name):
-    root = M125_DIR if name in M125_IN_SCOPE else BUNDLES
+    root = (M125_DIR if name in M125_IN_SCOPE or name in W14_IN_SCOPE
+            else BUNDLES)
     return RunBundle(os.path.join(root, name))
 
 
@@ -164,7 +179,12 @@ class ThePinTableCoversExactlyTheEstablishedList(unittest.TestCase):
         # the rung-P2 bundles add ONE pair and one reading.
         # `run_capture.rs` and `boundary.rs` are byte-identical there and
         # their existing entries gained the commit and the two bundles.
-        self.assertEqual(len(pairs), 13)
+        # [ROUND 9c, DELIBERATE] thirteen became SIXTEEN: stages 31, 32
+        # and 33 each added one run profile constant and one `RunShape`
+        # constructor to `run.rs` and nothing else, so `run.rs` gains
+        # THREE digests and three readings, and `run_capture.rs` and
+        # `boundary.rs` are byte-identical at all three commits.
+        self.assertEqual(len(pairs), 16)
         for (path, digest), text in READINGS.items():
             self.assertGreater(len(text), 200, (path, digest))
             self.assertEqual(len(digest), 64)
@@ -249,7 +269,8 @@ class EveryInScopeBundlePasses(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        names = list(IN_SCOPE) + (list(M125_IN_SCOPE) if HAVE_M125 else [])
+        names = (list(IN_SCOPE) + (list(M125_IN_SCOPE) if HAVE_M125 else [])
+                 + (list(W14_IN_SCOPE) if HAVE_W14 else []))
         cls.names = tuple(names)
         cls.bundles = {n: _bundle(n) for n in names}
 
@@ -275,24 +296,67 @@ class EveryInScopeBundlePasses(unittest.TestCase):
             # [ROUND 9] the tables now claim the two 125M bundles as well.
             # A box without them checks the ten it has and says so, rather
             # than asserting a narrower set and calling that a pass.
-            self.assertEqual(claimed, set(IN_SCOPE) | set(M125_IN_SCOPE),
-                             path)
-            if not HAVE_M125:
-                self.skipTest("the 125M bundles are not on this box, so the "
-                              "table's claim about them is unchecked")
+            self.assertEqual(
+                claimed,
+                set(IN_SCOPE) | set(M125_IN_SCOPE) | set(W14_IN_SCOPE), path)
+            if not (HAVE_M125 and HAVE_W14):
+                self.skipTest("the 125M and/or rung-W14 bundles are not on "
+                              "this box, so the table's claim about them is "
+                              "unchecked")
 
     def test_the_source_commit_a_bundle_declares_is_one_the_table_lists(self):
         """A bundle names its own lane commit in `run.json`; the digest it
         pins must be one the table read AT THAT COMMIT, so the two
-        independent statements agree."""
+        independent statements agree.
+
+        **FINDING E32-F1 (round 9c) is the one recorded exception, and it
+        is asserted rather than excused.**  `run-q-dense-e32` and
+        `run-r-zero-e32` declare `source_commit: 4505ddf`, which is the
+        commit BEFORE `6d71b40` -- the one that adds `Shape::rung_e32`.
+        Their `run.rs` digest is therefore NOT the blob at the commit they
+        name, and the test below asserts exactly that: the agreement fails
+        for that one file, the digest they pin IS the blob at the commits
+        the table lists instead, and the other two run-layer files agree
+        at `4505ddf` because they did not move there."""
         for name, b in self.bundles.items():
             commit = b.run["source_commit"]
             pins = {p["file"]: p["sha256"] for p in b.manifest["source_pins"]}
             for path in NEWLY_PINNED:
                 entry = RUN_LAYER_PINS[path][pins[path]]
-                self.assertTrue(
-                    any(c.startswith(commit[:7]) for c in entry["commits"]),
-                    (name, path, commit, entry["commits"]))
+                agrees = any(c.startswith(commit[:7])
+                             for c in entry["commits"])
+                if name in E32_F1 and path == "src/private_block/run.rs":
+                    self.assertFalse(
+                        agrees,
+                        "finding E32-F1 has been fixed upstream -- the "
+                        "exception below should be removed with it")
+                    self.assertEqual(commit[:7], "4505ddf", name)
+                    self.assertTrue(
+                        all(not c.startswith("4505ddf")
+                            for c in entry["commits"]), name)
+                    continue
+                self.assertTrue(agrees,
+                                (name, path, commit, entry["commits"]))
+
+    def test_finding_E32_F1_is_the_only_bundle_whose_commit_disagrees(self):
+        """The exception above must stay ONE exception: no other bundle,
+        and no other file of the rung-E32 pair, may drift from the commit
+        it names."""
+        disagreeing = set()
+        for name, b in self.bundles.items():
+            commit = b.run["source_commit"]
+            pins = {p["file"]: p["sha256"] for p in b.manifest["source_pins"]}
+            for path in NEWLY_PINNED:
+                entry = RUN_LAYER_PINS[path][pins[path]]
+                if not any(c.startswith(commit[:7])
+                           for c in entry["commits"]):
+                    disagreeing.add((name, path))
+        self.assertEqual(
+            disagreeing,
+            {(n, "src/private_block/run.rs") for n in E32_F1},
+            "finding E32-F1 is the only recorded disagreement between a "
+            "bundle's declared commit and the commits its pinned digests "
+            "were read at")
 
 
 # =====================================================================
@@ -457,9 +521,21 @@ class TheDigestsAreTheCommittedBlobs(unittest.TestCase):
         # the two that did not move are checked at the new commit against
         # the digest they already had, which is the statement that they
         # did not move.
-        self.assertEqual(checked, 21,
-                         "three files at SEVEN capture commits each "
-                         "(round 9 added f4697f9, round 9b 4ccbad1)")
+        # [ROUND 9c, DELIBERATE] 21 became 27.  `run.rs` gains three
+        # digests and, between them, SIX commits: `3e106e1` (rung-C6),
+        # `11703c9` and `4505ddf` (rung-W14's blob, which `4505ddf` also
+        # carries), and `6d71b40`, `2d04d94` and `226f3b2` (rung-E32's).
+        # `run_capture.rs` and `boundary.rs` gain no commit, because the
+        # three new bundles pin the digests those two already have.
+        # `run_capture.rs` and `boundary.rs` gain three commits each --
+        # `3e106e1`, `11703c9` and `4505ddf` -- on the digest they
+        # already had, which IS the statement that they did not move
+        # there.  21 + 6 + 3 + 3 = 33.
+        self.assertEqual(checked, 33,
+                         "three files at SEVEN capture commits each, plus "
+                         "run.rs at the six commits round 9c's three new "
+                         "shapes are written at, plus the two unmoved "
+                         "files at three of them")
 
     def test_one_flipped_byte_in_each_file_is_not_a_read_digest(self):
         """The refusal above is asserted on a made-up digest; this is the

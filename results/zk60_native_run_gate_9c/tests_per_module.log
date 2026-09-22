@@ -1,0 +1,22 @@
+=== test_zk60_native_capture.py : 13 tests : OK (skipped=1)
+=== test_zk60_native_gate_record.py : 12 tests : OK
+=== test_zk60_native_joint_view.py : 45 tests : OK
+=== test_zk60_native_mask_commit.py : 24 tests : OK
+=== test_zk60_native_privacy_gate.py : 27 tests : OK
+=== test_zk60_native_run_gate.py : 26 tests : OK
+=== test_zk60_native_run_gate_ahpreimage.py : 30 tests : OK
+=== test_zk60_native_run_gate_k4.py : 36 tests : OK
+=== test_zk60_native_run_gate_m125.py : 42 tests : OK
+=== test_zk60_native_run_gate_mask.py : 42 tests : OK
+=== test_zk60_native_run_gate_p2.py : 33 tests : FAILED (failures=1)
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_p2.TheRecordedFiguresAtRungP2)
+=== test_zk60_native_run_gate_planeindex.py : 39 tests : OK
+=== test_zk60_native_run_gate_runpins.py : 25 tests : FAILED (failures=2, errors=1)
+ERROR: test_the_tables_bundle_cross_reference_is_the_manifests (test_zk60_native_run_gate_runpins.EveryInScopeBundlePasses)
+FAIL: test_every_pinned_digest_is_the_blob_at_every_commit_it_names (test_zk60_native_run_gate_runpins.TheDigestsAreTheCommittedBlobs)
+FAIL: test_every_pinned_digest_has_a_written_reading (test_zk60_native_run_gate_runpins.ThePinTableCoversExactlyTheEstablishedList)
+=== test_zk60_native_run_gate_s20.py : 29 tests : OK
+=== test_zk60_native_run_gate_slotir.py : 22 tests : OK
+=== test_zk60_native_run_gate_tagged.py : 29 tests : OK
+=== test_zk60_native_small_model_groups.py : 28 tests : OK (expected failures=1)
+=== test_zk60_native_terminal_polys.py : 27 tests : OK
