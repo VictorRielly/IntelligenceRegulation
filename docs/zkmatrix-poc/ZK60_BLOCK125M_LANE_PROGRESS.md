@@ -11657,3 +11657,64 @@ result at rung-W14 — the measurement there is inside run-to-run spread and
 the section says so in those words. Not a 5-second step: one 125M block
 still proves in 17.4-19.4 s, and 79% of that is in files this lane may not
 edit.
+
+---
+
+## Stage 36 — the read-only TEST OBSERVERS, and the draw-accounting test unblocked (2026-09-22, 07:5x–)
+
+**Status: `OPEN` (skeleton).** Opened 2026-09-22 07:58 PDT on the lane tip
+`fee1a8d`. The integrator authorised, at 07:25, exactly what stage 25's
+item W-8 said was blocked: a **read-only generator byte-consumption
+counter** and a **transcript squeeze counter** in `zkp-core`, plus a
+**test observer** in `protocol::check_opening_challenges`. With them,
+assertions 1–4 and 6 of `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md` §3.1 —
+the owed draw-accounting test of ruling R-3 — become writable on this lane,
+and `s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_
+generators_accessor` (the tripwire stage 25 left behind, which says in its
+own words that it "fails the day the accessor lands") must be retired in
+the same stage that lands it.
+
+**THE INTEGRATOR'S CONDITIONS, verbatim (2026-09-22 07:25), every one
+binding.** "you may implement the read-only RNG byte-consumption and
+transcript squeeze counters plus the test observer in
+`protocol::check_opening_challenges`, and wire the partial tests, as a
+separate lane commit. Preserve `ZkRng`'s non-Clone property and every
+draw/absorb order; expose no keys, stream contents or challenge values
+through production interfaces. Dependency `cfg(test)` is not enabled when
+hashline tests link zkp-core: use an explicit `test-observers` feature with
+hashline's dev-dependency enabling it, alongside `cfg(test)` for core's own
+tests. No feature in normal dependencies/defaults. Derive consumption from
+existing counter/position state, with refill-boundary and mixed-draw tests;
+do not add work to every hot draw."
+
+**THE WRITE SET OF THIS STAGE**, and nothing else: `zkp-core/src/rng.rs`,
+`zkp-core/src/transcript.rs`, `zkp-core/Cargo.toml` (`[features]` only),
+`hashline/Cargo.toml` (the dev-dependency line only),
+`hashline/src/private_block/protocol.rs` (the hook in
+`check_opening_challenges` only), the lane's own test files under
+`hashline/src/private_block/`, `hashline/src/private_block.rs` (module
+lines), this ledger, and evidence under `results/zk60_block125m_lane/` with
+the prefix `z36-`.
+
+**THE PRODUCTION-IDENTITY RULE.** Every line added to `zkp-core` and to
+`protocol.rs` sits inside `#[cfg(any(test, feature = "test-observers"))]`
+(or `#[cfg(test)]`, which is strictly narrower). A release build without
+the feature must compile the same code paths byte for byte — proved two
+ways: a script that shows every added or changed hunk in those files is
+inside such a gate, and the frozen toy receipt still verifying at its
+frozen length.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | the generator's consumption accessor + its refill-boundary and mixed-draw tests | derived from `(counter, pos)`, no new per-draw work; reading it changes no output; `ZkRng` still not `Clone` |
+| 2 | the transcript's squeeze counter + tests | derived from `counter`; reading it changes no challenge |
+| 3 | the `test-observers` feature and hashline's dev-dependency | not in `[dependencies]`, not in `default`; the release build never sees it |
+| 4 | the observer hook in `check_opening_challenges` | no production call site when the gate is off; counts and verdicts only, never a value |
+| 5 | the draw-accounting test, all seven assertions live | the counted draws reproduced per shape and per generator, and the toy statement's 327,052 |
+| 6 | this section closed | commit list, the cfg-gate proof, the counts, and what the integrator needs |
+
+**No 125M run. No privacy acceptance.** What this stage produces is a
+measurement of the prover's randomness accounting and a test that keeps it
+true; it establishes no privacy property.
