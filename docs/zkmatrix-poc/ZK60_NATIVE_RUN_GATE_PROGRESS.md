@@ -727,6 +727,17 @@ the list, each named in the tool rather than merely absent:
    ATTENTION profile's path. Two of the four toy captures are attention
    receipts, so the same widening is owed there. The ruling names the block
    profile, so it is not done here.
+   *(STILL OPEN, re-checked 2026-09-22 14:21 (round 9g) — this is the one
+   item of round 9g's sweep that nothing has closed. The three files are in
+   NO pin table this lane owns: not `zk60_native_mask_commit.PATH_PINS` (20
+   entries) or `SOURCE_PINS` (10), not
+   `zk60_native_terminal_polys.SOURCE_PINS` (8 — which DOES pin the
+   attention profile's `argument.rs`, `layout.rs` and `protocol.rs`, so the
+   residual is exactly these three and no more), not
+   `zk60_native_manifest_pins`, and not in the capture writer's 38-file list
+   (15 `private_block` + 23 shared, none under `private_attention/`). The
+   two attention captures therefore still reach three files nothing
+   compares. Carried forward at R9f.10 item 3 and re-stated in §R9g.8.)*
 
 ## R5.6 Results — Item B: the toy gates re-run, and why each tool hash moved
 
@@ -838,8 +849,14 @@ dimension, challenge count, slot check and channel count asserted by rounds
 2. **The attention profile's path** (R5.5c item 3): the same widening for
    `private_attention.rs`, `wire.rs` and `witness.rs`, which two of the
    four toy captures reach.
+   *(STILL OPEN as of 2026-09-22 14:21 (round 9g), checked against the
+   current pin tables — see R5.5c item 3 above and §R9g.8.)*
 3. **A shape with `lkv > 2`.** 125M's `lkv` is 2, so rung-K4 exercises the
    case that shape needs; eight or more key-value groups are still unread.
+   *(STILL OPEN as of 2026-09-22 14:21 (round 9g), checked: every shape this
+   gate has run has `lkv ≤ 2` — rung-G 2 key-value heads, rung-K4 and
+   rung-P2 4 (`lkv = 2`), 125M 4 (`lkv = 2`), and rung-C6 / rung-W14 /
+   rung-E32 add row width and endpoint rows, not head groups.)*
 4. The masked sumcheck / CFS channel, still the largest open one a port
    could close, and `zk60_native_pg_pcs` at `MSG != PAD`.
 5. The run-wide preimage as ONE joint object; ruling R-3's machine
@@ -945,6 +962,20 @@ absent from it and the four pinned ones to be present.
 **The residual, named:** closing (b) would mean the Rust lane adding those
 four to `SOURCE_FILES`. That is a Rust-lane ask, recorded in R6.8, not a
 gap this lane can close from a bundle.
+
+*(CORRECTED 2026-09-22 14:21 (round 9g): **the ask was granted.** At lane
+stage 27 (`f4697f9`) `SOURCE_FILES` (8) became `OWN_SOURCE_FILES` (15) +
+`SHARED_SOURCE_FILES` (23) = **38 files**, and all four of `wire.rs`,
+`run_sink.rs`, `endpoint_g.rs` and `hash_domain.rs` are in a `/5-run`
+bundle's `source_pins`. So column (b) of the table above — "not in
+`SOURCE_FILES`" — and the sentence "the WRITER does not pin it, so no
+bundle carries a digest to compare" are **true of every bundle up to
+`3247a89` and false of one written at `f4697f9` or later**. Column (a), that
+no port transcribes them, is unchanged and is what still keeps them out of
+`DEPENDS`. See round 9 §R9.3 / report §13.5, and
+`zk60_native_rg_runpins.WRITER_SIDE_ASK_GRANTED`, which records the grant
+with its commit. The test that reads fact (b) out of the Rust reads it at
+`3247a89`, which is why it still passes.)*
 
 ## R6.5 Results — read, then pinned
 
@@ -1099,9 +1130,22 @@ figure and no set, so every assertion of rounds 1–5 passes as written.
    is exactly the fact that would stop being true if a port grew. Adding
    them to `run_capture.rs::SOURCE_FILES` is a two-line change on the Rust
    lane and would let this gate pin them the same way.
+   *(GRANTED, and CORRECTED 2026-09-22 14:21 (round 9g): the Rust lane made
+   that change at stage 27 (`f4697f9`) — `source_pins` 8 → **38** — so all
+   four ARE pinned from a `/5-run` bundle, and the sentence "they cannot be
+   pinned from a bundle at all" is false from that stage onward. Round 9
+   §R9.3 / report §13.5 read the new pins;
+   `zk60_native_rg_runpins.WRITER_SIDE_ASK_GRANTED` names this item as one
+   of the two asks it answers.)*
 2. **The attention profile's path** (R5.8 item 2, still open): the same
    widening for `private_attention.rs`, `wire.rs` and `witness.rs`, which
    two of the four toy captures reach.
+   *(STILL OPEN as of 2026-09-22 14:21 (round 9g), checked rather than
+   assumed: none of the three appears in `zk60_native_mask_commit.PATH_PINS`
+   (20 entries) or `SOURCE_PINS` (10), in
+   `zk60_native_terminal_polys.SOURCE_PINS` (8, which pins the attention
+   profile's `argument.rs`, `layout.rs` and `protocol.rs` but not these), in
+   any `zk60_native_rg_runpins` table, or in the writer's 38 — see §R9g.8.)*
 3. **A shape with `lkv > 2`** (R5.8 item 3, still open).
 4. The masked sumcheck / CFS channel, still the largest open one a port
    could close, and `zk60_native_pg_pcs` at `MSG != PAD`.
@@ -3107,3 +3151,42 @@ Main-tree documents (`/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/`)
 are read-only for this lane. Where one of them carries the same stale
 sentence, the exact proposed replacement is written into §R9g.11 below for
 the security owner to apply.
+
+## R9g.3 Item 1 — "not pinnable from a bundle", occurrence by occurrence
+
+**The ground truth was read out of the tools first, not from any earlier
+prose.** The pin tables as they stand on this branch at `442634b`:
+
+| table | entries | what it covers |
+|---|---:|---|
+| `zk60_native_rg_runpins.DEPENDS` | 4 | `run.rs`, `boundary.rs`, `run_capture.rs`, `plane_index.rs` (the last pinned by `rg_terminals`) |
+| `…runpins.NOT_PINNABLE_FROM_A_BUNDLE` | 4 | `wire.rs`, `run_sink.rs`, `endpoint_g.rs`, `hash_domain.rs` — **all four now pinned by the WRITER**, reason (a) alone keeps them out of `DEPENDS` |
+| `…runpins.SHARED_LAYER_PINS` | 23 | the shared files stage 27 added, each computed on 2026-09-21 |
+| `…rg_mask.NOT_PINNABLE_FROM_A_BUNDLE` | 8 | `hashline/src/zk.rs` + seven `zkp-core` files — **all eight now pinned by the writer**, at exactly the `at_the_capture_commits` digests round 8 read by hand |
+| `…rg_terminals.ALSO_READ` / `ALSO_READ_NOW_PINNED` | 3 / 3 | `pad.rs` (checked since round 9b, P-F1), `shape.rs` (since round 3), `witness.rs` (pinned by the writer, transcribed by no port) |
+| `zk60_native_mask_commit.PATH_PINS` / `SOURCE_PINS` | 20 / 10 | the toy profile's whole path, the owner's 22:06 ruling of 2026-09-20 |
+| `zk60_native_terminal_polys.SOURCE_PINS` | 8 | including the attention profile's `argument.rs`, `layout.rs`, `protocol.rs` |
+| `zk60_native_manifest_pins` | 2 | `zkp-core/Cargo.toml`, `hashline/Cargo.toml` (round 9f, P36-2) |
+
+So the **only** files this lane reads that nothing pins are the attention
+profile's three (§R9g.8) and `hashline/src/gpu/cuda.rs` (feature-gated, off
+every profile's path). Every other "cannot be pinned" sentence is stale.
+
+| # | where | the sentence | decision |
+|---|---|---|---|
+| 1 | report §10.2, after the `NOT_PINNABLE_FROM_A_BUNDLE` paragraph | "a file can be pinned here only if the writer pins it — and none of the four is in `run_capture.rs::SOURCE_FILES`" | **CORRECTED in place** — false since stage 27; reason (a) kept, the table's name read as historical |
+| 2 | report §10.8, third bullet | "Four run-layer files … cannot be pinned from a bundle at all" | **CORRECTED in place** — the gap round 6 could not close was closed by the writer at stage 27 |
+| 3 | report §12.2, "And what cannot be pinned at all" | "no bundle carries a digest for `zk.rs` or for any of the seven `zkp-core` files" | **CORRECTED in place** — the ask was granted; all eight are pinned at the digests round 8 read |
+| 4 | report §1, the six-file `source_pins` list | "The bundle pins its own Rust sources: …" (six files) | **CORRECTED in place** — right for `run-a`/`run-b`, 38 for every bundle since stage 27; the two Cargo manifests are pinned by neither writer nor earlier table |
+| 5 | report §6.3, the round-6 dated note | "before tonight they were pinned by nothing" | **historical, already dated** (inside a "DATED NOTE, 2026-09-21 (round 6)" block) — left alone |
+| 6 | report §10.1 item 1, §10.2's "pinned before tonight" column, §10.5's table | "three of those were pinned by nothing" | **historical, already dated** — §10's own heading is "2026-09-21, sixth round" and every verb is past |
+| 7 | report §13.5's dated correction, §14.10's row for `pad.rs` | — | **already corrected** (round 9, round 9b); this round adds the pointer AT the originals, which is what was missing |
+| 8 | ledger R5.4b, finding K4-F2 | "three of the eight files a bundle pins are pinned by nothing" | **already corrected** — carries `*(CLOSED 2026-09-21, round 6 …)*` |
+| 9 | ledger R6.4, "The residual, named" and column (b) of its table | "the WRITER does not pin it, so no bundle carries a digest to compare" | **CORRECTED in place** — the ask was granted at stage 27 |
+| 10 | ledger R6.8 item 1 | "they cannot be pinned from a bundle at all" | **CORRECTED in place**, marked GRANTED |
+| 11 | ledger R5.4a's `run.rs` "pinned by nothing" | — | **already corrected** in place, round 6 |
+| 12 | ledger R9.x, R9b.x | — | **already the correction**, not a stale sentence |
+| 13 | D22 record §1.3 items 1–2 | "`hashline/src/pcs.rs` … no gate tool pins it"; "a gap in the pin set" | **CORRECTED in place** — pinned since round 5 (`PATH_PINS`), with `9537915b…` as its second digest |
+| 14 | D22 record §4, the per-file table | `pcs.rs` / `private_block.rs` "yes, not pinned" | **CORRECTED in place**, as a dated row under the table |
+| 15 | D22 record §7, "Also recorded" item 1 | "Widening the pin set … is the security owner's call whether to ask for it" | **CORRECTED in place** — the call was made at 22:06 on 2026-09-20 and round 5 carried it out; all six files named are in `PATH_PINS` |
+| 16 | D22 record §1.4, `gpu/cuda.rs` "not pinned by any gate tool" | — | **STILL TRUE**, and said so in the §7 correction rather than corrected |

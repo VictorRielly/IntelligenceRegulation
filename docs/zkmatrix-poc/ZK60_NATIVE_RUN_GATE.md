@@ -120,6 +120,18 @@ is. The bundle pins its own Rust sources
 > carries all three, at every digest the ten bundles declare, each with a
 > written reading. Nothing above this line changed as a result.
 
+> *(CORRECTED 2026-09-22 14:21 (round 9g): the six-file list above is what
+> `run-a` and `run-b` pin and is right for THOSE bundles. It is not the
+> current writer: at lane stage 27 (`f4697f9`) `source_pins` grew to **38**
+> files — `OWN_SOURCE_FILES` (15 `private_block`) + `SHARED_SOURCE_FILES`
+> (23 `hashline` / `zkp-core`) — and the rung-P2 and 125M bundles all pin
+> 38. See §13.5 and §14.2. Two files that decide whether a test-only
+> feature can reach a release build, `zkp-core/Cargo.toml` and
+> `hashline/Cargo.toml`, are pinned by **neither** the writer nor any
+> earlier gate table; round 9f pinned them on the Python side
+> (`zk60_native_manifest_pins`), and the writer recording them is still a
+> Rust-side residual — R9f.10 item 2.)*
+
 **Nothing is ported.** Every size comes from `run.json["shape"]`, every
 label from `run.json["transcript_labels"]`, the parameter line from
 `run.json["parameter_line"]` and each opening's PCS parameters from its own
@@ -1710,6 +1722,22 @@ here only if the writer pins it — and none of the four is in
 `run_capture.rs::SOURCE_FILES`. That fact is read out of the Rust by a
 test, not asserted. Closing it is a Rust-lane ask, recorded in the ledger.
 
+> *(CORRECTED 2026-09-22 14:21 (round 9g): the second reason above — "none
+> of the four is in `run_capture.rs::SOURCE_FILES`" — has been **false
+> since lane stage 27**. The writer's list grew from 8 files to **38**
+> (`OWN_SOURCE_FILES` 15 + `SHARED_SOURCE_FILES` 23), and all four of
+> `wire.rs`, `run_sink.rs`, `endpoint_g.rs` and `hash_domain.rs` are in a
+> `/5-run` bundle's `source_pins` — the writer-side ask of R6.8 item 1 and
+> R8.9 item 4, GRANTED. That is §13.5 and its dated correction, and
+> `zk60_native_rg_runpins.WRITER_SIDE_ASK_GRANTED` holds it in the tool.
+> **Reason (a) — that no run-gate port transcribes them — is unchanged**,
+> and it is reason (a) alone that keeps them out of `DEPENDS`. The four are
+> still named in `NOT_PINNABLE_FROM_A_BUNDLE`, whose name is now a
+> historical one: read it as "not DEPENDED ON, and not pinnable by a bundle
+> written before stage 27". Nothing above is rewritten — see round 9 / §13.5,
+> round 9b / §14.2 (finding P-F1, `pad.rs`) and round 9f / §8.8 of the D22
+> record (the two Cargo manifests, which no bundle pins even now).)*
+
 ## 10.3 Read, then pinned
 
 | file | digests | lane commits | bundles |
@@ -1800,6 +1828,12 @@ receipt size differs on any of the ten.**
   the run's path and in no bundle's `source_pins`, so they cannot be pinned
   from a bundle at all. No port depends on any of them today — which is
   exactly the fact that would stop being true if a port grew.
+  > *(CORRECTED 2026-09-22 14:21 (round 9g): the gap this bullet says round
+  > 6 does not close was **closed by the Rust lane at stage 27** — see round
+  > 9 / §13.5. `source_pins` grew 8 → 38 and all four files are pinned in
+  > every `/5-run` bundle; the sentence "they cannot be pinned from a bundle
+  > at all" is false from that stage onward, and was true when written.
+  > The second half stands: no run-gate port depends on any of the four.)*
 * **Nothing here moves D8/D11, ruling M-8's decision, the hash layer's
   ARGUED hiding, or the open sumcheck / CFS channel.**
 
@@ -2279,6 +2313,21 @@ bundle carries a digest for `zk.rs` or for any of the seven `zkp-core`
 files. They are NAMED rather than merely absent, with the digest read at the
 capture commits and the reading beside it. That is a writer-side ask, and it
 is R6.8 item 1 again with a longer list.
+
+> *(CORRECTED 2026-09-22 14:21 (round 9g): the ask was **GRANTED at lane
+> stage 27** and this paragraph is false of any bundle written at `f4697f9`
+> or later. `SOURCE_FILES` became `OWN_SOURCE_FILES` (15) +
+> `SHARED_SOURCE_FILES` (23) = **38**, so a bundle now carries a digest for
+> `hashline/src/zk.rs` and for all seven `zkp-core` files the mask port
+> transcribes — and each is pinned at **exactly** the digest round 8 had
+> recorded by hand as `at_the_capture_commits`, so round 8's hand reading is
+> now checkable from the bundle. See round 9 / §13.5 and
+> `zk60_native_rg_runpins.SHARED_LAYER_PINS`. The eight entries of
+> `zk60_native_rg_mask.NOT_PINNABLE_FROM_A_BUNDLE` (row 1 of the table
+> above) are kept as the dated record of what round 8 read; their
+> `why_not_pinnable` text — "`run_capture.rs::SOURCE_FILES` pins eight
+> `private_block` files …" — describes the pre-stage-27 writer and nothing
+> in the tool is rewritten.)*
 
 ## 12.3 The `M` system at the shaped layouts
 

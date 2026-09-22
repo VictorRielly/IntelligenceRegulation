@@ -104,6 +104,17 @@ Git blobs: `hashline/src/zk.rs` is `28f32f18…` at `4751b93^` and
    `pcs::verify_zk` through it), so it was re-read anyway: §2.2. That it
    is on the path and not pinned is a gap in the pin set, recorded in §7.
 
+*(CORRECTED 2026-09-22 14:21 (round 9g): "no gate tool pins it" was true on
+2026-09-20 when this page was written and is **false since round 5** of the
+RUN-gate lane (ledger §R5.5, the security owner's ruling of 2026-09-20
+22:06: extend the pin set to the whole path the prover and verifier reach).
+`hashline/src/pcs.rs` is now `zk60_native_mask_commit.PATH_PINS` entry
+`6d27f3a5…`, with `9537915b…` as the `ALSO_ACCEPTED` second digest read for
+`4751b93` itself — which is how §8.3 below counts it among the 32 pinned
+paths. The arithmetic of this item is untouched: exactly one pin MOVED at
+`4751b93`, because `pcs.rs` had no pin to move on the day. The gap named in
+sub-item 2 is closed; see the correction at §7 item 1.)*
+
 ### 1.4 The wider net the captures cast
 
 The capture manifest `results/zk60_native_captures_20260919/source.json`
@@ -367,6 +378,7 @@ is the integrator's claim to keep, and nothing here depends on it.
 | `hashline/src/zk.rs` | yes (the mask commitment) | 4 × (i) new items, 8 × (ii) inside v3 FFN functions the profile does not call; 0 of 18 reached items changed | **PIN MOVED**, both digests kept |
 | `hashline/src/pcs.rs` | yes, not pinned | 1 × (i), purely additive | no pin to move; recorded in §7 as a gap |
 | `hashline/src/private_block.rs` | yes, not pinned | 1 × (i), `#[cfg(test)]` | no pin to move |
+| *(CORRECTED 2026-09-22 14:21, round 9g)* | **both are PINNED since round 5** (`PATH_PINS`, the owner's 22:06 ruling of 2026-09-20) | — | the "not pinned" column above is as of 2026-09-20; today `pcs.rs` is pinned `6d27f3a5…` + `9537915b…` and `private_block.rs` `5d9dd178…` + `412a43f4…`, the second of each being the `4751b93` bytes this table classifies. The decision "no pin to move" was correct on the day and is what round 5 then acted on |
 | `hashline/src/layer.rs` | no (only through 6 items `zk.rs` imports, all identical) | (i)/off-path | nothing owed |
 | `hashline/src/wcache.rs` | no | off-path | nothing owed |
 | `hashline/src/gpu/mod.rs` | no (`backend()` unchanged) | (i), 0 deletions | nothing owed |
@@ -560,6 +572,26 @@ which asks for a re-read and a re-pin.
    of `zk60_native_mask_commit` to the path's full closure is a small
    change and would have caught this commit automatically; it is the
    security owner's call whether to ask for it.
+
+   *(CORRECTED 2026-09-22 14:21 (round 9g): **the owner made that call and
+   the widening is done.** On 2026-09-20 at 22:06 the security owner ruled
+   that the pin set is extended to the whole path the prover and the
+   verifier reach, and round 5 of the RUN-gate lane carried it out
+   (ledger §R5.5, §R5.5b, §R5.5c; report §9): `zk60_native_mask_commit`
+   gained `PATH_PINS`, **20 entries**, which includes all six files named
+   in this item — `pcs.rs`, `private_block.rs`, `merkle.rs`,
+   `transcript.rs`, `field.rs`, `ntt.rs` — each with its digest, its git
+   blob and a written reading. Since then a change to any of them DOES trip
+   a pin, which is why §8.3 of this page can count 32 pinned paths and four
+   second digests. Three residuals were named rather than silently dropped
+   and are the state today: the five `#[cfg(test)]` `private_block` modules
+   (deliberately out), `causal_oracle.rs` / `tables_v3.rs` /
+   `zkp-core/src/tables.rs` (the FIXTURE's path, in
+   `FIXTURE_PATH_NOT_PINNED`), and `private_attention.rs`,
+   `private_attention/wire.rs`, `private_attention/witness.rs` — the
+   ATTENTION profile's path, **still unpinned as of this date**, re-checked
+   in round 9g §R9g.8. `hashline/src/gpu/cuda.rs` (§1.4) is also still
+   unpinned; `gpu/mod.rs`, the file `backend()` lives in, is pinned.)*
 2. The statement's note of 21:28 names the wrong `pcs.rs` (§1.3). The note
    should be corrected when step 3's suspension is lifted, so the register
    does not carry a false statement about what is pinned.
