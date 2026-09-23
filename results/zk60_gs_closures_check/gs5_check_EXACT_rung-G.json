@@ -1,0 +1,27 @@
+[
+ {
+  "case": "EXACT rung-G endpoint rows=9 n=1024 Q=256",
+  "n": 1024,
+  "Q": 256,
+  "d": 256,
+  "rows": 9,
+  "data_rows": 4,
+  "groups": 1,
+  "claims": 1,
+  "brute": 0,
+  "brute_without_values": 0,
+  "values_contribution": 0,
+  "k0": 0,
+  "u_exact": 0,
+  "u_tool": 0,
+  "admissible": 0,
+  "formula_tool": 0,
+  "formula_exact": 0,
+  "agree_tool": true,
+  "agree_exact": true,
+  "H_prox": true,
+  "multi": [],
+  "secs": 1476.56,
+  "seed": 101
+ }
+]

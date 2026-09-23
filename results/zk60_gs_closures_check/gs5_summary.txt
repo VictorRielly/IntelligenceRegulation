@@ -24,5 +24,6 @@ CE2 three-member fp-group prox-dep                   inst   12  brute=exact    0
 CE2 two ones-groups prox-dep                         inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
 CE2 two fp-groups prox-dep                           inst   12  brute=exact   12  brute=gate   12  brute-exact [0]  values' contribution [0]  (n,Q,rows) x4
 CE2 H-like fp-group prox-dep                         inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
+EXACT rung-G endpoint                                inst    1  brute=exact    1  brute=gate    1  brute-exact [0]  values' contribution [0]  (n,Q,rows) x1
 EXACTsmall rung-G endpoint geometry                  inst    3  brute=exact    3  brute=gate    3  brute-exact [0]  values' contribution [0]  (n,Q,rows) x1
-{"instances": 531, "brute_equals_exact_formula": 423, "brute_equals_gate_formula": 387}
+{"instances": 532, "brute_equals_exact_formula": 424, "brute_equals_gate_formula": 388}

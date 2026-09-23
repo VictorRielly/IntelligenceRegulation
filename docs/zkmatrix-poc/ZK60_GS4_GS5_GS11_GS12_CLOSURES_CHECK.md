@@ -1,6 +1,6 @@
 # Adversarial check of the GS-4 / GS-5 / GS-11 / GS-12 closures memo
 
-> **CHECK, 2026-09-23 12:22–12:55 PDT (`date`).** One delegated Opus agent
+> **CHECK, 2026-09-23 12:22–13:05 PDT (`date`).** One delegated Opus agent
 > (checker), with two read-only sub-checkers (the `audit_claims`
 > transcription diff; the GS-11 / GS-12 code facts). Under attack:
 > `ZK60_GS4_GS5_GS11_GS12_CLOSURES.md` (DRAFT, commits `80aa124`…`23207cd`)
@@ -177,7 +177,8 @@ hypothesis of the gate.
   - What is left is the pairless groups, which is only the LogUp sum claim's
     singleton on `H`. Its u-row weights are λ·(1, U). MEASURED at 125M:
     coefficients (1, 0) and (0, 1) on rows 7016 / 7017; `logup_sum_claim`
-    writes them.
+    writes them. The form (c, c·U) holds on all 8 `H` views, at 125M and
+    rung-G (`gs4_check`, X5).
   - So both indicators are reachable and u\* = 2.
 * **Does the tool under-count without it?** Yes, and that is demonstrated.
   Family `U-adm`: give the sum claim u-weights (1, a) with a ∈ Fp, so only a
@@ -448,7 +449,7 @@ says so.
   `gs5_check.py` builds the whole view from scratch: every published value,
   both halves of every group and proximity vector, and every opened column
   on every row.
-  - It covers **531 instances** in 27 case families (`gs5_summary.txt`).
+  - It covers **532 instances** in 28 case families (`gs5_summary.txt`).
   - The grid: (n, Q) ∈ {(4,4), (4,8), (4,12), (8,8), (8,2), (3,3), (3,9),
     (5,5), (5,2), (15,4), (16,1), (6,6)}, with d < Q as well.
   - The real 125M and rung-G group-size multisets of A and H (36 and 9
@@ -456,14 +457,19 @@ says so.
   - The real 125M endpoint and boundary row geometry (37 and 38 rows, 32
     data) at n = 128, Q = 2, i.e. n/Q = 64 as at 125M.
   - The rung-G endpoint geometry (9 rows) at n/Q = 4 and 64.
-  - The exact formula agrees on all 423 instances outside F-1's family. The
-    gate's per-indicator formula agrees on all except F-3's 36.
+  - The exact formula agrees on all 424 instances outside F-1's family. The
+    gate's per-indicator formula agrees on all of them except F-3's 36.
 * **The real 125M (n, Q, rows).** This is out of reach for a dense brute
-  force (≈ 10^8 unknowns). The one real (n, Q, rows) geometry within reach,
-  the rung-G endpoint commitment (9 rows, n = 1,024, Q = d = 256), is
-  running detached under the heavy lock (`gs5_check_exact.{log,done}`). Its
-  scaled twin (n = 256, Q = 64, same rows) reads disclosed 0 = formula on
-  3 of 3.
+  force (≈ 10^8 unknowns).
+* **The rung-G endpoint at its real geometry** (9 rows, n = 1,024,
+  Q = d = 256) is the one real (n, Q, rows) geometry within reach. I ran it
+  detached under the heavy lock (`gs5_check_exact.{log,done}`,
+  `gs5_check_EXACT_rung-G.json`, 1,477 s, exit 0). The whole view reads
+  disclosed **0 = n·k0 + u\*** (k0 = 0, u\* = 0).
+* Its scaled twin (n = 256, Q = 64, same rows) also reads 0 = formula,
+  on 3 of 3.
+* Total: **532 instances**. The exact formula agrees on 424, which is every
+  instance outside F-1's family. The gate's formula agrees on 388.
 * **The records.** I did not recompute the gate's 79 per-commitment
   figures. As the draft itself says, they are a consistency check.
 
@@ -499,8 +505,8 @@ checks. I read `mask_commit` myself.
    (plus the diff to `f4697f9`).
 2. **No brute force at 125M's real (n, Q, rows).** The real 125M structure
    was tested only at reduced n, Q and data rows, and the endpoint / boundary
-   row counts only at n/Q = 64. The exact rung-G endpoint run was
-   **pending** when this page was written; see its marker.
+   row counts only at n/Q = 64. The only real geometry brute-forced whole is
+   the rung-G endpoint (9 rows, n = 1,024, Q = 256), on one seed.
 3. The gate's 79 recorded figures, its `M` arm (b / u preimages, q′
    identities) and its `disclosed_fp_computed = 2` at 125M were not
    recomputed.
