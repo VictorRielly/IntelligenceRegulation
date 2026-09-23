@@ -3987,3 +3987,40 @@ accepted set empty.
    (round 9e's residual), GS-13 and GS-14 on the main tree, and a whole-suite
    figure (530 is from round 9c; rounds 9e, 9f and 9h have added 41 tests
    inside that pattern without re-running it).
+
+# ROUND 9i (2026-09-22 20:16 PDT) — EIGHT key-value groups (`lkv = 3`, rung-K8): the gate reads a third group bit
+
+## R9i.0 Why there is a round 9i
+
+R5.8 item 3: every shape this gate has read has `lkv ≤ 2` (rung-G 1;
+rung-K4, rung-P2, rung-C6, rung-W14, rung-E32 and 125M 2). The repaired
+bilinear slots 08 `SC_SCORE` / 09 `SC_PV` sum over the key-value group bits
+under a public `eq(r_g, ·)`, and a third group bit has never been read.
+Lane stage 37 (`zk60-private-block-125m`, capture commit `99a8de8`, tip
+`bacc274`, READ-ONLY here) wrote the first `lkv = 3` shape, **rung-K8**
+(24 tokens, width 128, hidden 192, 16 query heads of 8 over 8 key-value
+heads, rung-K4's padded layout 32 / 128 / 16 / 256), and two three-block
+`/4-run` bundles at it. Round 9i puts them through the whole gate.
+
+Nothing in this round is a privacy acceptance and no statement here
+establishes a privacy property.
+
+## R9i.1 Input (READ-ONLY, never copied into this repository)
+
+| bundle | witness | source commit | where |
+|---|---|---|---|
+| `run-s-dense-k8` | fully dense, generic input, all eight groups pairwise different | `99a8de8` | `/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260922_k8/` |
+| `run-t-zero-k8` | all-zero input (degenerate) | `99a8de8` | the same |
+
+## R9i.2 Status
+
+| # | item | state |
+|---|---|---|
+| K0 | ledger skeleton, round 9i opened | in progress |
+| K1 | the pins between the last capture commit read (`6d71b40`) and `99a8de8`, hunk by hunk | open |
+| K2 | the prediction, written and committed BEFORE the gate is run at rung-K8 | open |
+| K3 | any `lkv ≤ 2` assumption in the ports or controls found, generalised, tested | open |
+| K4 | the whole gate on both bundles, every arm, every control | open |
+| K5 | dense against zero; rung-K8 against rung-K4 | open |
+| K6 | the records re-taken where a tool moved; the suite and the record guard at 8G | open |
+| K7 | results, limits, NEXT; R5.8 item 3 closed only if the gate read `lkv = 3` end to end | open |
