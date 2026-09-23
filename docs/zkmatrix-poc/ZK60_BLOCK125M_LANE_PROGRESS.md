@@ -11949,7 +11949,8 @@ would close them.
 
 ## Stage 37 — TEST-ONLY: eight key-value groups (`lkv = 3`), "rung-K8" (2026-09-22, 19:4x–)
 
-**Status: `OPEN` (skeleton).** Opened 2026-09-22 19:46 PDT on the lane tip
+**Status: `CLOSED` 2026-09-22 20:1x PDT** — see "Stage 37 — CLOSED" below.
+Opened 2026-09-22 19:46 PDT on the lane tip
 `a8e4939`, one writer. **Why:** the native run gate has never read a shape
 with `lkv > 2` (its open item R5.8 item 3: "eight or more key-value groups
 are still unread"). The repaired bilinear slots `SC_SCORE` / `SC_PV` (stage
@@ -11983,3 +11984,150 @@ native_capture}.rs`, `hashline/src/gpu/`, `private-block-kernel*/`,
 | 8 | the `--lib private_` filter once, against 416 / 0 / 17 | nothing lost |
 
 **No privacy claim.** Development grade (ruling P-7), like every rung.
+
+### Stage 37 — CLOSED (2026-09-22, 19:46–20:1x)
+
+**Status: `LANDED`.** No production file moved (proof below), no 125M run,
+no GPU. **The honest prover and the honest verifier agree at `lkv = 3`; no
+completeness finding.**
+
+#### Task 1 — the shape, and why it is not the strictly smallest
+
+`Shape::new` ACCEPTS `lkv = 3`; nothing refuses it. rung-K8, built in
+`k8_tests.rs::rung_k8()` (not in `shape.rs`, which this stage may not move):
+
+| | rung-K4 | **rung-K8** |
+|---|---|---|
+| tokens / width / hidden | 24 / 96 / 192 | 24 / **128** / 192 |
+| query heads x head_dim over KV heads | 12 x 8 over 4 | **16 x 8 over 8** |
+| `lkv`, heads per group, padded head slots | 2, 3 (+1 pad), `{3,7,11,15}` | **3, 2, none** |
+| `t_pad, d_pad, h_pad, f_pad` | 32, 128, 16, 256 | the same |
+| `Dom::Q` / `Dom::Kv` / `Dom::S` logs | 12 / 10 / 14 | 12 / **11** / 14 |
+| `SC_SCORE`, `SC_PV` (main, ext, deg) | (5,2,3), (7,2,3) | **(6,2,3), (8,2,3)** |
+| `norm_wrho`, `wrho_s`, `F_E`, row width, rate, endpoint rows | 31, 17, 12, 2^10, 4, 9 | the same |
+| block / run profile | `...rung-k4-t24-dev/1` | `hashline-zk-mr1/private-block-rung-k8-t24-dev/1` / `hashline-zk-mr1/private-run-rung-k8-t24-dev/1` |
+
+**Three smaller `lkv = 3` geometries are accepted too, and were NOT chosen**
+(`every_smaller_eight_key_value_head_geometry_is_accepted_and_the_choice_is_recorded`,
+receipts COUNTED by the Rust's `receipt_bytes` and equal to the model's):
+8 x 4 over 8, width 32 (3,360,904 B); 8 x 8 over 8, width 64 (3,689,624 B);
+16 x 4 over 8, width 64 (4,160,680 B). The first two have ONE query head per
+group, so `kv_of_slot` is the identity and no head-in-group bit exists — a
+construction confusing the head index with the group index would pass them,
+which is the degenerate-fixture pattern that hid S19-F1. The third uses
+`head_dim = 4`, which no shape has ever proved at; it would put two untested
+axes into one shape. rung-K8 is the smallest geometry with a non-identity
+group map and only proven head sizes, and its padded layout is rung-K4's,
+so the head axis is the only thing that moves. 16 x 2 over 8 (width 32) is
+REFUSED by name (F-2: `Dom::Kv` natural log 9 lifted to the row width 10).
+**What would justify revisiting:** a gate finding that needs the padded-slot
+case at `lkv = 3` (24 x 4 over 8, width 96, model 5,759,176 B) or a proof
+at `head_dim = 4`.
+
+**What a test-only shape costs, stated:** `run_statement_file::
+shape_of_profile` does not know the two rung-K8 profiles, so this build writes
+and reads no run STATEMENT file for it, and the stage-24 profile registry
+(read out of `shape.rs` / `run.rs`) does not list them. The geometry test
+asserts instead that rung-K8's four keys differ from every registered
+profile's keys and from each other. The bundles need neither.
+
+#### Tasks 2–6 — MEASURED (`s37-k8-all.log`, 10 passed / 0 failed / 1 ignored, 13.48 s, exit 0; one run each, shared box, not quiesced)
+
+| test | result |
+|---|---|
+| `the_rung_k8_shape_is_the_eight_key_value_head_geometry_it_claims` | every dimension, `kv_of_slot(sl) = sl / 2`, slots 14 and 15 in group 7, no lift, own profile and key set |
+| `the_rung_k8_layout_is_the_independent_models` | all 23 layout figures equal the unedited Python model's (A/H planes 83/52, data rows 487/626, rows 733/732, groups 36/9, main rounds 223, published values 1,084, draws 248, bilinear L (26, 32), U8 555,008) |
+| `the_dense_witness_equals_the_reference_kernel_at_the_rung_k8` | the independent `private-block-kernel-shaped` crate agrees on all 3,072 output words; ITS OWN rotated-key buffer has eight pairwise different groups |
+| **(a)** `an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k8` | **prove 0.66 s, verify from bytes 0.12 s, frame 4,780,216 B**; a one-byte truncation refused; census 16/16 head slots live, 8/8 groups live and pairwise different in keys AND values, both heads of every group different |
+| **(b)** `an_honest_three_block_fully_dense_run_verifies_streaming_at_the_rung_k8` | **prove 1.85 s, STREAMING verify (`verify_run_from_dir`, one file at a time) 0.36 s**, in-memory verify agrees, segments **4,612,392 / 4,634,920 / 4,802,824 = 14,050,136 B** (the counted lengths), boundary 10 rows, census in all three blocks; one flipped byte in segment 2's file refused (`A: pcs zk: Merkle path ... fails`) |
+| **(c)** `a_perturbation_in_the_last_key_value_group_is_rejected_by_the_verifier_at_the_rung_k8` | **6 of 6 rejected by the VERIFIER, 0 by the prover, 0 accepted**: `A_KR8` group 7 → slot 16 `05 KV zero-check`; `A_V8` group 7, `A_QR8` at slots 14 and 15, `A_P` at slots 14 and 15 → slot 15 `04 Q zero-check` |
+| (c, extra) `exchanging_group_sevens_keys_across_each_single_group_bit_is_rejected_at_the_rung_k8` | the whole key family of group 7 swapped with group 6 (low bit, 744 positions differ), 5 (middle, 738) and 3 (high, 744): **3 of 3 rejected by the VERIFIER**, slot 16 |
+| **(d)** `the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_k8` | tame fixture: prove 0.65 s, verify 0.12 s; dense public weights: prove 0.66 s, verify 0.14 s; both 4,780,216 B. Named DEGENERATE: every group zero |
+| **(e)** receipt = model | **4,780,216 B MEASURED = 4,780,216 B the model predicts** (`s37-model-prediction.json`) = the Rust's count |
+| `the_pinned_rung_k8_chain_band_is_the_first_admissible_one` | **band 48**, the recipe's own single-block band: three blocks need no reduction at this shape (rung-K4 needed 47). `band_down_run`'s fallback at `(192, 8)` already gives 48, so the shared `dense_tests::dense_run_case` is used unchanged and the test asserts both |
+
+**Where the tampers are caught, stated plainly:** every tamper is rejected
+at the zero-check slots 15 / 16, exactly as at rung-K4 — a one-word move in
+`A_KR8`/`A_V8`/`A_QR8`/`A_P` breaks the RoPE / projection relations those
+slots host before `SC_SCORE`/`SC_PV` are reached. So these controls show the
+verifier refuses group-7 data that disagrees with its own group's weights;
+they are not an isolated test of the `eq(r_g, .)` factor. The positive side
+— an honest proof with eight different groups ACCEPTED through the
+three-bit group sum — is what isolates it.
+
+**The model's entry point (item e):** `zk60_private_block_layout_model.py`'s
+CLI takes `--shape` from a closed list of registered shapes, so it has no
+entry for rung-K8. It was NOT edited: the module was imported as a library
+and its own `Shape(...)` class and `model()` were called at rung-K8's
+arguments (`s37-model-prediction.json` records the call and the survey
+totals).
+
+#### Task 7 — the two capture bundles
+
+`results/zk60_run_captures_20260922_k8/` (with a parent `README.md`),
+written by `k8_tests::write_the_k8_gate_bundles` with
+`HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=99a8de8` — **`99a8de8`
+was HEAD at capture time** (finding E32-F1), the tree clean; the writer
+refuses an unset or `uncommitted-test` label. `s37-k8-bundles.log`, exit 0.
+
+| bundle | `manifest["total_bytes"]` | on disk | `manifest.json` SHA-256 |
+|---|---:|---:|---|
+| `run-s-dense-k8` (fully dense, generic) | 46,928,078 B | 46,933,075 B | `29815e93...a8ac730b` |
+| `run-t-zero-k8` (all-zero, degenerate) | 46,901,939 B | 46,906,936 B | `d322a49c...09d7fdc6` |
+
+Three blocks each, classic `/4-run` (as rung-K4's pair), 93.8 MB for the
+pair. **Sanity on the files as written** (`s37-bundle-sanity.py`, a script
+under `results/`, → `s37-k8-bundle-sanity.log`): **0 mismatches** — every
+manifest entry's length and SHA-256; `source_commit` `99a8de8` in both
+manifests and both `run.json`; 93 of 93 public tables with values and every
+digest recomputed; **the group eq at start 0 with a THREE-element point ==
+`definition_challenges[:3]` at 6 of 6 per bundle**; plane index 22,419
+canonical bytes, SHA-256 prefix `914338bb`, identical across the pair (NOT
+rung-K4's `89cd8a46`). The same script on the rung-K4 pair reproduces stage
+22's figures exactly (`s37-sanity-control-k4.log`), which is its control.
+
+#### Task 8 — the gate
+
+| run | log | result |
+|---|---|---|
+| `--lib private_` at `4373fb6` | `s37-gate-private.log` | **429 passed / 0 failed / 18 ignored**, 568.88 s, exit 0, 15 warnings (stage 36's gate log: 16) |
+
+Against 416 / 0 / 17: **+13 passed = the three `p36_preread_tests` merged at
+`a8e4939` + this stage's ten; +1 ignored = the bundle writer.** Nothing lost.
+The frozen toy is in the pass list at **2,816,472 B**
+(`tests::honest_receipt_verifies_in_typed_and_wire_form_...`,
+`grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+`review_tests::a_toy_receipt_made_before_the_lane_still_verifies`).
+
+#### FORBIDDEN-FILES PROOF
+
+`git --no-pager diff --stat a8e4939 -- zkp-core hashline/src/{zk,pcs,layer,
+wcache,native_capture}.rs hashline/src/gpu private-block-kernel
+private-block-kernel-shaped zkvm-block hashline/src/private_block/{argument,
+protocol,layout,wire,witness,run,boundary,run_capture,shape}.rs
+hashline/Cargo.toml hashline/Cargo.lock scripts` prints NOTHING. The whole
+source diff against `a8e4939` is `k8_tests.rs` (new) and two lines of
+`hashline/src/private_block.rs` (`#[cfg(test)]` / `mod k8_tests;`).
+
+**One pin moves, for the gate owner:** `hashline/src/private_block.rs` is a
+capture source pin and in the run gate's pin tables. Its SHA-256 goes from
+`d540404b...25990198` (at `a8e4939`) to `7a9b31ac...ee00dc82`; the only
+change is the two `cfg(test)` lines above. The rung-K8 bundles pin the new
+digest.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `d597a1d` | the skeleton |
+| `99a8de8` | `k8_tests.rs`, the mod line, the model prediction, the sanity script and its control, the test logs — the capture commit |
+| `4373fb6` | the two bundles, their README and the sanity log |
+| this one | the gate log and this section |
+
+#### What stage 37 is NOT
+
+Not a privacy result and not gate evidence: no gate has read the bundles. Not
+a registered profile: rung-K8 lives in a test file, and registering it
+(`shape.rs`, `run.rs`, `shape_of_profile`, the registries) is a production
+change for whoever owns those files. Not a completeness claim beyond the
+cases run, and not a test of `lkv >= 4`.
