@@ -1,0 +1,78 @@
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+test_every_record_agrees_with_its_own_grade (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_carries_the_counts_of_record (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_every_record_was_produced_by_the_tools_now_in_the_tree (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_is_the_reports_channel_table (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_pin_names_the_records_it_pins (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_the_records_are_ok_and_claim_no_privacy_property (tests.test_zk60_native_gate_record.GateRecordOfRecord) ... ok
+test_a_changed_byte_in_each_of_the_three_is_refused_by_name (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+One byte flipped in EVERY newly pinned file, one at a time, in a ... ok
+test_a_missing_file_is_refused_by_name (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned) ... ok
+test_an_unchanged_copy_still_passes (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+The control for the test above: the same throwaway tree with ... ok
+test_both_gates_call_it_unconditionally_and_before_any_capture (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+Not gated on the capture's profile, and not after the captures ... ok
+test_both_gates_call_the_check_and_name_the_tool (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned) ... ok
+test_both_gates_refuse_and_return_3_instead_of_running (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+The callers' half: the refusal comes before anything is read, so ... ok
+test_every_crate_module_the_profile_imports_is_pinned (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+Coverage, derived rather than asserted: every `use crate::<m>` in ... ok
+test_no_other_pin_table_names_them_at_a_different_digest (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+The three tables that could disagree: the two Rust ones and round ... ok
+test_none_of_the_three_is_a_test_only_module (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+`private_block/{norm_alias,parity,refusals,tamper,tests}.rs` are ... ok
+test_the_lane_carries_the_same_bytes_and_nothing_is_pre_accepted (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+Unlike round 9f's manifests, the block lane (`a8e4939`) has not ... ok
+test_the_pins_are_at_the_bytes_in_this_tree (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned) ... ok
+test_the_profiles_six_files_are_all_pinned_now (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned)
+The point of the round: no file of the attention profile is left ... ok
+test_the_three_are_pinned_at_mains_digests (tests.test_zk60_native_gate_record.TheAttentionProfilesPathIsPinned) ... ok
+test_a_changed_byte_in_either_manifest_is_refused_by_name (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_a_manifest_the_scanner_cannot_read_is_refused_not_passed (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_a_missing_manifest_is_refused_by_name (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_both_gates_call_the_check_and_name_the_tool (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_both_gates_refuse_and_return_3_instead_of_running (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted)
+The callers' half: the refusal comes before anything is read, so ... ok
+test_both_manifests_are_pinned_at_mains_digests (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_case_1_the_feature_in_default_is_refused_by_name (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted)
+The one-word edit finding P36-2 names. ... ok
+test_case_1b_any_other_feature_in_default_is_refused_too (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted)
+`default` must be EMPTY, not merely free of this one name: a ... ok
+test_case_1c_the_feature_in_a_normal_dependency_is_refused (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_case_2_declared_and_enabled_only_from_dev_dependencies (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted)
+The shape the integration will bring: zkp-core DECLARES the ... ok
+test_case_2b_a_target_specific_dev_dependency_is_accepted (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_case_3_absent_entirely_as_at_4751b93_is_accepted (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted)
+The tree as it stands: neither manifest mentions the feature. ... ok
+test_no_other_pin_table_names_them_at_a_different_digest (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_the_feature_outside_dev_dependencies_in_hashline_is_refused (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_the_pins_are_at_the_bytes_in_this_tree_and_nowhere_else (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted)
+The check passes here, and no OTHER pin table claims these two ... ok
+test_the_post_integration_digests_are_recorded_and_not_accepted (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted)
+The lane's own manifests (`a8e4939`) are written down so the next ... ok
+test_the_scanner_reads_comments_quotes_and_multi_line_arrays (tests.test_zk60_native_gate_record.TheCargoManifestsArePinnedAndAsserted) ... ok
+test_a_changed_byte_in_any_newly_pinned_file_is_refused_by_name (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+One byte flipped in EVERY path-pinned file, one at a time, in a ... ok
+test_an_unchanged_tree_with_the_path_pins_still_passes (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The control for the test above: the same throwaway tree with ... ok
+test_every_pin_is_at_the_bytes_in_this_tree (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The whole widened table passes on the tree as it stands. ... ok
+test_the_fixture_path_is_named_and_not_pinned (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+The three files reached only by the public fixtures are recorded ... ok
+test_the_pin_table_covers_exactly_the_established_path (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+Neither direction is allowed to drift: a file added to the path ... ok
+test_the_two_pin_tables_agree_where_they_overlap (tests.test_zk60_native_gate_record.ThePathPinsCoverThePath)
+Four files are pinned by BOTH this tool and ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 0.089s
+
+OK

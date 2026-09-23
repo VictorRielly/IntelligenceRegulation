@@ -297,9 +297,12 @@ class TheRecordedFiguresAtRungP2(unittest.TestCase):
         for rec in (self.d, self.z):
             ch = rec["stage7_channels"]
             self.assertEqual(ch["total"], 28)
+            # [ROUND 9j, DELIBERATE] status page row 26: the boundary scale
+            # channel OPEN -> ARGUED on D12b(3) / ruling R-5 (built, lane stage
+            # 21), so argued +1 and open -1; no figure moved
             self.assertEqual(dict(ch["counts"]),
-                             {"constructed": 10, "derived": 5, "argued": 4,
-                              "open": 9})
+                             {"constructed": 10, "derived": 5, "argued": 5,
+                              "open": 8})
             self.assertEqual(ch["grading_failures"], [])
 
     def test_every_control_family_fires(self):

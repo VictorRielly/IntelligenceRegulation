@@ -1,0 +1,178 @@
+.....s......./home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.....................................................................................................................................................................................................F..................../home/victor/wt-zk60-jointview/scripts/zk60_native_jv_field.py:93: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-dense/arrays.bin'>
+  return (x[0] % P, x[1] % P)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.............................................F.................................F.............................../usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................................................F.......................F...................F....................................................................F................../home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-m-dense-c6/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-o-dense-w14/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:411: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-q-dense-e32/arrays.bin'>
+  del b, export
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-dense-l2/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....................................F................................x....................................
+======================================================================
+FAIL: test_the_channel_table_moved_three_channels_and_no_more (test_zk60_native_run_gate_ahpreimage.TestTheRecord)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_ahpreimage.py", line 352, in test_the_channel_table_moved_three_channels_and_no_more
+    self.assertEqual(ch["counts"],
+AssertionError: {'argued': 5, 'constructed': 5, 'derived': 5, 'open': 13} != {'constructed': 5, 'derived': 5, 'argued': 4, 'open': 14}
+- {'argued': 5, 'constructed': 5, 'derived': 5, 'open': 13}
+?            ^                                           ^
+
++ {'argued': 4, 'constructed': 5, 'derived': 5, 'open': 14}
+?            ^                                           ^
+ : run-g-dense-s20
+
+======================================================================
+FAIL: test_the_hash_layer_and_the_channel_count (test_zk60_native_run_gate_k4.TheRecordedFigures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_k4.py", line 472, in test_the_hash_layer_and_the_channel_count
+    self.assertEqual(by, {"constructed": 2, "derived": 5,
+AssertionError: {'constructed': 2, 'open': 16, 'derived': 5, 'argued': 5} != {'constructed': 2, 'derived': 5, 'argued': 4, 'open': 17}
+- {'argued': 5, 'constructed': 2, 'derived': 5, 'open': 16}
+?            ^                                           ^
+
++ {'argued': 4, 'constructed': 2, 'derived': 5, 'open': 17}
+?            ^                                           ^
+
+
+======================================================================
+FAIL: test_the_hash_layer_the_arms_and_the_channels (test_zk60_native_run_gate_k8.TheRecordedFiguresAtRungK8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_k8.py", line 487, in test_the_hash_layer_the_arms_and_the_channels
+    self.assertEqual(rec["stage7_channels"]["counts"],
+AssertionError: {'argued': 5, 'constructed': 10, 'derived': 5, 'open': 8} != {'constructed': 10, 'derived': 5, 'argued': 4, 'open': 9}
+- {'argued': 5, 'constructed': 10, 'derived': 5, 'open': 8}
+?            ^                                           ^
+
++ {'argued': 4, 'constructed': 10, 'derived': 5, 'open': 9}
+?            ^                                           ^
+
+
+======================================================================
+FAIL: test_the_channel_table_moved_and_by_how_much (test_zk60_native_run_gate_mask.TestTheRecord)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_mask.py", line 302, in test_the_channel_table_moved_and_by_how_much
+    self.assertEqual(
+AssertionError: {'argued': 5, 'constructed': 10, 'derived': 5, 'open': 8} != {'constructed': 10, 'derived': 5, 'argued': 4, 'open': 9}
+- {'argued': 5, 'constructed': 10, 'derived': 5, 'open': 8}
+?            ^                                           ^
+
++ {'argued': 4, 'constructed': 10, 'derived': 5, 'open': 9}
+?            ^                                           ^
+ : run-g-dense-s20
+
+======================================================================
+FAIL: test_the_channel_table (test_zk60_native_run_gate_p2.TheRecordedFiguresAtRungP2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_p2.py", line 300, in test_the_channel_table
+    self.assertEqual(dict(ch["counts"]),
+AssertionError: {'argued': 5, 'constructed': 10, 'derived': 5, 'open': 8} != {'constructed': 10, 'derived': 5, 'argued': 4, 'open': 9}
+- {'argued': 5, 'constructed': 10, 'derived': 5, 'open': 8}
+?            ^                                           ^
+
++ {'argued': 4, 'constructed': 10, 'derived': 5, 'open': 9}
+?            ^                                           ^
+
+
+======================================================================
+FAIL: test_the_channel_table_is_twenty_five_with_fifteen_open (test_zk60_native_run_gate_planeindex.TestRecordedEvidence)
+Round 2 recorded 24 channels with 15 open for these two bundles.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_planeindex.py", line 220, in test_the_channel_table_is_twenty_five_with_fifteen_open
+    self.assertEqual(
+AssertionError: {'argued': 5, 'constructed': 2, 'derived': 4, 'open': 17} != {'constructed': 2, 'derived': 4, 'argued': 4, 'open': 18}
+- {'argued': 5, 'constructed': 2, 'derived': 4, 'open': 17}
+?            ^                                           ^
+
++ {'argued': 4, 'constructed': 2, 'derived': 4, 'open': 18}
+?            ^                                           ^
+ : run-c-tame
+
+======================================================================
+FAIL: test_the_channel_table_recounted_from_the_tools_own_array (test_zk60_native_run_gate_s20.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_s20.py", line 390, in test_the_channel_table_recounted_from_the_tools_own_array
+    self.assertEqual(ch["counts"]["open"], 17, name)
+AssertionError: 16 != 17 : run-g-dense-s20
+
+======================================================================
+FAIL: test_the_channel_table_is_twenty_five_with_fourteen_open (test_zk60_native_run_gate_tagged.TestRecordedEvidence)
+Round 2 counted 24 with 15 open. Round 3 adds ONE entry (the hash
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_tagged.py", line 395, in test_the_channel_table_is_twenty_five_with_fourteen_open
+    self.assertEqual(
+AssertionError: {'argued': 5, 'constructed': 2, 'derived': 5, 'open': 16} != {'constructed': 2, 'derived': 5, 'argued': 4, 'open': 17}
+- {'argued': 5, 'constructed': 2, 'derived': 5, 'open': 16}
+?            ^                                           ^
+
++ {'argued': 4, 'constructed': 2, 'derived': 5, 'open': 17}
+?            ^                                           ^
+ : run-e-tame-tagged
+
+----------------------------------------------------------------------
+Ran 630 tests in 462.184s
+
+FAILED (failures=8, skipped=1, expected failures=1)
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-dense/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-dense-l2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-l-zero-p2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-m-dense-c6/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-n-zero-c6/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-q-dense-e32/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-r-zero-e32/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-o-dense-w14/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-p-zero-w14/arrays.bin'>
+Command exited with non-zero status 1
+	Command being timed: "python3 -m unittest discover -s tests -p test_zk60_native*.py"
+	User time (seconds): 462.53
+	System time (seconds): 7.57
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 7:48.57
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 6448416
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 52
+	Minor (reclaiming a frame) page faults: 3350624
+	Voluntary context switches: 568
+	Involuntary context switches: 41452
+	Swaps: 0
+	File system inputs: 1086752
+	File system outputs: 531408
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

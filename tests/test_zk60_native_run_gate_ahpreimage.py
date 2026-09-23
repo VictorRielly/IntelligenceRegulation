@@ -349,8 +349,11 @@ class TestTheRecord(unittest.TestCase):
             # directory on purpose.  Round 7's own five stay CONSTRUCTED and
             # no stage-11 figure moved.
             self.assertEqual(ch["total"], 28, name)
+            # [ROUND 9j, DELIBERATE] status page row 26: the boundary scale
+            # channel OPEN -> ARGUED on D12b(3) / ruling R-5 (built, lane stage
+            # 21), so argued +1 and open -1; no figure moved
             self.assertEqual(ch["counts"],
-                             {"constructed": 5, "derived": 5, "argued": 4, "open": 14},
+                             {"constructed": 5, "derived": 5, "argued": 5, "open": 13},
                              name)
             self.assertEqual(ch["grading_failures"], [], name)
             moved = [c["channel"] for c in ch["channels"]

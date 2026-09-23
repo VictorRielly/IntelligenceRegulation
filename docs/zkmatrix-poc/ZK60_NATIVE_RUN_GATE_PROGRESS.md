@@ -4517,6 +4517,21 @@ three stale channel texts the status page (rows 26–28) routed here.
 Nothing in this round is a privacy acceptance and no statement here
 establishes a privacy property.
 
+**Headline: a STANDALONE shaped block receipt has been through the whole
+gate, at rung-G and at 125M, and the prediction held.** One adapter module
+reads a block as a run of one stage with no boundary; every port reads it
+unchanged. Both rung-G bundles pass 13 of 13 stages with every arm and
+every control; the 125M dense bundle passes every arm (full preimage of all
+four commitments, 4,144,778 entries, 0 differing; mask; joint preimage)
+with exit 1 only for round 9c's control bookkeeping. Every figure named
+beforehand came out as written: 127 positions, 2,036 / 13,932 challenges,
+23 of 23 slot checks, `A` 0 / `H` 2 / endpoints 0, whole block 104 x 1,259
+/ 12,861 with joint 2 = sum 2, 28 channels at 10 / 5 / 5 / 8. Dense and
+zero differ only in sampled columns; per stage the block reads exactly what
+the run read (31 of 31 rows at each shape). One finding (R9j-F1, a control
+written for `L >= 2`), four port pins and one new writer read and re-pinned,
+status rows 26-28 corrected. Not a privacy acceptance.
+
 ## R9j.1 Input (READ-ONLY, never copied into this repository)
 
 | bundle | witness | source commit | where |
@@ -4534,11 +4549,11 @@ establishes a privacy property.
 | J1 | how to read a standalone block: a mode of the run gate or a thin entry script | decided -- a MODE, one adapter module (R9j.3) |
 | J2 | the prediction, written and committed BEFORE the gate reads a block bundle with its pins read | done -- this commit, R9j.4 |
 | J3 | the pins: the 35 source pins read; every moved file re-pinned with a written reason, old digests kept | done -- R9j.6; failing first (`probe_before_repin/`), four port digests + three block-layer pins, each with its reading |
-| J4 | the gate on both rung-G bundles, every arm, every control; then both 125M bundles, one at a time, detached | tools frozen, queue launched (`queue.sh`) |
-| J5 | dense against zero; the block against the run it would be a stage of | pending |
-| J6 | the stale channel texts of `m125-dense-everything.json` (status rows 26–28) | pending |
-| J7 | records re-taken where a tool moved; the suites (toy subset, record guard, whole native suite) | pending |
-| J8 | results, limits, NEXT | pending |
+| J4 | the gate on both rung-G bundles, every arm, every control; then both 125M bundles, one at a time, detached | done -- R9j.7 (rung-G, 13 of 13 stages on both), R9j.8 (125M passes A, B, C) |
+| J5 | dense against zero; the block against the run it would be a stage of | done -- R9j.9: only the sampled-column class differs; 31 of 31 per-stage rows the same at both shapes |
+| J6 | the stale channel texts of `m125-dense-everything.json` (status rows 26–28) | done -- R9j.10: evidence verified; the tool corrected; seven 125M records corrected beside, dated |
+| J7 | records re-taken where a tool moved; the suites (toy subset, record guard, whole native suite) | done -- R9j.11: 29 records, 0 UNEXPECTED; 217 / 42 / 630 OK |
+| J8 | results, limits, NEXT | done -- R9j.12, R9j.13 |
 
 ## R9j.3 How a standalone block is read (J1): a MODE of the run gate, one adapter module
 
@@ -4757,10 +4772,37 @@ instead of two. **Every predicted figure held:**
 | B10 | singleton preimage | both endpoints, 1 free `Fp` | ✓ |
 | B14 | channels (this pass) | 28 at 2 / 5 / 5 / 16 -- the arms were not run in pass A, exactly as round 9's (a)-(d) records read 2 / 5 / 4 / 17 | the full table is pass B's |
 
-**Pass B, every stage and every control on the dense bundle**, and **pass
-C, the zero bundle's arms without controls**, are queued behind the record
-refresh on the heavy lock (`queue.sh`; markers `m125_b.done`,
-`m125_c.done`); their figures are in R9j.11 when they land.
+**Pass B, every stage and every control on the dense bundle** (`m125.sh
+b`, 06:20-07:57, marker `m125_b.done` = 1, `block-m125-dense-everything`):
+**5,781.0 s (1 h 36 min), peak RSS 5,346 MB** -- against the two-block
+run's 7,797.8 s / 5,484 MB. Terminals with controls 830.6 s (two-block:
+1,661.3), the full arm with round 7's controls 4,737.5 s (5,769.5).
+
+| # | figure | measured | predicted |
+|---|---|---|---|
+| B11 | full preimage | **4 of 4** exhibited and verified: `A@0` 311.6 s, fibre **2,817,876** `Fp` over 5,484,800 blinding unknowns; `H@0` 248.5 s, 1,376,172; `E-Input` 42.4 s, `E-Output` 43.5 s; **4,144,778** entries, **0 differing**, **1,024** salted leaves; P-1..P-6 **6 of 6** | ✓ (the `A@0` / `H@0` fibres are the two-block run's per-commitment figures of round 9, to the unit) |
+| B12 | mask and CFS | 1 stage, **16,459** entries, 0 differing, 256 leaves; M1-M6 all fire | ✓ |
+| B13 | joint preimage | **4,161,237** entries, 0 differing, **1,280** leaves; four couplings respected; C1 **64** pairs, all 64 data rows | ✓ |
+| B14 | channels | **28 at 10 / 5 / 5 / 8**, 0 grading failures | ✓ |
+| B15 | controls | run family C2b / C3b / C4b / C5b / C6 **5 of 5** (C3b: joint 0 -> **16,384**, one message width, marginals unmoved; C5b: 14,189 replay failures from the header on); GQ **13 of 13**; CT **8 of 9** (CT-4 skipped by name, no `--old` in the driver); CH-7 1,280 / 0 and rung-K4's 3,328 / 0; M9-1 and M9-2 fire; **M9-3 fires in all three unpadded domains F, Kv, T** | ✓ as written for CT / GQ / M9; CH at 125M was not written into the prediction and reads as round 9c's (below) |
+
+**Its exit 1 is round 9c's bookkeeping and nothing else**
+(`block_m125_everything_exit1_decomposition.json`): nothing raised; stage 8
+is not `ok` only because CT-4 had no `--old`; stage 6 only because CH-3 is
+the identity at the 125M profile (R9c.9 item 3), CH-6 had no legacy bundle,
+and M9-3's `ok` asks for a draw-count message the public-table count
+pre-empts (R9c.9 item 2) -- the same three causes, leaf for leaf, as the
+two-block run's `dense-everything`.
+
+**Pass C, the zero bundle's arms without controls** (`m125.sh c`,
+07:57-08:08, `block-m125-zero-arms`, 701.2 s, 3,881 MB): full preimage 4 of
+4, **4,139,097** entries 0 differing, 1,024 leaves (642.2 s); mask 16,459 /
+0 / 256; joint **4,155,556** / 0 / 1,280. Each entry count is the dense
+bundle's minus **5,681** -- one `A` column (5,681 rows), because the zero
+proof's `A` sampled 255 distinct columns where the dense one sampled 256:
+the sampled-column class, nothing else. Its stage 12 / 13 read FAIL because
+the controls were not requested: **finding M-F4** (R9.11 item 0), still
+unrepaired, and the figures are all computed and correct.
 
 ## R9j.9 Dense against zero, and the block against the run it would be a stage of
 
@@ -4780,7 +4822,11 @@ disclosed / `rank_P1` / `k0` / non-data rows against the three-block rung-G
 run's, `M`'s rows, 23 slot checks per stage, 15,960 CFS entries per stage.
 The whole-proof figures follow the one-stage arithmetic of R9j.4 (2,036
 = the rung-G run's stage 0, 2,026, plus `E-Output`'s 1 lambda and 9
-proximity coefficients). The 125M row of that table lands with pass B.
+proximity coefficients). **At 125M, 31 of 31 as well**, against the
+two-block run of record (`m125-dense-everything`): `A@0` 5,681 rows / 122
+claims / 36 groups, `H@0` 7,120 / 51 / 9, both endpoints 37 / 1 / 1, the
+same disclosed dimensions, `rank_P1`, `k0` and non-data rows, 23 slot
+checks and 16,459 CFS entries per stage.
 
 ## R9j.10 The stale records (status page rows 26-28) -- evidence verified, corrected
 
@@ -4819,3 +4865,98 @@ TOY gate's two records only, and no test read `m125-dense-everything.json`
 `TheStaleChannelTextsOfThe125MRecords` in this round's test file is now the
 guard for the corrections (the original text kept, the dated member beside
 it, the counts as corrected).
+
+## R9j.11 The records re-taken, and the suites
+
+**The development records** (`refresh.sh`, detached under the heavy lock,
+04:28-06:20, `refresh.done` = 0): round 9i's twenty-six gate records, the
+mask port's toy-equivalence record and round 9i's two rung-K8 records --
+**29**, the list checked against every `results/*/run-*.json` on disk that
+names the gate's tools, minus the 125M directory. Baselines `before/` taken
+with `git show HEAD:` first. **The strict diff (`repin_diff.py`, round 9i's
+named-kind form): 172,188 identical leaves, 1,484 changed, 220 new, 28
+old-only -- 0 UNEXPECTED.** Six admitted kinds and no seventh: E1 wall
+clocks; E2 the seven moved tools' hashes and the new `rg_block`'s; E3 the
+stage-45 argument definition listed (two per record with a terminal port,
+none at `run-a/b`); E4 the three corrected channels; E5 the counts' one
+regrade (argued +1, open -1); E6 the one corrected sentence. Not one rank,
+disclosed dimension, challenge count, slot check, control figure,
+preimage or mask figure moved on any of the 29; the toy-equivalence record
+moved in one wall clock.
+
+**The suites** (no systemd wrapper -- no user bus on this box; one process,
+under the heavy lock):
+
+| suite | result | round 9i |
+|---|---|---|
+| the toy gate's seven modules (`suite_toy.log`) | **Ran 217 tests in 208.0 s, OK** (skipped=1, expected failures=1) | 217 |
+| the record guard (`suite_guard.log`) | **Ran 42 tests in 0.089 s, OK** | 42 |
+| the WHOLE `test_zk60_native*.py` (`suite_native_all_final.log`) | **Ran 630 tests in 467.6 s, OK** (skipped=1, expected failures=1), peak RSS 6.4 GB | 603 -- +27, this round's `test_zk60_native_run_gate_block.py` |
+
+The first whole-suite pass (`suite_native_all.log`, 08:11-08:19) read **630
+tests, 8 failures**, every one an exact channel count of an earlier round
+(rounds 3, 5, 7, 8, 9b, 9i and the tagged / plane-index files) that this
+round's row-26 regrade widens on purpose: argued 4 -> 5 and open n -> n-1.
+All eight were moved with the reason beside each; with the two exact-set
+assertions on `ARGUMENT_DEFINITIONS` (R9j.5) that is ten deliberate moves,
+none of them a measured figure.
+
+## R9j.12 What this round is NOT
+
+1. **Not a privacy acceptance, and no privacy property is established.**
+   Every block record carries `privacy_property_established: false` and
+   `privacy_acceptance: false`; eight channels stay OPEN, among them the
+   joint LAW of the block's view (Theorem B's per-stage part, a reduction
+   accepted on paper) and the hash layer's HIDING (M-2, M-3) stays ARGUED.
+   D22 (the toy) is still the only statement in force.
+2. **Not the hash layer written for the standalone tagged block** --
+   obligation 3's last clause is a paragraph of argument, not a gate
+   figure; this round measured what a block receipt opens (1,280 columns
+   re-hashed and re-authenticated under the block profile's own keys) and
+   nothing about what an unopened leaf hides.
+3. **Not a check of the witness.** The gate cannot tell the dense bundle
+   from the all-zero one (R4.4b's limit, unchanged); "dense vs zero" is a
+   statement about the verifier's view.
+4. **Not the integrated tree and not the pin set of a shaped statement**
+   (obligations 2 and 4): the digests read are the lane's at `feae674` /
+   `19f06bf`; the lane is not integrated. `witness.rs`, `endpoint_g.rs`,
+   `hash_domain.rs` are still compared by no table.
+5. **Not twelve blocks, not a run of the block profile, not a device path.**
+   One standalone proof per bundle, CPU only, one run each on a shared,
+   unquiesced box -- the wall clocks are not benchmarks.
+6. **Not a re-take of the 125M run records**: they pin pre-9c tool bytes by
+   round 9c's decision and now carry dated corrections beside their three
+   stale channels (R9j.10); `m125-dense-controls.json` was not touched.
+
+## R9j.13 NEXT after round 9j
+
+1. **For the owner -- obligation 3's gate half is done at both shapes**: a
+   standalone `private-block-m125` receipt has been through every stage,
+   every arm and every control, and reads what the two-block run read per
+   stage (31 of 31 rows). What remains of obligation 3 is the paragraph
+   writing the hash layer for the standalone tagged block (L = 1, its own
+   `parameters` absorb, two endpoints) -- the status page's "one paragraph
+   owed" -- and obligation 10's residual column, which can now cite a
+   measured block (5 openings, 1,280 columns, the block's own key set).
+2. **The status page's row-26 regrade is applied to the tool**, so any
+   document quoting "28 at 10 / 5 / 4 / 9" for a RUN should now read 10 /
+   5 / 5 / 8 from 2026-09-23 (the 125M records say so beside themselves).
+   The main-tree pages that quote the old figure (status page §0 / §2.1
+   row 3, the multi-block disposition) are the owner's to annotate.
+3. **Finding M-F4** (R9.11 item 0) fired again on pass C: a pass run
+   without controls reads stage 12 / 13 as FAIL. Repairing it moves
+   `rg_mask` / `rg_mjoint` and so every record; worth doing in the next
+   round that moves them anyway. `rg_mjoint`'s own "anything at the 125M
+   shape" (in its `what_it_does_not_show`) is stale since round 9 and
+   belongs to the same edit.
+4. **R9c.9 items 2 and 3** (M9-3's criterion, CH-3 at 125M) reproduce at
+   the block exactly as at the run; still recorded, not decided. The
+   staged driver takes no `--old`, so CT-4 and CH-6 never fire at 125M --
+   giving it one would close the last two skipped-by-name controls there.
+5. **R9i.11 item 1, half answered**: `wire.rs` and `private_block.rs` are
+   now pinned (by the block layer, because a port there reads them);
+   `witness.rs`, `endpoint_g.rs`, `hash_domain.rs`, `run_sink.rs` are
+   still recorded and compared by no table.
+6. Standing: the joint LAW (G-R4, "said exactly" -- status obligation 6),
+   the hash layer's HIDING (D19b), twelve blocks at 125M. Nothing here is a
+   privacy acceptance.

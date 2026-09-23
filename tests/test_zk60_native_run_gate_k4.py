@@ -469,8 +469,11 @@ class TheRecordedFigures(unittest.TestCase):
             by = {}
             for c in chans:
                 by[c["status"]] = by.get(c["status"], 0) + 1
+            # [ROUND 9j, DELIBERATE] status page row 26: the boundary scale
+            # channel OPEN -> ARGUED on D12b(3) / ruling R-5 (built, lane stage
+            # 21), so argued +1 and open -1; no figure moved
             self.assertEqual(by, {"constructed": 2, "derived": 5,
-                                  "argued": 4, "open": 17})
+                                  "argued": 5, "open": 16})
 
     def test_every_control_of_record_fires(self):
         for name, rec in (("run-i", self.i), ("run-j", self.j)):

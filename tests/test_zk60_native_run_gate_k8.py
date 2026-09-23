@@ -484,9 +484,12 @@ class TheRecordedFiguresAtRungK8(unittest.TestCase):
             self.assertEqual(s13["salted_leaves_authenticated"], 3328)
             self.assertEqual(
                 s13["couplings"]["C1_shared_planes"]["identified_row_pairs"], 24)
+            # [ROUND 9j, DELIBERATE] status page row 26: the boundary scale
+            # channel OPEN -> ARGUED on D12b(3) / ruling R-5 (built, lane stage
+            # 21), so argued +1 and open -1; no figure moved
             self.assertEqual(rec["stage7_channels"]["counts"],
-                             {"constructed": 10, "derived": 5, "argued": 4,
-                              "open": 9})
+                             {"constructed": 10, "derived": 5, "argued": 5,
+                              "open": 8})
             self.assertEqual(rec["stage7_channels"]["total"], 28)
 
     def test_every_control_fires_and_the_group_family_has_eighteen(self):

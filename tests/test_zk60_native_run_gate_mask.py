@@ -299,9 +299,12 @@ class TestTheRecord(unittest.TestCase):
         for name, r in self.recs.items():
             ch = r["stage7_channels"]
             self.assertEqual(ch["total"], 28, name)
+            # [ROUND 9j, DELIBERATE] status page row 26: the boundary scale
+            # channel OPEN -> ARGUED on D12b(3) / ruling R-5 (built, lane stage
+            # 21), so argued +1 and open -1; no figure moved
             self.assertEqual(
                 ch["counts"],
-                {"constructed": 10, "derived": 5, "argued": 4, "open": 9},
+                {"constructed": 10, "derived": 5, "argued": 5, "open": 8},
                 name,
             )
             self.assertEqual(ch["grading_failures"], [], name)

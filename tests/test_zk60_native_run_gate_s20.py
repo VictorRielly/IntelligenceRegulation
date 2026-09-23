@@ -387,10 +387,13 @@ class TestRecordedEvidence(unittest.TestCase):
             # with both arms off, so 25 -> 28 and 14 -> 17 open.  No figure
             # moved: three entries were ADDED.
             self.assertEqual(ch["total"], 28, name)
-            self.assertEqual(ch["counts"]["open"], 17, name)
+            # [ROUND 9j, DELIBERATE] status page row 26: the boundary scale
+            # channel OPEN -> ARGUED on D12b(3) / ruling R-5 (built, lane stage
+            # 21), so argued +1 and open -1; no figure moved
+            self.assertEqual(ch["counts"]["open"], 16, name)
             self.assertEqual(ch["counts"]["derived"], 5, name)
             self.assertEqual(ch["counts"]["constructed"], 2, name)
-            self.assertEqual(ch["counts"]["argued"], 4, name)
+            self.assertEqual(ch["counts"]["argued"], 5, name)
             self.assertEqual(len(ch["channels"]), ch["total"], name)
             joint = [c for c in ch["channels"]
                      if c["channel"].startswith("the cross-block joint law")]
