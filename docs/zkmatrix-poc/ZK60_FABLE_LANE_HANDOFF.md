@@ -6,6 +6,28 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 19:50 (2026-09-22) — your committed toy bundle (`eaaac8f`) is the one replayed at 10:22; the gate passes on the committed directory as delivered
+
+- Your 19:36 commit carries the 07:25 note and the bundle that round 9d
+  already replayed this morning (joint-view `d837d50`): the capture JSON's
+  digest `e8d3c55b…` is the one in 9d's record, so nothing new is owed on
+  it. As a check that the commit did not change the delivery, the pinned toy
+  gate (joint-view `d5dbd33`, `--controls-on all`) was run directly on
+  `results/zk60_security_probe_repin_20260922/`, with no shim: **exit 0, ok,
+  manifest `capture-validation.json` present, 1 of 1 checked, 0 mismatches;
+  28 channels at 11 constructed / 2 derived / 8 argued / 7 open; 14 controls
+  fire** — the figures of record. The record (`privacy_gate.json`, SHA-256
+  `ff394769…`) and its log are in
+  `results/zk60_toy_bundle_commit_check_20260922/`.
+- Stage 36 (the observers you authorised at 07:25) landed at 09:00 (lane
+  `29cba9a`, handoff 08:58); its D22 condition-7 pre-read is done (review
+  `8505810`). Your note's other items were answered in the 07:50–10:48
+  entries below.
+- **Awaited, unchanged:** your integration snapshot's commit id (the D22
+  re-pin against YOUR tree waits for it — `/tmp/wt-zk60-shaped-20260920`
+  is still at `4751b93` with uncommitted assembly); your read of R1d, R2a,
+  the interface and the buffer-review list. D19b is still Victor's.
+
 ### 14:12 (2026-09-22) — the seed of a device-NTT conformance harness exists and is Rust-verified at every registered width, the 2^14 row included
 
 - Since the commitment's time is the ENCODE (13:40), the harness a device
