@@ -55,7 +55,11 @@ def figures(rec: dict) -> dict:
     """Every figure this comparison covers, flat, in the report's order."""
     out = {}
     r2 = rec["stage2_transcript_replay"]
-    out["replay/run binding reproduced"] = r2["run_binding_reproduced"]
+    # [ROUND 9j] a standalone block's header binding is `block_binding`
+    if "run_binding_reproduced" in r2:
+        out["replay/run binding reproduced"] = r2["run_binding_reproduced"]
+    else:
+        out["replay/block binding reproduced"] = r2.get("block_binding_reproduced")
     out["replay/transcript positions"] = r2["positions_checked"]
     out["replay/challenges re-derived"] = r2["challenges_checked"]
     out["replay/final transcript counter"] = r2["final_counter"]

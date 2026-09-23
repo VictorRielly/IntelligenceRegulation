@@ -59,7 +59,7 @@ if HERE not in sys.path:
 
 from zk60_native_jv_field import f2_add, f2_from_list, F2_ONE  # noqa: E402
 from zk60_native_rg_planes import NO_TABLE, PlaneIndex, plane_index_of  # noqa: E402
-from zk60_native_rg_replay import RunReplay  # noqa: E402
+from zk60_native_rg_replay import replay_for  # noqa: E402
 from zk60_native_rg_terminals import (  # noqa: E402
     PadGeometry,
     SlotCtx,
@@ -143,7 +143,12 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
         return out
 
     # ------------------------------------------------ CT-1: a perturbed terminal
-    stage, slot, term = 1, 17, 3
+    # **[ROUND 9j, finding R9j-F1.]**  This read `stage = 1` -- a literal that
+    # assumes a second stage exists, the shape of finding M-F3 one `L` lower.
+    # A STANDALONE block has one stage, so the literal raised `IndexError`
+    # and took the whole stage-8 arm with it, CT-2..CT-9 included.  A run
+    # keeps stage 1, so no run record moves; a block perturbs its one stage.
+    stage, slot, term = min(1, bundle.blocks - 1), 17, 3
     docs, old, new = _docs_with_terminal_perturbed(bundle, stage, slot, term)
     got = check_terminals(bundle, index, replay=replay, stage_docs=docs)
     failed = sorted(
@@ -156,7 +161,8 @@ def terminal_controls(bundle, index, replay=None, old_bundle=None) -> dict:
     bundle.stages[stage].doc = docs[stage]
     try:
         try:
-            rp = RunReplay(bundle).run()
+            # [ROUND 9j] a standalone block is replayed under its OWN header
+            rp = replay_for(bundle).run()
             replay_failures = list(rp.failures)
         except Exception as exc:                      # a refusal that raises
             replay_failures = [str(exc)]

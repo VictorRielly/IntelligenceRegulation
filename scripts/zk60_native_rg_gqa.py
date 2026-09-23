@@ -170,6 +170,27 @@ ARGUMENT_DEFINITIONS = {
         "identities, evaluated by this port's formulas of round 3, holding "
         "at every stage of both rung-K8 bundles",
     ),
+    # [ROUND 9j] lane stage 45's capture commits, feae674 (rung-G) and
+    # 19f06bf (125M), the four STANDALONE block bundles.  argument.rs did not
+    # move in stages 38-44 (f7fa2ad4 at 1ab1498); stage 45 added hooks only.
+    "2cee0a2253d6ef91bea23f564d8e24a3362663da53a10182d6b0edaa8a10a013": (
+        REPAIRED,
+        "stage 45 (the standalone shaped block capture, lane commit feae674), "
+        "unchanged at 19f06bf and 544fbaf.  `git diff 99a8de8 feae674 -- "
+        ".../argument.rs` (= `1ab1498..feae674`: stages 38-44 did not touch "
+        "the file) is **6 added, 0 removed, THREE hunks, every added line a "
+        "`#[cfg(test)]`, a comment or a `block_capture_shaped::` hook call**: "
+        "`block_capture_before = checkpoint(tr)` beside the run capture's in "
+        "`run_slot`, `block_capture_shaped::slot(...)` inside the EXISTING "
+        "`#[cfg(test)] if let Side::Verify` block, and `start_slot` beside the "
+        "run capture's in `argument`.  Each hook returns on its first line "
+        "unless a recorder is attached and only clones the transcript.  **The "
+        "define arms of all 23 slots, the push order of every private table, "
+        "`pad_on`, the `mu` / `nu` / `zeta` draws, `lg`, `B::supp` / "
+        "`B::group_eq`, `run_slot`'s M-functional block, `sum_weights`, "
+        "`acc.fs.extend(hosts)` and the `N_FUNCTIONALS` guard are "
+        "byte-identical** -- stage 20's repaired definition, as at f7fa2ad4",
+    ),
 }
 
 

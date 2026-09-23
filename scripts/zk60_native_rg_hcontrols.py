@@ -52,7 +52,7 @@ if HERE not in sys.path:
 
 from zk60_native_rg_hashlayer import check_hash_layer  # noqa: E402
 from zk60_native_rg_hashrule import HashRule, rule_for_bundle  # noqa: E402
-from zk60_native_rg_replay import RunReplay  # noqa: E402
+from zk60_native_rg_replay import replay_for  # noqa: E402
 
 
 def _with_tag(bundle, mutate):
@@ -80,7 +80,8 @@ def _replay_under(bundle, rule):
     keep = bundle.hash_rule
     bundle.hash_rule = rule
     try:
-        return RunReplay(bundle).run().summary()
+        # [ROUND 9j] a standalone block is replayed under its OWN header
+        return replay_for(bundle).run().summary()
     finally:
         bundle.hash_rule = keep
 
@@ -239,14 +240,20 @@ def hash_rule_controls(bundle, legacy_bundle=None,
              "refusals": len(r["refusals"]),
              "refusal": (r["refusals"] or [""])[0][:220],
              "no_rule_is_returned": r["rule"] is None,
-             "under_the_legacy_rule_the_run_binding_reproduces":
-                 forced["run_binding_reproduced"],
+             # [ROUND 9j] a standalone block's header binding is its
+             # `block_binding`; the run's key name is kept for a run
+             **({"under_the_legacy_rule_the_block_binding_reproduces":
+                 forced["block_binding_reproduced"]}
+                if getattr(bundle, "standalone", False) else
+                {"under_the_legacy_rule_the_run_binding_reproduces":
+                 forced["run_binding_reproduced"]}),
              "replay_failures_under_the_legacy_rule": len(forced["failures"]),
              "first_replay_failure": (forced["failures"] or [""])[0][:160],
              "columns_authenticated_under_the_legacy_rule":
                  hl["columns_authenticated"],
              "of_columns": hl["columns_checked"]},
-            (r["rule"] is None and not forced["run_binding_reproduced"]
+            (r["rule"] is None and not forced.get(
+                "run_binding_reproduced", forced.get("block_binding_reproduced"))
              and hl["columns_authenticated"] == 0 and hl["columns_checked"] > 0))
 
         # --------------------------------------- CH-5: the member removed

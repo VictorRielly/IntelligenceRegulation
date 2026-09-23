@@ -46,6 +46,16 @@ if HERE not in sys.path:
 
 import zk60_native_run_gate as G  # noqa: E402
 from zk60_native_rg_bundle import RunBundle, integrity  # noqa: E402
+# [ROUND 9j] a STANDALONE shaped block bundle, driven stage by stage exactly
+# as a run is: the block layer's pins, integrity and replay header, the
+# run family's block analogues; every other stage is the gate's own
+from zk60_native_rg_block import (  # noqa: E402
+    BlockReplay,
+    block_controls,
+    block_integrity,
+    check_block_layer_pins,
+    load_bundle,
+)
 from zk60_native_rg_hashlayer import check_hash_layer  # noqa: E402
 from zk60_native_rg_joint import discover_shared_planes  # noqa: E402
 from zk60_native_rg_predict import predict  # noqa: E402
@@ -142,20 +152,33 @@ class Driver:
 
     # -------------------------------------------------------------- stages
     def load(self):
-        self.bundle = RunBundle(self.dir)
+        self.bundle = load_bundle(self.dir)
+        block = getattr(self.bundle, "standalone", False)
         self.rec["bundle"] = self.bundle.name
         self.rec["bundle_dir"] = self.bundle.dir
         self.rec["schema"] = self.bundle.schema
         self.rec["blocks"] = self.bundle.blocks
         self.rec["prediction"] = predict(self.bundle)
-        self.rec["run_layer_source_pins"] = check_run_layer_pins(self.bundle)
+        if block:
+            self.rec["standalone_block"] = True
+            self.rec["what_this_is"] = (
+                "the linear channels of ONE captured STANDALONE private block "
+                f"({self.bundle.profile}), at that proof's real challenges, "
+                "stage by stage with each stage's wall clock and the "
+                "process's peak resident set")
+            self.rec["block_layer_source_pins"] = check_block_layer_pins(
+                self.bundle)
+        else:
+            self.rec["run_layer_source_pins"] = check_run_layer_pins(self.bundle)
         self.rec["hash_rule"] = {
             k: v for k, v in self.bundle.hash_rule_record.items() if k != "rule"
         }
-        return integrity(self.bundle)
+        return block_integrity(self.bundle) if block else integrity(self.bundle)
 
     def replay_stage(self):
-        self.replay = RunReplay(self.bundle).run()
+        self.replay = (BlockReplay(self.bundle)
+                       if getattr(self.bundle, "standalone", False)
+                       else RunReplay(self.bundle)).run()
         return self.replay.summary()
 
     def hash_stage(self):
@@ -250,16 +273,21 @@ class Driver:
         from zk60_native_rg_hcontrols import hash_rule_controls
         from zk60_native_rg_m125controls import m125_controls
         out = {}
-        other = RunBundle(self.other_dir) if self.other_dir else None
-        out["run_controls"] = (
-            run_controls(self.bundle, other, self.views, self.replay,
-                         self.shared)
-            if other is not None else
-            {"skipped": "the swapped-stage control needs a second bundle",
-             "ok": False})
+        other = load_bundle(self.other_dir) if self.other_dir else None
+        if getattr(self.bundle, "standalone", False):
+            # [ROUND 9j] the run family's block analogues
+            out["run_controls"] = block_controls(
+                self.bundle, other, self.views, self.replay, self.shared)
+        else:
+            out["run_controls"] = (
+                run_controls(self.bundle, other, self.views, self.replay,
+                             self.shared)
+                if other is not None else
+                {"skipped": "the swapped-stage control needs a second bundle",
+                 "ok": False})
         cross = None
         if self.cross_dir:
-            cross = RunBundle(self.cross_dir)
+            cross = load_bundle(self.cross_dir)
         out["hash_rule_controls"] = hash_rule_controls(
             self.bundle, legacy_bundle=None, cross_profile_bundle=cross)
         out["round_9_controls"] = m125_controls(
@@ -330,14 +358,24 @@ class Driver:
         self.rec["peak_rss_mb"] = round(rss_mb())
         self.rec["total_seconds"] = round(
             sum(t["seconds"] for t in self.rec["timings"]), 1)
+        block = getattr(self.bundle, "standalone", False)
         self.rec["what_it_does_not_show"] = [
-            "linear channels of ONE captured two-block run at the 125M "
-            "shape, at that run's real challenges.  Two runs are not a "
-            "distribution and two blocks are not twelve",
+            ("linear channels of ONE captured STANDALONE block proof at its "
+             "real challenges.  One proof is not a distribution, and a block "
+             "is not a run: nothing here is about a boundary, a segment or "
+             "twelve blocks" if block else
+             "linear channels of ONE captured two-block run at the 125M "
+             "shape, at that run's real challenges.  Two runs are not a "
+             "distribution and two blocks are not twelve"),
             "the hash layer's HIDING is still ARGUED: every OPENED column is "
             "re-hashed and re-authenticated, which says nothing about what "
             "an unopened leaf hides (M-2, M-3)",
-            "the joint-law composition for a run is unwritten (O-R2 / G-R4)",
+            # [ROUND 9j, CORRECTED 2026-09-23] was "the joint-law composition
+            # for a run is unwritten (O-R2 / G-R4)" -- Theorem B was written
+            # and accepted as a reduction on 2026-09-20
+            "the joint LAW (Theorem B) is a reduction accepted on paper, "
+            "conditional on G-R1 / G-R2 / G-R4, not a computation of this "
+            "gate: what is computed is a rank",
             G.RULING_R3,
             "NOT a privacy acceptance and NOT a privacy property",
         ]

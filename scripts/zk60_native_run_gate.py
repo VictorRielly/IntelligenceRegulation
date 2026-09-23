@@ -75,6 +75,18 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 from zk60_native_rg_bundle import RunBundle, integrity  # noqa: E402
+# [ROUND 9j] a STANDALONE shaped block bundle is read as a run of one stage
+# with no boundary; everything a block does not share with a run stage
+# lives in this one module
+from zk60_native_rg_block import (  # noqa: E402
+    R3_STATUS_20260923,
+    BlockReplay,
+    block_channel_table,
+    block_controls,
+    block_integrity,
+    check_block_layer_pins,
+    load_bundle,
+)
 from zk60_native_rg_controls import controls  # noqa: E402
 from zk60_native_rg_joint import (  # noqa: E402
     RULING_R3,
@@ -118,6 +130,9 @@ TOOLS = [
     # this file would name the loader's front door and not the room the
     # bundle's bytes are actually read in -- the shape of finding K4-F2.
     "zk60_native_rg_arrays.py",
+    # [ROUND 9j] the standalone-block adapter: `load_bundle` is on EVERY
+    # record's path, run or block, so every record pins it
+    "zk60_native_rg_block.py",
     "zk60_native_rg_replay.py",
     "zk60_native_rg_runpins.py",
     "zk60_native_rg_pcs.py",
@@ -479,6 +494,8 @@ def stage12(bundle, replay, do_controls=True):
 
 # --------------------------------------------------------------- stage 4
 def stage4(bundle, views, shared, run_wide=True):
+    if getattr(bundle, "standalone", False):
+        return _stage4_block(bundle, views, shared, run_wide=run_wide)
     per_boundary = []
     for k in range(bundle.boundaries):
         res = boundary_reserved_figure(bundle, views[f"B{k}"], k)
@@ -531,6 +548,38 @@ def stage4(bundle, views, shared, run_wide=True):
         and not shared["findings"]
         and (whole is None or whole["ok"])
         and all(p["ok"] for p in pairs),
+    }
+
+
+def _stage4_block(bundle, views, shared, run_wide=True):
+    """[ROUND 9j] Stage 4 for a STANDALONE block: there is no boundary, so
+    ruling M-8's (a) and (b) have no object; (c) is the whole block as one
+    system -- `A@0`, `H@0`, `M@0` and both external endpoints, each
+    endpoint's data plane identified with `A@0`'s IO plane.  The key
+    `whole_run` is kept so that every reader of a record finds the figure
+    where it always has."""
+    whole = None
+    if run_wide:
+        t0 = time.time()
+        whole = run_wide_figure(bundle, views, shared, label="whole block")
+        whole["seconds"] = round(time.time() - t0, 1)
+    return {
+        "per_boundary": [],
+        "adjacent_stage_pairs": [],
+        "whole_run": whole,
+        "shared_planes": {
+            "identified_row_pairs": len(shared["pairs"]),
+            "equality_slots": shared["slots"],
+            "source_facts": shared["source_facts"],
+            "findings": shared["findings"],
+        },
+        "ruling": "a standalone block has no internal boundary: ruling M-8's "
+        "(a) (a boundary restricted to its reserved rows) and (b) (the three "
+        "roles of a boundary plane) have no object here.  (c) is computed: "
+        "the whole block as one system, both external endpoints' data planes "
+        "identified with A@0's IO planes (slots 21 and 22)",
+        "ruling_R3": RULING_R3,
+        "ok": not shared["findings"] and (whole is None or whole["ok"]),
     }
 
 
@@ -623,11 +672,13 @@ def channels(bundle, record):
         if s11.get("requested")
         else None
     )
+    # [ROUND 9j] a standalone block has no segment; its channel is replaced
+    # by `block_channel_table` below, so the run's list is never read there
     seg = [
         {"stage": st.index, "bytes": st.doc["segment_bytes"],
          "sha256": st.doc["segment_sha256"][:16]}
         for st in bundle.stages
-    ]
+    ] if not getattr(bundle, "standalone", False) else []
     ch = [
         # ------------------------------------------------ the commitment side
         {
@@ -1026,14 +1077,32 @@ def channels(bundle, record):
             "status": "open",
             "assumption": None,
             "preimage_exhibited": None,
+            # [ROUND 9j, CORRECTED 2026-09-23, status page row 28] the reason
+            # used to say the composition argument for a run "is unwritten"
+            # and ended with ruling R-3's quote, whose "to be machine-asserted
+            # elsewhere" was an instruction since carried out for single
+            # blocks.  The grade does not move: a reduction is not a
+            # computation of this gate.
             "reason": "obligation O-R3: what is computed here is a RANK of a linear "
-            "model over the run's commitments.  That the three views of a boundary "
-            "plane are jointly input-free needs per-commitment independent blinding "
-            "(O-R2, verified in the code, not here) and a composition argument for a "
-            "run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the "
-            "gate must rank the two A commitments that hold the same plane, not the "
-            "boundary alone -- IS met by stage 4(b).  " + RULING_R3,
+            "model over the run's commitments.  The joint LAW of a run is Theorem B "
+            "-- the toy theorem per stage plus one factorisation over stages, whose "
+            "key hypothesis (no run-wide masking commitment; every slot of block k "
+            "masked by block k's own M) is a fact of the code -- WRITTEN and "
+            "ACCEPTED AS A REDUCTION (ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md, "
+            "2026-09-20 17:58, section 1), conditional on G-R1, G-R2 and G-R4.  The "
+            "draw accounting ruling R-3 asked for is machine-asserted on "
+            "single-block proofs (lane stage 36), not at run scope and not at 125M.  "
+            "The check's OMITTED CONDITION 7 -- that the gate must rank the two A "
+            "commitments that hold the same plane, not the boundary alone -- IS met "
+            "by stage 4(b)",
             "ruling_R3": RULING_R3,
+            "ruling_R3_as_of_2026_09_23": R3_STATUS_20260923,
+            "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md "
+            "section 4 row 28): until this date the reason read 'a composition "
+            "argument for a run, which is unwritten' and ended with ruling R-3's "
+            "'is to be machine-asserted elsewhere'; Theorem B was written and "
+            "accepted as a reduction on 2026-09-20 and the draw accounting is "
+            "asserted on single blocks since lane stage 36.  Grade unchanged: OPEN",
         },
         {
             "channel": "the preimage construction for a RUN (one randomness "
@@ -1096,18 +1165,32 @@ def channels(bundle, record):
             "constructed_so_far": full_done if full_ok else constructed,
             "per_commitment_not_joint": True,
         },
+        # [ROUND 9j, CORRECTED 2026-09-23, status page row 26] OPEN -> ARGUED.
         {
             "channel": "the boundary scale tags and the one calibration identity",
             "section": "run 2.2 (NEW)",
-            "status": "open",
-            "assumption": None,
+            "status": "argued",
+            "assumption": "D12b(3) as built (ruling R-5) + ruling M-4",
             "preimage_exhibited": None,
-            "reason": "check A7.5: nothing in the run's privacy section covers the "
-            "boundary's scale/calibration binding, and D12 item 5 records that a tag "
-            "equality check would pass on a factor-of-8 mismatch.  The gate reads the "
-            "scales as public constants and checks that the run declares ONE "
-            "calibration identity (ruling M-4); it does not check what the tag proves",
-            "boundary_scales": bundle.run["boundary_scales"],
+            "model_assumption": "a boundary's scale pair is a CONSTANT of the "
+            "approved calibration and so carries nothing about the hidden input: "
+            "RunStatement::new refuses any interior scale pair but ENDPOINT_SCALES "
+            "(ruling R-5, register D12b item 3; built at lane stage 21 item 3, "
+            "71c6509, 2026-09-20; run.rs at every capture commit since 0426ad2 -- "
+            "zk60_native_rg_runpins READINGS on 65d55d25 -- and at f4697f9 "
+            "run.rs:143-169), and the scales are then bound through the ONE "
+            "calibration identity the run header absorbs (ruling M-4).  The gate "
+            "reads the declared scales as public constants and checks that the run "
+            "declares one calibration identity; it does NOT re-run R-5's refusal, "
+            "which is a code fact the run.rs pin covers",
+            "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md "
+            "section 4 row 26): until this date this channel was graded OPEN on "
+            "check A7.5 -- 'nothing in the run's privacy section covers the "
+            "boundary's scale/calibration binding, and D12 item 5 records that a "
+            "tag equality check would pass on a factor-of-8 mismatch'.  D12b(3) "
+            "closed that BY CONSTRUCTION at lane stage 21 (2026-09-20), so the "
+            "grade was stale",
+            "boundary_scales": bundle.run.get("boundary_scales"),
             "one_calibration_identity": True,
         },
         # ---------------------------------------------- out of band
@@ -1117,11 +1200,26 @@ def channels(bundle, record):
             "status": "open",
             "assumption": None,
             "preimage_exhibited": None,
+            # [ROUND 9j, CORRECTED 2026-09-23, status page row 27] the entropy
+            # side of it; grade unchanged
             "reason": "the refusal channel is inside the game (ruling C-2); a capture "
-            "exists only when the run was accepted.  For a RUN the check adds one more "
-            "refusal class: with 49 commitments a run makes 23 more ZkRng::from_os "
-            "calls, and from_os fails closed -- now possibly in stage 12, minutes in "
-            "(A7.2)",
+            "exists only when the run was accepted.  Its ENTROPY side is one "
+            "fail-closed read per generator and THREE generators per run, accepted "
+            "as built (ruling R-2 of ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md; "
+            "J-2; run memo section 6.3): prove_run makes ONE "
+            "ZkRng::from_os(run_seed_domain(profile)) before the run header is "
+            "absorbed and before stage 0 (run.rs:523 at f4697f9), every boundary "
+            "is drawn from that stream, and the two external endpoints read once "
+            "each (endpoint_g.rs:269); boundary.rs's own from_os is in its test "
+            "module.  A run's other refusals (a witness the builder refuses, a "
+            "lookup miss under CS-3) can still fire inside stage k and name the "
+            "stage: rule M-9 / D12b(1) governs who may see that reason",
+            "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md "
+            "section 4 row 27): until this date the reason read 'with 49 "
+            "commitments a run makes 23 more ZkRng::from_os calls, and from_os "
+            "fails closed -- now possibly in stage 12, minutes in (A7.2)', the "
+            "design's one-generator-per-commitment recommendation, which ruling "
+            "R-2 withdrew on 2026-09-20.  Grade unchanged: OPEN",
         },
         {
             "channel": "rejected-but-emitted receipts",
@@ -1181,6 +1279,11 @@ def channels(bundle, record):
             "nonlinear functional of the joint view is outside it",
         },
     ]
+    # [ROUND 9j] a standalone block: the boundary words dropped and each of
+    # the four run-only channels replaced IN ITS POSITION by its block
+    # counterpart (zk60_native_rg_block.block_channel_table)
+    if getattr(bundle, "standalone", False):
+        ch = block_channel_table(ch, bundle, record)
     counts = {}
     for c in ch:
         counts[c["status"]] = counts.get(c["status"], 0) + 1
@@ -1200,6 +1303,9 @@ def channels(bundle, record):
         "counts": counts,
         "total": len(ch),
         "new_for_a_run": [c["channel"] for c in ch if "(NEW)" in c["section"]],
+        **({"block_counterparts_of_the_run_only_channels":
+            [c["channel"] for c in ch if c["section"].startswith("block")]}
+           if getattr(bundle, "standalone", False) else {}),
         "grading_failures": bad,
         "ok": not bad,
     }
@@ -1210,16 +1316,24 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
              do_controls=True, old_dir=None, cross_profile_dir=None,
              full_preimage=False, mask_cfs=False):
     t0 = time.time()
-    bundle = RunBundle(bundle_dir)
+    # [ROUND 9j] a run bundle or a standalone block bundle, by what the
+    # directory holds; a block takes the block layer's pins, integrity,
+    # replay header, run-control analogues and channel wording
+    bundle = load_bundle(bundle_dir)
+    standalone = getattr(bundle, "standalone", False)
     record = {
         "gate": "zk60-native-run-gate",
         "version": 1,
         "privacy_property_established": False,
         "privacy_acceptance": False,
         "privacy_review_complete": bundle.run["privacy_review_complete"],
-        "what_this_is": "the linear channels of ONE captured private run of "
-        f"{bundle.blocks} blocks at the development rung shape, at that run's real "
-        "challenges",
+        "what_this_is": (
+            "the linear channels of ONE captured STANDALONE private block "
+            f"({bundle.profile}), at that proof's real challenges"
+            if standalone else
+            "the linear channels of ONE captured private run of "
+            f"{bundle.blocks} blocks at the development rung shape, at that "
+            "run's real challenges"),
         "bundle": bundle.name,
         "bundle_dir": bundle.dir,
         "tool_sha256": tool_hashes(),
@@ -1229,8 +1343,12 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
     # pinned by no run-gate tool at all, and a comment said otherwise.  A
     # digest this gate has not read leaves the AFFECTED STAGES not checked by
     # name -- never a crash, which is finding K4-F1's lesson one layer up.
-    rlp = check_run_layer_pins(bundle)
-    record["run_layer_source_pins"] = rlp
+    if standalone:
+        rlp = check_block_layer_pins(bundle)
+        record["block_layer_source_pins"] = rlp
+    else:
+        rlp = check_run_layer_pins(bundle)
+        record["run_layer_source_pins"] = rlp
     suspended = rlp["stages_not_checked"]
 
     def _skipped(stage):
@@ -1240,17 +1358,18 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         record["stage1_integrity"] = not_checked(
             "stage1_integrity", suspended["stage1_integrity"])
     else:
-        record["stage1_integrity"] = integrity(bundle)
+        record["stage1_integrity"] = (block_integrity(bundle) if standalone
+                                      else integrity(bundle))
     record["hash_rule"] = bundle.hash_rule_record.copy()
     record["hash_rule"].pop("rule", None)
-    other = RunBundle(other_dir) if other_dir else None
-    old = RunBundle(old_dir) if old_dir else None
+    other = load_bundle(other_dir) if other_dir else None
+    old = load_bundle(old_dir) if old_dir else None
     if _skipped("stage2_transcript_replay"):
         replay = None
         record["stage2_transcript_replay"] = not_checked(
             "stage2_transcript_replay", suspended["stage2_transcript_replay"])
     else:
-        replay = RunReplay(bundle).run()
+        replay = (BlockReplay(bundle) if standalone else RunReplay(bundle)).run()
         record["stage2_transcript_replay"] = replay.summary()
     if _skipped("stage8_plane_index_and_terminals"):
         s8, _index = None, None
@@ -1332,6 +1451,10 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
     if _skipped("stage6_negative_controls"):
         record["stage6_negative_controls"] = not_checked(
             "stage6_negative_controls", suspended["stage6_negative_controls"])
+    elif do_controls and standalone:
+        record["stage6_negative_controls"] = block_controls(
+            bundle, other, views, replay, shared
+        )
     elif do_controls and other is not None:
         record["stage6_negative_controls"] = controls(
             bundle, other, views, replay, shared
@@ -1359,7 +1482,7 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         # `--other` is normally the same profile's sibling run, so it is used
         # only when its profile really differs; otherwise `--cross-profile`
         # names one.
-        cross = RunBundle(cross_profile_dir) if cross_profile_dir else None
+        cross = load_bundle(cross_profile_dir) if cross_profile_dir else None
         if cross is None and other is not None and \
                 other.run["shape"]["profile"] != bundle.run["shape"]["profile"]:
             cross = other
@@ -1385,7 +1508,8 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
     record["ok"] = all(record[k]["ok"] for k in stages)
     if suspended:
         record["what_it_does_not_show"] = [
-            "NOTHING WAS COMPUTED ABOUT THIS BUNDLE beyond its run-layer "
+            "NOTHING WAS COMPUTED ABOUT THIS BUNDLE beyond its "
+            + ("block" if standalone else "run") + "-layer "
             "source pins: " + "; ".join(sorted(
                 set(rlp["pins_that_moved"] + rlp["pins_missing_from_the_bundle"]))),
             "the stages left unchecked, by name: "
@@ -1397,14 +1521,23 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         ]
         return record
     n_cov = len(covered_at(bundle))
-    record["what_it_does_not_show"] = [
+    record["what_it_does_not_show"] = ([
+        "linear channels of ONE captured STANDALONE block proof at its real "
+        "challenges.  One proof is not a distribution, and a block is not a "
+        "run: nothing here is about a boundary, a segment or twelve blocks",
+    ] if standalone else [
         "linear channels of ONE captured three-block run at ONE development shape",
         "nothing about the 125M shape, where exact rank over thousands of rows per "
         "commitment is a different computation",
+    ]) + [
         "the hash layer's HIDING is still ARGUED, not computed: stage 9 "
         "authenticates every OPENED column under the rule, which says nothing "
         "about what an unopened leaf hides (M-2, M-3)",
-        "the joint-law composition for a run is unwritten",
+        # [ROUND 9j, CORRECTED 2026-09-23] was "the joint-law composition for
+        # a run is unwritten" -- Theorem B was written and accepted as a
+        # reduction on 2026-09-20 (status page row 28)
+        "the joint LAW (Theorem B) is a reduction accepted on paper, not a "
+        "computation of this gate: what is computed is a rank",
         (
             "the per-slot terminal identity is checked for "
             f"{n_cov} of {bundle.shape.n_slots} slots and OPEN for the other "

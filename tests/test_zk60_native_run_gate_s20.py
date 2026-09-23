@@ -187,12 +187,17 @@ class TestTheGeometry(unittest.TestCase):
         # only), and it too carries stage 20's repaired definition: the
         # bilinear arms are outside every hunk.  Still exactly two
         # DEFINITIONS; three digests select the repaired one.
-        self.assertEqual(len(ARGUMENT_DEFINITIONS), 4)
+        # [ROUND 9j, DELIBERATE] four digests became FIVE.  The fifth is
+        # `argument.rs` at lane stage 45 (`feae674` / `19f06bf`, the
+        # standalone block captures): six `#[cfg(test)]` hook lines, and the
+        # bilinear arms outside every hunk.  Still exactly two DEFINITIONS;
+        # four digests select the repaired one.
+        self.assertEqual(len(ARGUMENT_DEFINITIONS), 5)
         names = sorted(set(v[0] for v in ARGUMENT_DEFINITIONS.values()))
         self.assertEqual(names, [PRE_REPAIR, REPAIRED])
         self.assertEqual(
             sorted(v[0] for v in ARGUMENT_DEFINITIONS.values()).count(REPAIRED),
-            3)
+            4)
         self.assertEqual(definition_of_pin("0" * 64), (None, None))
 
     def test_the_factor_names_are_the_push_order(self):

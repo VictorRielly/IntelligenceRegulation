@@ -189,10 +189,14 @@ class ThePinsRoundNineIRead(unittest.TestCase):
         self.assertIn("SC_SZC", why)
         self.assertIn("byte-identical", why)
         # every earlier definition is still there, unchanged in kind
+        # [ROUND 9j, DELIBERATE] plus lane stage 45's `2cee0a22`, the fifth
+        # digest and the fourth to select the repaired definition
+        # (test_zk60_native_run_gate_block.ThePinsRoundNineJRead reads it)
         self.assertEqual(
             {d[:12]: v[0] for d, v in ARGUMENT_DEFINITIONS.items()},
             {"909670c96562": PRE_REPAIR, "dd8469cb0279": REPAIRED,
-             "ec3f97443245": REPAIRED, "f7fa2ad4213d": REPAIRED})
+             "ec3f97443245": REPAIRED, "f7fa2ad4213d": REPAIRED,
+             "2cee0a2253d6": REPAIRED})
 
     def test_an_argument_digest_nobody_read_is_still_refused(self):
         self.assertEqual(definition_of_pin("0" * 64), (None, None))

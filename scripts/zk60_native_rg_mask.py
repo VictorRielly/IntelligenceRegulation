@@ -348,6 +348,21 @@ MASK_LAYER_PINS = {
             "outside every hunk and byte-identical, so the DECLARED "
             "functional order is the one round 8 read",
         },
+        # [ROUND 9j] lane stage 45's STANDALONE block bundles.
+        "2cee0a2253d6ef91bea23f564d8e24a3362663da53a10182d6b0edaa8a10a013": {
+            "commits": ("feae674dbd5c5a3e7646da9e33bc423e76b8ab32",
+                        "19f06bfde4a1e4fcb0f39acc19da1f6654d66f9c"),
+            "bundles": ("rung-g-dense", "rung-g-zero", "m125-dense", "m125-zero"),
+            "reading": "READ 2026-09-23 (round 9j).  `git diff 99a8de8 "
+            "feae674 -- .../argument.rs` is 6 added, 0 removed, three hunks, "
+            "every added line `#[cfg(test)]`, a comment or a "
+            "`block_capture_shaped::` hook (stage 45).  **The block this port "
+            "reads is untouched**: `run_slot`'s M-functional block, "
+            "`fn sum_weights(sh, slot)`, `acc.fs.extend(hosts)` and the guard "
+            "`acc.fs.len() != N_FUNCTIONALS` are outside every hunk and "
+            "byte-identical, so the DECLARED functional order is the one "
+            "round 8 read",
+        },
     },
     "src/private_block/layout.rs": {
         "b765bdcbe5762cce3402dac9fb44b5359d53cb492f67c62dbee18f3b559b0d05": {
@@ -377,6 +392,19 @@ MASK_LAYER_PINS = {
             "`M_ROWS = 2 * N_SLOTS + 4` are the same constants this port's "
             "row model rests on -- which is why M has fifty rows and "
             "thirty-four functionals at the 125M shape too",
+        },
+        # [ROUND 9j] lane stage 45's STANDALONE block bundles.
+        "64c37a4956ed221cb549d8e88257a14f5f332bb549fc4028c9a38246b111f23c": {
+            "commits": ("feae674dbd5c5a3e7646da9e33bc423e76b8ab32",
+                        "19f06bfde4a1e4fcb0f39acc19da1f6654d66f9c"),
+            "bundles": ("rung-g-dense", "rung-g-zero", "m125-dense", "m125-zero"),
+            "reading": "READ 2026-09-23 (round 9j).  `git diff 99a8de8 "
+            "feae674 -- .../layout.rs` is 45 added, 1 removed, two hunks: a "
+            "doc-comment figure corrected (the one removed line) and "
+            "`Layout::check_is_for_shape` (ruling CS-8), a refusal.  "
+            "`N_SLOTS = 23`, `N_FUNCTIONALS = 34`, `M_ROWS = 2 * N_SLOTS + 4` "
+            "and their two assertions are outside both hunks, so M has fifty "
+            "rows and thirty-four functionals in a standalone block too",
         },
     },
     "src/private_block/shape.rs": {
@@ -493,6 +521,21 @@ MASK_LAYER_PINS = {
             "C-4 headroom 174.  **The rung-E32 bundles NAME `4505ddf`, "
             "which does not carry this blob** -- finding E32-F1; the "
             "commits listed here are the ones that do",
+        },
+        # [ROUND 9j] lane stage 45's STANDALONE block bundles.
+        "5acecd8e431ea37d6669ab097be4e64c1102cff6617bd09712f4a742c658328f": {
+            "commits": ("feae674dbd5c5a3e7646da9e33bc423e76b8ab32",
+                        "19f06bfde4a1e4fcb0f39acc19da1f6654d66f9c"),
+            "bundles": ("rung-g-dense", "rung-g-zero", "m125-dense", "m125-zero"),
+            "reading": "READ 2026-09-23 (round 9j).  `git diff 99a8de8 "
+            "feae674 -- .../shape.rs` is 291 added, 10 removed: refusals "
+            "(note C-6, rulings CS-2, CS-5, CS-8, CS-9), the block-profile "
+            "registry, and `Shape::new` renamed `Shape::build` for the nine "
+            "registered constructors.  `Shape::slots` -- the source of every "
+            "`(n_s, d_s)` this port turns into `L_s` -- and ruling C-4's "
+            "refusal are outside every hunk and byte-identical; the largest "
+            "`L_s` and the C-4 headroom are derived by the prediction (72 / "
+            "184 at rung-G, 117 / 139 at 125M) before the run",
         },
     },
 }

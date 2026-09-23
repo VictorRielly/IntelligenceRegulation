@@ -153,15 +153,7 @@ class RunReplay:
         tag = f"stage {k}"
 
         self._check_state(tr, doc["header"], f"{tag} header")
-        start = self._position_tag(tr)
-        if start != doc["start_tag"]:
-            self._fail(f"{tag}: the segment's start tag is not this transcript position")
-
-        tr.absorb_u64(b"pb-run-stage", k)
-        tr.absorb(b"pb-run-block", bytes(doc["block_digest"]))
-        bc = doc["boundary_committed"]
-        if bc is not None:
-            self._absorb_root(tr, b"B", bc["root"], bc["rows"], bc["log_cols"])
+        start = self._open_stage(tr, st, doc, tag)
         self._absorb_root(tr, b"A", doc["a_root"], doc["a_rows"], doc["log_cols"])
         tr.absorb(b"M", bytes(doc["mask_root"]))
         logup = tr.challenge_fp2_vec(3)
@@ -170,14 +162,7 @@ class RunReplay:
         acc["logup"] = logup
         self._absorb_root(tr, b"H", doc["h_root"], doc["h_rows"], doc["log_cols"])
 
-        sites = {(s["stage"], s["site"]): s for s in doc["transcript_sites"]}
-        want_sites = [f"slot {s:02d}" for s in range(sh.n_slots)] + [
-            f"{nm} opening" for nm in doc["opening_order"]
-        ]
-        if [s["site"] for s in doc["transcript_sites"]] != want_sites:
-            self._fail(f"{tag}: the transcript_sites index is not the declared site order")
-        if any(s["stage"] != k for s in doc["transcript_sites"]):
-            self._fail(f"{tag}: a transcript site names another stage")
+        sites = self._sites_of(doc, k, tag)
 
         # ------------------------------------------------------- the slots
         for arg in st.slots:
@@ -275,6 +260,45 @@ class RunReplay:
             acc["role_indices"][key] = idx
             self._check_state(tr, role["after"], f"{tag} {nm} after")
 
+        self._close_stage(tr, st, doc, tag, start)
+
+    # ------------------------------------------------- [ROUND 9j] the hooks
+    # The three places a RUN stage differs from a standalone block's one
+    # proof, lifted out of `_stage` verbatim so that a block's replay
+    # (`zk60_native_rg_block.BlockReplay`) overrides them and nothing else.
+    # For a run this is a pure refactor: the same absorbs, the same squeezes
+    # from the same discarded clones, the same failures in the same order.
+    def _open_stage(self, tr, st, doc, tag):
+        """The segment's start tag (outside the chain), then the stage's two
+        locality words and, below the last block, the boundary root."""
+        k = st.index
+        start = self._position_tag(tr)
+        if start != doc["start_tag"]:
+            self._fail(f"{tag}: the segment's start tag is not this transcript position")
+        tr.absorb_u64(b"pb-run-stage", k)
+        tr.absorb(b"pb-run-block", bytes(doc["block_digest"]))
+        bc = doc["boundary_committed"]
+        if bc is not None:
+            self._absorb_root(tr, b"B", bc["root"], bc["rows"], bc["log_cols"])
+        return start
+
+    def _sites_of(self, doc, k, tag):
+        """The stage's `transcript_sites` index keyed on (stage, site), with
+        the declared-order check and the one-stage check."""
+        sh = self.b.shape
+        sites = {(s["stage"], s["site"]): s for s in doc["transcript_sites"]}
+        want_sites = [f"slot {s:02d}" for s in range(sh.n_slots)] + [
+            f"{nm} opening" for nm in doc["opening_order"]
+        ]
+        if [s["site"] for s in doc["transcript_sites"]] != want_sites:
+            self._fail(f"{tag}: the transcript_sites index is not the declared site order")
+        if any(s["stage"] != k for s in doc["transcript_sites"]):
+            self._fail(f"{tag}: a transcript site names another stage")
+        return sites
+
+    def _close_stage(self, tr, st, doc, tag, start):
+        """The segment's end tag, and that it is the next stage's start."""
+        b, k = self.b, st.index
         end = self._position_tag(tr)
         if end != doc["end_tag"]:
             self._fail(f"{tag}: the segment's end tag is not this transcript position")
@@ -299,3 +323,16 @@ class RunReplay:
             "failures": self.failures,
             "ok": not self.failures,
         }
+
+
+def replay_for(bundle) -> RunReplay:
+    """[ROUND 9j] The replay a bundle needs: a run's, or -- for a
+    standalone block bundle (`zk60_native_rg_block.BlockBundle`) -- the
+    block's, which is this class with the block header and without the
+    run's three stage additions.  Every control that replays a perturbed
+    bundle goes through here, so a block is never replayed under a run
+    header."""
+    if getattr(bundle, "standalone", False):
+        from zk60_native_rg_block import BlockReplay
+        return BlockReplay(bundle)
+    return RunReplay(bundle)

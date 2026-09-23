@@ -4533,8 +4533,8 @@ establishes a privacy property.
 | J0 | ledger skeleton, round 9j opened | this commit |
 | J1 | how to read a standalone block: a mode of the run gate or a thin entry script | decided -- a MODE, one adapter module (R9j.3) |
 | J2 | the prediction, written and committed BEFORE the gate reads a block bundle with its pins read | done -- this commit, R9j.4 |
-| J3 | the pins: the 35 source pins read; every moved file re-pinned with a written reason, old digests kept | pending |
-| J4 | the gate on both rung-G bundles, every arm, every control; then both 125M bundles, one at a time, detached | pending |
+| J3 | the pins: the 35 source pins read; every moved file re-pinned with a written reason, old digests kept | done -- R9j.6; failing first (`probe_before_repin/`), four port digests + three block-layer pins, each with its reading |
+| J4 | the gate on both rung-G bundles, every arm, every control; then both 125M bundles, one at a time, detached | tools frozen, queue launched (`queue.sh`) |
 | J5 | dense against zero; the block against the run it would be a stage of | pending |
 | J6 | the stale channel texts of `m125-dense-everything.json` (status rows 26–28) | pending |
 | J7 | records re-taken where a tool moved; the suites (toy subset, record guard, whole native suite) | pending |

@@ -233,6 +233,20 @@ ALSO_ACCEPTED = {
             "shape that breaks it.  **Not one byte of code moved**, so "
             "`N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, every plane order and "
             "every row count this port reads are byte-identical",
+        # [ROUND 9j] lane stage 45's capture commits feae674 / 19f06bf (this
+        # digest from stage 43's 601e97f onward).
+        "64c37a4956ed221cb549d8e88257a14f5f332bb549fc4028c9a38246b111f23c":
+            "stages 40 and 43 (a comment, and ruling CS-8), unchanged through "
+            "feae674 and 19f06bf.  `git diff 99a8de8 feae674 -- .../layout.rs` "
+            "is **45 added, 1 removed, TWO hunks**: a doc-comment figure "
+            "corrected (the LogUp multiplicity bound at 125M, 98,582,528 -> "
+            "98,598,912 with the P-3-lifted `Dom::L`, note C-6 of the census "
+            "check -- the one removed line) and `Layout::check_is_for_shape` "
+            "(ruling CS-8), a REFUSAL that re-derives `Layout::for_shape(sh)` "
+            "and compares the ten row fields; it absorbs, draws and moves "
+            "nothing.  **`N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, every plane "
+            "order and row count, `lookups_at`'s windows and the calibration "
+            "constants are outside both hunks and byte-identical**",
     },
     "src/private_block/protocol.rs": {
         "e012450bdc4d7eb933e1d034960a87388385f0daa18ff631da395172e1201dda":
@@ -297,6 +311,31 @@ ALSO_ACCEPTED = {
             "orders and row counts, the calibration constants and the "
             "`(beta, gamma, alpha)` draw are byte-identical, and the rung-K8 "
             "replay re-derives every challenge",
+        # [ROUND 9j] lane stage 45's capture commits feae674 / 19f06bf.
+        "974892cc1c45f27e446e1fd4595c888b6a1be647105bfbab3fe6298f7a731ea7":
+            "stages 40-44 (rulings CS-1, CS-3, CS-4, CS-8) and stage 45's "
+            "capture hooks, at feae674, unchanged at 19f06bf.  `git diff "
+            "99a8de8 feae674 -- .../protocol.rs` is **168 added, 1 removed, "
+            "13 hunks**, of three kinds.  (i) REFUSALS that fire before "
+            "anything is absorbed, drawn or committed: ruling CS-3's "
+            "`refuse_lookup_misses` / `u8_misses_of` and two miss counters in "
+            "`prove_core` -- the PROVER's, after the three histograms and "
+            "before the first `A` mask draw, with a `#[cfg(test)]` "
+            "`CheatingProver` switch -- and ruling CS-8's "
+            "`sh.check_constructed()` / `lay.check_is_for_shape(sh)` and "
+            "rulings CS-1 / CS-4's `blk.check_for_shape(sh)` / "
+            "`expected.spec.check_for_shape(sh)` at `prove_inner_at`, "
+            "`prove_core`, `verify_core` and `verify_inner_at`.  (ii) Stage "
+            "45's `#[cfg(test)]` block-capture hooks, 23 lines: `begin_block` "
+            "after the header, checkpoints and records around `M`, `A`, `H` "
+            "and both endpoints, `block_accepted` at the end -- each a no-op "
+            "unless a recorder is attached.  (iii) One doc comment rewritten "
+            "(the removed line).  **Nothing this port reads moved**: "
+            "`lookups_at`, the plane orders and row counts, the calibration "
+            "constants, `transcript()`'s header absorbs, "
+            "`check_opening_challenges` and the `(beta, gamma, alpha)` draw "
+            "are outside every hunk, and the standalone-block replay "
+            "re-derives every challenge of all four stage-45 bundles",
     },
 }
 
@@ -453,6 +492,29 @@ PINNED_IF_PRESENT = {
             "arms agree anyway.  (iii) a doc comment on `a_groups` saying "
             "so; `a_groups`'s code is byte-identical.  **Not one geometry "
             "function this port reads moved**",
+        # [ROUND 9j] lane stage 45's capture commits feae674 / 19f06bf (this
+        # digest from stage 44's 51f8f2b onward).
+        "5acecd8e431ea37d6669ab097be4e64c1102cff6617bd09712f4a742c658328f":
+            "stages 40-44 (note C-6, rulings CS-2, CS-5, CS-8, CS-9), "
+            "unchanged through feae674 and 19f06bf.  `git diff 99a8de8 "
+            "feae674 -- .../shape.rs` is **291 added, 10 removed, eight "
+            "hunks**, all REFUSALS and one rename: the constants `F_E_MAX` "
+            "and `WIDTH_MAX` and two refusal prefixes; the block-profile "
+            "REGISTRY (`REGISTERED_BLOCK_SHAPES`, `registered_block_shape`, "
+            "rung-K8's arm under `#[cfg(test)]`); `Shape::new` becomes the old "
+            "body renamed `Shape::build` (now private) followed by ruling "
+            "CS-9's check that a registered profile names exactly its one "
+            "shape; `build` gains note C-6's `f_e > 31`, ruling CS-5's `width "
+            "> 16,384` and ruling CS-2's two window-override floors; and "
+            "`check_constructed` (ruling CS-8) re-runs `Shape::new` on a "
+            "value's own parameters.  The ten removed lines are one doc line "
+            "and the nine registered constructors' `Shape::new(` -> "
+            "`Shape::build(` (they ARE the registry's entries).  **Not one "
+            "geometry function this port reads moved** -- not `true_size`, "
+            "`pads`, `head_slot`, `clog2`, `slot_dims`, `Shape::slots` or "
+            "ruling C-4 -- no new refusal fires on any registered shape, and "
+            "every dimension is re-derived here from `block.json[\"shape\"]` "
+            "and compared with the shape's own `slots` array",
     },
     # [ROUND 9b, finding P-F1] `pad.rs`, the file this port transcribes the
     # pad rule from (`PadGeometry`: `BitForm` at pad.rs:124,
