@@ -4701,3 +4701,121 @@ bundle that DID declare one is not passed (a test). The shared files are
 round 9i's exact set. `wire.rs` and `private_block.rs` now being compared
 by a table answers half of R9i.11 item 1 -- for the block layer, because a
 port there now depends on them.
+
+## R9j.7 Results -- rung-G, the whole gate (MEASURED 2026-09-23 04:19-04:24 PDT, shared laptop, CPU only)
+
+`run_rung_g.sh` under the heavy lock, marker `run_rung_g.done` = 0, tool
+bytes of `1d7cfd2`: `block-rung-g-dense` 143.1 s (wall 2:23, peak RSS 514
+MB), `block-rung-g-zero` 140.1 s (2:20, 520 MB), **13 of 13 stages `ok` on
+both**, every arm (`--full-preimage --mask-cfs`) and every control.
+
+**Every figure R9j.4 named came out as written, at both bundles.**
+
+| # | figure | measured (dense; zero identical unless shown) | predicted |
+|---|---|---|---|
+| B2 | replay | 127 positions, **2,036** challenges, counter 2,356, `block_binding` reproduced, 0 position tags, 0 not re-derived | ✓ |
+| B3 | slot checks | **23 of 23**, 23 matching the stored `terminal_polynomial`, 0 open | ✓ |
+| B4 | public tables | 31 carried and checked; 16 rebuilt + digest-matched, 15 taken, 15 structure checks | ✓ |
+| B5 | group factor | definition `repaired`; 2 points, 2 entries; 4 coordinate lists, 45 entries, 23 fixed | ✓ |
+| B6 | hash layer | 5 openings, **1,280 of 1,280** columns, 2,594,816 B | ✓ |
+| B7 | disclosure | `A` 0, `H` 2, `E-Input` 0, `E-Output` 0, `M` 0; `rank_P1` 74 / 20 / 4 / 4 | ✓ |
+| B8 | boundary | none: `per_boundary` [], no pair, no three-role figure | ✓ |
+| B9 | whole block | **104 x 1,259**, joint **2** = sum 2, **8** identified rows (parts `A@0` 0, `H@0` 2, endpoints 0, `M@0` 0) | ✓ |
+| B10 | singleton preimage | `E-Input`, `E-Output` exhibited, 1 free `Fp` per position | ✓ |
+| B11 | full preimage | 4 exhibited, **367,253** entries (zero 368,559), **0 differing**, 1,024 salted leaves, 25.8 s; P-1..P-6 6 of 6 | ✓ (entries not predicted) |
+| B12 | mask and CFS | 1 stage, **15,960** entries, 0 differing, 256 leaves; M1..M6 all fire | ✓ |
+| B13 | joint preimage | **383,213** entries (zero 384,519), 0 differing, 1,280 leaves; four couplings respected; C1 **8** pairs, all data rows | ✓ |
+| B14 | channels | **28 at 10 / 5 / 5 / 8**, 0 grading failures | ✓ |
+| B15 | controls | **C2b** rank 4 of 4 / disclosed 0 -> rank 3 / disclosed **1**; **C3b** joint 0 = sum 0 -> joint **1,024** with the marginals unmoved; **C4b** integrity refuses and the discovery identifies **0** of 8 rows; **C5b** replay refuses at `stage 0 header` (2,293 failures) and integrity refuses; **C6** H-pad fails -- 5 of 5; C1 named as having no analogue.  CT-1..CT-9 **9 of 9**; GQ **8 of 9**, GQ-7 skipped by name ("this shape has lkv = 1"); CH-1..CH-7 **7 of 7** (CH-7: 1,280 of 1,280 under the block's own keys, 0 under rung-K4's; rung-K4's 3,328 / 0); P 6 of 6; M 6 of 6 | ✓ |
+
+**Finding R9j-F1** is the one thing the first pass found (04:11, the
+`time-block-rung-g-dense.log` of that pass): control CT-1 perturbed stage
+`1` as a literal, raised `IndexError` at `L = 1` and took the whole
+stage-8 arm with it -- round 9's M-F3, one `L` lower. Repaired in
+`1d7cfd2` (R9j.5); no run record moves (a run keeps stage 1).
+
+## R9j.8 Results -- 125M (MEASURED 2026-09-23, shared laptop, CPU only)
+
+**Pass A, the records of record** (`m125.sh a`, 04:24-04:27, marker
+`m125_a.done` = 0), the staged driver's `load, replay, hash, terminals,
+commitments, boundary, preimage, channels`, one bundle at a time:
+`block-m125-dense` **96.5 s**, peak RSS **1,402 MB** (wall 1:37, max RSS
+1,435 MB); `block-m125-zero` 96.8 s, 1,394 MB. Against round 9c's two-block
+run records (174.0 s / 1,460 MB): the terminals stage is 44.4 s against
+101.6 s and the commitments stage 49.8 s against 62.8 s -- one stage of each
+instead of two. **Every predicted figure held:**
+
+| # | figure | measured (dense; zero identical unless shown) | predicted |
+|---|---|---|---|
+| B2 | replay | 127 positions, **13,932** challenges, counter 14,252, `block_binding` reproduced | ✓ |
+| B3 | slot checks | **23 of 23**, all matching the stored polynomial | ✓ |
+| B4 | public tables | 28 carried; 13 rebuilt, 15 taken, 15 structure checks | ✓ |
+| B5 | group factor | `repaired`; 2 points, **4** entries (`lkv = 2`); 4 lists, 75 entries, 37 fixed | ✓ |
+| B6 | hash layer | 5 openings, 1,280 of 1,280 columns, **26,470,400** B | ✓ |
+| B7 | disclosure | `A` 0 (5,681 rows, 122 claims, 36 groups, 246 non-data), `H` 2 (7,120 rows, 51 claims, 104 non-data), both endpoints 0 (37 rows, 5 non-data), `M` 0; `rank_P1` 74 / 20 / 4 / 4 | ✓ |
+| B9 | whole block | **104 x 12,861**, joint 2 = sum 2, **64** identified rows, 0.6 s | ✓ |
+| B10 | singleton preimage | both endpoints, 1 free `Fp` | ✓ |
+| B14 | channels (this pass) | 28 at 2 / 5 / 5 / 16 -- the arms were not run in pass A, exactly as round 9's (a)-(d) records read 2 / 5 / 4 / 17 | the full table is pass B's |
+
+**Pass B, every stage and every control on the dense bundle**, and **pass
+C, the zero bundle's arms without controls**, are queued behind the record
+refresh on the heavy lock (`queue.sh`; markers `m125_b.done`,
+`m125_c.done`); their figures are in R9j.11 when they land.
+
+## R9j.9 Dense against zero, and the block against the run it would be a stage of
+
+**Dense against zero** (`zk60_native_rg_witcmp`): rung-G **97 figures, 87
+identical**; 125M **90 figures, 82 identical**. Every difference is a
+distinct-opened-column count, the pad margin that is 256 minus it, or the
+pad-block rank over those columns (125M: margins 0 / 1, the generic case of
+D22 §8(c)); the full-preimage and joint entry counts at rung-G differ by the
+same sampled columns (367,253 / 368,559 and 383,213 / 384,519, each
+difference 1,306). **No figure moves with the witness** -- a statement about
+the verifier's view, not about S19-F1: a capture carries no witness.
+
+**Block against run** (`block_vs_run.py` -> `block_vs_run.json`): at rung-G,
+**31 of 31** per-commitment and per-stage figures that must be the SAME
+are -- `A@0`, `H@0`, `E-Input`, `E-Output` rows / claims / groups /
+disclosed / `rank_P1` / `k0` / non-data rows against the three-block rung-G
+run's, `M`'s rows, 23 slot checks per stage, 15,960 CFS entries per stage.
+The whole-proof figures follow the one-stage arithmetic of R9j.4 (2,036
+= the rung-G run's stage 0, 2,026, plus `E-Output`'s 1 lambda and 9
+proximity coefficients). The 125M row of that table lands with pass B.
+
+## R9j.10 The stale records (status page rows 26-28) -- evidence verified, corrected
+
+The three channel texts live in the run gate's channel table, so they were
+stale in the TOOL and in every record it wrote. Each proposed text's
+evidence was re-read first:
+
+| row | channel | said | evidence re-read 2026-09-23 | now |
+|---|---|---|---|---|
+| 26 | the boundary scale tags and the one calibration identity | OPEN: "nothing in the run's privacy section covers the boundary's scale/calibration binding ... a factor-of-8 mismatch" | D12b(3) (register; its own 2026-09-23 note: built at lane stage 21 item 3, `71c6509`); `run.rs` at `f4697f9` :143-169, "RULING R-5 (register D12b item 3), STAGE 21" and `if *pair != super::ENDPOINT_SCALES` refusing in `RunStatement::new`; this gate's own reading of `run.rs` `65d55d25` (R-5 absorbs nothing) | **ARGUED**, assumption "D12b(3) as built (ruling R-5) + ruling M-4" -- the scales are a constant of the approved calibration; the gate does not re-run R-5 |
+| 27 | whether a proof attempt produced a receipt | "with 49 commitments a run makes 23 more ZkRng::from_os calls ... possibly in stage 12, minutes in (A7.2)" | R-2 of the joint-law composition disposition ("one fail-closed entropy point before stage 1"); J-2 (three generators); run memo §6.3 (three `from_os`); READ at `f4697f9`: ONE `from_os(run_seed_domain)` in `prove_run` before the header and the stage loop (`run.rs:523`), `boundary.rs:396`'s inside `mod tests` (from :357), `endpoint_g.rs:269` once per endpoint | OPEN, reason corrected |
+| 28 | the cross-block joint law beyond the linear rank | "a composition argument for a run, which is unwritten"; ruling R-3's "to be machine-asserted elsewhere" appended | the disposition's §1 (Theorem B a correct reduction) and R-3; status page §2.1 row 4; lane stage 36's seven assertions (MEASURED, single blocks, six shapes) | OPEN, reason corrected; R-3's text kept as a quote beside `ruling_R3_as_of_2026_09_23` |
+
+**How.** (1) The TOOL writes the corrected texts from `1d7cfd2`, each with a
+`corrected` member quoting what it replaced; every development record
+re-taken this round carries them (R9j.11). (2) The **125M records** pin
+older tool bytes by round 9c's decision, and a re-take of `dense-everything`
+is 2 h 17 min, so they were corrected the way the ledger corrects a
+document -- **beside, dated, nothing rewritten**:
+`correct_m125_records.py` adds a `dated_correction_2026_09_23` member to
+each of the three channels (the text and grade the tool now writes, taken
+from the tool's own `channels()`; the evidence above; why not re-taken) and
+a top-level `dated_corrections` entry with the counts as corrected. It
+checks first that each record re-serialises to its committed bytes and
+after that the new record differs ONLY by added leaves: **seven records, +42
+leaves each, 0 changed or removed** -- `m125-dense-everything` (**28 at 10 /
+5 / 4 / 9 -> 10 / 5 / 5 / 8**), `m125-dense`, `m125-zero`, `m125-dense-full`,
+`m125-zero-full` and the two loader-equivalence records.
+`m125-dense-controls.json` carries the same texts and is **not touched**: it
+is dirty in this worktree with another writer's uncommitted edits.
+
+**The record guard.** The brief expected the record guard to pin these
+bytes; it does not -- `test_zk60_native_gate_record` (42 tests) guards the
+TOY gate's two records only, and no test read `m125-dense-everything.json`
+(grep, 2026-09-23). So nothing was re-pinned there, and
+`TheStaleChannelTextsOfThe125MRecords` in this round's test file is now the
+guard for the corrections (the original text kept, the dated member beside
+it, the counts as corrected).
