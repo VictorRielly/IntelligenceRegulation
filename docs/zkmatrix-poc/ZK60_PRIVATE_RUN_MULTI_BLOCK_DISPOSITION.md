@@ -669,6 +669,48 @@ bundles unless labelled otherwise.
      at 4G is to be read as a failure of the tools.
   What this is not: still linear channels, two-block runs, no privacy claim
   about any run; ruling R-3's sentence beside every joint figure.
+- **Round 9i (22:50, 2026-09-22; `zk60-native-jointview` at `8b1c2c4`,
+  pushed; native suite 603, toy subset 217, record guard 42, all at 8 GiB).
+  The first shape with eight key-value groups (`lkv = 3`) went through the
+  whole run gate; open item R5.8 item 3 is closed.** Shape rung-K8 (lane
+  stage 37, `bacc274`: 24 tokens, width 128, 16 query heads over 8 key-value
+  heads; block 4,780,216 B = the layout model; group-7 tampers and group
+  swaps refused by the verifier). Two 3-block bundles, dense generic and
+  all-zero (`results/zk60_run_captures_20260922_k8/` on the lane).
+  1. **Prediction committed before the pinned read** (`710d80b`), its module
+     first reproducing the committed K4, P2 and E32 records; every written
+     figure held; one unwritten one (the whole-run class count 4,505 → 4,559
+     = +3 × (6 + 12), a sum of predicted row counts) labelled read after the
+     fact.
+  2. **At rung-K8, both bundles:** 13 of 13 stages ok, every arm; 69 of 69
+     slot terminals equal to the stored polynomial; the three-bit group point
+     `r_h[..3]` replayed and equal 6 of 6; 6,926 challenges; **channels 28 at
+     10 / 5 / 4 / 9 — the table of every other shape**; `A` 0, `H` 2 (the
+     public lookup identity), every boundary 6 of 6 disclosed 0, whole run
+     joint 6 = sum 6; every control family fires (incl. 18 group controls;
+     the repaired SC polynomial passes GQ-6 6 of 6, the pre-repair one 0 of
+     6). Dense against zero: 159 of 173 figures identical, the 14 others
+     sampled-column counts and their pad margins, as at every shape.
+  3. **Pins.** Four files moved on the run gate's path since rung-E32 and
+     were read and re-pinned with a written reason: `argument.rs` (stage 35's
+     slot 14/17 closure rewrites, read three times already), `protocol.rs`
+     (stage 36's test observer), zkp-core `rng.rs` and `transcript.rs`
+     (stage 36's cfg-gated accessors, pre-read at review `8505810`); a third
+     digest of any of them is still refused. No run-gate table pins
+     `private_block.rs` (the toy gate's does); `k8_tests.rs` cannot be
+     pinned from a bundle and its digest is in the ledger.
+  4. **Gate findings, both fixed in the round:** R9i-F1, control GQ-7 was
+     written for two group bits and never reordered the third (GQ-7.1.2
+     added); R9i-F2, the leaf classifier accepted whole stages 8–13, so its
+     "0 unclassified" could not have caught a moved slot check — the committed
+     9b/9c diffs re-read strictly show 0 real changes, and the round uses a
+     strict diff. Re-take of the 27 records of record: 154,131 leaves
+     identical, 0 unexpected.
+  What this is not: linear channels and terminal identities at one more
+  development shape; no privacy claim about any run or any shaped profile.
+  The Rust side's completeness at the shaped layouts gained a census the
+  same evening (lane stages 38–39, finding S38-F1 fixed; census memo on the
+  lane).
 - **Prediction before measurement.** 180 figures predicted from the shape and
   validated on both development shapes first: 55 shape-independent figures
   identical at all three shapes, 61 block-count figures, 64 scaling figures as
