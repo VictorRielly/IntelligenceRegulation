@@ -72,11 +72,19 @@ pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
 /// profile id. A run is a NEW profile under D17 — its own transcript, its own
 /// digests — so no byte of any single-block profile moves.
+///
+/// **RULING CS-8 (security owner, 2026-09-23; stage 42's note S42-N1).** The
+/// three fields are PRIVATE: [`RunShape::new`] (ruling CS-7, a run profile
+/// only over the block shape it is registered for — and, by that equality,
+/// only over a shape `Shape::new` builds) is the only way to make one, and
+/// [`RunShape::sh`], [`RunShape::l`] and [`RunShape::profile`] read them.
+/// Stage 43 measured, before this, a struct literal, a replaced `rs`, a
+/// written profile and a written block shape each prove and VERIFY.
 #[derive(Clone, Debug)]
 pub(crate) struct RunShape {
-    pub sh: Shape,
-    pub l: usize,
-    pub profile: &'static str,
+    sh: Shape,
+    l: usize,
+    profile: &'static str,
 }
 
 /// **RULING CS-7: THE RUN PROFILE REGISTRY** — every run profile this build
@@ -150,6 +158,18 @@ impl RunShape {
     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::m125(), l, RUN_PROFILE_M125)
     }
+    /// the per-block shape (ruling CS-8: read-only outside this module)
+    pub(crate) fn sh(&self) -> &Shape {
+        &self.sh
+    }
+    /// how many blocks (ruling CS-8: read-only outside this module)
+    pub(crate) fn l(&self) -> usize {
+        self.l
+    }
+    /// the run's own profile id (ruling CS-8: read-only outside this module)
+    pub(crate) fn profile(&self) -> &'static str {
+        self.profile
+    }
     /// how many rows of an IO commitment carry plane words — the same at an
     /// external endpoint and at an internal boundary, because both commit the
     /// same padded `Dom::D` cube at the same row width
@@ -167,8 +187,13 @@ impl RunShape {
 /// them before the run), one public digest per block, one scale per boundary
 /// and the calibration identity. The `L - 1` boundary ROOTS are deliberately
 /// NOT here — an internal boundary is a hidden intermediate, not an endpoint.
+///
+/// **RULING CS-8.** Every field is private, the run shape included (it was
+/// the one visible field until stage 43, and a write to it skipped
+/// [`RunStatement::new`] and ruling CS-7 alike): [`RunStatement::rs`] reads
+/// it.
 pub(crate) struct RunStatement {
-    pub rs: RunShape,
+    rs: RunShape,
     expected: ExpectedIo,
     block_digests: Vec<Digest>,
     context: Digest,
@@ -276,6 +301,24 @@ impl RunStatement {
     #[cfg(test)]
     pub(crate) fn with_calibration(mut self, d: Digest) -> RunStatement {
         self.calibration = d;
+        self
+    }
+
+    /// the run's geometry (ruling CS-8: read-only outside this module)
+    pub(crate) fn rs(&self) -> &RunShape {
+        &self.rs
+    }
+
+    /// **TEST ONLY (ruling CS-8).** This statement with its run shape
+    /// replaced, SKIPPING every check [`RunStatement::new`] makes — the way
+    /// `with_calibration` stands in for a statement no constructor builds —
+    /// so that a test can hand the run prover and verifier a statement whose
+    /// run shape moved and measure their own re-checks (rulings CS-1, CS-4,
+    /// CS-6). The run shape handed is still one [`RunShape::new`] made, so
+    /// ruling CS-7 is not reached around. A release build has no such method.
+    #[cfg(test)]
+    pub(crate) fn with_run_shape(mut self, rs: RunShape) -> RunStatement {
+        self.rs = rs;
         self
     }
 
@@ -573,9 +616,10 @@ fn blocks_fit_the_shape(blocks: &[BlockPublic], sh: &Shape) -> Result<(), String
 }
 
 /// **RULING CS-4** at the run layer: the run's external endpoint policy
-/// re-checked against the run's shape. The statement holds it, but its run
-/// shape is a visible field, so the run prover and verifier re-run this
-/// beside [`blocks_fit_the_shape`] rather than trusting construction.
+/// re-checked against the run's shape. The statement holds it; its run shape
+/// was a visible field until ruling CS-8 sealed it (stage 43), and the run
+/// prover and verifier still re-run this beside [`blocks_fit_the_shape`]
+/// rather than trusting construction.
 fn policy_fits_the_shape(expected: &ExpectedIo, sh: &Shape) -> Result<(), String> {
     expected.spec.check_for_shape(sh).map_err(|e| format!("private run: {e}"))
 }
@@ -586,8 +630,9 @@ fn hex8(d: &Digest) -> String {
 }
 
 /// **RULING CS-6, the count.** Exactly `L` blocks handed, and a statement
-/// holding exactly `L` block digests (its run shape is a visible field, so
-/// the two are not trusted to agree from construction).
+/// holding exactly `L` block digests (its run shape was a visible field until
+/// ruling CS-8 sealed it, and the two are still not trusted to agree from
+/// construction).
 fn as_many_blocks_as_the_statement(st: &RunStatement, blocks: &[BlockPublic]) -> Result<(), String> {
     let l = st.rs.l;
     if blocks.len() != l {

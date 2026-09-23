@@ -253,8 +253,8 @@ pub(super) fn verify_then_write(st: &RunStatement, blocks: &[BlockPublic], dir: 
 fn render(st: &RunStatement, blocks: &[BlockPublic], dir: &Path, recipe: &WeightsRecipe) -> Result<Vec<u8>, String> {
     let h = st.capture_header()?;
     let binding = st.binding()?;
-    let sh = &st.rs.sh;
-    let l = st.rs.l;
+    let sh = st.rs().sh();
+    let l = st.rs().l();
     if blocks.len() != l {
         return Err(format!("run statement: {} public statements for {l} blocks", blocks.len()));
     }

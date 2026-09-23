@@ -1123,7 +1123,7 @@ impl Drop for TempRunDir {
 /// byte: the prover takes its randomness from the OS (`ZkRng::from_os`) and
 /// this lane adds no seeded path.
 fn prove_to_dir_and_memory(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, owners: Endpoints, dir: &Path) -> Result<(DirSink, MemorySink, RunStats), String> {
-    let mut disk = DirSink::create(dir, st.rs.l)?;
+    let mut disk = DirSink::create(dir, st.rs().l())?;
     let mut mem = MemorySink::default();
     let stats = run::prove_run(st, blocks, src, owners, &mut |k, bytes| {
         mem.accept(k, bytes.clone())?;

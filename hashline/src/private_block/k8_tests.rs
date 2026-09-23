@@ -272,7 +272,7 @@ fn the_rung_k8_shape_is_the_eight_key_value_head_geometry_it_claims() {
         }
     }
     let rs = k8_run_shape(3);
-    assert_eq!(rs.profile, K8_RUN_PROFILE);
+    assert_eq!(rs.profile(), K8_RUN_PROFILE);
     for p in [run::RUN_PROFILE_RUNG_G, run::RUN_PROFILE_RUNG_K4, run::RUN_PROFILE_RUNG_P2, run::RUN_PROFILE_RUNG_C6, run::RUN_PROFILE_RUNG_W14, run::RUN_PROFILE_RUNG_E32, run::RUN_PROFILE_M125] {
         assert_ne!(p, K8_RUN_PROFILE, "two runs share a profile");
     }

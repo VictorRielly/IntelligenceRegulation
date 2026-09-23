@@ -1160,6 +1160,49 @@ impl Layout {
         self.io_mask_row[usize::from(outgoing)]
     }
 
+    /// **RULING CS-8 (security owner, 2026-09-23): is this the layout
+    /// [`Layout::for_shape`] derives for `sh`?** The ten row fields are
+    /// `pub` and read across the lane, so they stay visible and are
+    /// re-checked instead: `protocol::prove_core` and `protocol::verify_core`
+    /// take a layout from their CALLER, and stage 43 measured two `A` planes
+    /// with their row offsets swapped proved by the one and ACCEPTED by the
+    /// other. Refused, by name: a layout built for another shape, and a
+    /// layout whose row fields are not the ones `Layout::for_shape(sh)`
+    /// derives. Every private field is written only by `for_shape` (from
+    /// `self.sh`, compared here) and by [`Layout::with_io_mask_rows`] (a
+    /// run's per-stage schedule, which the run derives from its own
+    /// statement). It absorbs nothing, draws nothing and moves no byte; the
+    /// `Layout::for_shape` it re-runs derives the profile's hash tag from the
+    /// public profile string (its T-3 guard), exactly as every entry's own
+    /// call already does, and digests no statement.
+    pub(crate) fn check_is_for_shape(&self, sh: &super::shape::Shape) -> Result<(), String> {
+        const CS8_LAYOUT: &str = "private block: ruling CS-8 — the layout is not the one Layout::for_shape derives for the shape it is proved at";
+        if self.sh != *sh {
+            return Err(format!("{CS8_LAYOUT}: it was built for the shape {:?} ({}), the shape handed is {:?} ({})", self.sh.name, self.sh.profile, sh.name, sh.profile));
+        }
+        let fresh = Layout::for_shape(sh)?;
+        let differ: Vec<&str> = [
+            ("a_off", fresh.a_off != self.a_off),
+            ("a_data_rows", fresh.a_data_rows != self.a_data_rows),
+            ("a_mask_base", fresh.a_mask_base != self.a_mask_base),
+            ("a_prox", fresh.a_prox != self.a_prox),
+            ("a_rows", fresh.a_rows != self.a_rows),
+            ("h_off", fresh.h_off != self.h_off),
+            ("h_data_rows", fresh.h_data_rows != self.h_data_rows),
+            ("h_mask_base", fresh.h_mask_base != self.h_mask_base),
+            ("h_prox", fresh.h_prox != self.h_prox),
+            ("h_rows", fresh.h_rows != self.h_rows),
+        ]
+        .iter()
+        .filter(|(_, d)| *d)
+        .map(|(n, _)| *n)
+        .collect();
+        if !differ.is_empty() {
+            return Err(format!("{CS8_LAYOUT}: its {} differ from what Layout::for_shape derives", differ.join(", ")));
+        }
+        Ok(())
+    }
+
     // ---- what this layout was built from ----
     pub(crate) fn shape(&self) -> &super::shape::Shape {
         &self.sh

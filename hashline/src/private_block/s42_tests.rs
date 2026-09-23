@@ -22,7 +22,8 @@
 //! The literals of the two rulings' refusal texts are held here so that the
 //! tests could be run, and fail, before the production text existed. The
 //! one NOTE at the end (S42-N1) was written after the rulings were built: it
-//! measures what CS-7, as ruled, does not reach.
+//! measured what CS-7, as ruled, did not reach — and was deleted at stage 43,
+//! when ruling CS-8 made the struct literal it built stop compiling.
 //!
 //! **The cheating RUN prover.** To show what the VERIFIER does with the
 //! receipt the attack produces, the tests have to produce it — and since
@@ -177,7 +178,7 @@ fn forge(st: &RunStatement, b: &BlockPublic, w: Witness, owners: Endpoints) -> V
 /// the same forged receipt, written to a run directory
 fn forge_to_dir(st: &RunStatement, b: &BlockPublic, w: Witness, owners: Endpoints, dir: &Path) {
     let _cheat = protocol::CheatingProver::on();
-    let mut disk = DirSink::create(dir, st.rs.l).expect("the run directory sink");
+    let mut disk = DirSink::create(dir, st.rs().l()).expect("the run directory sink");
     run::prove_run(st, &[b.clone()], &mut Counting::new(w), owners, &mut |k, bytes| disk.accept(k, bytes)).expect("the cheating run prover proves the handed block into the directory");
 }
 
@@ -574,38 +575,14 @@ fn s42_cs7_a_statement_file_pairing_a_run_profile_with_another_block_shape_is_re
     run_statement_file::verify_from_disk(tmp.path()).expect("the restored statement verifies");
 }
 
-// ------------------------------------------------ a note, MEASURED for the security owner (not built)
+// ------------------------------------------------ note S42-N1: closed by ruling CS-8 (stage 43)
 
-/// **NOTE S42-N1 (measured, not built): CS-7 sits in the one constructor,
-/// and `RunShape`'s three fields are writable in the crate.** A struct
-/// literal `RunShape { sh, l, profile }` — or a write to a statement's
-/// visible `rs` field, which `s41_tests`' policy test uses — never passes
-/// through `RunShape::new`, so S41-N1's pairing (rung-G's run profile over
-/// the rung-K4 shape) still reaches `RunStatement::new`, the run prover and
-/// the run verifier that way, and the one-block run VERIFIES. No honest
-/// proof fails (the pairing travels in one struct, as stage 41 found), and
-/// no caller outside the tests builds a `RunShape` any other way. Closing it
-/// would be one of: re-running [`RunShape::new`]'s check where the run meets
-/// its shape (`RunStatement::new`, `prove_run`, `RunVerifier::start`, as
-/// CS-4 did for the endpoint policy), or making the fields private behind
-/// read accessors. Recorded, not built: ruling CS-7 names the constructor.
-#[test]
-fn s42_note_n1_a_run_shape_built_as_a_struct_literal_skips_cs7_and_its_run_verifies() {
-    let k4 = Shape::rung_k4();
-    let (att, ff, x) = super::dense_tests::dense_case(&k4);
-    let b = BlockPublic::new(att, ff);
-    let w = honest_witness(&k4, &b, &x);
-    let (expected, owners) = endpoints_with(&k4, &w);
-    assert!(RunShape::new(k4.clone(), 1, run::RUN_PROFILE_RUNG_G).is_err(), "the constructor admits the pairing: CS-7 is not built");
-    let rs = RunShape { sh: k4.clone(), l: 1, profile: run::RUN_PROFILE_RUNG_G };
-    let st = RunStatement::new(rs, ctx(), expected, &[b.clone()], &[(0, 0)]).expect("RunStatement::new admits a struct-literal run shape");
-    let mut segs: Vec<Vec<u8>> = Vec::new();
-    run::prove_run(&st, &[b.clone()], &mut Counting::new(w), owners, &mut |_, bytes| {
-        segs.push(bytes);
-        Ok(())
-    })
-    .expect("the run prover proves under a struct-literal run shape");
-    let r = run::verify_run(&st, &[b], &segs);
-    eprintln!("S42-N1 rung-G's run profile over the rung-K4 shape as a struct literal: RunStatement::new admits it, the run proves, and verifies: {r:?}");
-    assert!(r.is_ok(), "S42-N1's measured state changed: {r:?}");
-}
+// The note test that stood here, `s42_note_n1_a_run_shape_built_as_a_struct_literal_skips_cs7_and_its_run_verifies`,
+// built `RunShape { sh, l, profile }` as a struct literal (rung-G's run
+// profile over the rung-K4 shape) and measured the one-block run VERIFY
+// (`s42-after-focused.log`, stage 42). Ruling CS-8 made `RunShape`'s fields
+// and `RunStatement`'s `rs` private (stage 43), so the literal no longer
+// compiles outside `run.rs` and the test was deleted; its last run, with the
+// three other routes it stood for, is `s43-before-bypasses.log` (all four
+// ACCEPTED), and `s43_tests::s43_cs8_no_field_of_a_sealed_type_is_visible_outside_its_module`
+// pins the declarations.

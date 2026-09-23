@@ -512,8 +512,11 @@ fn s41_cs4_a_cross_shape_endpoint_policy_is_refused_by_name_wherever_it_meets_th
     let blk_g = BlockPublic::new(att_g, ff_g);
     let w = honest();
     let (expected_g, owners_g) = endpoints_with(&g, &k4, &w);
-    let mut st = RunStatement::new(RunShape::rung_g(1).expect("run shape"), ctx(), expected_g, &[blk_g], &[(0, 0)]).expect("a rung-G run statement with a rung-G policy");
-    st.rs = RunShape::rung_k4(1).expect("run shape");
+    // STAGE 43, ruling CS-8: the statement's run shape is private now; the
+    // test-only `with_run_shape` stands in for the field write this used
+    let st = RunStatement::new(RunShape::rung_g(1).expect("run shape"), ctx(), expected_g, &[blk_g], &[(0, 0)])
+        .expect("a rung-G run statement with a rung-G policy")
+        .with_run_shape(RunShape::rung_k4(1).expect("run shape"));
     let mut sunk = 0usize;
     let r = run::prove_run(&st, &[good.clone()], &mut OneWitness(Some(w)), owners_g, &mut |_, _| {
         sunk += 1;

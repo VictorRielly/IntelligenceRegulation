@@ -778,6 +778,9 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     let mut tick = Instant::now();
     let mut ph = timing::Phases::start();
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
+    // RULING CS-8: the shape is one `Shape::new` builds, before anything is
+    // derived from it
+    sh.check_constructed()?;
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
     // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
@@ -896,6 +899,12 @@ pub(crate) fn prove_core(
     tick: &mut std::time::Instant,
 ) -> Result<CoreProof, String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
+    // RULING CS-8, in the body every proving path shares: the shape is one
+    // `Shape::new` builds and the layout the CALLER hands is the one
+    // `Layout::for_shape` derives for it — nothing drawn, absorbed or
+    // committed for this block yet
+    sh.check_constructed()?;
+    lay.check_is_for_shape(sh)?;
     // RULINGS CS-1 and CS-4, in the body every proving path shares (the
     // single block's entry and the run's entry have made the same check
     // already): nothing has been drawn, absorbed or committed for this block
@@ -1176,6 +1185,10 @@ pub(crate) struct CoreView<'a> {
 /// pending boundary claim into stage `k + 1` without trusting a segment.
 pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreView, ntt: &NttTables, tr: &mut Transcript, ph: &mut timing::Phases) -> Result<([Vec<ZClaim>; 2], Vec<String>), String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
+    // RULING CS-8, in the body every verifying path shares: the shape and
+    // the layout the CALLER hands, before anything is absorbed or squeezed
+    sh.check_constructed()?;
+    lay.check_is_for_shape(sh)?;
     // RULINGS CS-1 and CS-4, in the body every verifying path shares (the
     // block's and the run's entries have made the same check already)
     blk.check_for_shape(sh)?;
@@ -1299,6 +1312,9 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     #[cfg(test)]
     super::capture::begin();
     let mut ph = timing::Phases::start();
+    // RULING CS-8: the shape the caller trusts is one `Shape::new` builds,
+    // before anything is derived from it
+    sh.check_constructed()?;
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
     // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,

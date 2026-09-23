@@ -313,6 +313,10 @@ mod s41_tests;
 // on stage 41's findings S41-N2 and S41-N1.
 #[cfg(test)]
 mod s42_tests;
+// STAGE 43: ruling CS-8 of the shaped refusal census disposition — one sweep
+// of the constructor-established invariants (census memo §12).
+#[cfg(test)]
+mod s43_tests;
 // REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
 // pre-read of stage 36): the reviewer's own tests of the observer hook and of
 // the endpoint replica's fidelity. NOT part of the lane's delta and not to be
@@ -849,6 +853,8 @@ impl IoSpec {
     /// owners are opened, anything is absorbed or anything is drawn. It reads
     /// public fields only and moves no byte.
     pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
+        // RULING CS-8 first: the one invariant of a spec that no shape keys
+        self.scales_are_the_approved_ones()?;
         let refuse = |what: String| -> Result<(), String> { Err(format!("{CS4_POLICY_REFUSAL}: {what}")) };
         if (self.t_pad, self.d_pad) != (sh.t_pad, sh.d_pad) {
             return refuse(format!("its padded endpoint plane is ({}, {}), this shape's is ({}, {})", self.t_pad, self.d_pad, sh.t_pad, sh.d_pad));
@@ -867,12 +873,39 @@ impl IoSpec {
         Ok(())
     }
 
+    /// **RULING CS-8 (security owner, 2026-09-23): the pinned scales,
+    /// re-checked.** [`IoSpec::new`] refuses any pair but
+    /// [`ENDPOINT_SCALES`] (D12 item 5), and ruling CS-4's check covers only
+    /// the fields a SHAPE keys. The fields are private to this module, which
+    /// is every file of the lane: stage 43 measured a spec with both scales
+    /// written to 3 — the endpoint owner committed under it, the toy block
+    /// proved and the verifier ACCEPTED. The spec stays where it is (moving
+    /// it into a module of its own would touch every test that builds a
+    /// policy), and the pin is re-run, by name, in [`IoSpec::check_for_shape`]
+    /// (every prover, verifier and run-statement entry) and in
+    /// [`IoSpec::validate`] (the endpoint owner's step). The context needs
+    /// no second check: a zero context is refused by the endpoint statement
+    /// constructors `validate` and the prover's owner check already build. It
+    /// reads two public fields and moves no byte.
+    fn scales_are_the_approved_ones(&self) -> Result<(), String> {
+        if (self.input_scale, self.output_scale) != ENDPOINT_SCALES {
+            return Err(format!(
+                "private block: ruling CS-8 — the endpoint policy's scales ({}, {}) are not the approved calibration's {ENDPOINT_SCALES:?}, which IoSpec::new pins (D12 item 5)",
+                self.input_scale, self.output_scale
+            ));
+        }
+        Ok(())
+    }
+
     /// **S11b.** Build whichever endpoint statements this spec carries, and
     /// check that their derived commitment geometry is the one the shape
     /// DECLARES. A shape whose `endpoint_rows` disagrees with what its own
     /// parameters give is refused here, at construction, instead of at the
     /// first proof.
     pub(crate) fn validate(&self) -> Result<(), String> {
+        // RULING CS-8: the endpoint owner's step (`prepare_endpoints`) and
+        // every other caller of this re-check the pinned scales first
+        self.scales_are_the_approved_ones()?;
         let rows = if self.general { self.endpoints_g()?[0].commitment_rows() } else { self.seams()?[0].len().div_ceil(1usize << self.endpoint_log_n) + endpoint_g::MASK_ROWS };
         if rows != self.endpoint_rows {
             return Err(format!("private block: this shape declares {} endpoint rows, its endpoint parameters give {rows}", self.endpoint_rows));
@@ -1139,6 +1172,8 @@ impl Receipt {
 pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
     #[cfg(test)]
     capture::begin();
+    // RULING CS-8: the shape the caller trusts is one `Shape::new` builds
+    sh.check_constructed()?;
     // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
     // before the frame is decoded against the statement's transcript header —
     // the verifier's first use of either

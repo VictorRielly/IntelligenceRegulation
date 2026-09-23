@@ -52,6 +52,9 @@ const F_E_MAX: u32 = 31;
 /// up to it the norm window derived from the 32767 bound holds every int16
 /// input (the 32768 bound); from 16,385 it can be one bit short (S40-N1).
 const WIDTH_MAX: usize = 16_384;
+/// **Ruling CS-8 (stage 43).** The prefix of [`Shape::check_constructed`]'s
+/// refusals.
+const CS8_SHAPE_REFUSAL: &str = "private block shape: ruling CS-8 — ";
 
 // the wire format's shape-independent counts (`wire.rs`)
 const WIRE_HEADER: usize = 8 + 32;
@@ -514,6 +517,63 @@ impl Shape {
             }
         }
         Ok(sh)
+    }
+
+    /// **RULING CS-8 (security owner, 2026-09-23; stage 42's note S42-N1 and
+    /// the sweep it asked for): is this value one [`Shape::new`] builds?**
+    /// `Shape`'s fields are readable everywhere in the crate — hundreds of
+    /// reads across the lane — so they stay visible, and a field write can
+    /// therefore skip every refusal above (stage 43 measured a rung-G shape
+    /// with its norm window written below the one it derives, ruling CS-2's
+    /// refusal, prove and VERIFY). So the invariant is re-checked instead of
+    /// sealed: `Shape::new` is run again on this value's own parameters (the
+    /// overridable windows and endpoint parameters passed as the overrides
+    /// they already are, which `Shape::new` returns unchanged) and the result
+    /// must equal this value, field for field. A value that passes is exactly
+    /// a value `Shape::new` could have returned. Called first at every
+    /// single-block entry and in the two shared bodies (`protocol.rs`,
+    /// `verify_bytes_at`); a run's shape is sealed inside `RunShape` and
+    /// compared with its registered shape by ruling CS-7. It computes no
+    /// digest, absorbs nothing, draws nothing and moves no byte.
+    pub(crate) fn check_constructed(&self) -> Result<(), String> {
+        let rebuilt = Shape::new(
+            self.name,
+            self.profile,
+            self.tokens,
+            self.width,
+            self.hidden,
+            self.q_heads,
+            self.head_dim,
+            self.kv_heads,
+            self.log_cols,
+            self.inv_rate,
+            self.f_e,
+            self.endpoint_rows,
+            Some(self.endpoint_log_n),
+            Some(self.endpoint_inv_rate),
+            Some(self.norm_wrho),
+            Some(self.wrho_s),
+        )
+        .map_err(|e| format!("{CS8_SHAPE_REFUSAL}{:?} is not a shape Shape::new builds: Shape::new refuses its own parameters ({e})", self.name))?;
+        if rebuilt == *self {
+            return Ok(());
+        }
+        // only the derived and pinned fields can differ: every other one was
+        // handed to `Shape::new` as it stands
+        let differ: Vec<&str> = [
+            ("opened_cols", rebuilt.opened_cols != self.opened_cols),
+            ("endpoint_general", rebuilt.endpoint_general != self.endpoint_general),
+            ("t_pad", rebuilt.t_pad != self.t_pad),
+            ("d_pad", rebuilt.d_pad != self.d_pad),
+            ("h_pad", rebuilt.h_pad != self.h_pad),
+            ("f_pad", rebuilt.f_pad != self.f_pad),
+            ("d_max", rebuilt.d_max != self.d_max),
+        ]
+        .iter()
+        .filter(|(_, d)| *d)
+        .map(|(n, _)| *n)
+        .collect();
+        Err(format!("{CS8_SHAPE_REFUSAL}{:?} is not a shape Shape::new builds: its {} differ from what Shape::new derives from its parameters", self.name, differ.join(", ")))
     }
 
     /// THE TOY, the only shape that proves anything today.
