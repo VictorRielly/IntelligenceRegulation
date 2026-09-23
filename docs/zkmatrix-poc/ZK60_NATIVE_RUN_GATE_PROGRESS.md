@@ -4986,11 +4986,11 @@ establishes a privacy property.
 |---|---|---|
 | K0 | ledger skeleton, round 9k opened | done (`c0d3777`) |
 | K1 | the prediction, written and committed BEFORE the control is run on any bundle | done -- this commit, R9k.2 |
-| K2 | the control in `block_controls` (model-only, no captured byte altered), its tests | open |
-| K3 | rung-G, both block bundles, the whole gate as round 9j ran it | open |
-| K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | open |
-| K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | open |
-| K6 | the suites (toy subset, record guard, whole native suite) | open |
+| K2 | the control in `block_controls` (model-only, no captured byte altered), its tests | done (`5680693`, tool bytes frozen there) |
+| K3 | rung-G, both block bundles, the whole gate as round 9j ran it | IN FLIGHT -- `results/zk60_native_run_gate_9k/run_rung_g.done` |
+| K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | IN FLIGHT -- `m125.done` |
+| K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | IN FLIGHT -- `refresh.done`, `repin_diff.done` |
+| K6 | the suites (toy subset, record guard, whole native suite) | IN FLIGHT -- `suite.done`, then `queue.finished` |
 | K7 | results, limits, NEXT | open |
 
 ## R9k.2 The prediction (written 2026-09-23 09:29 PDT, BEFORE the control ran on any bundle)
@@ -5075,3 +5075,21 @@ round 9j are not re-taken (no test guards their tool bytes; the everything
 pass is out of scope); the control runs at 125M through the staged driver's
 `load, replay, commitments, boundary, runcontrols` into two NEW records
 (estimated ~3 min, ~1.5 GB each from round 9j's stage clocks).
+
+## R9k.3 Commands and logs (round 9k)
+
+Evidence: `results/zk60_native_run_gate_9k/`. No systemd scope (no user bus
+on this box). The heavy steps run DETACHED (`setsid nohup bash queue.sh`),
+each under `flock /tmp/zk-heavy.lock`, each with a `.done` marker; the queue
+was launched at 09:36 PDT with the tool bytes frozen at `5680693`.
+
+| what | script | log / marker |
+|---|---|---|
+| the first run of the control, AFTER the prediction commit: a scratch probe on `rung-g-dense` (block controls only, 1.9 s, 98 MB) -- every figure of R9k.2's rung-G column came out as written; not a record | (scratchpad) | -- |
+| the committed bytes of the 30 records re-taken, before any re-take (all 30 equal the files on disk) | `before.sh` (`records.txt`) | `before/`, `before.log` |
+| the whole gate on both rung-G block bundles, round 9j's command lines, records in place | `run_rung_g.sh` | `run_rung_g.log`, `.done`, `time-block-rung-g-*.log` |
+| C3c at 125M, the staged driver's `load, replay, commitments, boundary, runcontrols`, two NEW records | `m125.sh` | `m125.log`, `.done`, `block-m125-{dense,zero}-c3c.json`, `time-*.log` |
+| the 28 RUN development records re-taken in place, round 9j's command lines less the toy-equivalence line | `refresh.sh` | `refresh.log`, `.done` |
+| what the re-take moved, leaf by leaf, strictly (E1 wall clocks, E2 the one tool hash, E7 C3c's new leaves in the two block records) | `repin_diff.py` | `repin_diff.json`, `repin_diff.log`, `.done` |
+| the toy subset, the record guard, the whole native suite | `suite.sh` | `suite.log`, `suite_{toy,guard,native_all}.log`, `.done` |
+| the whole queue | `queue.sh` | `queue.log`, `queue.finished` |
