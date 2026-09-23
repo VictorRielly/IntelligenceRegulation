@@ -1,0 +1,86 @@
+D22 condition-7 pre-read, shaped snapshot: hashline/src/private_block/protocol.rs
+main 4751b93 (d9455a10..., 481 lines) -> snapshot (ac412237..., 1211 lines); 12 hunks, +924 -194
+diff: diff/hashline__src__private_block__protocol.rs.main-4751b93.diff
+item view: items.py -> 11 identical, 15 CHANGED, 35 NEW, 1 REMOVED (part_key)
+
+Classes: (i) off the toy path | (ii) on the toy path, behaviour-identical (why given) | (iii) behaviour-changing = FINDING
+"toy" = Shape::toy() (shape.rs:431): T32 d16 f16, q_heads 2, head_dim 8, kv_heads 1, log_cols 8, inv_rate 8,
+opened_cols 256, f_e 9, endpoint_rows 7, endpoint_log_n = 8, endpoint_inv_rate = 8, endpoint_general false,
+t_pad 32, d_pad 16, h_pad 2, f_pad 16; profile TOY_PROFILE = main's PROFILE bytes
+b"hashline-zk-mr1/private-block-t32-poc/1"; hash_tag() = HashTag::legacy() (shape.rs:932-955).
+At the toy no domain is lifted by P-3 (every H-carrying domain's natural log >= 8 = log_cols; T=5, Ht=6
+carry no H planes), so sh.size(d) = Dom::len(), sh.log(d) = Dom::log() for all nine domains.
+HIds at the toy (layout.rs:514-541, computed): first_l 0, first_d 1, first_q 20, first_kv 27, first_s 33,
+sexp 40, first_f 41, fact 46, gu8 47 (47,48,49), u 50 = H_L, H_D0, H_Q0, H_KV0, H_S0, H_SEXP, H_F0,
+H_FACT, H_GU8/GEXP/GACT, H_U of main.  Ids.at is the identity at the toy (asserted in Layout::new).
+
+| hunk | enclosing item | what it is | class | why |
+|---|---|---|---|---|
+| H1 @@ -9,8 +9,14 @@ | use lines | +Shape, +timing::{self, Half}; PROFILE import dropped | (ii) | imports only; PROFILE replaced by sh.profile (same bytes at the toy) |
+| H2a @@ -18,43 +24,153 @@ | ntt_log_at, NTT_LOG_MAX, log2_exact, fits_the_ntt_tables (NEW) | NTT table size as a function of the shape; capability refusal | (ii) | toy: max(8+3, 12) = 12 = main's NttTables::new(12); fits: 12 and 8+3 = 11 <= 20, never refuses the toy |
+| H2b | pcs_params_at (NEW), pcs_params | params from the shape | (ii) | pcs_params_at(toy) = {log_cols 8, inv_rate 8, num_col_checks 256} = main's literal |
+| H2c | endpoint_pcs_params (NEW) | endpoint params from the shape | (ii) | toy = {8, 8, 256} = the `params` main used for the endpoint verify_zk calls |
+| H2d | tagged_transcript (NEW) | chooses Transcript::new / new_tagged by sh.hash_tag() | (ii) | toy is legacy -> Transcript::new(domain), the old constructor |
+| H2e | transcript | Transcript::new(PROFILE) -> tagged_transcript(sh, sh.profile); parameters literal -> parameter_line(sh) | (ii) | same domain bytes; parameter_line(toy) returns `base`, reconstructed by script = the frozen literal byte for byte (T32/d16/f16/H2/KV1/dh8/log_cols8/inv_rate8/Q256/P1/sh-g7-u0-h14-z6/...; SH_G 7, SH_H_PROD 14, SH_Z 6 at layout.rs:78-80); absorb labels and order unchanged (expected-IO, public-statement, parameters, calibration, schedule). ExpectedIo::to_bytes is byte-identical text (private_block.rs:783 vs main :338). schedule_digest is layout.rs's describe(): toy branch keeps the legacy tag "private-block-t32/1" and the same numbers (norm_wrho 29, f_e 9, wrho_s 14, groups 35/9) - owed to the layout.rs reading |
+| H2f | parameter_line (NEW) | "parameters" word as a function of the shape; endpoint suffix for non-toy | (ii)/(i) | toy returns before the suffix (is_frozen_toy); the suffix is non-toy only |
+| H2g | absorb_root, commitment | gain a log_cols argument | (ii) | every toy caller passes sh.log_cols = 8 = LOG_N (endpoint commitment: sh.endpoint_log_n = 8) |
+| H2h | logup_sum_claim | h_is_table/h_dom(p).log()/N_H -> hids.is_table/sh.log(hids.dom(p))/hids.n_h() | (ii) | at the toy hids.is_table = {47,48,49} = {H_GU8,H_GEXP,H_GACT}; hids.dom(p) = h_dom(p) (freeze gate) and sh.log = Dom::log (no lift); same parts in the same order (lane test grow_tests.rs:113 compares part for part) |
+| H3 @@ -63,17 +179,42 @@ | part_key -> PartKey, part_key_at (NEW), opening_groups_at (NEW), part_rows | row width as a parameter; grouping loop moved out of check_opening | (ii) | log_n = 8, n = 256 = LOG_N, N at every toy call; opening_groups_at is main's loop verbatim (same first-occurrence order, same refusal string) |
+| H4 @@ -86,7 +227,7 @@ | audit_claims | gains `n` | (ii) | n = 1 << 8 = N |
+| H5 @@ -96,7 +237,7 @@ | audit_claims | part_rows(part, n) | (ii) | same |
+| H6 @@ -110,7 +251,7 @@ | audit_claims | part_rows(p, n) in the sum-claim cover test | (ii) | same |
+| H7 @@ -152,20 +293,11 @@ | check_opening | gains log_n; audit n = 1<<log_n; grouping via opening_groups_at | (ii) | callers pass sh.log_cols = 8 and sh.a_groups() = 35 / sh.h_groups() = 9 = A_GROUPS / H_GROUPS (asserted by Layout::new's freeze gate); refusal replay still a clone_state (no transcript mutation) |
+| H8a @@ -183,47 +315,156 @@ | ENDPOINT_MASK_ROWS, endpoint_geometry (NEW) | (rows, data, prox) from sh.endpoint_rows | (ii) | toy: (7, 2, 4) = main's ENDPOINT_ROWS / 2 data rows / ENDPOINT_PROX; the added "frozen endpoint geometry moved" refusal is unreachable at the toy |
+| H8b | check_endpoint_opening | geometry and row width from the shape | (ii) | toy: part_rows ranges (0..2), (2..3), (3..4) at n = 2^8 = 256; check_opening_challenges(&[1], 7, 4) = main's call |
+| H8c | lookup_values -> lookup_values_at (NEW), LOOKUP_PAR_MIN | length from sh.size(dom); lookups from lay.lookups (lookups_at); rayon above 2^17 words | (ii) | sh.size(dom) = dom.len() at the toy; largest toy product lks*len = 13*2048 = 26,624 < 131,072 so the serial branch runs (and the parallel one is indexed); lookups_at(toy) = lookups(dom) is owed to the layout.rs reading |
+| H8d | HISTOGRAM_PAR_MIN, byte_histogram_at (NEW) | the byte histogram extracted | (ii) | toy lookup_words = 1,024+19,456+4,608+6,656+3,072+26,624 = 61,440 (main's header figure) < 2^17 -> serial branch = main's loop; U8_LEN = N = 256, same bucket-0 rule; integer sums either way |
+| H8e | act_indices | ids.at(A_G8) | (ii) | Ids identity at the toy |
+| H8f | exp_deltas | h_pad*t_pad^2, t_pad, ids.at(A_S8/A_MX) | (ii) | 2*32*32 = H*T*T; t_pad 32 = T; identity ids |
+| H9a @@ -231,6 +472,162 @@ | ZERO_DENOMINATOR, u8_denominator_inverses, helper_inverses_u8(_at), HELPER_PAR_MIN, helper_one, helper_pair_inverses_u8(_at) (NEW) | byte-table LogUp inverses computed once per proof, looked up per word | (ii) | same words (unique field inverse; x+y is placement-free); refusal iff a USED looked value has a zero denominator = main's rule, because at the toy every looked column is used (cols per domain L2 D38 F9 Q13 Kv12 S13 -> helpers 1,19,5,7,6,7 = ceil(cols/2), main layout.rs:371); identical refusal string; no draw and no absorb between alpha and these lines in either version; column lengths <= 2048 < 2^14 -> serial branch |
+| H9b | MOVED_MULTIPLICITY, set_moved_multiplicity, moved_multiplicity | test-only prover hook | (i) | #[cfg(test)] throughout; both injection points in prove_core are #[cfg(test)] |
+| H10 @@ -240,14 +637,14 @@ | check_endpoints | endpoint_geometry then spec.into_committed(endpoints) | (ii) | toy: endpoint_geometry Ok; into_committed (private_block.rs:748) takes the Frozen/Frozen arm = seams() then into_ffn_endpoint(si), into_ffn_endpoint(so), main's order; rows 7 = ENDPOINT_ROWS. The new refusal for owners of the wrong construction is unreachable with toy owners. Owners still consumed on every exit (by-value parameter) |
+| H11a @@ -255,76 +652,227 @@ | prove_inner | now `prove_inner_at(&Shape::toy(), ..)`; witness BY VALUE | (ii) | memory only: the witness buffers are dropped earlier (S2), no value changes |
+| H11b | prove_inner_at (NEW) | setup, RNG, transcript, prove_core, endpoint openings | (ii) | toy: fits (no refusal); Layout::for_shape(toy) (the value Layout::new returns); check_endpoints; ZkRng::from_os(single_block_seed_domain(toy)) = from_os(TOY_PROFILE bytes) (hash_domain.rs:240-243 returns the bare profile for legacy-rule profiles) = main's from_os(PROFILE); NttTables::new(12); transcript; endpoint IN then OUT: check_endpoint_opening, open_zk, drop - same order as main. NOTE: the witness-shape refusal moved from BEFORE from_os to inside prove_core (after from_os and the transcript header) - same Err string, nothing published, one discarded OS read on a malformed witness (witness::build never produces one) |
+| H11c | lap (NEW fn, was a closure) | phase list | (ii) | same five names in the same places; stats only |
+| H11d | CoreProof (NEW) | carrier struct | (ii) | no behaviour |
+| H11e/H12a @@ -333,148 +881,330 @@ | prove_core (NEW) | the A / M / LogUp / H / slots / M, A, H openings body | (ii) | line by line vs main: witness check; A planes; looked; m_u8 (byte_histogram_at); deltas; m_exp; act_idx; m_act (U8_LEN = N); histograms written; [cfg(test) hook]; A mask rows rng.fp() over a_data[a_mask_base*256..] (242 rows); commit_zk_owned_tagged(legacy) = commit_zk_owned (tagged twin, pads then salts, backend offered as before); mask_rows / prox; absorb_root A (log 8); mask_commit_tagged(lay.mask_specs(), legacy) = mask_commit(&mask_specs()) (twin; lay.mask_specs() = mask_specs() since lay.slots = SLOTS by the freeze gate); absorb M; beta, gamma, alpha; g_*; helper columns (H9a); exp and act helpers at hids.sexp()/fact() = 40/46; S2 drops (memory only); table helpers at [47,48,49] with the same table_values_*; H mask rows rng.fp() then the two u rows (255 draws each, last = -sum); commit_zk_owned_tagged(H, legacy); absorb_root H; argument(.., tr, ph) [argument.rs reading]; mask_open; check_opening/open A; check_opening/open H. Same draws, same order, same absorbs/squeezes |
+| H12b | CoreView (NEW), verify_core (NEW) | the verifying body | (ii) for every honest receipt | same absorbs/squeezes as main's verify_inner: A root/rows/log-cols, M, beta/gamma/alpha, H root/rows/log-cols, argument, mask_verify_tagged(legacy) = mask_verify, check_opening A, verify_zk_tagged(legacy) A, check_opening H, verify_zk_tagged(legacy) H. ADDED: T-4 path-length refusals (paths_are_the_tree_depth x2, mask_paths_are_the_tree_depth, and verify_zk_tagged's own) - REDUNDANT at the toy: main's wire::validate (run first in main's verify_inner) already required every opened column's path to be PATH = 11 (A, H, endpoints) and MASK_PATH = 12 (M); tree_depth(toy) = log2(2048) = 11. Accept set unchanged; only the refusal TEXT/ORDER for a malformed-path receipt differs. cfg(test) capture / run_capture hooks (i). ph marks write-only |
+| H12c | verify_inner, verify_inner_at (NEW) | toy wrapper; setup, T-4, wire, spec, endpoints | (ii) for every honest receipt | receipt_paths_are_the_tree_depth before wire::validate (redundant, see H12b); expected.spec.validate() replaces spec.seams(): it calls seams() and adds rows == endpoint_rows (512/256 + 5 = 7 = 7 at the toy); ntt 12; transcript; endpoints: check_endpoint_opening then verify_zk_tagged(e_params {8,8,256}, commitment(root, 7, 8), legacy) = main's verify_zk(params, commitment(root, ENDPOINT_ROWS)) |
+
+Counts by class: (i) 2 sub-hunks (H9b, the test hooks inside H12b/H12c counted there); (ii) every other sub-hunk
+(34 of 36 sub-hunk rows above; H2f is (ii) for its toy branch and (i) for its suffix); (iii) 0.
+
+TOY PROVER (vs main, line by line): RNG = ZkRng::from_os with the same domain bytes; draws in the same
+order and count - A mask/prox rows (242*256 fp), A commit (455*256 pads, 2048 salts), M (mask_commit
+order via the legacy twin), H mask rows (104*256 fp), the two u rows (2*255 fp), H commit (384*256 pads,
+2048 salts). Transcript: legacy Transcript::new, same header absorbs incl. the frozen parameter literal,
+A/M/challenges/H/argument/M-open/A-open/H-open/IN-open/OUT-open in main's order; refusal replays are
+clone_state copies. Hash rule legacy everywhere (tagged twins with HashTag::legacy() = the legacy bodies).
+Commitment order A, M, H (endpoints committed earlier by the caller); opening order M, A, H, IN, OUT.
+
+TOY VERIFIER: same transcript sequence; accept set unchanged on every receipt main's wire::validate
+admitted; the added T-4 checks are redundant with main's fixed PATH/MASK_PATH frame check, and
+spec.validate() adds a rows check the toy spec satisfies. Only refusal text/order moves for malformed
+receipts.
+
+OBSERVATIONS (not findings against protocol.rs):
+O-1 Layout::new()'s toy freeze-gate assertions (layout.rs:1032-1055) are no longer executed by
+    prove_inner/verify_inner, which call Layout::for_shape(&Shape::toy()) (protocol.rs:676, :1171). They
+    still run on Receipt::to_bytes/from_bytes, encoded_len and schedule() (private_block.rs:929-983), so an
+    encoded toy receipt still passes through them; the proving call itself no longer does.
+O-2 protocol.rs now reaches four production files the D22 pin set does not contain: shape.rs (Shape::toy,
+    hash_tag, size/log, a_groups/h_groups, helpers), hash_domain.rs (single_block_seed_domain, the T-4
+    checks), timing.rs (the phase clock), and zkp-core/src/hashtag.rs (through the tagged twins).
+O-3 timing.rs (the ph.mark recorder): records only static labels, durations, RSS/HWM and public sizes
+    (rows, words, lookup_words = a shape count); inert unless HL_PB_TIMING=1 (a production env switch; prints
+    to stdout; a timing channel, out of scope by D20/D21). Nothing it records is private.
+O-4 OUTSIDE THIS FILE, recommended as a finding for the argument.rs / timing.rs reading: the stage-29
+    base-field census (argument.rs:502-520 -> timing.rs:342-391), switched on by the PRODUCTION env var
+    HL_PB_BASEFIELD (not cfg(test)), prints per-table counts of words with c1 == 0. In slot 19 (SC_TAB,
+    argument.rs:1782-1797) three of the tables are the table-helper H planes, whose entry is inv * m and is
+    therefore ZERO exactly where the private multiplicity m is zero; so the printed "base-field words"
+    count and the "mixed tables" list reveal how many byte / exp / activation table entries the hidden
+    witness never uses. timing.rs:334-337's claim that the count "is decided by the SHAPE of the table, not
+    by the data" is false for those planes. It is operator-gated, prints to the prover's stdout only and
+    never enters a receipt (the capture runners strip HL_*), but it is a statistic computed from the hidden
+    input written to a log.

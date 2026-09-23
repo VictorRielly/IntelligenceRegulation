@@ -1,0 +1,135 @@
+D22 condition-7 pre-read, shaped snapshot: hashline/src/private_block/argument.rs
+main 4751b93 (e62f46c2..., 930 lines) -> snapshot (f7fa2ad4..., 1882 lines = lane fee1a8d)
+diff: diff/hashline__src__private_block__argument.rs.main-4751b93.diff (25 hunks, +1208 -256)
+items.py: 25 identical, 25 CHANGED, 31 NEW, 0 REMOVED.
+Method: both files read whole; every changed/new item compared with its main text at
+Shape::toy() = ("toy", TOY_PROFILE, T 32, d 16, f 16, 2 q-heads of 8, 1 kv-head,
+log_cols 8, inv_rate 8, f_e 9, endpoint_rows 7).
+
+Classes: (i) off the toy path  (ii) on the toy path, behaviour-identical  (iii) FINDING.
+
+TOY FACTS every (ii) below rests on (each checked in the snapshot, not assumed):
+ T1 axis logs: lt=lg(t_pad)=5, lh=1, ldh=3, ld=4, lf=4, lkv=lg(kv_heads)=0.
+ T2 sh.log(dom) == main's Dom::log for all nine domains: natural logs T5 Ht6 L9 D9 Q9 Kv8
+    S11 F9 Tab8; the P-3 lift (domain_log_at) only raises an H-carrying domain BELOW
+    log_cols=8, and none is. Dom::log itself = domain_log_at(natural, .., LOG_N=8) = same.
+ T3 limbs: norm_wrho = 11+1+bits(isqrt(1+16*32767^2)=131068)=29 -> limbs_norm 4 (top not
+    full -> scaled lookup kept, scale 1<<(32-29)=8 = main's 1<<(32-NORM_WRHO));
+    wrho_s = 5+9 = 14 -> limbs_sigma_s 2 (scale 4); limbs_p = ceil(10/8) = 2 (scale 64).
+ T4 sh.helpers: L 1, D 19, Q 7, Kv 6, S 7, F 5 = main's layout::helpers(dom).1 and the
+    unchanged H_* constants (H_L 0, H_D0 1, H_Q0 20, H_KV0 27, H_S0 33, H_SEXP 40,
+    H_F0 41, H_FACT 46, H_GU8..H_GACT 47..49, H_U 50); HIds::new builds exactly these.
+ T5 Layout::new (toy) asserts: ids.at(p) == p for all N_A planes, ids.dom == a_dom,
+    hids.dom == h_dom, n_h == N_H, a_sites == A_SITES, h_sites == H_SITES, slots == SLOTS,
+    n == N; A_SITES/H_SITES/SLOTS/SLOT_KINDS/HOSTS/N_FUNCTIONALS are byte-identical to main
+    (items.py on layout.rs). Ids::nr/ns/mr/ms/pl/sr/sg are map[A_X0]+k: at the toy
+    12+k, 16+k, 28+k, 32+k, 61+k, 63+k, 65+k = A_NR0.., A_NS0.., ..., A_SG0.. (constants read).
+ T6 pad rule: Shape::carries_pad_rule() = !is_frozen_toy() = false, so
+    pad::zero_rule_a_planes/zero_rule_h_planes return [] and B::supp returns Ok(None):
+    pad_on = false and n_pad = 0 in every slot -> no zeta, no mu_pad, no extra mu entry,
+    no support table, PadTerm::none().eval(v) = mu(0)*0 = 0, Gate(None).at(v) = ONE.
+ T7 io_mask_row = endpoint_rows - endpoint_g::MASK_ROWS = 7 - 5 = 2 for both sides of any
+    single-block Layout (only a RUN stage calls with_io_mask_rows).
+ T8 lay.lookups(dom) = lookups_at(toy, Ids::toy(), dom) reproduces main's literal
+    layout::lookups list entry for entry (compared by reading both at T3/T5).
+ T9 field arithmetic is exact with canonical representatives (zkp-core field.rs, pinned
+    and unchanged): any algebraically equal rewrite of a closure returns the same Fp2
+    word; x.mul(c) == x.mul_base(c.c0) when c.c1 == 0 ((a c0 + 7 b*0, a*0 + b c0)).
+
+hunk (old -> new)        | enclosing item                        | what                                                        | class | why
+-------------------------|---------------------------------------|-------------------------------------------------------------|-------|-----
+ 1 @@ -22,6 +22,7        | module uses                           | `use super::shape::Shape`                                   | ii    | import only
+ 2 @@ -79,6 +80,11       | struct SlotDef                        | new field `sh: Shape` (the slot's schedule source)          | ii    | = lay.shape().clone() = Shape::toy(); its slots() == SLOTS (T5)
+ 3 @@ -146,6 +152,22      | impl Points (new)                     | p_s()/p_o() accessors                                       | i     | whole impl #[cfg(test)]
+ 4 @@ -161,7 +183,25      | fn priv_table (doc, signature)        | stage-28 doc; visibility pub(super)                         | ii    | no code
+ 5a @@ -171,58 +211,169    | fn priv_table (body)                  | half-index maps; plain store when no fixed coord; from_base  | ii    | PROVER-only table of private data, no draw/absorb. Same word per entry: coordinate j reads bit log-1-j of idx in both halves; z = (z_hi << fixed_lo) | z_lo = main's z; from_base(d) = ZERO+ONE*d; plain store only when eqf==[1] and no k repeats (idx->x injective, so main's add-to-ZERO wrote each x once); broadcast skipped only when `used` is the full mask (then it copied x onto itself)
+ 5b   (same hunk)          | fn table_of, Eq arm; fn eq_cube (new) | repeat-and-double instead of per-entry gather                | ii    | entry x = e[(x>>shift)&(2^bits-1)] in both; new assert start+|point|<=n_vars is a PUBLIC schedule precondition every toy triple meets (a panic, not a refusal, on a violated one)
+ 5c   (same hunk)          | table_of_taking, TABLES_PAR_MIN, build_tables_at (new) | Pub tables MOVED not cloned; parallel above 2^17 words | ii | indexed rayon collect keeps table order; values identical; nothing reads a moved Pub payload on the prove side (only Tab::Priv is read after the build)
+ 5d   (same hunk)          | fn row_log (new); mask_eval(sh,..); build_claim(sh,..) | reserved-pair row width from the commitment        | ii    | A/H: sh.log_cols = 8; In/Out: sh.endpoint_log_n = 8 (None -> log_cols); both = main's LOG_N; n = 256 = N
+ 6a @@ -230,43 +381,94    | fn build_claim                        | `N` -> local `n`                                            | ii    | 256 at the toy (5d)
+ 6b   (same hunk)          | fn total -> total_at, TOTAL_PAR_MIN   | chunked rayon sum above 2^14                                | ii    | exact field sum; toy cubes <= 2^11 so the serial `part(0,len)` IS main's loop
+ 6c   (same hunk)          | fn sum_weights(sh, slot)              | (n,e,d) from sh.slots()                                     | ii    | == SLOTS (T5)
+ 6d   (same hunk)          | fn run_slot, head                     | `mut def`; (n,ext,degree)=sh.slots()[s]; sh.slot_terms()[s]| ii    | == SLOTS / slot_terms (T5: slot_terms = a_sites+h_sites+io from claim_sites, asserted == A_SITES/H_SITES)
+ 6e   (same hunk)          | fn run_slot, head                     | NEW refusal "slot {s} public table length" before `pb-slot`| ii    | stricter refusal (both sides) of a public table not 2^n long; tables are schedule-built, never frame-chosen; no toy honest table trips it; no absorb/draw moves on an accepted run
+ 6f   (same hunk)          | fn run_slot, head                     | run_capture::checkpoint                                     | i     | #[cfg(test)]
+ 7a @@ -277,36 +479,73    | run_slot, Side::Prove                 | timing::slot_step wrappers (tables, claimed sum, masked_prove, extensions) | ii | HL_PB_TIMING unset: slot_step is `f()` (timing.rs:295); set: prints label, seconds, PUBLIC size. Closures run once, in order, on the same `tr`; timing is out of scope (D20/D21)
+ 7b   (same hunk)          | run_slot, Side::Prove                 | build_tables_at(&mut def.tabs, ..)                          | ii    | as 5c
+ 7c   (same hunk)          | run_slot, Side::Prove, lines 502-520  | HL_PB_BASEFIELD base-field census (timing::base_field_census) | iii (FINDING A1; receipt-neutral) | writes/absorbs/draws nothing, so the receipt and transcript are unchanged; but it PRINTS (println!, prover stdout) per-table counts of words with c1 == 0 computed over the PRIVATE tables. For a Priv table with Fixed coordinates the entry is sum_z eqf[z]*d, whose imaginary part is zero (w.p. 1-1/p) iff every contributing hidden integer is zero, so the count is a function of the hidden activations (e.g. SC_QMM's A_Y table: the number of all-zero columns of y). timing.rs:332-337 claims the answer "is decided by the SHAPE of the table, not by the data" -- false for fixed-coordinate tables. Off by default; captures strip HL_*
+ 7d   (same hunk)          | run_slot, Side::Prove                 | mask_eval(&sh, ..)                                          | ii    | 5d
+ 8 @@ -354,7 +593,7      | run_slot, claims loop                 | build_claim(&sh, ..)                                        | ii    | 5d; claim list, order and reserved pairs unchanged
+ 9 @@ -362,12 +601,12     | run_slot, M functionals               | sum_weights(&sh, ..) x3                                     | ii    | 6c; declared order unchanged: Standalone Gamma_s then eval_s; Host -> host_fs; eval_s for every slot; hosts appended last in argument(); count check vs N_FUNCTIONALS (34) unchanged
+10 @@ -379,6 +618,7      | run_slot, tail                        | run_capture::slot                                           | i     | #[cfg(test)]
+11 @@ -391,6 +631,11     | struct B                              | field `shaped`                                              | ii    | bookkeeping map
+12 @@ -405,7 +650,7      | B::new                                | init `shaped`                                               | ii    | —
+13 @@ -413,6 +658,20     | B::group_eq (new)                     | eq(r_g) over the kv-group bits                              | ii    | r_g = r_h[..lkv] is EMPTY at the toy (lkv 0) -> None: no table, no transcript byte
+14a @@ -422,38 +681,149  | B::a_log/a_at/a                       | plane log from sh.log(ids.dom(p))                           | ii    | T2 + T5 (== a_dom(p).log())
+14b   (same hunk)          | B::a_range                            | pushes SHAPED planes, returns toy-indexed map               | ii    | ids.at is the identity (T5): same planes pushed in the same order, idx == shaped on [first..=last]
+14c   (same hunk)          | B::tab (new)                          | read shaped[p]                                              | ii    | read-only, no push
+14d   (same hunk)          | B::h                                  | log from hids.dom(plane)                                    | ii    | == h_dom(plane) (T5)
+14e   (same hunk)          | B::endpoint                           | log sh.log(Dom::D), mask_row lay.io_mask_row(..)            | ii    | 9 and 2 = main's literals (T2, T7)
+14f   (same hunk)          | B::supp (new)                         | pad-rule support table                                      | ii    | Ok(None) at the toy (T6): no table, no challenge
+14g   (same hunk)          | B::finish                             | SlotDef.sh = lay.shape().clone()                            | ii    | hunk 2
+14h   (same hunk)          | tile_rep, tab_group_is_declared (new) | pad-rule refusals                                           | i     | only reached with supp Some / pad_on (T6)
+14i   (same hunk)          | lg (new), limbs (new)                 | log2 helper; byte-limb fold                                 | ii / i| lg feeds T1; `limbs` has no production caller (s35_tests has its own copy)
+15 @@ -463,10 +833,20     | fn lk_tables                          | resolves plane ids through `shaped`                         | ii    | shaped == toy ids (T5) and lay.lookups == main's list (T8)
+16 @@ -489,6 +869,81     | PadTerm, Gate (new)                   | pad-zero term; support gate                                 | ii    | at the toy every use is `+ PadTerm::none().eval(v)` = +0 and `Gate(None).at(v)` = x ONE (T6, T9)
+17a @@ -500,30 +955,102  | fn causal_mask                        | doc only                                                    | ii    | body unchanged
+17b   (same hunk)          | causal_mask_at (new)                  | mask over size(Dom::S)                                      | ii    | toy size 2048 = H*T*T, t = t_pad = 32 = T: same formula, same table
+17c   (same hunk)          | rope_tables_at (new)                  | RoPE tables on the padded stride                            | ii    | toy: heads = h_pad 2 (Q) / kv_heads 1 (Kv), every x live (h_pad == q_heads, t < 32), t = x/(dh*heads), i = x%dh: entry-for-entry main's rope_tables(public, H|1)
+17d   (same hunk)          | rope_tables(sh, ..)                   | signature takes `sh`                                        | i     | no longer called by define(); only callers are parity.rs (#[cfg(test)] module)
+17e   (same hunk)          | table_values_u8 -> _u8_at             | i % U8_LEN                                                  | ii    | len = Dom::Tab.len() = 256 = U8_LEN: i % 256 = i
+18a @@ -531,34 +1058,89  | table_values_exp/act -> _at           | x % U8_LEN                                                  | ii    | same, 256 entries
+18b   (same hunk)          | fn define, preamble                   | sh/ids/hids, axis logs, pad_doms, cube, n_pad               | ii    | pure functions of the shape; pad_doms = [] (T6)
+18c   (same hunk)          | define: SC_SS, SC_SSM                 | challenge_fp2_vec(lt), a(ids.at(A_X|A_X1)), Gate           | ii    | draws 5 (= main), same tables, poly ONE*v0*v1*v1 = v0*v1*v1
+19 @@ -567,69 +1149,115    | define: SC_TZC, SC_LZC, SC_RS, SC_QMM head | shaped draw lengths, pad hooks                        | ii    | TZC: tau 5, mu 6+0, nu 2, no zeta; limb slices log 5; poly + 0, hosts x ONE. LZC: tau sh.log(L)=9, no mu_pad/zeta, lk_tables(shaped), mu = [ONE; helpers(L)=1] = main's [ONE]. RS: p_ht 6, lam_z 1, causal_mask_at, x ONE. QMM: r_q 5
+20 @@ -638,32 +1266,106    | define: QMM/KMM/VMM/WO; SC_SCORE; SC_PV | kv width; stage-20 group-sum repair                     | ii    | kvw = 1*8 = KV, outer 16 = D, r_j lg(outer) = trailing_zeros, coords rho(0..ld=4), fold width d_pad 16. SCORE/PV at lkv 0: no group eq, degree unchanged (Shape::slots adds it only if lkv>0), draws r_h 1, r_t 5, r_j 5 | r_i 3, cq = Fixed(r_t,r_h)+Rho(0..3), ck = Fixed(r_j)+Rho(0..3), cp = Fixed(r_h,r_t)+Rho(0..5), cv = Rho(0..5)+Fixed(r_i), ext rounds 0/1, tables at 0/1, poly ONE*v0*v1
+21 @@ -673,18 +1375,18    | define: GMM/UMM/DMM                   | shaped widths                                               | ii    | r_tf 5, r_td 5, r_j lf|ld = 4, rows/cols d_pad/f_pad = 16/16 = D/F, coords rho(0..4)
+22 @@ -697,76 +1399,182    | define: SC_DZC; SC_FZC head           | shaped draws; stage-35 closure rewrite; s35 cfg(test)       | ii (+ i for the s35 block) | DZC: tau 9, mu 11+19+0, nu 2; gamma vectors over size(D)=512 at x % 16 = main's T*D, x % D; limb groups via ids.nr/ns/mr/ms (T5); closure: mul_base for zero-imaginary constants, k_den*d formed once, the ONE gate hoisted -- exact field identities (T9), same element. FZC: tau 9, mu 4+5+0, nu 2
+23 @@ -775,47 +1583,67    | define: SC_FZC rest; SC_QZC/SC_KVZC   | hids ids; reordered zc; rope_tables_at; flip at log-ldh     | ii    | i_fact = hids.fact() = 46; zc = helper + mu3*f_act + 0 + sum mu_i*ONE*f_i = main's sum (T9). QZC/KVZC: log 9|8, mu 1+7|6+0, nu 2; public tables per 17c; flip at log-3; iflip, helpers as main
+24 @@ -824,86 +1652,197    | QZC closure; SC_SZC; SC_TAB; SC_ZS; SC_IO | shaped ids/limbs; stage-35 rewrite; s35 cfg(test)        | ii (+ i for s35) | QZC: mu0*ONE*rope + helpers + 0. SZC: tau 11, mu 5+7+1+0, nu 2; per_row = 2048/64 = 32 = T; a_range(A_S8, ids.sg(1)=A_SG1); lht 6; ihx = hids.sexp() = 40; lb folds = main's l2 forms. TAB: tab_len 256, tau 8, mu 3+0, th = [47,48,49]. ZS: size(Tab) 256, hids.u() = 50. IO: tau sh.log(D) = 9, ids.at identity
+25 @@ -912,14 +1851,27     | fn argument                           | `ph: &mut Phases` + ph.slot(..); run_capture::start_slot    | ii (+ i) | ph is write-only (records only with HL_PB_TIMING=1, public cube size); run_capture #[cfg(test)]
+
+Counts, by entry: (i) 8 [3, 6f, 10, 14h, 14i(limbs), 17d, and the s35 cfg(test) blocks in 22/24,
+25's run_capture] ; (ii) 40 ; (iii) 1 (7c). By HUNK: 2 hunks wholly (i) [3, 10]; 22 hunks
+behaviour-identical at the toy, some with (i) parts; 1 hunk (7 = @@ -277,36) carries the
+finding, and it moves no receipt byte.
+
+TOY TRANSCRIPT / DRAW / FUNCTIONAL ORDER -- unchanged.
+ * absorbs per slot, in order: `pb-slot`, challenge c (zero -> the same refusal text),
+   `pb-scalar`, masked rounds (zk.rs masked_prove / extension, both byte-identical in zk.rs),
+   `pb-term`; the degenerate-terminal refusal unchanged. No absorb label or order moved.
+ * define's challenge draws: every length equals main's literal (T1, T2, T4) and no new draw
+   is taken at the toy (zeta / mu_pad / group eq all gated off, T6 and hunk 13).
+ * RNG: argument.rs draws nothing (it holds no ZkRng); masks come from ProverData.
+ * sumcheck degree / rounds = SLOTS (T5), so d+1 values per round as before (zk.rs).
+ * mask functionals: same pushes in the same order; 34 at the toy (N_FUNCTIONALS check).
+ * claim sites: same B pushes in the same order; reserved pairs from lay.a_site/h_site
+   (layout.rs -- the layout reader's file) at row width 256. audit_claims is in
+   protocol.rs, not here.
+ * tables of private data: built in fresh Vecs per slot; no pooled or retained buffer; only
+   the census (7c) reads them for anything other than the proof.
+
+PYTHON PORTS.
+ * zk60_native_terminal_polys.py (pb00..pb22 closures, a_range/lk_tables/helper_sum):
+   still describes the snapshot at the toy -- every closure is equal as a field element
+   (T6: the gate is ONE and the pad term 0; T9: the stage-35 rewrites are exact identities);
+   push orders assumed by the port (e.g. SCORE/PV tables 0/1, DZC ig/igm 3/4, SZC im 3)
+   are unchanged because no toy table is added. Its `argument.rs:NNN` citations are
+   main's line numbers and are now STALE (e.g. SC_DZC 699-748 -> 1401-1544); bookkeeping,
+   not a behaviour change.
+ * zk60_native_mask_commit.py ("declared functional order: run_slot 361-376 and argument
+   924-925"): the logic is unchanged; the lines are now run_slot 600-615 and argument
+   1876-1877.
+
+NEW UNPINNED FILES this file now reaches on the toy path: shape.rs (Shape::toy, slots,
+helpers, log, carries_pad_rule), pad.rs (pad_zero_host, zero_rule_a_planes -- called for
+every slot), timing.rs (slot_step, census_on, base_field_census, Phases::slot), and
+layout.rs's new Ids/HIds (layout.rs is pinned). All four facts T1-T8 live in those files.
+
+FINDING A1 (7c): hashline/src/private_block/argument.rs:502-520 calls
+timing::base_field_census (timing.rs:342-391) when HL_PB_BASEFIELD names the slot; it prints
+counts derived from hidden data, and timing.rs:332-337 says they are not. Receipt, transcript
+and draws are unaffected; default off; capture runs strip HL_*. For the owner: either keep
+it out of any run on a hidden input whose stdout is retained (D22 §6: a retained artifact is
+publishing), restrict it to tables without Fixed coordinates, or cfg-gate it; and correct the
+doc claim either way.

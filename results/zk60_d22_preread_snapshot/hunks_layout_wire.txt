@@ -1,0 +1,210 @@
+D22 condition-7 pre-read, shaped snapshot: hunk classification of
+hashline/src/private_block/layout.rs and hashline/src/private_block/wire.rs,
+snapshot (c794360a... archive, /tmp/claude-1000/d22-snapshot) vs main 4751b93.
+Diffs: diff/hashline__src__private_block__layout.rs.main-4751b93.diff,
+       diff/hashline__src__private_block__wire.rs.main-4751b93.diff
+Classes: (i) off the toy path; (ii) on the toy path, behaviour-identical (why);
+         (iii) behaviour-changing = FINDING.
+Line numbers "snap:NNN" are the snapshot file's.
+
+Toy shape used throughout (shape.rs:431): Shape::new(TOY_PROFILE, tokens 32,
+width 16, hidden 16, q_heads 2, head_dim 8, kv_heads 1, log_cols 8, inv_rate 8,
+f_e 9, endpoint_rows 7, endpoint_log_n/inv_rate None -> 8/8, windows None).
+Derived: t_pad 32, d_pad 16, h_pad 2, f_pad 16, opened_cols 256,
+d_max 131,068 -> norm_wrho 11+1+17 = 29 (old NORM_WRHO 29), wrho_s 5+9 = 14
+(old WRHO_S 14), limbs ln = 4, ls = 2, lp = ceil(10/8) = 2,
+norm_top_is_full_byte false (32 != 29), endpoint_general false, legacy hash tag.
+Natural logs at the toy: T 5, Ht 6, L/D/Q/F 9, Kv/Tab 8, S 11 = the old
+Dom::log table exactly; rows_of = max(1, size >> 8) = old ceil(size / 256) for
+every domain (T 1, Ht 1, L/D/Q/F 2, Kv/Tab 1, S 8).
+
+=============================================================== layout.rs
+item view: 173 identical, 20 CHANGED, 48 NEW, 0 REMOVED (items.py).
+Every plane constant A_* / H_*, N_A 81, N_H 51, SLOTS, SLOT_NAMES, SLOT_KINDS,
+HOSTS, A_SITES, H_SITES, A_GROUPS 35, H_GROUPS 9, N_FUNCTIONALS 34, M_ROWS 50,
+A_ROWS 455, H_ROWS 384, A/H_DATA_ROWS 213/280, the calibration constants
+(NORM_*, SH_*, F_E, F_P, F_RO, WRHO_S, MASK_SCORE), a_dom, h_dom, helpers(),
+mask_specs(), slot_terms(), byte/scaled/sym and pow256 are BYTE-IDENTICAL.
+
+# | hunk (old -> new)   | item(s)                                   | class | why
+--+---------------------+-------------------------------------------+-------+-----------------------------------------------
+1 | -46,7 +46,17        | doc on N; NEW const U8_LEN = 256          | (ii)  | N unchanged (1<<8). U8_LEN = 256 = N at the toy,
+  |                     |                                           |       | so every table sized by it has the old length.
+2 | -94,8 +104,80       | NEW fn domain_log_at (P-3 lift, S-1 doc); | (ii)  | natural_log's match is the old log's match,
+  |                     | Dom::log renamed natural_log              |       | verbatim (T5 Ht6 L/D/Q/F9 Kv/Tab8 S11).
+3 | -103,6 +185,14      | NEW Dom::carries_h_planes; NEW Dom::log = | (ii)  | lift only when an H-carrying domain is < LOG_N=8;
+  |                     | domain_log_at(natural, carries, LOG_N)    |       | at the toy none is (L/D/Q/F 9, Kv/Tab 8, S 11), and
+  |                     |                                           |       | T/Ht (5/6) carry no H planes -> every log unchanged.
+4 | -219,6 +309,132     | NEW LN/LS/LP_TOY, struct Ids + impl       | (ii)  | ON the path (Layout::for_shape builds it,
+  |                     | (A-plane id map at a shape)               |       | lookups_at reads it). At the toy the 18 segment
+  |                     |                                           |       | starts are contiguous 0,4,6,8,12,16,20,28,32,36,
+  |                     |                                           |       | 43,50,56,61,63,65,67,78 -> 81 and every toy length
+  |                     |                                           |       | equals its shape length, so map = identity and
+  |                     |                                           |       | doms = a_dom(p) (checked by hand; also asserted
+  |                     |                                           |       | in Layout::new, snap:1041-1043).
+5 | -256,6 +472,119     | NEW struct HIds + impl (H-plane ids)      | (ii)  | ON the path (Layout::helpers, h_u_rows). At the
+  |                     |                                           |       | toy helpers L1 D19 Q7 Kv6 S7 +sexp F5 +fact tab3
+  |                     |                                           |       | u1 -> firsts 0/1/20/27/33, sexp 40, F 41, fact 46,
+  |                     |                                           |       | tables 47-49, u 50, n_h 51 = the H_* constants.
+6 | -280,87 +609,167    | doc of the construction premise rewritten | (ii)  | Per domain, lookup for lookup, same order: ids.at
+  |                     | per shape; free `lookups(dom)` becomes    |       | = identity; nr/ns/mr/ms(k) = 12/16/28/32 + k;
+  |                     | lookups_at(Shape::toy(), Ids::toy(), dom);|       | ln = 4 byte limbs then scaled(top, 1<<(32-29)=8)
+  |                     | NEW lookups_at: literals -> ids.*, the    |       | (norm_top true); S: lp = 2 then scaled(pl1,
+  |                     | limb loops over ln/ls/lp, the top-limb    |       | 1<<(16-10) = 64); ls = 2 then scaled(sr1 / sg1,
+  |                     | `scaled` coefficient from the windows,    |       | 1<<(16-14) = 4); sg(k) = 63+2+k = 65+k. Every
+  |                     | C-6 drop when 8*ln == wrho                |       | Lk equals the old one (L, D, F, Q, Kv, S checked).
+  |                     |                                           |       | The C-6 drop never happens at the toy.
+7 | -381,6 +790,8       | NEW const ALL_DOMS                        | (ii)  | a constant list read by shape.rs; no toy value.
+8 | -534,8 +945,47      | rows_of made pub(crate) + doc (body       | (ii)  | rows_of body unchanged.
+  |                     | identical); NEW                           | (i)   | the two new functions' non-test callers are
+  |                     | no_commitment_has_a_node_shaped_column    |       | endpoint_g.rs:172 and boundary.rs:155 (the
+  |                     | (_under) -> hash_domain::imposed_shape_   |       | generalised endpoint and run boundaries); the
+  |                     | free(tag).refuse                          |       | toy uses private_seam, so off the toy path.
+9 | -553,78 +1003,225   | struct Layout: new fields sh/ids/hids/n/  | (ii)  | geometry only, no hidden value.
+  |                     | a_sites/h_sites/slots/io_mask_row         |       |
+  |                     | Layout::new = for_shape(toy) + THE TOY    | (ii)  | see note N1 (where the gate runs).
+  |                     | FREEZE GATE asserts (n_a, n_h, per-plane  |       |
+  |                     | doms, identity map, A/H sites, SLOTS,     |       |
+  |                     | groups 35/9, n, data rows 213/280, rows   |       |
+  |                     | 455/384)                                  |       |
+  |                     | NEW for_shape: offsets from               | (ii)  | per-plane doms and rows_of equal the old ones
+  |                     | sh.a_plane_doms()/h_plane_doms()/         |       | (above) -> identical a_off/h_off, prefixes,
+  |                     | sh.rows_of(); sites/slots from shape      |       | mask bases, prox pairs; a_rows 455, h_rows 384.
+  |                     | NEW in for_shape: hash_domain::           | (ii)* | a construction-time REFUSAL on (A 455, H 384,
+  |                     | imposed_at_shape(sh).refuse(A,H,M,        |       | M 50, endpoint 7) at a legacy-rule profile;
+  |                     | endpoint rows) (C-H4/T-3)                 |       | main had no such check. It can only refuse, never
+  |                     |                                           |       | move a byte; if it fired at the toy there would be
+  |                     |                                           |       | no toy proof and no toy decode at all (fail-closed,
+  |                     |                                           |       | liveness). That it does not fire rests on the lane's
+  |                     |                                           |       | tests (every toy Layout::new() — tests.rs,
+  |                     |                                           |       | grow_tests.rs, parity.rs — would panic) and on
+  |                     |                                           |       | hash_domain_tests.rs:318 for the shape-free part;
+  |                     |                                           |       | the set itself lives in hash_domain.rs (new,
+  |                     |                                           |       | unpinned, not this slice).
+  |                     | io_mask_row = endpoint_rows - endpoint_g::| (ii)  | 7 - 5 = 2 = main's literal `mask_row: 2`
+  |                     | MASK_ROWS                                 |       | (argument.rs:449 at 4751b93).
+  |                     | NEW with_io_mask_rows                     | (i)   | only caller run.rs:426 (multi-block run).
+  |                     | NEW shape()/ids()/hids()/n()/slots()/     | (ii)  | accessors; shaped mask_specs/slot_terms equal the
+  |                     | mask_specs()/slot_terms()                 |       | free ones at the toy (slots == SLOTS, sites ==
+  |                     |                                           |       | A_SITES/H_SITES).
+  |                     | a_sites/h_sites/lookups/helpers/a_planes/ | (ii)  | read the fields; values equal (helpers: (first,
+  |                     | h_planes/a_site/h_site read fields        |       | count) = old table; Tab/T/Ht -> (0,0) both ways).
+10| -638,35 +1235,48    | h_u_rows via hids.u(), n                  | (ii)  | 50, 256 -> same rows.
+  |                     | limb_off(_m): k * T -> k * sh.t_pad       | (ii)  | t_pad 32 = T.
+  |                     | describe() (TRANSCRIPT-BOUND via the      | (ii)  | rendered text identical at the toy: tag kept as
+  |                     | schedule digest): literals -> shape       |       | the legacy "private-block-t32/1" for TOY_PROFILE
+  |                     | fields                                    |       | only; "T32 d16 H2 KV1 dh8 F16; n=256 inv_rate=8
+  |                     |                                           |       | Q=256"; "A-groups=35 H-groups=9"; "wrho=29",
+  |                     |                                           |       | "fE=9", "wrhoS=14"; "F=16"; slot lines from
+  |                     |                                           |       | slots/sites = SLOTS/A_SITES/H_SITES; the HOSTS loop
+  |                     |                                           |       | and the rest of the function are unchanged text.
+
+layout.rs totals: 10 hunks; split by item: (i) 2 (node-shaped-column
+functions, with_io_mask_rows), (ii) all the rest, (iii) 0.
+
+N1 (note, not a finding). The toy FREEZE GATE (Layout::new, snap:1032-1054) is
+NOT on the prover's or the verifier's own call: protocol::prove_inner_at
+(protocol.rs:676) and verify_inner_at (protocol.rs:1171) call
+Layout::for_shape(&Shape::toy()) directly. The gate runs in the toy's public
+codec and helpers — Receipt::to_bytes / from_bytes (private_block.rs:935,
+940), encoded_len (:929), schedule (:983) — so verify_bytes and every
+serialised toy proof pass through it. Since for_shape(Shape::toy()) is a pure
+function of compile-time constants, one execution anywhere establishes it, and
+the lane's toy tests execute it; but a caller that proves and verifies
+in-memory Receipt structs (prove_with_stats + verify) never executes the gate.
+All values it asserts were re-derived by hand above.
+
+N2 (port). zk60_native_terminal_polys.py ports layout.rs as the PB namespace
+(constants T/D/H/DH/HALF/KV/F/LOG_N/N, NORM_*, NORM_WRHO 29, F_E/F_P/F_RO,
+WRHO_S 14, MASK_SCORE, every A_* / H_* id, N_A, N_LIMBS), `_block_lookups`
+(the literal lists of main layout.rs:310-368), `helpers` (:371) and pow256
+(:690). Every one of those VALUES is unchanged at the toy (constants
+byte-identical; lookups identical Lk for Lk; helpers identical). The port
+still describes the toy. Only its file:line CITATIONS are stale: in the
+snapshot the literal list lives in lookups_at (snap:701-775) reached through
+lookups (snap:677), helpers is at snap:780, pow256 at snap:1300, and the
+constants block runs to snap:~455. The port transcribes the OLD literal form;
+the toy now computes the same list through Ids / limb counts — the re-pin
+record should say the ported item is now `lookups_at` at the toy shape.
+
+N3. Nothing in layout.rs or wire.rs logs, prints, stores in a static, or
+keeps a hidden value: grep for eprintln/println/dbg!/static/thread_local/
+set_var finds none (layout.rs:1199 is a `&'static [Dom]` return type). Layout
+holds geometry only.
+
+=============================================================== wire.rs
+item view: 17 identical, 7 CHANGED, 24 NEW, 8 REMOVED.
+Reader::{take, fp, fp2, fp2_vec, column}, MAGIC, HEADER, MASK_VEC, MASK_DOM,
+MASK_PATH and the body of encode after its bound check are BYTE-IDENTICAL, so
+the field ORDER of the frame is unchanged:
+MAGIC | binding(32) | A root | H root | M root | 23 x (scalar, rounds, terms) |
+M opening (q 1024, prox 1024, 256 columns of 50 rows, path 12) | A opening |
+H opening | IN opening | OUT opening.
+
+Toy Dim (both Dim::block and Dim::endpoint, because the toy's endpoint_log_n
+and endpoint_inv_rate default to log_cols 8 / inv_rate 8): checks 256 (old
+CHECKS), vec 256+256 = 512 (old VEC), enc_cols 2048 (old ENC_COLS), path
+2048.trailing_zeros() = 11 (old PATH). The old code used the same four
+constants for the endpoint openings, so nothing moves there either.
+
+# | hunk (old -> new)   | item(s)                                   | class | why
+--+---------------------+-------------------------------------------+-------+-----------------------------------------------
+1 | -5,63 +5,130        | a. imports: ENDPOINT_ROWS dropped,        | (ii)  | imports only; 7 now read from sh.endpoint_rows.
+  |                     |    PcsParams added                        |       |
+  |                     | b. CHECKS/VEC/ENC_COLS/PATH removed ->    | (ii)  | toy Dim = 256 / 512 / 2048 / 11 (above).
+  |                     |    struct Dim (new/block/endpoint)        |       |
+  |                     | c. MAX_WIRE_BYTES: doc only, value 4 MiB  | (ii)  | unchanged.
+  |                     |    NEW MAX_WIRE_BYTES_ANY (64 MiB)        | (i)   | used only for non-toy shapes and run segments.
+  |                     | d. NEW wire_bound(lay)                    | (ii)  | is_frozen_toy() -> MAX_WIRE_BYTES exactly.
+  |                     | e. opening_len/hiding_ok -> Dim methods   | (ii)  | same formulas, same numbers at the toy.
+  |                     | f. NEW path_len(params), MASK_PATH_LEN    | (ii)  | used by hash_domain's depth checks, which the toy
+  |                     |                                           |       | VERIFIER now calls first (protocol.rs:1064-1066,
+  |                     |                                           |       | 1176) — see N4. 11 / 12 at the toy.
+  |                     | g. encoded_len: shape-driven              | (ii)  | recomputed from the constants: slots 14,672 B +
+  |                     |                                           |       | header/roots + M + A(35 grp, 455 rows) + H(9, 384)
+  |                     |                                           |       | + 2 x endpoint(1, 7) = 2,816,472 B exactly.
+  |                     | h. validate: SLOTS/slot_terms/CHECKS/     | (ii)  | same predicates, same numbers; accepts and refuses
+  |                     |    groups/ENDPOINT_ROWS -> lay/sh/Dim     |       | exactly the same Receipt structs at the toy.
+2 | -71,7 +138,7        | encode: `len > MAX_WIRE_BYTES` ->         | (ii)  | wire_bound(toy) = MAX_WIRE_BYTES.
+  |                     | `len > wire_bound(lay)`                   |       |
+3 | -133,18 +200,20     | Reader::hiding takes a Dim; decode's      | (ii)  | toy Dim = old constants; bound = MAX_WIRE_BYTES.
+  |                     | length/bound line uses wire_bound; decode |       |
+  |                     | gains sh, (bd, ed)                        |       |
+4 | -155,21 +224,242     | decode body: SLOTS -> lay.slots(),        | (ii)  | identical reads in identical order at the toy
+  |                     | slot_terms -> lay.slot_terms, CHECKS ->   |       | (only these 7 lines differ from main's decode).
+  |                     | bd.checks, A/H groups from shape, IO via  |       |
+  |                     | ed and sh.endpoint_rows                   |       |
+  |                     | NEW run-segment codec: RUN_MAGIC          | (i)   | multi-block run only (magic "HLPRUNS1" never
+  |                     | "HLPRUNS1", RUN_HEADER/TRAILER, Segment,  |       | decodes as "HLPBLOK1"); callers in run.rs.
+  |                     | SegGeom, segment_len, validate_segment,   |       |
+  |                     | encode_segment, decode_segment            |       |
+
+wire.rs totals: 4 hunks; split by item: (i) 2 (MAX_WIRE_BYTES_ANY, the
+run-segment codec), (ii) the rest, (iii) 0.
+
+FRAME VERDICT. At the toy the frame is byte-identical in length (2,816,472 B,
+recomputed), header (MAGIC "HLPBLOK1" + 32-byte binding), field order, hiding
+widths (vec 512, 256 columns, enc_cols 2048, path 11; mask 1024/1024/256/
+50 rows/path 12) and bound (4 MiB). encode, decode and validate accept exactly
+the frames and Receipt structs they accepted at 4751b93 and refuse exactly the
+same ones, with the same error strings.
+
+N4 (verifier-side, recorded; neither a view change nor a finding against the
+toy). The toy verifier (protocol.rs:1176, verify_inner_at) now calls
+hash_domain::receipt_paths_are_the_tree_depth(receipt, sh) BEFORE
+wire::validate, and protocol.rs:1064-1066 repeat it for A/H/M. At the toy
+path_len = 11 and MASK_PATH_LEN = 12, the very lengths wire::validate already
+demands, so the accepted set is unchanged; only the error message a malformed
+in-memory receipt receives can differ (a depth refusal instead of
+"opening shape"). A decoded frame cannot reach it with a wrong length at all
+(Reader::column reads exactly `path` digests). The check lives in
+hash_domain.rs / protocol.rs (not this slice).
+
+=============================================================== FINDINGS
+None of class (iii) in layout.rs or wire.rs. Every hunk on the toy path is
+behaviour-identical at the toy shape by the arithmetic above. Recorded:
+N1 the toy freeze gate is not on the prover's/verifier's own call (for_shape
+is); N2 the port's file:line citations are stale, values unchanged; the new
+C-H4/T-3 construction refusal (layout.rs snap:1111) is on the toy path and
+rests on hash_domain.rs, a new file no pin table covers; N4 the verifier's
+added depth check is redundant with wire::validate at the toy.

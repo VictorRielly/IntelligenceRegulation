@@ -1,0 +1,127 @@
+D22 condition-7 pre-read, shaped snapshot (c794360a...), slice: witness.rs + private_block.rs
+Snapshot vs main 4751b93. Read-only; no Rust build. 2026-09-23.
+Classes: (i) off the toy path; (ii) on the toy path, behaviour-identical (reason given);
+(iii) behaviour-changing on the toy path = FINDING.
+Toy = Shape::toy(): tokens 32, width 16, hidden 16, q_heads 2, head_dim 8, kv_heads 1,
+log_cols 8, inv_rate 8, f_e 9, endpoint_rows 7 -> t_pad 32, d_pad 16, h_pad 2, f_pad 16,
+kvw 8, group 2, half 4, norm_wrho 29 (=NORM_WRHO), wrho_s 14 (=WRHO_S), limbs 4/2/2
+(=LN_TOY/LS_TOY/LP_TOY), endpoint_general false, hash_tag legacy.
+
+Facts the (ii) verdicts rest on (checked in the snapshot, other files):
+ F1 head_slot(h) = (h/2)*2 + h%2 = h at the toy (shape.rs:883); slot_is_true_head true for 0,1.
+ F2 Ids::new(toy) (layout.rs:349) is the IDENTITY map on the 81 toy ids (every segment's
+    toy_len == len, segments contiguous in id order); sg(k) = A_SR0+ls+k = A_SG0+k;
+    is_multiplicity = id >= 78 = {A_MU8,A_MEXP,A_MACT}; n_a = 81 = N_A.
+ F3 Shape::size(dom) at the toy = main Dom::len(): natural logs T5 Ht6 L/D/Q/F9 Kv/Tab8 S11,
+    and domain_log_at (layout.rs:170) lifts only H-carrying domains below log_cols=8 (none).
+ F4 Geom::support(dom) at the toy is 0..len in increasing order for D, Q, Kv, S, F
+    (dix=t*16+i, qix=t*16+h*8+i, kvix=t*8+i, six=(h*32+t)*32+j, fix=t*16+j), i.e. the
+    exact index order main's un-supported loops visit.
+ F5 layout constants SH_*, NORM_TN/CN/CEPS, F_P, MASK_SCORE, U8_LEN unchanged (layout.rs:59-80).
+ F6 private_seam.rs is byte-identical (pinned, equal): DOMAIN "experimental-private-seam/v1"
+    (28 B), ZkRng::from_os(DOMAIN) at :196; SeamSpec::len = rows*cols; MASK_ROWS = 5;
+    endpoint_g::MASK_ROWS = 5.
+
+=================================================================== witness.rs (9 hunks)
+hunk            item(s)                                         class  why
+@@-8,11 +8,34   module doc; +use super::shape::{Shape,LIMBS_ISQRT} (ii)   comment + import only
+@@-25,6 +48,12  Witness::output doc comment                     (ii)   doc only; body identical (reads A_X2, id unchanged by F2)
+@@-80,27 +109,199 limbs (moved, body identical); NEW Geom +     (ii)   Geom at toy = the literals (F1,F3); quantize iterates `sup`
+                accessors + support; quantize(sup); matmul            = 0..len in order (F4): same values, same first-refusal index;
+                (strided)                                             matmul(xs,inner,outer,os,len) at every toy call = main's
+                                                                      (Q:16/16/16/512, K,V:16/16->8/256, Wo:16/16/16/512)
+@@-108,36 +309,32 matmul_in_out, rotate (strided); old limbs  (ii)   gate/up (16,16->16, 512), down (16,16->16, 512); QR rotate
+                removed here                                          heads=h_pad 2, ws 16, len 512; KR heads=hkv 1, ws 8, len 256
+@@-150,35 +347,37 NormPlanes rho/sigma Vec (ln=4); rms_norm(g,  (ii)   wrho 1<<29; isqrt window 1<<(8*3)=1<<24; row = x[t*16..t*16+16];
+                x, gamma, norm_wrho)                                  limb index lix(b+k,t)=(b+k)*32+t = main (b+k)*T+t; bases 0,3,6
+@@-186,7 +385,7 rms_norm inner loop bound g.d               (ii)   g.d = 16 = D
+@@-194,12 +393,12 idx = dix(t,i); limbs(rho|sigma, g.ln)       (ii)   dix = t*16+i; ln = 4
+@@-207,61 +406,117 build -> build_shaped(toy); NEW              (ii)   Ids/limb-count refusals are functions of the SHAPE only (never
+                norm_limbs_are_the_pinned_count; Ids; x laid           fire at the toy, not input-dependent); input-length refusal
+                out at dix; norm_a; X planes; QKV; RoPE;               512 = T*D; x identical (dix = t*d+i); every plane written with
+                scores                                                 the same value at the same id (F2); score sacc[six(h,t,j)] =
+                                                                      sum qr8[t*16+h*8+i]*kr8[j*8+i] (kv = h/2 = 0) = main
+@@-270,160 +525,198 softmax/PV; NEW A_E pad pass; O; AO;       (ii)   masked/best/arg/ZSEL/E/SUM/P/limbs identical by F1-F5 (ids.pl/
+                residual 1 (RO limbs split into a sup_q loop);         sr/sg = PL0.., SR0.., SG0..); softmax window 1<<9..=32<<9, sigma
+                norm_m; SiLU FFN (a16 loop over sup_f);                window 1<<14 unchanged. A_E pad pass (witness.rs:632-643): at the
+                residual 2                                             toy every x is a true position, ht=h*32+t, A_MX[ht]=best, so it
+                                                                      recomputes exp[delta] already written and its range check
+                                                                      repeats one the softmax loop already passed for every (h,t,j)
+                                                                      BEFORE O/AO/residual 1 -> cannot fire, refusal order unchanged.
+                                                                      RO0/RO1 loop moved to sup_q (= sup_d at toy), writes cannot
+                                                                      refuse. FFN: same order of refusals (gate, up, act lookup,
+                                                                      product, down, residual 2), same values.
+witness.rs totals: 9 hunks: (i) 0, (ii) 9, (iii) 0.
+Refusals: the same sites, same messages, same first-failing index at the toy; the only new
+refusals are shape-only (Ids::new, norm_limbs_are_the_pinned_count) or a redundant re-check
+(A_E pass). No RNG, no transcript, no hash, no print/log/serialise anywhere in the file
+(grep: no print/eprint/dbg/env/capture).
+
+============================================================= private_block.rs (10 hunks)
+@@-59,29 +59,251 module declarations + `use` lines            split:
+   - 8 NEW production modules (lines 67-108): boundary, endpoint_g, hash_domain, pad, run,
+     run_sink, shape, timing -- compiled into release. Toy reachability (by call site):
+       shape        REACHED  prover+verifier (Shape::toy in new()/build; hash_tag; Layout)
+       hash_domain  REACHED  prover: protocol.rs:688 single_block_seed_domain(toy) = bare
+                             PROFILE bytes (hash_domain.rs:241-242, legacy branch); verifier:
+                             protocol.rs:1064-1066,1176 path-depth checks; layout.rs:1111
+       timing       REACHED  protocol.rs:673/1169 Phases, argument.rs:492-532 slot_step,
+                             census_on/base_field_census -- inert unless HL_PB_TIMING=1 /
+                             HL_PB_BASEFIELD set (then prints to stdout)
+       pad          REACHED  argument.rs:775,808,811,1115,1175... (argument slice)
+       endpoint_g   constant MASK_ROWS (=5) in IoSpec::validate and layout.rs:1138, and the
+                             type PreparedPlaneG in EndpointOwner; no endpoint_g fn runs at the toy
+       run, run_sink, boundary  NOT reached by the toy prover/verifier (no call from
+                             protocol/argument/layout/witness/wire/private_block prod code)
+     -> (ii) for the declarations themselves; the REACHED files are unpinned (see notes).
+   - 30 NEW #[cfg(test)] modules (grow_tests .. zero_witness_tests)        (i) not in release
+   - use changes: pcs::{self,OpeningZk}, endpoint_g::{..}, zkp_core::hashtag::HashTag,
+     layout::{DH,F_E,F_RO,T} (D,F,HALF,KV dropped)                        (ii) imports only
+@@-100,6 +322,79  NEW Axis, weights_vanish_off_support          (ii)   reached from AttentionPublic/FeedForwardPublic::new; at the
+                                                                      toy every Axis::D/Q/F index is supported (F1, i<16), so it
+                                                                      never refuses; refusal of PUBLIC weights only
+@@-123,17 +418,57 AttentionPublic::new -> new_shaped(toy)     (ii)   d=16=D, kv=8=KV, half=4=HALF, tokens*half=T*HALF, one_e=1<<9;
+                                                                      P-2 checks never fire at toy; accepted statement set unchanged
+@@-201,9 +536,23 FeedForwardPublic::new -> new_shaped(toy)    (ii)   d=16, f=16; P-2 checks never fire at toy
+@@-283,6 +632,34 IoSpec gains t_pad,d_pad,general,endpoint_*,  (ii)   derived constants of Shape::toy; not serialised --
+                opened_cols, hash_tag (legacy)                        ExpectedIo::to_bytes/from_bytes identical text, 112 B frame;
+                                                                      from_bytes rebuilds via IoSpec::new (= toy)
+@@-294,12 +671,45 IoSpec::new -> new_shaped(toy); validate();   (ii)   validate at toy: general false -> seams() (same SeamSpec::new
+                plane_len                                             checks as main's `spec.seams()?`) then rows 512/256 + 5 = 7 =
+                                                                      endpoint_rows: a constant pass; scale pin unchanged
+@@-311,7 +721,42  seams() on (t_pad,d_pad); NEW endpoints_g;   (ii)/(i) seams: (32,16) = (T,D). endpoints_g: (i), only when
+                NEW into_committed                                    general. into_committed (called at protocol.rs:643) Frozen arm =
+                                                                      main protocol.rs:244-246 exactly: seams(), input.into_ffn_endpoint
+                                                                      (&si), output.into_ffn_endpoint(&so), same order; mismatched
+                                                                      owner/profile is a public refusal
+@@-367,23 +812,60 Endpoints{input,output}: EndpointOwner;       (ii)   toy branch (private_block.rs:863-866) = main's body: seams(),
+                NEW EndpointOwner + root(); prepare_endpoints          NttTables::new(12), private_seam::prepare(&si, Side::Right, in),
+                                                                      then (&so, Right, out) -- two from_os(DOMAIN) reads, unchanged
+                                                                      order (condition 6, §9 items 5-6). ExpectedIo::from_roots(spec,
+                                                                      root, root) same roots. Condition 4: Endpoints fields private,
+                                                                      EndpointOwner has no derive (no Clone/Debug), consumed by value
+                                                                      in into_committed; compile_fail doctest unchanged.
+@@-434,7 +916,7  prove_with_stats: prove_inner(public, wit,..) (ii)   ownership only (Witness moved, not borrowed); consumer is
+                by value                                              protocol.rs (other slice)
+@@-462,6 +944,31 NEW Receipt::to_bytes_at / from_bytes_at,     (i)    pub(crate); callers only in cfg(test) modules (run_statement_
+                verify_bytes_at                                       file, *_tests); the toy's pub to_bytes/from_bytes/verify_bytes/
+                                                                      verify/prove/encoded_len/schedule are identical text
+private_block.rs totals: 10 hunks: (i) 1 whole + test-module/run/run_sink/boundary parts of
+hunk 1; (ii) 9; (iii) 0.
+Identical items (57), incl. PROFILE, EXPECTED_BYTES, calibration_identity, ENDPOINT_SCALES,
+AttentionPublic/FeedForwardPublic/BlockPublic structs + absorb_into + digest +
+synthetic_fixture, ExpectedIo (all), compute_output, Receipt, ProveStats, prove, verify,
+encoded_len, to_bytes, from_bytes, verify_bytes, schedule, mod capture (includes
+native_capture.rs, pinned, equal). No new print/log; capture::begin stays #[cfg(test)].
+
+NOTES (not findings against these two files):
+ N1 Pin-set gap: shape.rs, hash_domain.rs, timing.rs, pad.rs (and the endpoint_g.rs
+    constant) are production files the toy prover/verifier now reach and are in no pin table.
+ N2 timing.rs:342 base_field_census prints, per slot, COUNTS of sumcheck-table words with a
+    zero imaginary part when HL_PB_BASEFIELD is set. Its claim that the count is decided by
+    the table's shape and not by the data is a comment; for a table that is a hidden value
+    times an extension challenge, a zero hidden word gives c1 == 0, so the count could
+    depend on the number of zero hidden words. Off by default; the captures strip HL_*.
+    For the new-modules slice to rule on.
+ N3 The A_E pad pass is a NEW input-dependent refusal at PADDED shapes (not the toy).
+ N4 prove_inner now takes the Witness by value (protocol.rs slice: check it is not retained).

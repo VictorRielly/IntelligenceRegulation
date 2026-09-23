@@ -1,0 +1,227 @@
+D22 condition-7 pre-read of the shaped snapshot -- THE TOY PATH CLOSURE
+=====================================================================
+Snapshot: /tmp/claude-1000/d22-snapshot (reviewed-source.tar.gz, sha256 c794360a...).
+Question: which PRODUCTION (non-#[cfg(test)]) Rust files does the toy block
+profile's prover (private_block::prove / prove_with_stats -> protocol::prove_inner
+-> prove_inner_at(&Shape::toy())) or verifier (verify / verify_bytes ->
+protocol::verify_inner -> verify_inner_at(&Shape::toy())) reach, and which of
+them are OUTSIDE the 37-file D22 pin set?  Method: `mod` declarations of
+hashline/src/private_block.rs (lines 61-110 production, 112-294 test-only),
+then every `use` / `super::X::` / `crate::X::` call site in the files the toy
+entry points reach, followed outward; evidence is file:line in the SNAPSHOT.
+
+A. ON THE TOY PATH, PRODUCTION, NOT IN THE 37-FILE PIN SET (6 files)
+--------------------------------------------------------------------
+
+1. hashline/src/private_block/shape.rs
+   sha256 dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911
+   pinned? NO (new file, lane-only)
+   reached from: protocol.rs:663 prove_inner -> prove_inner_at(&Shape::toy());
+     protocol.rs:1160 verify_inner -> verify_inner_at(&Shape::toy());
+     private_block.rs:421/539/674 (AttentionPublic/FeedForwardPublic/IoSpec::new
+     -> new_shaped(&Shape::toy())); layout.rs:1033,1063-1070 (Layout::new /
+     for_shape take the whole geometry from it); argument.rs:25,1106-1116;
+     witness.rs:38; wire.rs:39-43,68-73,108,129-131,237-239 (a_groups/h_groups
+     decide the frame's opening sizes).
+   what it does at the toy: EVERYTHING GEOMETRIC. Shape::toy() (:431) =
+     Shape::new(TOY_PROFILE, 32,16,16,2,8,1, log_cols 8, inv_rate 8, f_e 9,
+     endpoint_rows 7) -> the plane lists, claim sites, slot table (main/ext
+     rounds, degree), row totals, opening-group counts, receipt byte count;
+     profile string (-> transcript domain and RNG domain); hash_tag() (:941) ->
+     HashTag::legacy() because is_frozen_toy() (:912, profile == TOY_PROFILE);
+     carries_pad_rule() (:905) = false at the toy (keeps the pad machinery out
+     of the toy transcript); endpoint_general (:226) = false at the toy
+     (t_pad*d_pad = 512 <= 4096, e_log_n 8, e_rate 8 -> frozen private_seam).
+   risk notes: no print, no env read, no ZkRng, no transcript, no statics in
+     production (the only thread_local is the #[cfg(test)] legacy-rule hook
+     :1377-1391, which can only force LEGACY). But it is load-bearing for the
+     toy's transcript and frame: a change to toy() arguments, to slots(),
+     claim_sites(), a_groups()/h_groups(), hash_tag() or carries_pad_rule()
+     moves the toy's bytes. The toy freeze gate (layout.rs:1035-1053, asserts
+     against the frozen literals) runs ONLY in Layout::new, i.e. on
+     to_bytes/from_bytes/verify_bytes/encoded_len/schedule; prove_inner_at and
+     verify_inner_at call Layout::for_shape (protocol.rs:676, :1171), which has
+     no freeze assertions. (Noted for the layout slice, not re-derived here.)
+
+2. hashline/src/private_block/hash_domain.rs
+   sha256 da61c1d97ca1cd6d35071e3917cfdb900a2039c5abd213cdfe2f0ccc251ed3cd
+   pinned? NO (new file)
+   reached from: protocol.rs:688 (the block prover's ONLY generator:
+     ZkRng::from_os(&hash_domain::single_block_seed_domain(sh)));
+     layout.rs:1111 (Layout::for_shape -> imposed_at_shape(sh).refuse(A,H,M,
+     endpoint rows) -- both prover and verifier); protocol.rs:1064-1066
+     (verify_core: paths_are_the_tree_depth A/H, mask_paths_are_the_tree_depth);
+     protocol.rs:1176 (verify_inner_at: receipt_paths_are_the_tree_depth,
+     before wire::validate).
+   what it does at the toy: (a) single_block_seed_domain (:240-249) returns
+     sh.profile.as_bytes() UNCHANGED for a legacy-rule profile -- at the toy
+     the bare "hashline-zk-mr1/private-block-t32-poc/1", byte-identical to the
+     PROFILE constant (private_block.rs:308) that 4751b93 passed. So this file
+     now DECIDES the toy generator's key-derivation input (condition 6); (b)
+     the C-H4/T-3 length guard, imposed whole at legacy profiles (:617-623):
+     refusals by name on row counts; toy counts 455/384/50/7 are clear; (c)
+     T-4: every opened column's Merkle path length == tree depth (read from
+     wire::path_len / wire::MASK_PATH_LEN), verifier-side refusals.
+   risk notes: pure functions of public facts; no print, no env, no hashing,
+     no ZkRng draw (it only BUILDS the domain byte string), no transcript. It
+     adds verifier refusals (T-4) and a construction refusal (T-3) but moves
+     no byte of an honest toy proof. Pin it: a one-line edit to the frozen
+     branch at :241-243 would change the toy's RNG domain with every pinned
+     file unchanged.
+
+3. hashline/src/private_block/pad.rs
+   sha256 f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0
+   pinned? NO (new file; was cfg(test), now library code -- private_block.rs:85-90)
+   reached from: argument.rs:1115 -- EVERY slot's `define` calls
+     pad::pad_zero_host(d) and pad::zero_rule_a_planes(sh, ids, d) for all nine
+     domains to compute pad_doms / pad_on / n_pad. (argument.rs:772-775 and
+     :808-817 reach pad::indicator_table / zero_rule_h_planes only when
+     carries_pad_rule() / pad_on, i.e. NOT at the toy.)
+   what it does at the toy: zero_rule_a_planes (:365-370) returns an EMPTY Vec
+     because !s.carries_pad_rule(), so pad_on = false, n_pad = 0, and the toy
+     draws NO zeta challenge and no extra mu entry (argument.rs:1141-1143) --
+     i.e. this file is the gate that keeps the pad-zero term out of the toy's
+     transcript (finding S9-F1's profile gate).
+   risk notes: no ZkRng, no transcript, no production print (the two
+     eprintln! at :881 and :900 are inside `#[cfg(test)] mod tests`, opened at
+     :489). Load-bearing for the toy's challenge COUNT: pin it.
+
+4. hashline/src/private_block/timing.rs
+   sha256 f3d0befdaa09310914e14976ba6366a275b5d9ffd50b895794d93c27a1556feb
+   pinned? NO (new file)
+   reached from: protocol.rs:17 (use), :673 and :1169 (Phases::start on both
+     sides), every ph.mark (protocol.rs:689..1205, 25 sites), ph.report
+     (:704, :1207), argument.rs:492/522/529/532 (timing::slot_step wraps the
+     table build, the claimed sum, masked_prove and the extension rounds --
+     the prover's core work runs INSIDE these closures), argument.rs:502/519
+     (census_on / base_field_census), argument.rs:1860,1874 (ph.slot).
+     timing::timed (private_block.rs:955/960) is only in to_bytes_at /
+     from_bytes_at, not in the toy's public to_bytes/from_bytes.
+   what it does at the toy: with HL_PB_TIMING unset, Phases::start reads the
+     clock twice and `mark`/`slot`/`report` return on their first line;
+     slot_step(f) is `f()` (:295-297). With HL_PB_TIMING=1 it println!s to
+     STDOUT: static labels, public slot names, durations, sizes (all size
+     arguments at the call sites are shape functions -- lay.a_rows, sh.size(..),
+     M_ROWS, ac.len()/hc.len() claim counts, 1<<n, lookup_words =
+     sum cols.len()*sh.size(d), protocol.rs:813), and process VmRSS/VmHWM.
+     Timing and memory are out of scope by D20/D21.
+   risk notes -- ONE REAL ITEM:
+     base_field_census (:342-391), called from the PROVE arm of every slot
+     when HL_PB_BASEFIELD names the slot or is "all" (argument.rs:502-520,
+     census_on :320-326; NO profile gate, so it runs at the toy), prints per
+     table and per descriptor class the COUNT of words with zero imaginary
+     part in the slot's ROUND-1 tables, which are built from the hidden
+     witness planes (argument.rs:491-492, priv_table :204-255). The doc
+     comment (:333-337) says the count "is decided by the SHAPE of the table,
+     not by the data". That holds for a Priv table with no fixed coordinate
+     and a single unit-coefficient slice (a plain copy of integer data), but
+     NOT for a table with Coord::Fixed coordinates (eqf = eq_table_msb of Fp2
+     challenges) or with Fp2 slice coefficients (priv_table :205-206, :252):
+     there an entry's imaginary part is zero exactly when the underlying
+     hidden words at that position are all zero (up to ~1/p), so the printed
+     count is a witness-dependent statistic (roughly: how many positions of a
+     hidden plane are zero). Env-gated, off by default, operator stdout only,
+     never in the receipt, the transcript or a capture bundle, and stripped by
+     the capture runner's HL_* stripping -- so it is not in the verifier's
+     view and does not touch D22's sentence. But it IS a production code path
+     on the toy prover that can write a hidden-input-derived number to a log.
+     Suggest: refuse the census at is_frozen_toy() (or cfg(test)/feature-gate
+     it), or add an operating rule under D22 §6 that HL_PB_BASEFIELD is never
+     set on a toy proof whose logs are retained; and correct the doc comment.
+     No ZkRng, no transcript, no committed buffer touched; the recorder is
+     write-only (no accessor for `on`, :213-216).
+
+5. hashline/src/private_block/endpoint_g.rs
+   sha256 6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce
+   pinned? NO (new file)
+   reached from (toy): private_block.rs:704 IoSpec::validate (toy branch:
+     seams()[0].len().div_ceil(2^endpoint_log_n) + endpoint_g::MASK_ROWS must
+     equal endpoint_rows 7) -- called by IoSpec::new_shaped (:694),
+     prepare_endpoints (:842) and verify_inner_at (protocol.rs:1180);
+     layout.rs:1138 Layout::for_shape io_mask_row = endpoint_rows -
+     endpoint_g::MASK_ROWS = 2 at the toy (the reserved pair the two IO tabs
+     claim, via lay.io_mask_row). Types EndpointSpecG / PreparedPlaneG are
+     named in private_block.rs:301,826 but the General arm is never
+     constructed at the toy (spec.general == false -> private_seam path,
+     private_block.rs:863-866, :750-752).
+   what it does at the toy: supplies ONE constant, MASK_ROWS = 5 (:92), which
+     fixes the IO tabs' claim row and the endpoint-geometry check.
+   risk notes: its ZkRng::from_os (:269) and seed_domain (:83) are on the
+     GENERAL endpoint only, not reached at the toy. Pin it (or move the
+     constant): a change to MASK_ROWS moves the toy's IO claim rows.
+
+6. zkp-core/src/hashtag.rs
+   sha256 71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651
+   pinned? NO (new file; zkp-core/src/lib.rs, pinned and moved, declares it)
+   reached from: zkp-core/src/transcript.rs absorb and squeeze_bytes
+     (`crate::hashtag::hasher(self.key.as_ref())`) -- EVERY transcript absorb
+     and squeeze of the toy on both sides; zkp-core/src/pcs.rs
+     commit_zk_owned_with_tag / hash_columns_keyed / salt_leaf_keyed /
+     verify_zk_tagged; zkp-core/src/merkle.rs hash_pair_keyed / build_keyed /
+     verify_path_keyed; hashline/src/zk.rs mask_commit_tagged /
+     mask_verify_tagged / pcs_hash_column_keyed (all reached by the toy through
+     protocol.rs:858,870,977,1086,1099,1129,1202); HashTag::legacy() via
+     shape.rs:951 and IoSpec (private_block.rs:692).
+   what it does at the toy: hasher(None) (:137-142) is literally
+     blake3::Hasher::new(); HashTag::legacy() carries no key, so every
+     *_key() returns None. The toy's hash rule is decided here.
+   risk notes: no print, no env, no ZkRng, no statics; the type is opaque
+     with no key-bytes constructor. Load-bearing for the legacy rule of every
+     toy hash: pin it.
+
+B. PRODUCTION BUT OFF THE TOY PATH (compiled into the library; not reached)
+---------------------------------------------------------------------------
+  hashline/src/private_block/boundary.rs  5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581
+  hashline/src/private_block/run.rs       f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0
+  hashline/src/private_block/run_sink.rs  005bac239d8dd616a46573f948c30ce1e2c540e02cf97035d3c457717c32921d
+  Evidence: no call from private_block.rs, protocol.rs, argument.rs,
+  layout.rs, wire.rs, witness.rs, shape.rs, hash_domain.rs, pad.rs,
+  timing.rs or endpoint_g.rs names boundary::, run:: or run_sink:: except in
+  doc comments (protocol.rs:82; layout.rs:972,983; hash_domain.rs:217,220,
+  251,511,635). The run REUSES protocol::prove_core / verify_core; the toy
+  does not reach the run. (All three `mod` lines are private, private_block.rs
+  :67, :96, :101.)
+
+C. TEST-ONLY (declared #[cfg(test)] in private_block.rs)
+--------------------------------------------------------
+  plane_index.rs (:164-165) 9de8320a...; slot_ir.rs (:278-279) 734cd0e0...;
+  run_capture.rs (:155-156); run_statement_file.rs (:178-179); parity.rs,
+  refusals.rs, tamper.rs, tests.rs, norm_alias.rs and every *_tests.rs.
+  hash_domain_tests.rs is `#[cfg(test)] #[path]` (hash_domain.rs:744-745).
+  All capture/run_capture hooks in protocol.rs (:1080-1150, :1167-1168,
+  :1200-1209) and argument.rs (:465-471, :618-622, :1866-1868) are
+  #[cfg(test)]; private_block.rs:968-969, :975-976, :987-994 likewise.
+
+D. ALREADY PINNED, ON THE PATH (for completeness; reading is the other slices')
+-------------------------------------------------------------------------------
+  private_block.rs, private_block/{protocol,argument,layout,wire,witness}.rs,
+  private_seam.rs (toy endpoints: private_block.rs:864-866, frozen seam,
+  NttTables::new(12)), zk.rs, pcs.rs, merkle/transcript/field/ntt/mle/
+  sumcheck re-exports, tables_attn.rs (TAG_* constants, protocol.rs:23),
+  gpu/mod.rs (backend()), zkp-core/{lib,pcs,pcs/backend,merkle,transcript,
+  field,ntt,mle,sumcheck,rng}.rs, native_capture.rs (cfg(test) include).
+
+E. THE DEV-DEPENDENCY QUESTION
+------------------------------
+  hashline/Cargo.toml (snapshot, sha256 e3acda1b...): `private-block-kernel`
+  and `private-block-kernel-shaped` are BOTH under [dev-dependencies] only;
+  [dependencies] is zkp-core, blake3, rayon, sha2, and the optional
+  chacha20poly1305 / zeroize / cudarc. No [features] entry names either kernel.
+  Source uses: `private_block_kernel` in parity.rs:23, refusals.rs:28,
+  tests.rs:346; `private_block_kernel_shaped` in parity.rs:27 -- all three
+  files are #[cfg(test)] modules (private_block.rs:127-130, :291-292).
+  examples/zk60_kernel_fixture.rs:30 mentions the crate in a doc comment
+  only. zkp-core/src names neither. VERDICT: neither kernel crate can reach
+  the library or the release binary; a dev-dependency is not linked into a
+  non-test build of hashline. (Manifest reading only; no cargo run.)
+
+F. SUMMARY FOR THE PIN SET
+--------------------------
+  To make condition 7 cover the toy path in the snapshot tree (the owner's
+  2026-09-20 22:06 rule: every production file the prover and verifier
+  reach), six files have to be READ and ADDED, beside the 13 moved pins:
+    shape.rs, hash_domain.rs, pad.rs, timing.rs, endpoint_g.rs (private_block/)
+    and zkp-core/src/hashtag.rs.
+  boundary.rs, run.rs, run_sink.rs stay out (off the toy path), with digests
+  recorded as above. One risk to rule on: timing.rs's base_field_census
+  (HL_PB_BASEFIELD) prints a hidden-data-dependent count on the toy prover.
