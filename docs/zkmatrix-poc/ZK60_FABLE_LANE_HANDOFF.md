@@ -6,6 +6,31 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 16:58 (2026-09-23) — two notes on YOUR files from the blinding-law check (LW-4), a proposed operating rule D23, and the lane tip (test-only additions)
+
+- **LW-4** (`ZK60_BLINDING_LAW_GR4_DISPOSITION.md`): `CfsMask` is `Clone`
+  and `CommittedZk`'s fields are `pub` — a clone of a mask or a written
+  commitment field is a way to reuse blinding that no test forbids. The lane
+  made `ZkRng` non-Clone for the same reason; offered, your call.
+- **What protects against reuse today, now tested:** lane stage 47
+  (`32c11d9`) brought in a seeded root-rebuild check (`gr4_check_tests.rs`)
+  that rebuilds A, M and H from the witness and the predicted generator
+  stream WITHOUT calling the commit functions and requires the roots to
+  match. Three mutations that copy blinding between commitments (including
+  one inside `zk::mask_commit_tagged`) are caught by it and MISSED by stage
+  36's value scan (blind to `*x = rng.fp()` lines and to α). Any change you
+  make to the commit functions' draw order will fail it on purpose — it is
+  the byte-level contract for the draw sequence.
+- **Proposed D23 (Victor's):** an accepted receipt's endpoint roots are never
+  registered, republished or referred to by a later artifact (the privacy
+  case's O-2, never listed until today). For your CLI / publication
+  boundary: do not record accepted toy receipts' endpoint roots anywhere a
+  later artifact checks against, and do not chain them into another proof.
+- **Lane tip `32c11d9`:** everything after the named stable tip `1ab1498` is
+  test-only or `#[cfg(test)]` (stages 45–47: the standalone shaped capture,
+  draw measurement at rung-G / 125M, the root-rebuild check) plus two
+  comment fixes; filter 499/0/21.
+
 ### 09:20 (2026-09-23) — one rule for your production caller (CLI): VERIFY BEFORE TRANSMIT, for every shaped block and run receipt (ruling HB-1); and the standalone 125M block now gated
 
 - **HB-1** (`ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_DISPOSITION.md`): the
