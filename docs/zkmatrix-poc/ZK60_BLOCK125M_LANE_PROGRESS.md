@@ -13843,7 +13843,8 @@ written here.
 
 ## Stage 46 — TEST-ONLY: the generator's draws MEASURED at rung-G and 125M for a standalone block, and for a two-block rung-G run (obligation 6a) (2026-09-23, 09:2x–)
 
-**Status: `OPEN` (skeleton).** Opened 2026-09-23 09:26 PDT on the lane tip
+**Status: `CLOSED` 2026-09-23 09:4x PDT** — see "Stage 46 — CLOSED" below.
+Opened 2026-09-23 09:26 PDT on the lane tip
 `544fbaf`, one writer (the delegated stage-46 agent). **Why:** obligation 6a
 of `ZK60_SHAPED_PRIVACY_PATH_STATUS.md` and §3 of
 `ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_DISPOSITION.md`: the generator's
@@ -13870,3 +13871,162 @@ the run's argument a COUNTED per-run total.
 
 **No privacy claim.** A draw count says where and how much blinding is drawn,
 not that it suffices.
+
+### Stage 46 — CLOSED (2026-09-23 09:26 – 09:4x)
+
+**Status: `LANDED`. Every measured figure equals its counted figure, at
+rung-G, at 125M and on the two-block rung-G run — no mismatch, no finding
+against a count.** Test-only: one test file changed
+(`hashline/src/private_block/s36_tests.rs`), no production line anywhere.
+Shared box, not quiesced; no GPU.
+
+#### What was measured, and how (in situ vs replica)
+
+| generator | how it is observed | in situ? |
+|---|---|---|
+| the standalone block's (`prove_inner_at`'s `ZkRng::from_os`) | stage 36's `measure_block`: `prove_inner_at`'s body with the generator and transcript ours, every draw made by the production `prove_core`, the receipt verified typed AND from bytes before a counter is read | **yes** (as stage 36) |
+| each external endpoint's (`endpoint_g::prepare`'s own `ZkRng::from_os`) | stage 36's replica (`measure_endpoint`) — **finding S36-F2 stands**: the generator lives and dies inside `endpoint_g::prepare`, and `prepare_with_rng` would be a production change this stage may not make. **New:** the objects that real generator filled are READ in situ off the real owners' commitments (`endpoint_object_counts`: mask words above the shape's data rows, `pads`, `salts`) and equal the replica's counts at both shapes | **replica** for the byte counter; **in situ** for the filled objects |
+| the run's one generator (`run.rs:727`) | new `s46_measure_run`: `prove_run`'s body with the generator and transcript ours; the run header rebuilt from `capture_header()` and required to equal `binding()`; every draw made by the production `boundary::prepare` and `prove_core`; the segments verified by the production `run::verify_run` before a counter is read; the generator read BETWEEN the steps, so the per-boundary and per-stage consumption is measured (the run-level half of S36-F3 closes; the split inside `prove_core` stays derived) | **yes** |
+| the 125M run's boundary | the production `boundary::prepare` of a 125M run statement's boundary 0, handed our generator (a boundary takes its generator from its caller by design) — not inside a run that verifies; at rung-G the same measurement equals the in-run boundary's, 270,336 B both | the preparer itself, outside a run |
+
+`s46_the_replicas_draw_where_the_production_provers_draw` reads the
+production bodies: `prove_run` uses `rng` exactly three times (the one
+`ZkRng::from_os`, `boundary::prepare`, `prove_core`), opens with no generator,
+makes no second one; `prove_inner_at` exactly twice (`from_os`,
+`prove_core`); `boundary::prepare` one `rng.` draw (the mask-row fill) and the
+tagged commitment on the caller's generator.
+
+**What the accessor measures is STREAM BYTES** (`16 × fp() + 32 ×
+bytes32()`); a "field draws" figure below is the measured bytes less 32 per
+salt, over 16, with the salt count from the geometry (encoded columns), as
+stage 36's figures of record were read.
+
+#### The table — shape × scope × generator → MEASURED / COUNTED / equal?
+
+COUNTED sources: the standalone check
+(`results/zk60_hash_layer_standalone_block_check/check_standalone_block.json`,
+main tree `cb83a97`, `targets.<shape>`); the run memo's §6.2 parts (ruling
+H-6, post-S19-F1-repair). Logs `s46-tests1.log` (rung-G) and
+`s46-m125.log` (125M).
+
+| shape | scope | generator | quantity | MEASURED | COUNTED | equal? |
+|---|---|---|---|---:|---:|---|
+| rung-G | standalone block | block (in situ) | stream bytes | 11,385,664 | 11,385,664 | yes |
+| rung-G | standalone block | block (in situ) | field draws / salts | 687,028 / 12,288 | 687,028 / 12,288 | yes |
+| rung-G | standalone block | block: A / H / M (closed form, DERIVED) | field draws | 411,392 / 258,046 / 17,590 | 411,392 / 258,046 / 17,590 | yes |
+| rung-G | standalone block | endpoint in, out (REPLICA) | field draws / salts, each | 7,424 / 4,096 | 7,424 / 4,096 | yes |
+| rung-G | standalone block | endpoint in, out (real owner, READ in situ) | mask words + pads / salts, each | 7,424 / 4,096 | 7,424 / 4,096 | yes |
+| rung-G | standalone block | all three | field draws / salts per proof | **701,876** / 20,480 | **701,876** / 20,480 | yes |
+| rung-G | run L=2 | run (in situ) | stream bytes | 23,041,664 | 23,041,664 | yes |
+| rung-G | run L=2 | run (in situ) | field draws / salts | 1,382,760 / 28,672 | 1,382,760 / 28,672 (2 × 687,028 + 8,704) | yes |
+| rung-G | run L=2 | run: boundary 0 (between steps) | stream bytes / field draws | 270,336 / 8,704 | 270,336 / 8,704 | yes |
+| rung-G | run L=2 | run: stage 0, stage 1 `prove_core` | field draws, each | 687,028 | 687,028 | yes |
+| rung-G | run L=2 | external endpoints (real owners; replica) | field draws / salts, each | 7,424 / 4,096 | 7,424 / 4,096 | yes |
+| rung-G | run L=2 | all three | field draws / salts per run | 1,397,608 / 36,864 | 1,397,608 / 36,864 (arithmetic on counted parts) | yes |
+| rung-G | run L=3, sum of measured parts | all three | field draws / salts per run | 2,093,340 / 53,248 | **2,093,340** / 53,248 (H-6) | yes |
+| 125M | standalone block | block (in situ) | stream bytes | 148,802,240 | 148,802,240 | yes |
+| 125M | standalone block | block (in situ) | field draws / salts | 9,029,804 / 135,168 | 9,029,804 / 135,168 | yes |
+| 125M | standalone block | block: A / H / M (closed form, DERIVED) | field draws | 5,484,800 / 3,526,654 / 18,350 | 5,484,800 / 3,526,654 / 18,350 | yes |
+| 125M | standalone block | endpoint in, out (REPLICA) | field draws / salts, each | 91,392 / 65,536 | 91,392 / 65,536 | yes |
+| 125M | standalone block | endpoint in, out (real owner, READ in situ) | mask words + pads / salts, each | 91,392 / 65,536 | 91,392 / 65,536 | yes |
+| 125M | standalone block | all three | field draws / salts per proof | **9,212,588** / 266,240 | **9,212,588** / 266,240 | yes |
+| 125M | run boundary, alone | `boundary::prepare` | field draws / salts | 108,032 / 65,536 | 108,032 / 65,536 | yes |
+| 125M | run L=12, sum of measured parts | all three | field draws / salts per run | 109,728,784 / 2,473,984 | **109,728,784** / 2,473,984 (H-6) | yes |
+
+**On the brief's 109,728,040.** That is the run-composition memo's
+PRE-repair count (`ZK60_HASH_LAYER_AND_FS_LIFT_RUN.md` §6.2, finding F-3,
+ruling H-6: "must be quoted as such"). The sum of the parts measured here is
+the post-repair **109,728,784**, which is 744 = 12 × 62 above it — exactly
+the 62 draws per block the S19-F1 repair added. Not a mismatch with the code;
+a stale figure in whatever still quotes 109,728,040.
+
+**The 12-block 125M figure is a SUM OF MEASURED PARTS** (twelve 125M block
+streams measured once, eleven boundaries measured once outside a run, two
+endpoints on the replica), not a measured twelve-block run. The rung-G run
+shows the parts compose: each stage's `prove_core` consumed exactly a
+standalone block's stream and the boundary measured outside the run equals
+the one inside.
+
+#### The squeezes and replayed points
+
+| shape | scope | quantity | MEASURED | COUNTED | equal? |
+|---|---|---|---:|---:|---|
+| rung-G | standalone block | live squeezes | 2,356 | 2,356 (the gate, round 9j) | yes |
+| rung-G | standalone block | refusal-replay points (4 calls, all accepted) | 1,394 | 1,394 (the check) | yes |
+| rung-G | standalone block | frame bytes | 4,234,984 | 4,234,984 | yes |
+| 125M | standalone block | live squeezes | 14,252 | 14,252 (the gate, round 9j) | yes |
+| 125M | standalone block | refusal-replay points (4 calls, all accepted) | 13,050 | 13,050 (the check) | yes |
+| 125M | standalone block | frame bytes | 40,783,352 | 40,783,352 | yes |
+| rung-G | run L=2 | live squeezes | 4,640 | 4,640 — MODEL, DERIVED here | yes |
+| rung-G | run L=2 | refusal-replay points (7 calls, all accepted; the boundary's 2 groups) | 2,780 | 2,780 — MODEL, DERIVED here | yes |
+| rung-G | run L=2 | segment bytes | 4,067,160 / 4,257,592 | the same (`run_tests::counted_segment_bytes`) | yes |
+
+The run MODEL (no document states an `L = 2` figure): a block is `core + two
+endpoint openings`, a run `L cores + two endpoint openings + (L − 1) boundary
+openings`; an opening's live challenges are its group members plus its rows
+(`1 + 9` external, `2 + 10` boundary at rung-G), plus control C7's 64 index
+squeezes per PCS opening (5 per block, `4L + 1` per run). Before predicting
+`L = 2` it reproduces the run gate's MEASURED **6,924** at rung-G `L = 3`
+(`zk60_native_run_gate_s20`), which the test asserts.
+
+#### The 125M heavy run (`s46-m125.log`, `.done` = 0)
+
+Prebuilt with `--no-run` under `/tmp/zk-build.lock` (`s46-build1.log`,
+2 m 22 s, the same 16 warning lines as stage 45); launched detached:
+`setsid nohup bash -c 'flock /tmp/zk-heavy.lock env
+MALLOC_MMAP_THRESHOLD_=131072 /usr/bin/time -v <test binary> --ignored
+--exact --nocapture --test-threads=1
+private_block::s36_tests::s46_a_standalone_125m_block_draws_the_counted_figures_on_each_of_its_three_generators
+>> s46-m125.log 2>&1; echo $? > s46-m125.done'`; 13 GiB available at launch.
+One run, shared box: dense generic witness + endpoint owners **5.23 s**; the
+measured proof + typed verify + encode + verify from bytes **21.18 s**; whole
+test **26.60 s**; peak RSS **10,199 MiB** (`VmHWM`) / 10,443,356 kB
+(`/usr/bin/time`). The prove alone is not separated from the two
+verifications in this test (stage 45's one-run 28.12 s prove is the timing
+figure of record; D20).
+
+#### Byte identity and the gates
+
+| gate | log | result |
+|---|---|---|
+| the stage's tests, rung-G | `s46-tests1.log` | **3 passed / 0 failed / 1 ignored** (the 125M one), 2.09 s |
+| the 125M test, `--ignored`, detached | `s46-m125.log` | **1 passed**, 26.60 s |
+| focused: `s36_tests block_capture_shaped s25_ s24_`, 6 threads | `s46-focused.log` | **40 passed / 0 failed / 3 ignored**, 13.23 s |
+| **THE GATE** `--lib private_`, 6 threads, `/usr/bin/time -v`, under the build lock | `s46-gate-private.log` (`.done` = 0) | **496 passed / 0 failed / 21 ignored**, 140.29 s (2:20.43 wall, binary already built), peak RSS 4.21 GB (4,207,512 kB), the same 16 warning lines — against 493 / 0 / 20: +3 tests, +1 ignored heavy test, nothing lost |
+
+The toy stays **2,816,472 B** and every pin of stage 44/45's list is in the
+pass list (`tests::honest_receipt_…`, `zero_witness_tests::…fixture_receipt_length`,
+`grow_tests::{…toy_exactly, …schedule_digest_is_frozen, …parameter_line…,
+…125m_receipt_is_reproduced_part_by_part}`, `review_tests::a_toy_receipt_…`,
+`run_tests::{…twelve_block_125m…, …ruling_r5}`, `s25_tests::{every_hash_call_site…,
+the_draw_accounting_assertions_are_no_longer_blocked…}`, stage 36's seven).
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat 544fbaf HEAD -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock hashline/src/private_block.rs
+hashline/src/private_block/{run,protocol,boundary,endpoint_g}.rs
+hashline/src/private_seam.rs` prints NOTHING. The whole source diff is
+`s36_tests.rs` (SHA-256 `924ba60a…e2ab17f2` → `0a4a65f7…97c119e3`), a test
+file no bundle pins. No D22 pin moves. The untracked `u31-c6-run1.*` files
+are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `5794531` | the skeleton |
+| `61e557b` | the tests (rung-G standalone, rung-G run, replica fidelity, the ignored 125M test) and the rung-G logs |
+| `d7f140b` | the 125M log |
+| this one | the focused and gate logs, this section |
+
+#### What stage 46 is NOT
+
+Not a privacy result: it measures where and how much blinding is drawn, not
+that it suffices (G-R4's LAW, Theorem B's conditions, D19b are untouched).
+Not an in-situ measurement of the endpoint generators' byte counters (S36-F2:
+`endpoint_g::prepare_with_rng` is the one-line production change that would
+close it, for the file's owner). Not a measured twelve-block 125M run (a sum
+of measured parts). Not J-5's widened assertion 2 at run scope (obligation
+6b: the `11L + 3(L − 1)` segment offsets) — though the run's boundary and
+stage totals are now measured between steps at rung-G `L = 2`.
