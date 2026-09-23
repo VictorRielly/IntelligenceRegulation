@@ -1,0 +1,283 @@
+== toy
+   pads                 (32, 16, 2, 16)
+   d_max_shape          131068
+   d_max                131072
+   norm_wrho            29
+   den_max              536870912
+   norm_window_ok       True
+   norm_margin_ratio    1.0
+   isqrt_ok             True
+   wrho_s               14
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-1024, 1024)
+   gate_img             (-1024, 1024)
+   up_img               (-131072, 131072)
+   rope_img             (-254, 254)
+   score_img            (-2016, 2016)
+   o_img                (-127, 127)
+   ao_img               (-2032, 2032)
+   ao_reachable         False
+   prod_img             (-65534, 65536)
+   down_img             (-1048576, 1048576)
+   u8_total             61440
+   max_count            61440
+   f_pads               False
+   f_padded_positions   0
+   f_size               512
+   kernel_max           17179869185
+== rung
+   pads                 (32, 128, 8, 256)
+   d_max_shape          321049
+   d_max                321059
+   norm_wrho            31
+   den_max              1315057664
+   norm_window_ok       True
+   norm_margin_ratio    1.6329958045094515
+   isqrt_ok             True
+   wrho_s               17
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-6144, 6144)
+   gate_img             (-6144, 6144)
+   up_img               (-786432, 786432)
+   rope_img             (-254, 254)
+   score_img            (-4032, 4032)
+   o_img                (-127, 127)
+   ao_img               (-12192, 12192)
+   ao_reachable         False
+   prod_img             (-65534, 65536)
+   down_img             (-12582912, 12582912)
+   u8_total             419840
+   max_count            419840
+   f_pads               True
+   f_padded_positions   3584
+   f_size               8192
+   kernel_max           103079215105
+== rung-G
+   pads                 (32, 128, 8, 256)
+   d_max_shape          321049
+   d_max                321059
+   norm_wrho            31
+   den_max              1315057664
+   norm_window_ok       True
+   norm_margin_ratio    1.6329958045094515
+   isqrt_ok             True
+   wrho_s               17
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-6144, 6144)
+   gate_img             (-6144, 6144)
+   up_img               (-786432, 786432)
+   rope_img             (-254, 254)
+   score_img            (-4032, 4032)
+   o_img                (-127, 127)
+   ao_img               (-12192, 12192)
+   ao_reachable         False
+   prod_img             (-65534, 65536)
+   down_img             (-12582912, 12582912)
+   u8_total             419840
+   max_count            419840
+   f_pads               True
+   f_padded_positions   3584
+   f_size               8192
+   kernel_max           103079215105
+== rung-K4
+   pads                 (32, 128, 16, 256)
+   d_max_shape          321049
+   d_max                321059
+   norm_wrho            31
+   den_max              1315057664
+   norm_window_ok       True
+   norm_margin_ratio    1.6329958045094515
+   isqrt_ok             True
+   wrho_s               17
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-6144, 6144)
+   gate_img             (-6144, 6144)
+   up_img               (-786432, 786432)
+   rope_img             (-254, 254)
+   score_img            (-2016, 2016)
+   o_img                (-127, 127)
+   ao_img               (-12192, 12192)
+   ao_reachable         False
+   prod_img             (-65534, 65536)
+   down_img             (-12582912, 12582912)
+   u8_total             542720
+   max_count            542720
+   f_pads               True
+   f_padded_positions   3584
+   f_size               8192
+   kernel_max           103079215105
+== rung-K8
+   pads                 (32, 128, 16, 256)
+   d_max_shape          370716
+   d_max                370727
+   norm_wrho            31
+   den_max              1518497792
+   norm_window_ok       True
+   norm_margin_ratio    1.4142158515565362
+   isqrt_ok             True
+   wrho_s               17
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-8192, 8192)
+   gate_img             (-8192, 8192)
+   up_img               (-1048576, 1048576)
+   rope_img             (-254, 254)
+   score_img            (-2016, 2016)
+   o_img                (-127, 127)
+   ao_img               (-16256, 16256)
+   ao_reachable         False
+   prod_img             (-65534, 65536)
+   down_img             (-12582912, 12582912)
+   u8_total             555008
+   max_count            555008
+   f_pads               True
+   f_padded_positions   3584
+   f_size               8192
+   kernel_max           137438953473
+== rung-P2
+   pads                 (32, 128, 16, 256)
+   d_max_shape          321049
+   d_max                321059
+   norm_wrho            31
+   den_max              1315057664
+   norm_window_ok       True
+   norm_margin_ratio    1.6329958045094515
+   isqrt_ok             True
+   wrho_s               17
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-6144, 6144)
+   gate_img             (-6144, 6144)
+   up_img               (-786432, 786432)
+   rope_img             (-254, 254)
+   score_img            (-2016, 2016)
+   o_img                (-127, 127)
+   ao_img               (-12192, 12192)
+   ao_reachable         False
+   prod_img             (-65534, 65536)
+   down_img             (-16777216, 16777216)
+   u8_total             542720
+   max_count            542720
+   f_pads               False
+   f_padded_positions   0
+   f_size               8192
+   kernel_max           103079215105
+== rung-C6
+   pads                 (32, 512, 16, 512)
+   d_max_shape          642099
+   d_max                642119
+   norm_wrho            32
+   den_max              2630119424
+   norm_window_ok       True
+   norm_margin_ratio    1.6329932613736706
+   isqrt_ok             True
+   wrho_s               17
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-24576, 24576)
+   gate_img             (-24576, 24576)
+   up_img               (-3145728, 3145728)
+   rope_img             (-254, 254)
+   score_img            (-8064, 8065)
+   o_img                (-127, 127)
+   ao_img               (-48768, 48768)
+   ao_reachable         True
+   prod_img             (-65534, 65536)
+   down_img             (-33554432, 33554432)
+   u8_total             1214464
+   max_count            1214464
+   f_pads               False
+   f_padded_positions   0
+   f_size               16384
+   kernel_max           412316860417
+== rung-W14
+   pads                 (64, 1024, 16, 1024)
+   d_max_shape          908065
+   d_max                908093
+   norm_wrho            32
+   den_max              3719548928
+   norm_window_ok       True
+   norm_margin_ratio    1.1547011154143905
+   isqrt_ok             True
+   wrho_s               18
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-49152, 49152)
+   gate_img             (-49152, 49152)
+   up_img               (-6291456, 6291456)
+   rope_img             (-254, 254)
+   score_img            (-16129, 16129)
+   o_img                (-127, 127)
+   ao_img               (-97536, 97536)
+   ao_reachable         True
+   prod_img             (-65534, 65536)
+   down_img             (-67108864, 67108864)
+   u8_total             4882432
+   max_count            4882432
+   f_pads               False
+   f_padded_positions   0
+   f_size               65536
+   kernel_max           824633720833
+== rung-E32
+   pads                 (32, 1024, 16, 1024)
+   d_max_shape          908065
+   d_max                908093
+   norm_wrho            32
+   den_max              3719548928
+   norm_window_ok       True
+   norm_margin_ratio    1.1547011154143905
+   isqrt_ok             True
+   wrho_s               17
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-49152, 49152)
+   gate_img             (-49152, 49152)
+   up_img               (-6291456, 6291456)
+   rope_img             (-254, 254)
+   score_img            (-16129, 16129)
+   o_img                (-127, 127)
+   ao_img               (-97536, 97536)
+   ao_reachable         True
+   prod_img             (-65534, 65536)
+   down_img             (-67108864, 67108864)
+   u8_total             2181120
+   max_count            2181120
+   f_pads               False
+   f_padded_positions   0
+   f_size               32768
+   kernel_max           824633720833
+== 125M
+   pads                 (512, 1024, 16, 2048)
+   d_max_shape          908065
+   d_max                908093
+   norm_wrho            32
+   den_max              3719548928
+   norm_window_ok       True
+   norm_margin_ratio    1.1547011154143905
+   isqrt_ok             True
+   wrho_s               18
+   softmax_window_ok    True
+   y                    (-64, 64)
+   q_img                (-49152, 49152)
+   gate_img             (-49152, 49152)
+   up_img               (-6291456, 6291456)
+   rope_img             (-254, 254)
+   score_img            (-16129, 16129)
+   o_img                (-127, 127)
+   ao_img               (-97536, 97536)
+   ao_reachable         True
+   prod_img             (-65534, 65536)
+   down_img             (-134217728, 134217728)
+   u8_total             98598912
+   max_count            98598912
+   f_pads               False
+   f_padded_positions   0
+   f_size               1048576
+   kernel_max           824633720833
+kernel_max toy 1.72e+10, 125M 8.25e+11
+norm margin at 125M: 0.2075 bits
+ALL CENSUS FIGURES RE-DERIVED: OK
