@@ -1,0 +1,204 @@
+   Compiling typenum v1.20.1
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling crossbeam-epoch v0.9.20
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling crossbeam-deque v0.8.7
+   Compiling cfg-if v1.0.4
+   Compiling digest v0.10.7
+   Compiling rayon-core v1.13.0
+   Compiling either v1.18.0
+   Compiling arrayvec v0.7.8
+   Compiling constant_time_eq v0.4.2
+   Compiling cpufeatures v0.3.1
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling blake3 v1.8.7
+   Compiling rayon v1.12.0
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/wt-zk60-block125m-review/private-block-kernel-shaped)
+   Compiling private-block-kernel v0.1.0 (/home/victor/wt-zk60-block125m-review/private-block-kernel)
+   Compiling zkp-core v0.1.0 (/home/victor/wt-zk60-block125m-review/zkp-core)
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m-review/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:869:13
+    |
+869 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 1m 21s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m-review/hashline/target/release/deps/hashline-1aad528bbc15b692)
+
+running 7 tests
+test private_block::s39_s43_review_tests::rv_k1_the_cs3_refusal_text_is_false_in_a_run ... ignored, reproducer of review finding K-1 (erratum): in a run the CS-3 refusal text claims nothing of the block was drawn, absorbed or committed, after the block's outgoing boundary was drawn, committed and absorbed
+RV Q2 "toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 C-6 f_e = 0: wrho_s 5 / Layout::for_shape refuses: private block: this shape's A plane list is shorter than the pinned one
+RV Q2 C-6 f_e = 1: wrho_s 6 / Layout::for_shape refuses: private block: this shape's A plane list is shorter than the pinned one
+RV Q2 C-6 f_e = 2: wrho_s 7 / Layout::for_shape refuses: private block: this shape's A plane list is shorter than the pinned one
+RV Q2 C-6 f_e = 3: wrho_s 8 / Layout::for_shape refuses: private block: this shape's A plane list is shorter than the pinned one
+RV Q7 (b) a pub(crate) RunShape::from_parts skipping CS-7: the stage-43 pin sees 0 visible field(s); the stronger guard: ["2 RunShape struct literals (1 expected, in RunShape::new)"]
+RV Q7 (c) with_run_shape without #[cfg(test)]: the stage-43 pin sees 0 visible field(s); the stronger guard: ["pub(crate) fn with_run_shape( is not directly under #[cfg(test)]"]
+RV Q7: the stage-43 declaration pin catches a field made visible (d) and misses a second constructor (b) and an un-cfg'd escape hatch (c); the stronger guard catches (b) and (c) and passes the source as it stands
+test private_block::s39_s43_review_tests::rv_q7_the_declaration_pin_misses_a_new_constructor_and_an_uncfgd_escape_hatch ... ok
+RV Q2 "development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2 "development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)": check_constructed, check_is_for_shape (also with moved IO rows), IoSpec check_for_shape + validate, tame (and dense) statement check_for_shape: all admitted
+RV Q2: the eight registered run shapes (seven + test-only rung-K8) construct at L = 1, 2, 12 and their block shapes pass CS-8
+test private_block::s39_s43_review_tests::rv_every_registered_shape_and_its_own_statement_pass_every_new_recheck ... ok
+RV Q2 toy the synthetic fixture (control): proved (2,816,472 B) and ACCEPTED
+RV K-4 the toy profile string at rung-G geometry: Shape::new admits, CS-8 admits, is_frozen_toy, NO pad rule while Dom::F and Dom::D pad, legacy hash; the honest dense proof: ENCODER REFUSED: private block wire: frame exceeds bound
+test private_block::s39_s43_review_tests::rv_k4_the_toy_profile_string_at_another_geometry_passes_every_cs8_check ... ok
+RV Q2 toy all 0: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy all i16::MAX: the builder refuses by name: fixed oracle range refusal: residual 1
+RV Q2 toy all i16::MIN: the builder refuses by name: fixed oracle range refusal: residual 1
+RV Q2 toy alternating MAX / MIN by word: the builder refuses by name: fixed oracle range refusal: residual 1
+RV Q2 toy alternating MAX / MIN by token row: the builder refuses by name: fixed oracle range refusal: residual 1
+RV Q2 toy one MAX spike at word 0: the builder refuses by name: fixed oracle range refusal: residual 1
+RV Q2 "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" the dense input (control): ACCEPTED (4234984 B)
+RV Q2 "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" all i16::MAX: the builder refuses: fixed oracle range refusal: residual 1
+RV Q2 "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" all i16::MIN: the builder refuses: fixed oracle range refusal: residual 1
+RV Q2 "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" alternating MAX / MIN by word: the builder refuses: fixed oracle range refusal: residual 1
+RV Q2 "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" seeded full-range input 1: the builder refuses: fixed oracle range refusal: residual 1
+RV Q2 C-6 f_e = 4: wrho_s 9 / ACCEPTED (4157112 B)
+test private_block::s39_s43_review_tests::rv_c6_the_exp_scales_below_four_prove_or_are_refused_by_name ... ok
+RV Q2 "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" seeded full-range input 2: the builder refuses: fixed oracle range refusal: residual 2
+RV Q2 toy one MIN spike at the last word: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy seeded full-range input 1: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy seeded full-range input 2: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy seeded full-range input 3: proved (2,816,472 B) and ACCEPTED
+RV Q2 "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)" the dense input (control): ACCEPTED (4743128 B)
+RV Q2 "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)" all i16::MAX: the builder refuses: fixed oracle range refusal: residual 1
+RV Q2 "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)" all i16::MIN: the builder refuses: fixed oracle range refusal: residual 1
+RV Q2 "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)" alternating MAX / MIN by word: the builder refuses: fixed oracle range refusal: residual 1
+RV Q2 "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)" seeded full-range input 1: the builder refuses: fixed oracle range refusal: residual 2
+RV Q2 "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)" seeded full-range input 2: the builder refuses: fixed oracle range refusal: residual 1
+test private_block::s39_s43_review_tests::rv_cs3_never_refuses_an_honest_padded_shape_input_at_the_int16_extremes ... ok
+RV Q2 toy seeded full-range input 4: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy seeded full-range input 5: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy seeded full-range input 6: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy seeded full-range input 7: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy seeded full-range input 8: proved (2,816,472 B) and ACCEPTED
+RV Q2 toy: 11 honest inputs proved and accepted, 5 refused by the builder by name, 0 refused by CS-3, 0 rejected
+test private_block::s39_s43_review_tests::rv_cs3_never_refuses_an_honest_toy_input_at_the_int16_extremes ... ok
+
+test result: ok. 6 passed; 0 failed; 1 ignored; 0 measured; 574 filtered out; finished in 2.24s
+

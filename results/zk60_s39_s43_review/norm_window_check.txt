@@ -1,0 +1,4 @@
+widths 1..2^20 where the derivation is BELOW the CS-2 minimum: 21 first: [16385, 65537, 65538, 65539, 65540]
+  of them at or below 16,384 (CS-5's cap): 0
+widths where the derivation is ABOVE the CS-2 minimum: 0
+VERDICT: exact at every admitted width
