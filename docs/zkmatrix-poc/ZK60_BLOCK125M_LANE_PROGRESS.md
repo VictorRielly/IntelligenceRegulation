@@ -13623,3 +13623,34 @@ untracked `u31-c6-run1.*` files are left alone.
 
 Not a privacy result. Not a soundness statement beyond statement, shape and
 profile admissibility.
+
+## Stage 45 — TEST-ONLY: a capture of a STANDALONE shaped block receipt (obligation 3 of the shaped privacy status) (2026-09-23, 03:1x–)
+
+**Status: `OPEN`.** Opened 2026-09-23 03:14 PDT on the lane tip `1ab1498`,
+one writer (the delegated stage-45 agent). **Why:**
+`ZK60_SHAPED_PRIVACY_PATH_STATUS.md` (main tree, 2026-09-23) §0 and
+obligation 3: every 125M privacy-gate measurement so far is of a TWO-BLOCK
+RUN (schema `hashline-native-capture/4-run` / `/5-run`, written by
+`run_capture.rs`). No STANDALONE single-block receipt at a shaped profile
+(125M or a development rung) has ever been captured; its transcript differs
+from a run stage's (its own `parameters` absorb, both external endpoints in
+one proof, no run header, no stage words, no boundary). The integrator's
+capture writer (`hashline/src/native_capture.rs`, schema 3) is toy-only and
+is not touched.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | read how `run_capture.rs` was built (stages 14 / 15 / 18 / 27, ruling M-8) and what the toy capture records | the field set mirrored, the differences named |
+| 2 | a NEW `#[cfg(test)]` verifier-side module `private_block/block_capture_shaped.rs`, schema `hashline-native-capture/5-block-shaped` | hooked exactly as `run_capture` is: a no-op unless a recorder is attached, handed only what the verifier holds, returns nothing; no absorb / draw / hash call in production; production files byte-identical except `#[cfg(test)]` hook lines (SHA-256 old -> new recorded) |
+| 3 | bundles under `results/zk60_block_captures_20260923/`: rung-G (dense generic + all-zero) and 125M (dense generic + all-zero), fresh-process re-verify and canonical recapture, a manifest and a validation file each, `source_commit` = HEAD (finding E32-F1) | sizes and digests recorded; a 125M file over 100 MB stays out of git with its digest recorded |
+| 4 | tests: the bundle round-trips, the hook changes no byte, a fresh verifier accepts the saved receipt; then stages 37–44's focused filters and `--lib private_` once at 6 threads | against 487 / 0 / 18; the toy 2,816,472 B and every pin unchanged |
+| 5 | this section, and a README in the capture directory saying what the bundles are and are NOT | no privacy claim |
+
+**Forbidden:** `hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`,
+`hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`, `zkvm-block/`;
+any production-behaviour change. The untracked `u31-c6-run1.*` files are left
+alone.
+
+**No privacy claim.** A capture is the INPUT to a gate; no gate has read one.
