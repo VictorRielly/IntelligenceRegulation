@@ -877,3 +877,90 @@ fn s40_c6_an_unbounded_f_e_admits_no_failing_honest_proof() {
     }
     assert!(bad.is_empty(), "C-6: an f_e Shape::new admits yields an honest proof that fails:\n{}", bad.join("\n"));
 }
+
+// ------------------------------------------------------------------ open notes, MEASURED for the security owner
+
+/// **S40-N2 (OPEN, outside ruling CS-1 as ruled): the ATTENTION half is
+/// keyed on its constructor's shape too.** `AttentionPublic::new_shaped`'s
+/// ruling-P-2 support check (and its length and table rules) runs against the
+/// shape it is asked about, and the statement does not carry it — the same
+/// structure check finding C-1 found in the feed-forward half, which ruling
+/// CS-1 names alone. MEASURED: the dense rung-G attention half (6 heads of 16
+/// over 2 key-value heads) has the same padded matrix lengths as rung-K4's (12
+/// heads of 8 over 4); asked about rung-K4 the constructor refuses it by P-2's
+/// name (a weight at a padded head slot), but built at rung-G and placed in a
+/// rung-K4 block with rung-K4's own dense feed-forward half, it is admitted by
+/// the builder and the honest proof is REJECTED BY THE VERIFIER. This test
+/// asserts that measured state; when the attention half gets the same
+/// re-check it fails, and must be rewritten to expect the refusal.
+#[test]
+fn s40_n2_an_attention_half_built_at_another_shape_still_reaches_a_rejected_receipt() {
+    let (g, k4) = (Shape::rung_g(), Shape::rung_k4());
+    let (att_g, _, _) = super::dense_tests::dense_case(&g);
+    let (_, ff_k4, x_k4) = super::dense_tests::dense_case(&k4);
+    // the control: the same attention words asked about rung-K4
+    let own = AttentionPublic::new_shaped(&k4, &att_g.wq, &att_g.wk, &att_g.wv, &att_g.wo, &att_g.gamma_a, &att_g.rope_cos[..k4.tokens * k4.head_dim / 2], &att_g.rope_sin[..k4.tokens * k4.head_dim / 2], &att_g.exp);
+    assert_eq!(own.err().as_deref(), Some("private block: a public weight is nonzero at a padded head slot"), "the constructor at rung-K4 no longer refuses rung-G's Wq by P-2's name");
+    let blk = BlockPublic::new(att_g, ff_k4);
+    let w = witness::build_shaped(&k4, blk.attention(), blk.feed_forward(), &x_k4).unwrap_or_else(|e| panic!("the builder refused the cross-shape attention half: {e}"));
+    let o = outcome(&k4, &blk, w);
+    eprintln!("S40-N2 a rung-G-built dense attention half in a rung-K4 block: constructor at rung-K4 REFUSES by P-2's name; built at rung-G: builder ADMITS; the honest proof: {}", o.short());
+    assert!(matches!(o, Outcome::VerifierRejected(_)), "S40-N2's measured state changed: {}", o.short());
+}
+
+/// How far one window-override pair got at rung-G's geometry, on the dense
+/// statement and input: the first step that refused, or the verdict.
+fn window_probe(wrho_s: Option<u32>, norm_wrho: Option<u32>) -> String {
+    let profile: &'static str = Box::leak(format!("hashline-zk-mr1/s40-over-{wrho_s:?}-{norm_wrho:?}-dev/1").into_boxed_str());
+    let sh = match std::panic::catch_unwind(|| Shape::new("stage 40: rung-G geometry, window overrides at or above the derivation", profile, 24, 96, 192, 6, 16, 2, 10, 4, 12, 9, None, None, norm_wrho, wrho_s)) {
+        Err(_) => return "Shape::new PANICS".into(),
+        Ok(Err(e)) => return format!("Shape::new refuses: {e}"),
+        Ok(Ok(s)) => s,
+    };
+    match std::panic::catch_unwind(|| Layout::for_shape(&sh).map(|_| ())) {
+        Err(_) => return "Layout::for_shape PANICS".into(),
+        Ok(Err(e)) => return format!("Layout::for_shape refuses: {e}"),
+        Ok(Ok(())) => {}
+    }
+    let (public, ff, x) = super::dense_tests::dense_case(&sh);
+    let blk = BlockPublic::new(public, ff);
+    let w = match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| witness::build_shaped(&sh, blk.attention(), blk.feed_forward(), &x))) {
+        Err(_) => return "the builder PANICS".into(),
+        Ok(Err(e)) => return format!("the builder refuses: {e}"),
+        Ok(Ok(w)) => w,
+    };
+    let misses = (u8_misses(&sh, &w).len(), exp_misses(&sh, &blk, &w).len(), act_misses(&sh, blk.feed_forward(), &w).len());
+    let proved = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        let (expected, owners) = endpoints_at(&sh, &w);
+        prove_inner_at(&sh, &blk, w, &expected, owners).and_then(|(r, _)| r.to_bytes_at(&sh, &blk, &expected).map(|b| (expected, b)))
+    }));
+    match proved {
+        Err(_) => format!("lookup misses {misses:?} / the prover PANICS"),
+        Ok(Err(e)) => format!("lookup misses {misses:?} / the honest prover refuses: {e}"),
+        Ok(Ok((expected, bytes))) => match verify_bytes_at(&sh, &blk, &expected, &bytes) {
+            Ok(()) => format!("lookup misses {misses:?} / ACCEPTED"),
+            Err(e) => format!("lookup misses {misses:?} / verifier rejected: {e}"),
+        },
+    }
+}
+
+/// **S40-N3: the overrides ruling CS-2 KEEPS.** The ruling keeps an override
+/// at or above the derivation; nothing bounds it from above (the reference
+/// kernel refuses `wrho_s >= 63` and `norm_wrho >= 63`). MEASURED at rung-G's
+/// geometry on the dense statement and input, through the HONEST prover (the
+/// lookup-miss refusal of ruling CS-3 on): for every kept override, some step
+/// refuses BY NAME before a proof exists, or the honest proof is ACCEPTED —
+/// never a proof the verifier rejects, never a panic.
+#[test]
+fn s40_n3_every_window_override_at_or_above_its_derivation_proves_or_is_refused_by_name() {
+    let mut bad = Vec::new();
+    let cases: Vec<(Option<u32>, Option<u32>)> = [17u32, 18, 23, 24, 25, 31, 32, 40, 48, 56, 62, 63, 64, 70, 200].iter().map(|w| (Some(*w), None)).chain([31u32, 32, 33, 40, 62, 63, 64, 70].iter().map(|w| (None, Some(*w)))).collect();
+    for (ws, nw) in cases {
+        let v = window_probe(ws, nw);
+        eprintln!("S40-N3 wrho_s {ws:?} / norm_wrho {nw:?}: {v}");
+        if v.contains("verifier rejected") || v.contains("PANICS") {
+            bad.push(format!("wrho_s {ws:?} / norm_wrho {nw:?}: {v}"));
+        }
+    }
+    assert!(bad.is_empty(), "S40-N3: a window override Shape::new keeps yields an honest proof that fails, or a panic:\n{}", bad.join("\n"));
+}

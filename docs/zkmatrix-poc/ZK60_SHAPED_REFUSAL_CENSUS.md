@@ -48,6 +48,12 @@ the shape** by the test, not typed in. Result:
   **FIXED at `7472a3c` (stage 39, 2026-09-22), by ruling S38-F1(a): the
   statement constructor now refuses such a table by name at those shapes —
   see §6.**
+* **Stage 40 (2026-09-22/23), the disposition's rulings CS-1, CS-2, CS-3 on
+  the adversarial check:** the S38-F1(a) and P-2 checks are re-run, by name,
+  wherever a feed-forward statement meets the shape it is proved at (CS-1);
+  `Shape::new` refuses undersized window overrides (CS-2) and, by note C-6,
+  `f_e > 31`; a lookup miss is one named prover refusal before the `A`
+  commitment (CS-3) — see §9.
 
 ## 2. What was enumerated
 
@@ -73,7 +79,8 @@ S-6, C-4), `Ids::new`, the pinned norm-limb count (`witness.rs:429-434`),
 `fits_the_ntt_tables` (`protocol.rs:62`), the schedule checks of `run_slot`
 (`argument.rs:451, 454, 463, 494, 558, 781, 797, 809, 812, 1182, 1711, 1849,
 1879`), the `eq_cube` precondition assert (`argument.rs:285`), the opening
-audit and group count (`protocol.rs:205, 231-273, 323`), the endpoint
+audit (`protocol.rs:205, 231-273`; the group COUNT at `:323` is
+challenge-dependent and is listed in §5 since stage 40, note C-4), the endpoint
 geometry (`protocol.rs:359, 367, 386, 666, 669`), the witness shape
 (`protocol.rs:813`), the statement constructors' length and pad-support checks
 (`private_block.rs:385-387, 474, 486, 571, 577`), and the kernel's `Shape` /
@@ -125,7 +132,27 @@ FINDING: reachable and not covered.
 | 27 | LogUp multiplicity wraps the field | `protocol.rs:835-853` | the largest count is the U8 looked-word total: 61,440 (toy) … 98,598,912 (125M) | U |
 | 28 | kernel checked-arithmetic overflow (every `Overflow` site) | `lib.rs:124-158` via `:508, 525, 555-565, 592-593, 623-637, 743, 768, 796, 816, 823` | the largest intermediate: 1.7e10 (toy) … 8.2e11 (125M), against `2^63 - 1` | U; the builder's unchecked `i64` works on the same bounds |
 
-U = UNREACHABLE, R-B = REACHABLE-BUILDER-REFUSES-FIRST. The test prints the
+U = UNREACHABLE, R-B = REACHABLE-BUILDER-REFUSES-FIRST.
+
+**Seven rows are PREMISES CHECKED BY READING, not tests (note C-3 of the
+check, labelled at stage 40).** Their `reach` is typed in or defined equal to
+their `range`, so they cannot fail at any shape: row 10 (causal maximum
+attainment: an encoding that tests only `MASK_SCORE`), row 12 (softmax
+denominator: `reach = range = [2^fE, tokens 2^fE]`), the QUOTIENT half of row
+13 (`reach = range = [0, 2^F_P]`), row 22's output conversion (`I16` against
+`I16`), row 23 (the pad word's `reach (0, 127)` is typed, not read off
+`lookups_at`), and rows 24 and 25 (`(0, 0)` against `(0, 0)`). The checker
+re-derived each premise by hand (`Sum in [2^fE, tokens 2^fE]`, `p <= 2^F_P`,
+`A_E = exp[delta]` written everywhere, `a16 = act[g8 + 128]` on the support,
+every `lookups_at` constant 0 or 127) and each holds; the test source carries
+the same label at each of the seven. Two tests exercise part of them
+(`the_unreachable_sites_premises_hold_at_every_shape`, `check_family`'s
+`logup_misses`). **Row 13's remainder half** (`rho_s` against `2^wrho_s`) is
+guarded by the window premise `tokens 2^fE <= 2^wrho_s` alone on the last
+token row; since stage 40 `Shape::new` enforces that premise at every shape it
+admits (ruling CS-2, §9).
+
+The test prints the
 34 rows (the three norm rows twice) with numbers at each of the ten shapes
 (`S38 CENSUS` lines of the log). COUNTED, per shape (as at stage 38; since
 stage 39 the FINDING column is 0 everywhere and the rung, rung-G, rung-K4
@@ -204,10 +231,12 @@ COUNTED per block, at every shape (`S38 CHALLENGE-ONLY` lines):
 | a zero opening-group member coefficient | `protocol.rs:300` | one per claim, over 44 (toy) / 45 groups |
 | dependent proximity coefficients | `protocol.rs:309` | 4 (A, H, two endpoints) |
 | a zero terminal mask coefficient in the audit | `protocol.rs:246` | per reserved-pair part |
-| a zero LogUp denominator | `protocol.rs:494, 569-574` | the only one whose firing depends on the data (it fires iff `alpha` equals a denominator the witness carries), at most 256 byte values + one pair per exp / activation position against `|Fp2| ~ 2^128` |
+| a zero LogUp denominator | `protocol.rs:494, 569-574` | at most 256 byte values + one pair per exp / activation position against `|Fp2| ~ 2^128`. **Corrected at stage 40 (note C-5 of the check):** WHETHER it refuses does not depend on the data — the table-helper inversion (`protocol.rs:957-965` at stage 38) inverts every table row, and every pair an admitted witness carries is a table row, so the set of refusing challenges is the table's; only WHEN (at the helper columns or at the table helpers) depends on the data, and nothing is public at either point |
+| the opening-group count against the schedule (**moved here from §2 at stage 40, note C-4**) | `protocol.rs:323` | a group key is the tail of a claim's challenge point (`:186-191`), so two claims whose tail challenges coincide as field elements — including the `rho_k = 1/2` rotary case `shape.rs` names — collapse into one group and every proof of that attempt is refused; about `2^-128` per pair; liveness only |
 
 Each is refused, never resampled on the same transcript, and none is a
-function of the private input except the last, whose chance is negligible.
+function of the private input (the zero LogUp denominator's timing is, its
+outcome is not — note C-5), and each chance is negligible.
 
 ## 6. Finding S38-F1 (first rank)
 
@@ -284,6 +313,13 @@ MEASURED (`s39-census-after.log`, `--lib census_shaped` 11 passed / 0 failed
   Before the fix, at the lane tip, the old form still failed exactly as at
   stage 38 (`s39-before.log`, exit 101).
 
+**Since stage 40 (ruling CS-1, check finding C-1):** the refusal above was
+keyed on the shape PASSED TO the constructor, which the statement does not
+carry, so a half built at another shape sidestepped it. The same check (and
+P-2's) is now re-run by name at the builder, the prover's and verifier's
+entries and the run layer (§9); the reproducer's control asserts those
+refusals instead of the verifier rejection it can no longer reach.
+
 ## 7. What this census does NOT cover
 
 * **Soundness.** The field-wrap premise (`layout.rs:639-648`: every integer
@@ -327,3 +363,134 @@ test before the fix, exit 101), `s39-census-after.log` (after: 11 / 0 / 0).
 `private_block.rs` moves `b6728273...652a3456` -> `29ba0084...f3acc872`
 (the refusal only); full digests and the lane gate in the lane ledger,
 stage 39.
+
+## 9. Stage 40 — rulings CS-1, CS-2, CS-3 as built (2026-09-22 23:29 – 2026-09-23 00:1x PDT)
+
+The disposition `ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security owner,
+2026-09-22 23:22) ruled on the adversarial check
+`ZK60_SHAPED_REFUSAL_CENSUS_CHECK.md` (review branch, `cda7d05`). Built on
+the lane at `6844ac6`. Test file `hashline/src/private_block/s40_tests.rs`
+(12 tests: 10 for the rulings, the reproducers and note C-6; 2 measuring the
+open notes S40-N2 and S40-N3 of the lane ledger). **Not a privacy result.**
+
+**Failing first.** The check's two reproducers, copied as they stand and run
+at the lane tip: both honest proofs REJECTED by the verifier, `H: pcs zk:
+group 8` (`s40-before-reproducers.log`, exit 101). Rewritten to expect the
+named refusals and run before any production line moved: 9 of 10 failed —
+the builder, the prover and the verifier admitted the C-1 statement,
+`Shape::new` admitted `wrho_s = 15` and `norm_wrho = 30`, the prover proved a
+tampered lookup, and `f_e` 64, 65, 80 and 200 gave honest proofs the verifier
+rejected (`s40-before-named.log`, exit 101). The tenth (the width
+measurement) passed before and after.
+
+**CS-1 — BUILT.** `FeedForwardPublic::check_words` (`private_block.rs`) is
+the one check of a feed-forward statement against a shape: the padded
+lengths, ruling P-2's entrywise support check on `gamma_m`, `Wg`, `Wu`, `Wd`,
+the table length and S38-F1(a), in the constructor's order with its
+messages. `new_shaped` calls it; `check_for_shape(&self, sh)` re-runs it on a
+statement that exists and prefixes the refusal with `private block: ruling
+CS-1 — the feed-forward statement does not fit the shape it is proved at`.
+The shape is NOT stored in the statement (`absorb_into` and
+`BlockPublic::digest` are byte-identical). Re-check sites, each before any
+absorb, commitment or draw of what it guards:
+
+| where | when |
+|---|---|
+| `witness::build_shaped` | after the two structural shape checks, before the input is read |
+| `protocol::prove_inner_at` (single-block prover entry) | before the endpoint owners are opened, the randomness is seeded or the header absorbed |
+| `protocol::prove_core` (shared body) | first line |
+| `verify_bytes_at`, `verify_bytes` (bytes entries) | before the frame is decoded against the header |
+| `protocol::verify_inner_at` (verifier entry) | before the receipt is looked at or the header absorbed |
+| `protocol::verify_core` (shared body) | first line |
+| `run::RunStatement::new` | after the block-count check, before any digest; refusal prefixed `private run: block k:` |
+| `run::prove_run` | all `L` blocks, before the owners, the randomness and the header |
+| `run::RunVerifier::start` (`verify_run`, `verify_run_from_dir`) | all `L` blocks, before the header |
+
+MEASURED (`s40_cs1_...`): the C-1 statement is refused by that name at the
+builder, the prover's entry, `prove_core` called directly (0 bytes drawn from
+the generator, 0 squeezes, transcript state unmoved — `zkp-core`'s stage-36
+observers), both verifier entries, `RunStatement::new`, the run prover (0
+segments sunk) and the run verifier. P-2's sibling (a `Wg` entry at column
+200, true at rung-P2 and padded at rung-K4 — the check named it and did not
+build it) was ALSO verifier-rejected before (slot 18, the F zero-check) and
+is refused with CS-1 + P-2's name at the builder, prover and verifier since.
+
+**CS-2 — BUILT.** `Shape::new` refuses, by name, a `wrho_s` override below
+`clog2(tokens) + f_e` (exactly `tokens 2^f_e > 2^wrho_s`), and a `norm_wrho`
+override below `bits(isqrt(1 + width 32768^2) 2^12 - 1)` — the check's
+formula with the input bound 32768. Overrides at or above are kept; no
+registered shape passes an override. MEASURED: at rung-G's geometry 15 and
+16 refused, 17 builds rung-G's windows, **18 kept and the C-2 input PROVES
+there (accepted)**; over 48 admitted grid geometries the derivation is
+admitted and one bit below refused at every one; `norm_wrho` 30 refused, 31
+and 32 kept. **The norm case, and why it needed care:** the 32768-bound
+window equals `Shape::new`'s own (32767-based) derivation at every width up
+to 16,384 and at every registered shape (the widest is 768), but NOT beyond:
+from width 16,385 on it is one bit short at 21 widths up to 2^20. There the
+unoverridden derivation leaves the norm remainder reachable on inputs near
+`-32768` — builder-refuses-first by name, not a failing proof (measured on a
+30-bit window set past `Shape::new`: the full-scale input refused by the
+builder as `norm quotient/remainder`, the dense input admitted). That is
+outside this ruling (about overrides) and is recorded for the security owner
+(ledger, stage 40, finding S40-N1). The softmax case is input-dependent
+COMPLETENESS and is closed.
+
+**CS-3 — BUILT.** The three silent bucket-0 paths (`byte_histogram_at`, the
+exp loop and the activation loop of `prove_core`) are counted —
+`u8_misses_of` over the looked columns, and a counter inside each of the two
+loops — and `refuse_lookup_misses` refuses by name (`private block: ruling
+CS-3 — the witness looks up a value that is not a row of its table ...` with
+the three counts) right after the three histograms, from values
+`prove_core` already holds, BEFORE the first draw of the block's `A` mask
+rows and the `A` commitment. No absorb or draw is added or moved (the diff
+adds no absorb, challenge, draw or commit line). MEASURED (`s40_cs3_...`):
+one U8 word, one exp pair and one activation pair moved off their tables
+each give that refusal with the independently counted misses; `prove_core`
+called directly refuses with 0 bytes drawn, 0 squeezes, transcript unmoved,
+while the honest witness through the same call draws, squeezes and absorbs.
+**Where the first commitment sits:** for a single block, the `A` commitment
+is the proof's first, so the refusal precedes every commitment of the proof
+(the endpoint roots are the owner's, sealed before proving). **For a run**
+the refusal of block `k` precedes block `k`'s `A` commitment but follows its
+boundary commitment `B_k` and the earlier stages, whose segments have gone to
+the sink; placing it before the RUN's first commitment would need every
+block's witness before the header, which the just-in-time prover does not
+hold (ruling M-3's memory) — there the caller's sealing pass (the builder,
+`run.rs` rule 1) and rule M-9 (publish only after the whole run verifies)
+stay the lines. **The soundness tests**: a tamper test hands the honest
+prover a false witness to stand in for a CHEATING prover, which would not run
+this check; a `#[cfg(test)]` thread-local switch (`protocol::CheatingProver`,
+absent from a release build) turns it off inside the tamper harnesses
+(`review_tests::outcome`, `rung_tests::assert_verifier_rejects`, `tamper.rs`,
+`norm_alias.rs`, one run test), so every one of them still reaches the
+verifier; 23 of them failed without it (`s40-gate-private-probe.log`). With
+the switch on, each of the three single misses is rejected by the verifier.
+
+**Notes.** C-3: the seven rows are labelled PREMISES CHECKED BY READING in §3
+and in `census_shaped_tests.rs`. C-4: the group count moved to §5. C-5: §5's
+zero-denominator row corrected. C-6: `layout.rs:671` now reads 98,598,912
+(comment only); `width != q_heads * head_dim` admits NO failing honest proof
+— dense proofs ACCEPTED at widths 72, 90, 100 and 120 on rung-G's head axis
+(and 96), so no refusal; **an unbounded `f_e` DID** — before stage 40, `f_e`
+64, 65, 80, 200 were admitted by `Shape::new`, the constructor (its `1i64 <<
+f_e` wraps) and the builder, and every honest proof was rejected (slot 17);
+`Shape::new` now refuses `f_e > 31`, the shaped reference kernel's own bound,
+by name (`note C-6`); 4..=31 still prove (0 and 1 refused by the layout, as
+before).
+
+**Open, measured, not built (outside the rulings; lane ledger stage 40):**
+S40-N1 — above width 16,384 `Shape::new`'s own norm derivation can be one bit
+short of the 32768 bound (builder-refuses-first there, no registered shape
+near); S40-N2 — the ATTENTION half's constructor checks are keyed on the
+shape passed to them exactly as C-1 found for the feed-forward half: a dense
+rung-G attention half in a rung-K4 block is admitted by the builder and its
+honest proof is rejected by the verifier (slot 15, the Q zero-check);
+S40-N3 — every window override `Shape::new` keeps proves or is refused by
+name (no failing proof).
+
+**Byte identity.** The toy 2,816,472 B, every shaped frame / receipt length
+and schedule-digest pin, the slot-IR digests and the 125M counted receipts
+are green in the lane filter (**452 / 0 / 18** at 6 threads = stage 39's 440
++ the 12 new tests, `s40-gate-private.log`); `absorb_into` and
+`BlockPublic::digest` are untouched; the forbidden files' diff against
+`27398d0` is empty.
