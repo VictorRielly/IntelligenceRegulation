@@ -1,0 +1,87 @@
+
+# table: record | role | claims | distinct pairs | mask rows | spare | sum-on-u | H-pair | exclusive | used-once
+9 (run, dense)                     A@0        122  122  244  0  0 True  True  True 
+9 (run, dense)                     H@0         51   51  100  0  1 True  True  True 
+9 (run, dense)                     E-Input      1    1    3  1  0 True  True  True 
+9 (run, dense)                     A@1        122  122  244  0  0 True  True  True 
+9 (run, dense)                     H@1         51   51  100  0  1 True  True  True 
+9 (run, dense)                     B0           2    2    4  0  0 True  True  True 
+9 (run, dense)                     E-Output     1    1    3  1  0 True  True  True 
+9 (run, zero)                      A@0        122  122  244  0  0 True  True  True 
+9 (run, zero)                      H@0         51   51  100  0  1 True  True  True 
+9 (run, zero)                      E-Input      1    1    3  1  0 True  True  True 
+9 (run, zero)                      A@1        122  122  244  0  0 True  True  True 
+9 (run, zero)                      H@1         51   51  100  0  1 True  True  True 
+9 (run, zero)                      B0           2    2    4  0  0 True  True  True 
+9 (run, zero)                      E-Output     1    1    3  1  0 True  True  True 
+9c (run, dense, every stage)       A@0        122  122  244  0  0 True  True  True 
+9c (run, dense, every stage)       H@0         51   51  100  0  1 True  True  True 
+9c (run, dense, every stage)       E-Input      1    1    3  1  0 True  True  True 
+9c (run, dense, every stage)       A@1        122  122  244  0  0 True  True  True 
+9c (run, dense, every stage)       H@1         51   51  100  0  1 True  True  True 
+9c (run, dense, every stage)       B0           2    2    4  0  0 True  True  True 
+9c (run, dense, every stage)       E-Output     1    1    3  1  0 True  True  True 
+9 (run, dense, full arm)           A@0        122  122  244  0  0 True  True  True 
+9 (run, dense, full arm)           H@0         51   51  100  0  1 True  True  True 
+9 (run, dense, full arm)           E-Input      1    1    3  1  0 True  True  True 
+9 (run, dense, full arm)           A@1        122  122  244  0  0 True  True  True 
+9 (run, dense, full arm)           H@1         51   51  100  0  1 True  True  True 
+9 (run, dense, full arm)           B0           2    2    4  0  0 True  True  True 
+9 (run, dense, full arm)           E-Output     1    1    3  1  0 True  True  True 
+9 (run, zero, full arm)            A@0        122  122  244  0  0 True  True  True 
+9 (run, zero, full arm)            H@0         51   51  100  0  1 True  True  True 
+9 (run, zero, full arm)            E-Input      1    1    3  1  0 True  True  True 
+9 (run, zero, full arm)            A@1        122  122  244  0  0 True  True  True 
+9 (run, zero, full arm)            H@1         51   51  100  0  1 True  True  True 
+9 (run, zero, full arm)            B0           2    2    4  0  0 True  True  True 
+9 (run, zero, full arm)            E-Output     1    1    3  1  0 True  True  True 
+9j (block, dense)                  A@0        122  122  244  0  0 True  True  True 
+9j (block, dense)                  H@0         51   51  100  0  1 True  True  True 
+9j (block, dense)                  E-Input      1    1    3  1  0 True  True  True 
+9j (block, dense)                  E-Output     1    1    3  1  0 True  True  True 
+9j (block, zero)                   A@0        122  122  244  0  0 True  True  True 
+9j (block, zero)                   H@0         51   51  100  0  1 True  True  True 
+9j (block, zero)                   E-Input      1    1    3  1  0 True  True  True 
+9j (block, zero)                   E-Output     1    1    3  1  0 True  True  True 
+9j (block, dense, every stage)     A@0        122  122  244  0  0 True  True  True 
+9j (block, dense, every stage)     H@0         51   51  100  0  1 True  True  True 
+9j (block, dense, every stage)     E-Input      1    1    3  1  0 True  True  True 
+9j (block, dense, every stage)     E-Output     1    1    3  1  0 True  True  True 
+9k (block, dense, C3c)             A@0        122  122  244  0  0 True  True  True 
+9k (block, dense, C3c)             H@0         51   51  100  0  1 True  True  True 
+9k (block, dense, C3c)             E-Input      1    1    3  1  0 True  True  True 
+9k (block, dense, C3c)             E-Output     1    1    3  1  0 True  True  True 
+9k (block, zero, C3c)              A@0        122  122  244  0  0 True  True  True 
+9k (block, zero, C3c)              H@0         51   51  100  0  1 True  True  True 
+9k (block, zero, C3c)              E-Input      1    1    3  1  0 True  True  True 
+9k (block, zero, C3c)              E-Output     1    1    3  1  0 True  True  True 
+rung-G run, tame (round 1)         A@0        122  122  244  0  0 True  True  True 
+rung-G run, tame (round 1)         H@0         53   53  104  0  1 True  True  True 
+rung-G run, tame (round 1)         E-Input      1    1    3  1  0 True  True  True 
+rung-G run, tame (round 1)         A@1        122  122  244  0  0 True  True  True 
+rung-G run, tame (round 1)         H@1         53   53  104  0  1 True  True  True 
+rung-G run, tame (round 1)         B0           2    2    4  0  0 True  True  True 
+rung-G run, tame (round 1)         A@2        122  122  244  0  0 True  True  True 
+rung-G run, tame (round 1)         H@2         53   53  104  0  1 True  True  True 
+rung-G run, tame (round 1)         B1           2    2    4  0  0 True  True  True 
+rung-G run, tame (round 1)         E-Output     1    1    3  1  0 True  True  True 
+rung-G run, zero (round 1)         A@0        122  122  244  0  0 True  True  True 
+rung-G run, zero (round 1)         H@0         53   53  104  0  1 True  True  True 
+rung-G run, zero (round 1)         E-Input      1    1    3  1  0 True  True  True 
+rung-G run, zero (round 1)         A@1        122  122  244  0  0 True  True  True 
+rung-G run, zero (round 1)         H@1         53   53  104  0  1 True  True  True 
+rung-G run, zero (round 1)         B0           2    2    4  0  0 True  True  True 
+rung-G run, zero (round 1)         A@2        122  122  244  0  0 True  True  True 
+rung-G run, zero (round 1)         H@2         53   53  104  0  1 True  True  True 
+rung-G run, zero (round 1)         B1           2    2    4  0  0 True  True  True 
+rung-G run, zero (round 1)         E-Output     1    1    3  1  0 True  True  True 
+rung-G run, dense (round 4)        A@0        122  122  244  0  0 True  True  True 
+rung-G run, dense (round 4)        H@0         53   53  104  0  1 True  True  True 
+rung-G run, dense (round 4)        E-Input      1    1    3  1  0 True  True  True 
+rung-G run, dense (round 4)        A@1        122  122  244  0  0 True  True  True 
+rung-G run, dense (round 4)        H@1         53   53  104  0  1 True  True  True 
+rung-G run, dense (round 4)        B0           2    2    4  0  0 True  True  True 
+rung-G run, dense (round 4)        A@2        122  122  244  0  0 True  True  True 
+rung-G run, dense (round 4)        H@2         53   53  104  0  1 True  True  True 
+rung-G run, dense (round 4)        B1           2    2    4  0  0 True  True  True 
+rung-G run, dense (round 4)        E-Output     1    1    3  1  0 True  True  True 

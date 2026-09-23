@@ -1,0 +1,890 @@
+{
+ "lane_tip_transcribed": "2ea7221",
+ "bundles": [
+  {
+   "bundle": "run dense (m125-capture-dense-l2)",
+   "dir": "/home/victor/zk60-artifacts/m125-capture-dense-l2",
+   "shape": "125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
+   "log_cols": 14,
+   "commitments": [
+    {
+     "stage": 0,
+     "role": "A",
+     "kind": "block",
+     "rows": 5681,
+     "claims": 122,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 244,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 36,
+     "groups_declared": 36,
+     "group_sizes": [
+      1,
+      1,
+      6,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      35,
+      2,
+      7,
+      1,
+      6,
+      1,
+      13,
+      2,
+      11,
+      3,
+      1,
+      1
+     ],
+     "a_group_multiset_equals_check_B7": true,
+     "a_largest_group": 35,
+     "a_singleton_groups": 17
+    },
+    {
+     "stage": 0,
+     "role": "H",
+     "kind": "block",
+     "rows": 7120,
+     "claims": 51,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 100,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 9,
+     "groups_declared": 9,
+     "group_sizes": [
+      1,
+      17,
+      7,
+      6,
+      9,
+      6,
+      3,
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 0,
+     "role": "Input",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    },
+    {
+     "stage": 1,
+     "role": "A",
+     "kind": "block",
+     "rows": 5681,
+     "claims": 122,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 244,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 36,
+     "groups_declared": 36,
+     "group_sizes": [
+      1,
+      1,
+      6,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      35,
+      2,
+      7,
+      1,
+      6,
+      1,
+      13,
+      2,
+      11,
+      3,
+      1,
+      1
+     ],
+     "a_group_multiset_equals_check_B7": true,
+     "a_largest_group": 35,
+     "a_singleton_groups": 17
+    },
+    {
+     "stage": 1,
+     "role": "H",
+     "kind": "block",
+     "rows": 7120,
+     "claims": 51,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 100,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 9,
+     "groups_declared": 9,
+     "group_sizes": [
+      1,
+      17,
+      7,
+      6,
+      9,
+      6,
+      3,
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 1,
+     "role": "Input",
+     "kind": "internal-boundary",
+     "rows": 38,
+     "claims": 2,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 4,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 2,
+     "groups_declared": 2,
+     "group_sizes": [
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 1,
+     "role": "Output",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    }
+   ],
+   "all_accepted": true,
+   "all_geometry_derived_equals_declared": true,
+   "controls": {
+    "N1_shared_pair_on_A": {
+     "refusal": "private block: mask schedule audit: a reserved pair is unused or shared between claims",
+     "expected_substring": "unused or shared",
+     "fires_by_name": true
+    },
+    "N2_zero_mask_coefficient_on_A": {
+     "refusal": "private block: mask schedule audit: zero terminal mask coefficient; discard attempt",
+     "expected_substring": "zero terminal mask coefficient",
+     "fires_by_name": true
+    },
+    "N3_mask_part_on_the_proximity_row_of_A": {
+     "refusal": "private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment",
+     "expected_substring": "reaches the proximity pair",
+     "fires_by_name": true
+    },
+    "N5_pair_shifted_one_row_on_A": {
+     "refusal": "private block: mask schedule audit: a claim does not carry exactly its own reserved pair",
+     "expected_substring": "does not carry exactly its own reserved pair",
+     "fires_by_name": true
+    },
+    "N4_sum_claim_not_last_on_H": {
+     "refusal": "private block: mask schedule audit: unexpected sum claim",
+     "expected_substring": "unexpected sum claim",
+     "fires_by_name": true
+    },
+    "N6_boundary_site1_onto_site0": {
+     "refusal": "private block: mask schedule audit: a reserved pair is unused or shared between claims",
+     "expected_substring": "unused or shared",
+     "fires_by_name": true
+    },
+    "N7_endpoint_mask_part_moved": {
+     "refusal": "private block: endpoint claim differs from the declared schedule",
+     "expected_substring": "endpoint claim differs",
+     "fires_by_name": true
+    }
+   }
+  },
+  {
+   "bundle": "run zero (m125-capture-zero-l2)",
+   "dir": "/home/victor/zk60-artifacts/m125-capture-zero-l2",
+   "shape": "125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
+   "log_cols": 14,
+   "commitments": [
+    {
+     "stage": 0,
+     "role": "A",
+     "kind": "block",
+     "rows": 5681,
+     "claims": 122,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 244,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 36,
+     "groups_declared": 36,
+     "group_sizes": [
+      1,
+      1,
+      6,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      35,
+      2,
+      7,
+      1,
+      6,
+      1,
+      13,
+      2,
+      11,
+      3,
+      1,
+      1
+     ],
+     "a_group_multiset_equals_check_B7": true,
+     "a_largest_group": 35,
+     "a_singleton_groups": 17
+    },
+    {
+     "stage": 0,
+     "role": "H",
+     "kind": "block",
+     "rows": 7120,
+     "claims": 51,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 100,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 9,
+     "groups_declared": 9,
+     "group_sizes": [
+      1,
+      17,
+      7,
+      6,
+      9,
+      6,
+      3,
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 0,
+     "role": "Input",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    },
+    {
+     "stage": 1,
+     "role": "A",
+     "kind": "block",
+     "rows": 5681,
+     "claims": 122,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 244,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 36,
+     "groups_declared": 36,
+     "group_sizes": [
+      1,
+      1,
+      6,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      35,
+      2,
+      7,
+      1,
+      6,
+      1,
+      13,
+      2,
+      11,
+      3,
+      1,
+      1
+     ],
+     "a_group_multiset_equals_check_B7": true,
+     "a_largest_group": 35,
+     "a_singleton_groups": 17
+    },
+    {
+     "stage": 1,
+     "role": "H",
+     "kind": "block",
+     "rows": 7120,
+     "claims": 51,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 100,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 9,
+     "groups_declared": 9,
+     "group_sizes": [
+      1,
+      17,
+      7,
+      6,
+      9,
+      6,
+      3,
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 1,
+     "role": "Input",
+     "kind": "internal-boundary",
+     "rows": 38,
+     "claims": 2,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 4,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 2,
+     "groups_declared": 2,
+     "group_sizes": [
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 1,
+     "role": "Output",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    }
+   ],
+   "all_accepted": true,
+   "all_geometry_derived_equals_declared": true,
+   "controls": {
+    "N1_shared_pair_on_A": {
+     "refusal": "private block: mask schedule audit: a reserved pair is unused or shared between claims",
+     "expected_substring": "unused or shared",
+     "fires_by_name": true
+    },
+    "N2_zero_mask_coefficient_on_A": {
+     "refusal": "private block: mask schedule audit: zero terminal mask coefficient; discard attempt",
+     "expected_substring": "zero terminal mask coefficient",
+     "fires_by_name": true
+    },
+    "N3_mask_part_on_the_proximity_row_of_A": {
+     "refusal": "private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment",
+     "expected_substring": "reaches the proximity pair",
+     "fires_by_name": true
+    },
+    "N5_pair_shifted_one_row_on_A": {
+     "refusal": "private block: mask schedule audit: a claim does not carry exactly its own reserved pair",
+     "expected_substring": "does not carry exactly its own reserved pair",
+     "fires_by_name": true
+    },
+    "N4_sum_claim_not_last_on_H": {
+     "refusal": "private block: mask schedule audit: unexpected sum claim",
+     "expected_substring": "unexpected sum claim",
+     "fires_by_name": true
+    },
+    "N6_boundary_site1_onto_site0": {
+     "refusal": "private block: mask schedule audit: a reserved pair is unused or shared between claims",
+     "expected_substring": "unused or shared",
+     "fires_by_name": true
+    },
+    "N7_endpoint_mask_part_moved": {
+     "refusal": "private block: endpoint claim differs from the declared schedule",
+     "expected_substring": "endpoint claim differs",
+     "fires_by_name": true
+    }
+   }
+  },
+  {
+   "bundle": "block dense (block-captures-20260923/m125-dense)",
+   "dir": "/home/victor/zk60-artifacts/block-captures-20260923/m125-dense",
+   "shape": "125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
+   "log_cols": 14,
+   "commitments": [
+    {
+     "stage": 0,
+     "role": "A",
+     "kind": "block",
+     "rows": 5681,
+     "claims": 122,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 244,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 36,
+     "groups_declared": 36,
+     "group_sizes": [
+      1,
+      1,
+      6,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      35,
+      2,
+      7,
+      1,
+      6,
+      1,
+      13,
+      2,
+      11,
+      3,
+      1,
+      1
+     ],
+     "a_group_multiset_equals_check_B7": true,
+     "a_largest_group": 35,
+     "a_singleton_groups": 17
+    },
+    {
+     "stage": 0,
+     "role": "H",
+     "kind": "block",
+     "rows": 7120,
+     "claims": 51,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 100,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 9,
+     "groups_declared": 9,
+     "group_sizes": [
+      1,
+      17,
+      7,
+      6,
+      9,
+      6,
+      3,
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 0,
+     "role": "Input",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    },
+    {
+     "stage": 0,
+     "role": "Output",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    }
+   ],
+   "all_accepted": true,
+   "all_geometry_derived_equals_declared": true,
+   "controls": {
+    "N1_shared_pair_on_A": {
+     "refusal": "private block: mask schedule audit: a reserved pair is unused or shared between claims",
+     "expected_substring": "unused or shared",
+     "fires_by_name": true
+    },
+    "N2_zero_mask_coefficient_on_A": {
+     "refusal": "private block: mask schedule audit: zero terminal mask coefficient; discard attempt",
+     "expected_substring": "zero terminal mask coefficient",
+     "fires_by_name": true
+    },
+    "N3_mask_part_on_the_proximity_row_of_A": {
+     "refusal": "private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment",
+     "expected_substring": "reaches the proximity pair",
+     "fires_by_name": true
+    },
+    "N5_pair_shifted_one_row_on_A": {
+     "refusal": "private block: mask schedule audit: a claim does not carry exactly its own reserved pair",
+     "expected_substring": "does not carry exactly its own reserved pair",
+     "fires_by_name": true
+    },
+    "N4_sum_claim_not_last_on_H": {
+     "refusal": "private block: mask schedule audit: unexpected sum claim",
+     "expected_substring": "unexpected sum claim",
+     "fires_by_name": true
+    },
+    "N7_endpoint_mask_part_moved": {
+     "refusal": "private block: endpoint claim differs from the declared schedule",
+     "expected_substring": "endpoint claim differs",
+     "fires_by_name": true
+    }
+   }
+  },
+  {
+   "bundle": "block zero (block-captures-20260923/m125-zero)",
+   "dir": "/home/victor/zk60-artifacts/block-captures-20260923/m125-zero",
+   "shape": "125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)",
+   "log_cols": 14,
+   "commitments": [
+    {
+     "stage": 0,
+     "role": "A",
+     "kind": "block",
+     "rows": 5681,
+     "claims": 122,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 244,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 36,
+     "groups_declared": 36,
+     "group_sizes": [
+      1,
+      1,
+      6,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      35,
+      2,
+      7,
+      1,
+      6,
+      1,
+      13,
+      2,
+      11,
+      3,
+      1,
+      1
+     ],
+     "a_group_multiset_equals_check_B7": true,
+     "a_largest_group": 35,
+     "a_singleton_groups": 17
+    },
+    {
+     "stage": 0,
+     "role": "H",
+     "kind": "block",
+     "rows": 7120,
+     "claims": 51,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 100,
+     "refusal": null,
+     "accepted": true,
+     "site_row_uses_min_max": [
+      1,
+      1
+     ],
+     "proximity_rows_touched_by_a_claim": [],
+     "opening_groups": 9,
+     "groups_declared": 9,
+     "group_sizes": [
+      1,
+      17,
+      7,
+      6,
+      9,
+      6,
+      3,
+      1,
+      1
+     ]
+    },
+    {
+     "stage": 0,
+     "role": "Input",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    },
+    {
+     "stage": 0,
+     "role": "Output",
+     "kind": "external-endpoint",
+     "rows": 37,
+     "claims": 1,
+     "derived_geometry_equals_declared": true,
+     "site_rows": 2,
+     "refusal": null,
+     "accepted": true,
+     "opening_groups": 1,
+     "groups_declared": 1,
+     "group_sizes": [
+      1
+     ]
+    }
+   ],
+   "all_accepted": true,
+   "all_geometry_derived_equals_declared": true,
+   "controls": {
+    "N1_shared_pair_on_A": {
+     "refusal": "private block: mask schedule audit: a reserved pair is unused or shared between claims",
+     "expected_substring": "unused or shared",
+     "fires_by_name": true
+    },
+    "N2_zero_mask_coefficient_on_A": {
+     "refusal": "private block: mask schedule audit: zero terminal mask coefficient; discard attempt",
+     "expected_substring": "zero terminal mask coefficient",
+     "fires_by_name": true
+    },
+    "N3_mask_part_on_the_proximity_row_of_A": {
+     "refusal": "private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment",
+     "expected_substring": "reaches the proximity pair",
+     "fires_by_name": true
+    },
+    "N5_pair_shifted_one_row_on_A": {
+     "refusal": "private block: mask schedule audit: a claim does not carry exactly its own reserved pair",
+     "expected_substring": "does not carry exactly its own reserved pair",
+     "fires_by_name": true
+    },
+    "N4_sum_claim_not_last_on_H": {
+     "refusal": "private block: mask schedule audit: unexpected sum claim",
+     "expected_substring": "unexpected sum claim",
+     "fires_by_name": true
+    },
+    "N7_endpoint_mask_part_moved": {
+     "refusal": "private block: endpoint claim differs from the declared schedule",
+     "expected_substring": "endpoint claim differs",
+     "fires_by_name": true
+    }
+   }
+  }
+ ],
+ "summary": {
+  "commitment_openings": 22,
+  "accepted": 22,
+  "geometry_derived_equals_declared": true,
+  "controls_fired_by_name": 26,
+  "controls": 26
+ }
+}

@@ -1,0 +1,53 @@
+# run dense (m125-capture-dense-l2)
+  stage 0 A      block              rows  5681 claims 122 sites 244 uses [1, 1] groups 36/36 geometry== True accepted True 
+  stage 0 H      block              rows  7120 claims  51 sites 100 uses [1, 1] groups 9/9 geometry== True accepted True 
+  stage 0 Input  external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  stage 1 A      block              rows  5681 claims 122 sites 244 uses [1, 1] groups 36/36 geometry== True accepted True 
+  stage 1 H      block              rows  7120 claims  51 sites 100 uses [1, 1] groups 9/9 geometry== True accepted True 
+  stage 1 Input  internal-boundary  rows    38 claims   2 sites   4 uses [1, 1] groups 2/2 geometry== True accepted True 
+  stage 1 Output external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  control N1_shared_pair_on_A: fires_by_name=True  (private block: mask schedule audit: a reserved pair is unused or shared between claims)
+  control N2_zero_mask_coefficient_on_A: fires_by_name=True  (private block: mask schedule audit: zero terminal mask coefficient; discard attempt)
+  control N3_mask_part_on_the_proximity_row_of_A: fires_by_name=True  (private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment)
+  control N5_pair_shifted_one_row_on_A: fires_by_name=True  (private block: mask schedule audit: a claim does not carry exactly its own reserved pair)
+  control N4_sum_claim_not_last_on_H: fires_by_name=True  (private block: mask schedule audit: unexpected sum claim)
+  control N6_boundary_site1_onto_site0: fires_by_name=True  (private block: mask schedule audit: a reserved pair is unused or shared between claims)
+  control N7_endpoint_mask_part_moved: fires_by_name=True  (private block: endpoint claim differs from the declared schedule)
+# run zero (m125-capture-zero-l2)
+  stage 0 A      block              rows  5681 claims 122 sites 244 uses [1, 1] groups 36/36 geometry== True accepted True 
+  stage 0 H      block              rows  7120 claims  51 sites 100 uses [1, 1] groups 9/9 geometry== True accepted True 
+  stage 0 Input  external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  stage 1 A      block              rows  5681 claims 122 sites 244 uses [1, 1] groups 36/36 geometry== True accepted True 
+  stage 1 H      block              rows  7120 claims  51 sites 100 uses [1, 1] groups 9/9 geometry== True accepted True 
+  stage 1 Input  internal-boundary  rows    38 claims   2 sites   4 uses [1, 1] groups 2/2 geometry== True accepted True 
+  stage 1 Output external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  control N1_shared_pair_on_A: fires_by_name=True  (private block: mask schedule audit: a reserved pair is unused or shared between claims)
+  control N2_zero_mask_coefficient_on_A: fires_by_name=True  (private block: mask schedule audit: zero terminal mask coefficient; discard attempt)
+  control N3_mask_part_on_the_proximity_row_of_A: fires_by_name=True  (private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment)
+  control N5_pair_shifted_one_row_on_A: fires_by_name=True  (private block: mask schedule audit: a claim does not carry exactly its own reserved pair)
+  control N4_sum_claim_not_last_on_H: fires_by_name=True  (private block: mask schedule audit: unexpected sum claim)
+  control N6_boundary_site1_onto_site0: fires_by_name=True  (private block: mask schedule audit: a reserved pair is unused or shared between claims)
+  control N7_endpoint_mask_part_moved: fires_by_name=True  (private block: endpoint claim differs from the declared schedule)
+# block dense (block-captures-20260923/m125-dense)
+  stage 0 A      block              rows  5681 claims 122 sites 244 uses [1, 1] groups 36/36 geometry== True accepted True 
+  stage 0 H      block              rows  7120 claims  51 sites 100 uses [1, 1] groups 9/9 geometry== True accepted True 
+  stage 0 Input  external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  stage 0 Output external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  control N1_shared_pair_on_A: fires_by_name=True  (private block: mask schedule audit: a reserved pair is unused or shared between claims)
+  control N2_zero_mask_coefficient_on_A: fires_by_name=True  (private block: mask schedule audit: zero terminal mask coefficient; discard attempt)
+  control N3_mask_part_on_the_proximity_row_of_A: fires_by_name=True  (private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment)
+  control N5_pair_shifted_one_row_on_A: fires_by_name=True  (private block: mask schedule audit: a claim does not carry exactly its own reserved pair)
+  control N4_sum_claim_not_last_on_H: fires_by_name=True  (private block: mask schedule audit: unexpected sum claim)
+  control N7_endpoint_mask_part_moved: fires_by_name=True  (private block: endpoint claim differs from the declared schedule)
+# block zero (block-captures-20260923/m125-zero)
+  stage 0 A      block              rows  5681 claims 122 sites 244 uses [1, 1] groups 36/36 geometry== True accepted True 
+  stage 0 H      block              rows  7120 claims  51 sites 100 uses [1, 1] groups 9/9 geometry== True accepted True 
+  stage 0 Input  external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  stage 0 Output external-endpoint  rows    37 claims   1 sites   2 uses None groups 1/1 geometry== True accepted True 
+  control N1_shared_pair_on_A: fires_by_name=True  (private block: mask schedule audit: a reserved pair is unused or shared between claims)
+  control N2_zero_mask_coefficient_on_A: fires_by_name=True  (private block: mask schedule audit: zero terminal mask coefficient; discard attempt)
+  control N3_mask_part_on_the_proximity_row_of_A: fires_by_name=True  (private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment)
+  control N5_pair_shifted_one_row_on_A: fires_by_name=True  (private block: mask schedule audit: a claim does not carry exactly its own reserved pair)
+  control N4_sum_claim_not_last_on_H: fires_by_name=True  (private block: mask schedule audit: unexpected sum claim)
+  control N7_endpoint_mask_part_moved: fires_by_name=True  (private block: endpoint claim differs from the declared schedule)
+# summary {"commitment_openings": 22, "accepted": 22, "geometry_derived_equals_declared": true, "controls_fired_by_name": 26, "controls": 26}
