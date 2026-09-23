@@ -382,7 +382,11 @@ class TheRecordedFiguresAtRungG(unittest.TestCase):
             with self.subTest(n):
                 s6 = r["stage6_negative_controls"]
                 self.assertTrue(s6["all_fire"])
-                self.assertEqual(len(s6["controls"]), 5)
+                # [ROUND 9k] 5 -> 6, deliberately: C3c (ruling HB-4, a
+                # blinding row shared between the two external endpoints)
+                # is appended after C6; test_zk60_native_run_gate_c3c.py
+                # holds its figures
+                self.assertEqual(len(s6["controls"]), 6)
                 self.assertIn("C1_two_claims_share_one_reserved_pair",
                               s6["not_applicable"])
                 ct = r["stage8_plane_index_and_terminals"]["controls"]

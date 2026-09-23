@@ -909,8 +909,9 @@ def block_controls(bundle, other_bundle, views, replay, shared) -> dict:
     each control that can have an analogue is re-aimed at the one
     cross-commitment structure a block does have -- an external endpoint,
     whose data plane is also `A@0`'s IO plane -- and C1, which cannot, is
-    named.  Every control records the honest figure beside the perturbed
-    one; no captured file is written."""
+    named.  [ROUND 9k] C3c (ruling HB-4) shares one blinding row between
+    the TWO external endpoints.  Every control records the honest figure
+    beside the perturbed one; no captured file is written."""
     import copy
 
     from zk60_native_rg_joint import discover_shared_planes, run_wide_figure
@@ -1048,6 +1049,67 @@ def block_controls(bundle, other_bundle, views, replay, shared) -> dict:
         "perturbed": {"H-pad": tf["reduction_hypotheses"]["H-pad"],
                       "findings": tf["findings"][:2]},
         "fires": not tf["reduction_hypotheses"]["H-pad"],
+    }
+
+    # ------------------------------------------------------------- C3c
+    # [ROUND 9k] ruling HB-4 of the standalone-block hash-layer disposition
+    # (finding F-8 of its check): C3b's analogue aimed at the pair the
+    # all-zero-world worry is about -- the two external endpoints, which in
+    # that world commit identical planes.  Appended AFTER C6 so that no
+    # index of an existing record's `controls` list moves.
+    ri, ro = st.role("Input"), st.role("Output")
+    s_in, s_out = ri["site_rows"][0], ro["site_rows"][0]
+    one_row = [(("E-Input", s_in), ("E-Output", s_out))]
+    ends = ["E-Input", "E-Output"]
+    hp = run_wide_figure(bundle, views, shared, include_mask=False,
+                         subset=ends, label="E-Input and E-Output")
+    pp = run_wide_figure(bundle, views, shared, include_mask=False,
+                         subset=ends, extra_identifications=one_row,
+                         label="E-Input and E-Output, one row shared")
+    hw = run_wide_figure(bundle, views, shared, label="whole block")
+    pw = run_wide_figure(bundle, views, shared, extra_identifications=one_row,
+                         label="whole block, one endpoint row shared")
+
+    def _fig(f):
+        jd = f["joint_detail"]
+        return {"matrix": f["matrix"], "identified_rows": f["identified_rows"],
+                "rank_all": jd["rank_all"],
+                "rank_on_non_data": jd["rank_on_non_data"], "k0": jd["k0"],
+                "u_row_term_fp": jd["u_row_term_fp"],
+                "parts_fp": f["parts_fp"],
+                "sum_of_parts_fp": f["sum_of_parts_fp"],
+                "joint_fp": f["joint_fp"],
+                "block_diagonal": f["non_data_block_is_block_diagonal_by_role"],
+                "ok": f["ok"]}
+
+    marg = pp["parts_fp"] == hp["parts_fp"] and pw["parts_fp"] == hw["parts_fp"]
+    out["C3c_a_blinding_row_shared_between_the_two_external_endpoints"] = {
+        "what": f"E-Input[{s_in}] and E-Output[{s_out}] -- the first row of "
+        "each endpoint's claim pair -- made the SAME unknown in the model (no "
+        "captured byte is altered); ranked as the pair alone (C3b's form) and "
+        "as the whole block (stage 4's figure, with its data identifications)",
+        "mirrors": "C3b (a blinding row shared between an endpoint and A), "
+        "aimed at the two endpoints: ruling HB-4, finding F-8",
+        "why_the_claim_row": "an endpoint's one claim reads its data plane "
+        "and its claim pair only, so its group generators restricted to the "
+        "non-data rows live on the pair, and with the non-data rank 4 of 4 one "
+        "combination of them is a multiple of this row alone; shared, that "
+        "row cancels between the two endpoints and leaves a functional of the "
+        "data unmasked.  A shared SPARE row would not move the figure, and "
+        "correctly: each endpoint keeps rank 4 on its other four non-data rows",
+        "limit": "a shared SYMBOL only: two distinct rows whose VALUES "
+        "coincide score like an honest block (ruling R-3); the independence "
+        "of the endpoints' generators (E-1, M-3) is assumed, not measured here",
+        "one_message_width_fp": bundle.shape.cols,
+        "pair": {"honest": _fig(hp), "perturbed": _fig(pp),
+                 "rise_fp": pp["joint_fp"] - hp["joint_fp"]},
+        "whole_block": {"honest": _fig(hw), "perturbed": _fig(pw),
+                        "rise_fp": pw["joint_fp"] - hw["joint_fp"]},
+        "marginals_unchanged": marg,
+        "fires": (hp["ok"] and hw["ok"] and marg
+                  and not pp["ok"] and not pw["ok"]
+                  and pp["joint_fp"] > pp["sum_of_parts_fp"]
+                  and pw["joint_fp"] > pw["sum_of_parts_fp"]),
     }
 
     names = list(out)
