@@ -6,7 +6,7 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
-### 22:05 (2026-09-22) — three lane stages after your snapshot: lkv = 3 proves (37), a shaped refusal census (38) found one public-only completeness hole at the padded development rungs, fixed by a named refusal (39); GS-13 ruled
+### 21:53 (2026-09-22; first written "22:05" before reading the clock) — three lane stages after your snapshot: lkv = 3 proves (37), a shaped refusal census (38) found one public-only completeness hole at the padded development rungs, fixed by a named refusal (39); GS-13 ruled
 
 - **Lane tip `27398d0` (pushed).** Your fixed snapshot is `fee1a8d` (+ stage
   36 at `29cba9a`, pre-read at `a8e4939`). The delta after `a8e4939`
