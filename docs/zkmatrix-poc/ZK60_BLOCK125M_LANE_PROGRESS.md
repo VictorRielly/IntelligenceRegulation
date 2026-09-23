@@ -12505,3 +12505,48 @@ every receipt are unchanged; revisit only if an approved activation with a
 nonzero value at gate 0 is ever proposed. Not a claim that the public
 statement is otherwise complete: the constructor still checks STRUCTURE, not
 provenance (the caller authenticates the words against approved commitments).
+
+## Stage 40 — rulings CS-1, CS-2, CS-3 and notes C-3..C-6 of the shaped refusal census disposition (2026-09-22, 23:2x–)
+
+**Status: `OPEN`.** Opened 2026-09-22 23:29 PDT on the lane tip `27398d0`,
+one writer (the delegated stage-40 agent). Rulings from
+`docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
+owner, 2026-09-22 23:22 PDT) on the adversarial check
+`ZK60_SHAPED_REFUSAL_CENSUS_CHECK.md` (review branch
+`zk60-private-block-125m-review`, `cda7d05`).
+
+**THE RULINGS, in short** (the disposition's §2 is the text):
+
+* **CS-1** — one function checks a feed-forward statement against a shape
+  (the S38-F1(a) row and ruling P-2's support check), called by the
+  constructor AND wherever a statement meets the shape it is proved at: the
+  block witness builder, the prover's and verifier's entry, and
+  `RunStatement::new` — refusing by name before anything is absorbed,
+  committed or drawn. No absorbed byte changes.
+* **CS-2** — `Shape::new` refuses, by name, a `wrho_s` override below
+  `clog2(tokens) + f_e` and a `norm_wrho` override below its derivation
+  (input bound 32768); overrides at or above are kept; every registered
+  shape unchanged.
+* **CS-3** (conditional) — the prover's three silent bucket-0 paths become
+  ONE named prover refusal before the first commitment, adding or moving no
+  absorb and no draw; if impossible, not built and the reason recorded.
+* **C-3** (seven census rows labelled "premise checked by reading"), **C-4**
+  (`protocol.rs:323` to the challenge-only list), **C-6** (`layout.rs:671`
+  comment to 98,598,912; `width != q_heads * head_dim` and unbounded `f_e`
+  tested for honest-proof failure, refused by name if so, else recorded).
+
+**THE WRITE SET:** `hashline/src/private_block.rs` (CS-1 function, the
+`cfg(test)` mod line), `hashline/src/private_block/{shape,protocol,witness,
+run}.rs` (only what CS-1..CS-3 require), `layout.rs` (the C-6 comment only),
+the new test file `hashline/src/private_block/s40_tests.rs`, test files whose
+assertions the rulings move, the census memo, this ledger, logs
+`results/zk60_block125m_lane/s40-*`. **Forbidden:**
+`hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`, `hashline/src/gpu/*`,
+`zkp-core/`, `private-block-kernel/`, `private-block-kernel-shaped/`,
+`zkvm-block/`; the untracked `u31-c6-run1.*` files are left alone.
+
+**Byte identity to hold:** the toy 2,816,472 B; every shaped frame length,
+receipt length and schedule digest pin; `absorb_into` and
+`BlockPublic::digest` untouched. Small rungs only; no 125M prove.
+
+**No privacy claim.** Completeness and statement admissibility only.
