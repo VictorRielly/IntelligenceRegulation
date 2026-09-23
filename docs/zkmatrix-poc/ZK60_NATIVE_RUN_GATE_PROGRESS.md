@@ -4531,11 +4531,115 @@ establishes a privacy property.
 | # | item | state |
 |---|---|---|
 | J0 | ledger skeleton, round 9j opened | this commit |
-| J1 | how to read a standalone block: a mode of the run gate or a thin entry script | pending |
-| J2 | the prediction, written and committed BEFORE the gate reads a block bundle with its pins read | pending |
+| J1 | how to read a standalone block: a mode of the run gate or a thin entry script | decided -- a MODE, one adapter module (R9j.3) |
+| J2 | the prediction, written and committed BEFORE the gate reads a block bundle with its pins read | done -- this commit, R9j.4 |
 | J3 | the pins: the 35 source pins read; every moved file re-pinned with a written reason, old digests kept | pending |
 | J4 | the gate on both rung-G bundles, every arm, every control; then both 125M bundles, one at a time, detached | pending |
 | J5 | dense against zero; the block against the run it would be a stage of | pending |
 | J6 | the stale channel texts of `m125-dense-everything.json` (status rows 26–28) | pending |
 | J7 | records re-taken where a tool moved; the suites (toy subset, record guard, whole native suite) | pending |
 | J8 | results, limits, NEXT | pending |
+
+## R9j.3 How a standalone block is read (J1): a MODE of the run gate, one adapter module
+
+The lane's writer COPIED the run capture's encoders so that "the Python
+gate's stage readers apply as they are" (`block_capture_shaped.rs:43-52`),
+and its own test asserts every slot, `M` and role object has a one-block
+rung-G run capture's key sequence. So the least-duplicating reader is not a
+second gate: it is ONE new module, `scripts/zk60_native_rg_block.py`, that
+presents a block bundle as a run of ONE stage with NO boundary
+(`blocks = 1`, `boundaries = 0`, `stages = [observations.json]`,
+`standalone = True`, `run` = `block.json`, whose `shape`, `mask_domain`,
+`plane_index` and `hash_tag` members have the run's names and meanings).
+Every port -- per-commitment view, joint system, terminal identity, group
+factor, hash layer, both preimage arms, the mask port -- then reads it
+unchanged. What a block does NOT share with a run stage lives in that module
+and only there: the loader and its refusals, integrity (manifest, receipt
+and policy files, the header against the observations, the endpoints), the
+replay's HEADER (no `run-shape`, no `pb-run-stage` / `pb-run-block`, no `B`,
+no position tags -- `RunReplay._stage`'s run-only lines move into three
+overridable hooks, a pure refactor for a run), the writer's pin
+(`block_capture_shaped.rs`), the run-control family's block analogues and
+the four run-only channels' block wording. `zk60_native_run_gate.py` and
+the 125M driver `zk60_native_rg_m125.py` take either kind through
+`load_bundle`.
+
+## R9j.4 The prediction (written 2026-09-23 04:00 PDT, BEFORE the gate read any block bundle with its pins read)
+
+**One disclosure.** The failing-first probe ran the UNEDITED run gate on
+`rung-g-dense` at 03:59 (`probe_unedited_gate.log`): it refused at load --
+`no run.json -- not a run-capture bundle` -- and computed nothing. The
+computed half below is `zk60_native_rg_predict` run on the four bundles
+(`predict.sh` -> `prediction_block_*.json`), which reads only the shape and
+the capture's DECLARED per-opening geometry, **validated first against four
+committed RUN records (rung-K4, rung-P2, rung-E32, rung-K8): OK x4 for every
+bundle** -- so this round's three edits to it (the frame in place of
+segments, no position tag, the external endpoints' planes as the identified
+rows) move no run prediction. The hand half is
+`prediction_block_by_hand.json`.
+
+**The arithmetic, from one stage of a run.** A block's transcript is a run
+stage's minus the run header (six absorbs, no draw), the two locality words
+and the boundary root (absorbs, no draw) and the two position tags (squeezed
+from a discarded clone, never counted); plus BOTH external endpoints in one
+proof. So its challenge count is stage 0's plus `E-Output`'s
+`1 lambda + rows`: rung-G `594 + 48 + 745 + 629 + 10 + 10 = 2,036` (the
+three-block rung-G run of record: 6,092, whose stage 0 is 2,026), 125M
+`834 + 48 + 5,803 + 7,171 + 38 + 38 = 13,932` (the two-block 125M run:
+27,828). Positions `1 + (1 + 5 x 23 + 2) + 2 x 4 = 127` at both.
+
+| # | figure | rung-G block | 125M block | the run it would be a stage of | why |
+|---|---|---|---|---|---|
+| B1 | loader | `blocks 1`, `boundaries 0`, one stage, roles `A@0`, `H@0`, `E-Input`, `E-Output` | the same | a run has `L` stages and `L-1` boundaries | the adapter |
+| B2 | replay | **127** positions, **2,036** challenges, 0 position tags, the header binding reproduced (= `block_binding`, = `receipt.bin[8:40]`) | 127, **13,932**, 0 | rung-G L=3 375 / 6,092 / 6 tags; 125M L=2 251 / 27,828 / 4 | above |
+| B3 | slot checks | **23 of 23**, all matching the stored `terminal_polynomial`, 0 open | **23 of 23** | 69 / 46 | one stage |
+| B4 | public tables | 31 carried and checked; 16 rebuilt + digest-matched, 15 taken, 15 structure checks | 28; 13 / 15 / 15 | 93 / 56 carried | per stage |
+| B5 | group factor | `lkv = 1`: 2 points, 2 entries; 4 coordinate lists, 45 entries, 23 fixed | `lkv = 2`: 2 points, 4 entries; 4 lists, 75 entries, 37 fixed | the run's / L | per stage |
+| B6 | hash layer | 5 openings, **1,280** columns, **2,594,816** B, depth 12 | 5, **1,280**, **26,470,400** B, depth 16 | 13 / 3,328; 9 / 2,304 / 52,867,072 | M, A, H, In, Out |
+| B7 | disclosure | `A` 0, `H` 2, `E-Input` 0, `E-Output` 0, `M` 0; `rank_P1` 74 / 20 / 4 / 4; non-data 246 / 108 / 5 / 5 | the same; `H` non-data **104** (51 claims) | the same per commitment | the run's per-commitment figures, stage by stage |
+| B8 | boundary | **none** -- no per-boundary figure, no three-role figure, no adjacent pair | none | 2 / 1 boundaries, 6 of 6, disclosed 0 | a block has no boundary |
+| B9 | whole block | **104 x 1,259**, joint **2** = sum 2, **8** identified rows | **104 x 12,861**, joint 2 = sum 2, **64** identified rows | 308 x 3,761 joint 6, 24 rows; 206 x 25,686 joint 4, 128 rows | generators 74+20+4+4+2; classes = rows - identifications; each endpoint's data plane against `A@0`'s IO plane |
+| B10 | singleton preimage | `E-Input`, `E-Output`, 1 free `Fp` per position | the same | + `B_k`, 0 free | no boundary |
+| B11 | full preimage | 4 commitments, 0 differing, **1,024** salted leaves; entries not predicted to the unit | the same | 10 / 2,560; 7 / 1,792 | 4 x 256 |
+| B12 | mask and CFS | 1 stage, 50 rows, 34 functionals, **15,960** entries, 0 differing, 256 leaves; `L_s` 08/09/16 = 23/26/57, largest 72 at slot 17, C-4 headroom 184 | 1 stage, **16,459**, 256; 32/41/74, 117 at 17, 139 | 47,880 / 3; 32,918 / 2 -- the SAME per stage | `12,800 + sum rounds(deg+1) + 1,024 + 1,024 + 23 + 34` |
+| B13 | joint preimage | four couplings respected; C1 **8** pairs, all data rows; **1,280** leaves | C1 **64**, all data; 1,280 | 24 / 128 pairs | as B9 |
+| B14 | channels | **28 at 10 / 5 / 5 / 8** | the same | 28 at 10 / 5 / 4 / 9 today, **10 / 5 / 5 / 8 after this round's row-26 correction** | see below |
+| B15 | controls | run family's block analogues 5 of 5 (C1 has none); CT 9 of 9 (with `--old`); CH 7 of 7 (CH-7 against rung-K4); GQ 8 of 9, GQ-7 skipped by name at `lkv = 1`; P-1..P-6 6 of 6; M1..M6 6 of 6 | CT 8 of 9 without `--old`; GQ 13 of 13; M9-1..3 as round 9c | the run's families | below |
+| B16 | dense against zero | identical but for distinct-sampled-column counts, the pad margins / pad-block rank from them, and the preimage entry counts | the same | the same classes at every shape | the witness is not in the bundle |
+
+**Which channels change with no boundary (B14).** Twenty-four of the 28 are
+the run's, word for word (the message-half channels name the two external
+endpoints only). The four run-only ones each have a block counterpart in the
+same position: the SEQUENCING SURFACE (segments, lengths, position tags)
+becomes **the receipt frame: its one length and its 40-byte envelope** --
+ARGUED on shape facts (the length is the shape's counted one; the envelope's
+binding is recomputed); the CROSS-BLOCK JOINT LAW becomes **the joint law of
+the block's view beyond the linear rank** -- OPEN (Theorem B's per-stage
+part, accepted as a reduction); the preimage for a RUN becomes **the preimage
+for the BLOCK** -- CONSTRUCTED when stage 13 closes; the BOUNDARY SCALE TAGS
+become **the endpoint scales and the one calibration identity** -- ARGUED on
+D12 item 5 / ruling CS-8 (`IoSpec` pins `ENDPOINT_SCALES`), with the policy
+bytes the replay absorbs parsed and checked against the declared context,
+scales and roots. That last grade is the same move this round makes for the
+RUN's channel (status page row 26: D12b(3), built as ruling R-5), which is
+why a run record re-taken under this round's tools will read 10 / 5 / 5 / 8
+and not 10 / 5 / 4 / 9.
+
+**Controls (B15), the block analogues of the run family.** C1 (two claim
+sites share one reserved pair) has NO analogue: no commitment of a
+standalone block carries two claim sites. **C2b** an external endpoint
+modelled with ONE proximity row: honest rank 4 of 4, disclosed 0; perturbed
+rank 3, disclosed **1**. **C3b** one reserved row of `A@0` and one of
+`E-Input` made the same unknown: the marginals do not move, the two-role
+joint rises above the sum 0. **C4b** the two endpoints' `claim_sources`
+swapped: integrity refuses and the shared-plane discovery refuses (the claim
+points differ). **C5b** `observations.json` swapped between the two bundles:
+the replay refuses at the header and integrity refuses. **C6** `H@0`'s pad
+budget one short: H-pad fails.
+
+**What the gate must NOT do**: read a block through the run loader or a run
+through the block loader; record a run header, a stage word, a boundary or a
+position tag for a block; or compute ANY figure while
+`block_capture_shaped.rs` (new), `protocol.rs` (`974892cc`), `argument.rs`
+(`2cee0a22`), `layout.rs` (`64c37a49`) or `shape.rs` (`5acecd8e`) is at a
+digest it has not read.

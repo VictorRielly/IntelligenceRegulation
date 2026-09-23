@@ -40,7 +40,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
-from zk60_native_rg_bundle import RunBundle  # noqa: E402
+# [ROUND 9j] a run bundle or a standalone block bundle, by what the
+# directory holds
+from zk60_native_rg_block import load_bundle  # noqa: E402
 from zk60_native_rg_gqa import Geometry  # noqa: E402
 
 # ------------------------------------------------- [ROUND 9b] the pad rule
@@ -304,7 +306,13 @@ def receipt(bundle) -> dict:
     between a stage of one and a stage of the other."""
     sh = bundle.shape.raw
     rounds = [m + e for m, e, _d in bundle.shape.slots]
-    segs = [st.doc["segment_bytes"] for st in bundle.stages]
+    # [ROUND 9j] a STANDALONE block has no segment: its receipt is ONE frame,
+    # `receipt.bin`, whose length `block.json["proof_bytes"]` declares.  The
+    # key names below are the run's, so a comparison table lines them up.
+    if getattr(bundle, "standalone", False):
+        segs = [bundle.run["proof_bytes"]]
+    else:
+        segs = [st.doc["segment_bytes"] for st in bundle.stages]
     return {
         "segment_bytes_declared": segs,
         "total_segment_bytes": sum(segs),
@@ -423,8 +431,20 @@ def predict(bundle) -> dict:
     mask_q = sh.mask_columns
 
     # ---- the joint systems
-    pairs = 2 * L * (bundle.boundary(0)["data_rows"] if bundle.boundaries
-                     else geo["roles"][0]["data_rows_declared"])
+    # [ROUND 9j] a standalone block has no boundary: its identified rows are
+    # the two EXTERNAL endpoints' data planes, each against `A@0`'s IO plane
+    # (slots 21 and 22), so `2 * L * endpoint data rows` with L = 1.  The
+    # old fallback -- the FIRST role's data rows -- is `A`'s at a block, and
+    # no run of one block had ever been read to show it.
+    standalone = getattr(bundle, "standalone", False)
+    if bundle.boundaries:
+        ident_rows = bundle.boundary(0)["data_rows"]
+    elif standalone:
+        ident_rows = next(r["data_rows_declared"] for r in geo["roles"]
+                          if r["kind"] == "external-endpoint")
+    else:
+        ident_rows = geo["roles"][0]["data_rows_declared"]
+    pairs = 2 * L * ident_rows
     sum_of_parts = L * SHAPE_INDEPENDENT["h_disclosed"][0]
 
     per_role = []
@@ -480,7 +500,8 @@ def predict(bundle) -> dict:
             "bilinear_definition_draws_derived_and_compared": bilinear,
             "sumcheck_rounds_per_stage": sc_rounds,
             "m_proximity_rhos_per_stage": m_prox,
-            "segment_position_tags": 2 * L,
+            # [ROUND 9j] a standalone block squeezes no position tag
+            "segment_position_tags": 0 if standalone else 2 * L,
         },
         "hash_layer": {
             "openings": len(geo["roles"]) + L,
@@ -565,7 +586,7 @@ def _pget(pred, dotted):
 
 
 def validate(pred_fn, bundle_dir, record_path) -> dict:
-    b = RunBundle(bundle_dir)
+    b = load_bundle(bundle_dir)
     p = pred_fn(b)
     with open(record_path) as fh:
         rec = json.load(fh)
@@ -630,7 +651,7 @@ def main(argv=None):
     ap.add_argument("--name", default="prediction")
     args = ap.parse_args(argv)
 
-    b = RunBundle(args.bundle)
+    b = load_bundle(args.bundle)
     out = {"prediction": predict(b), "validation": []}
     for spec in args.validate:
         d, r = spec.rsplit(":", 1)

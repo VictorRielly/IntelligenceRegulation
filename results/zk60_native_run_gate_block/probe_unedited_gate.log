@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py", line 1497, in <module>
+    raise SystemExit(main())
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py", line 1472, in main
+    record = run_gate(
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py", line 1213, in run_gate
+    bundle = RunBundle(bundle_dir)
+  File "/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_bundle.py", line 216, in __init__
+    raise ValueError(f"{self.dir}: no run.json -- not a run-capture bundle")
+ValueError: /home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-dense: no run.json -- not a run-capture bundle
+exit=1

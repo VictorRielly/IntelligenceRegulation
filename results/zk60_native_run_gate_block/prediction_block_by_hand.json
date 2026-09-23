@@ -1,0 +1,42 @@
+{
+ "what": "ROUND 9j: the figures the gate must report for a STANDALONE shaped block that zk60_native_rg_predict does not compute, written by hand on 2026-09-23 04:00 PDT from the one-stage run arithmetic, the rung-G and 125M RUN records of record and the transcript differences lane stage 45 lists -- BEFORE the gate read any block bundle with its pins read.  Machine-readable twin of ledger section R9j.4; the computed half is prediction_block_{rung_g,m125}_{dense,zero}.json",
+ "written_before_any_gate_pass_with_pins_read": true,
+ "the_one_disclosure": "the failing-first probe (probe_unedited_gate.log) ran the UNEDITED run gate on rung-g-dense at 03:59; it refused at load (no run.json) and computed nothing",
+ "per_shape": {
+  "rung-G": {
+   "slot_checks": "23 of 23, all matching the stored terminal_polynomial, 0 open",
+   "public_tables": {"carried_and_checked": 31, "rebuilt_and_digest_matched": 16, "taken_from_the_capture": 15, "structure_checks": 15},
+   "group_factor": {"lkv": 1, "group_points_derived_and_compared": 2, "group_point_entries": 2, "coordinate_lists": 4, "coordinate_entries": 45, "fixed_coordinates": 23, "definition_counts_compared": 2},
+   "replay": {"positions": 127, "challenges": 2036, "segment_position_tags": 0, "header_binding_reproduced": true},
+   "hash_layer": {"openings": 5, "columns": 1280, "bytes": 2594816, "tree_depth": 12},
+   "disclosure": {"A@0": 0, "H@0": 2, "E-Input": 0, "E-Output": 0, "M@0": 0, "rank_P1": {"A@0": 74, "H@0": 20, "E-Input": 4, "E-Output": 4}, "non_data_rows": {"A@0": 246, "H@0": 108, "E-Input": 5, "E-Output": 5}},
+   "boundary": "none: per_boundary empty, no three-role figure, no adjacent-stage pair",
+   "whole_block": {"generators": 104, "coordinate_classes": 1259, "joint": 2, "sum_of_parts": 2, "identified_rows": 8},
+   "singleton_preimage": {"commitments": ["E-Input", "E-Output"], "free_fp_per_position": 1},
+   "full_preimage": {"commitments": 4, "differing": 0, "salted_leaves": 1024, "entries": "not predicted to the unit (sampled columns)"},
+   "mask": {"stages": 1, "rows": 50, "functionals": 34, "entries": 15960, "differing": 0, "salted_leaves": 256, "L_08_09_16": [23, 26, 57], "largest_L": 72, "largest_L_slot": 17, "C4_headroom": 184},
+   "joint_preimage": {"couplings_respected": true, "C1_pairs": 8, "C1_all_data_rows": true, "salted_leaves": 1280},
+   "channels": {"total": 28, "constructed": 10, "derived": 5, "argued": 5, "open": 8},
+   "controls": {"run_family_block_analogues": "5 of 5 (C2b, C3b, C4b, C5b, C6); C1 has no analogue", "terminal": "9 of 9 with --old", "hash": "7 of 7 with --old and --cross-profile", "group": "8 of 9, GQ-7 skipped by name at lkv = 1", "preimage": "6 of 6", "mask": "6 of 6"}
+  },
+  "125M": {
+   "slot_checks": "23 of 23, all matching the stored terminal_polynomial, 0 open",
+   "public_tables": {"carried_and_checked": 28, "rebuilt_and_digest_matched": 13, "taken_from_the_capture": 15, "structure_checks": 15},
+   "group_factor": {"lkv": 2, "group_points_derived_and_compared": 2, "group_point_entries": 4, "coordinate_lists": 4, "coordinate_entries": 75, "fixed_coordinates": 37, "definition_counts_compared": 2},
+   "replay": {"positions": 127, "challenges": 13932, "segment_position_tags": 0, "header_binding_reproduced": true},
+   "hash_layer": {"openings": 5, "columns": 1280, "bytes": 26470400, "tree_depth": 16},
+   "disclosure": {"A@0": 0, "H@0": 2, "E-Input": 0, "E-Output": 0, "M@0": 0, "rank_P1": {"A@0": 74, "H@0": 20, "E-Input": 4, "E-Output": 4}, "non_data_rows": {"A@0": 246, "H@0": 104, "E-Input": 5, "E-Output": 5}},
+   "boundary": "none",
+   "whole_block": {"generators": 104, "coordinate_classes": 12861, "joint": 2, "sum_of_parts": 2, "identified_rows": 64},
+   "singleton_preimage": {"commitments": ["E-Input", "E-Output"], "free_fp_per_position": 1},
+   "full_preimage": {"commitments": 4, "differing": 0, "salted_leaves": 1024, "entries": "not predicted to the unit"},
+   "mask": {"stages": 1, "rows": 50, "functionals": 34, "entries": 16459, "differing": 0, "salted_leaves": 256, "L_08_09_16": [32, 41, 74], "largest_L": 117, "largest_L_slot": 17, "C4_headroom": 139},
+   "joint_preimage": {"couplings_respected": true, "C1_pairs": 64, "C1_all_data_rows": true, "salted_leaves": 1280},
+   "channels": {"total": 28, "constructed": 10, "derived": 5, "argued": 5, "open": 8},
+   "controls": {"run_family_block_analogues": "5 of 5", "terminal": "8 of 9 without --old (CT-4 skipped by name), 9 of 9 with it", "group": "13 of 13 (GQ-7 at lkv = 2)", "round_9": "M9-1, M9-2 fire; M9-3 fires in all three directions with ok false (R9c.9 item 2)"}
+  }
+ },
+ "dense_against_zero": "every figure identical except the distinct-sampled-column counts, the pad margins and pad-block rank that derive from them, and the full-preimage / joint entry counts (which count sampled columns); the witness is not in the bundle",
+ "must_not": ["accept a block bundle through the run loader, or a run bundle through the block loader", "record a run header, a stage word, a boundary or a segment tag for a block", "compute any figure while block_capture_shaped.rs, protocol.rs, argument.rs, layout.rs or shape.rs is at a digest the gate has not read"],
+ "not_a_privacy_statement": true
+}
