@@ -669,6 +669,52 @@ bundles unless labelled otherwise.
      at 4G is to be read as a failure of the tools.
   What this is not: still linear channels, two-block runs, no privacy claim
   about any run; ruling R-3's sentence beside every joint figure.
+- **Round 9j (08:30, 2026-09-23; `zk60-native-jointview` at `b7fd6c8`,
+  pushed; native suite 630, toy subset 217, record guard 42). A STANDALONE
+  shaped block receipt went through the whole gate for the first time, at
+  rung-G and at 125M** (obligation 3 of `ZK60_SHAPED_PRIVACY_PATH_STATUS.md`,
+  its gate half). Capture: lane stage 45 (`544fbaf`), schema
+  `hashline-native-capture/5-block-shaped`, a `#[cfg(test)]` verifier-side
+  module; bundles dense and all-zero at each shape (the 125M ones, ~270 MB,
+  outside git at `/home/victor/zk60-artifacts/block-captures-20260923/`).
+  [MEASURED by the lane, one run each: 125M standalone block dense prove
+  28.12 s / verify 1.85 s / peak 9.85 GiB; zero 20.10 s / 1.20 s / 9.91 GiB;
+  frame 40,783,352 B.]
+  1. **A mode of the run gate, not a new gate** (`scripts/zk60_native_rg_block.py`:
+     a block as a one-stage run with no boundary; the run-only lines moved
+     into three hooks, run replays reproduce key for key; the unedited gate
+     refused a block at load).
+  2. **Every predicted figure held** (prediction committed `b8dc062` before
+     the pinned read): 127 positions; 2,036 (rung-G) / 13,932 (125M)
+     challenges; 23 of 23 slot terminals; hash layer 1,280 of 1,280 opened
+     columns authenticated; whole block 104 × 1,259 (rung-G) / 104 × 12,861
+     (125M), **joint 2 = sum 2**; `A` 0, `H` 2 (the public lookup identity),
+     both endpoints 0, `M` 0. **At 125M the everything pass (5,781 s,
+     5.35 GB): full preimage 4,144,778 entries, 0 differing; joint preimage
+     4,161,237 entries, 0 differing.** Channels **28 at 10 / 5 / 5 / 8** — the
+     four run-only channels replaced in place by block counterparts, the
+     scale channel graded ARGUED (the regrade the status page proposed for
+     the run table too). Controls: the block versions of the run family 5 of
+     5; rung-G CT 9/9, GQ 8/9 (GQ-7 needs lkv ≥ 2), CH 7/7, P 6/6, M 6/6; 125M
+     GQ 13/13, CT 8/9. Dense against zero: only sampled-column counts, pad
+     margins and the pad-block rank differ; per stage the block equals the
+     run on 31 of 31 rows at both shapes.
+  3. **Pins:** `argument.rs`, `protocol.rs`, `layout.rs`, `shape.rs` re-pinned
+     with a written reason each (stages 39–45: refusals CS-1…CS-9 and
+     `#[cfg(test)]` hooks; every old digest kept, a third refused); new pins
+     `block_capture_shaped.rs`, `wire.rs`, `private_block.rs`.
+  4. **Stale-record fixes** (status page rows 26–28): seven 125M records carry
+     a dated correction beside each stale channel text, no original byte
+     changed; `m125-dense-everything` now reads 10 / 5 / 5 / 8.
+  5. Gate finding R9j-F1 (control CT-1 hard-coded stage 1) fixed; M-F4
+     (stages 12–13 read FAIL on the no-controls zero arms pass though the
+     figures are right) recurred, still unrepaired.
+  What this is not: linear channels, terminal identities and the computed
+  hash layer of what a receipt opens, for one standalone block at two
+  shapes, synthetic public weights; no privacy claim about any shaped
+  profile. Still owed for a standalone-block statement: the hash-layer
+  paragraph for a standalone TAGGED block, the shaped pin set at the
+  integrated tree, D19b.
 - **Round 9i (22:50, 2026-09-22; `zk60-native-jointview` at `8b1c2c4`,
   pushed; native suite 603, toy subset 217, record guard 42, all at 8 GiB).
   The first shape with eight key-value groups (`lkv = 3`) went through the
