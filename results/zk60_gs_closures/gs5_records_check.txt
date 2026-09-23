@@ -1,0 +1,17 @@
+{"views": 79, "all_agree": true, "all_n_ne_Q": true, "all_u_solves_exact": true, "k0_values": [0], "u_dim_values": [0, 2], "c3c_all_agree": true, "c3c_perturbed_k0": [1]}
+C3c rung-G block-rung-g-dense.json      pair        honest    k0 0 joint 0 = 1024*0 + 0 -> True
+C3c rung-G block-rung-g-dense.json      pair        perturbed k0 1 joint 1024 = 1024*1 + 0 -> True
+C3c rung-G block-rung-g-dense.json      whole_block honest    k0 0 joint 2 = 1024*0 + 2 -> True
+C3c rung-G block-rung-g-dense.json      whole_block perturbed k0 1 joint 1026 = 1024*1 + 2 -> True
+C3c rung-G block-rung-g-zero.json       pair        honest    k0 0 joint 0 = 1024*0 + 0 -> True
+C3c rung-G block-rung-g-zero.json       pair        perturbed k0 1 joint 1024 = 1024*1 + 0 -> True
+C3c rung-G block-rung-g-zero.json       whole_block honest    k0 0 joint 2 = 1024*0 + 2 -> True
+C3c rung-G block-rung-g-zero.json       whole_block perturbed k0 1 joint 1026 = 1024*1 + 2 -> True
+C3c 125M   block-m125-dense-c3c.json    pair        honest    k0 0 joint 0 = 16384*0 + 0 -> True
+C3c 125M   block-m125-dense-c3c.json    pair        perturbed k0 1 joint 16384 = 16384*1 + 0 -> True
+C3c 125M   block-m125-dense-c3c.json    whole_block honest    k0 0 joint 2 = 16384*0 + 2 -> True
+C3c 125M   block-m125-dense-c3c.json    whole_block perturbed k0 1 joint 16386 = 16384*1 + 2 -> True
+C3c 125M   block-m125-zero-c3c.json     pair        honest    k0 0 joint 0 = 16384*0 + 0 -> True
+C3c 125M   block-m125-zero-c3c.json     pair        perturbed k0 1 joint 16384 = 16384*1 + 0 -> True
+C3c 125M   block-m125-zero-c3c.json     whole_block honest    k0 0 joint 2 = 16384*0 + 2 -> True
+C3c 125M   block-m125-zero-c3c.json     whole_block perturbed k0 1 joint 16386 = 16384*1 + 2 -> True
