@@ -26,7 +26,7 @@
 //! * every data-dependent failure of the PROVER / VERIFIER on an admitted
 //!   witness (`protocol.rs`): a U8 word outside `[0, 256)` (the histogram's
 //!   bucket-0 fallback, `:434-444`, which only the LogUp identity catches), an
-//!   exp pair or an activation pair that is not a table row (`:843-853`), and
+//!   exp pair or an activation pair that is not a table row (`:835-848`), and
 //!   a LogUp multiplicity that wraps the field;
 //! * the CHALLENGE-ONLY refusals are counted per shape by
 //!   [`the_challenge_only_refusals_are_counted_per_shape`] and are liveness,
@@ -35,7 +35,7 @@
 //!   `zeta` draws through `nonzero(..)` (`:949`, drawn at `:1142-1143, 1210,
 //!   1405-1406, 1552-1553, 1605-1606, 1663-1664, 1786`), the opening
 //!   coefficients (`protocol.rs:246, 300, 309`) and a zero LogUp denominator
-//!   (`protocol.rs:492, 569-574`).
+//!   (`protocol.rs:494, 569-574`).
 //!
 //! **THE CLASSES.** `UNREACHABLE`: the worst case over the admissible inputs
 //! stays inside the class. `REACHABLE-BUILDER-REFUSES-FIRST`: the worst case
@@ -92,7 +92,7 @@ const X_ABS: i128 = 32768;
 /// `|w|` over the int8 class of every public weight and gain (`i8`)
 const W_ABS: i128 = 128;
 /// the RoPE tables' fixed-point one, the largest legal `|cos|`, `|sin|`
-/// (`AttentionPublic::new_shaped`, `private_block.rs:488`)
+/// (`AttentionPublic::new_shaped`, `private_block.rs:490`)
 const RO_ONE: i128 = 1 << F_RO;
 /// the field the prover works in, `p = 2^64 - 2^32 + 1`
 const P_FIELD: i128 = (1i128 << 64) - (1i128 << 32) + 1;
@@ -346,7 +346,7 @@ fn census(sh: &Shape) -> Vec<Row> {
     });
     rows.push(Row {
         site: "exp pair not a table row",
-        at: "protocol.rs:843-847 / the exp LogUp identity; the builder writes A_E = exp[delta] at EVERY position (witness.rs:536, :633-644)",
+        at: "protocol.rs:837-841 / the exp LogUp identity; the builder writes A_E = exp[delta] at EVERY position (witness.rs:536, :633-644)",
         exists: true,
         reach: (0, 0),
         range: (0, 0),
@@ -354,7 +354,7 @@ fn census(sh: &Shape) -> Vec<Row> {
     });
     rows.push(Row {
         site: "activation pair not a table row (true position)",
-        at: "protocol.rs:848-853 / the activation LogUp identity; the builder writes a16 = act[g8 + 128] (witness.rs:677-680)",
+        at: "protocol.rs:843-847 / the activation LogUp identity; the builder writes a16 = act[g8 + 128] (witness.rs:677-680)",
         exists: true,
         reach: (0, 0),
         range: (0, 0),
@@ -364,7 +364,7 @@ fn census(sh: &Shape) -> Vec<Row> {
     // (128, 0) is a row iff act[128] == 0, and nothing requires that
     rows.push(Row {
         site: "activation pair not a table row (padded Dom::F position)",
-        at: "protocol.rs:848-853 over the PADDED Dom::F cube (argument.rs:1566-1569: the LogUp arm is never gated) / FeedForwardPublic::new_shaped (private_block.rs:566-577) admits any act[128]",
+        at: "protocol.rs:843-847 over the PADDED Dom::F cube (argument.rs:1567-1570: the LogUp arm is never gated) / FeedForwardPublic::new_shaped (private_block.rs:568-579) admits any act[128]",
         exists: sh.pads(Dom::F),
         // what act[128] may be under the constructor, against the one value the pad pair needs
         reach: I16,
@@ -373,7 +373,7 @@ fn census(sh: &Shape) -> Vec<Row> {
     });
     rows.push(Row {
         site: "LogUp multiplicity wraps the field",
-        at: "protocol.rs:824-853 (histograms) / Fp::new(count)",
+        at: "protocol.rs:835-853 (histograms) / Fp::new(count)",
         exists: true,
         reach: (0, max_count),
         range: (0, P_FIELD - 1),
@@ -727,7 +727,7 @@ fn the_challenge_only_refusals_are_counted_per_shape() {
         let zeta: BTreeSet<usize> = ALL_DOMS.iter().filter(|d| !super::pad::zero_rule_a_planes(&sh, &ids, **d).is_empty()).map(|d| super::pad::pad_zero_host(*d)).collect();
         assert_eq!(hosts, 6, "{name}: the host arms are SC_TZC, SC_DZC, SC_FZC, SC_QZC, SC_KVZC, SC_SZC");
         eprintln!(
-            "S38 CHALLENGE-ONLY {name}: c_s = 0 x{} (argument.rs:478); e in {{0,1}} x{ext} (argument.rs:587); nu = 0 x{} (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x{} (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over {} opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:492, :569-574)",
+            "S38 CHALLENGE-ONLY {name}: c_s = 0 x{} (argument.rs:478); e in {{0,1}} x{ext} (argument.rs:587); nu = 0 x{} (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x{} (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over {} opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)",
             N_SLOTS,
             2 * hosts,
             zeta.len(),
@@ -1049,7 +1049,7 @@ fn family(s: &Shape, fam: Family) -> (Spec, Spec) {
 }
 
 /// Every word the PROVER would look up, over the whole PADDED cubes, exactly
-/// as `prove_core` forms them (`protocol.rs:824-853`): the U8 words outside
+/// as `prove_core` forms them (`protocol.rs:835-848`): the U8 words outside
 /// `[0, 256)`, the exp pairs that are not table rows, and the POSITIONS of the
 /// activation pairs that are not table rows. An admitted witness with a
 /// nonzero count here cannot produce an accepted proof: the value-0 LogUp

@@ -58,7 +58,7 @@ norm limb window and `A_E` pad pass), and the three ways the PROVER can be
 handed an admitted witness it cannot prove: a looked-up U8 word outside
 `[0, 256)` (the histogram files it in bucket 0, `protocol.rs:434-444`, and
 only the LogUp identity notices), an exp or activation pair that is not a
-table row (`protocol.rs:843-853`), and a LogUp multiplicity that wraps the
+table row (`protocol.rs:835-848`), and a LogUp multiplicity that wraps the
 field.
 
 **Challenge-only** (liveness, not completeness; section 5): refused if a
@@ -73,7 +73,7 @@ S-6, C-4), `Ids::new`, the pinned norm-limb count (`witness.rs:429-434`),
 audit and group count (`protocol.rs:205, 231-273, 323`), the endpoint
 geometry (`protocol.rs:359, 367, 386, 666, 669`), the witness shape
 (`protocol.rs:813`), the statement constructors' length and pad-support checks
-(`private_block.rs:383-385, 472, 484, 569, 575`), and the kernel's `Shape` /
+(`private_block.rs:385-387, 474, 486, 571, 577`), and the kernel's `Shape` /
 `Table` refusals. The endpoint preparation's "noncanonical input words"
 (`endpoint_g.rs:262`) cannot fire on an `i16` plane. The three `assert!`s at
 `protocol.rs:866, 867, 980` belong to a `#[cfg(test)]` hook and are not in a
@@ -116,10 +116,10 @@ FINDING: reachable and not covered.
 | 21 | FFN down | `witness.rs:685` / `lib.rs:820` / `A_ZL0/1` | `requant(hidden * 32768 * 128, 6)` | R-B |
 | 22 | residual 2 (+ the output conversion, `witness.rs:58` / `lib.rs:828`) | `witness.rs:707-709` / `lib.rs:823-825` / `A_X2L0/1` | `xres1 + z16` over int16 | R-B (the conversion: U) |
 | 23 | U8 word at a padded position | `protocol.rs:396-417, 434-444` | every ZERO-rule plane is 0 on the pad, so a word is its lookup's constant, 0 or 127 | U |
-| 24 | exp pair not a table row | `protocol.rs:843-847` | the builder writes `A_E = exp[delta]` at every position, pads included | U |
-| 25 | activation pair not a row, true position | `protocol.rs:848-853` | the builder writes `a16 = act[g8 + 128]` | U |
-| 26 | **activation pair not a row, padded `Dom::F` position** | `protocol.rs:848-853`; the LogUp arm is never gated (`argument.rs:1566-1569`) | the pad carries `(g8, a16) = (0, 0)`, so the pair is `(128, 0)`, a row iff `act[128] == 0`; `FeedForwardPublic::new_shaped` admits any `act[128]` | **FINDING S38-F1 where `Dom::F` pads** (rung, rung-G, rung-K4, rung-K8); U elsewhere (no such position) |
-| 27 | LogUp multiplicity wraps the field | `protocol.rs:824-853` | the largest count is the U8 looked-word total: 61,440 (toy) … 98,598,912 (125M) | U |
+| 24 | exp pair not a table row | `protocol.rs:837-841` | the builder writes `A_E = exp[delta]` at every position, pads included | U |
+| 25 | activation pair not a row, true position | `protocol.rs:843-847` | the builder writes `a16 = act[g8 + 128]` | U |
+| 26 | **activation pair not a row, padded `Dom::F` position** | `protocol.rs:843-847`; the LogUp arm is never gated (`argument.rs:1567-1570`) | the pad carries `(g8, a16) = (0, 0)`, so the pair is `(128, 0)`, a row iff `act[128] == 0`; `FeedForwardPublic::new_shaped` admits any `act[128]` | **FINDING S38-F1 where `Dom::F` pads** (rung, rung-G, rung-K4, rung-K8); U elsewhere (no such position) |
+| 27 | LogUp multiplicity wraps the field | `protocol.rs:835-853` | the largest count is the U8 looked-word total: 61,440 (toy) … 98,598,912 (125M) | U |
 | 28 | kernel checked-arithmetic overflow (every `Overflow` site) | `lib.rs:124-158` via `:508, 525, 555-565, 592-593, 623-637, 743, 768, 796, 816, 823` | the largest intermediate: 1.7e10 (toy) … 8.2e11 (125M), against `2^63 - 1` | U; the builder's unchecked `i64` works on the same bounds |
 
 U = UNREACHABLE, R-B = REACHABLE-BUILDER-REFUSES-FIRST. The test prints the
@@ -199,7 +199,7 @@ COUNTED per block, at every shape (`S38 CHALLENGE-ONLY` lines):
 | a zero opening-group member coefficient | `protocol.rs:300` | one per claim, over 44 (toy) / 45 groups |
 | dependent proximity coefficients | `protocol.rs:309` | 4 (A, H, two endpoints) |
 | a zero terminal mask coefficient in the audit | `protocol.rs:246` | per reserved-pair part |
-| a zero LogUp denominator | `protocol.rs:492, 569-574` | the only one whose firing depends on the data (it fires iff `alpha` equals a denominator the witness carries), at most 256 byte values + one pair per exp / activation position against `|Fp2| ~ 2^128` |
+| a zero LogUp denominator | `protocol.rs:494, 569-574` | the only one whose firing depends on the data (it fires iff `alpha` equals a denominator the witness carries), at most 256 byte values + one pair per exp / activation position against `|Fp2| ~ 2^128` |
 
 Each is refused, never resampled on the same transcript, and none is a
 function of the private input except the last, whose chance is negligible.
@@ -208,13 +208,13 @@ function of the private input except the last, whose chance is negligible.
 
 **What.** On a shape whose `Dom::F` pads, the padded positions of `A_G8` and
 `A_A16` are ZERO (the pad rule proves them zero). The activation LogUp arm is
-deliberately NOT gated (`argument.rs:1566-1569`: gating it would drop the pads
+deliberately NOT gated (`argument.rs:1567-1570`: gating it would drop the pads
 out of the value-0 identity), so every padded position looks up the pair
 `(g8 + 128, a16) = (128, 0)`. That is a row of the table only when
-`act[128] == 0`. `FeedForwardPublic::new_shaped` (`private_block.rs:566-577`)
+`act[128] == 0`. `FeedForwardPublic::new_shaped` (`private_block.rs:568-579`)
 accepts any `[i16; 256]` and the builder admits every input under it. With
 `act[128] != 0` the prover files those pairs in bucket 0
-(`protocol.rs:850-852`) and the identity cannot balance.
+(`protocol.rs:846-847`) and the identity cannot balance.
 
 **Where.** The frozen-seam rung, rung-G, rung-K4 and rung-K8 (24 tokens:
 `Dom::F` = 32 x 256 cube around 24 x 192 true — 3,584 of 8,192 positions are
