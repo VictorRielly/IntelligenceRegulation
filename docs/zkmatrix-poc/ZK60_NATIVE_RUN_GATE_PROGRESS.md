@@ -5257,17 +5257,33 @@ overrides, as `RunRoleView` already does.
 Nothing in this round is a privacy acceptance and no statement here
 establishes a privacy property.
 
+**Headline (15:51): ruling GC-2 is discharged at the run gate, and every
+prediction held but one mis-added count.** The u-term is now the exact
+`u*` (per commitment and joint); on every record it equals the old
+per-indicator figure (160 u-term entries in 32 records, as predicted from
+241 admissible entries read beforehand), and on the check's `U-adm`
+constructed cases the old term reads `u* − 1` while a whole-view brute
+force reads `n·k0 + u*` (12 of 12). H-pair now requires sixteen named
+clauses of exclusivity (pairs DISJOINT, every reserved row USED, parity,
+the pair basis, the sum claim, the group count, the endpoint shape, ...):
+272 honest commitments in 32 records pass all sixteen, including `A`, `H`
+and both endpoints at 125M; 764 per-clause controls fire, every record
+exercising all sixteen clauses; the F-4 overlap (X10a) is one of seven
+perturbations the OLD check accepted. Thirty records re-taken, 0
+unexpected leaves; suites 217 / 42 / 660 OK. P-4's control count was
+mis-added in the prediction (24 / 23, not 23 / 22; R9l.3).
+
 ## R9l.1 Status
 
 | # | item | state |
 |---|---|---|
 | L0 | ledger skeleton, round 9l opened | done (`d378bf5`) |
 | L1 | the prediction, written and committed BEFORE the new code ran on any bundle | done (`a52f6cc`) -- R9l.2 |
-| L2 | the exact u-term (per commitment and joint), its constructed-case test | done -- this commit (tool bytes FROZEN here), R9l.3 |
-| L3 | the exclusivity check, clause by clause, refusing overlap; one control per clause | done -- this commit, R9l.3 |
-| L4 | records re-taken; strict leaf diff, 0 unexpected | pending |
-| L5 | the suites (toy subset, record guard, whole native suite) | pending |
-| L6 | results, limits, NEXT | pending |
+| L2 | the exact u-term (per commitment and joint), its constructed-case test | done (`345bb69`, tool bytes FROZEN there) -- R9l.3 |
+| L3 | the exclusivity check, clause by clause, refusing overlap; one control per clause | done (`345bb69`) -- R9l.3, R9l.6 |
+| L4 | records re-taken; strict leaf diff, 0 unexpected | done (`dec7f07`, `2cf20a1`) -- R9l.5, R9l.7: 30 records, 0 UNEXPECTED; two new 125M records |
+| L5 | the suites (toy subset, record guard, whole native suite) | done -- R9l.7: 217 / 42 / 660 OK |
+| L6 | results, limits, NEXT | done -- this commit, R9l.8, R9l.9 |
 
 ## R9l.2 The prediction (written 2026-09-23 13:19 PDT, BEFORE the new code ran on any bundle)
 
@@ -5514,3 +5530,102 @@ cover any part); parts with different column weights (X13); an endpoint
 zero coefficient (X15b); two endpoint claims (X15a); plus the `(true,
 None)` branch of `audit_claims` (X09b) and the group-count mismatch (X14),
 which the check found still unexercised by its own thirteen.
+
+## R9l.7 The records re-taken, and the suites
+
+**Why any record moved at all.** `zk60_native_run_gate.py`,
+`zk60_native_rg_pcs.py` and `zk60_native_rg_joint.py` are in the gate's
+hashed `TOOLS` list, and `zk60_native_rg_exclusivity.py` joined it (it is
+on every record's path through `RunRoleView`); every recorded arm asserts
+`tool_sha256` equals the tools now in the tree. So the thirty records the
+tests guard were re-taken exactly as round 9k re-took them.
+
+**The re-take** (`refresh.sh`, detached under the heavy lock, 13:45-15:39,
+`refresh.done` = 0, every one of the 28 gate runs printing every stage
+`ok`; the w14 pair the slowest at 1,400.8 s, round 9k's 1,372.8 s), then
+**the strict diff** (`repin_diff.py`, `repin_diff.done` = 0): **30 records,
+181,054 identical leaves, 1,220 changed, 20,940 new, 0 old-only -- 0
+UNEXPECTED.** The five admitted kinds and no sixth: **E1** 1,130 wall
+clocks; **E2** 90 edited tool hashes (3 per record) and 30 added (1 per
+record); **E3** 6,600 per-commitment `exclusivity` leaves; **E4** 13,530
+leaves of the new `exclusivity_controls` block; **E5** 780 new leaves of
+`u_row_term` / `u_row_detail` (the two exact ranks, the form, the
+per-indicator figure, the equality flag). **Not one rank, disclosed
+dimension, part, joint, `k0`, u-term value, control figure, preimage, mask
+or channel figure moved** -- P-1 and P-5 held leaf for leaf.
+
+**Ruling GC-2 on every record written** (`gc2_table.py`, exit 0,
+`prediction_held` true): 32 records (the 30 re-taken and the two new 125M
+ones), **272 commitments, all 16 of 16**; **764 controls, all firing** (24
+per run record, 23 per block record); every record exercising all sixteen
+clauses; **160 u-term entries, every one exact = per-indicator** (values
+2 / 2 per `H`, 4 / 4 per two-stage joint, 6 / 6 per three-stage run, 2 / 2
+per whole block).
+
+**The suites** (`suite.sh`, under the heavy lock after the re-take and the
+diff, 15:39-15:51, `suite.done` = 0, `queue.done` = 0):
+
+| suite | result | round 9k |
+|---|---|---|
+| the toy gate's seven modules (`suite_toy.log`) | **Ran 217 tests in 207.4 s, OK** (skipped=1, expected failures=1) | 217 |
+| the record guard (`suite_guard.log`) | **Ran 42 tests in 0.086 s, OK** | 42 |
+| the WHOLE `test_zk60_native*.py` (`suite_native_all.log`) | **Ran 660 tests in 478.4 s, OK** (skipped=1, expected failures=1), peak RSS 6.7 GB | 642 -- +18, this round's `test_zk60_native_run_gate_gc2.py` |
+
+No earlier assertion moved: the toy subset and the record guard are
+unchanged (the toy modules are byte-identical), and the 642 earlier tests
+pass on the new bytes and the re-taken records as they stood.
+
+## R9l.8 What this round is NOT
+
+1. **Not a privacy acceptance, and no privacy property is established.**
+   Every record still carries `privacy_property_established: false`.
+2. **Not a second observation of exclusivity in F-5's sense.** A capture
+   is the verifier's post-audit state, so an honest record passing all
+   sixteen clauses is expected by construction; what this round adds is
+   that the GATE'S hypothesis H-pair is now at least as strong as
+   `audit_claims` (plus the pair basis and the no-spare leg of (X)), and
+   the controls show it SEES each way a claim list could break
+   exclusivity. That deviations cannot occur is the Rust refusal's job.
+3. **The geometry is the gate's reading.** The audit takes the data /
+   proximity / zero-sum rows from `row_roles`, the site and sum rows from
+   the capture's declarations and the group counts from the shape; stage
+   1 cross-checks the declarations against the run header, and EX-1 checks
+   their shape, but the audit does not re-derive `A`'s and `H`'s site rows
+   from the layout independently (the draft's replay did).
+4. **The toy gate is unchanged.** `zk60_native_jv_pcs.RoleView` (D22's
+   gate) still has the per-indicator u-term and the weaker H-pair; its
+   bytes are hashed into D22's evidence and the disposition leaves D22
+   untouched. On the four toy captures every indicator is admissible
+   (`results/zk60_native_joint_view/joint_view.json` carries
+   `u_row_indicators_admissible` 2 on all four `H` views and
+   `indicators_admissible` 2 of `u_classes` 2 on all four joints), so the
+   toy's figure is exact there by the same argument as P-1.
+5. **Not F-1.** The exact u-term removes the admissibility hypothesis; it
+   does not touch the step-2(c) counterexample family (a dependent
+   proximity pair with an Fp-collinear multi-member group), which H-prox
+   refuses and ruling GC-1 closes by `protocol.rs:305-310`. The gate does
+   not report the Fp-collinearity of multi-member groups (the check
+   measured none on 30 views).
+6. **Not every 125M record.** The new code ran at 125M on the two
+   standalone block captures only (cheap stages, two NEW records); the two
+   125M RUN captures were not re-read, and no 125M record of rounds 9, 9c,
+   9j or 9k was re-taken (no test guards their tool bytes; they keep the
+   per-indicator u-term, which the scan shows exact on every one).
+7. **Not a benchmark**: one run per bundle on a shared, unquiesced box.
+
+## R9l.9 NEXT after round 9l
+
+1. **For the owner: ruling GC-2 is discharged at the run gate** -- F-3
+   (the exact u-term, per commitment and joint, with the constructed cases
+   where the old one under-counts), F-4 (H-pair refuses overlap; X10a on
+   real bytes at rung-G, the dev shapes and 125M) and F-6 (sixteen named
+   clauses, each exercised by at least one control that fires on it and on
+   no honest view). Obligation 5 of the shaped privacy status is then the
+   LAW of the blinding (G-R4 / NL-8) alone, as the disposition's §5 says.
+2. If the owner wants the toy gate aligned (R9l.8 item 4), that is a D22
+   re-take and belongs to the owner's call, not this lane's.
+3. Optional, cheap: the 125M run captures through the same staged pass
+   (`load, replay, commitments, boundary`), for the gate's own exclusivity
+   observation on the boundary commitment at 125M.
+4. R9k.7 item 2 and R9j.13 items 3-6 stand as written. Nothing here is a
+   privacy acceptance.
