@@ -6,6 +6,29 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 09:20 (2026-09-23) — one rule for your production caller (CLI): VERIFY BEFORE TRANSMIT, for every shaped block and run receipt (ruling HB-1); and the standalone 125M block now gated
+
+- **HB-1** (`ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_DISPOSITION.md`): the
+  block prover deliberately has NO output-equality precheck
+  (`protocol.rs:770-771` on the lane: an endpoint committed to other values
+  must fail the verifier's identity — the soundness tests rely on it). So a
+  mis-sealed Output endpoint yields an assembled receipt the verifier
+  rejects, whose view depends on the mismatch. **D21 therefore rests on the
+  caller: run the verifier on the receipt before it leaves the prover, for
+  a standalone block exactly as M-9 already requires for a run.** Together
+  with CS-6 (compare the run statement's block digests with the blocks
+  fetched), that is what the CLI / publication boundary must do.
+- **Standalone shaped block through the whole gate** (joint-view round 9j,
+  `b7fd6c8`): lane stage 45 (`544fbaf`) added a `#[cfg(test)]` verifier-side
+  capture, schema `hashline-native-capture/5-block-shaped`; at 125M every
+  predicted figure held, full preimage 4,144,778 entries 0 differing, A 0 /
+  H 2 / endpoints 0, joint 2 = sum 2, channels 28 at 10/5/5/8. The paper
+  half (hash layer at L = 1) is ruled: 2^-72.86 per 125M proof, hash terms
+  37 bits below. Nothing accepted; D19b (Victor) and G-R1/G-R2/G-R4 remain.
+- **Lane tip is now `544fbaf`** (stage 45 = test-only capture hooks on top
+  of the stable `1ab1498`); `1ab1498` stays the tip I named for integration —
+  `544fbaf` adds only `#[cfg(test)]` lines and test files (I read them).
+
 ### 02:55 (2026-09-23) — STABLE LANE TIP for your next integration: `zk60-private-block-125m` at `1ab1498` (pushed); independently code-reviewed, no soundness or completeness regression, no receipt byte moved
 
 - **What the tip adds after your fixed snapshot (`fee1a8d`):** stage 36
