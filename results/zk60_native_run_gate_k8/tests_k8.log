@@ -1,0 +1,43 @@
+Running scope as unit: run-r5e0d3864864841fbbf50faac57c3fc12.scope
+test_eq_point_agrees_with_the_msb_first_table_at_n_3 (__main__.TheGroupFactorAtThreeBits) ... ok
+test_every_coordinate_and_every_adjacent_swap_matters (__main__.TheGroupFactorAtThreeBits)
+The value perturbations GQ-3 / GQ-4 make, and the two reorders ... ok
+test_the_repaired_sum_picks_out_one_of_eight_groups (__main__.TheGroupFactorAtThreeBits) ... ok
+test_both_factors_coordinate_schedules_written_out_at_lkv_3 (__main__.TheK8GeometryIsDerived) ... ok
+test_every_group_bit_is_summed_in_both_factors (__main__.TheK8GeometryIsDerived) ... ok
+test_the_bilinear_slot_dimensions_at_three_group_bits (__main__.TheK8GeometryIsDerived) ... ok
+test_the_counts_the_gate_reports_are_predicted (__main__.TheK8GeometryIsDerived)
+138 / 66 at rung-K4 -> 144 / 60 at rung-K8: per stage the two ... ok
+test_the_definition_draws_do_not_move_with_lkv (__main__.TheK8GeometryIsDerived)
+The third group bit is a SUMCHECK variable, not a draw. ... ok
+test_three_group_bits_and_nothing_else_moves (__main__.TheK8GeometryIsDerived) ... ok
+test_two_heads_per_group_and_no_padded_head_slot (__main__.TheK8GeometryIsDerived)
+16 query heads over 8 groups in 16 slots: `head_slot` is the ... ok
+test_the_bundle_pins_exactly_the_digests_this_round_read (__main__.TheLiveRungK8Bundle) ... ok
+test_the_group_point_is_derived_at_three_coordinates (__main__.TheLiveRungK8Bundle) ... ok
+test_the_prediction_reproduces_the_record (__main__.TheLiveRungK8Bundle) ... ok
+test_a_bundle_at_the_first_digests_gains_no_new_key (__main__.ThePinsRoundNineIRead)
+A record of a bundle at round 8's bytes is leaf-for-leaf what it ... ok
+test_an_argument_digest_nobody_read_is_still_refused (__main__.ThePinsRoundNineIRead) ... ok
+test_the_mask_port_accepts_the_k8_argument_digest_with_a_reading (__main__.ThePinsRoundNineIRead) ... ok
+test_the_run_layer_pins_name_the_k8_capture_commit (__main__.ThePinsRoundNineIRead) ... ok
+test_the_shared_second_digests_are_read_and_a_third_is_not (__main__.ThePinsRoundNineIRead) ... ok
+test_the_stage_35_argument_digest_selects_the_repaired_definition (__main__.ThePinsRoundNineIRead) ... ok
+test_the_stage_36_protocol_digest_is_a_read_second_value (__main__.ThePinsRoundNineIRead) ... ok
+test_all_sixty_nine_slot_checks (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_both_records_pass_every_stage_and_claim_no_privacy (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_dense_against_zero_moves_only_sampled_column_counts (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_disclosure_is_rung_k4_s_and_only_data_rows_grow (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_every_control_fires_and_the_group_family_has_eighteen (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_the_boundary_and_the_whole_run (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_the_comparison_against_rung_k4_has_nothing_unexplained (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_the_geometry_and_the_group_counts (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_the_hash_layer_the_arms_and_the_channels (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_the_profile_the_rule_and_the_pins (__main__.TheRecordedFiguresAtRungK8) ... ok
+test_the_replay (__main__.TheRecordedFiguresAtRungK8) ... ok
+
+----------------------------------------------------------------------
+Ran 32 tests in 1.306s
+
+OK

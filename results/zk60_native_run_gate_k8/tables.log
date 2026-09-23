@@ -1,0 +1,38 @@
++ W=/home/victor/wt-zk60-jointview
++ P=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_witcmp.py --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/run-s-dense-k8.json --label rung-K8-dense --witness dense --record /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/run-t-zero-k8.json --label rung-K8-zero --witness all-zero --out /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/witness_comparison_k8_dense_vs_zero.json
+173 figures, 159 identical, 14 differ -> /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/witness_comparison_k8_dense_vs_zero.json
+  DIFFERS: distinct opened columns/0:H [250, 249]
+  DIFFERS: pad margin/0:H [6, 7]
+  DIFFERS: distinct opened columns/1:A [246, 247]
+  DIFFERS: pad margin/1:A [10, 9]
+  DIFFERS: distinct opened columns/1:H [250, 244]
+  DIFFERS: pad margin/1:H [6, 12]
+  DIFFERS: distinct opened columns/2:A [249, 246]
+  DIFFERS: pad margin/2:A [7, 10]
+  DIFFERS: distinct opened columns/2:H [250, 253]
+  DIFFERS: pad margin/2:H [6, 3]
+  DIFFERS: distinct opened columns/2:Input [251, 249]
+  DIFFERS: pad margin/2:Input [5, 7]
+  DIFFERS: distinct opened columns/2:Output [251, 245]
+  DIFFERS: pad margin/2:Output [5, 11]
++ python3 /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/k8_vs_k4.py
+173 figures: {'identical': 134, 'predicted': 16, 'transcript-drawn': 22, 'moved, not predicted': 1, 'unexplained': 0}
+  PREDICTED replay/challenges re-derived: K4 6854 -> K8 6926 (predicted 6926, held)
+  PREDICTED replay/final transcript counter: K4 7686 -> K8 7758 (predicted 7758, held)
+  PREDICTED integrity/segment byte lengths: K4 [4575304, 4597832, 4765736] -> K8 [4612392, 4634920, 4802824] (predicted [4612392, 4634920, 4802824], held)
+  PREDICTED rows/0:A: K4 727 -> K8 733 (predicted 733, held)
+  PREDICTED rows/0:H: K4 720 -> K8 732 (predicted 732, held)
+  PREDICTED rows/1:A: K4 727 -> K8 733 (predicted 733, held)
+  PREDICTED rows/1:H: K4 720 -> K8 732 (predicted 732, held)
+  PREDICTED rows/2:A: K4 727 -> K8 733 (predicted 733, held)
+  PREDICTED rows/2:H: K4 720 -> K8 732 (predicted 732, held)
+  PREDICTED hash layer/bytes hashed: K4 9275392 -> K8 9385984 (predicted 9385984, held)
+  PREDICTED group factor/lkv: K4 2 -> K8 3 (predicted 3, held)
+  PREDICTED group factor/coordinate_entries_compared: K4 138 -> K8 144 (predicted 144, held)
+  PREDICTED group factor/fixed_coordinates_compared_with_a_rederived_challenge: K4 66 -> K8 60 (predicted 60, held)
+  PREDICTED group factor/group_point_entries_compared: K4 12 -> K8 18 (predicted 18, held)
+  PREDICTED group factor/controls that fire: K4 13 -> K8 18 (predicted 18, held)
+  PREDICTED group factor/controls total: K4 13 -> K8 18 (predicted 18, held)
+  NOT PREDICTED whole run/generators x classes: 308 x 4505 -> 308 x 4559
+ok: True

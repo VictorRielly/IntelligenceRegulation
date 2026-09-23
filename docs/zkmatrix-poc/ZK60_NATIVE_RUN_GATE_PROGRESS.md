@@ -4020,8 +4020,8 @@ establishes a privacy property.
 | K1 | the pins between the last capture commit read (`6d71b40`) and `99a8de8`, hunk by hunk | done — §R9i.5; five moved, not one |
 | K2 | the prediction, written and committed BEFORE the gate is run at rung-K8 | done — `710d80b`, §R9i.4 |
 | K3 | any `lkv ≤ 2` assumption in the ports or controls found, generalised, tested | done — §R9i.6, finding R9i-F1 (`GQ-7`) |
-| K4 | the whole gate on both bundles, every arm, every control | open |
-| K5 | dense against zero; rung-K8 against rung-K4 | open |
+| K4 | the whole gate on both bundles, every arm, every control | done — §R9i.7, 13 of 13 stages `ok` on both |
+| K5 | dense against zero; rung-K8 against rung-K4 | done — §R9i.8, 0 unexplained |
 | K6 | the records re-taken where a tool moved; the suite and the record guard at 8G | open |
 | K7 | results, limits, NEXT; R5.8 item 3 closed only if the gate read `lkv = 3` end to end | open |
 
@@ -4253,3 +4253,82 @@ them the expected tool-byte checks):
 
 Not one of the three is a measured figure. `…_runpins` alone after the
 change: **26 tests, OK**, 38.2 s.
+
+## R9i.7 Results — K4, the whole gate at rung-K8 (MEASURED 2026-09-22 20:37–20:45 PDT, shared laptop, CPU only)
+
+`run.sh`, detached under `flock /tmp/zk-heavy.lock` at 8G, marker
+`run.done` = 0, both records `ok` with **every one of the thirteen stages
+`ok`**: `run-s-dense-k8` 245.7 s (wall 4:05.95, peak RSS 845 MB),
+`run-t-zero-k8` 250.4 s (4:10.69, 851 MB). Tool bytes of commit `a19d017`.
+
+**THE HEADLINE: the gate read `lkv = 3` end to end, and every figure the
+prediction named came out as written.** The one figure that moved without
+being named is a direct function of two that were (below).
+
+| what | dense | zero | predicted (R9i.4) |
+|---|---|---|---|
+| geometry | `lt 5, lh 4, ldh 3, lkv 3`; 16 q-heads over 8 | the same | P1 ✓ |
+| slot 08 / 09 dims, derived and compared twice | `(6,2,3)` / `(8,2,3)`, 6 of 6 | the same | P2 ✓ |
+| group point `r_g = r_h[..3]`, from the REPLAY, compared with `Tab::Eq`, never consumed | **6 of 6, 18 entries**; each equal to `def_challenges[:3]` of the replay (live test) | the same | P4 ✓ |
+| both factors' coordinate lists | **12 of 12, 144 entries, 60 fixed** | the same | P5 ✓ |
+| replay | 375 positions, **6,926** challenges, counter **7,758**, 6 of 6 tags, 0 not re-derived; run binding reproduced | the same | P6 ✓ |
+| **terminal identity** | **69 of 69** (23 / 23 / 23), 69 matching the stored `terminal_polynomial`, 0 open, 0 findings; 16 rebuilt + digest-matched, 15 carried, 45 structure checks; 6 derived group points used | the same | P7 ✓ |
+| hash layer, the K8 profile's own derived keys | 3,328 of 3,328, 13 openings, **9,385,984** B | the same | P8 ✓ |
+| disclosure | `A` 0, `H` 2, endpoints 0, boundaries 0, `M` 0; `rank_P1` 74 / 20 / 4; non-data rows 246 / 108 / 5; `A` 733 rows (487 data), `H` 732 (624 by `row_roles`, 626 declared — the two zero-sum rows, finding 2 of round 1) | the same | P9 ✓ |
+| boundary, reserved rows | both: 10 rows / 6 generators / rank 6 / disclosed **0**; three-role parts 0 / 0 / 0, joint **0** = sum over **154** generators | the same | P9 ✓ |
+| adjacent stage pairs | joint 4 = sum 4, both pairs | the same | (as at K4) |
+| whole run | **308 × 4,559**, joint **6** = sum 6, 24 identified rows | the same | P9 ✓ generators; the class count see below |
+| singleton preimage (stage 5) | `B0`, `B1`, `E-Input`, `E-Output` exhibited; 0 free `Fp` per position at a boundary, 1 at an endpoint | the same | P9 ✓ |
+| full preimage (stage 11) | 10 commitments, **1,296,940** entries, **0 differing**, 2,560 salted leaves; P-1…P-6 6 of 6; 78.6 s | 1,292,472 / 0 / 2,560; 6 of 6; 84.5 s | P10 ✓ |
+| mask and CFS (stage 12) | 3 stages, 50 rows, 34 functionals, **47,967** entries, 0 differing, 768 leaves; CFS round entries **1,084** per stage; M1–M6 all fire | the same, 47,967 | P11 ✓ |
+| joint run preimage (stage 13) | 1,344,907 entries, 0 differing, 3,328 leaves; four couplings respected; C1 **24** pairs, all data rows | 1,340,439 / 0 / 3,328; the same | P12 ✓ |
+| **channels** | **28 at 10 constructed / 5 derived / 4 argued / 9 open** | the same | P13 ✓ |
+| run controls | C1–C6, **6 of 6** fire | the same | P14 ✓ |
+| terminal controls | CT-1…CT-9, **9 of 9** | the same | P14 ✓ |
+| hash-rule controls | CH-1…CH-7, **7 of 7**; CH-7 against rung-K4: 3,328 of 3,328 under its own keys, **0** under K4's, both directions | the same | P14 ✓ |
+| **group controls** | **18 of 18**, none skipped: GQ-1, GQ-2, GQ-3.{08,09}.{0,1,2}, GQ-4.{08,09}.{0,1,2}, GQ-7, **GQ-7.1.2**, GQ-5, GQ-6 | the same | P14: 17 + R9i-F1's one ✓ |
+| GQ-6 (a measurement) | repaired `eq(r_g,·)·X·Y` holds **6 of 6**, pre-repair `X·Y` **0 of 6**; no group factor equal to 1, no terminal product zero | the same | P14 ✓ |
+
+**Per slot, per stage**: every one of the 23 slots holds in each of the
+three stages of both bundles — `per_stage[k]["equal"]` lists all 23 — so
+slot 08 `SC_SCORE` and slot 09 `SC_PV` hold with the three-bit group
+factor, slot 16 `SC_KVZC` holds on the doubled `Dom::Kv`, and slots 14 and
+17, the two whose closures stage 35 rewrote, hold under this port's round-3
+formulas: the machine side of R9i.5's reading that the rewrite is the same
+polynomial.
+
+**The one figure that moved without being named.** `k8_vs_k4.py`'s first
+pass (20:45) reported ONE UNEXPLAINED figure — the whole run's `308 × 4,505
+→ 308 × 4,559`. The 308 was predicted (P9); the class count was not written
+down. The reading, written AFTER the record and labelled so in the script:
+`JointSystem` makes one coordinate class per row of every commitment, with
+identified boundary rows unioned, so the count is `Σ rows −
+identifications`, and the rows WERE predicted: `+54 = 3 × (6 + 12)`, to the
+unit. It is filed as "moved, not predicted", not as a held prediction.
+
+## R9i.8 Results — K5, dense against zero, and rung-K8 against rung-K4
+
+**Dense against zero** (`witness_comparison_k8_dense_vs_zero.json`,
+round 4's `zk60_native_rg_witcmp`): **173 figures, 159 identical**. The
+fourteen that differ are seven distinct-opened-column counts (`0:H`,
+`1:A`, `1:H`, `2:A`, `2:H`, `2:Input`, `2:Output`) and the seven pad
+margins that are 256 minus them — **the transcript-drawn class and nothing
+else**, as at rung-G, rung-K4, rung-P2, C6, W14, E32 and 125M. (The pad
+block's rank happened to be 250 in both.) The full-preimage and joint entry
+counts, which are not in that figure set, also differ only by sampled
+columns: 1,296,940 − 1,292,472 = 4,468 on both stage 11 and stage 13. **No
+figure moves with the witness**; as every round has said, the gate cannot
+see a witness, so that is a statement about the verifier's view, not about
+S19-F1.
+
+**Rung-K8 against rung-K4** (`k8_vs_k4.py` → `comparison_table_k8.json`,
+both-arms dense records at three blocks): **173 figures — 134 identical,
+16 predicted to move and all 16 held, 22 transcript-drawn, 1 moved and not
+predicted (read above), 0 UNEXPLAINED, 0 predictions missed.** The sixteen:
+challenges 6,854 → 6,926, counter 7,686 → 7,758, the three segment lengths,
+the six `A` / `H` row counts, bytes hashed, `lkv` 2 → 3, coordinate entries
+138 → 144, fixed 66 → 60, group-point entries 12 → 18, and the group
+control family 13 → 18 (fire and total). Everything else — every disclosed
+dimension, every `rank_P1`, the boundary's 6 of 6 and 0, the three-role
+154, the whole-run joint 6, the 69 slot checks, the 28-channel table, every
+other control count — is identical at the two shapes.

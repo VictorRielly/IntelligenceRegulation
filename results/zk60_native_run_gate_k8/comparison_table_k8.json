@@ -1,0 +1,989 @@
+{
+ "BROKEN_INVARIANTS": [],
+ "PREDICTIONS_THAT_MISSED": [],
+ "broken_invariants_note": "every figure NOT in the prediction's moving set is required IDENTICAL; one that moved is UNEXPLAINED, so the invariant class is the identical class here",
+ "counts": {
+  "identical": 134,
+  "moved, not predicted": 1,
+  "predicted": 16,
+  "transcript-drawn": 22,
+  "unexplained": 0
+ },
+ "figures_compared": 173,
+ "ok": true,
+ "per_class": {
+  "identical": [
+   {
+    "figure": "replay/run binding reproduced",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "replay/transcript positions",
+    "rung-K4": 375,
+    "rung-K8": 375
+   },
+   {
+    "figure": "replay/segment position tags ok",
+    "rung-K4": 3,
+    "rung-K8": 3
+   },
+   {
+    "figure": "replay/challenges NOT re-derived",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "replay/hash rule",
+    "rung-K4": "blake3-keyed/1",
+    "rung-K8": "blake3-keyed/1"
+   },
+   {
+    "figure": "integrity/findings",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/0:A",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rank_P1/0:A",
+    "rung-K4": 74,
+    "rung-K8": 74
+   },
+   {
+    "figure": "pad count/0:A",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/0:A",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/0:H",
+    "rung-K4": 2,
+    "rung-K8": 2
+   },
+   {
+    "figure": "rank_P1/0:H",
+    "rung-K4": 20,
+    "rung-K8": 20
+   },
+   {
+    "figure": "pad count/0:H",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/0:H",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/0:Input",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rank_P1/0:Input",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "rows/0:Input",
+    "rung-K4": 9,
+    "rung-K8": 9
+   },
+   {
+    "figure": "pad count/0:Input",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/0:Input",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/1:A",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rank_P1/1:A",
+    "rung-K4": 74,
+    "rung-K8": 74
+   },
+   {
+    "figure": "pad count/1:A",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/1:A",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/1:H",
+    "rung-K4": 2,
+    "rung-K8": 2
+   },
+   {
+    "figure": "rank_P1/1:H",
+    "rung-K4": 20,
+    "rung-K8": 20
+   },
+   {
+    "figure": "pad count/1:H",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/1:H",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/1:Input",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rank_P1/1:Input",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "rows/1:Input",
+    "rung-K4": 10,
+    "rung-K8": 10
+   },
+   {
+    "figure": "pad count/1:Input",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/1:Input",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/2:A",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rank_P1/2:A",
+    "rung-K4": 74,
+    "rung-K8": 74
+   },
+   {
+    "figure": "pad count/2:A",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/2:A",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/2:H",
+    "rung-K4": 2,
+    "rung-K8": 2
+   },
+   {
+    "figure": "rank_P1/2:H",
+    "rung-K4": 20,
+    "rung-K8": 20
+   },
+   {
+    "figure": "pad count/2:H",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/2:H",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/2:Input",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rank_P1/2:Input",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "rows/2:Input",
+    "rung-K4": 10,
+    "rung-K8": 10
+   },
+   {
+    "figure": "pad count/2:Input",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/2:Input",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/2:Output",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rank_P1/2:Output",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "rows/2:Output",
+    "rung-K4": 9,
+    "rung-K8": 9
+   },
+   {
+    "figure": "pad count/2:Output",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "k0/2:Output",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "disclosed/M@0",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rows/M@0",
+    "rung-K4": 50,
+    "rung-K8": 50
+   },
+   {
+    "figure": "opened columns/M@0",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "disclosed/M@1",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rows/M@1",
+    "rung-K4": 50,
+    "rung-K8": 50
+   },
+   {
+    "figure": "opened columns/M@1",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "disclosed/M@2",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "rows/M@2",
+    "rung-K4": 50,
+    "rung-K8": 50
+   },
+   {
+    "figure": "opened columns/M@2",
+    "rung-K4": 256,
+    "rung-K8": 256
+   },
+   {
+    "figure": "pad block/full rank",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "boundary 0/reserved rows",
+    "rung-K4": 10,
+    "rung-K8": 10
+   },
+   {
+    "figure": "boundary 0/generators on the reserved block",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "boundary 0/rank on the reserved block",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "boundary 0/rank over all rows",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "boundary 0/full row rank",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "boundary 0/disclosed on the reserved block",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "boundary 0/three-role parts",
+    "rung-K4": {
+     "A@0": 0,
+     "A@1": 0,
+     "B0": 0
+    },
+    "rung-K8": {
+     "A@0": 0,
+     "A@1": 0,
+     "B0": 0
+    }
+   },
+   {
+    "figure": "boundary 0/three-role sum",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "boundary 0/three-role joint",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "boundary 0/three-role generators",
+    "rung-K4": 154,
+    "rung-K8": 154
+   },
+   {
+    "figure": "boundary 0/aliasing lost to the identification",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "boundary 1/reserved rows",
+    "rung-K4": 10,
+    "rung-K8": 10
+   },
+   {
+    "figure": "boundary 1/generators on the reserved block",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "boundary 1/rank on the reserved block",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "boundary 1/rank over all rows",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "boundary 1/full row rank",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "boundary 1/disclosed on the reserved block",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "boundary 1/three-role parts",
+    "rung-K4": {
+     "A@1": 0,
+     "A@2": 0,
+     "B1": 0
+    },
+    "rung-K8": {
+     "A@1": 0,
+     "A@2": 0,
+     "B1": 0
+    }
+   },
+   {
+    "figure": "boundary 1/three-role sum",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "boundary 1/three-role joint",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "boundary 1/three-role generators",
+    "rung-K4": 154,
+    "rung-K8": 154
+   },
+   {
+    "figure": "boundary 1/aliasing lost to the identification",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "whole run/sum of parts",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "whole run/joint",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "whole run/identified rows",
+    "rung-K4": 24,
+    "rung-K8": 24
+   },
+   {
+    "figure": "pair/stages 0 and 1 with boundary 0/joint",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "pair/stages 0 and 1 with boundary 0/sum",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "pair/stages 1 and 2 with boundary 1/joint",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "pair/stages 1 and 2 with boundary 1/sum",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "preimage/attempted",
+    "rung-K4": [
+     "B0",
+     "B1",
+     "E-Input",
+     "E-Output"
+    ],
+    "rung-K8": [
+     "B0",
+     "B1",
+     "E-Input",
+     "E-Output"
+    ]
+   },
+   {
+    "figure": "preimage/half",
+    "rung-K4": "message only",
+    "rung-K8": "message only"
+   },
+   {
+    "figure": "preimage/commitments exhibited",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "preimage/free field elements per position",
+    "rung-K4": [
+     0,
+     1
+    ],
+    "rung-K8": [
+     0,
+     1
+    ]
+   },
+   {
+    "figure": "terminals/slots covered",
+    "rung-K4": 23,
+    "rung-K8": 23
+   },
+   {
+    "figure": "terminals/checks equal",
+    "rung-K4": 69,
+    "rung-K8": 69
+   },
+   {
+    "figure": "terminals/checks expected",
+    "rung-K4": 69,
+    "rung-K8": 69
+   },
+   {
+    "figure": "terminals/matching the stored terminal_polynomial",
+    "rung-K4": 69,
+    "rung-K8": 69
+   },
+   {
+    "figure": "terminals/public tables rebuilt",
+    "rung-K4": 16,
+    "rung-K8": 16
+   },
+   {
+    "figure": "terminals/public tables taken from the capture",
+    "rung-K4": 15,
+    "rung-K8": 15
+   },
+   {
+    "figure": "terminals/public table structure checks",
+    "rung-K4": 45,
+    "rung-K8": 45
+   },
+   {
+    "figure": "terminals/derived group points used",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "terminals/controls that fire",
+    "rung-K4": 9,
+    "rung-K8": 9
+   },
+   {
+    "figure": "terminals/controls total",
+    "rung-K4": 9,
+    "rung-K8": 9
+   },
+   {
+    "figure": "public tables/carried",
+    "rung-K4": 93,
+    "rung-K8": 93
+   },
+   {
+    "figure": "public tables/length checked",
+    "rung-K4": 93,
+    "rung-K8": 93
+   },
+   {
+    "figure": "public tables/digest checked",
+    "rung-K4": 93,
+    "rung-K8": 93
+   },
+   {
+    "figure": "hash layer/openings",
+    "rung-K4": 13,
+    "rung-K8": 13
+   },
+   {
+    "figure": "hash layer/columns checked",
+    "rung-K4": 3328,
+    "rung-K8": 3328
+   },
+   {
+    "figure": "hash layer/columns authenticated",
+    "rung-K4": 3328,
+    "rung-K8": 3328
+   },
+   {
+    "figure": "hash layer/controls that fire",
+    "rung-K4": 7,
+    "rung-K8": 7
+   },
+   {
+    "figure": "group factor/definition in force",
+    "rung-K4": "repaired",
+    "rung-K8": "repaired"
+   },
+   {
+    "figure": "group factor/coordinate_lists_rederived_and_compared",
+    "rung-K4": 12,
+    "rung-K8": 12
+   },
+   {
+    "figure": "group factor/definition_challenge_counts_compared",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "group factor/dimension_sets_derived_and_compared",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "group factor/group_points_derived_and_compared",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "group factor/slots_examined",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "group factor/slots with a derived point",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "group factor/the repaired polynomial holds",
+    "rung-K4": 6,
+    "rung-K8": 6
+   },
+   {
+    "figure": "group factor/the pre-repair polynomial holds",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "group factor/group factors equal to one",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "group factor/terminal products that are zero",
+    "rung-K4": 0,
+    "rung-K8": 0
+   },
+   {
+    "figure": "channels/total",
+    "rung-K4": 28,
+    "rung-K8": 28
+   },
+   {
+    "figure": "channels/argued",
+    "rung-K4": 4,
+    "rung-K8": 4
+   },
+   {
+    "figure": "channels/constructed",
+    "rung-K4": 10,
+    "rung-K8": 10
+   },
+   {
+    "figure": "channels/derived",
+    "rung-K4": 5,
+    "rung-K8": 5
+   },
+   {
+    "figure": "channels/open",
+    "rung-K4": 9,
+    "rung-K8": 9
+   },
+   {
+    "figure": "run controls/named",
+    "rung-K4": [
+     "C1_two_claims_share_one_reserved_pair",
+     "C2_a_single_proximity_row",
+     "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+     "C4_a_claim_whose_source_stage_is_wrong",
+     "C5_a_stage_file_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns"
+    ],
+    "rung-K8": [
+     "C1_two_claims_share_one_reserved_pair",
+     "C2_a_single_proximity_row",
+     "C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+     "C4_a_claim_whose_source_stage_is_wrong",
+     "C5_a_stage_file_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns"
+    ]
+   },
+   {
+    "figure": "run controls/all fire",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "run controls/C1_two_claims_share_one_reserved_pair",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "run controls/C2_a_single_proximity_row",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "run controls/C3_a_blinding_row_shared_with_an_adjacent_activation_commitment",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "run controls/C4_a_claim_whose_source_stage_is_wrong",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "run controls/C5_a_stage_file_swapped_between_the_two_bundles",
+    "rung-K4": true,
+    "rung-K8": true
+   },
+   {
+    "figure": "run controls/C6_one_pad_fewer_than_the_distinct_opened_columns",
+    "rung-K4": true,
+    "rung-K8": true
+   }
+  ],
+  "moved, not predicted": [
+   {
+    "figure": "whole run/generators x classes",
+    "reading_written_after_the_record": "308 x 4,505 -> 308 x 4,559.  The generator count, 308, is the half R9i.4 (P9) predicted and it did not move.  The CLASS count was not written down: `JointSystem` makes one coordinate class per row of every commitment, with the identified boundary rows unioned, so it is sum(rows) minus the identifications -- and the rows are predicted (A 727 -> 733, H 720 -> 732): +54 = 3 stages x (6 + 12), the Dom::Kv planes' extra rows, to the unit.  A consequence of predicted figures, derived after the fact and labelled so",
+    "rung-K4": "308 x 4505",
+    "rung-K8": "308 x 4559"
+   }
+  ],
+  "predicted": [
+   {
+    "figure": "replay/challenges re-derived",
+    "predicted": 6926,
+    "prediction_held": true,
+    "rung-K4": 6854,
+    "rung-K8": 6926
+   },
+   {
+    "figure": "replay/final transcript counter",
+    "predicted": 7758,
+    "prediction_held": true,
+    "rung-K4": 7686,
+    "rung-K8": 7758
+   },
+   {
+    "figure": "integrity/segment byte lengths",
+    "predicted": [
+     4612392,
+     4634920,
+     4802824
+    ],
+    "prediction_held": true,
+    "rung-K4": [
+     4575304,
+     4597832,
+     4765736
+    ],
+    "rung-K8": [
+     4612392,
+     4634920,
+     4802824
+    ]
+   },
+   {
+    "figure": "rows/0:A",
+    "predicted": 733,
+    "prediction_held": true,
+    "rung-K4": 727,
+    "rung-K8": 733
+   },
+   {
+    "figure": "rows/0:H",
+    "predicted": 732,
+    "prediction_held": true,
+    "rung-K4": 720,
+    "rung-K8": 732
+   },
+   {
+    "figure": "rows/1:A",
+    "predicted": 733,
+    "prediction_held": true,
+    "rung-K4": 727,
+    "rung-K8": 733
+   },
+   {
+    "figure": "rows/1:H",
+    "predicted": 732,
+    "prediction_held": true,
+    "rung-K4": 720,
+    "rung-K8": 732
+   },
+   {
+    "figure": "rows/2:A",
+    "predicted": 733,
+    "prediction_held": true,
+    "rung-K4": 727,
+    "rung-K8": 733
+   },
+   {
+    "figure": "rows/2:H",
+    "predicted": 732,
+    "prediction_held": true,
+    "rung-K4": 720,
+    "rung-K8": 732
+   },
+   {
+    "figure": "hash layer/bytes hashed",
+    "predicted": 9385984,
+    "prediction_held": true,
+    "rung-K4": 9275392,
+    "rung-K8": 9385984
+   },
+   {
+    "figure": "group factor/lkv",
+    "predicted": 3,
+    "prediction_held": true,
+    "rung-K4": 2,
+    "rung-K8": 3
+   },
+   {
+    "figure": "group factor/coordinate_entries_compared",
+    "predicted": 144,
+    "prediction_held": true,
+    "rung-K4": 138,
+    "rung-K8": 144
+   },
+   {
+    "figure": "group factor/fixed_coordinates_compared_with_a_rederived_challenge",
+    "predicted": 60,
+    "prediction_held": true,
+    "rung-K4": 66,
+    "rung-K8": 60
+   },
+   {
+    "figure": "group factor/group_point_entries_compared",
+    "predicted": 18,
+    "prediction_held": true,
+    "rung-K4": 12,
+    "rung-K8": 18
+   },
+   {
+    "figure": "group factor/controls that fire",
+    "predicted": 18,
+    "prediction_held": true,
+    "rung-K4": 13,
+    "rung-K8": 18
+   },
+   {
+    "figure": "group factor/controls total",
+    "predicted": 18,
+    "prediction_held": true,
+    "rung-K4": 13,
+    "rung-K8": 18
+   }
+  ],
+  "transcript-drawn": [
+   {
+    "figure": "distinct opened columns/0:A",
+    "rung-K4": 250,
+    "rung-K8": 248
+   },
+   {
+    "figure": "pad margin/0:A",
+    "rung-K4": 6,
+    "rung-K8": 8
+   },
+   {
+    "figure": "distinct opened columns/0:H",
+    "rung-K4": 247,
+    "rung-K8": 250
+   },
+   {
+    "figure": "pad margin/0:H",
+    "rung-K4": 9,
+    "rung-K8": 6
+   },
+   {
+    "figure": "distinct opened columns/0:Input",
+    "rung-K4": 247,
+    "rung-K8": 249
+   },
+   {
+    "figure": "pad margin/0:Input",
+    "rung-K4": 9,
+    "rung-K8": 7
+   },
+   {
+    "figure": "distinct opened columns/1:A",
+    "rung-K4": 250,
+    "rung-K8": 246
+   },
+   {
+    "figure": "pad margin/1:A",
+    "rung-K4": 6,
+    "rung-K8": 10
+   },
+   {
+    "figure": "distinct opened columns/1:H",
+    "rung-K4": 247,
+    "rung-K8": 250
+   },
+   {
+    "figure": "pad margin/1:H",
+    "rung-K4": 9,
+    "rung-K8": 6
+   },
+   {
+    "figure": "distinct opened columns/1:Input",
+    "rung-K4": 246,
+    "rung-K8": 250
+   },
+   {
+    "figure": "pad margin/1:Input",
+    "rung-K4": 10,
+    "rung-K8": 6
+   },
+   {
+    "figure": "distinct opened columns/2:A",
+    "rung-K4": 253,
+    "rung-K8": 249
+   },
+   {
+    "figure": "pad margin/2:A",
+    "rung-K4": 3,
+    "rung-K8": 7
+   },
+   {
+    "figure": "distinct opened columns/2:H",
+    "rung-K4": 244,
+    "rung-K8": 250
+   },
+   {
+    "figure": "pad margin/2:H",
+    "rung-K4": 12,
+    "rung-K8": 6
+   },
+   {
+    "figure": "distinct opened columns/2:Input",
+    "rung-K4": 249,
+    "rung-K8": 251
+   },
+   {
+    "figure": "pad margin/2:Input",
+    "rung-K4": 7,
+    "rung-K8": 5
+   },
+   {
+    "figure": "distinct opened columns/2:Output",
+    "rung-K4": 250,
+    "rung-K8": 251
+   },
+   {
+    "figure": "pad margin/2:Output",
+    "rung-K4": 6,
+    "rung-K8": 5
+   },
+   {
+    "figure": "pad block/distinct columns",
+    "rung-K4": 246,
+    "rung-K8": 250
+   },
+   {
+    "figure": "pad block/exact rank",
+    "rung-K4": 246,
+    "rung-K8": 250
+   }
+  ],
+  "unexplained": []
+ },
+ "predictions_checked": 16,
+ "records": [
+  "results/zk60_native_run_gate_mask/run-i-dense-k4.json",
+  "results/zk60_native_run_gate_k8/run-s-dense-k8.json"
+ ],
+ "this_is_not_a_privacy_result": true,
+ "unexplained": [],
+ "what": "rung-K8 (lkv 3) against rung-K4 (lkv 2), both-arms dense records, every figure against the prediction of ledger R9i.4"
+}
