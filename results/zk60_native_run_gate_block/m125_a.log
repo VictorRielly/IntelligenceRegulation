@@ -1,0 +1,28 @@
++ M=/home/victor/zk60-artifacts/block-captures-20260923
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py
++ P=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block
++ A=load,replay,hash,terminals,commitments,boundary,preimage,channels
++ ALL=load,replay,hash,terminals,commitments,boundary,preimage,fullpreimage,mask,joint,runcontrols,channels
++ case "$1" in
++ /usr/bin/time -v python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/block-captures-20260923/m125-dense --other /home/victor/zk60-artifacts/block-captures-20260923/m125-zero --stages load,replay,hash,terminals,commitments,boundary,preimage,channels --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block --name block-m125-dense
+[load          ]      0.5 s   peak RSS     323 MB   ok
+[replay        ]      0.5 s   peak RSS     323 MB   ok
+[hash          ]      0.3 s   peak RSS     323 MB   ok
+[terminals     ]     44.4 s   peak RSS    1402 MB   ok
+[commitments   ]     49.8 s   peak RSS    1402 MB   ok
+[boundary      ]      0.6 s   peak RSS    1402 MB   ok
+[preimage      ]      0.4 s   peak RSS    1402 MB   ok
+[channels      ]      0.0 s   peak RSS    1402 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block/block-m125-dense.json   total 96.5 s   peak RSS 1402 MB   ok=True
++ /usr/bin/time -v python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/block-captures-20260923/m125-zero --other /home/victor/zk60-artifacts/block-captures-20260923/m125-dense --stages load,replay,hash,terminals,commitments,boundary,preimage,channels --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block --name block-m125-zero
+[load          ]      0.6 s   peak RSS     315 MB   ok
+[replay        ]      0.5 s   peak RSS     315 MB   ok
+[hash          ]      0.3 s   peak RSS     315 MB   ok
+[terminals     ]     44.4 s   peak RSS    1394 MB   ok
+[commitments   ]     50.0 s   peak RSS    1394 MB   ok
+[boundary      ]      0.6 s   peak RSS    1394 MB   ok
+[preimage      ]      0.4 s   peak RSS    1394 MB   ok
+[channels      ]      0.0 s   peak RSS    1394 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block/block-m125-zero.json   total 96.8 s   peak RSS 1394 MB   ok=True
