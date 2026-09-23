@@ -18,7 +18,8 @@ quotes.
 
 The expected changes, and nothing else:
 
-  E1  a wall clock: `seconds` at any depth;
+  E1  a CHANGED wall clock: `seconds`, or a named timer ending `_seconds`
+      or starting `seconds_`, at any depth (a new or vanished one is not);
   E2  `tool_sha256/<t>` for the five tools this round moved;
   E3  `run_layer_source_pins/per_file/[i]/lane_commits/[j]` or
       `.../bundles_written_at_them/[j]` ONLY IN THE NEW RECORD, whose value
@@ -54,8 +55,16 @@ RE_E3 = re.compile(r"^run_layer_source_pins/per_file/\[\d+\]/"
                    r"(lane_commits|bundles_written_at_them)/\[\d+\]$")
 
 
+def is_wall_clock(path):
+    """`seconds` itself, or a named timer such as stage 11's
+    `layout_seconds` / `verification/seconds_opened_columns`."""
+    last = path.rsplit("/", 1)[-1]
+    return (last == "seconds" or last.endswith("_seconds")
+            or last.startswith("seconds_"))
+
+
 def classify(path, where, value):
-    if path == "seconds" or path.endswith("/seconds"):
+    if where == "changed" and is_wall_clock(path):
         return "E1 wall clock"
     if where == "changed" and path.startswith("tool_sha256/") \
             and path.split("/", 1)[1] in MOVED_TOOLS:

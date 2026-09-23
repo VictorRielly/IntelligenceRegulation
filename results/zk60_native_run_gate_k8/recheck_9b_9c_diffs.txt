@@ -1,0 +1,5 @@
+leaves under stages 7-13 in the committed 9b / 9c diffs: 1816
+  CT-9 appended (round 9b), identified by name: 384
+  a definition digest listed: 16
+  wall clock: 1416
+RESIDUE (a measured figure that moved): 0

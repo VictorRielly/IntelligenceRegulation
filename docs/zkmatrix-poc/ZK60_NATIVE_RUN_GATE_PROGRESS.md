@@ -4332,3 +4332,45 @@ control family 13 → 18 (fire and total). Everything else — every disclosed
 dimension, every `rank_P1`, the boundary's 6 of 6 and 0, the three-role
 154, the whole-run joint 6, the 69 slot checks, the 28-channel table, every
 other control count — is identical at the two shapes.
+
+## R9i.9 Results — K6, the records re-taken, and finding R9i-F2
+
+**IN FLIGHT when this paragraph was written (20:50).** `refresh.sh` re-runs
+the twenty-six development records of record and the mask port's
+toy-equivalence record in place, detached under the heavy lock
+(`refresh.log`, `refresh.done`); `suite.sh` waits for `refresh.done`
+before it even queues for the lock, so it cannot read a stale record. The
+baseline is `before/`, taken with `git show HEAD:` at `710d80b`, before
+any tool moved. The list is `records.txt`, BUILT FROM DISK: every
+`results/*/run-*.json` whose `tool_sha256` names the run gate's tools,
+minus the eleven 125M-directory records, which have pinned older tool
+bytes deliberately since round 9c and are not re-taken here either.
+
+**FINDING R9i-F2 — the leaf classifier grades whole stages.**
+`zk60_native_rg_recclass`'s round-3 class is "any path under
+`stage8_plane_index_and_terminals`", and the round-4 / 7 / 8 classes take
+ALL of stages 10, 11, 12 and 13 (stage 9 likewise). So its "0
+UNCLASSIFIED", which rounds 5 through 9c quote, would NOT have reported a
+moved slot check, group count, hash-layer figure, preimage or mask figure
+— checked: `classify("stage8_…/terminal_identity/slot_checks_equal")`
+returns *"the new fields about captured public tables"*. Two things were
+done, and the classifier itself was not edited (a tool no record hashes,
+but whose committed summaries quote it):
+
+1. **The earlier claims were re-read, and they hold.**
+   `recheck_9b_9c_diffs.py` → `recheck_9b_9c_diffs.txt` takes the leaf
+   diffs rounds 9b and 9c COMMITTED and reads every one of the **1,816**
+   leaves under stages 7–13 strictly: **1,416** changed wall clocks
+   (`seconds`, `*_seconds`, `seconds_*`), **384** leaves of control CT-9
+   appended in round 9b (identified BY NAME in the committed record), **16**
+   definition digests listed — and a residue of **0**. Rounds 5–9 were not
+   re-read this way; their figures are also asserted directly by their own
+   test files, which is the reason the gap stayed invisible.
+2. **This round's diff does not use it.** `repin_diff.py` → `repin_diff.json`
+   admits exactly four kinds of leaf and reports anything else as
+   UNEXPECTED: E1 a CHANGED wall clock; E2 the tool hash of one of the five
+   tools this round moved; E3 a NEW `lane_commits` / `bundles_written_at_them`
+   entry whose value is `99a8de8` or a rung-K8 bundle; E4 the NEW
+   `argument_definitions_this_port_implements/f7fa2ad4213d = "repaired"`.
+   An early pass at 20:47, with eight of the 27 records re-taken, read
+   **0 UNEXPECTED** on those eight (E1 1–3, E2 5 and E4 2 per record).
