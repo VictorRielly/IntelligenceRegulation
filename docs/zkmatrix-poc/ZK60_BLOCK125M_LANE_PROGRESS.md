@@ -12757,3 +12757,41 @@ untouched (the `f_e` bound makes its regime smaller, it does not re-derive
 it). CS-3 in a RUN is stage-local (see above), not run-wide. The attention
 half's cross-shape exposure (S40-N2) and the norm derivation at widths above
 16,384 (S40-N1) are measured and open for a ruling, not fixed.
+
+## Stage 41 — rulings CS-4 and CS-5 of the shaped refusal census disposition (2026-09-23, 00:2x–)
+
+**Status: `OPEN`** (skeleton, 2026-09-23 00:20 PDT). Opened on the lane tip
+`c735d77`, one writer (the delegated stage-41 agent). Rulings from §5 of
+`docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
+owner), on stage 40's two open notes:
+
+* **CS-4 (finding S40-N2)** — ruling CS-1 extends to EVERY part of a block
+  or run statement: the attention half (a rung-G attention half inside a
+  rung-K4 block is admitted and the verifier refuses the honest proof) and
+  anything else a statement is assembled from, enumerated from the code.
+  Each part has ONE check against a shape, called by its constructor and
+  re-run wherever it meets the shape it is proved at — at the points stage
+  40 chose for the feed-forward half — refusing by name before anything is
+  absorbed, committed or drawn. Failing first for every part that admits a
+  cross-shape mismatch.
+* **CS-5 (finding S40-N1)** — `Shape::new` refuses, by name, a width above
+  16,384 (the norm window derivation can be one bit short beyond it);
+  16,384 admitted, 16,385 refused; every registered shape unchanged.
+
+**THE WRITE SET:** `hashline/src/private_block.rs` (the attention check, the
+endpoint-policy check, the statement-level check, the entries' re-checks,
+the `cfg(test)` mod line), `hashline/src/private_block/{shape,protocol,
+witness,run}.rs` (only what CS-4 / CS-5 require), the new test file
+`hashline/src/private_block/s41_tests.rs`, test files whose assertions the
+rulings move, the census memo §10, this ledger, logs
+`results/zk60_block125m_lane/s41-*`. **Forbidden:**
+`hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`, `hashline/src/gpu/*`,
+`zkp-core/`, `private-block-kernel/`, `zkvm-block/`; the untracked
+`u31-c6-run1.*` files are left alone.
+
+**Byte identity to hold:** the toy 2,816,472 B; every shaped frame length,
+receipt length and schedule digest pin; `absorb_into`, `BlockPublic::digest`
+and every statement digest untouched; 0 draws / 0 squeezes / transcript
+unmoved when a refusal fires. Small rungs only; no 125M prove.
+
+**No privacy claim.** Completeness and statement admissibility only.
