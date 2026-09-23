@@ -85,3 +85,18 @@ blinding, not the count); the generator's draws measured at rung-G and 125M
 `protocol.rs:760-771` (the endpoint check and the deliberate absence of an
 equality precheck). Delegated and not re-derived: every count and term, the
 endpoint independence reading, the bundle measurements.
+
+## 5. HB-4 done (2026-09-23 11:49)
+
+Gate round 9k (`zk60-native-jointview` at `adcd831`, ledger §R9k) added
+control **C3c**: the first claim-pair row of E-Input and of E-Output made the
+same unknown (row 4 at rung-G, row 32 at 125M), the captured bytes untouched.
+Predicted before the first run and observed exactly on all four standalone
+bundles (rung-G and 125M, dense and zero): the pair alone goes from joint 0 =
+sum 0 to joint 1,024 (rung-G) / 16,384 (125M) with the sum still 0; the whole
+block from joint 2 = sum 2 to 1,026 / 16,386, non-data rank 104 → 103,
+**disclosed dimension k0 0 → 1**; no per-commitment figure moves. Sharing a
+spare row instead leaves the figure at 2 = 2. So the gate now catches the
+joint-view failure the per-commitment argument cannot see, for the two
+endpoints of one proof. 30 records re-taken, 0 unexpected leaves; suite 642,
+toy 217, guard 42.
