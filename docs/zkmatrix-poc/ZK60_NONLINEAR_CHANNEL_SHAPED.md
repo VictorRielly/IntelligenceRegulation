@@ -353,7 +353,129 @@ fire; two must **not** fire, to show which mechanism is carrying the premise.
 
 ## 3. Verdicts: lifts unchanged / needs a new argument / gap or counterexample
 
-(pending)
+### 3.1 Counterexamples: none
+
+**No slot, at any of the nine exports, fails any dependency this memo can
+test.** No construction was found in which two admissible witnesses give
+different laws of the non-linear channel at fixed challenges. The
+controls show the checks have teeth (§2.8).
+
+### 3.2 Lifts unchanged — all 23 slots, by group
+
+The toy's non-linear argument (NL) lifts to rung-G, rung-K4 and 125M
+**unchanged in its proof**, with the dependencies below re-established
+[MEASURED / COUNTED / MODEL as labelled in §2]:
+
+| group | slots | what is new at a shaped layout | where the new factor enters | verdict |
+|---|---|---|---|---|
+| **plain matmuls** | 05, 06, 07, 10, 11, 12, 13 | sizes only | the folded public weight table is the monomial's public factor, as at the toy | lifts verbatim |
+| **bilinear pair** | 08, 09 | the group `eq(r_g, ·)` over the key-value group bits (now sumcheck variables, S19-F1's repair); degree 2 → 3 | a **public wrapper** on the single monomial `eq_g·Q·K` (resp. `eq_g·P·V`); its verifier value `sel·eq_point(r_g, ρ_g)` is public (D10) | lifts; the premise now holds by a public factor **and**, redundantly, by the toy's different-rounds mechanism (C1, C2) |
+| **row-sum Private slots** | 00, 01, 04 | a support indicator; degree 3 → 4 | a **public wrapper** (`supp·eq·…`) | lifts |
+| **zero-check hosts** | 02, 14, 15, 16, 17, 18 | indicators (at 125M on 14, 15, 17; at rung-G / K4 also 02, 16, 18), the pad-zero term, degree up to 5 | the indicator as a wrapper on the hosted-claim terms, as a plain factor inside the zero-check node, and inside `1 − supp` of the pad term — **every** one of them under an `eq` wrapper | lifts; 14, 15 (and 16, 18 at the rungs) over-declare their degree by one, which is harmless for the law (ruling C-1) |
+| **Standalone** | 03, 19, 20, 21, 22 | the pad-zero term at 03 and 19 | `1 − supp` under the `eq(tau)` wrapper (03, 19); 20's public factor is the all-ones vector, as at the toy | lifts |
+
+Dependency by dependency: D1, D2, D11 — confirmed at every `(N, d)`
+(210 / 210); D3, D9, D10, D13 — the same code at every shape, and exercised
+by the miniature (207 / 207); D4 — every slot's product degree `≤` its
+declared degree, so every honest round fits `d + 1` values (184 / 184 shaped
+slot-shape pairs); D5 — the premise holds as the **zero polynomial** at 184 /
+184 shaped pairs; D7 — `HOSTS` triangular; D8 — worst `L` 117 of 256.
+
+**The three things GS-13 named, answered.**
+
+1. *"Slot degrees reach 5."* Nothing in (NL) uses a degree bound: Fact 2.1
+   is degree-free and `L_s` and `dim C_s` move together through the same
+   `d` (run memo §2.1). What the degree does touch is the `M`-row budget
+   (worst 117 + 256 of 512) and `V_pub`'s degree (now `≤ 5` in up to 54
+   terminals of one slot, against the toy's `≤ 4` in up to 56), and neither
+   enters the law: Theorem 3.3 is exact for any public polynomial `V_pub`.
+2. *"The bilinear closures carry a public `eq` factor."* It is a **public
+   table in wrapper position**; it is zero on every extension vector, so it
+   makes the premise hold for the pair more robustly than at the toy, and the
+   verifier computes its terminal value from challenges alone. The group bits
+   being sumcheck variables raises the per-variable degree on those bits to
+   3, which is what the declared 3 covers.
+3. *"Eight slots carry a support indicator."* Every indicator is a
+   public-from-shape 0/1 table evaluated by the verifier (`sel·eval_mle_ext`),
+   and it appears in exactly three positions — wrapper, plain factor, and
+   `1 − supp` — each inside a monomial that also carries an `eq` table. It
+   publishes nothing and adds no terminal (run memo §2.2).
+
+**"Is the terminal still a uniform function of the masking randomness,
+given the public transcript?"** Per terminal, yes: each is onto `Fp2`
+through its own reserved pair with `cm ≠ 0` (§2.6), and — because the
+sumcheck channel is independent of `(w, π)` (NL.1; `T′ ∈ C` at every slot
+for independent witnesses and pair values, §2.5 item 4) — conditioning on the
+published rounds and scalars does not change that. **Jointly, given the whole
+public transcript, the terminals are *not* uniform, and were not at the toy:**
+they satisfy the verifier's own identities — the one `Fp2` equation
+`512·(q[0] + q[512]) = Σ_i θ^i·value_i` through `M` (degree `≤ d_s` in the
+terminals via `V_pub`) and (H1)'s linear identities. Those relations are
+public and the same for every witness; Theorem 3.3 is what says the
+conditional law is witness-free, and at a shaped layout it does so on (H1).
+**There is no slot where this fails.**
+
+### 3.3 Needs a new argument: none for P1 — three restatements, one design note
+
+No slot needs a new argument for the law under P1. The toy argument's
+**wording** needs three restatements before it is true at the shaped layouts
+(proposed, not made — the composition memo is not this lane's file):
+
+* **R-a (the mechanism).** "21 slots by a public factor, 08 and 09 by
+  different extension rounds" becomes, at every shape with more than one
+  key-value head, "all 23 by a public factor; 08 and 09 also by different
+  extension rounds". The second mechanism is now a backup, not the reason.
+* **R-b ("public factor" means a public *table*).** The premise's "public
+  factor in every monomial" is true only if "factor" means a table that the
+  extension vector hard-zeroes. A public **affine expression with a non-zero
+  constant** — `1 − supp`, a LogUp denominator `α − (cst + Σ c·plane)`, a
+  host term `sum + λ_z` or `2^{SH}·s + r − 2^{SH−1}` — is **not** such a
+  factor: on the extension vector it is the constant, not zero. At every
+  shape every such expression sits inside a monomial that also carries an
+  `eq` table (the mechanism probe, 184 / 184), and control C4 shows the
+  placement is load-bearing. The slot-closures check found the same (its C4)
+  and its disposition records it; the wording of the premise in
+  `argument.rs:18-22` ("an eq, a public table, or the other side's zero
+  extension") is already right, but nothing states the negative, and a
+  future edit that moves a `1 − supp` term out of its `eq` bracket would
+  break completeness (not privacy — see C4: the honest proof is rejected).
+* **R-c (degree).** "Degree up to 4" becomes "up to 5", with the note that
+  the law does not depend on it (§3.2 item 1).
+* **Design note for P3, not a P1 finding (C9).** Under hidden weights the
+  seven folded weight tables become private factors, and the seven matmul
+  slots (05, 06, 07, 10, 11, 12, 13) then have **no** public factor in their
+  one monomial `A·W`: with both extended in round 0 the premise fails. P3
+  will need a second extension round per matmul (the bilinear slots'
+  mechanism) or a public wrapper there. Slot 14's norm gains survive (they
+  sit under `eq` wrappers). Recorded because P3's requirement is already
+  decided (`ZK60_PRIVACY_REQUIREMENTS.md`: the full version also hides
+  weights), not because anything here is in scope for it.
+
+### 3.4 Gaps
+
+| # | Gap | Size / nature |
+|---|---|---|
+| **GN-1** | **Semantic completeness for every admissible witness (D6) is not established at any shaped layout, and cannot be from the IR.** (NL.1) needs `T′(w, 0) ∈ C` for every admissible `w`: the Private slots have it by construction, but a Standalone or Host slot has it only if its relation truly holds on every admissible witness. A defect there (S19-F1 was one) is **not** a leak in an accepted receipt's field view — the honest proof is rejected — but an **input-dependent abort**, which the toy statement's second sentence ("whether the prover refuses is … a function of the challenges alone") would then be false about. The evidence at 125M is the lane's generic-witness runs — the fully dense twelve-block run (its log: every block "4/4 key-value groups live, groups differ true") and the dense two-block capture both prove and verify (`results/zk60_block125m_lane/m125-run-l12-dense.done` = 0, `m125-capture-dense-l2.done` = 0) [CITED, not re-run]; that is evidence on particular witnesses, not a proof for all. This is GS-14 inherited, and it is the one dependency of (NL) that no algebraic check here can reach. | open; owner: construction |
+| **GN-2** | The IR is the closure (D14) — the lane's oracle tests, not this memo. The IR export is stage 34; `argument.rs` changed three times at stage 35, each reporting the IR leg equal (576 of 576 points). | CITED |
+| **GN-3** | The miniature (§2.5) is a model: 3 main variables, random tables standing in for `eq`, public and private tables alike, one challenge vector per slot. It exercises the real polynomial, the real extension structure and the real declared degree, not real cube sizes, real `eq` tables or real claim points. The premise (§2.2) and Fact 2.1 (§2.4) are on the real objects. | MODEL |
+| **GN-4** | Cross-slot coupling — the host claimed-sum map and the `θ`-batch of the 34 functionals — is checked **structurally only** (source parse: triangular `HOSTS`, 34 functionals). No multi-slot fibre construction was run. The coupling code is shape-independent. | COUNTED only |
+| **GN-5** | (H1) at the shaped layouts (G-R1, the shaped lemma) and the joint law across commitments (G-R4 / GS-6) are untouched; §2.6's per-slot terminal rank is **not** (H1). | out of scope |
+| **GN-6** | The Fiat–Shamir lift and the hash layer (G-R5, D19): everything here is at fixed challenges. | out of scope |
+| **GN-7** | A run (boundary commitments; slots 21 / 22 across blocks): per block only. Each block has its own mask commitment and fresh CFS masks, so (NL) is per block, but the run theorem's own conditions (run memo §3) are not re-examined. | out of scope |
+| **GN-8** | The refusal inventory of the non-linear channel at a shape (`c_s = 0`: 23; `e ∈ {0, 1}`: 25; `ζ = 0`: 5 at 125M) is challenge-only by the code; I did not recount it beyond the extension-round count (25 at every export) [COUNTED]. | liveness, not distance |
+
+### 3.5 A stale figure, corrected in passing
+
+`ZK60_JOINT_LAW_COMPOSITION_RUN.md` §2.1's count table gives
+`Σ L_s / Σ dim C_s` as **840 / 817** at rung-G and **1,208 / 1,185** at 125M.
+Both **predate the S19-F1 repair** (lane stage 20), which added `lkv` main
+rounds and one degree to slots 08 and 09. The exports give **859 / 836**
+(rung-G) and **1,239 / 1,216** (125M) [COUNTED]; the differences, +19 and
++31, are exactly the repair's: at 125M slot 08 goes from `(6, 2, 2)`,
+`L = 18`, to `(8, 2, 3)`, `L = 32`, and slot 09 from `(9, 2, 2)`, `L = 24`,
+to `(11, 2, 3)`, `L = 41`. The kernel total (23), the worst `L` (72, 117)
+and every verdict of that section are unchanged. Rung-K4, which the table
+predates, is 871 / 848.
 
 ## 4. What this memo does NOT establish
 
