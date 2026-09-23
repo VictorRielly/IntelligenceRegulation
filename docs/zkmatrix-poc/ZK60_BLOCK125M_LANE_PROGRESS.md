@@ -13838,3 +13838,35 @@ list). Not a statement about a twelve-block run. The 125M timings are one
 run each on a shared box. The hash layer for the standalone tagged block
 (obligation 3's last clause) and its residual column (obligation 10) are not
 written here.
+
+---
+
+## Stage 46 — TEST-ONLY: the generator's draws MEASURED at rung-G and 125M for a standalone block, and for a two-block rung-G run (obligation 6a) (2026-09-23, 09:2x–)
+
+**Status: `OPEN` (skeleton).** Opened 2026-09-23 09:26 PDT on the lane tip
+`544fbaf`, one writer (the delegated stage-46 agent). **Why:** obligation 6a
+of `ZK60_SHAPED_PRIVACY_PATH_STATUS.md` and §3 of
+`ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_DISPOSITION.md`: the generator's
+draw counts are MEASURED in situ only at the toy (327,052) and rung-K4
+(750,540 block stream; endpoints 7,424 each on a REPLICA, S36-F2) by stage
+36's observers. The standalone-block hash-layer argument uses COUNTED
+figures at rung-G (701,876 per proof) and 125M (9,212,588 per proof), and
+the run's argument a COUNTED per-run total.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | extend stage 36's draw-accounting tests (test-only, in `s36_tests.rs`) to MEASURE, per generator, a STANDALONE block at rung-G and at 125M (block stream in situ as stage 36 did; each endpoint's generator — on the replica if it cannot be observed where it runs without a production change), and a TWO-BLOCK rung-G run (the run's one generator, `run.rs`'s `ZkRng::from_os`) | every measured count compared with the COUNTED figure and the check's per-commitment breakdown; a mismatch is a finding, the expectation is not adjusted |
+| 2 | the live squeeze counts | against the gate's 2,356 (rung-G) and 14,252 (125M) for a standalone block |
+| 3 | the 125M measurement as an `#[ignore]`d heavy test, prebuilt under the build lock, run DETACHED under the heavy lock with `MALLOC_MMAP_THRESHOLD_` pinned | peak RSS and times recorded |
+| 4 | byte identity | no production change; toy 2,816,472 B and every pin unchanged; the focused filters and `--lib private_` once at 6 threads against 493 / 0 / 20 |
+| 5 | this section, with the table shape × scope × generator → MEASURED / COUNTED / equal? | — |
+
+**Forbidden:** any production change anywhere;
+`hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`, `hashline/src/gpu/*`,
+`zkp-core/` (its test-observers code included), `private-block-kernel/`,
+`zkvm-block/`. The untracked `u31-c6-run1.*` files are left alone.
+
+**No privacy claim.** A draw count says where and how much blinding is drawn,
+not that it suffices.
