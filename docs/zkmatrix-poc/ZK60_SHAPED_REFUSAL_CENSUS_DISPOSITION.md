@@ -178,3 +178,38 @@ rung-K4 shape verifies). Nothing fails, but privacy statements and hash keys
 (D19a) are per PROFILE, so a profile string must name exactly one shape.
 **Ruling:** `RunShape::new` refuses, by name, a profile not registered for
 the block shape it is given. Registered shapes unchanged.
+
+## 7. Built (lane stage 42, `6b68561`, 2026-09-23 01:10); CS-8 and the end of this chain
+
+**Built, test-first** (census memo §11, ledger "Stage 42"; 10 new tests; lane
+filter 473/0/18; no absorb, draw or hash call added; every pin unchanged):
+CS-6 — the digest comparison sits in `prove_run` (after the shape checks,
+before `check_endpoints`, the OS entropy read, the transcript and any
+absorb; measured 0 witnesses asked for, 0 boundary planes, 0 segments sunk)
+and in `RunVerifier::start` (before the run transcript exists; refuses the
+same way on 64 zero bytes, so no segment is read first), which
+`verify_run` / `verify_run_from_dir` reach before reading any segment; the
+statement-file reader's existing check carries CS-6's name. **S42-F1, fixed
+by the same check:** stage 18's statement WRITER checked the recipe against
+the blocks it was handed, not the statement's digests, and wrote a
+5,476-byte statement file that does not reproduce its own digests. The
+prover-side bypass for the forged-receipt test is the existing
+`CheatingProver`; I read `protocol.rs:540-542` and `run.rs:634-640, 815-818`:
+the accessor is `#[cfg(test)]` and the verifier never consults it. CS-7 —
+the registry maps the seven registered run profiles to their whole shapes;
+rung-K8's pair exists only under `#[cfg(test)]`.
+
+**CS-8 (finding S42-N1) and a sweep.** `RunShape`'s fields can be written
+anywhere in the crate, so a struct literal skips CS-7 and the run verifies.
+Stages 38–42 have now found this class five times (the feed-forward half,
+the attention half, the endpoint policy, the run's block digests, the run
+shape): an invariant established by a constructor and assumed downstream.
+**Ruling:** one sweep instead of one finding at a time — every type in
+`private_block/` that a statement, shape or run is assembled from and whose
+invariant a constructor establishes either has private fields (the
+constructor is the only way in; preferred where a struct literal outside
+the module is test-only), or is re-checked at every entry where it meets
+what it is proved against (the CS-1 pattern). The sweep lists every such
+type with its choice. After it, the lane's production delta since
+`27398d0` gets an independent adversarial code review before a stable tip
+is named for the integrator.
