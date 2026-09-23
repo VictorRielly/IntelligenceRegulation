@@ -25,7 +25,13 @@ called private on the strength of this page.
   replacement.
 - **Every counted figure reproduces** on an independent recount from the
   source — among them the draw count per 125M block (9,029,742), per
-  twelve-block run (109,728,040), and the residual 2^-69.3. The toy control
+  twelve-block run (109,728,040), and the residual 2^-69.3 *[2026-09-23:
+  both are the pre-S19-F1 counts; after the repair 9,029,804 per 125M block
+  and 109,728,784 per twelve-block run (ruling H-6), now MEASURED in situ as
+  a sum of measured parts by lane stage 46 (`2ea7221`): block stream
+  9,029,804 at 125M, 687,028 at rung-G, a 2-block rung-G run 1,382,760 —
+  every measured count equal to its counted one; the residual 2^-69.3
+  unmoved]*. The toy control
   reproduces decision D9's accepted 327,052 draws to the draw, and only with a
   term the design and its checker had both missed (the helper commitment's
   zero-sum re-draw); the design's 109.4 million was therefore low by a third

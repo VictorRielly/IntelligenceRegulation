@@ -104,7 +104,16 @@ tag and the next segment's start tag — not the coincidence.
 125M); per run 2,093,340 / 2,283,876 / **109,728,784**; the residual **2^-69.3
 unmoved**. Last night's 109,728,040 was the pre-repair count. A third pinned
 receipt total moved with the repair besides the two I listed: the frozen-seam
-rung, 4,218,264 → 4,218,600.
+rung, 4,218,264 → 4,218,600. *[2026-09-23: MEASURED — lane stage 46
+(`2ea7221`, ledger "Stage 46") measured every one of these in situ with the
+stage-36 observers (block and run generators on their production draw
+sites, each proof verified before a count was read; the endpoint generators'
+byte counters still on the replica, S36-F2, their filled pads / salts / mask
+words read off the real owners' commitments and equal): 687,028 per rung-G
+block, 9,029,804 per 125M block, a 2-block rung-G run 1,382,760; the
+12-block 125M run's 109,728,784 is a SUM of measured parts, not a measured
+12-block run. Squeezes 2,356 / 14,252 per standalone block equal the gate's.
+Every measured count equals its counted one.]*
 
 **H-7 (B-6, B-7, B-9 … B-12) — errata.** "Impossible: 0" for a tag/challenge
 coincidence is overstated — the non-local case is a state collision and folds
