@@ -1,0 +1,23 @@
+Running scope as unit: run-rcafdee40a2274fa0a3b2516104051fe1.scope
++ K=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260922_k8
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ W=/home/victor/wt-zk60-jointview
++ G=/home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py
++ P=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/probe
++ python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_run_gate.py --bundle /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260922_k8/run-s-dense-k8 --other /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260922_k8/run-t-zero-k8 --old /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-a-tame --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/probe
+stage1_integrity: ok
+stage2_transcript_replay: ok
+stage8_plane_index_and_terminals: FAIL
+stage10_bilinear_group_factor: FAIL
+stage3_per_commitment: ok
+stage4_the_boundary: ok
+stage5_zero_data_preimage: ok
+stage11_full_preimage: ok
+stage12_mask_and_cfs: ok
+stage13_joint_run_preimage: ok
+stage6_negative_controls: ok
+stage9_hash_layer: ok
+stage7_channels: ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8/probe/run-s-dense-k8.json (12.8 s)
++ echo 'exit 1'
+exit 1

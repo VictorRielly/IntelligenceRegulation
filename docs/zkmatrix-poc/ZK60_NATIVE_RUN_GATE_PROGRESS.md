@@ -4024,3 +4024,65 @@ establishes a privacy property.
 | K5 | dense against zero; rung-K8 against rung-K4 | open |
 | K6 | the records re-taken where a tool moved; the suite and the record guard at 8G | open |
 | K7 | results, limits, NEXT; R5.8 item 3 closed only if the gate read `lkv = 3` end to end | open |
+
+## R9i.3 Commands and logs (round 9i)
+
+Evidence: `results/zk60_native_run_gate_k8/`. Light work at
+`systemd-run --user --scope -p MemoryMax=4G -p MemorySwapMax=0`; every
+whole-gate pass and the suite DETACHED under `flock /tmp/zk-heavy.lock`
+inside the same scope at `MemoryMax=8G`, each with a `.done` marker.
+
+| what | script | log / marker |
+|---|---|---|
+| failing first: the UNEDITED gate (round 9h's tool bytes) on the dense rung-K8 bundle, default arms, every control | `probe.sh` | `probe.log` (the gate's `exit 1`), `probe/run-s-dense-k8.done` = 1, `probe/run-s-dense-k8.json` (NOT a record of record); `probe.done` = 0 is the wrapper script's own exit |
+| the prediction at rung-K8, validated on the committed rung-K4, rung-P2 and rung-E32 records | `predict.sh` | `predict.log`, `predict.done` = 0, `prediction_k8_{dense,zero}.json` |
+
+## R9i.4 The prediction (written 2026-09-22 20:24 PDT, BEFORE the gate read either bundle with its pins read)
+
+**One disclosure first.** The failing-first probe (R9i.3, row 1) ran at
+20:17 on the unedited tools, before this section was written, and its
+record exposes the replay's challenge count (6,926) and stages 3/4 of a
+refused run. Nothing below is taken from it: `zk60_native_rg_predict`
+derives every number it names from `run.json["shape"]` and the capture's
+DECLARED per-opening geometry, and it was validated before use by
+reproducing three committed records to the unit — rung-K4
+(`results/zk60_native_run_gate_mask/run-i-dense-k4.json`), rung-P2 and
+rung-E32 (`predict.log`: **OK, OK, OK**, both bundles). The decompositions
+are by hand, from rung-K4 and the shape change.
+
+**The shape change, K4 → K8**: `kv_heads` 4 → 8, `q_heads` 12 → 16,
+width 96 → 128; `t_pad`, `d_pad`, `h_pad`, `f_pad`, `head_dim` UNCHANGED.
+So `lt = 5`, `lh = 4`, `ldh = 3` do not move and **only `lkv` moves, 2 →
+3**; the heads per group drop 3 (+1 pad) → 2 (no pad), so the head axis
+of the head slot is ONE bit `r_hj` instead of two. Separately, the
+key-value width `kv_heads × head_dim` doubles 32 → 64, so `Dom::Kv` goes
+from `2^10` to `2^11`, and every figure that moves for a reason other than
+the group bit moves for that one.
+
+| # | figure | predicted at rung-K8 | rung-K4 of record | why |
+|---|---|---|---|---|
+| P1 | geometry | `lt 5, lh 4, ldh 3, lkv 3` | `5, 4, 3, 2` | above |
+| P2 | slot 08 / 09 `(main, ext, deg)`, derived and compared twice | `(6,2,3)` / `(8,2,3)`, **6 of 6** | `(5,2,3)` / `(7,2,3)` | `lkv + ldh`, `lkv + lt` |
+| P3 | bilinear definition draws | 14 / 12, unchanged | 14 / 12 | `lh + 2 lt`, `lh + lt + ldh`: the new group bit is a SUMCHECK variable, not a draw |
+| P4 | group point `r_g = r_h[..3]`, derived from the replay and compared with `Tab::Eq` | **6 of 6, 18 entries** | 6 of 6, 12 | three per point |
+| P5 | both factors' coordinate lists | **12 of 12, 144 entries, 60 fixed** | 138 / 66 | per stage `A_KR8` and `A_V8` gain one summed `rho` (+2 entries), and `A_QR8` and `A_P` trade one fixed head coordinate for a summed one (−2 fixed): `r_hj` 2 → 1 entry, `rho_g` 2 → 3 |
+| P6 | replay | **375** positions, **6,926** challenges, counter **7,758**, 6 of 6 tags | 375, 6,854, 7,686 | `+72 = 3 × (3 + 3 + 18)`: definition draws of slots 06, 07, 16 (+1 each, the Kv width), sumcheck rounds of 08, 09 (the group bit) and 16 (`Dom::Kv` log 11), and 6 `A` + 12 `H` proximity rows (the `Dom::Kv` planes double from one row to two). The counter is the challenges plus `13 × 64` index squeezes, as at rung-K4 |
+| P7 | terminal identity | **69 of 69**, all matching the stored `terminal_polynomial`, 0 open; 16 tables rebuilt and digest-matched, 15 carried, 45 structure checks | the same | the table set does not depend on `lkv`: one `eq` per bilinear slot at any `lkv > 0` |
+| P8 | hash layer, the K8 profile's own derived keys | **3,328 of 3,328**, 13 openings, **9,385,984** B, depth 12, largest column 5,864 B | 3,328, 13, 9,275,392, 12, 5,816 | `A` rows 727 → 733, `H` 720 → 732 |
+| P9 | disclosure | `A` 0, `H` 2, endpoints 0, boundaries 0, `M` 0; `rank_P1` `A` 74, `H` 20; non-data rows 246 / 108; boundary 10 rows / 6 generators / rank 6 / disclosed 0; three-role joint 0 over 154; whole run 308 generators, joint **6** = sum 6; 24 identified row pairs; singleton preimage 4 commitments, 0 free `Fp` | the same | 36 / 9 groups, claim counts 122 / 53 and the boundary geometry do not move; only DATA rows grow (`A` 481 → 487, `H` 614 → 626) |
+| P10 | full preimage (stage 11) | all 10 PCS commitments exhibited and verified, **0 differing**, **2,560** salted leaves; the entry count NOT predicted to the unit (it counts sampled columns) | 10, 0, 2,560 | |
+| P11 | mask and CFS (stage 12) | 3 stages, 50 rows, 34 functionals; `L_s` of 08 / 09 / 16 = **26 / 32 / 62**; largest `L` 77 at slot 17, C-4 headroom 179; **47,967** entries recomputed, 0 differing, 768 salted leaves | 23 / 29 / 57; 77, 179; 47,925 | per stage `12,800 + Σ rounds·(deg+1) + 1,024 + 1,024 + 23 + 34`, and `Σ rounds·(deg+1)` grows by `4 + 4 + 6 = 14` to **1,084** — the lane's layout model's "published values 1,084" |
+| P12 | the joint run preimage (stage 13) | four couplings respected; C1 **24** pairs, all data rows; 3,328 salted leaves | the same | |
+| P13 | channels | **28 at 10 / 5 / 4 / 9** | the same | a property of the gate and the arms run |
+| P14 | controls | run C1–C6 **6 of 6**; terminal CT-1…CT-9 **9 of 9**; hash CH-1…CH-7 **7 of 7** (CH-7 against rung-K4's profile: 3,328 of 3,328 under its own keys, 0 under K4's); group **17** as the tools stand (`GQ-1`, `GQ-2`, `GQ-3` ×6 and `GQ-4` ×6 — three coordinates × two slots —, `GQ-7`, `GQ-5`, `GQ-6`), GQ-6 reading repaired 6 of 6 / pre-repair 0 of 6; preimage P-1…P-6 **6 of 6**; mask M1–M6 **6 of 6** | group 13 | `GQ-3`/`GQ-4` are families over `range(lkv)` |
+| P15 | dense against zero | every figure identical except distinct-sampled-column counts, the pad margins and pad-block ranks that derive from them | the same 20 classes at rung-K4 (173 compared, 153 identical) | the witness is not in the bundle |
+| P16 | segments, as the capture declares them | 4,612,392 / 4,634,920 / 4,802,824 (the lane's counted lengths) | 4,575,304 / 4,597,832 / 4,765,736 | reported, not checked |
+
+**What the gate must NOT do** — the negative half of the prediction:
+refuse the bundles for want of a registered profile (there is no profile
+registry in the run gate; the hash keys derive from the profile string),
+or for the three run-layer pins (`run_capture.rs d09f3853`, `run.rs
+f39aec79`, `boundary.rs 5b1c85fe` — all read in round 9c and unchanged at
+`99a8de8`). **What it MUST do until they are read**: refuse `argument.rs`
+and `protocol.rs`, whose digests moved after the last capture commit this
+gate read (`6d71b40`) — stages 35 and 36, which no round has read.
