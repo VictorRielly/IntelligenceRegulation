@@ -24,9 +24,11 @@
 //! run at the lane tip `718ec01` before any production line moved
 //! (`results/zk60_block125m_lane/s41-before-*.log`).
 //!
-//! Two notes are MEASURED here and not built (outside the rulings; lane
+//! Two notes were MEASURED here and not built (outside the rulings; lane
 //! ledger stage 41): a registered run profile over another block shape, and
 //! a run verifier handed blocks other than the ones its statement digests.
+//! Stage 42 built rulings CS-7 and CS-6 on them and flipped both tests to
+//! the refusals (`s42_tests.rs` has the failing-first evidence).
 //!
 //! Nothing here is a privacy result. Everything proved is PUBLIC SYNTHETIC
 //! test data.
@@ -567,42 +569,31 @@ fn s41_cs5_shape_new_refuses_a_width_above_16384_by_name() {
     }
 }
 
-// ------------------------------------------------ notes, MEASURED for the security owner (not built)
+// ------------------------------------------------ the two notes, RULED (stage 42: CS-7 and CS-6)
 
-/// **NOTE S41-N1 (measured, not built): a REGISTERED run profile over
-/// ANOTHER block shape is admitted, and its run proves and verifies.**
-/// `RunShape::new` takes any profile string with any shape; the registered
-/// run profiles are paired with their block shapes only by the
-/// `RunShape::rung_*` constructors. A one-block run under rung-G's run
-/// profile over the rung-K4 shape is admitted by `RunShape::new` and
-/// `RunStatement::new` and VERIFIES: the pairing is carried together in one
-/// struct, prover and verifier read the same one, and no honest proof
-/// fails — a naming (D17) question, not a completeness one, so outside ruling
-/// CS-4 as ruled. The transcript domain is the rung-G run profile, the hash
-/// tag is rung-K4's block profile's, and the run header's shape words are
-/// rung-K4's.
+/// **NOTE S41-N1, ruled by CS-7 (stage 42).** Measured here at stage 41: a
+/// REGISTERED run profile over ANOTHER block shape was admitted by
+/// `RunShape::new` and its one-block run proved and verified (rung-G's run
+/// profile over the rung-K4 shape; `s42-before-notes.log`). Since ruling CS-7
+/// `RunShape::new` refuses it by name; `s42_tests` covers every cross pair.
 #[test]
-fn s41_note_n1_a_registered_run_profile_over_another_block_shape_is_admitted_and_verifies() {
-    let (k4, _, good, x) = n2_case();
-    let rs = RunShape::new(Shape::rung_k4(), 1, run::RUN_PROFILE_RUNG_G).expect("RunShape::new admits rung-G's run profile over the rung-K4 shape");
-    let (st, segs) = honest_run(rs, &k4, &good, &x);
-    let r = run::verify_run(&st, &[good.clone()], &segs);
-    eprintln!("S41-N1 rung-G's run profile over the rung-K4 block shape: admitted; the one-block run verifies: {r:?}");
-    assert!(r.is_ok(), "S41-N1's measured state changed: {r:?}");
+fn s41_note_n1_a_registered_run_profile_over_another_block_shape_is_refused_by_ruling_cs7() {
+    let r = RunShape::new(Shape::rung_k4(), 1, run::RUN_PROFILE_RUNG_G);
+    eprintln!("S41-N1 rung-G's run profile over the rung-K4 block shape: {:?}", r.as_ref().err());
+    let e = r.err().expect("S41-N1: rung-G's run profile over the rung-K4 shape is admitted again");
+    assert!(e.starts_with("private run: ruling CS-7 — "), "S41-N1 refused, but not by ruling CS-7's name: {e}");
 }
 
-/// **NOTE S41-N2 (measured, not built): the run prover and the run verifier
-/// check the blocks they are HANDED, not the digests the run statement
-/// holds.** A run statement built over block X (`RunStatement::new` digests
-/// the blocks it is given) is proved with block Y's words and witness, and
-/// the run verifier handed Y ACCEPTS: the transcript absorbs X's digest
-/// (`pb-run-block`) while every slot is checked against Y. Handed X it
-/// rejects. Nothing on the in-memory path compares `blocks[k].digest()`
-/// with the statement's `block_digests[k]`; the run-statement FILE reader
-/// does (`run_statement_file.rs`), the API does not. Not a shape check, so
-/// outside ruling CS-4; recorded for the security owner.
+/// **NOTE S41-N2, ruled by CS-6 (stage 42).** Measured here at stage 41: a
+/// run statement built over block X, proved with block Y's words and
+/// witness, was ACCEPTED by the run verifier handed Y (the transcript
+/// absorbed X's digest while every slot was checked against Y) and rejected
+/// handed X (`s42-before-notes.log`). Since ruling CS-6 the run prover
+/// refuses it by name before anything is absorbed, and the run verifier
+/// handed Y refuses by name before a segment is read; `s42_tests` measures
+/// the verifier on the forged receipt itself.
 #[test]
-fn s41_note_n2_the_run_verifier_checks_the_blocks_it_is_handed_not_the_digests_its_statement_holds() {
+fn s41_note_n2_a_run_statement_over_x_handed_block_y_is_refused_by_ruling_cs6() {
     let g = Shape::rung_g();
     let (att_x, ff_x, _) = super::grow_tests::tame_case(&g);
     let (att_y, ff_y, x_y) = super::dense_tests::dense_case(&g);
@@ -611,15 +602,16 @@ fn s41_note_n2_the_run_verifier_checks_the_blocks_it_is_handed_not_the_digests_i
     let w = witness::build_shaped(&g, by.attention(), by.feed_forward(), &x_y).expect("Y's honest witness");
     let (expected, owners) = endpoints_with(&g, &g, &w);
     let st = RunStatement::new(RunShape::rung_g(1).expect("run shape"), ctx(), expected, &[bx.clone()], &[(0, 0)]).expect("a run statement over X");
-    let mut segs: Vec<Vec<u8>> = Vec::new();
-    run::prove_run(&st, &[by.clone()], &mut OneWitness(Some(w)), owners, &mut |_, b| {
-        segs.push(b);
+    let mut sunk = 0usize;
+    let r = run::prove_run(&st, &[by.clone()], &mut OneWitness(Some(w)), owners, &mut |_, _| {
+        sunk += 1;
         Ok(())
-    })
-    .expect("the run prover proves Y under a statement whose digest is X's");
-    let with_y = run::verify_run(&st, &[by.clone()], &segs);
-    let with_x = run::verify_run(&st, &[bx.clone()], &segs);
-    eprintln!("S41-N2 a run statement over X, proved with Y: the run verifier handed Y: {with_y:?}; handed X: {with_x:?}");
-    assert!(with_y.is_ok(), "S41-N2's measured state changed (handed Y): {with_y:?}");
-    assert!(with_x.is_err(), "S41-N2: the run verifier handed X accepted a run proved with Y");
+    });
+    let with_y = run::verify_run(&st, &[by.clone()], &[vec![0u8; 64]]);
+    eprintln!("S41-N2 a run statement over X handed Y: the run prover: {:?}; the run verifier: {with_y:?}", r.as_ref().err());
+    let e = r.err().expect("S41-N2: the run prover proves Y under a statement over X again");
+    assert!(e.starts_with("private run: ruling CS-6 — block 0 "), "S41-N2: the run prover refused, but not by ruling CS-6's name: {e}");
+    assert_eq!(sunk, 0, "S41-N2: the run prover handed a segment to the sink before refusing");
+    let e = with_y.err().expect("S41-N2: the run verifier handed Y accepted");
+    assert!(e.starts_with("private run: ruling CS-6 — block 0 "), "S41-N2: the run verifier refused, but not by ruling CS-6's name: {e}");
 }

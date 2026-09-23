@@ -510,13 +510,19 @@ pub(super) fn read(dir: &Path) -> Result<(RunStatement, Vec<BlockPublic>), Strin
         return Err("run statement: this file claims to carry weight values; it may not".into());
     }
     let blocks = blocks_of_recipe(w.get("recipe")?.str()?, &sh, l)?;
+    // RULING CS-6 (stage 42), the reader's half: the file's statement names
+    // its blocks by the digests it declares, and the blocks a verifier is
+    // handed are the recipe's, so the two are compared here — before the
+    // statement is built from the recipe's blocks (which would make its
+    // digests agree by construction) and before anything is absorbed. The
+    // comparison was already here; stage 42 gave it the ruling's name.
     let declared = j.get("block_digests")?.arr()?;
     if declared.len() != l {
-        return Err(format!("run statement: {} block digests for {l} blocks", declared.len()));
+        return Err(format!("run statement: ruling CS-6 — the file's statement names {} block digests for {l} blocks", declared.len()));
     }
     for (k, d) in declared.iter().enumerate() {
         if d.hex32()? != blocks[k].digest() {
-            return Err(format!("run statement: the recipe's block {k} is not the block digest the file declares"));
+            return Err(format!("run statement: ruling CS-6 — block {k} regenerated from the named weights recipe is not the block the file's statement names (block digest {k} differs); refused before the statement is built"));
         }
     }
 

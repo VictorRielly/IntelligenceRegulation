@@ -309,6 +309,10 @@ mod s40_tests;
 // on stage 40's findings S40-N2 and S40-N1.
 #[cfg(test)]
 mod s41_tests;
+// STAGE 42: rulings CS-6 and CS-7 of the shaped refusal census disposition,
+// on stage 41's findings S41-N2 and S41-N1.
+#[cfg(test)]
+mod s42_tests;
 // REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
 // pre-read of stage 36): the reviewer's own tests of the observer hook and of
 // the endpoint replica's fidelity. NOT part of the lane's delta and not to be

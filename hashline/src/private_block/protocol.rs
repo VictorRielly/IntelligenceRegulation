@@ -525,10 +525,21 @@ thread_local! {
     static CHEATING_PROVER: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
 }
 
-/// While alive, this thread's prover skips ruling CS-3's refusal (test only).
+/// While alive, this thread's prover skips ruling CS-3's refusal, and the run
+/// prover ruling CS-6's comparison of the blocks it is handed with the ones
+/// its statement names (test only).
 #[cfg(test)]
 pub(crate) struct CheatingProver {
     was: bool,
+}
+
+/// **STAGE 42.** Whether a [`CheatingProver`] guard lives on this thread
+/// (test only): the run prover's copy of ruling CS-6's check (`run.rs`)
+/// honours it, so a soundness test can still make the receipt a cheating
+/// RUN prover would make. A release build has neither this nor the switch.
+#[cfg(test)]
+pub(crate) fn cheating_prover_is_on() -> bool {
+    CHEATING_PROVER.with(|c| c.get())
 }
 
 #[cfg(test)]
