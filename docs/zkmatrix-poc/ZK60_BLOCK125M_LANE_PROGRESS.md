@@ -12304,8 +12304,8 @@ COUNTED. Not a fix of S38-F1 or S38-N1.
 
 ## Stage 39 — FIXING S38-F1 by ruling S38-F1(a), and S38-N1 (2026-09-22, 21:3x–)
 
-**Status: `OPEN`** (skeleton). Opened 2026-09-22 21:34 PDT on the lane tip
-`a9d6d4c`, one writer.
+**Status: `CLOSED` 2026-09-22 21:5x PDT** — see "Stage 39 — CLOSED" below.
+Opened 2026-09-22 21:34 PDT on the lane tip `a9d6d4c`, one writer.
 
 **The ruling, verbatim — ruling S38-F1(a), security owner, 2026-09-22:**
 `FeedForwardPublic::new_shaped` refuses, BY NAME, a statement with
@@ -12425,3 +12425,83 @@ stage-38 census tests**: every `k8_tests` and `census_shaped_tests` test
 passed in all six runs (the before-run failed only on s35). No compiler
 warning in any changed file. `s35_tests.rs` SHA-256 ->
 `f88fca813d58fab9eb6d29a2aef9c1bdbd35168a41efb368c61c5cdf047d59a7`.
+
+### Stage 39 — CLOSED (2026-09-22, 21:34–21:5x)
+
+**Status: `LANDED`.** S38-F1 fixed by ruling S38-F1(a) (one refusal in
+`FeedForwardPublic::new_shaped`); S38-N1 fixed test-only. No 125M prove; no
+GPU.
+
+#### The gate — ONE run
+
+`--lib private_` at `cfc48a3`, `--test-threads=6`, under `flock
+/tmp/zk-build.lock` and `systemd-run --user --scope -p MemoryMax=8G -p
+MemorySwapMax=0` (`s39-gate-private.log`, `.done` = 0; shared box, another
+lane's Python gate beside it, not quiesced): **440 passed / 0 failed / 18
+ignored**, 137.32 s (2:17.40 wall), peak RSS 4.28 GB, 16 `warning` lines (the
+same 16 as stage 38's run 5). **Nothing skipped**: the s35 differential now
+runs in the gate and passes.
+
+**Accounting against stage 38's 437 / 0 / 19 (+1 skipped, = 438 / 0 / 19):**
++1 the s35 test back in the run (already in the 438), +1 the new
+`s39_new_shaped_...` test, and the reproducer moves from ignored to passed:
+438 + 1 + 1 = **440**, 19 - 1 = **18**. Nothing lost.
+
+#### Byte identity
+
+* **The toy stays 2,816,472 B**, and the frozen toy is in the pass list:
+  `tests::honest_receipt_verifies_in_typed_and_wire_form_...` (`tests.rs:108`,
+  `bytes.len() == 2_816_472`), `zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length`,
+  `grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+  `grow_tests::the_toy_schedule_digest_is_frozen`,
+  `grow_tests::the_toy_parameter_line_is_the_frozen_literal`,
+  `review_tests::a_toy_receipt_made_before_the_lane_still_verifies`.
+* **Every shaped receipt and pinned digest**: the honest proofs verify from
+  bytes at rung, rung-G, K4, K8, P2, C6, W14, E32 (the K4, K8 and W14 ones
+  assert the frame length equals the pinned `*_FRAME_BYTES`; the counted-model
+  pins `K4_ / P2_ / C6_ / W14_ / K8_FRAME_BYTES` pass),
+  `grow_tests::the_125m_receipt_is_reproduced_part_by_part`,
+  `run_tests::the_twelve_block_125m_receipt_is_the_counted_figure` and
+  `slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`
+  all pass.
+* **Nothing absorbed**: `git diff a9d6d4c -- hashline/src/private_block.rs`
+  is exactly the nine added lines in `new_shaped`; both `absorb_into`s and
+  `BlockPublic::digest` are untouched. The refusal can only turn an `Ok` into
+  an `Err` at construction; every statement it admits is byte-for-byte the
+  statement it admitted before.
+
+#### The pins that move, for the gate owner (the privacy gate re-pins per bundle source commit)
+
+| file | old SHA-256 (at `a9d6d4c`) | new SHA-256 (at `cfc48a3`) |
+|---|---|---|
+| `hashline/src/private_block.rs` | `b67282735ce3072751e997bf43d64a05205df035880b66fe1ecfc1aa652a3456` | `29ba008487473bff67e4d10a4770ed0ddf3410aef4c0765cece3a41bf3acc872` |
+| `hashline/src/private_block/census_shaped_tests.rs` | `04d4d1bb47eb230e185c0f767d1111dc1d3ce184a60cc6468dcd2d09ae873e56` | `2ddf818fa023440b70175e6bedc33ec74ca43cffaa81feeb29bce32fde38cbb1` |
+| `hashline/src/private_block/s35_tests.rs` | (stage 35's) | `f88fca813d58fab9eb6d29a2aef9c1bdbd35168a41efb368c61c5cdf047d59a7` |
+
+`private_block.rs` is the one PRODUCTION file that moves: a gate that pins
+it will refuse until re-pinned, by design.
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat a9d6d4c -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block
+hashline/src/private_block/{argument,protocol,layout,wire,witness,run,
+boundary,run_capture,shape,refusals}.rs hashline/Cargo.toml
+hashline/Cargo.lock scripts` prints NOTHING. The untracked `u31-c6-run1.*`
+files are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `6ec32c2` | the skeleton, with the ruling text |
+| `7472a3c` | the fix (`private_block.rs`), the new test, the census class for site 26, the re-purposed reproducer, and the failing-first and census logs |
+| `cfc48a3` | S38-N1 (`s35_tests.rs`), the memo's "FIXED at `7472a3c`", this ledger's progress, the N1 logs |
+| this one | the gate log and this close |
+
+#### What stage 39 is NOT
+
+Not a privacy result. Not option (b): the pad rule, `A_A16`'s ZERO class and
+every receipt are unchanged; revisit only if an approved activation with a
+nonzero value at gate 0 is ever proposed. Not a claim that the public
+statement is otherwise complete: the constructor still checks STRUCTURE, not
+provenance (the caller authenticates the words against approved commitments).
