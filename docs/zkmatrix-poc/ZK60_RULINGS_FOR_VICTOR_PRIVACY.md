@@ -122,13 +122,23 @@ them coming than meet them in a status line.
 - **Soundness of a whole run.** A private run of twelve blocks at the 125M
   shape would have a whole-proof soundness of about **2^-97.5** by the
   project's own accounting [COUNTED; one block measured, the run not built].
+  *[2026-09-23: the run has since been built and measured — twelve blocks at
+  the 125M shape prove and verify (2026-09-20 11:22; again on a fully dense
+  witness 21:01). The soundness figure itself is still COUNTED, not measured,
+  and still yours to rule — evidence: `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md`
+  §2b; lane log `m125-run-l12-dense.log`.]*
   That is the level you accepted for the slow line in D3 (about 97 bits). The
   per-opening figure people quote (about 106 bits) is not the whole-proof
   figure; decision D15 already says so. **Recommendation when it comes:
   accept about 97 bits for native-line runs, as for the slow line.**
 - **Proof size.** One private block at the 125M shape is 40.8 MB [MEASURED];
   twelve blocks are about 484 MB [COUNTED], verified one 40 MB segment at a
-  time. The contract's budget is 256 KB. The one lever that shrinks the proof
+  time. *[2026-09-23: now MEASURED — 484,100,736 bytes in twelve segments
+  (2026-09-20, before the attention repair), 484,107,456 bytes on a fully dense
+  witness after it, each equal to the counted figure to the byte; verifying by
+  streaming took 13.7–14.5 s — evidence: `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md`
+  §2a–§2b; lane log `m125-run-l12-dense.log`. The ruling asked of you is
+  unchanged.]* The contract's budget is 256 KB. The one lever that shrinks the proof
   a lot (decision D10) cannot run privately, which is why you declined it.
   **Recommendation when it comes: record the size as a deviation for the
   first MVP**, and keep "a small outer proof about the big one" (as the slow

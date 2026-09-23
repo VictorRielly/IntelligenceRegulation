@@ -151,15 +151,24 @@ double-counted. An errata pass on the draft follows.
 
 ## 3. Where a run's privacy path stands after this
 
-| Step | For a run at the development shape | At the 125M shape |
-|---|---|---|
-| All-zero input proves and verifies | done (three-block run, tests) | **not tested — blocking (R-4)** |
-| Per-commitment lemma at the new layouts (gap G-R1) | owed from the start | owed from the start |
-| The gate constructs preimages | boundaries and endpoints done; `A` and `H` skipped, not faked | nothing |
-| Slot closures (gap G-R2) | 23 of 23 machine-checked on two tagged runs; owed as a reading | nothing |
-| Joint law (this page) | reduction accepted, conditional on G-R1, G-R2, G-R4, G-R5 | the same, plus R-4 and R-6 |
-| Cross-role independence (G-R4) | to be machine-asserted (R-3) | the same |
-| Hash layer and lift | computed for what a receipt opens, under the keyed rule; the lift for a run (gap G-R5) unwritten | nothing |
+| Step | For a run at the development shape | At the 125M shape | Status at 2026-09-23 (dated correction; the two columns to the left are kept as written at 17:58 on 2026-09-20) |
+|---|---|---|---|
+| All-zero input proves and verifies | done (three-block run, tests) | **not tested — blocking (R-4)** | **R-4 closed on its own terms.** The witness builder admits the all-zero input at 125M under both weight recipes, the three zero-headroom boundaries pinned at the shape's constants (lane stage 19 task 9); one 125M block on the zero input proves and verifies, 26.98 s / 1.23 s (`ZK60_BLOCK125M_S19F1_DISPOSITION.md` §6); a two-block all-zero 125M run proved, verified, was captured (`m125-capture-zero-l2`, 2026-09-21 08:57) and gated (run gate round 9). **A twelve-block all-zero run has not been run**; it rests on the stage-19 test that the zero chain is identically zero and its witness weight-independent |
+| Per-commitment lemma at the new layouts (gap G-R1) | owed from the start | owed from the start | Core accepted with changes S-1 … S-6 at both shapes (`ZK60_GENERIC_RANK_LEMMA_SHAPED_DISPOSITION.md`, 2026-09-20 23:27); measured at 125M on two two-block captures: `A` 0, `H` 2 = the public LogUp identity, endpoints 0, the boundary 6 of 6 disclosed 0 (round 9). Left: GS-2 at 125M, GS-4, GS-5, GS-11, GS-12 |
+| The gate constructs preimages | boundaries and endpoints done; `A` and `H` skipped, not faked | nothing | Constructed for every commitment, `A` and `H` included (round 7), the masking commitments and one joint run assignment (round 8) at the development shapes; at 125M all seven hiding commitments of a two-block run, 8,263,736 entries none differing, masking 32,918, joint sum 8,296,654, channel table 28 at 10 / 5 / 4 / 9 (rounds 9 and 9c; `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md` §2b). Two-block runs only |
+| Slot closures (gap G-R2) | 23 of 23 machine-checked on two tagged runs; owed as a reading | nothing | Read: holds with changes (`ZK60_SLOT_CLOSURES_SHAPED_DISPOSITION.md`, 2026-09-21 01:22); enforcement C-3, C-4, C-7 built (lane stage 24 items 6–8, `68e8769`); terminal identity 46 of 46 at 125M (round 9); the non-linear channel's algebraic half closed (NL-1) |
+| Joint law (this page) | reduction accepted, conditional on G-R1, G-R2, G-R4, G-R5 | the same, plus R-4 and R-6 | Still a reduction. R-4 closed (row 1); R-6's refinement taken (S-4, the dated note under R-6 above); G-R1 and G-R2 narrowed (rows 2, 4); G-R4 counted and machine-asserted on single blocks (row 6), the LAW still owed (NL-8); G-R5 written (row 7) |
+| Cross-role independence (G-R4) | to be machine-asserted (R-3) | the same | The seven draw-accounting assertions (J-5) are live on single-block proofs at six shapes — toy, rung-K4, rung-P2, rung-C6, rung-W14, rung-E32 — with the toy's 327,052 draws reproduced exactly (lane stage 36, `29cba9a`). **Not at 125M and not at run scope** (J-5's widened assertion 2, `11L + 3(L−1)` segments, is measured nowhere); the endpoint generators on a replica (S36-F2). J-1 places the independence in the first hop |
+| Hash layer and lift | computed for what a receipt opens, under the keyed rule; the lift for a run (gap G-R5) unwritten | nothing | G-R5 written (Lemma H^run, Route A^run), core accepted with changes (`ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md`, 2026-09-21 01:12); at 125M 2,304 opened columns (52,867,072 B) re-hashed and authenticated and 27,828 challenges re-derived (round 9). Open: G-H1 (Route B, unruled), D19b (pending Victor), the explicit L = 2 hybrid for the position tags, GS-7 |
+
+*Correction block, 2026-09-23: every row of this table moved after it was
+written; the right-hand column says where each stands and why, and nothing to
+its left was changed. Evidence: lane ledger `ZK60_BLOCK125M_LANE_PROGRESS.md`
+(stages 19, 24, 36) on `zk60-private-block-125m`; run gate rounds 7–9c as
+recorded in `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md` §2b; the dispositions
+named per row; reconciled in `ZK60_SHAPED_PRIVACY_PATH_STATUS.md` §2.6 and §4
+rows 1–7. None of it is a privacy acceptance; no run and no 125M block may be
+called private on the strength of this page.*
 
 ## 4. What I checked myself, and what was delegated
 
