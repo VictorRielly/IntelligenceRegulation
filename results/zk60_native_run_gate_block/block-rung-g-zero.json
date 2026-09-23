@@ -349,7 +349,7 @@
  "privacy_acceptance": false,
  "privacy_property_established": false,
  "privacy_review_complete": false,
- "seconds": 140.1,
+ "seconds": 142.8,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -839,14 +839,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.69,
-    "msg_groups_seconds": 0.64,
-    "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.31,
+    "layout_seconds": 2.98,
+    "msg_groups_seconds": 0.74,
+    "msg_proximity_seconds": 0.05,
+    "pads_seconds": 3.86,
     "preimage_exhibited": true,
-    "seconds": 11.47,
+    "seconds": 12.86,
     "solve_findings": [],
-    "solve_seconds": 3.99,
+    "solve_seconds": 4.65,
     "solved": true,
     "steps": [
      {
@@ -1467,8 +1467,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.71,
-     "seconds_vectors_and_claims": 1.03
+     "seconds_opened_columns": 3.95,
+     "seconds_vectors_and_claims": 1.22
     }
    },
    {
@@ -1488,14 +1488,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.42,
-    "msg_groups_seconds": 0.13,
+    "layout_seconds": 2.5,
+    "msg_groups_seconds": 0.15,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.18,
+    "pads_seconds": 2.29,
     "preimage_exhibited": true,
-    "seconds": 7.74,
+    "seconds": 8.13,
     "solve_findings": [],
-    "solve_seconds": 2.33,
+    "solve_seconds": 2.46,
     "solved": true,
     "steps": [
      {
@@ -1718,8 +1718,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 2.67,
-     "seconds_vectors_and_claims": 0.28
+     "seconds_opened_columns": 2.83,
+     "seconds_vectors_and_claims": 0.3
     }
    },
    {
@@ -1739,14 +1739,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.42,
+    "layout_seconds": 2.61,
     "msg_groups_seconds": 0.01,
-    "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.07,
+    "msg_proximity_seconds": 0.02,
+    "pads_seconds": 0.11,
     "preimage_exhibited": true,
-    "seconds": 2.59,
+    "seconds": 2.84,
     "solve_findings": [],
-    "solve_seconds": 0.09,
+    "solve_seconds": 0.14,
     "solved": true,
     "steps": [
      {
@@ -1842,7 +1842,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.07,
+     "seconds_opened_columns": 0.09,
      "seconds_vectors_and_claims": 0.0
     }
    },
@@ -1863,14 +1863,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.44,
+    "layout_seconds": 2.66,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.07,
+    "pads_seconds": 0.08,
     "preimage_exhibited": true,
-    "seconds": 2.6,
+    "seconds": 2.84,
     "solve_findings": [],
-    "solve_seconds": 0.09,
+    "solve_seconds": 0.1,
     "solved": true,
     "steps": [
      {
@@ -1973,7 +1973,7 @@
   ],
   "requested": true,
   "salted_leaves_authenticated": 1024,
-  "seconds": 24.4,
+  "seconds": 26.7,
   "this_is_not_a_privacy_result": true,
   "view_entries_compared": 368559,
   "view_entries_differing": 0,
@@ -2512,7 +2512,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 6.04,
+    "seconds": 6.08,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -3303,7 +3303,7 @@
   "profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
   "requested": true,
   "salted_leaves_authenticated": 256,
-  "seconds": 6.05,
+  "seconds": 6.09,
   "source_pins": {
    "accepted": [
     {
@@ -3866,7 +3866,7 @@
    "exact_rank_of_the_pad_block": 245,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.4,
+   "seconds": 3.8,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -4902,6 +4902,91 @@
    },
    "what": "A@0[377] and E-Input[4] -- one reserved mask row of each -- made the SAME unknown; the two commitments already share E-Input's data plane with A@0's IO plane"
   },
+  "C3c_a_blinding_row_shared_between_the_two_external_endpoints": {
+   "fires": true,
+   "limit": "a shared SYMBOL only: two distinct rows whose VALUES coincide score like an honest block (ruling R-3); the independence of the endpoints' generators (E-1, M-3) is assumed, not measured here",
+   "marginals_unchanged": true,
+   "mirrors": "C3b (a blinding row shared between an endpoint and A), aimed at the two endpoints: ruling HB-4, finding F-8",
+   "one_message_width_fp": 1024,
+   "pair": {
+    "honest": {
+     "block_diagonal": true,
+     "identified_rows": 0,
+     "joint_fp": 0,
+     "k0": 0,
+     "matrix": "8 x 18",
+     "ok": true,
+     "parts_fp": {
+      "E-Input": 0,
+      "E-Output": 0
+     },
+     "rank_all": 8,
+     "rank_on_non_data": 8,
+     "sum_of_parts_fp": 0,
+     "u_row_term_fp": 0
+    },
+    "perturbed": {
+     "block_diagonal": false,
+     "identified_rows": 1,
+     "joint_fp": 1024,
+     "k0": 1,
+     "matrix": "8 x 17",
+     "ok": false,
+     "parts_fp": {
+      "E-Input": 0,
+      "E-Output": 0
+     },
+     "rank_all": 8,
+     "rank_on_non_data": 7,
+     "sum_of_parts_fp": 0,
+     "u_row_term_fp": 0
+    },
+    "rise_fp": 1024
+   },
+   "what": "E-Input[4] and E-Output[4] -- the first row of each endpoint's claim pair -- made the SAME unknown in the model (no captured byte is altered); ranked as the pair alone (C3b's form) and as the whole block (stage 4's figure, with its data identifications)",
+   "whole_block": {
+    "honest": {
+     "block_diagonal": true,
+     "identified_rows": 8,
+     "joint_fp": 2,
+     "k0": 0,
+     "matrix": "104 x 1259",
+     "ok": true,
+     "parts_fp": {
+      "A@0": 0,
+      "E-Input": 0,
+      "E-Output": 0,
+      "H@0": 2,
+      "M@0": 0
+     },
+     "rank_all": 104,
+     "rank_on_non_data": 104,
+     "sum_of_parts_fp": 2,
+     "u_row_term_fp": 2
+    },
+    "perturbed": {
+     "block_diagonal": false,
+     "identified_rows": 9,
+     "joint_fp": 1026,
+     "k0": 1,
+     "matrix": "104 x 1258",
+     "ok": false,
+     "parts_fp": {
+      "A@0": 0,
+      "E-Input": 0,
+      "E-Output": 0,
+      "H@0": 2,
+      "M@0": 0
+     },
+     "rank_all": 104,
+     "rank_on_non_data": 103,
+     "sum_of_parts_fp": 2,
+     "u_row_term_fp": 2
+    },
+    "rise_fp": 1024
+   },
+   "why_the_claim_row": "an endpoint's one claim reads its data plane and its claim pair only, so its group generators restricted to the non-data rows live on the pair, and with the non-data rank 4 of 4 one combination of them is a multiple of this row alone; shared, that row cancels between the two endpoints and leaves a functional of the data unmasked.  A shared SPARE row would not move the figure, and correctly: each endpoint keeps rank 4 on its other four non-data rows"
+  },
   "C4b_the_two_endpoints_claim_sources_swapped": {
    "fires": true,
    "honest": {
@@ -4963,7 +5048,8 @@
    "C3b_a_blinding_row_shared_between_an_endpoint_and_A",
    "C4b_the_two_endpoints_claim_sources_swapped",
    "C5b_observations_swapped_between_the_two_bundles",
-   "C6_one_pad_fewer_than_the_distinct_opened_columns"
+   "C6_one_pad_fewer_than_the_distinct_opened_columns",
+   "C3c_a_blinding_row_shared_between_the_two_external_endpoints"
   ],
   "not_applicable": {
    "C1_two_claims_share_one_reserved_pair": "no commitment of a standalone block carries two claim sites: each external endpoint carries ONE (slot 21 or slot 22), A's and H's claim pairs are per claim, and a boundary -- the one commitment with two sites -- does not exist"
@@ -6086,7 +6172,7 @@
   "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
   "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
-  "zk60_native_rg_block.py": "cc4911bfab9be4888be06a53d6858e9ed4ffa40b9c28587dee5fd06ce92a39d4",
+  "zk60_native_rg_block.py": "89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b",
   "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
   "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
   "zk60_native_rg_gcontrols.py": "785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85",

@@ -1,0 +1,20 @@
++ M=/home/victor/zk60-artifacts/block-captures-20260923
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9k
++ S=load,replay,commitments,boundary,runcontrols
++ /usr/bin/time -v python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/block-captures-20260923/m125-dense --other /home/victor/zk60-artifacts/block-captures-20260923/m125-zero --stages load,replay,commitments,boundary,runcontrols --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9k --name block-m125-dense-c3c
+[load          ]      0.8 s   peak RSS     323 MB   ok
+[replay        ]      0.5 s   peak RSS     323 MB   ok
+[commitments   ]     55.1 s   peak RSS     369 MB   ok
+[boundary      ]      1.0 s   peak RSS     395 MB   ok
+[runcontrols   ]     13.8 s   peak RSS     804 MB   FAIL
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9k/block-m125-dense-c3c.json   total 71.2 s   peak RSS 804 MB   ok=False
++ /usr/bin/time -v python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/block-captures-20260923/m125-zero --other /home/victor/zk60-artifacts/block-captures-20260923/m125-dense --stages load,replay,commitments,boundary,runcontrols --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-j-zero-k4 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9k --name block-m125-zero-c3c
+[load          ]      0.9 s   peak RSS     315 MB   ok
+[replay        ]      0.8 s   peak RSS     315 MB   ok
+[commitments   ]     76.9 s   peak RSS     361 MB   ok
+[boundary      ]      0.9 s   peak RSS     386 MB   ok
+[runcontrols   ]     14.7 s   peak RSS     803 MB   FAIL
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9k/block-m125-zero-c3c.json   total 94.2 s   peak RSS 803 MB   ok=False

@@ -1,0 +1,741 @@
+{
+ "bundles": [
+  {
+   "block_controls": {
+    "all_fire": true,
+    "controls": [
+     "C2b_an_external_endpoint_with_a_single_proximity_row",
+     "C3b_a_blinding_row_shared_between_an_endpoint_and_A",
+     "C4b_the_two_endpoints_claim_sources_swapped",
+     "C5b_observations_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns",
+     "C3c_a_blinding_row_shared_between_the_two_external_endpoints"
+    ],
+    "fire": 6
+   },
+   "bundle": "rung-g-dense",
+   "fires": true,
+   "honest_whole_block_is_stage_4": true,
+   "marginals_unchanged": true,
+   "parts_fp_perturbed_whole": {
+    "A@0": 0,
+    "E-Input": 0,
+    "E-Output": 0,
+    "H@0": 2,
+    "M@0": 0
+   },
+   "record": "zk60_native_run_gate_block/block-rung-g-dense",
+   "record_ok": true,
+   "stages_not_ok": [],
+   "systems": {
+    "pair/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "joint_fp": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "8 x 18",
+      "predicted": "8 x 18"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "joint_fp": {
+      "measured": 1024,
+      "predicted": 1024
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "8 x 17",
+      "predicted": "8 x 17"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 7,
+      "predicted": 7
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/rise_fp": 1024,
+    "whole_block/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "joint_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "104 x 1259",
+      "predicted": "104 x 1259"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 9,
+      "predicted": 9
+     },
+     "joint_fp": {
+      "measured": 1026,
+      "predicted": 1026
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "104 x 1258",
+      "predicted": "104 x 1258"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 103,
+      "predicted": 103
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/rise_fp": 1024
+   },
+   "what": "E-Input[4] and E-Output[4] -- the first row of each endpoint's claim pair -- made the SAME unknown in the model (no captured byte is altered); ranked as the pair alone (C3b's form) and as the whole block (stage 4's figure, with its data identifications)"
+  },
+  {
+   "block_controls": {
+    "all_fire": true,
+    "controls": [
+     "C2b_an_external_endpoint_with_a_single_proximity_row",
+     "C3b_a_blinding_row_shared_between_an_endpoint_and_A",
+     "C4b_the_two_endpoints_claim_sources_swapped",
+     "C5b_observations_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns",
+     "C3c_a_blinding_row_shared_between_the_two_external_endpoints"
+    ],
+    "fire": 6
+   },
+   "bundle": "rung-g-zero",
+   "fires": true,
+   "honest_whole_block_is_stage_4": true,
+   "marginals_unchanged": true,
+   "parts_fp_perturbed_whole": {
+    "A@0": 0,
+    "E-Input": 0,
+    "E-Output": 0,
+    "H@0": 2,
+    "M@0": 0
+   },
+   "record": "zk60_native_run_gate_block/block-rung-g-zero",
+   "record_ok": true,
+   "stages_not_ok": [],
+   "systems": {
+    "pair/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "joint_fp": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "8 x 18",
+      "predicted": "8 x 18"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "joint_fp": {
+      "measured": 1024,
+      "predicted": 1024
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "8 x 17",
+      "predicted": "8 x 17"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 7,
+      "predicted": 7
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/rise_fp": 1024,
+    "whole_block/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "joint_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "104 x 1259",
+      "predicted": "104 x 1259"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 9,
+      "predicted": 9
+     },
+     "joint_fp": {
+      "measured": 1026,
+      "predicted": 1026
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "104 x 1258",
+      "predicted": "104 x 1258"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 103,
+      "predicted": 103
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/rise_fp": 1024
+   },
+   "what": "E-Input[4] and E-Output[4] -- the first row of each endpoint's claim pair -- made the SAME unknown in the model (no captured byte is altered); ranked as the pair alone (C3b's form) and as the whole block (stage 4's figure, with its data identifications)"
+  },
+  {
+   "block_controls": {
+    "all_fire": true,
+    "controls": [
+     "C2b_an_external_endpoint_with_a_single_proximity_row",
+     "C3b_a_blinding_row_shared_between_an_endpoint_and_A",
+     "C4b_the_two_endpoints_claim_sources_swapped",
+     "C5b_observations_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns",
+     "C3c_a_blinding_row_shared_between_the_two_external_endpoints"
+    ],
+    "fire": 6
+   },
+   "bundle": "m125-dense",
+   "fires": true,
+   "hash_rule_controls_skipped": [
+    "CH-6"
+   ],
+   "hash_rule_controls_that_did_not_fire": [
+    "CH-3"
+   ],
+   "honest_whole_block_is_stage_4": true,
+   "marginals_unchanged": true,
+   "parts_fp_perturbed_whole": {
+    "A@0": 0,
+    "E-Input": 0,
+    "E-Output": 0,
+    "H@0": 2,
+    "M@0": 0
+   },
+   "record": "zk60_native_run_gate_9k/block-m125-dense-c3c",
+   "record_ok": false,
+   "stage6_parts_ok": {
+    "hash_rule_controls": false,
+    "round_9_controls": true,
+    "run_controls": true
+   },
+   "stages_not_ok": [
+    "stage6_negative_controls"
+   ],
+   "systems": {
+    "pair/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "joint_fp": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "8 x 74",
+      "predicted": "8 x 74"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "joint_fp": {
+      "measured": 16384,
+      "predicted": 16384
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "8 x 73",
+      "predicted": "8 x 73"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 7,
+      "predicted": 7
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/rise_fp": 16384,
+    "whole_block/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 64,
+      "predicted": 64
+     },
+     "joint_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "104 x 12861",
+      "predicted": "104 x 12861"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 65,
+      "predicted": 65
+     },
+     "joint_fp": {
+      "measured": 16386,
+      "predicted": 16386
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "104 x 12860",
+      "predicted": "104 x 12860"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 103,
+      "predicted": 103
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/rise_fp": 16384
+   },
+   "what": "E-Input[32] and E-Output[32] -- the first row of each endpoint's claim pair -- made the SAME unknown in the model (no captured byte is altered); ranked as the pair alone (C3b's form) and as the whole block (stage 4's figure, with its data identifications)"
+  },
+  {
+   "block_controls": {
+    "all_fire": true,
+    "controls": [
+     "C2b_an_external_endpoint_with_a_single_proximity_row",
+     "C3b_a_blinding_row_shared_between_an_endpoint_and_A",
+     "C4b_the_two_endpoints_claim_sources_swapped",
+     "C5b_observations_swapped_between_the_two_bundles",
+     "C6_one_pad_fewer_than_the_distinct_opened_columns",
+     "C3c_a_blinding_row_shared_between_the_two_external_endpoints"
+    ],
+    "fire": 6
+   },
+   "bundle": "m125-zero",
+   "fires": true,
+   "hash_rule_controls_skipped": [
+    "CH-6"
+   ],
+   "hash_rule_controls_that_did_not_fire": [
+    "CH-3"
+   ],
+   "honest_whole_block_is_stage_4": true,
+   "marginals_unchanged": true,
+   "parts_fp_perturbed_whole": {
+    "A@0": 0,
+    "E-Input": 0,
+    "E-Output": 0,
+    "H@0": 2,
+    "M@0": 0
+   },
+   "record": "zk60_native_run_gate_9k/block-m125-zero-c3c",
+   "record_ok": false,
+   "stage6_parts_ok": {
+    "hash_rule_controls": false,
+    "round_9_controls": true,
+    "run_controls": true
+   },
+   "stages_not_ok": [
+    "stage6_negative_controls"
+   ],
+   "systems": {
+    "pair/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "joint_fp": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "8 x 74",
+      "predicted": "8 x 74"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "joint_fp": {
+      "measured": 16384,
+      "predicted": 16384
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "8 x 73",
+      "predicted": "8 x 73"
+     },
+     "rank_all": {
+      "measured": 8,
+      "predicted": 8
+     },
+     "rank_on_non_data": {
+      "measured": 7,
+      "predicted": 7
+     },
+     "sum_of_parts_fp": {
+      "measured": 0,
+      "predicted": 0
+     }
+    },
+    "pair/rise_fp": 16384,
+    "whole_block/honest": {
+     "block_diagonal": {
+      "measured": true,
+      "predicted": true
+     },
+     "identified_rows": {
+      "measured": 64,
+      "predicted": 64
+     },
+     "joint_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "k0": {
+      "measured": 0,
+      "predicted": 0
+     },
+     "matrix": {
+      "measured": "104 x 12861",
+      "predicted": "104 x 12861"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/perturbed": {
+     "block_diagonal": {
+      "measured": false,
+      "predicted": false
+     },
+     "identified_rows": {
+      "measured": 65,
+      "predicted": 65
+     },
+     "joint_fp": {
+      "measured": 16386,
+      "predicted": 16386
+     },
+     "k0": {
+      "measured": 1,
+      "predicted": 1
+     },
+     "matrix": {
+      "measured": "104 x 12860",
+      "predicted": "104 x 12860"
+     },
+     "rank_all": {
+      "measured": 104,
+      "predicted": 104
+     },
+     "rank_on_non_data": {
+      "measured": 103,
+      "predicted": 103
+     },
+     "sum_of_parts_fp": {
+      "measured": 2,
+      "predicted": 2
+     },
+     "u_row_term_fp": {
+      "measured": 2,
+      "predicted": 2
+     }
+    },
+    "whole_block/rise_fp": 16384
+   },
+   "what": "E-Input[32] and E-Output[32] -- the first row of each endpoint's claim pair -- made the SAME unknown in the model (no captured byte is altered); ranked as the pair alone (C3b's form) and as the whole block (stage 4's figure, with its data identifications)"
+  }
+ ],
+ "mismatches": [],
+ "prediction_held": true,
+ "what": "ROUND 9k: control C3c on the four standalone block bundles, against the\nprediction written before it first ran (`prediction_by_hand.json`)."
+}

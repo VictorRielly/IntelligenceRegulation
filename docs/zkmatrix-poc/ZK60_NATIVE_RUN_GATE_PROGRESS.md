@@ -4987,8 +4987,8 @@ establishes a privacy property.
 | K0 | ledger skeleton, round 9k opened | done (`c0d3777`) |
 | K1 | the prediction, written and committed BEFORE the control is run on any bundle | done -- this commit, R9k.2 |
 | K2 | the control in `block_controls` (model-only, no captured byte altered), its tests | done (`5680693`, tool bytes frozen there) |
-| K3 | rung-G, both block bundles, the whole gate as round 9j ran it | IN FLIGHT -- `results/zk60_native_run_gate_9k/run_rung_g.done` |
-| K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | IN FLIGHT -- `m125.done` |
+| K3 | rung-G, both block bundles, the whole gate as round 9j ran it | done -- R9k.4: 13 of 13 stages on both, C3c as predicted |
+| K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | done -- R9k.4: C3c as predicted on both |
 | K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | IN FLIGHT -- `refresh.done`, `repin_diff.done` |
 | K6 | the suites (toy subset, record guard, whole native suite) | IN FLIGHT -- `suite.done`, then `queue.finished` |
 | K7 | results, limits, NEXT | open |
@@ -5093,3 +5093,51 @@ was launched at 09:36 PDT with the tool bytes frozen at `5680693`.
 | what the re-take moved, leaf by leaf, strictly (E1 wall clocks, E2 the one tool hash, E7 C3c's new leaves in the two block records) | `repin_diff.py` | `repin_diff.json`, `repin_diff.log`, `.done` |
 | the toy subset, the record guard, the whole native suite | `suite.sh` | `suite.log`, `suite_{toy,guard,native_all}.log`, `.done` |
 | the whole queue | `queue.sh` | `queue.log`, `queue.finished` |
+| C3c on the four bundles against the prediction, one table | `python3 …/c3c_table.py` | `c3c_table.json`, `c3c_table.log` |
+
+## R9k.4 Results -- C3c on all four standalone block bundles (MEASURED 2026-09-23 09:36-09:44 PDT, shared laptop, CPU only)
+
+**Rung-G, the whole gate** (`run_rung_g.done` = 0, tool bytes `5680693`):
+`block-rung-g-dense` 154.4 s (wall 2:35, peak RSS 514 MB),
+`block-rung-g-zero` 142.8 s (2:23, 520 MB) -- **13 of 13 stages `ok` on
+both, every arm and every control**: the honest bundle passes with the
+control present. **125M, the cheap stages** (`m125.done` = 1, explained
+below): `block-m125-dense-c3c` 71.2 s (wall 1:11, peak RSS 823 MB),
+`block-m125-zero-c3c` 94.2 s (1:34, 822 MB) -- cheaper than the ~3 min /
+1.5 GB estimated, because stage 6 without the terminal stage skips M9-3.
+
+**Every figure R9k.2 wrote came out as written, on all four bundles**
+(`c3c_table.json`: `prediction_held` true, 0 mismatches):
+
+| # | figure | rung-G (dense = zero) | 125M (dense = zero) | predicted |
+|---|---|---|---|---|
+| K-a..K-d | the pair `{E-Input, E-Output}` | 8 x 18, 0 rows, 8 / 8 / 0, joint **0 = sum 0** -> 8 x 17, 1 row, 8 / **7** / **1**, joint **1,024**, sum 0 | 8 x 74 -> 8 x 73; joint 0 -> **16,384**, sum 0 | ✓ |
+| K-e..K-h | the whole block | 104 x 1,259, 8 rows, 104 / 104 / 0 / 2, joint **2 = sum 2** -> 104 x 1,258, 9 rows, 104 / **103** / **1** / 2, joint **1,026**, sum 2 | 104 x 12,861, 64 rows -> 104 x 12,860, 65 rows; joint 2 -> **16,386**, sum 2 | ✓ |
+| K-i | the parts | `A@0` 0, `H@0` 2, `E-Input` 0, `E-Output` 0, `M@0` 0, unmoved | the same | ✓ |
+| K-j | block diagonal | yes -> no | yes -> no | ✓ |
+| K-k | the block family | **6 of 6** fire (C2b, C3b, C4b, C5b, C6, C3c) | **6 of 6** | ✓ |
+| -- | the honest whole block inside C3c = the record's own stage 4 | yes | yes | -- |
+
+The rise is exactly ONE message width in both systems at both shapes: the
+shared claim row unmasks one functional of the data per message position
+(the combination `c` of R9k.2 step 3), and nothing else moves.
+
+**Why `m125.done` = 1.** The staged driver's stage 6 also fires the
+hash-rule family and round 9's M9 controls. The block family (with C3c)
+and M9-1 / M9-2 are `ok`; the hash-rule family is not `ok` for exactly
+round 9c's two recorded reasons -- **CH-3** does not fire at the 125M
+profile (R9c.9 item 3, the identity there) and **CH-6** is skipped by name
+(no legacy-rule bundle) -- the same leaves as round 9j's
+`block-m125-dense-everything` (`c3c_table.json` carries the decomposition).
+Nothing raised.
+
+**The shared SPARE row** (R9k.2's argued non-case) is computed in the live
+arm of `test_zk60_native_run_gate_c3c.py` on real rung-G bytes: the whole
+block stays at 2 = sum 2, non-data rank 104, although the non-data block
+is then no longer block diagonal -- the figure moves only when a shared row
+actually unmasks something.
+
+**The two rung-G block records against their committed bytes** (the same
+classes `repin_diff.py` applies to all thirty): dense 4,195 identical
+leaves, 64 new C3c leaves, 23 wall clocks, 1 tool hash; zero 4,188
+identical, 64 C3c, 30 clocks, 1 tool hash -- **0 unexpected**.

@@ -1,0 +1,5 @@
+rung-g-dense: fires True, pair joint 0 -> 1024 (sum 0), whole 2 -> 1026 (sum 2), non-data rank 103, controls 6 of 6, record ok True, stages not ok []
+rung-g-zero: fires True, pair joint 0 -> 1024 (sum 0), whole 2 -> 1026 (sum 2), non-data rank 103, controls 6 of 6, record ok True, stages not ok []
+m125-dense: fires True, pair joint 0 -> 16384 (sum 0), whole 2 -> 16386 (sum 2), non-data rank 103, controls 6 of 6, record ok False, stages not ok ['stage6_negative_controls']
+m125-zero: fires True, pair joint 0 -> 16384 (sum 0), whole 2 -> 16386 (sum 2), non-data rank 103, controls 6 of 6, record ok False, stages not ok ['stage6_negative_controls']
+prediction held: True []
