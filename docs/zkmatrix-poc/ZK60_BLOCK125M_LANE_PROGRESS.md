@@ -12134,7 +12134,8 @@ cases run, and not a test of `lkv >= 4`.
 
 ## Stage 38 — TEST-ONLY: the shaped builder-versus-kernel REFUSAL CENSUS (GS-14's first item) (2026-09-22, 20:4x–)
 
-**Status: `IN PROGRESS`.** Opened 2026-09-22 20:49 PDT on the lane tip
+**Status: `CLOSED` 2026-09-22 21:3x PDT** — see "Stage 38 — CLOSED" below.
+Opened 2026-09-22 20:49 PDT on the lane tip
 `bacc274`, one writer. **Why:** ruling NL-8 of
 `ZK60_NONLINEAR_CHANNEL_SHAPED_DISPOSITION.md` and finding N-9 of
 `ZK60_NONLINEAR_CHANNEL_SHAPED_CHECK.md`: gap GS-14 (completeness for every
@@ -12230,3 +12231,73 @@ private-block-kernel private-block-kernel-shaped zkvm-block
 hashline/src/private_block/{argument,protocol,layout,wire,witness,run,
 boundary,run_capture,shape,refusals}.rs hashline/Cargo.toml
 hashline/Cargo.lock scripts` prints NOTHING.
+
+### Stage 38 — CLOSED (2026-09-22, 20:49–21:3x)
+
+**Status: `LANDED`.** No production file moved; no 125M prove; no GPU. One
+completeness FINDING (S38-F1, recorded above and in the memo §6, not fixed).
+
+#### The gate — five runs, every one kept
+
+All under `flock /tmp/zk-build.lock` and `systemd-run --user --scope -p
+MemoryMax=8G -p MemorySwapMax=0`, shared box (a Python gate of another lane
+running beside it), not quiesced.
+
+| run | log | result |
+|---|---|---|
+| 1: `--lib private_`, default 22 test threads, at `9dafbc0` | `s38-gate-private.log` | **KILLED** (SIGKILL by the OOM killer inside the 8 GiB scope, journal 21:15:08, ~2 min in). Twenty-two concurrent tests, several of them proving at rung-C6 / W14 / E32 with their own rayon pools, do not fit 8 GiB. Kept as evidence |
+| 2: the same, `--test-threads=6`, at `b281580` | `s38-gate-private2.log` | 437 passed / **1 failed** / 19 ignored, 137.96 s, peak RSS 4.41 GB. The failure is `s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape` (240 comparisons against the asserted 72) |
+| 3: repeated | `s38-gate-private3.log` | 437 / **1** / 19, 136.60 s, peak 4.35 GB — the same test (216 against 72) |
+| 4: the same, **with this stage's tests SKIPPED** (`--skip census_shaped_tests`) | `s38-gate-private4-without-census.log` | **428 passed / 1 failed / 18 ignored** — the stage-37 set exactly (429 / 18), and the SAME s35 test fails (248 against 72): **the failure does not come from stage 38** |
+| 5: the same, the one s35 test skipped | `s38-gate-private5.log` | **437 passed / 0 failed / 19 ignored**, 138.36 s, exit 0, peak RSS 4.35 GB, 15 warnings (stage 37: 15) |
+| the s35 test ALONE | `s38-s35-alone.log` | **1 passed**, "72 (point, slot) comparisons on this walk alone" — exactly the asserted 9 shapes x 2 slots x 4 points |
+
+**Accounting against 429 / 0 / 18:** run 5 plus the s35 test alone = **438
+passed / 0 failed / 19 ignored** = 429 + this stage's nine + the one ignored
+S38-F1 reproducer. Nothing lost. The frozen toy is in run 5's pass list at
+**2,816,472 B** (`tests::honest_receipt_verifies_in_typed_and_wire_form_...`,
+`grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+`grow_tests::the_toy_schedule_digest_is_frozen`,
+`grow_tests::the_toy_parameter_line_is_the_frozen_literal`,
+`review_tests::a_toy_receipt_made_before_the_lane_still_verifies`).
+
+**NOTE S38-N1 (for the owner of `s35_tests.rs`; not fixed here, outside this
+stage's write set).** The s35 differential asserts an EXACT count of a
+PROCESS-GLOBAL counter (`COMPARED`, `s35_tests.rs:164`) across its walk
+(`:379-395`), and the counter is also incremented by every concurrent proof's
+`define` of slots 14 and 17 (the stage-35 hook runs inside `define` on both
+sides of every proof). So the test fails whenever another proving test
+overlaps its walk: at 6 test threads it failed three times in three runs, with
+or without this stage's tests (runs 2-4), and it passes alone. Stage 37's
+gate passed it at the default 22 threads by scheduling. Fix options: a
+thread-local counter, or `>=` on the global one. **What it is NOT:** a
+closure difference — the per-point `assert_eq!` inside `differ` (`:171-175`)
+never fired in any run.
+
+**Memory note for the next gate owner:** the whole filter no longer fits
+8 GiB at 22 test threads (run 1); at 6 threads it peaks at 4.35–4.41 GB and
+finishes in ~138 s — faster than stage 37's 568.88 s at 22 threads, which
+suggests the default thread count oversubscribes the box (each proving test
+brings its own rayon pool). Not investigated further.
+
+**Other evidence of this stage:** `s38-census.log` (the census filter at
+`9dafbc0`: 9 / 0 / 1, 28.16 s), `s38-census2.log` (the same at `b281580`,
+after the citation fix: 9 / 0 / 1, 28.28 s, peak RSS 1.66 GB),
+`s38-f1-reproducer.log` (exit 101: verifier rejection).
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `f978cc5` | the skeleton |
+| `9dafbc0` | `census_shaped_tests.rs`, the mod line, the memo, the census and reproducer logs |
+| `b281580` | line citations corrected in the test strings and the memo (no logic) |
+| this one | the gate logs and this close |
+
+#### What stage 38 is NOT
+
+Not a privacy result. Not a soundness statement (the field-wrap premise is
+not re-derived). Not a proof of every relation for every admissible witness:
+the lookups are censused exactly, the 23 slot relations are exercised on the
+edge witnesses and by the 37 accepted edge proofs. Not a 125M run: 125M is
+COUNTED. Not a fix of S38-F1 or S38-N1.

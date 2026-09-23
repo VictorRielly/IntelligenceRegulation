@@ -277,6 +277,8 @@ All MEASURED on the shared box (not quiesced; timings are indicative only).
 | the census filter `--lib census_shaped` | `s38-census.log` (`.done` = 0) | **9 passed / 0 failed / 1 ignored** (the reproducer), 28.16 s; no compiler warning in the new file. The one `panicked at ...:848` line in the log is the EXPECTED panic `the_output_projection_...` catches: the `AO` family's solver cannot reach the edge at rung-G |
 | the S38-F1 reproducer, `--ignored` | `s38-f1-reproducer.log` (`.done` = 101) | **FAILS, as a reproducer must**: the builder and the kernel admit the statement, the prover produces a receipt, and the **VERIFIER rejects** it — `H: pcs zk: group 8: <v, c> != combined claim` (the same symptom S12-F3's unfilled `A_E` pad produced) |
 
+| the lane filter `--lib private_`, 6 test threads, the s35 differential skipped | `s38-gate-private5.log` | **437 / 0 / 19**; with that test run alone (`s38-s35-alone.log`, passes) **438 / 0 / 19** = stage 37's 429 / 0 / 18 + these nine + the reproducer. The skipped test fails whenever a concurrent proof bumps its process-global counter, with or without this stage's tests (note S38-N1 in the lane ledger) |
+
 Source digests at this stage: `census_shaped_tests.rs` SHA-256
 `04d4d1bb...ae873e56`; `private_block.rs` moves from `7a9b31ac...ee00dc82` to
 `b6728273...652a3456` (the two `cfg(test)` lines only; full digests in the
