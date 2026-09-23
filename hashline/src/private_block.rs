@@ -297,6 +297,10 @@ mod s35_tests;
 mod draw_observer;
 #[cfg(test)]
 mod s36_tests;
+#[cfg(test)]
+mod k8_tests;
+#[cfg(test)]
+mod census_shaped_tests;
 // REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
 // pre-read of stage 36): the reviewer's own tests of the observer hook and of
 // the endpoint replica's fidelity. NOT part of the lane's delta and not to be
@@ -582,6 +586,15 @@ impl FeedForwardPublic {
         weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;
         weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;
         let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+        // RULING S38-F1(a) (security owner, 2026-09-22): where `Dom::F` pads,
+        // every padded position carries `(g8, a16) = (0, 0)` and the
+        // never-gated activation LogUp arm looks up the pair `(128, 0)`, a
+        // table row only when `act[128] == 0` — any other value makes every
+        // honest proof fail at the verifier. Refused by name; where `Dom::F`
+        // does not pad nothing changes, and nothing new is absorbed.
+        if sh.pads(layout::Dom::F) && act[128] != 0 {
+            return Err("private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))".into());
+        }
         Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
     }
 

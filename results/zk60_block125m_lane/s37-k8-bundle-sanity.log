@@ -1,0 +1,22 @@
+-- run-s-dense-k8: schema hashline-native-capture/4-run, manifest total 46,928,078 B, 5 files, source_commit 99a8de8
+   manifest entries: 5 checked, 0 mismatches
+   run schema hashline-native-capture/4-run, profile hashline-zk-mr1/private-run-rung-k8-t24-dev/1, block profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1, rule blake3-keyed/1, public_tables_included True, source_commit 99a8de8
+   shape: T24/d128/f192, 16 heads of 8 over 8 KV heads, pads (32, 128, 16, 256), slots[8] [6, 2, 3], slots[9] [8, 2, 3]
+   public tables: 93, with values 93, sha mismatches 0; eq tables 81
+   slots 08/09 schedules (slot, main, ext, degree): [(8, 6, 2, 3), (9, 8, 2, 3)]
+   group eq at start 0 with a 3-element point == definition_challenges[:3]: 6 of 6
+   plane index: 22419 canonical bytes, sha256 914338bb..., 83 A planes over 487 rows, 52 H planes over 626 rows, slot_planes[8] {'slot': 8, 'name': '10 score matmul (private, bilinear)', 'planes': [{'role': 'A', 'id': 45, 'name': 'A_QR8'}, {'role': 'A', 'id': 54, 'name': 'A_KR8'}]}, slot_planes[9] {'slot': 9, 'name': '11 PV matmul (private, bilinear)', 'planes': [{'role': 'A', 'id': 60, 'name': 'A_P'}, {'role': 'A', 'id': 52, 'name': 'A_V8'}]}
+   on disk 46,933,075 B (46.9 MB)
+-- run-t-zero-k8: schema hashline-native-capture/4-run, manifest total 46,901,939 B, 5 files, source_commit 99a8de8
+   manifest entries: 5 checked, 0 mismatches
+   run schema hashline-native-capture/4-run, profile hashline-zk-mr1/private-run-rung-k8-t24-dev/1, block profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1, rule blake3-keyed/1, public_tables_included True, source_commit 99a8de8
+   shape: T24/d128/f192, 16 heads of 8 over 8 KV heads, pads (32, 128, 16, 256), slots[8] [6, 2, 3], slots[9] [8, 2, 3]
+   public tables: 93, with values 93, sha mismatches 0; eq tables 81
+   slots 08/09 schedules (slot, main, ext, degree): [(8, 6, 2, 3), (9, 8, 2, 3)]
+   group eq at start 0 with a 3-element point == definition_challenges[:3]: 6 of 6
+   plane index: 22419 canonical bytes, sha256 914338bb..., 83 A planes over 487 rows, 52 H planes over 626 rows, slot_planes[8] {'slot': 8, 'name': '10 score matmul (private, bilinear)', 'planes': [{'role': 'A', 'id': 45, 'name': 'A_QR8'}, {'role': 'A', 'id': 54, 'name': 'A_KR8'}]}, slot_planes[9] {'slot': 9, 'name': '11 PV matmul (private, bilinear)', 'planes': [{'role': 'A', 'id': 60, 'name': 'A_P'}, {'role': 'A', 'id': 52, 'name': 'A_V8'}]}
+   on disk 46,906,936 B (46.9 MB)
+
+PLANE INDEX identical across 2 bundles: 914338bb...
+
+TOTAL MISMATCHES: 0

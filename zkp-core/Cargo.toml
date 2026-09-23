@@ -2,6 +2,10 @@
 name = "zkp-core"
 version = "0.1.0"
 edition = "2021"
+# Explicit, not implied by the edition (pre-read P36-3): the `test-observers`
+# feature must never unify into a release build; resolver v2 is what keeps a
+# dev-dependency's feature out of it.
+resolver = "2"
 publish = false
 description = "Maintained CPU proof primitives extracted from hashline; experimental protocol security"
 

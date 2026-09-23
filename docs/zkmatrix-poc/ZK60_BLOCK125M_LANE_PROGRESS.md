@@ -11944,3 +11944,564 @@ Not a count of absorbs (finding S36-F1). Not an in-situ measurement of the
 two endpoint generators (S36-F2) or of the segment offsets inside
 `prove_core` (S36-F3) — both are named above with the smallest thing that
 would close them.
+
+---
+
+## Stage 37 — TEST-ONLY: eight key-value groups (`lkv = 3`), "rung-K8" (2026-09-22, 19:4x–)
+
+**Status: `CLOSED` 2026-09-22 20:1x PDT** — see "Stage 37 — CLOSED" below.
+Opened 2026-09-22 19:46 PDT on the lane tip
+`a8e4939`, one writer. **Why:** the native run gate has never read a shape
+with `lkv > 2` (its open item R5.8 item 3: "eight or more key-value groups
+are still unread"). The repaired bilinear slots `SC_SCORE` / `SC_PV` (stage
+20, finding S19-F1: the group bits are sumcheck variables under a public
+`eq(r_g, .)`) have been proved at `lkv <= 2` only — rung-G 1, rung-K4 /
+rung-P2 / 125M 2. This stage produces the Rust-side evidence at `lkv = 3`.
+
+**THE WRITE SET**, and nothing else: one new test file
+`hashline/src/private_block/k8_tests.rs`, its one `#[cfg(test)] mod` line in
+`hashline/src/private_block.rs`, this ledger, evidence under
+`results/zk60_block125m_lane/` with the prefix `s37-`, and the two capture
+bundles under `results/zk60_run_captures_20260922_k8/`. **No production
+file moves** (`argument.rs`, `protocol.rs`, `layout.rs`, `wire.rs`,
+`witness.rs`, `run.rs`, `boundary.rs`, `run_capture.rs`, `shape.rs`, and
+everything under `zkp-core/`, `hashline/src/{zk,layer,pcs,wcache,
+native_capture}.rs`, `hashline/src/gpu/`, `private-block-kernel*/`,
+`zkvm-block/`): the shape is built in the test file through the existing
+`Shape::new` and `RunShape::new`. The toy receipt stays 2,816,472 B.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | the shape: the smallest `lkv = 3` geometry `Shape::new` accepts, or the refusal recorded | every dimension asserted; its own profile and key set |
+| 2 | one dense generic block proves and verifies from bytes | frame = the counted length |
+| 3 | a three-block dense run proves and verifies (streaming verifier) | segment lengths = the counted ones |
+| 4 | tampers in the LAST key-value group (index 7) of the planes `SC_SCORE` / `SC_PV` read | rejected by the VERIFIER |
+| 5 | the all-zero input proves and verifies | frame = the counted length |
+| 6 | receipt length = the Python layout model's prediction | to the byte |
+| 7 | two three-block capture bundles (dense generic + all-zero) | `source_commit` = HEAD at capture time |
+| 8 | the `--lib private_` filter once, against 416 / 0 / 17 | nothing lost |
+
+**No privacy claim.** Development grade (ruling P-7), like every rung.
+
+### Stage 37 — CLOSED (2026-09-22, 19:46–20:1x)
+
+**Status: `LANDED`.** No production file moved (proof below), no 125M run,
+no GPU. **The honest prover and the honest verifier agree at `lkv = 3`; no
+completeness finding.**
+
+#### Task 1 — the shape, and why it is not the strictly smallest
+
+`Shape::new` ACCEPTS `lkv = 3`; nothing refuses it. rung-K8, built in
+`k8_tests.rs::rung_k8()` (not in `shape.rs`, which this stage may not move):
+
+| | rung-K4 | **rung-K8** |
+|---|---|---|
+| tokens / width / hidden | 24 / 96 / 192 | 24 / **128** / 192 |
+| query heads x head_dim over KV heads | 12 x 8 over 4 | **16 x 8 over 8** |
+| `lkv`, heads per group, padded head slots | 2, 3 (+1 pad), `{3,7,11,15}` | **3, 2, none** |
+| `t_pad, d_pad, h_pad, f_pad` | 32, 128, 16, 256 | the same |
+| `Dom::Q` / `Dom::Kv` / `Dom::S` logs | 12 / 10 / 14 | 12 / **11** / 14 |
+| `SC_SCORE`, `SC_PV` (main, ext, deg) | (5,2,3), (7,2,3) | **(6,2,3), (8,2,3)** |
+| `norm_wrho`, `wrho_s`, `F_E`, row width, rate, endpoint rows | 31, 17, 12, 2^10, 4, 9 | the same |
+| block / run profile | `...rung-k4-t24-dev/1` | `hashline-zk-mr1/private-block-rung-k8-t24-dev/1` / `hashline-zk-mr1/private-run-rung-k8-t24-dev/1` |
+
+**Three smaller `lkv = 3` geometries are accepted too, and were NOT chosen**
+(`every_smaller_eight_key_value_head_geometry_is_accepted_and_the_choice_is_recorded`,
+receipts COUNTED by the Rust's `receipt_bytes` and equal to the model's):
+8 x 4 over 8, width 32 (3,360,904 B); 8 x 8 over 8, width 64 (3,689,624 B);
+16 x 4 over 8, width 64 (4,160,680 B). The first two have ONE query head per
+group, so `kv_of_slot` is the identity and no head-in-group bit exists — a
+construction confusing the head index with the group index would pass them,
+which is the degenerate-fixture pattern that hid S19-F1. The third uses
+`head_dim = 4`, which no shape has ever proved at; it would put two untested
+axes into one shape. rung-K8 is the smallest geometry with a non-identity
+group map and only proven head sizes, and its padded layout is rung-K4's,
+so the head axis is the only thing that moves. 16 x 2 over 8 (width 32) is
+REFUSED by name (F-2: `Dom::Kv` natural log 9 lifted to the row width 10).
+**What would justify revisiting:** a gate finding that needs the padded-slot
+case at `lkv = 3` (24 x 4 over 8, width 96, model 5,759,176 B) or a proof
+at `head_dim = 4`.
+
+**What a test-only shape costs, stated:** `run_statement_file::
+shape_of_profile` does not know the two rung-K8 profiles, so this build writes
+and reads no run STATEMENT file for it, and the stage-24 profile registry
+(read out of `shape.rs` / `run.rs`) does not list them. The geometry test
+asserts instead that rung-K8's four keys differ from every registered
+profile's keys and from each other. The bundles need neither.
+
+#### Tasks 2–6 — MEASURED (`s37-k8-all.log`, 10 passed / 0 failed / 1 ignored, 13.48 s, exit 0; one run each, shared box, not quiesced)
+
+| test | result |
+|---|---|
+| `the_rung_k8_shape_is_the_eight_key_value_head_geometry_it_claims` | every dimension, `kv_of_slot(sl) = sl / 2`, slots 14 and 15 in group 7, no lift, own profile and key set |
+| `the_rung_k8_layout_is_the_independent_models` | all 23 layout figures equal the unedited Python model's (A/H planes 83/52, data rows 487/626, rows 733/732, groups 36/9, main rounds 223, published values 1,084, draws 248, bilinear L (26, 32), U8 555,008) |
+| `the_dense_witness_equals_the_reference_kernel_at_the_rung_k8` | the independent `private-block-kernel-shaped` crate agrees on all 3,072 output words; ITS OWN rotated-key buffer has eight pairwise different groups |
+| **(a)** `an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k8` | **prove 0.66 s, verify from bytes 0.12 s, frame 4,780,216 B**; a one-byte truncation refused; census 16/16 head slots live, 8/8 groups live and pairwise different in keys AND values, both heads of every group different |
+| **(b)** `an_honest_three_block_fully_dense_run_verifies_streaming_at_the_rung_k8` | **prove 1.85 s, STREAMING verify (`verify_run_from_dir`, one file at a time) 0.36 s**, in-memory verify agrees, segments **4,612,392 / 4,634,920 / 4,802,824 = 14,050,136 B** (the counted lengths), boundary 10 rows, census in all three blocks; one flipped byte in segment 2's file refused (`A: pcs zk: Merkle path ... fails`) |
+| **(c)** `a_perturbation_in_the_last_key_value_group_is_rejected_by_the_verifier_at_the_rung_k8` | **6 of 6 rejected by the VERIFIER, 0 by the prover, 0 accepted**: `A_KR8` group 7 → slot 16 `05 KV zero-check`; `A_V8` group 7, `A_QR8` at slots 14 and 15, `A_P` at slots 14 and 15 → slot 15 `04 Q zero-check` |
+| (c, extra) `exchanging_group_sevens_keys_across_each_single_group_bit_is_rejected_at_the_rung_k8` | the whole key family of group 7 swapped with group 6 (low bit, 744 positions differ), 5 (middle, 738) and 3 (high, 744): **3 of 3 rejected by the VERIFIER**, slot 16 |
+| **(d)** `the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_k8` | tame fixture: prove 0.65 s, verify 0.12 s; dense public weights: prove 0.66 s, verify 0.14 s; both 4,780,216 B. Named DEGENERATE: every group zero |
+| **(e)** receipt = model | **4,780,216 B MEASURED = 4,780,216 B the model predicts** (`s37-model-prediction.json`) = the Rust's count |
+| `the_pinned_rung_k8_chain_band_is_the_first_admissible_one` | **band 48**, the recipe's own single-block band: three blocks need no reduction at this shape (rung-K4 needed 47). `band_down_run`'s fallback at `(192, 8)` already gives 48, so the shared `dense_tests::dense_run_case` is used unchanged and the test asserts both |
+
+**Where the tampers are caught, stated plainly:** every tamper is rejected
+at the zero-check slots 15 / 16, exactly as at rung-K4 — a one-word move in
+`A_KR8`/`A_V8`/`A_QR8`/`A_P` breaks the RoPE / projection relations those
+slots host before `SC_SCORE`/`SC_PV` are reached. So these controls show the
+verifier refuses group-7 data that disagrees with its own group's weights;
+they are not an isolated test of the `eq(r_g, .)` factor. The positive side
+— an honest proof with eight different groups ACCEPTED through the
+three-bit group sum — is what isolates it.
+
+**The model's entry point (item e):** `zk60_private_block_layout_model.py`'s
+CLI takes `--shape` from a closed list of registered shapes, so it has no
+entry for rung-K8. It was NOT edited: the module was imported as a library
+and its own `Shape(...)` class and `model()` were called at rung-K8's
+arguments (`s37-model-prediction.json` records the call and the survey
+totals).
+
+#### Task 7 — the two capture bundles
+
+`results/zk60_run_captures_20260922_k8/` (with a parent `README.md`),
+written by `k8_tests::write_the_k8_gate_bundles` with
+`HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=99a8de8` — **`99a8de8`
+was HEAD at capture time** (finding E32-F1), the tree clean; the writer
+refuses an unset or `uncommitted-test` label. `s37-k8-bundles.log`, exit 0.
+
+| bundle | `manifest["total_bytes"]` | on disk | `manifest.json` SHA-256 |
+|---|---:|---:|---|
+| `run-s-dense-k8` (fully dense, generic) | 46,928,078 B | 46,933,075 B | `29815e93...a8ac730b` |
+| `run-t-zero-k8` (all-zero, degenerate) | 46,901,939 B | 46,906,936 B | `d322a49c...09d7fdc6` |
+
+Three blocks each, classic `/4-run` (as rung-K4's pair), 93.8 MB for the
+pair. **Sanity on the files as written** (`s37-bundle-sanity.py`, a script
+under `results/`, → `s37-k8-bundle-sanity.log`): **0 mismatches** — every
+manifest entry's length and SHA-256; `source_commit` `99a8de8` in both
+manifests and both `run.json`; 93 of 93 public tables with values and every
+digest recomputed; **the group eq at start 0 with a THREE-element point ==
+`definition_challenges[:3]` at 6 of 6 per bundle**; plane index 22,419
+canonical bytes, SHA-256 prefix `914338bb`, identical across the pair (NOT
+rung-K4's `89cd8a46`). The same script on the rung-K4 pair reproduces stage
+22's figures exactly (`s37-sanity-control-k4.log`), which is its control.
+
+#### Task 8 — the gate
+
+| run | log | result |
+|---|---|---|
+| `--lib private_` at `4373fb6` | `s37-gate-private.log` | **429 passed / 0 failed / 18 ignored**, 568.88 s, exit 0, 15 warnings (stage 36's gate log: 16) |
+
+Against 416 / 0 / 17: **+13 passed = the three `p36_preread_tests` merged at
+`a8e4939` + this stage's ten; +1 ignored = the bundle writer.** Nothing lost.
+The frozen toy is in the pass list at **2,816,472 B**
+(`tests::honest_receipt_verifies_in_typed_and_wire_form_...`,
+`grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+`review_tests::a_toy_receipt_made_before_the_lane_still_verifies`).
+
+#### FORBIDDEN-FILES PROOF
+
+`git --no-pager diff --stat a8e4939 -- zkp-core hashline/src/{zk,pcs,layer,
+wcache,native_capture}.rs hashline/src/gpu private-block-kernel
+private-block-kernel-shaped zkvm-block hashline/src/private_block/{argument,
+protocol,layout,wire,witness,run,boundary,run_capture,shape}.rs
+hashline/Cargo.toml hashline/Cargo.lock scripts` prints NOTHING. The whole
+source diff against `a8e4939` is `k8_tests.rs` (new) and two lines of
+`hashline/src/private_block.rs` (`#[cfg(test)]` / `mod k8_tests;`).
+
+**One pin moves, for the gate owner:** `hashline/src/private_block.rs` is a
+capture source pin and in the run gate's pin tables. Its SHA-256 goes from
+`d540404b...25990198` (at `a8e4939`) to `7a9b31ac...ee00dc82`; the only
+change is the two `cfg(test)` lines above. The rung-K8 bundles pin the new
+digest.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `d597a1d` | the skeleton |
+| `99a8de8` | `k8_tests.rs`, the mod line, the model prediction, the sanity script and its control, the test logs — the capture commit |
+| `4373fb6` | the two bundles, their README and the sanity log |
+| this one | the gate log and this section |
+
+#### What stage 37 is NOT
+
+Not a privacy result and not gate evidence: no gate has read the bundles. Not
+a registered profile: rung-K8 lives in a test file, and registering it
+(`shape.rs`, `run.rs`, `shape_of_profile`, the registries) is a production
+change for whoever owns those files. Not a completeness claim beyond the
+cases run, and not a test of `lkv >= 4`.
+
+## Stage 38 — TEST-ONLY: the shaped builder-versus-kernel REFUSAL CENSUS (GS-14's first item) (2026-09-22, 20:4x–)
+
+**Status: `CLOSED` 2026-09-22 21:3x PDT** — see "Stage 38 — CLOSED" below.
+Opened 2026-09-22 20:49 PDT on the lane tip
+`bacc274`, one writer. **Why:** ruling NL-8 of
+`ZK60_NONLINEAR_CHANNEL_SHAPED_DISPOSITION.md` and finding N-9 of
+`ZK60_NONLINEAR_CHANNEL_SHAPED_CHECK.md`: gap GS-14 (completeness for every
+ADMISSIBLE witness at the shaped layouts) needs a shaped equivalent of the
+toy's refusal-site census (`refusals.rs:270-280`, asserted at `:321-322`).
+The toy proves `AO` unreachable from 16 terms; at 125M the sum has 768 terms,
+`|aoacc| <= 12,484,608`, `requant(., 7)` reaches +-97,536 — the site is
+REACHABLE and the witness builder refuses there first (`witness.rs:594`). If
+the builder ADMITS a witness on which the prover or the verifier then refuses,
+an honest proof fails on a legal input — a completeness hole. This stage
+enumerates every refusal site of the witness builder, the shaped kernel and
+the argument / prover, classifies each data-dependent one per shape from
+exact integer bounds computed off the `Shape`, and encodes the census as a
+test.
+
+**THE WRITE SET**, and nothing else: one new test file
+`hashline/src/private_block/census_shaped_tests.rs`, its one `#[cfg(test)]
+mod` line in `hashline/src/private_block.rs` (next to stage 37's `mod
+k8_tests;`), the memo `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md`, this
+ledger, and logs under `results/zk60_block125m_lane/` with the prefix `s38-`.
+**No production file moves** (`argument.rs`, `protocol.rs`, `layout.rs`,
+`wire.rs`, `witness.rs`, `run.rs`, `boundary.rs`, `run_capture.rs`,
+`refusals.rs`, `shape.rs`, `private-block-kernel-shaped/src/lib.rs`, and
+everything under `zkp-core/`, `hashline/src/{zk,layer,pcs,wcache,
+native_capture}.rs`, `hashline/src/gpu/`, `private-block-kernel/`,
+`zkvm-block/`). The toy receipt stays 2,816,472 B. No 125M prove.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | enumerate every refusal site: builder, shaped kernel, argument / prover (range, lookup, `nonzero`, `Err`, panic, `debug_assert`) | a site list with file:line |
+| 2 | per shape (rung-G, rung-K4, rung-K8, 125M; rung-C6 / W14 / E32 / P2) the worst-case magnitude of every data-dependent site, exact integers, from the `Shape` | classified UNREACHABLE / REACHABLE-BUILDER-REFUSES-FIRST / finding |
+| 3 | the census as a test module computing every bound from the `Shape`; boundary tests (just past: the builder refuses by name; just inside: proves and verifies) at the small rungs | green, or an `#[ignore]`d reproducer per finding |
+| 4 | the memo `ZK60_SHAPED_REFUSAL_CENSUS.md` | site table per shape, findings, what it does not cover |
+| 5 | the `--lib private_` filter once | against 429 / 0 / 18 |
+
+**No privacy claim.** A completeness census; development grade.
+
+### Stage 38 — the census landed (21:1x; the lane gate is the next step)
+
+**Headline.** At every registered shape (toy, rung, rung-G, rung-K4,
+rung-P2, rung-C6, rung-W14, rung-E32, 125M) and at stage 37's rung-K8, every
+data-dependent refusal site of the builder, the shaped kernel and the prover
+is classified from bounds COMPUTED FROM THE `Shape`: **12 sites
+REACHABLE-BUILDER-REFUSES-FIRST at every shape** (Q, K, V, QR, KR, score,
+residual 1, FFN gate, FFN up, FFN product, FFN down, residual 2), **`AO`
+joins them at width > 258** (rung-C6 48,768; rung-W14 / rung-E32 / 125M
+97,536 — N-9's figure, re-derived), everything else UNREACHABLE, and **ONE
+FINDING, S38-F1**. Memo: `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md`.
+
+**Finding S38-F1 (first rank, not fixed here).** At a shape whose `Dom::F`
+pads (rung, rung-G, rung-K4, rung-K8 — NOT 125M, not rung-P2 / C6 / W14 /
+E32, not the toy), the padded `(g8, a16) = (0, 0)` looks up the activation
+pair `(128, 0)` on the never-gated LogUp arm; it is a table row only when
+`act[128] == 0`, and `FeedForwardPublic::new_shaped` admits any `[i16; 256]`.
+With `act[128] = 1` the builder and the kernel admit the statement and the
+**VERIFIER rejects** every honest proof (`H: pcs zk: group 8: <v, c> !=
+combined claim`, `s38-f1-reproducer.log`, exit 101 — the `#[ignore]`d
+reproducer fails as it must). Exactly the 3,584 padded of 8,192 `Dom::F`
+positions miss the table at rung-G / K4 / K8; the same statement is clean at
+rung-P2 and rung-C6. Public-table-dependent only, so nothing private leaks.
+Fix options for the file owner (memo §6): refuse `act[128] != 0` at a
+padded-`Dom::F` shape, or write the pad's `A16` as `act[128]` and exempt it
+like `A_E`. Every SiLU member has `act[128] = 0`, which is why no proof ever
+met it.
+
+**MEASURED** (`s38-census.log`, `.done` = 0; shared box, not quiesced):
+`--lib census_shaped` **9 passed / 0 failed / 1 ignored**, 28.16 s, no
+compiler warning in the new file.
+
+| test | what it establishes |
+|---|---|
+| `the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape` | 34 rows x 10 shapes, bounds from the shape; tallies U / R-B / F: toy 22/12/0, rung 21/12/1, rung-G 21/12/1, rung-K4 21/12/1, rung-K8 21/12/1, rung-P2 22/12/0, rung-C6 21/13/0, rung-W14 21/13/0, rung-E32 21/13/0, 125M 21/13/0 (COUNTED) |
+| `the_builder_class_of_every_looked_plane_is_the_lookup_window_at_every_shape` | the ORDER check from `lookups_at` itself: every looked plane's admitted window equals the builder's class (p: window 2^10 looser than the builder's 2^9, the safe direction); all 60 (toy) / 62 looked planes accounted for |
+| `the_unreachable_sites_premises_hold_at_every_shape` | norm quotient over each `D_max` (int16 incl. -32768), softmax row sums, `O`, the kernel calibration copy, and broken exp / RoPE tables refused by the constructor |
+| `the_challenge_only_refusals_are_counted_per_shape` | per block: c_s 23, e 25, **nu 12**, zeta 0 / 8 / **5 at 125M** (GN-8's five), groups 44 / 45, proximity 4 |
+| `every_reachable_site_..._at_rung_g` / `_k4` / `_k8` | 12 sites x 3 shapes: inside EXACTLY on the edge (127, -128, 32767) proves and verifies (0.54–0.82 s each); one step past, the builder AND the kernel refuse with the same `fixed oracle range refusal: <site>` |
+| `the_output_projection_..._at_rung_c6` | `AO` at rung-C6: ao = 32767 proves and verifies (1.54 s); 32768 refused by name by both; the family cannot even be built at rung-G (width 96) |
+| `s38_f1_the_padded_feed_forward_positions_...` | S38-F1 in the ordinary filter, at the LogUp-word level |
+| `s38_f1_reproducer_...` (`#[ignore]`) | S38-F1 end to end: verifier rejection |
+
+**The pin that moves, for the gate owner:** `hashline/src/private_block.rs`
+SHA-256 `7a9b31ac7b9ff322e4b206a56fcd1a253f367df0c73b71920d4acc21ee00dc82`
+(at `bacc274`) -> `b67282735ce3072751e997bf43d64a05205df035880b66fe1ecfc1aa652a3456`;
+the only change is `#[cfg(test)]` / `mod census_shaped_tests;` after
+`mod k8_tests;`. New file `census_shaped_tests.rs` SHA-256
+`04d4d1bb47eb230e185c0f767d1111dc1d3ce184a60cc6468dcd2d09ae873e56`.
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat bacc274 -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block
+hashline/src/private_block/{argument,protocol,layout,wire,witness,run,
+boundary,run_capture,shape,refusals}.rs hashline/Cargo.toml
+hashline/Cargo.lock scripts` prints NOTHING.
+
+### Stage 38 — CLOSED (2026-09-22, 20:49–21:3x)
+
+**Status: `LANDED`.** No production file moved; no 125M prove; no GPU. One
+completeness FINDING (S38-F1, recorded above and in the memo §6, not fixed).
+
+#### The gate — five runs, every one kept
+
+All under `flock /tmp/zk-build.lock` and `systemd-run --user --scope -p
+MemoryMax=8G -p MemorySwapMax=0`, shared box (a Python gate of another lane
+running beside it), not quiesced.
+
+| run | log | result |
+|---|---|---|
+| 1: `--lib private_`, default 22 test threads, at `9dafbc0` | `s38-gate-private.log` | **KILLED** (SIGKILL by the OOM killer inside the 8 GiB scope, journal 21:15:08, ~2 min in). Twenty-two concurrent tests, several of them proving at rung-C6 / W14 / E32 with their own rayon pools, do not fit 8 GiB. Kept as evidence |
+| 2: the same, `--test-threads=6`, at `b281580` | `s38-gate-private2.log` | 437 passed / **1 failed** / 19 ignored, 137.96 s, peak RSS 4.41 GB. The failure is `s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape` (240 comparisons against the asserted 72) |
+| 3: repeated | `s38-gate-private3.log` | 437 / **1** / 19, 136.60 s, peak 4.35 GB — the same test (216 against 72) |
+| 4: the same, **with this stage's tests SKIPPED** (`--skip census_shaped_tests`) | `s38-gate-private4-without-census.log` | **428 passed / 1 failed / 18 ignored** — the stage-37 set exactly (429 / 18), and the SAME s35 test fails (248 against 72): **the failure does not come from stage 38** |
+| 5: the same, the one s35 test skipped | `s38-gate-private5.log` | **437 passed / 0 failed / 19 ignored**, 138.36 s, exit 0, peak RSS 4.35 GB, 15 warnings (stage 37: 15) |
+| the s35 test ALONE | `s38-s35-alone.log` | **1 passed**, "72 (point, slot) comparisons on this walk alone" — exactly the asserted 9 shapes x 2 slots x 4 points |
+
+**Accounting against 429 / 0 / 18:** run 5 plus the s35 test alone = **438
+passed / 0 failed / 19 ignored** = 429 + this stage's nine + the one ignored
+S38-F1 reproducer. Nothing lost. The frozen toy is in run 5's pass list at
+**2,816,472 B** (`tests::honest_receipt_verifies_in_typed_and_wire_form_...`,
+`grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+`grow_tests::the_toy_schedule_digest_is_frozen`,
+`grow_tests::the_toy_parameter_line_is_the_frozen_literal`,
+`review_tests::a_toy_receipt_made_before_the_lane_still_verifies`).
+
+**NOTE S38-N1 (for the owner of `s35_tests.rs`; not fixed here, outside this
+stage's write set).** The s35 differential asserts an EXACT count of a
+PROCESS-GLOBAL counter (`COMPARED`, `s35_tests.rs:164`) across its walk
+(`:379-395`), and the counter is also incremented by every concurrent proof's
+`define` of slots 14 and 17 (the stage-35 hook runs inside `define` on both
+sides of every proof). So the test fails whenever another proving test
+overlaps its walk: at 6 test threads it failed three times in three runs, with
+or without this stage's tests (runs 2-4), and it passes alone. Stage 37's
+gate passed it at the default 22 threads by scheduling. Fix options: a
+thread-local counter, or `>=` on the global one. **What it is NOT:** a
+closure difference — the per-point `assert_eq!` inside `differ` (`:171-175`)
+never fired in any run.
+
+**Memory note for the next gate owner:** the whole filter no longer fits
+8 GiB at 22 test threads (run 1); at 6 threads it peaks at 4.35–4.41 GB and
+finishes in ~138 s — faster than stage 37's 568.88 s at 22 threads, which
+suggests the default thread count oversubscribes the box (each proving test
+brings its own rayon pool). Not investigated further.
+
+**Other evidence of this stage:** `s38-census.log` (the census filter at
+`9dafbc0`: 9 / 0 / 1, 28.16 s), `s38-census2.log` (the same at `b281580`,
+after the citation fix: 9 / 0 / 1, 28.28 s, peak RSS 1.66 GB),
+`s38-f1-reproducer.log` (exit 101: verifier rejection).
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `f978cc5` | the skeleton |
+| `9dafbc0` | `census_shaped_tests.rs`, the mod line, the memo, the census and reproducer logs |
+| `b281580` | line citations corrected in the test strings and the memo (no logic) |
+| this one | the gate logs and this close |
+
+#### What stage 38 is NOT
+
+Not a privacy result. Not a soundness statement (the field-wrap premise is
+not re-derived). Not a proof of every relation for every admissible witness:
+the lookups are censused exactly, the 23 slot relations are exercised on the
+edge witnesses and by the 37 accepted edge proofs. Not a 125M run: 125M is
+COUNTED. Not a fix of S38-F1 or S38-N1.
+
+## Stage 39 — FIXING S38-F1 by ruling S38-F1(a), and S38-N1 (2026-09-22, 21:3x–)
+
+**Status: `CLOSED` 2026-09-22 21:5x PDT** — see "Stage 39 — CLOSED" below.
+Opened 2026-09-22 21:34 PDT on the lane tip `a9d6d4c`, one writer.
+
+**The ruling, verbatim — ruling S38-F1(a), security owner, 2026-09-22:**
+`FeedForwardPublic::new_shaped` refuses, BY NAME, a statement with
+`act[128] != 0` at any shape whose `Dom::F` pads (i.e. where the feed-forward
+domain has padded positions — the condition derived from the `Shape` /
+layout exactly the way the census does, not from a list of shape names). At
+a shape whose `Dom::F` does not pad the constructor's behaviour is
+unchanged. Option (b) (writing `act[128]` into the pad and moving `A_A16` to
+EXEMPT) is NOT taken: it would move every shaped receipt; revisit only if an
+approved activation with a nonzero value at gate 0 is ever proposed.
+
+**THE WRITE SET**, and nothing else: `hashline/src/private_block.rs`
+(`FeedForwardPublic::new_shaped` only — the named refusal, a few lines),
+`hashline/src/private_block/census_shaped_tests.rs` (the new failing-first
+test, the re-purposed reproducer, the census's expected class for site 26),
+`hashline/src/private_block/s35_tests.rs` (S38-N1, test-only, if a
+test-only fix exists), the memo `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md`
+(§6 "FIXED at" note), this ledger, and logs under
+`results/zk60_block125m_lane/` with the prefix `s39-`. **Forbidden:**
+`argument.rs`, `protocol.rs`, `layout.rs`, `wire.rs`, `witness.rs`, `run.rs`,
+`boundary.rs`, `run_capture.rs`, `refusals.rs` production items,
+`private-block-kernel-shaped/src/lib.rs`, `hashline/src/{zk,layer,pcs,wcache,
+native_capture}.rs`, `hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`,
+`zkvm-block/`.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | FAILING FIRST: the S38-F1 reproducer as it stands (`s39-before.log`, verifier refusal); a NEW test — `new_shaped` refuses `act[128] = 1` at rung-G / K4 / K8 by the new name and accepts it at toy / P2 / C6 — run and failing before the fix | two logs |
+| 2 | the fix in `new_shaped` only, the refusal derived from `sh.pads(Dom::F)` | the new test green |
+| 3 | the reproducer re-purposed (expects REFUSAL at construction, un-ignored, history kept); census site 26 classified as covered by the refusal; memo §6 "FIXED at" | census filter green, 0 ignored |
+| 4 | byte identity: toy 2,816,472 B, every shaped receipt length and the pinned schedule digests unchanged, `absorb_into` untouched; the stage-37 K8 tests and stage-38 census tests re-run | green |
+| 5 | S38-N1: a test-only fix in `s35_tests.rs` if one exists (5 green runs at the default thread count), else the exact `zkp-core` ask | logged |
+| 6 | the `--lib private_` filter once, 8 GiB scope, `--test-threads=6` | against 437 / 0 / 19 (+1 skipped); `private_block.rs` SHA-256 `b6728273...` -> new |
+
+**No privacy claim.** A completeness fix of public-statement admissibility.
+
+### Stage 39 — S38-F1 fixed, S38-N1 fixed test-only (21:4x; the lane gate is next)
+
+All runs under `flock /tmp/zk-build.lock` and `systemd-run --user --scope -p
+MemoryMax=8G -p MemorySwapMax=0`, shared box (another lane's Python gate
+running beside it), not quiesced.
+
+**Task 1 — failing first.**
+
+| run | log | result |
+|---|---|---|
+| the stage-38 reproducer as it stood, `--ignored`, at `6ec32c2` (= `a9d6d4c` + the skeleton) | `s39-before.log` (`.done` = 101) | **FAILS as at stage 38**: `S38-F1 REPRODUCER rung-G: verifier rejected: H: pcs zk: group 8: <v, c> != combined claim` |
+| the NEW test `s39_new_shaped_refuses_a_nonzero_gate_zero_activation_by_name_exactly_where_the_feed_forward_domain_pads`, before the fix | `s39-new-test-before.log` (`.done` = 101) | **FAILS**: the toy line prints "admitted, unchanged", then at the rung (the first padded shape in census order) `left: None, right: Some("private block: activation table act[128] must be 0 ...")` — the constructor admitted `act[128] = 1` |
+
+**Task 2 — the fix, commit `7472a3c`.** `private_block.rs`, in
+`FeedForwardPublic::new_shaped` only, after the `[i16; 256]` conversion
+(`:584-586`, with a six-line comment above):
+
+```rust
+if sh.pads(layout::Dom::F) && act[128] != 0 {
+    return Err("private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))".into());
+}
+```
+
+The condition is `Shape::pads(Dom::F)` (`size != true_size`), the census's
+own, not a list of names; the new test cross-checks it against the padded
+cube vs `tokens * hidden` at all ten shapes. Nothing else in production
+changes: `absorb_into` (both of them), `BlockPublic::digest`, the builder, the
+prover and the verifier are untouched (`git diff a9d6d4c --
+hashline/src/private_block.rs` is the nine added lines and nothing else), so
+the refusal adds no absorbed byte. `FeedForwardPublic::new` (the toy entry)
+goes through `new_shaped` at `Shape::toy()`, whose `Dom::F` does not pad, so
+the toy census's constant-32767 table (`refusals.rs:204`) is still admitted —
+asserted by the new test.
+
+**Task 3 — the census and the reproducer.** `--lib census_shaped` at
+`7472a3c`: **11 passed / 0 failed / 0 ignored**, 9.36 s (`s39-census-after.log`,
+`.done` = 0; stage 38: 9 / 0 / 1 — plus the new test, plus the reproducer
+un-ignored). What changed in `census_shaped_tests.rs`:
+
+* a fourth class, `COVERED-BY-THE-STATEMENT-REFUSAL`, and a `statement_refuses`
+  field on every row (false on the 33 others); site 26's is MEASURED inside
+  the census on the production constructor (the member's 0 admitted; `act[128]`
+  in `{1, -1, 2, 32767, -32768}` refused by the ruling's name). Tallies now:
+  toy 22/12/0/0, rung / rung-G / K4 / K8 **21/12/0/1**, P2 22/12/0/0, C6 / W14 /
+  E32 / 125M 21/13/0/0 (U / R-B / FINDING / covered); the census asserts no
+  FINDING at any shape;
+* the stage-38 LogUp-level test now asserts the refusal at rung-G / K4 / K8
+  first and then shows the mechanism past it with a test-only bypass
+  (`Spec::statement_bypassing_the_s38_f1_refusal`: the production constructor
+  at `act[128] = 0`, the table's own `act[128]` written back after): still
+  exactly the 3,584 padded of 8,192 `Dom::F` positions miss; at P2 / C6 the
+  constructor admits and the statement is LogUp-clean;
+* the reproducer is un-ignored and renamed
+  `s38_f1_reproducer_a_statement_with_a_nonzero_gate_zero_activation_is_refused_at_construction_at_rung_g`
+  (history in its comment): it asserts the named refusal, and keeps the
+  stage-38 run as a control — forced past the refusal the verifier still
+  rejects (`H: pcs zk: group 8`), so the refusal guards a real failure;
+* the memo `ZK60_SHAPED_REFUSAL_CENSUS.md`: §1 and §3 row 26 annotated, §6
+  carries a dated "FIXED at `7472a3c`" block with the ruling, §8 the new logs.
+
+**Task 5 — S38-N1, FIXED TEST-ONLY** in `s35_tests.rs` (no `zkp-core` ask
+needed: the counter is the lane's own test code). The arms call
+`Szc::check` / `Dzc::check` synchronously inside `define`
+(`argument.rs:1542, 1777`), on the thread that called `define`, so a
+`thread_local!` `COMPARED_HERE` bumped beside the global `COMPARED` in
+`differ` counts exactly the walk's own comparisons; the test asserts its
+exact 72 on that delta (the global count is still printed). Evidence, the
+filter `--lib -- s35_tests census_shaped k8_tests` at the DEFAULT thread
+count (22) so that the census's and K8's proofs overlap the walk:
+
+| run | log | result |
+|---|---|---|
+| before (s35 unchanged, at `7472a3c`) | `s39-n1-before.log` (`.done` = 101) | 25 passed / **1 failed** / 1 ignored — the s35 test, "244 (point, slot) comparisons on this walk alone" against 72 |
+| after, five in a row | `s39-n1-after1..5.log` (every `.done` = 0) | **26 passed / 0 failed / 1 ignored, five times**; each prints "72 ... on this walk alone" while the process-global count reads 248, 268, 244, 248, 240 — the overlap is there every time and no longer moves the assertion |
+
+The one ignored test is `k8_tests::write_the_k8_gate_bundles` (as at stage
+37). The same runs are **task 4's re-run of the stage-37 K8 tests and the
+stage-38 census tests**: every `k8_tests` and `census_shaped_tests` test
+passed in all six runs (the before-run failed only on s35). No compiler
+warning in any changed file. `s35_tests.rs` SHA-256 ->
+`f88fca813d58fab9eb6d29a2aef9c1bdbd35168a41efb368c61c5cdf047d59a7`.
+
+### Stage 39 — CLOSED (2026-09-22, 21:34–21:5x)
+
+**Status: `LANDED`.** S38-F1 fixed by ruling S38-F1(a) (one refusal in
+`FeedForwardPublic::new_shaped`); S38-N1 fixed test-only. No 125M prove; no
+GPU.
+
+#### The gate — ONE run
+
+`--lib private_` at `cfc48a3`, `--test-threads=6`, under `flock
+/tmp/zk-build.lock` and `systemd-run --user --scope -p MemoryMax=8G -p
+MemorySwapMax=0` (`s39-gate-private.log`, `.done` = 0; shared box, another
+lane's Python gate beside it, not quiesced): **440 passed / 0 failed / 18
+ignored**, 137.32 s (2:17.40 wall), peak RSS 4.28 GB, 16 `warning` lines (the
+same 16 as stage 38's run 5). **Nothing skipped**: the s35 differential now
+runs in the gate and passes.
+
+**Accounting against stage 38's 437 / 0 / 19 (+1 skipped, = 438 / 0 / 19):**
++1 the s35 test back in the run (already in the 438), +1 the new
+`s39_new_shaped_...` test, and the reproducer moves from ignored to passed:
+438 + 1 + 1 = **440**, 19 - 1 = **18**. Nothing lost.
+
+#### Byte identity
+
+* **The toy stays 2,816,472 B**, and the frozen toy is in the pass list:
+  `tests::honest_receipt_verifies_in_typed_and_wire_form_...` (`tests.rs:108`,
+  `bytes.len() == 2_816_472`), `zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length`,
+  `grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+  `grow_tests::the_toy_schedule_digest_is_frozen`,
+  `grow_tests::the_toy_parameter_line_is_the_frozen_literal`,
+  `review_tests::a_toy_receipt_made_before_the_lane_still_verifies`.
+* **Every shaped receipt and pinned digest**: the honest proofs verify from
+  bytes at rung, rung-G, K4, K8, P2, C6, W14, E32 (the K4, K8 and W14 ones
+  assert the frame length equals the pinned `*_FRAME_BYTES`; the counted-model
+  pins `K4_ / P2_ / C6_ / W14_ / K8_FRAME_BYTES` pass),
+  `grow_tests::the_125m_receipt_is_reproduced_part_by_part`,
+  `run_tests::the_twelve_block_125m_receipt_is_the_counted_figure` and
+  `slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`
+  all pass.
+* **Nothing absorbed**: `git diff a9d6d4c -- hashline/src/private_block.rs`
+  is exactly the nine added lines in `new_shaped`; both `absorb_into`s and
+  `BlockPublic::digest` are untouched. The refusal can only turn an `Ok` into
+  an `Err` at construction; every statement it admits is byte-for-byte the
+  statement it admitted before.
+
+#### The pins that move, for the gate owner (the privacy gate re-pins per bundle source commit)
+
+| file | old SHA-256 (at `a9d6d4c`) | new SHA-256 (at `cfc48a3`) |
+|---|---|---|
+| `hashline/src/private_block.rs` | `b67282735ce3072751e997bf43d64a05205df035880b66fe1ecfc1aa652a3456` | `29ba008487473bff67e4d10a4770ed0ddf3410aef4c0765cece3a41bf3acc872` |
+| `hashline/src/private_block/census_shaped_tests.rs` | `04d4d1bb47eb230e185c0f767d1111dc1d3ce184a60cc6468dcd2d09ae873e56` | `2ddf818fa023440b70175e6bedc33ec74ca43cffaa81feeb29bce32fde38cbb1` |
+| `hashline/src/private_block/s35_tests.rs` | (stage 35's) | `f88fca813d58fab9eb6d29a2aef9c1bdbd35168a41efb368c61c5cdf047d59a7` |
+
+`private_block.rs` is the one PRODUCTION file that moves: a gate that pins
+it will refuse until re-pinned, by design.
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat a9d6d4c -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block
+hashline/src/private_block/{argument,protocol,layout,wire,witness,run,
+boundary,run_capture,shape,refusals}.rs hashline/Cargo.toml
+hashline/Cargo.lock scripts` prints NOTHING. The untracked `u31-c6-run1.*`
+files are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `6ec32c2` | the skeleton, with the ruling text |
+| `7472a3c` | the fix (`private_block.rs`), the new test, the census class for site 26, the re-purposed reproducer, and the failing-first and census logs |
+| `cfc48a3` | S38-N1 (`s35_tests.rs`), the memo's "FIXED at `7472a3c`", this ledger's progress, the N1 logs |
+| this one | the gate log and this close |
+
+#### What stage 39 is NOT
+
+Not a privacy result. Not option (b): the pad rule, `A_A16`'s ZERO class and
+every receipt are unchanged; revisit only if an approved activation with a
+nonzero value at gate 0 is ever proposed. Not a claim that the public
+statement is otherwise complete: the constructor still checks STRUCTURE, not
+provenance (the caller authenticates the words against approved commitments).

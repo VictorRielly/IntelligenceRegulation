@@ -1,0 +1,632 @@
+Running scope as unit: run-ra81d7f0c52b645cda78295d5a4633cf2.scope
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:687:13
+    |
+687 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 13s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555)
+
+running 27 tests
+S38 CENSUS      toy | norm denominator [norm_a]                                  | reach [1, 262144] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS      toy | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS      toy | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 536870911] | class [0, 536870911] | UNREACHABLE
+S38 CENSUS      toy | norm denominator [norm_m]                                  | reach [1, 262144] | class [1, 16777215] | UNREACHABLE
+S39 S38-F1(a)      toy: Dom::F does not pad (0 of 512 positions padded); act[128] != 0 admitted, unchanged
+S38 CENSUS      toy | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS      toy | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 536870911] | class [0, 536870911] | UNREACHABLE
+S38 CENSUS      toy | Q                                                          | reach [-1024, 1024] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | K                                                          | reach [-1024, 1024] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | V                                                          | reach [-1024, 1024] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | score                                                      | reach [-2016, 2016] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS      toy | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS      toy | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS      toy | softmax denominator                                        | reach [512, 16384] | class [512, 16384] | UNREACHABLE
+S38 CENSUS      toy | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS      toy | softmax quotient/remainder (remainder window)              | reach [0, 16383] | class [0, 16383] | UNREACHABLE
+S38 CENSUS      toy | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS      toy | AO                                                         | reach [-2032, 2032] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS      toy | residual 1                                                 | reach [-34800, 34799] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | FFN gate                                                   | reach [-1024, 1024] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS      toy | FFN up                                                     | reach [-131072, 131072] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | FFN down                                                   | reach [-1048576, 1048576] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS      toy | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 WINDOWS toy: 60 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 CENSUS      toy | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS      toy | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS      toy | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS      toy | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CHALLENGE-ONLY toy: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x0 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 44 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY rung: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x8 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY rung-G: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x8 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY rung-K4: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x8 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY rung-K8: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x8 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY rung-P2: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x5 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY rung-C6: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x5 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY rung-W14: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x5 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CENSUS      toy | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | UNREACHABLE (no position at this shape)
+S38 CENSUS      toy | LogUp multiplicity wraps the field                         | reach [0, 61440] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS      toy | kernel checked-arithmetic overflow (every Overflow site)   | reach [-17179869185, 17179869185] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CHALLENGE-ONLY rung-E32: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x5 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 CHALLENGE-ONLY 125M: c_s = 0 x23 (argument.rs:478); e in {0,1} x25 (argument.rs:587); nu = 0 x12 (argument.rs:949 via :1142, :1405, :1552, :1605 x2, :1663); zeta = 0 x5 (argument.rs:949 via :1143, :1210, :1406, :1553, :1606, :1664, :1786); zero group member coefficient over 45 opening groups (protocol.rs:300, the A and H groups; one draw per claim); dependent proximity x4 (protocol.rs:309, A, H and two endpoints); zero terminal mask coefficient (protocol.rs:246); zero LogUp denominator (protocol.rs:494, :569-574)
+S38 WINDOWS rung: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S39 S38-F1(a)     rung: Dom::F PADS (3584 of 8192 positions padded); act[128] != 0 REFUSED by name
+S38 WINDOWS rung-G: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 WINDOWS rung-K4: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 WINDOWS rung-K8: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 WINDOWS rung-P2: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 WINDOWS rung-C6: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 CENSUS     rung | norm denominator [norm_a]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS     rung | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS     rung | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS     rung | norm denominator [norm_m]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS     rung | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS     rung | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS     rung | Q                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | K                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | V                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | score                                                      | reach [-4032, 4032] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS     rung | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS     rung | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS     rung | softmax denominator                                        | reach [4096, 98304] | class [4096, 98304] | UNREACHABLE
+S38 CENSUS     rung | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS     rung | softmax quotient/remainder (remainder window)              | reach [0, 98303] | class [0, 131071] | UNREACHABLE
+S38 CENSUS     rung | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS     rung | AO                                                         | reach [-12192, 12192] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS     rung | residual 1                                                 | reach [-44960, 44959] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | FFN gate                                                   | reach [-6144, 6144] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS     rung | FFN up                                                     | reach [-786432, 786432] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | FFN down                                                   | reach [-12582912, 12582912] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     rung | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 WINDOWS rung-W14: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S37 SURVEY accepted, not chosen: 8 heads of 4 over 8 (width 32): identity group map, head_dim 4: counted receipt 3360904 B (rung-K8 4780216 B)
+S37 SURVEY accepted, not chosen: 8 heads of 8 over 8 (width 64): identity group map: counted receipt 3689624 B (rung-K8 4780216 B)
+S37 SURVEY accepted, not chosen: 16 heads of 4 over 8 (width 64): head_dim 4, never proved: counted receipt 4160680 B (rung-K8 4780216 B)
+S37 SURVEY refused by name: 16 heads of 2 over 8: private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 9, lifted to the row width 10)
+S38 WINDOWS rung-E32: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 WINDOWS 125M: 62 looked planes, every one's lookup window equals (or, for p, contains) the builder's class
+S38 CENSUS     rung | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS     rung | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS     rung | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS     rung | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | COVERED-BY-THE-STATEMENT-REFUSAL
+S38 CENSUS     rung | LogUp multiplicity wraps the field                         | reach [0, 419840] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS     rung | kernel checked-arithmetic overflow (every Overflow site)   | reach [-103079215105, 103079215105] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CENSUS   rung-G | norm denominator [norm_a]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS   rung-G | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS   rung-G | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS   rung-G | norm denominator [norm_m]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS   rung-G | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS   rung-G | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS   rung-G | Q                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | K                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | V                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | score                                                      | reach [-4032, 4032] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS   rung-G | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS   rung-G | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS   rung-G | softmax denominator                                        | reach [4096, 98304] | class [4096, 98304] | UNREACHABLE
+S38 CENSUS   rung-G | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS   rung-G | softmax quotient/remainder (remainder window)              | reach [0, 98303] | class [0, 131071] | UNREACHABLE
+S38 CENSUS   rung-G | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS   rung-G | AO                                                         | reach [-12192, 12192] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS   rung-G | residual 1                                                 | reach [-44960, 44959] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | FFN gate                                                   | reach [-6144, 6144] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS   rung-G | FFN up                                                     | reach [-786432, 786432] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | FFN down                                                   | reach [-12582912, 12582912] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS   rung-G | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS   rung-G | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS   rung-G | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS   rung-G | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS   rung-G | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | COVERED-BY-THE-STATEMENT-REFUSAL
+S38 CENSUS   rung-G | LogUp multiplicity wraps the field                         | reach [0, 419840] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS   rung-G | kernel checked-arithmetic overflow (every Overflow site)   | reach [-103079215105, 103079215105] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S39 S38-F1(a)   rung-G: Dom::F PADS (3584 of 8192 positions padded); act[128] != 0 REFUSED by name
+S38 CENSUS  rung-K4 | norm denominator [norm_a]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-K4 | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-K4 | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS  rung-K4 | norm denominator [norm_m]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-K4 | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-K4 | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS  rung-K4 | Q                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | K                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | V                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | score                                                      | reach [-2016, 2016] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS  rung-K4 | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K4 | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K4 | softmax denominator                                        | reach [4096, 98304] | class [4096, 98304] | UNREACHABLE
+S38 CENSUS  rung-K4 | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS  rung-K4 | softmax quotient/remainder (remainder window)              | reach [0, 98303] | class [0, 131071] | UNREACHABLE
+S38 CENSUS  rung-K4 | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-K4 | AO                                                         | reach [-12192, 12192] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS  rung-K4 | residual 1                                                 | reach [-44960, 44959] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | FFN gate                                                   | reach [-6144, 6144] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K4 | FFN up                                                     | reach [-786432, 786432] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | FFN down                                                   | reach [-12582912, 12582912] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K4 | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS  rung-K4 | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K4 | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-K4 | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-K4 | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | COVERED-BY-THE-STATEMENT-REFUSAL
+S38 CENSUS  rung-K4 | LogUp multiplicity wraps the field                         | reach [0, 542720] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS  rung-K4 | kernel checked-arithmetic overflow (every Overflow site)   | reach [-103079215105, 103079215105] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S39 S38-F1(a)  rung-K4: Dom::F PADS (3584 of 8192 positions padded); act[128] != 0 REFUSED by name
+S39 S38-F1(a)  rung-K8: Dom::F PADS (3584 of 8192 positions padded); act[128] != 0 REFUSED by name
+S38 CENSUS  rung-K8 | norm denominator [norm_a]                                  | reach [1, 741454] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-K8 | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-K8 | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 1518497791] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS  rung-K8 | norm denominator [norm_m]                                  | reach [1, 741454] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-K8 | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-K8 | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 1518497791] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS  rung-K8 | Q                                                          | reach [-8192, 8192] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | K                                                          | reach [-8192, 8192] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | V                                                          | reach [-8192, 8192] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | score                                                      | reach [-2016, 2016] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS  rung-K8 | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K8 | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K8 | softmax denominator                                        | reach [4096, 98304] | class [4096, 98304] | UNREACHABLE
+S38 CENSUS  rung-K8 | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS  rung-K8 | softmax quotient/remainder (remainder window)              | reach [0, 98303] | class [0, 131071] | UNREACHABLE
+S38 CENSUS  rung-K8 | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-K8 | AO                                                         | reach [-16256, 16256] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS  rung-K8 | residual 1                                                 | reach [-49024, 49023] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | FFN gate                                                   | reach [-8192, 8192] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K8 | FFN up                                                     | reach [-1048576, 1048576] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | FFN down                                                   | reach [-12582912, 12582912] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-K8 | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS  rung-K8 | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-K8 | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-K8 | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-K8 | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | COVERED-BY-THE-STATEMENT-REFUSAL
+S38 CENSUS  rung-K8 | LogUp multiplicity wraps the field                         | reach [0, 555008] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS  rung-K8 | kernel checked-arithmetic overflow (every Overflow site)   | reach [-137438953473, 137438953473] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CENSUS  rung-P2 | norm denominator [norm_a]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-P2 | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-P2 | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS  rung-P2 | norm denominator [norm_m]                                  | reach [1, 642118] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-P2 | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-P2 | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 1315057663] | class [0, 2147483647] | UNREACHABLE
+S38 CENSUS  rung-P2 | Q                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | K                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | V                                                          | reach [-6144, 6144] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | score                                                      | reach [-2016, 2016] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS  rung-P2 | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-P2 | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-P2 | softmax denominator                                        | reach [4096, 131072] | class [4096, 131072] | UNREACHABLE
+S38 CENSUS  rung-P2 | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS  rung-P2 | softmax quotient/remainder (remainder window)              | reach [0, 131071] | class [0, 131071] | UNREACHABLE
+S38 CENSUS  rung-P2 | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-P2 | AO                                                         | reach [-12192, 12192] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS  rung-P2 | residual 1                                                 | reach [-44960, 44959] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | FFN gate                                                   | reach [-6144, 6144] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-P2 | FFN up                                                     | reach [-786432, 786432] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | FFN down                                                   | reach [-16777216, 16777216] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-P2 | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS  rung-P2 | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-P2 | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-P2 | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-P2 | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | UNREACHABLE (no position at this shape)
+S38 CENSUS  rung-P2 | LogUp multiplicity wraps the field                         | reach [0, 542720] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS  rung-P2 | kernel checked-arithmetic overflow (every Overflow site)   | reach [-103079215105, 103079215105] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CENSUS  rung-C6 | norm denominator [norm_a]                                  | reach [1, 1284238] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-C6 | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-C6 | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 2630119423] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS  rung-C6 | norm denominator [norm_m]                                  | reach [1, 1284238] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS  rung-C6 | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-C6 | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 2630119423] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS  rung-C6 | Q                                                          | reach [-24576, 24576] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | K                                                          | reach [-24576, 24576] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | V                                                          | reach [-24576, 24576] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | score                                                      | reach [-8064, 8065] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS  rung-C6 | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-C6 | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-C6 | softmax denominator                                        | reach [4096, 131072] | class [4096, 131072] | UNREACHABLE
+S38 CENSUS  rung-C6 | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS  rung-C6 | softmax quotient/remainder (remainder window)              | reach [0, 131071] | class [0, 131071] | UNREACHABLE
+S38 CENSUS  rung-C6 | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS  rung-C6 | AO                                                         | reach [-48768, 48768] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | residual 1                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | FFN gate                                                   | reach [-24576, 24576] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-C6 | FFN up                                                     | reach [-3145728, 3145728] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | FFN down                                                   | reach [-33554432, 33554432] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS  rung-C6 | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS  rung-C6 | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS  rung-C6 | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-C6 | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS  rung-C6 | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | UNREACHABLE (no position at this shape)
+S38 CENSUS  rung-C6 | LogUp multiplicity wraps the field                         | reach [0, 1214464] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS  rung-C6 | kernel checked-arithmetic overflow (every Overflow site)   | reach [-412316860417, 412316860417] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CENSUS rung-W14 | norm denominator [norm_a]                                  | reach [1, 1816186] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS rung-W14 | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS rung-W14 | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 3719548927] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS rung-W14 | norm denominator [norm_m]                                  | reach [1, 1816186] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS rung-W14 | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS rung-W14 | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 3719548927] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS rung-W14 | Q                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | K                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | V                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | score                                                      | reach [-16129, 16129] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS rung-W14 | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-W14 | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-W14 | softmax denominator                                        | reach [4096, 262144] | class [4096, 262144] | UNREACHABLE
+S38 CENSUS rung-W14 | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS rung-W14 | softmax quotient/remainder (remainder window)              | reach [0, 262143] | class [0, 262143] | UNREACHABLE
+S38 CENSUS rung-W14 | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS rung-W14 | AO                                                         | reach [-97536, 97536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | residual 1                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | FFN gate                                                   | reach [-49152, 49152] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-W14 | FFN up                                                     | reach [-6291456, 6291456] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | FFN down                                                   | reach [-67108864, 67108864] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-W14 | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS rung-W14 | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-W14 | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS rung-W14 | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS rung-W14 | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | UNREACHABLE (no position at this shape)
+S39 S38-F1(a)  rung-P2: Dom::F does not pad (0 of 8192 positions padded); act[128] != 0 admitted, unchanged
+S38 CENSUS rung-W14 | LogUp multiplicity wraps the field                         | reach [0, 4882432] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS rung-W14 | kernel checked-arithmetic overflow (every Overflow site)   | reach [-824633720833, 824633720833] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CENSUS rung-E32 | norm denominator [norm_a]                                  | reach [1, 1816186] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS rung-E32 | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS rung-E32 | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 3719548927] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS rung-E32 | norm denominator [norm_m]                                  | reach [1, 1816186] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS rung-E32 | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS rung-E32 | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 3719548927] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS rung-E32 | Q                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | K                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | V                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | score                                                      | reach [-16129, 16129] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS rung-E32 | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-E32 | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-E32 | softmax denominator                                        | reach [4096, 131072] | class [4096, 131072] | UNREACHABLE
+S38 CENSUS rung-E32 | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS rung-E32 | softmax quotient/remainder (remainder window)              | reach [0, 131071] | class [0, 131071] | UNREACHABLE
+S38 CENSUS rung-E32 | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS rung-E32 | AO                                                         | reach [-97536, 97536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | residual 1                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | FFN gate                                                   | reach [-49152, 49152] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-E32 | FFN up                                                     | reach [-6291456, 6291456] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | FFN product                                                | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | FFN down                                                   | reach [-67108864, 67108864] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | residual 2                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS rung-E32 | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS rung-E32 | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS rung-E32 | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS rung-E32 | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS rung-E32 | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | UNREACHABLE (no position at this shape)
+S38 CENSUS rung-E32 | LogUp multiplicity wraps the field                         | reach [0, 2181120] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS rung-E32 | kernel checked-arithmetic overflow (every Overflow site)   | reach [-824633720833, 824633720833] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CENSUS     125M | norm denominator [norm_a]                                  | reach [1, 1816186] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS     125M | norm quotient/remainder (quotient) [norm_a]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS     125M | norm quotient/remainder (remainder window) [norm_a]        | reach [0, 3719548927] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS     125M | norm denominator [norm_m]                                  | reach [1, 1816186] | class [1, 16777215] | UNREACHABLE
+S38 CENSUS     125M | norm quotient/remainder (quotient) [norm_m]                | reach [-64, 64] | class [-127, 127] | UNREACHABLE
+S38 CENSUS     125M | norm quotient/remainder (remainder window) [norm_m]        | reach [0, 3719548927] | class [0, 4294967295] | UNREACHABLE
+S38 CENSUS     125M | Q                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | K                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | V                                                          | reach [-49152, 49152] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | QR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | KR                                                         | reach [-254, 254] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | score                                                      | reach [-16129, 16129] | class [-127, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | causal maximum attainment                                  | reach [-127, -127] | class [-inf, -127] | UNREACHABLE
+S38 CENSUS     125M | exp difference                                             | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS     125M | exp difference (the A_E pad pass)                          | reach [0, 254] | class [0, 255] | UNREACHABLE
+S38 CENSUS     125M | softmax denominator                                        | reach [512, 262144] | class [512, 262144] | UNREACHABLE
+S38 CENSUS     125M | softmax quotient/remainder (quotient)                      | reach [0, 512] | class [0, 512] | UNREACHABLE
+S38 CENSUS     125M | softmax quotient/remainder (remainder window)              | reach [0, 262143] | class [0, 262143] | UNREACHABLE
+S38 CENSUS     125M | O                                                          | reach [-127, 127] | class [-127, 127] | UNREACHABLE
+S38 CENSUS     125M | AO                                           test private_block::census_shaped_tests::the_challenge_only_refusals_are_counted_per_shape ...  ok 
+            | reach [-97536, 97536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | residual 1                                                 | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | FFN gate                                      test private_block::k8_tests::every_smaller_eight_key_value_head_geometry_is_accepted_and_the_choice_is_recorded ...  ok 
+           | reach [-49152, 49152] | class [-128, 127] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | FFN gate (activation index)                                | reach [0, 255] | class [0, 255] | UNREACHABLE
+S38 CENSUS     125M | FFN up     test private_block::census_shaped_tests::the_builder_class_of_every_looked_plane_is_the_lookup_window_at_every_shape ...  ok 
+                                              | reach [-6291456, 6291456] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | FFN product    test private_block::k8_tests::the_rung_k8_layout_is_the_independent_models ...  ok 
+                                          | reach [-65536, 65536] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | FFN down                test private_block::census_shaped_tests::the_unreachable_sites_premises_hold_at_every_shape ...  ok 
+                                 | reach [-134217728, 134217728] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | residual 2                                        test private_block::k8_tests::write_the_k8_gate_bundles ...     ignored, writes the stage-37 rung-K8 gate bundles; set HL_RUN_CAPTURE_DIR, HL_RUN_CAPTURE_PUBLIC_TABLES=1 and HL_TEST_SOURCE_COMMIT 
+    | reach [-65536, 65534] | class [-32768, 32767] | REACHABLE-BUILDER-REFUSES-FIRST
+S38 CENSUS     125M | residual 2 (output conversion)                             | reach [-32768, 32767] | class [-32768, 32767] | UNREACHABLE
+S38 CENSUS     125M | U8 word at a padded position                               | reach [0, 127] | class [0, 255] | UNREACHABLE
+S38 CENSUS     125M | exp pair not a table row                                   | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS     125M | activation pair not a table row (true position)            | reach [0, 0] | class [0, 0] | UNREACHABLE
+S38 CENSUS     125M | activation pair not a table row (padded Dom::F position)   | reach [-32768, 32767] | class [0, 0] | UNREACHABLE (no position at this shape)
+S38 CENSUS     125M | LogUp multiplicity wraps the field                         | reach [0, 98598912] | class [0, 18446744069414584320] | UNREACHABLE
+S38 CENSUS     125M | kernel checked-arithmetic overflow (every Overflow site)   | reach [-824633720833, 824633720833] | class [-9223372036854775807, 9223372036854775807] | UNREACHABLE
+S38 CENSUS TALLY toy: 22 unreachable / 12 reachable-builder-refuses-first / 0 finding / 0 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung: 21 unreachable / 12 reachable-builder-refuses-first / 0 finding / 1 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung-G: 21 unreachable / 12 reachable-builder-refuses-first / 0 finding / 1 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung-K4: 21 unreachable / 12 reachable-builder-refuses-first / 0 finding / 1 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung-K8: 21 unreachable / 12 reachable-builder-refuses-first / 0 finding / 1 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung-P2: 22 unreachable / 12 reachable-builder-refuses-first / 0 finding / 0 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung-C6: 21 unreachable / 13 reachable-builder-refuses-first / 0 finding / 0 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung-W14: 21 unreachable / 13 reachable-builder-refuses-first / 0 finding / 0 covered-by-the-statement-refusal
+S38 CENSUS TALLY rung-E32: 21 unreachable / 13 reachable-builder-refuses-first / 0 finding / 0 covered-by-the-statement-refusal
+S38 CENSUS TALLY 125M: 21 unreachable / 13 reachable-builder-refuses-first / 0 finding / 0 covered-by-the-statement-refusal
+test private_block::census_shaped_tests::the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape ... ok
+S37 REFERENCE: the rung-K8 dense block output equals the independent kernel's on all 3072 words; the kernel's eight key-value groups are pairwise different
+S37 rung-K8: T24/d128/f192, 16 heads of 8 over 8 KV heads, pads (32, 128, 16, 256), lkv 3, 2 heads per group, largest L 77, counted receipt 4780216 B
+S35 mul_base: 6656 comparisons over 13 constants of the two arms, every one exact
+S35 count toy slot 17: 165 -> 145 -> 145 -> 115 units/evaluation in the arm (of 296 with helper_sum and the pad term), 16.9% of the closure
+S35 count toy slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 686 with helper_sum and the pad term), 22.6% of the closure
+S35 count rung slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count rung slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 866 with helper_sum and the pad term), 17.9% of the closure
+S35 count rung-G slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count rung-G slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 866 with helper_sum and the pad term), 17.9% of the closure
+S35 count rung-K4 slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count rung-K4 slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 866 with helper_sum and the pad term), 17.9% of the closure
+S35 count rung-P2 slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count rung-P2 slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 866 with helper_sum and the pad term), 17.9% of the closure
+S35 count rung-C6 slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count rung-C6 slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 828 with helper_sum and the pad term), 18.7% of the closure
+S35 count rung-W14 slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count rung-W14 slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 828 with helper_sum and the pad term), 18.7% of the closure
+S35 count rung-E32 slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count rung-E32 slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 828 with helper_sum and the pad term), 18.7% of the closure
+S35 count 125M slot 17: 175 -> 155 -> 155 -> 119 units/evaluation in the arm (of 405 with helper_sum and the pad term), 13.8% of the closure
+S35 count 125M slot 14: 320 -> 270 -> 260 -> 165 units/evaluation in the arm (of 828 with helper_sum and the pad term), 18.7% of the closure
+test private_block::k8_tests::the_dense_witness_equals_the_reference_kernel_at_the_rung_k8 ... ok
+test private_block::k8_tests::the_rung_k8_shape_is_the_eight_key_value_head_geometry_it_claims ... ok
+test private_block::s35_tests::multiplying_by_a_constant_with_no_imaginary_part_is_exactly_mul_base ... ok
+test private_block::s35_tests::the_rewrite_removes_the_counted_multiplications_at_every_registered_shape ... ok
+S37 CENSUS [one dense block]: 16/16 head slots live, 8/8 key-value groups live and pairwise different (keys and values), both heads of every group different, the upper hidden half live
+S38-F1 rung-G: act[128] = 1 REFUSED by the constructor (ruling S38-F1(a)); forced past it, 3584 of 8192 Dom::F positions (every PADDED one) look up (128, 0), not a row
+S39 S38-F1(a)  rung-C6: Dom::F does not pad (0 of 16384 positions padded); act[128] != 0 admitted, unchanged
+S37 CENSUS [run block 0]: 16/16 head slots live, 8/8 key-value groups live and pairwise different (keys and values), both heads of every group different, the upper hidden half live
+S37 K8 DENSE RUN: the first admissible three-block down band is 48 (the recipe's single-block band is 48)
+test private_block::k8_tests::the_pinned_rung_k8_chain_band_is_the_first_admissible_one ... ok
+S37 CENSUS [run block 1]: 16/16 head slots live, 8/8 key-value groups live and pairwise different (keys and values), both heads of every group different, the upper hidden half live
+S38-F1 rung-K4: act[128] = 1 REFUSED by the constructor (ruling S38-F1(a)); forced past it, 3584 of 8192 Dom::F positions (every PADDED one) look up (128, 0), not a row
+S37 CENSUS [run block 2]: 16/16 head slots live, 8/8 key-value groups live and pairwise different (keys and values), both heads of every group different, the upper hidden half live
+S38-F1 rung-K8: act[128] = 1 REFUSED by the constructor (ruling S38-F1(a)); forced past it, 3584 of 8192 Dom::F positions (every PADDED one) look up (128, 0), not a row
+S39 S38-F1(a) rung-W14: Dom::F does not pad (0 of 65536 positions padded); act[128] != 0 admitted, unchanged
+S38-F1 rung-P2: Dom::F does not pad; the same statement is LogUp-clean
+S39 S38-F1(a) rung-E32: Dom::F does not pad (0 of 32768 positions padded); act[128] != 0 admitted, unchanged
+S38-F1 rung-C6: Dom::F does not pad; the same statement is LogUp-clean
+test private_block::census_shaped_tests::s38_f1_the_padded_feed_forward_positions_look_up_a_pair_that_is_not_a_row_when_act_128_is_nonzero ... ok
+S39 S38-F1(a)     125M: Dom::F does not pad (0 of 1048576 positions padded); act[128] != 0 admitted, unchanged
+test private_block::census_shaped_tests::s39_new_shaped_refuses_a_nonzero_gate_zero_activation_by_name_exactly_where_the_feed_forward_domain_pads ... ok
+S35 IR leg: 576 random points over 9 shapes x 2 slots, every one equal
+test private_block::s35_tests::the_two_rewritten_closures_equal_the_stage_34_ir_at_every_registered_shape ... ok
+S35 differential: 72 (point, slot) comparisons on this walk alone, 248 in the process so far
+S35 differential: slot 17's pad branch is taken at 8 registered shapes and not taken at 1
+test private_block::s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape ... ok
+S35 pins: 18 (shape, slot) rows — table count, table order, main rounds, extension rounds and declared degree all where 89e393f left them
+test private_block::s35_tests::the_table_list_the_order_and_the_declared_degree_of_the_two_slots_are_where_they_were ... ok
+S38-F1 REPRODUCER rung-G: refused at construction by name; forced past the refusal: verifier rejected: H: pcs zk: group 8: <v, c> != combined claim
+test private_block::census_shaped_tests::s38_f1_reproducer_a_statement_with_a_nonzero_gate_zero_activation_is_refused_at_construction_at_rung_g ... ok
+S38 EDGE   rung-G `Q`: inside on the edge 127 PROVES AND VERIFIES (1.23 s); just past refused by name by the builder AND the kernel
+S37 rung-K8 ALL-ZERO (degenerate) one block on the tame fixture: prove 0.95 s, verify from bytes 0.27 s, frame 4780216 B
+S38 EDGE  rung-K8 `Q`: inside on the edge 127 PROVES AND VERIFIES (1.58 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `Q`: inside on the edge 127 PROVES AND VERIFIES (1.69 s); just past refused by name by the builder AND the kernel
+S37 rung-K8 DENSE one block: prove 1.14 s, verify from bytes 0.36 s, frame 4780216 B
+test private_block::k8_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k8 ... ok
+S37 GQA SWAP groups 7 <-> 6 (the low group bit; 744 positions differ): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+S38 EDGE   rung-G `K`: inside on the edge 127 PROVES AND VERIFIES (0.99 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-C6 `AO`: inside on the edge 32767 PROVES AND VERIFIES (2.08 s); just past refused by name by the builder AND the kernel
+
+thread 'private_block::census_shaped_tests::the_output_projection_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_c6' (904393) panicked at src/private_block/census_shaped_tests.rs:918:5:
+assertion `left == right` failed: the family's activations cannot hit the accumulator 4194239 exactly
+  left: 2693861
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::census_shaped_tests::the_output_projection_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_c6 ... ok
+S37 GROUP-7 TAMPER A_KR8, the rotated key of key-value group 7 (token 3): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+S37 rung-K8 ALL-ZERO (degenerate) one block on the dense public weights: prove 0.80 s, verify from bytes 0.15 s, frame 4780216 B
+test private_block::k8_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_k8 ... ok
+S38 EDGE  rung-K8 `K`: inside on the edge 127 PROVES AND VERIFIES (1.21 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `K`: inside on the edge 127 PROVES AND VERIFIES (1.14 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `V`: inside on the edge 127 PROVES AND VERIFIES (0.84 s); just past refused by name by the builder AND the kernel
+S37 GQA SWAP groups 7 <-> 5 (the middle group bit; 738 positions differ): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+S37 GROUP-7 TAMPER A_V8, the value of key-value group 7 (source token 6): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+S38 EDGE  rung-K4 `V`: inside on the edge 127 PROVES AND VERIFIES (0.77 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K8 `V`: inside on the edge 127 PROVES AND VERIFIES (0.79 s); just past refused by name by the builder AND the kernel
+S37 GQA SWAP groups 7 <-> 3 (the high group bit; 744 positions differ): verifier rejected: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+test private_block::k8_tests::exchanging_group_sevens_keys_across_each_single_group_bit_is_rejected_at_the_rung_k8 ... ok
+S38 EDGE   rung-G `QR`: inside on the edge 127 PROVES AND VERIFIES (0.81 s); just past refused by name by the builder AND the kernel
+S37 GROUP-7 TAMPER A_QR8, the rotated query of head slot 14 (group 7, first head): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+S38 EDGE  rung-K8 `QR`: inside on the edge 127 PROVES AND VERIFIES (0.70 s); just past refused by name by the builder AND the kernel
+S37 K8 FULLY DENSE RUN L=3 (down band 48): prove 2.75 s, streaming verify 0.64 s, segments [4612392, 4634920, 4802824] B (total 14050136 B), boundary 10 rows; a flipped byte in segment 2 refused: A: pcs zk: Merkle path for column 1176 fails
+test private_block::k8_tests::an_honest_three_block_fully_dense_run_verifies_streaming_at_the_rung_k8 ... ok
+S38 EDGE  rung-K4 `QR`: inside on the edge 127 PROVES AND VERIFIES (0.87 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `KR`: inside on the edge 127 PROVES AND VERIFIES (0.69 s); just past refused by name by the builder AND the kernel
+S37 GROUP-7 TAMPER A_QR8, the rotated query of head slot 15 (group 7, second head): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+S38 EDGE  rung-K8 `KR`: inside on the edge 127 PROVES AND VERIFIES (0.78 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `KR`: inside on the edge 127 PROVES AND VERIFIES (0.66 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `score`: inside on the edge 127 PROVES AND VERIFIES (0.58 s); just past refused by name by the builder AND the kernel
+S37 GROUP-7 TAMPER A_P, a causally live softmax weight of head slot 14 (group 7): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+S38 EDGE  rung-K8 `score`: inside on the edge 127 PROVES AND VERIFIES (0.76 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `residual 1`: inside on the edge 32767 PROVES AND VERIFIES (0.72 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `score`: inside on the edge 127 PROVES AND VERIFIES (0.80 s); just past refused by name by the builder AND the kernel
+S37 GROUP-7 TAMPER A_P, a causally live softmax weight of head slot 15 (group 7): verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+S37 GROUP-7 SWEEP: 0 refused by the prover, 6 rejected by the VERIFIER, 0 accepted
+test private_block::k8_tests::a_perturbation_in_the_last_key_value_group_is_rejected_by_the_verifier_at_the_rung_k8 ... ok
+S38 EDGE   rung-G `FFN gate`: inside on the edge -128 PROVES AND VERIFIES (0.50 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `residual 1`: inside on the edge 32767 PROVES AND VERIFIES (0.65 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K8 `residual 1`: inside on the edge 32767 PROVES AND VERIFIES (0.78 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `FFN up`: inside on the edge 32767 PROVES AND VERIFIES (0.56 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `FFN gate`: inside on the edge -128 PROVES AND VERIFIES (0.72 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K8 `FFN gate`: inside on the edge -128 PROVES AND VERIFIES (0.69 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `FFN product`: inside on the edge 32767 PROVES AND VERIFIES (0.66 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `FFN up`: inside on the edge 32767 PROVES AND VERIFIES (0.64 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K8 `FFN up`: inside on the edge 32767 PROVES AND VERIFIES (0.70 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `FFN down`: inside on the edge 32767 PROVES AND VERIFIES (0.64 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `FFN product`: inside on the edge 32767 PROVES AND VERIFIES (0.69 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K8 `FFN product`: inside on the edge 32767 PROVES AND VERIFIES (0.68 s); just past refused by name by the builder AND the kernel
+S38 EDGE   rung-G `residual 2`: inside on the edge 32767 PROVES AND VERIFIES (0.55 s); just past refused by name by the builder AND the kernel
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_g ... ok
+S38 EDGE  rung-K4 `FFN down`: inside on the edge 32767 PROVES AND VERIFIES (0.60 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K8 `FFN down`: inside on the edge 32767 PROVES AND VERIFIES (0.63 s); just past refused by name by the builder AND the kernel
+S38 EDGE  rung-K4 `residual 2`: inside on the edge 32767 PROVES AND VERIFIES (0.68 s); just past refused by name by the builder AND the kernel
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_k4 ... ok
+S38 EDGE  rung-K8 `residual 2`: inside on the edge 32767 PROVES AND VERIFIES (0.68 s); just past refused by name by the builder AND the kernel
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_k8 ... ok
+
+test result: ok. 26 passed; 0 failed; 1 ignored; 0 measured; 498 filtered out; finished in 10.32s
+
