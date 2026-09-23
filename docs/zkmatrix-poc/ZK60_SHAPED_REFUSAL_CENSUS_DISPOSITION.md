@@ -97,3 +97,46 @@ premise (no field wrap, `layout.rs:639-648`) is out of this census's scope.
 S38-F1(a) refusal inside `new_shaped` only) — both findings are what the code
 says. Delegated and not re-derived: the site enumeration, the bounds, the two
 reproducers (run by the checker; exit 101 as expected).
+
+## 5. Built (lane stage 40, `c735d77`, 2026-09-23 00:11) and two further rulings
+
+**Built, test-first** (lane ledger "Stage 40", census memo §9; 12 new tests;
+lane filter 452/0/18; toy 2,816,472 B and every frame/digest pin unchanged;
+`absorb_into` and `BlockPublic::digest` untouched):
+- **CS-1:** `FeedForwardPublic::check_words` is the one check (lengths, P-2,
+  table length, S38-F1(a)); `new_shaped` calls it and `check_for_shape`
+  re-runs it at the builder, both prover entries, both verifier entries and
+  bodies, `RunStatement::new`, the run prover and the run verifier — measured
+  to fire with 0 bytes drawn, 0 squeezes, the transcript unmoved. The
+  sibling the check never built (a `Wg` entry off support, P-2) was
+  reproduced failing-first and is covered.
+- **CS-2:** undersized `wrho_s` / `norm_wrho` overrides refused by name in
+  `Shape::new` (norm with the 32768 bound).
+- **CS-3:** a lookup miss is one named prover refusal after the histograms
+  and before the first `A` mask draw, no absorb or draw added or moved. For
+  a single block it precedes every commitment. **In a run it follows block
+  k's own boundary commitment and earlier blocks' written segments** (moving
+  it before the run's first commitment would need every witness up front);
+  accepted under ruling M-9 — a refused run writes no `statement/`, is not
+  a run and is never transmitted (D21). The soundness tests reach the
+  verifier through a test-only guard `CheatingProver`; I checked that its
+  state, its guard and its single use are all `#[cfg(test)]`
+  (`protocol.rs:502-546`).
+- **Note C-6:** `width ≠ q_heads·head_dim` never made an honest proof fail
+  (dense proofs at five widths) — recorded, no refusal; **`f_e` above 31
+  (the reference kernel's bound) refused by name** after honest proofs were
+  shown to fail at 64, 65, 80, 200; 4 to 31 prove.
+
+**CS-4 (finding S40-N2, same class as C-1).** The attention half of a block
+statement has the same gap: a rung-G attention half inside a rung-K4 block
+is admitted and the verifier refuses the honest proof. **Ruling: CS-1
+extends to every part of a block or run statement** — each has one check
+against a shape, called by its constructor and re-run wherever it meets the
+shape it is proved at, before anything is absorbed, committed or drawn.
+
+**CS-5 (finding S40-N1).** Above width 16,384 `Shape::new`'s own norm window
+can be one bit short (the builder refuses first, so it narrows admissibility
+rather than failing a proof). No target is that wide (the 8B width is
+4,096). **Ruling, simplest first:** `Shape::new` refuses a width above
+16,384 by name; re-deriving the norm window for wider shapes is the
+alternative, worth doing only when a wider model is a target.
