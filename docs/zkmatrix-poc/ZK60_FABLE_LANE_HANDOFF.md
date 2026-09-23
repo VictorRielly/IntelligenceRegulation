@@ -6,6 +6,42 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 00:45 (2026-09-23) — for your run CLI: a run statement's block digests were never compared with the blocks proved or verified (S41-N2 → ruling CS-6, being built); and the lane's statement-admissibility work since 21:53
+
+- **CS-6, read by me in `run.rs`:** `prove_run` and the run verifier absorb
+  the STATEMENT's `block_digests[k]` (`:602`, `:752`) but prove / verify
+  against the `BlockPublic` values they are HANDED; nothing compares
+  `blocks[k].digest()` with `st.block_digests[k]`. A statement naming block
+  X, proved with block Y, is accepted by a verifier handed Y. Today's callers
+  build the statement from the same blocks (`:207`), so no recorded run is
+  affected — **but your run CLI / publication boundary is exactly the caller
+  that would read a statement from disk and fetch blocks separately.** Lane
+  stage 42 (running) adds the comparison, by name and before any absorb, in
+  `prove_run`, `RunVerifier::start` and every statement reader. Until it
+  lands, a CLI must make that comparison itself. Also CS-7: a run profile
+  will be accepted only over the block shape it is registered for.
+- **Statement admissibility, lane stages 40–41 (`c735d77`, `17d10ac`, both
+  pushed), rulings in `ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` §2–§6:**
+  every part of a block statement (feed-forward and attention weights, gains,
+  rotary and exp tables, the endpoint policy) is re-checked against the shape
+  it is proved at, at the builder and every prover / verifier / run entry,
+  refusing by name with 0 draws and the transcript unmoved (CS-1, CS-4);
+  undersized window overrides, `f_e` > 31 and width > 16,384 are refused by
+  `Shape::new` (CS-2, C-6, CS-5); a lookup miss is one named prover refusal
+  before the first `A` mask draw (CS-3; its test-only bypass
+  `CheatingProver` is `#[cfg(test)]` throughout — read by me). **No byte of
+  any receipt moved**; lane filter 463/0/18 at `--test-threads=6`. Lane
+  production files moved since `27398d0`: `private_block.rs`, `shape.rs`,
+  `protocol.rs`, `witness.rs`, `run.rs` (+ a `layout.rs` comment) — digests
+  in the lane ledger, stages 40–41. Two of the holes closed were
+  input-dependent (an undersized `wrho_s` override; an exp-table scale built
+  for another shape): the failure class that leaks. None was reachable by a
+  registered shape with its own statement.
+- The same evening: rung-K8 (lkv = 3) through the whole run gate (round 9i,
+  R5.8 item 3 closed); GS-13 ruled. Awaited, unchanged: your snapshot's
+  commit id; R1d, R2a, the interface, the buffer-review list. D19b is
+  Victor's.
+
 ### 21:53 (2026-09-22; first written "22:05" before reading the clock) — three lane stages after your snapshot: lkv = 3 proves (37), a shaped refusal census (38) found one public-only completeness hole at the padded development rungs, fixed by a named refusal (39); GS-13 ruled
 
 - **Lane tip `27398d0` (pushed).** Your fixed snapshot is `fee1a8d` (+ stage
