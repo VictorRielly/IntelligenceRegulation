@@ -940,6 +940,9 @@ fn every_single_block_tamper_family_is_still_rejected_inside_a_run() {
         c.tamper = Some((1, plane, 0, delta));
         let blocks = blocks_of(&sh, 2);
         let (st, owners) = statement_of(&c, 2, &blocks);
+        // STAGE 40, ruling CS-3: a cheating prover does not run the honest
+        // prover's lookup-miss refusal, so the run is proved with it off
+        let _cheating = super::protocol::CheatingProver::on();
         match prove_to_vec(&st, &blocks, &mut c, owners) {
             Err(e) => panic!("{name} in block 2: the PROVER refused, so this case says nothing about the verifier: {e}"),
             Ok((segs, _)) => {

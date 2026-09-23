@@ -45,6 +45,9 @@ const NORM_TN: u32 = 11;
 const NORM_CEPS: i128 = 1;
 /// the softmax quotient's scale: `p` reaches `2^F_P`, so it needs `F_P + 1` bits
 const F_P: u32 = 9;
+/// **Note C-6 (stage 40).** The largest exp-table scale `Shape::new` admits:
+/// the shaped reference kernel's own bound (it refuses `f_e >= 32`).
+const F_E_MAX: u32 = 31;
 
 // the wire format's shape-independent counts (`wire.rs`)
 const WIRE_HEADER: usize = 8 + 32;
@@ -193,7 +196,68 @@ impl Shape {
         if !(2..=30).contains(&log_cols) || !inv_rate.is_power_of_two() || inv_rate < 2 {
             return Err("private block shape: the row geometry is out of range".into());
         }
+        // **NOTE C-6 of the census check, STAGE 40: the exp table's
+        // fractional bits, bounded by name.** Nothing bounded `f_e`. The
+        // statement constructor computes `2^f_e` as `1i64 << f_e`, so from
+        // `f_e = 64` on it wraps: a table scaled by the wrapped value is
+        // admitted, the builder admits the input, and EVERY honest proof is
+        // rejected by the verifier (slot 17, the softmax zero-check —
+        // measured at rung-G's geometry, `s40-before-named.log`). Between, at
+        // 54..=62 the builder's `E 2^F_P` and `Sum` overflow `i64` and it
+        // refuses every input, and at 63 the constructor refuses every table.
+        // The bound is the reference kernel's own (`private-block-kernel-
+        // shaped` refuses `f_e >= 32`): above it the builder has no oracle,
+        // and the soundness premise of `layout.rs` is written for the
+        // registered calibrations (toy 9, the rungs 12, 125M 9), all far
+        // below it. No registered shape moves.
+        if f_e > F_E_MAX {
+            return Err(format!(
+                "private block shape: note C-6 — f_e = {f_e} fractional bits of the exp table is above {F_E_MAX}, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier"
+            ));
+        }
         let d_max = isqrt_i128(NORM_CEPS + width as i128 * INT16_MAX * INT16_MAX);
+        // **RULING CS-2 (security owner, 2026-09-22; check finding C-2): an
+        // undersized window OVERRIDE, as a named construction refusal.**
+        //
+        // The softmax window: `sigma_s < Sum <= tokens 2^f_e`, so the window
+        // this shape derives, `clog2(tokens) + f_e`, is exactly the smallest
+        // that holds `tokens 2^f_e`. The builder and the kernel check
+        // `sigma_s` only; on the LAST token row no causally masked position
+        // exists, so `rho_s` there is guarded by this window alone, and under
+        // a smaller override an input the builder admits made the honest proof
+        // fail at the verifier — depending on the private input.
+        //
+        // The norm window: the denominator is `D 2^(tn + 1)` with `D <=
+        // isqrt(1 + width 32768^2)` — `-32768` is a legal input, so the bound
+        // is 32768 and not the 32767 of `d_max` — and the remainder is below
+        // it. An override below the smallest window holding that bound makes
+        // the norm remainder reachable, which the builder refuses by name on
+        // some private inputs. At every width up to 2^14 = 16,384 (every
+        // registered shape: the widest is 768) that smallest window IS the
+        // derivation `tn + 1 + bits(d_max)`; from width 16,385 on, the
+        // derivation itself can be one bit short, which this ruling (about
+        // overrides) does not touch — see the stage-40 ledger (`s40_tests`).
+        //
+        // Overrides at or above those windows are kept; no registered shape
+        // passes either override, so no registered shape moves.
+        if let Some(w) = wrho_s {
+            let derived = clog2(tokens) as u64 + u64::from(f_e);
+            if u64::from(w) < derived {
+                return Err(format!(
+                    "private block shape: ruling CS-2 — the softmax window override wrho_s = {w} is below the window this shape derives, clog2({tokens}) + f_e = {derived} bits (tokens 2^f_e must fit in 2^wrho_s); on the last token row a rho_s above the window would be admitted by the builder and the honest proof rejected, depending on the private input"
+                ));
+            }
+        }
+        if let Some(w) = norm_wrho {
+            let den = isqrt_i128(NORM_CEPS + width as i128 * (INT16_MAX + 1) * (INT16_MAX + 1)) << (NORM_TN + 1);
+            let needed = bit_length(den - 1);
+            if w < needed {
+                return Err(format!(
+                    "private block shape: ruling CS-2 — the norm window override norm_wrho = {w} is below the window this shape derives, {needed} bits (the norm denominator reaches isqrt(1 + {width} x 32768^2) x 2^{} = {den}); the norm remainder would be reachable and refused by the builder on some private inputs",
+                    NORM_TN + 1
+                ));
+            }
+        }
         let (e_log_n, e_rate) = (endpoint_log_n.unwrap_or(log_cols), endpoint_inv_rate.unwrap_or(inv_rate));
         let sh = Shape {
             name,

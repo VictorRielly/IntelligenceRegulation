@@ -97,7 +97,10 @@ fn prove_tampered(edit: impl FnOnce(&BlockPublic, &mut Witness)) -> Result<(), S
     edit(&blk, &mut w);
     let output = w.output().unwrap_or(honest);
     let (expected, owners) = prepare_endpoints(spec(), &input, &output).unwrap();
-    // the prover pre-checks no relation: a false witness still yields a receipt
+    // a CHEATING prover pre-checks no relation: a false witness still yields a
+    // receipt (since stage 40, ruling CS-3, the honest prover refuses a
+    // lookup miss by name; the switch turns that off, as a cheater would)
+    let _cheating = super::protocol::CheatingProver::on();
     let (receipt, _) = prove_inner(&blk, w, &expected, owners)?;
     verify_inner(&blk, &expected, &receipt).map(|_| ())
 }

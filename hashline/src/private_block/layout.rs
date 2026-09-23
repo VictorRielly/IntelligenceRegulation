@@ -668,7 +668,8 @@ fn sym(p: usize) -> [Lk; 2] {
 ///   2^23.56 at 125M, the product a16 u16 at most 2^30, `f0` below 2^31 (the
 ///   worst new case) and zacc at most 2^26 at the toy, 2^32.99 at 125M.
 /// All bounds are far below p = 2^64 - 2^32 + 1. The LogUp multiplicities (at
-/// most 61,440 at the toy, 98,582,528 at 125M) cannot wrap.
+/// most 61,440 at the toy, 98,598,912 at 125M — the P-3-lifted `Dom::L`
+/// included; note C-6 of the shaped census check) cannot wrap.
 ///
 /// **What this premise does NOT cover, and must not be read as covering:**
 /// the PAD. At any shape where a domain pads, every clause above is a

@@ -301,6 +301,10 @@ mod s36_tests;
 mod k8_tests;
 #[cfg(test)]
 mod census_shaped_tests;
+// STAGE 40: rulings CS-1, CS-2 and CS-3 of the shaped refusal census
+// disposition, on the adversarial check's findings C-1 and C-2.
+#[cfg(test)]
+mod s40_tests;
 // REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
 // pre-read of stage 36): the reviewer's own tests of the observer hook and of
 // the endpoint replica's fidelity. NOT part of the lane's delta and not to be
@@ -533,6 +537,10 @@ impl AttentionPublic {
     }
 }
 
+/// **RULING CS-1's name**, the prefix of every re-check's refusal (the
+/// constructor's own message follows it).
+const CS1_REFUSAL: &str = "private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at";
+
 /// The feed-forward half's PUBLIC words: the second norm gain `gamma_m`, the
 /// three `(input, output)` row-major matrices `Wg`, `Wu`, `Wd` exactly as the
 /// kernel stores them, and the 256-entry int16-output activation table.
@@ -566,6 +574,27 @@ impl FeedForwardPublic {
     /// axis's support must be zero. The feed-forward axis carries no head
     /// permutation — only `Dom::Q` does — so its support is a prefix.
     pub(crate) fn new_shaped(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
+        Self::check_words(sh, gamma_m, wg_t, wu_t, wd_t, act)?;
+        let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+        Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
+    }
+
+    /// **RULING CS-1 (security owner, 2026-09-22): THE ONE CHECK of a
+    /// feed-forward statement against a shape** — every rule of this half
+    /// that depends on the shape, in the constructor's own order and with its
+    /// own messages: the padded lengths, ruling P-2's entrywise support check
+    /// on the four matrices, the table length, and ruling S38-F1(a).
+    ///
+    /// The statement does not carry its shape (it holds the words only, and
+    /// `absorb_into` digests the words only), so a check made once, at
+    /// construction, holds only for the shape the constructor was ASKED about:
+    /// check finding C-1 built the half at rung-P2 and proved it inside a
+    /// rung-K4 block, and the verifier rejected the honest proof. So this runs
+    /// in [`FeedForwardPublic::new_shaped`] and AGAIN, through
+    /// [`FeedForwardPublic::check_for_shape`], wherever a statement meets the
+    /// shape it is proved at, before anything is absorbed, committed or drawn.
+    /// It reads nothing but public words and the shape, and moves no byte.
+    fn check_words(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<(), String> {
         let (d, f) = (sh.d_pad, sh.f_pad);
         if gamma_m.len() != d || [wg_t.len(), wu_t.len()] != [d * f; 2] || wd_t.len() != f * d {
             return Err("private block: feed-forward weight shape".into());
@@ -574,7 +603,9 @@ impl FeedForwardPublic {
         weights_vanish_off_support(sh, wg_t, Axis::D, Axis::F)?;
         weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;
         weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;
-        let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+        if act.len() != 256 {
+            return Err("private block: activation table shape".into());
+        }
         // RULING S38-F1(a) (security owner, 2026-09-22): where `Dom::F` pads,
         // every padded position carries `(g8, a16) = (0, 0)` and the
         // never-gated activation LogUp arm looks up the pair `(128, 0)`, a
@@ -584,7 +615,17 @@ impl FeedForwardPublic {
         if sh.pads(layout::Dom::F) && act[128] != 0 {
             return Err("private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))".into());
         }
-        Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
+        Ok(())
+    }
+
+    /// **RULING CS-1: the re-check**, by name, of a statement that already
+    /// exists against the shape it is about to be proved or verified at —
+    /// [`FeedForwardPublic::check_words`] on this statement's own words, its
+    /// refusal prefixed with [`CS1_REFUSAL`]. Called by the witness builder,
+    /// the prover's and the verifier's entries and shared bodies, and the
+    /// run's statement, prover and verifier.
+    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
+        Self::check_words(sh, &self.gamma_m, &self.wg_t, &self.wu_t, &self.wd_t, &self.act).map_err(|e| format!("{CS1_REFUSAL}: {e}"))
     }
 
     /// The feed-forward half of the PUBLIC SYNTHETIC fixture
@@ -997,6 +1038,9 @@ impl Receipt {
 pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
     #[cfg(test)]
     capture::begin();
+    // RULING CS-1: before the frame is decoded against the statement's
+    // transcript header — the verifier's first use of the statement
+    public.feed_forward().check_for_shape(sh)?;
     let receipt = Receipt::from_bytes_at(sh, public, expected, bytes)?;
     protocol::verify_inner_at(sh, public, expected, &receipt).map(|_| ())
 }
@@ -1004,6 +1048,8 @@ pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected:
 pub fn verify_bytes(public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
     #[cfg(test)]
     capture::begin();
+    // RULING CS-1, at the toy's own bytes entry (a toy statement always fits)
+    public.feed_forward().check_for_shape(&shape::Shape::toy())?;
     verify(public, expected, &Receipt::from_bytes(public, expected, bytes)?)
 }
 

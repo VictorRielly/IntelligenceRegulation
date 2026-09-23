@@ -429,7 +429,9 @@ pub(super) const HISTOGRAM_PAR_MIN: u64 = 1 << 17;
 /// and the bins are added back in a fixed order, so the chunked form is the
 /// serial form's vector. The serial form stays for small shapes. (A value
 /// outside the table counts into entry 0, exactly as before: only the LogUp
-/// identity can catch it.) `lookup_words` is the PUBLIC word count of the
+/// identity can catch it — and since ruling CS-3 the honest prover refuses
+/// such a witness by name before its `A` commitment, see
+/// [`refuse_lookup_misses`].) `lookup_words` is the PUBLIC word count of the
 /// shape, which is what chooses the branch — never a witness value.
 pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64, par_min: u64) -> Vec<u64> {
     let bin = |v: &i64| -> usize {
@@ -469,6 +471,78 @@ pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u
         }
     }
     m_u8
+}
+
+/// **RULING CS-3.** How many looked words are outside the byte table — the
+/// words [`byte_histogram_at`] files in entry 0. A count of public-length
+/// columns, parallel above the same public threshold as the histogram.
+fn u8_misses_of(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64) -> usize {
+    let miss = |c: &Vec<i64>| c.iter().filter(|v| !(0..U8_LEN as i64).contains(*v)).count();
+    if lookup_words >= HISTOGRAM_PAR_MIN {
+        use rayon::prelude::*;
+        let cols: Vec<&Vec<i64>> = looked.iter().flat_map(|(_, cols)| cols.iter()).collect();
+        return cols.par_iter().map(|c| miss(c)).sum();
+    }
+    looked.iter().flat_map(|(_, cols)| cols.iter()).map(miss).sum()
+}
+
+/// **RULING CS-3's name.**
+pub(super) const LOOKUP_MISS_REFUSAL: &str = "private block: ruling CS-3 — the witness looks up a value that is not a row of its table";
+
+/// **RULING CS-3: the ONE refusal of a lookup miss.** Before this ruling a
+/// looked value that is not a row of its table was filed in histogram entry
+/// 0 on three silent paths, the proof went ahead, and only the verifier's
+/// LogUp identity rejected the receipt. `prove_core` calls this after the
+/// three histograms and before the first draw of the block's `A` mask rows.
+///
+/// A CHEATING prover does not run this check, and the soundness tests play
+/// one: under `#[cfg(test)]` a thread-local switch ([`CheatingProver`]) makes
+/// it return `Ok`, so a tampered witness still reaches the verifier. A
+/// release build has no switch.
+fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String> {
+    #[cfg(test)]
+    if CHEATING_PROVER.with(|c| c.get()) {
+        return Ok(());
+    }
+    if u8 + exp + act == 0 {
+        return Ok(());
+    }
+    Err(format!(
+        "{LOOKUP_MISS_REFUSAL} (refused before the A commitment; nothing of this block was drawn, absorbed or committed): {u8} U8 words outside the byte table, {exp} exp pairs and {act} activation pairs not rows of the statement's tables"
+    ))
+}
+
+// **RULING CS-3's test-only switch: the soundness tests' CHEATING PROVER.**
+// A soundness test hands the honest prover a TAMPERED witness to stand in for
+// a cheating prover, which commits whatever it likes and never runs the
+// prover's own consistency checks. While a [`CheatingProver`] guard lives on
+// the calling thread, `refuse_lookup_misses` lets a miss through to bucket 0
+// exactly as before ruling CS-3, so those tests keep reaching the verifier.
+// `#[cfg(test)]` throughout: a release build has neither the state nor the
+// guard.
+#[cfg(test)]
+thread_local! {
+    static CHEATING_PROVER: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// While alive, this thread's prover skips ruling CS-3's refusal (test only).
+#[cfg(test)]
+pub(crate) struct CheatingProver {
+    was: bool,
+}
+
+#[cfg(test)]
+impl CheatingProver {
+    pub(crate) fn on() -> CheatingProver {
+        CheatingProver { was: CHEATING_PROVER.with(|c| c.replace(true)) }
+    }
+}
+
+#[cfg(test)]
+impl Drop for CheatingProver {
+    fn drop(&mut self) {
+        CHEATING_PROVER.with(|c| c.set(self.was));
+    }
 }
 
 /// the activation lookup's index column `g8 + 128` over the `Dom::F` cube
@@ -695,6 +769,9 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
+    // RULING CS-1: before the endpoint owners are opened, the randomness is
+    // seeded or the transcript header is absorbed
+    blk.feed_forward().check_for_shape(sh)?;
     let [ein, eout] = check_endpoints(sh, expected, endpoints)?;
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
     //
@@ -806,6 +883,10 @@ pub(crate) fn prove_core(
     tick: &mut std::time::Instant,
 ) -> Result<CoreProof, String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
+    // RULING CS-1, in the body every proving path shares (the single block's
+    // entry and the run's entry have made the same check already): nothing
+    // has been drawn, absorbed or committed for this block yet
+    ff.check_for_shape(sh)?;
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     // every plane but the three derived histograms
     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
@@ -836,16 +917,29 @@ pub(crate) fn prove_core(
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
     let deltas = exp_deltas(&lay, &wit);
     let mut m_exp = vec![0u64; U8_LEN];
+    let mut exp_missed = 0usize;
     for (x, d) in deltas.iter().enumerate() {
         let hit = (0..U8_LEN as i64).contains(d) && public.exp[*d as usize] == wit.planes[ids.at(A_E)][x];
+        exp_missed += usize::from(!hit);
         m_exp[if hit { *d as usize } else { 0 }] += 1;
     }
     let act_idx = act_indices(&lay, &wit);
     let mut m_act = vec![0u64; U8_LEN];
+    let mut act_missed = 0usize;
     for (x, i) in act_idx.iter().enumerate() {
         let hit = (0..U8_LEN as i64).contains(i) && i64::from(ff.act[*i as usize]) == wit.planes[ids.at(A_A16)][x];
+        act_missed += usize::from(!hit);
         m_act[if hit { *i as usize } else { 0 }] += 1;
     }
+    // RULING CS-3 (security owner, 2026-09-22): the three bucket-0 paths
+    // above (a looked word outside the byte table, an exp pair or an
+    // activation pair that is not a table row) are ONE named refusal HERE —
+    // after the three histograms, from values this function already holds,
+    // and BEFORE the first draw of the `A` mask rows, the `A` commitment and
+    // any absorb or challenge of this block. For a witness the builder admits
+    // it is unreachable (the census); it turns a future admissibility gap
+    // into a refusal of the prover instead of a receipt the verifier rejects.
+    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
     for i in 0..U8_LEN {
         a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
@@ -1068,6 +1162,9 @@ pub(crate) struct CoreView<'a> {
 /// pending boundary claim into stage `k + 1` without trusting a segment.
 pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreView, ntt: &NttTables, tr: &mut Transcript, ph: &mut timing::Phases) -> Result<([Vec<ZClaim>; 2], Vec<String>), String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
+    // RULING CS-1, in the body every verifying path shares (the block's and
+    // the run's entries have made the same check already)
+    ff.check_for_shape(sh)?;
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     // STAGE 17 (ruling T-7): the tag is the VERIFIER's, from the shape its
@@ -1190,6 +1287,8 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     let mut ph = timing::Phases::start();
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
+    // RULING CS-1: before the receipt is looked at or the header absorbed
+    blk.feed_forward().check_for_shape(sh)?;
     // **STAGE 16, ruling T-4**, before the frame shape check so that the
     // refusal a caller sees names the commitment and the two path lengths
     // rather than being the generic "opening shape". The five commitments of

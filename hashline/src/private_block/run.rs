@@ -151,6 +151,9 @@ impl RunStatement {
         if blocks.len() != rs.l || block_scales.len() != rs.l {
             return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, blocks.len(), block_scales.len()));
         }
+        // RULING CS-1: every block's feed-forward statement against the
+        // run's shape, before any digest of it is taken
+        blocks_fit_the_shape(blocks, &rs.sh)?;
         if context == [0; 32] {
             return Err("private run: a nonempty context is required".into());
         }
@@ -516,6 +519,18 @@ fn words(v: &[i16]) -> Vec<Fp> {
     v.iter().map(|x| Fp::from_i64(i64::from(*x))).collect()
 }
 
+/// **RULING CS-1** at the run layer: every block's feed-forward statement
+/// re-checked against the run's shape, refused by name with the block index.
+/// A run statement holds DIGESTS of its blocks, and the run prover and
+/// verifier are handed the blocks separately, so each checks them itself —
+/// before the header is absorbed or anything is drawn.
+fn blocks_fit_the_shape(blocks: &[BlockPublic], sh: &Shape) -> Result<(), String> {
+    for (k, b) in blocks.iter().enumerate() {
+        b.feed_forward().check_for_shape(sh).map_err(|e| format!("private run: block {k}: {e}"))?;
+    }
+    Ok(())
+}
+
 /// **THE RUN PROVER.** One transcript, `L` stages, one OS randomness stream,
 /// one NTT table, one masking commitment and one LogUp challenge triple PER
 /// BLOCK. Each segment is handed to `sink` and DROPPED before the next stage
@@ -535,6 +550,9 @@ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn
         return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
     }
     protocol::fits_the_ntt_tables(sh)?;
+    // RULING CS-1: all L blocks, before the endpoint owners are opened, the
+    // run's randomness is seeded or its header is absorbed
+    blocks_fit_the_shape(blocks, sh)?;
     st.expected.spec.validate()?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
     let mut ein = Some(ein);
@@ -680,6 +698,8 @@ impl<'a> RunVerifier<'a> {
             return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
         }
         protocol::fits_the_ntt_tables(sh)?;
+        // RULING CS-1: all L blocks, before the run header is absorbed
+        blocks_fit_the_shape(blocks, sh)?;
         st.expected.spec.validate()?;
         let ntt = NttTables::new(st.rs.ntt_log());
         let e_params = protocol::endpoint_pcs_params(sh);

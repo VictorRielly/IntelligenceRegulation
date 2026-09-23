@@ -81,6 +81,13 @@ impl Outcome {
 }
 
 pub(super) fn outcome(sh: &Shape, blk: &BlockPublic, w: Witness) -> Outcome {
+    // STAGE 40, ruling CS-3: the honest prover now refuses a lookup miss by
+    // name before its `A` commitment. This harness stands in for a CHEATING
+    // prover, which does not run that check, so it proves with the check off
+    // (the `#[cfg(test)]` switch) and the verifier still has to speak. Ruling
+    // CS-1 (the statement against the shape) is NOT switched off: that is a
+    // property of the public statement, which the verifier checks too.
+    let _cheating = super::protocol::CheatingProver::on();
     match prove_rung(sh, blk, w) {
         Err(e) => Outcome::ProverRefused(e),
         Ok((expected, bytes)) => match verify_bytes_at(sh, blk, &expected, &bytes) {
