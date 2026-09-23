@@ -3996,6 +3996,9 @@ accepted set empty.
    (round 9e's residual), GS-13 and GS-14 on the main tree, and a whole-suite
    figure (530 is from round 9c; rounds 9e, 9f and 9h have added 41 tests
    inside that pattern without re-running it).
+   *(Whole-suite figure TAKEN 2026-09-22 22:55 (round 9i, §R9i.9):
+   **603 tests, OK**, 479.2 s at 8G — 530 + 41 + round 9i's 32. The other
+   items of this list are untouched by round 9i.)*
 
 # ROUND 9i (2026-09-22 20:16 PDT) — EIGHT key-value groups (`lkv = 3`, rung-K8): the gate reads a third group bit
 
@@ -4031,8 +4034,20 @@ establishes a privacy property.
 | K3 | any `lkv ≤ 2` assumption in the ports or controls found, generalised, tested | done — §R9i.6, finding R9i-F1 (`GQ-7`) |
 | K4 | the whole gate on both bundles, every arm, every control | done — §R9i.7, 13 of 13 stages `ok` on both |
 | K5 | dense against zero; rung-K8 against rung-K4 | done — §R9i.8, 0 unexplained |
-| K6 | the records re-taken where a tool moved; the suite and the record guard at 8G | open |
-| K7 | results, limits, NEXT; R5.8 item 3 closed only if the gate read `lkv = 3` end to end | open |
+| K6 | the records re-taken where a tool moved; the suite and the record guard at 8G | done — §R9i.9: 27 records, 0 UNEXPECTED; 217 + 42 OK; whole suite 603 OK |
+| K7 | results, limits, NEXT; R5.8 item 3 closed only if the gate read `lkv = 3` end to end | done — §R9i.10–11; **R5.8 item 3 CLOSED** (in place) |
+
+**Headline: the run gate read three key-value group bits end to end, and
+the prediction held.** Both rung-K8 bundles pass all thirteen stages with
+every arm and every control; the group point `r_h[..3]` is derived from the
+replay and compared 6 of 6; all 69 slot checks hold; the channel table is
+28 at 10 / 5 / 4 / 9; against rung-K4 sixteen figures move exactly as
+written beforehand and nothing moves unexplained. Getting there took
+reading **five** moved pins, not one (stages 34–36 had landed unread
+between rung-E32 and rung-K8), widening one control written for two group
+bits (R9i-F1), and re-reading how "nothing moved" had been established
+(R9i-F2). `private_block.rs`, which the brief asked to re-pin, is compared
+by no run-gate table (R9i.5 item 2). Not a privacy acceptance.
 
 ## R9i.3 Commands and logs (round 9i)
 
@@ -4381,6 +4396,21 @@ is EXACTLY the old one with `", 99a8de8"` appended, and all 18 are. **Not
 one rank, disclosed dimension, challenge count, slot check, group count,
 preimage or mask figure, control figure or channel count moved on any of
 the 27.** The toy-equivalence record moved in one wall clock only.
+
+**The suites** (`suite.sh`, queued behind `refresh.done`, then behind
+another lane's job on the heavy lock from 22:41 to 22:44; inside
+`systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0`;
+`suite.done` = 0):
+
+| suite | result | last recorded |
+|---|---|---|
+| the toy gate's seven modules (`suite_toy.log`) | **Ran 217 tests in 208.9 s, OK** (skipped=1, expected failures=1) | 217 (round 9h) — unchanged; this round added nothing there |
+| the record guard alone (`suite_guard.log`) | **Ran 42 tests in 0.087 s, OK** | 42 (round 9h) — unchanged |
+| **the WHOLE `test_zk60_native*.py` suite** (`suite_native_all.log`) | **Ran 603 tests in 479.2 s, OK** (skipped=1, expected failures=1) | **530 (round 9c)**, never re-run since: +73 = round 9e's 11 + 9f's 17 + 9h's 13 + this round's **32** (`test_zk60_native_run_gate_k8.py`) |
+
+The skip and the expected failure are the long-standing ones. The whole
+suite ran in one process at 8G without being killed. The 603 closes R9h.10
+item 3's ask for a whole-suite figure.
 
 **FINDING R9i-F2 — the leaf classifier grades whole stages.**
 `zk60_native_rg_recclass`'s round-3 class is "any path under

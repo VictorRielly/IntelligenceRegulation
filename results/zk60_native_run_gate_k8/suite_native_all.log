@@ -1,0 +1,42 @@
+.....s......./home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+................................................................................................................................................................................................................................................................................................................................/usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..................................................................................................................................................................../home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-m-dense-c6/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-o-dense-w14/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:411: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-q-dense-e32/arrays.bin'>
+  del b, export
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-dense-l2/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.....................................................................x....................................
+----------------------------------------------------------------------
+Ran 603 tests in 479.184s
+
+OK (skipped=1, expected failures=1)
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-dense-l2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-l-zero-p2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-m-dense-c6/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-n-zero-c6/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-q-dense-e32/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-r-zero-e32/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-o-dense-w14/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-p-zero-w14/arrays.bin'>

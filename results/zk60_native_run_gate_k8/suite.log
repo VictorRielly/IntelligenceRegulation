@@ -1,0 +1,18 @@
+Running scope as unit: run-r791382dc02304af3815e1e1deb350f4d.scope
++ cd /home/victor/wt-zk60-jointview
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_k8
++ date
+Tue Sep 22 22:44:03 PDT 2026
++ python3 -m unittest tests.test_zk60_native_capture tests.test_zk60_native_gate_record tests.test_zk60_native_joint_view tests.test_zk60_native_mask_commit tests.test_zk60_native_privacy_gate tests.test_zk60_native_terminal_polys tests.test_zk60_native_small_model_groups
++ echo 'toy suite exit=0'
+toy suite exit=0
++ python3 -m unittest -v tests.test_zk60_native_gate_record
++ echo 'record guard exit=0'
+record guard exit=0
++ date
+Tue Sep 22 22:47:33 PDT 2026
++ python3 -m unittest discover -s tests -p 'test_zk60_native*.py'
++ echo 'whole native suite exit=0'
+whole native suite exit=0
++ date
+Tue Sep 22 22:55:38 PDT 2026
