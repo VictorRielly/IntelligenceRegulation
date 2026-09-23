@@ -1,0 +1,1069 @@
+{
+ "controls_stage36_measured": {
+  "toy": {
+   "got": {
+    "block_bytes": 5396672,
+    "block_fp": 320908,
+    "salts": 8192,
+    "squeezes": 1863,
+    "replay": 1027,
+    "frame": 2816472,
+    "E_each": 3072
+   },
+   "want": {
+    "block_bytes": 5396672,
+    "block_fp": 320908,
+    "salts": 8192,
+    "squeezes": 1863,
+    "replay": 1027,
+    "frame": 2816472,
+    "E_each": 3072
+   },
+   "ok": true
+  },
+  "rung_k4": {
+   "got": {
+    "block_bytes": 12401856,
+    "block_fp": 750540,
+    "salts": 12288,
+    "squeezes": 2610,
+    "replay": 1642,
+    "frame": 4743128,
+    "E_each": 7424
+   },
+   "want": {
+    "block_bytes": 12401856,
+    "block_fp": 750540,
+    "salts": 12288,
+    "squeezes": 2610,
+    "replay": 1642,
+    "frame": 4743128,
+    "E_each": 7424
+   },
+   "ok": true
+  },
+  "rung_p2": {
+   "got": {
+    "block_bytes": 12401056,
+    "block_fp": 750490,
+    "salts": 12288,
+    "squeezes": 2604,
+    "replay": 1642,
+    "frame": 4742728,
+    "E_each": 7424
+   },
+   "want": {
+    "block_bytes": 12401056,
+    "block_fp": 750490,
+    "salts": 12288,
+    "squeezes": 2604,
+    "replay": 1642,
+    "frame": 4742728,
+    "E_each": 7424
+   },
+   "ok": true
+  },
+  "rung_c6": {
+   "got": {
+    "block_bytes": 17654944,
+    "block_fp": 1078858,
+    "salts": 12288,
+    "squeezes": 3977,
+    "replay": 2962,
+    "frame": 7452040,
+    "E_each": 10496
+   },
+   "want": {
+    "block_bytes": 17654944,
+    "block_fp": 1078858,
+    "salts": 12288,
+    "squeezes": 3977,
+    "replay": 2962,
+    "frame": 7452040,
+    "E_each": 10496
+   },
+   "ok": true
+  },
+  "rung_w14": {
+   "got": {
+    "block_bytes": 100308416,
+    "block_fp": 5998940,
+    "salts": 135168,
+    "squeezes": 2254,
+    "replay": 1156,
+    "frame": 16421048,
+    "E_each": 84224
+   },
+   "want": {
+    "block_bytes": 100308416,
+    "block_fp": 5998940,
+    "salts": 135168,
+    "squeezes": 2254,
+    "replay": 1156,
+    "frame": 16421048,
+    "E_each": 84224
+   },
+   "ok": true
+  },
+  "rung_e32": {
+   "got": {
+    "block_bytes": 25356928,
+    "block_fp": 1560232,
+    "salts": 12288,
+    "squeezes": 5919,
+    "replay": 4874,
+    "frame": 11368824,
+    "E_each": 14592
+   },
+   "want": {
+    "block_bytes": 25356928,
+    "block_fp": 1560232,
+    "salts": 12288,
+    "squeezes": 5919,
+    "replay": 4874,
+    "frame": 11368824,
+    "E_each": 14592
+   },
+   "ok": true
+  },
+  "toy absorbs (row T3)": {
+   "got": 317,
+   "want": 317,
+   "ok": true
+  },
+  "toy per-proof draws (D9 / D22)": {
+   "got": 327052,
+   "want": 327052,
+   "ok": true
+  }
+ },
+ "targets": {
+  "rung_g": {
+   "profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+   "layout": {
+    "a_data": 377,
+    "h_data": 470,
+    "a_rows": 623,
+    "h_rows": 576,
+    "a_claims": 122,
+    "h_claims": 53
+   },
+   "slots": [
+    [
+     12,
+     1,
+     4
+    ],
+    [
+     12,
+     1,
+     4
+    ],
+    [
+     5,
+     1,
+     3
+    ],
+    [
+     10,
+     1,
+     4
+    ],
+    [
+     13,
+     1,
+     4
+    ],
+    [
+     7,
+     1,
+     2
+    ],
+    [
+     7,
+     1,
+     2
+    ],
+    [
+     7,
+     1,
+     2
+    ],
+    [
+     5,
+     2,
+     3
+    ],
+    [
+     6,
+     2,
+     3
+    ],
+    [
+     7,
+     1,
+     2
+    ],
+    [
+     7,
+     1,
+     2
+    ],
+    [
+     7,
+     1,
+     2
+    ],
+    [
+     8,
+     1,
+     2
+    ],
+    [
+     12,
+     1,
+     5
+    ],
+    [
+     12,
+     1,
+     5
+    ],
+    [
+     10,
+     1,
+     5
+    ],
+    [
+     13,
+     1,
+     5
+    ],
+    [
+     13,
+     1,
+     5
+    ],
+    [
+     10,
+     1,
+     3
+    ],
+    [
+     10,
+     1,
+     2
+    ],
+    [
+     12,
+     1,
+     2
+    ],
+    [
+     12,
+     1,
+     2
+    ]
+   ],
+   "sum_L": 859,
+   "rounds": 242,
+   "draws": {
+    "A": 411392,
+    "H": 258046,
+    "M": 17590,
+    "block_fp": 687028,
+    "block_salts": 12288,
+    "E_each": 7424,
+    "E_salts_each": 4096,
+    "proof_fp": 701876,
+    "proof_salts": 20480
+   },
+   "sampler_log2": -76.5791,
+   "transcript": {
+    "slot_definition_draws": 325,
+    "squeezes": 2356,
+    "challenges": 2036,
+    "replay_points": 1394,
+    "absorbs": 376,
+    "F_T_queries_A": 2733
+   },
+   "per_slot_definition_draws": [
+    5,
+    5,
+    15,
+    12,
+    9,
+    12,
+    5,
+    5,
+    13,
+    12,
+    12,
+    13,
+    8,
+    12,
+    46,
+    24,
+    21,
+    31,
+    26,
+    15,
+    0,
+    12,
+    12
+   ],
+   "frame_bytes": 4234984,
+   "frame_parts": {
+    "header": 136,
+    "slots": 20064,
+    "mask": 243712,
+    "A": 2142208,
+    "H": 1492992,
+    "E_each": 167936
+   },
+   "N_leaf": 20480,
+   "against_the_gate": {
+    "pairs": {
+     "challenges": [
+      2036,
+      2036
+     ],
+     "counter": [
+      2356,
+      2356
+     ],
+     "a_rows": [
+      623,
+      623
+     ],
+     "h_rows": [
+      576,
+      576
+     ],
+     "a_claims": [
+      122,
+      122
+     ],
+     "h_claims": [
+      53,
+      53
+     ],
+     "groups": [
+      [
+       36,
+       9
+      ],
+      [
+       36,
+       9
+      ]
+     ]
+    },
+    "ok": true
+   },
+   "parameter_line": "T24/d96/f192/H6/KV2/dh16/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows9",
+   "constructor_input_bytes": 58,
+   "residuals_m28": {
+    "log2": {
+     "sampler (D9), draws x 2^-96": -76.5791,
+     "sampler, exact per-draw SD x draws": -76.5791,
+     "salt guessing q N_leaf 2^-256": -113.6781,
+     "leaf-input collision C(N_leaf,2) 2^-256": -228.3562,
+     "challenge pre-query q A 2^-256": -116.5837,
+     "absorb collision C(A,2) 2^-256": -234.168,
+     "constructor-vs-absorb (A+q) 2^-256": -128.0,
+     "tag-key collision C(m,2) 2^-256": -247.4378,
+     "tag key = generator key 12 x 2^-256": -252.415,
+     "generator in-model 6q 2^-256": -125.415
+    },
+    "largest_hash_term": "salt guessing q N_leaf 2^-256",
+    "gap_bits": 37.099,
+    "total_log2": -76.5791,
+    "per_draw_sd_log2": -96.0000000003,
+    "per_draw_sd_below_2_96": true
+   },
+   "residuals_m32": {
+    "log2": {
+     "sampler (D9), draws x 2^-96": -76.5791,
+     "sampler, exact per-draw SD x draws": -76.5791,
+     "salt guessing q N_leaf 2^-256": -113.6781,
+     "leaf-input collision C(N_leaf,2) 2^-256": -228.3562,
+     "challenge pre-query q A 2^-256": -116.5837,
+     "absorb collision C(A,2) 2^-256": -234.168,
+     "constructor-vs-absorb (A+q) 2^-256": -128.0,
+     "tag-key collision C(m,2) 2^-256": -247.0458,
+     "tag key = generator key 12 x 2^-256": -252.415,
+     "generator in-model 6q 2^-256": -125.415
+    },
+    "largest_hash_term": "salt guessing q N_leaf 2^-256",
+    "gap_bits": 37.099,
+    "total_log2": -76.5791,
+    "per_draw_sd_log2": -96.0000000003,
+    "per_draw_sd_below_2_96": true
+   },
+   "a_million_proofs": {
+    "sampler": -56.648,
+    "salt_guessing": -93.747
+   },
+   "logup_two_world_log2": -117.415,
+   "liveness_4_over_p_log2": -62.0
+  },
+  "m125": {
+   "profile": "hashline-zk-mr1/private-block-m125/1",
+   "layout": {
+    "a_data": 5435,
+    "h_data": 7018,
+    "a_rows": 5681,
+    "h_rows": 7120,
+    "a_claims": 122,
+    "h_claims": 51
+   },
+   "slots": [
+    [
+     19,
+     1,
+     4
+    ],
+    [
+     19,
+     1,
+     4
+    ],
+    [
+     9,
+     1,
+     3
+    ],
+    [
+     14,
+     1,
+     4
+    ],
+    [
+     22,
+     1,
+     4
+    ],
+    [
+     10,
+     1,
+     2
+    ],
+    [
+     10,
+     1,
+     2
+    ],
+    [
+     10,
+     1,
+     2
+    ],
+    [
+     8,
+     2,
+     3
+    ],
+    [
+     11,
+     2,
+     3
+    ],
+    [
+     10,
+     1,
+     2
+    ],
+    [
+     10,
+     1,
+     2
+    ],
+    [
+     10,
+     1,
+     2
+    ],
+    [
+     11,
+     1,
+     2
+    ],
+    [
+     19,
+     1,
+     5
+    ],
+    [
+     19,
+     1,
+     5
+    ],
+    [
+     17,
+     1,
+     4
+    ],
+    [
+     22,
+     1,
+     5
+    ],
+    [
+     20,
+     1,
+     4
+    ],
+    [
+     14,
+     1,
+     3
+    ],
+    [
+     14,
+     1,
+     2
+    ],
+    [
+     19,
+     1,
+     2
+    ],
+    [
+     19,
+     1,
+     2
+    ]
+   ],
+   "sum_L": 1239,
+   "rounds": 361,
+   "draws": {
+    "A": 5484800,
+    "H": 3526654,
+    "M": 18350,
+    "block_fp": 9029804,
+    "block_salts": 135168,
+    "E_each": 91392,
+    "E_salts_each": 65536,
+    "proof_fp": 9212588,
+    "proof_salts": 266240
+   },
+   "sampler_log2": -72.8648,
+   "transcript": {
+    "slot_definition_draws": 446,
+    "squeezes": 14252,
+    "challenges": 13932,
+    "replay_points": 13050,
+    "absorbs": 495,
+    "F_T_queries_A": 14748
+   },
+   "per_slot_definition_draws": [
+    9,
+    9,
+    17,
+    16,
+    14,
+    19,
+    8,
+    8,
+    22,
+    19,
+    19,
+    20,
+    11,
+    19,
+    51,
+    31,
+    26,
+    40,
+    31,
+    19,
+    0,
+    19,
+    19
+   ],
+   "frame_bytes": 40783352,
+   "frame_parts": {
+    "header": 136,
+    "slots": 28016,
+    "mask": 243712,
+    "A": 21626880,
+    "H": 17385472,
+    "E_each": 749568
+   },
+   "N_leaf": 266240,
+   "against_the_gate": {
+    "pairs": {
+     "challenges": [
+      13932,
+      13932
+     ],
+     "counter": [
+      14252,
+      14252
+     ],
+     "a_rows": [
+      5681,
+      5681
+     ],
+     "h_rows": [
+      7120,
+      7120
+     ],
+     "a_claims": [
+      122,
+      122
+     ],
+     "h_claims": [
+      51,
+      51
+     ],
+     "groups": [
+      [
+       36,
+       9
+      ],
+      [
+       36,
+       9
+      ]
+     ],
+     "A blinding unknowns (R9j.8 B11)": [
+      5484800,
+      5484800
+     ]
+    },
+    "ok": true
+   },
+   "parameter_line": "T512/d768/f2048/H12/KV4/dh64/log_cols14/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-private-endpoints/one-proof-one-transcript/endpoint-log_n14-rate4-pad256-rows37",
+   "constructor_input_bytes": 48,
+   "residuals_m28": {
+    "log2": {
+     "sampler (D9), draws x 2^-96": -72.8648,
+     "sampler, exact per-draw SD x draws": -72.8648,
+     "salt guessing q N_leaf 2^-256": -109.9776,
+     "leaf-input collision C(N_leaf,2) 2^-256": -220.9553,
+     "challenge pre-query q A 2^-256": -114.1518,
+     "absorb collision C(A,2) 2^-256": -229.3036,
+     "constructor-vs-absorb (A+q) 2^-256": -128.0,
+     "tag-key collision C(m,2) 2^-256": -247.4378,
+     "tag key = generator key 12 x 2^-256": -252.415,
+     "generator in-model 6q 2^-256": -125.415
+    },
+    "largest_hash_term": "salt guessing q N_leaf 2^-256",
+    "gap_bits": 37.113,
+    "total_log2": -72.8648,
+    "per_draw_sd_log2": -96.0000000003,
+    "per_draw_sd_below_2_96": true
+   },
+   "residuals_m32": {
+    "log2": {
+     "sampler (D9), draws x 2^-96": -72.8648,
+     "sampler, exact per-draw SD x draws": -72.8648,
+     "salt guessing q N_leaf 2^-256": -109.9776,
+     "leaf-input collision C(N_leaf,2) 2^-256": -220.9553,
+     "challenge pre-query q A 2^-256": -114.1518,
+     "absorb collision C(A,2) 2^-256": -229.3036,
+     "constructor-vs-absorb (A+q) 2^-256": -128.0,
+     "tag-key collision C(m,2) 2^-256": -247.0458,
+     "tag key = generator key 12 x 2^-256": -252.415,
+     "generator in-model 6q 2^-256": -125.415
+    },
+    "largest_hash_term": "salt guessing q N_leaf 2^-256",
+    "gap_bits": 37.113,
+    "total_log2": -72.8648,
+    "per_draw_sd_log2": -96.0000000003,
+    "per_draw_sd_below_2_96": true
+   },
+   "a_million_proofs": {
+    "sampler": -52.933,
+    "salt_guessing": -90.046
+   },
+   "logup_two_world_log2": -117.415,
+   "liveness_4_over_p_log2": -62.0
+  }
+ },
+ "bundles": {
+  "rung-g-dense": {
+   "path": "/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-dense",
+   "frame_bytes_measured": 4234984,
+   "frame_bytes_counted_here": 4234984,
+   "frame_length_agrees": true,
+   "parameter_line_here_equals_capture": true,
+   "policy": {
+    "magic_ok": true,
+    "context_nonzero": true,
+    "scales": [
+     0,
+     0
+    ],
+    "input_root_ne_output_root": true,
+    "equals_capture_expected_policy": true
+   },
+   "tag_keys_equal_capture": true,
+   "calibration_identity_equals_capture": true,
+   "schedule_digest_from_layout_description_equals_capture": true,
+   "envelope": {
+    "magic": "HLPBLOK1",
+    "binding_recomputed_equals_frame": true,
+    "frame_binding_equals_capture": true
+   },
+   "opened_columns_authenticated_under_the_block_keys": {
+    "ok": 1280,
+    "failed": 0
+   },
+   "distinct_opened_columns": {
+    "M": 249,
+    "A": 247,
+    "H": 249,
+    "Input": 247,
+    "Output": 252,
+    "total": 1244
+   },
+   "salts": {
+    "distinct_published": 1244,
+    "pairs_shared_between_two_leaf_positions": 0,
+    "a_repeated_index_repeats_its_salt": true
+   },
+   "endpoints": {
+    "indices_opened_in_both": 23,
+    "identical_column_at_a_shared_index": 0,
+    "identical_mask_rows_at_a_shared_index": 0,
+    "zero_field_words_in_opened_data_rows": 0,
+    "opened_data_row_words": 1996,
+    "input_root_ne_output_root": true
+   }
+  },
+  "rung-g-zero": {
+   "path": "/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-zero",
+   "frame_bytes_measured": 4234984,
+   "frame_bytes_counted_here": 4234984,
+   "frame_length_agrees": true,
+   "parameter_line_here_equals_capture": true,
+   "policy": {
+    "magic_ok": true,
+    "context_nonzero": true,
+    "scales": [
+     0,
+     0
+    ],
+    "input_root_ne_output_root": true,
+    "equals_capture_expected_policy": true
+   },
+   "tag_keys_equal_capture": true,
+   "calibration_identity_equals_capture": true,
+   "schedule_digest_from_layout_description_equals_capture": true,
+   "envelope": {
+    "magic": "HLPBLOK1",
+    "binding_recomputed_equals_frame": true,
+    "frame_binding_equals_capture": true
+   },
+   "opened_columns_authenticated_under_the_block_keys": {
+    "ok": 1280,
+    "failed": 0
+   },
+   "distinct_opened_columns": {
+    "M": 252,
+    "A": 252,
+    "H": 246,
+    "Input": 245,
+    "Output": 245,
+    "total": 1240
+   },
+   "salts": {
+    "distinct_published": 1240,
+    "pairs_shared_between_two_leaf_positions": 0,
+    "a_repeated_index_repeats_its_salt": true
+   },
+   "endpoints": {
+    "indices_opened_in_both": 14,
+    "identical_column_at_a_shared_index": 0,
+    "identical_mask_rows_at_a_shared_index": 0,
+    "zero_field_words_in_opened_data_rows": 0,
+    "opened_data_row_words": 1960,
+    "input_root_ne_output_root": true
+   }
+  },
+  "m125-dense": {
+   "path": "/home/victor/zk60-artifacts/block-captures-20260923/m125-dense",
+   "frame_bytes_measured": 40783352,
+   "frame_bytes_counted_here": 40783352,
+   "frame_length_agrees": true,
+   "parameter_line_here_equals_capture": true,
+   "policy": {
+    "magic_ok": true,
+    "context_nonzero": true,
+    "scales": [
+     0,
+     0
+    ],
+    "input_root_ne_output_root": true,
+    "equals_capture_expected_policy": true
+   },
+   "tag_keys_equal_capture": true,
+   "calibration_identity_equals_capture": true,
+   "schedule_digest_from_layout_description_equals_capture": true,
+   "envelope": {
+    "magic": "HLPBLOK1",
+    "binding_recomputed_equals_frame": true,
+    "frame_binding_equals_capture": true
+   },
+   "opened_columns_authenticated_under_the_block_keys": {
+    "ok": 1280,
+    "failed": 0
+   },
+   "distinct_opened_columns": {
+    "M": 247,
+    "A": 256,
+    "H": 256,
+    "Input": 255,
+    "Output": 256,
+    "total": 1270
+   },
+   "salts": {
+    "distinct_published": 1270,
+    "pairs_shared_between_two_leaf_positions": 0,
+    "a_repeated_index_repeats_its_salt": true
+   },
+   "endpoints": {
+    "indices_opened_in_both": 0,
+    "identical_column_at_a_shared_index": 0,
+    "identical_mask_rows_at_a_shared_index": 0,
+    "zero_field_words_in_opened_data_rows": 0,
+    "opened_data_row_words": 16352,
+    "input_root_ne_output_root": true
+   }
+  },
+  "m125-zero": {
+   "path": "/home/victor/zk60-artifacts/block-captures-20260923/m125-zero",
+   "frame_bytes_measured": 40783352,
+   "frame_bytes_counted_here": 40783352,
+   "frame_length_agrees": true,
+   "parameter_line_here_equals_capture": true,
+   "policy": {
+    "magic_ok": true,
+    "context_nonzero": true,
+    "scales": [
+     0,
+     0
+    ],
+    "input_root_ne_output_root": true,
+    "equals_capture_expected_policy": true
+   },
+   "tag_keys_equal_capture": true,
+   "calibration_identity_equals_capture": true,
+   "schedule_digest_from_layout_description_equals_capture": true,
+   "envelope": {
+    "magic": "HLPBLOK1",
+    "binding_recomputed_equals_frame": true,
+    "frame_binding_equals_capture": true
+   },
+   "opened_columns_authenticated_under_the_block_keys": {
+    "ok": 1280,
+    "failed": 0
+   },
+   "distinct_opened_columns": {
+    "M": 245,
+    "A": 255,
+    "H": 256,
+    "Input": 256,
+    "Output": 255,
+    "total": 1267
+   },
+   "salts": {
+    "distinct_published": 1267,
+    "pairs_shared_between_two_leaf_positions": 0,
+    "a_repeated_index_repeats_its_salt": true
+   },
+   "endpoints": {
+    "indices_opened_in_both": 2,
+    "identical_column_at_a_shared_index": 0,
+    "identical_mask_rows_at_a_shared_index": 0,
+    "zero_field_words_in_opened_data_rows": 0,
+    "opened_data_row_words": 16352,
+    "input_root_ne_output_root": true
+   }
+  }
+ },
+ "keys": {
+  "registered_tagged_profiles": 7,
+  "keys": 28,
+  "pairwise_distinct": true,
+  "with_k8_distinct": true,
+  "with_run_would_be_sets_distinct": true
+ },
+ "extras": {
+  "rung_k4: block stream (stage 36 in situ) + both endpoints (replica) = per proof": {
+   "block": 750540,
+   "endpoints": 14848,
+   "per_proof": 765388,
+   "per_proof_log2": -76.4542,
+   "block_only_log2": -76.4824
+  },
+  "constructor lengths": {
+   "any_equals_47": false,
+   "lengths": {
+    "hashline-zk-mr1/private-block-t32-poc/1": 51,
+    "hashline-zk-mr1/private-block-rung-g-t24-dev/1": 58,
+    "hashline-zk-mr1/private-block-rung-k4-t24-dev/1": 59,
+    "hashline-zk-mr1/private-block-rung-p2-t32-dev/1": 59,
+    "hashline-zk-mr1/private-block-rung-c6-t32-dev/1": 59,
+    "hashline-zk-mr1/private-block-rung-w14-t64-dev/1": 60,
+    "hashline-zk-mr1/private-block-rung-e32-t32-dev/1": 60,
+    "hashline-zk-mr1/private-block-m125/1": 48,
+    "hashline-zk-mr1/private-block-rung-k8-t24-dev/1": 59,
+    "hashline-zk-mr1/private-block-rung-t24-dev/1": 56,
+    "hashline-zk-mr1/private-run-rung-g-t24-dev/1": 56,
+    "hashline-zk-mr1/private-run-rung-k4-t24-dev/1": 57,
+    "hashline-zk-mr1/private-run-rung-p2-t32-dev/1": 57,
+    "hashline-zk-mr1/private-run-rung-c6-t32-dev/1": 57,
+    "hashline-zk-mr1/private-run-rung-w14-t64-dev/1": 58,
+    "hashline-zk-mr1/private-run-rung-e32-t32-dev/1": 58,
+    "hashline-zk-mr1/private-run-m125/1": 46
+   },
+   "shortest_actual_absorb_input_on_a_block": 60,
+   "block_constructors_below_every_actual_absorb": true
+  },
+  "rung_g: one-sided vs two-world sampler": {
+   "one_sided": -76.5791,
+   "two_world": -75.5791
+  },
+  "m125: one-sided vs two-world sampler": {
+   "one_sided": -72.8648,
+   "two_world": -71.8648
+  },
+  "draft figures, compared after the fact": {
+   "rung_g": {
+    "proof fp draws": {
+     "mine": 701876,
+     "draft": 701876,
+     "equal": true
+    },
+    "A/H/M draws": {
+     "mine": [
+      411392,
+      258046,
+      17590
+     ],
+     "draft": [
+      411392,
+      258046,
+      17590
+     ],
+     "equal": true
+    },
+    "endpoint draws each": {
+     "mine": 7424,
+     "draft": 7424,
+     "equal": true
+    },
+    "salts per proof": {
+     "mine": 20480,
+     "draft": 20480,
+     "equal": true
+    },
+    "F_T absorbs": {
+     "mine": 376,
+     "draft": 376,
+     "equal": true
+    },
+    "F_T squeezes": {
+     "mine": 2356,
+     "draft": 2356,
+     "equal": true
+    },
+    "slot definition draws": {
+     "mine": 325,
+     "draft": 325,
+     "equal": true
+    },
+    "A (F_T queries)": {
+     "mine": 2733,
+     "draft": 2733,
+     "equal": true
+    },
+    "sampler log2": {
+     "mine": -76.5791,
+     "draft": -76.5791,
+     "equal": true
+    },
+    "salt guessing log2": {
+     "mine": -113.6781,
+     "draft": -113.6781,
+     "equal": true
+    },
+    "gap bits": {
+     "mine": 37.1,
+     "draft": 37.1,
+     "equal": true
+    }
+   },
+   "m125": {
+    "proof fp draws": {
+     "mine": 9212588,
+     "draft": 9212588,
+     "equal": true
+    },
+    "A/H/M draws": {
+     "mine": [
+      5484800,
+      3526654,
+      18350
+     ],
+     "draft": [
+      5484800,
+      3526654,
+      18350
+     ],
+     "equal": true
+    },
+    "endpoint draws each": {
+     "mine": 91392,
+     "draft": 91392,
+     "equal": true
+    },
+    "salts per proof": {
+     "mine": 266240,
+     "draft": 266240,
+     "equal": true
+    },
+    "F_T absorbs": {
+     "mine": 495,
+     "draft": 495,
+     "equal": true
+    },
+    "F_T squeezes": {
+     "mine": 14252,
+     "draft": 14252,
+     "equal": true
+    },
+    "slot definition draws": {
+     "mine": 446,
+     "draft": 446,
+     "equal": true
+    },
+    "A (F_T queries)": {
+     "mine": 14748,
+     "draft": 14748,
+     "equal": true
+    },
+    "sampler log2": {
+     "mine": -72.8648,
+     "draft": -72.8648,
+     "equal": true
+    },
+    "salt guessing log2": {
+     "mine": -109.9776,
+     "draft": -109.9776,
+     "equal": true
+    },
+    "gap bits": {
+     "mine": 37.11,
+     "draft": 37.11,
+     "equal": true
+    }
+   }
+  }
+ },
+ "ALL_CONTROLS_AND_CROSS_CHECKS_PASS": true
+}
