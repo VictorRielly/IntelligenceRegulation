@@ -5261,10 +5261,119 @@ establishes a privacy property.
 
 | # | item | state |
 |---|---|---|
-| L0 | ledger skeleton, round 9l opened | this commit |
-| L1 | the prediction, written and committed BEFORE the new code ran on any bundle | pending |
+| L0 | ledger skeleton, round 9l opened | done (`d378bf5`) |
+| L1 | the prediction, written and committed BEFORE the new code ran on any bundle | this commit -- R9l.2 |
 | L2 | the exact u-term (per commitment and joint), its constructed-case test | pending |
 | L3 | the exclusivity check, clause by clause, refusing overlap; one control per clause | pending |
 | L4 | records re-taken; strict leaf diff, 0 unexpected | pending |
 | L5 | the suites (toy subset, record guard, whole native suite) | pending |
 | L6 | results, limits, NEXT | pending |
+
+## R9l.2 The prediction (written 2026-09-23 13:19 PDT, BEFORE the new code ran on any bundle)
+
+**Where the code goes.** `RunRoleView` (`zk60_native_rg_pcs.py`) overrides
+the u-term and the pair-schedule check; a new `RunJointSystem`
+(`zk60_native_rg_joint.py`) overrides `JointSystem.disclosed` with the exact
+term; a new module `zk60_native_rg_exclusivity.py` holds the clause list,
+the audit and the controls, and joins the gate's hashed `TOOLS`. The toy
+modules stay byte-identical.
+
+**P-1, the u-term: NOT ONE VALUE MOVES on any record of record.** The exact
+`u* = rank Γ_{D∪N'} − rank Γ_{N'} − k0` equals the per-indicator term
+whenever every zero-sum indicator `e_u` is itself reachable
+(`W = {c : cΓ_{N'} = 0} = ker Γ_N + span{c_u}`, so `WΓ_D = K_D + span ξ`;
+the draft's §2.2.3, re-derived by the check). Read from the committed bytes
+BEFORE the exact term ran (`results/zk60_native_run_gate_9l/u_admissibility_scan.{py,json,log}`,
+exit 0): **241 u-term entries in 41 records** (the 30 this round re-takes,
+the six 125M block records, five 125M run records) and **every one has
+every indicator admissible** -- per commitment `H` 2 of 2 (term 2), joints
+4 of 4 / 6 of 6 (terms 4 / 6), the whole standalone block 2 of 2 (term 2).
+So: every `disclosed_dimension`, every part, every joint, every
+`u_row_term_fp` and every `extra_dimension_beyond_k0` stays; each system
+with a u row now also carries the per-indicator figure beside the exact one
+and `per_indicator_equals_exact: true`. Where the u-term is not itemised
+(the controls' perturbed joints): C1, C2, C3 and C3b's systems hold no `H`
+(no u row, term 0 both ways); C3c's whole block merges two ENDPOINT rows,
+which no `H` generator touches, so `H`'s indicator solutions survive and the
+term stays 2 (R9k.2 step 4). **At 125M** the prediction is the same (the
+scan's eleven 125M records); two new cheap records on the two standalone
+125M block bundles (`load, replay, commitments, boundary`, no arm, no
+everything pass) will show it on the new code: `H@0` 2 = 2, the whole block
+2 = 2.
+
+**P-2, the constructed cases: the old term under-counts, the new one is
+exact.** On the check's `U-adm` family (the pairless sum claim's u weights
+`(1, a)`, `a ∈ Fp`, so only `e_u0 + a·e_u1` is reachable) the per-indicator
+term reads `u* − 1`; a brute force of the whole linear view (claim values,
+both halves of every group and proximity vector, every opened column on
+every row; the zero-sum rows on `H0`) reads `n·k0 + u*` exactly, and the
+honest twin (`(1, U)`) reads the same by both terms. The test is new
+(`tests/test_zk60_native_run_gate_gc2.py`) and goes through the gate's own
+`RunRoleView._u_term` and `RunJointSystem.disclosed`.
+
+**P-3, exclusivity: every honest commitment of every record passes every
+clause.** The clauses, each with its source (`protocol.rs` at `2ea7221`
+unless named):
+
+| id | clause | source |
+|---|---|---|
+| EX-1 | geometry: A / H / boundary -- the proximity pair is the last two rows, an EVEN number of reserved rows, every reserved (non-data, non-prox, non-u) row is a declared site row (no spare); endpoint -- `(rows, rows − 5, rows − 3)`, sites `[d, d+1]`, prox `[d+2, d+3]`, one spare `d+4`; `H`'s u rows are its declared `sum_rows` | `:233-235`, `:356-370` |
+| EX-2 | no claim reaches the proximity pair (part rows end at or before it; no weight on a prox row) | `:242-244` |
+| EX-3 | no claim part leaves the commitment | `:242-244` |
+| EX-4 | every part that covers a site row has a nonzero coefficient | `:246-248` |
+| EX-5 | every evaluation claim carries exactly two site rows, adjacent | `:258-262` |
+| EX-6 | ... at an EVEN offset from the first site row | `:259` |
+| EX-7 | no claim puts weight on a spare reserved row (the endpoint's `d+4`) | the reduction's (X); `:379-384` for the endpoint |
+| EX-8 | the sum claim (every part point-free, last, on a commitment with sum rows) touches no site row and covers both zero-sum rows with nonzero coefficients | `:252-257` |
+| EX-9 | no other point-free claim: not before the last, not on a commitment without sum rows | `:263` |
+| EX-10 | **pairs disjoint**: no site row carries two claims (the overlap refusal of F-4) | `:268-270` ("shared") |
+| EX-11 | **every reserved row used**: no site row carries no claim | `:268-270` ("unused") |
+| EX-12 | the pair basis: a claim's two site-row weights are an `Fp`-basis of `Fp2` | not in `audit_claims`; `argument.rs:382-384` builds `(cm, cm·U)` |
+| EX-13 | one column key per claim | `:203-205` |
+| EX-14 | the group count equals the schedule's (`a_groups`, `h_groups`, the boundary's sites, the endpoint's 1) | `:321-324`, `:389` |
+| EX-15 | the endpoint claim: one claim, three parts on rows `0..d`, `d`, `d+1`, every coefficient nonzero | `:379-384` |
+| EX-16 | every replayed group coefficient `λ` nonzero | `:296-301` |
+
+H-pair becomes "the old weight-level check AND all sixteen". Predicted
+honest: 16 of 16 on every commitment (the Rust verifier accepted these
+receipts and a capture is its post-audit state, F-5; EX-7, EX-12 and the
+no-spare half of EX-1 are not `audit_claims` clauses but hold by the builder
+and the endpoint geometry -- the check's X2 / X3 measured them on 30
+views). So `H-pair` stays `true` everywhere and **no stage verdict moves**.
+
+**P-4, the controls: each fires on its own clause, none on the honest
+view.** On stage 0's `A`, `H`, `E-Input` and (runs only) the first boundary,
+perturbing an in-memory COPY of the claim list (nothing on disk is
+written): X01 EX-1 (`A`'s last reserved pair declared spare); X02 EX-2
+(`A` claim 0's second mask part on the proximity row); X03 EX-3 (the same
+part three rows past the end); X04 EX-4 (its first mask coefficient zero);
+X05a-d EX-5 (claim 0 with 0, 1, 3 site rows; a non-adjacent pair); X06
+EX-6 (claim 0's pair shifted one row); X07 EX-7 (`E-Input`'s second mask
+part on the spare row); X08a/b EX-8 (the sum claim touching a site row;
+missing `u1`); X09a/b EX-9 (the sum claim first; `H`'s sum claim appended
+to `A`); **X10a EX-10, the F-4 control: `A` claim 1's pair moved to
+`(s0+1, s0+2)`, overlapping claim 0's `(s0, s0+1)` -- the OLD check reads
+H-pair TRUE on it, the new one refuses** (EX-10, with EX-6 and EX-11
+collateral, since two even-offset pairs either coincide or are disjoint);
+X10b EX-10 (claim 1's pair ON claim 0's -- the old check refuses this one
+too); X10c EX-10 (the boundary's site-1 claim on site 0's pair, runs only);
+X11 EX-11 (`A`'s last claim dropped); X12 EX-12 (claim 0's second mask
+coefficient an `Fp` multiple of the first); X13 EX-13 (a part's point
+changed); X14 EX-14 (a singleton group's claim re-keyed into group 0: one
+group fewer, no row weight moved); X15a/b EX-15 (the endpoint claim twice;
+a zero endpoint coefficient); X16 EX-16 (one `λ` zero). Each records its
+target clause, every clause the perturbation broke, and the OLD check's
+verdict on the same perturbed weights. 23 controls on a run bundle (X10c
+needs a boundary), 22 on a standalone block; all fire.
+
+**P-5, the records.** The 30 records of round 9k's list are re-taken with
+their round-9k command lines and may differ from their committed bytes ONLY
+by: **E1** wall clocks; **E2** `tool_sha256/` of `zk60_native_run_gate.py`,
+`zk60_native_rg_pcs.py`, `zk60_native_rg_joint.py` (changed) and
+`zk60_native_rg_exclusivity.py` (new); **E3** new leaves under each
+per-commitment `exclusivity` block; **E4** the new
+`stage3_per_commitment/exclusivity_controls` block; **E5** new leaves in
+each `u_row_term` (per commitment) and `u_row_detail` (joint) that has a u
+row -- the per-indicator figure, the two exact ranks, the form, the
+equality flag. Not one rank, disclosed dimension, part, joint, `k0`,
+u-term value, control figure, preimage, mask or channel figure moves.

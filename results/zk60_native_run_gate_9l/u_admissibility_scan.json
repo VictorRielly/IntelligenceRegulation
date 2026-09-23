@@ -1,0 +1,471 @@
+{
+ "every_indicator_admissible_everywhere": true,
+ "per_record": [
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate/run-a-tame",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate/run-b-zero",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_planeindex/run-c-tame",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_planeindex/run-d-zero",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_tagged/run-e-tame-tagged",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_tagged/run-f-zero-tagged",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_s20/run-g-dense-s20",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_s20/run-h-zero-s20",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_k4/run-i-dense-k4",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_k4/run-j-zero-k4",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_preimage/run-g-dense-s20",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_preimage/run-h-zero-s20",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_preimage/run-i-dense-k4",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_preimage/run-j-zero-k4",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_mask/run-g-dense-s20",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_mask/run-h-zero-s20",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_mask/run-i-dense-k4",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_mask/run-j-zero-k4",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_p2/run-k-dense-p2",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_p2/run-l-zero-p2",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9c/run-m-dense-c6",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9c/run-n-zero-c6",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9c/run-o-dense-w14",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9c/run-p-zero-w14",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9c/run-q-dense-e32",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9c/run-r-zero-e32",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_k8/run-s-dense-k8",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 2,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "joint u_rows=6 admissible=6 term=6": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 3
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_k8/run-t-zero-k8",
+   "u_term_entries": 8
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_block/block-rung-g-dense",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_block/block-rung-g-zero",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_block/block-m125-dense-everything",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_block/block-m125-dense",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_block/block-m125-zero",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_block/block-m125-zero-arms",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9k/block-m125-dense-c3c",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=2 admissible=2 term=2": 1,
+    "per-commitment u_rows=2 admissible=2 term=2": 1
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_9k/block-m125-zero-c3c",
+   "u_term_entries": 2
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_m125/m125-dense",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_m125/m125-zero",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_m125/m125-dense-everything",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_m125/m125-dense-full",
+   "u_term_entries": 5
+  },
+  {
+   "by_kind": {
+    "joint u_rows=0 admissible=0 term=0": 1,
+    "joint u_rows=4 admissible=4 term=4": 2,
+    "per-commitment u_rows=2 admissible=2 term=2": 2
+   },
+   "entries_with_an_indicator_not_admissible": [],
+   "present": true,
+   "record": "zk60_native_run_gate_m125/m125-zero-full",
+   "u_term_entries": 5
+  }
+ ],
+ "records_read": 41,
+ "u_term_entries": 241,
+ "what": "ROUND 9l, L1: the basis of the u-term prediction, read from the COMMITTED\nrecords before the exact term ran anywhere."
+}
