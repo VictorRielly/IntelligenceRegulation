@@ -14065,3 +14065,19 @@ alone. Logs: `results/zk60_block125m_lane/s47-*`.
 
 **No privacy claim.** The replay says every drawn word of A, M and H is where
 and what the schedule says; it is not an acceptance of the blinding law.
+
+### Stage 47 — CLOSED (2026-09-23 16:56, closed by the security owner after the stage agent handed back with its gates still running)
+
+| gate | result | log |
+|---|---|---|
+| focused `s36_tests block_capture_shaped s25_ s24_ gr4_check_tests` | **43 passed / 0 failed / 3 ignored** (exit 0) — as the agent predicted | `results/zk60_block125m_lane/s47-focused.log` |
+| lane filter `--lib private_` at `--test-threads=6` | **499 passed / 0 failed / 21 ignored** (exit 0, 137.6 s) = stage 46's 496/0/21 + the three `gr4_check_tests` | `results/zk60_block125m_lane/s47-gate-private.log` |
+
+The toy receipt 2,816,472 B and every frame / receipt / schedule / slot-IR /
+125M / R-5 / registry / source-pin / hash-call-site pin are asserted inside
+that filter and pass. Production diff empty (checked by the security owner:
+`git diff -- hashline/src/private_block/protocol.rs hashline/src/zk.rs zkp-core`
+0 bytes; no tracked file modified). The only production-file digest that moved
+is `private_block.rs` (the `mod gr4_check_tests;` line): 58a73b40… → 2764a7ec…
+(the four capture manifests pin the old value; only the `#[ignore]`d
+re-verify test reads it). **Ruling LW-2 is done.**
