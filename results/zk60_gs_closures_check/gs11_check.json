@@ -1,0 +1,154 @@
+[
+ {
+  "capture": "125M run dense s0",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 1239,
+  "max_L": 117,
+  "argmax_slot": 17,
+  "headroom": 139,
+  "fit_ok": true
+ },
+ {
+  "capture": "125M run dense s1",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 1239,
+  "max_L": 117,
+  "argmax_slot": 17,
+  "headroom": 139,
+  "fit_ok": true
+ },
+ {
+  "capture": "125M run zero s0",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 1239,
+  "max_L": 117,
+  "argmax_slot": 17,
+  "headroom": 139,
+  "fit_ok": true
+ },
+ {
+  "capture": "125M run zero s1",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 1239,
+  "max_L": 117,
+  "argmax_slot": 17,
+  "headroom": 139,
+  "fit_ok": true
+ },
+ {
+  "capture": "125M block dense",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 1239,
+  "max_L": 117,
+  "argmax_slot": 17,
+  "headroom": 139,
+  "fit_ok": true
+ },
+ {
+  "capture": "125M block zero",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 1239,
+  "max_L": 117,
+  "argmax_slot": 17,
+  "headroom": 139,
+  "fit_ok": true
+ },
+ {
+  "capture": "rung-G block dense",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 859,
+  "max_L": 72,
+  "argmax_slot": 17,
+  "headroom": 184,
+  "fit_ok": true
+ },
+ {
+  "capture": "rung-G block zero",
+  "rows": 50,
+  "slots": 23,
+  "q_len": 1024,
+  "prox_len": 1024,
+  "prox_rhos": 48,
+  "columns": 256,
+  "column_height": [
+   50
+  ],
+  "functionals": 34,
+  "constants_match": true,
+  "sum_L": 859,
+  "max_L": 72,
+  "argmax_slot": 17,
+  "headroom": 184,
+  "fit_ok": true
+ }
+]

@@ -1,0 +1,13 @@
+eval_unmasked                      private block: mask schedule audit: a claim does not carry exactly its own reserved pair
+eval_one_site_row                  private block: mask schedule audit: a claim does not carry exactly its own reserved pair
+eval_three_site_rows               private block: mask schedule audit: a claim does not carry exactly its own reserved pair
+data_part_on_prox                  private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment
+part_leaves_commitment             private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment
+unused_pair_no_sharing             private block: mask schedule audit: a reserved pair is unused or shared between claims
+sum_claim_touches_site_row         private block: mask schedule audit: the sum claim is not masked by the zero-sum pair alone
+sum_claim_misses_u1                private block: mask schedule audit: the sum claim is not masked by the zero-sum pair alone
+sum_claim_on_A                     private block: mask schedule audit: a claim reaches the proximity pair or leaves the commitment
+parts_different_column_weights     private block: claim parts with different column weights
+endpoint_zero_coef                 private block: endpoint claim differs from the declared schedule
+endpoint_two_claims                private block: endpoint claim differs from the declared schedule
+eval_nonadjacent_pair              private block: mask schedule audit: a claim does not carry exactly its own reserved pair

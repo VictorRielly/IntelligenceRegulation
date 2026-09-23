@@ -1,0 +1,28 @@
+toy-H honest                                         inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+toy-A honest                                         inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+toy-H prox-dep                                       inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+toy-A prox-dep                                       inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+toy-A d<Q                                            inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+boundary prox-dep                                    inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+CE fp-group prox-dep                                 inst   36  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x12
+CE-control fp-group honest-prox                      inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+CE-control fp-group + generic multi prox-dep         inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+CE-control fp-group prox-dep + spare                 inst   36  brute=exact   36  brute=gate   36  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+U-adm sum-u=(1,a)                                    inst   36  brute=exact   36  brute=gate    0  brute-exact [0]  values' contribution [0]  (n,Q,rows) x12
+real-A-125M sizes                                    inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x2
+real-A-125M sizes prox-dep                           inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x2
+real-H-125M sizes                                    inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x2
+real-H-125M sizes prox-dep                           inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x2
+real-H-rungG sizes                                   inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x2
+real endpoint 125M                                   inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x1
+real boundary 125M                                   inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x1
+real endpoint rung-G                                 inst    6  brute=exact    6  brute=gate    6  brute-exact [0]  values' contribution [0]  (n,Q,rows) x2
+CE2 ones-group prox-dep                              inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
+CE2 range-group prox-dep                             inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
+CE2 fpscaled-group prox-dep                          inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
+CE2 three-member fp-group prox-dep                   inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
+CE2 two ones-groups prox-dep                         inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
+CE2 two fp-groups prox-dep                           inst   12  brute=exact   12  brute=gate   12  brute-exact [0]  values' contribution [0]  (n,Q,rows) x4
+CE2 H-like fp-group prox-dep                         inst   12  brute=exact    0  brute=gate    0  brute-exact [1]  values' contribution [1]  (n,Q,rows) x4
+EXACTsmall rung-G endpoint geometry                  inst    3  brute=exact    3  brute=gate    3  brute-exact [0]  values' contribution [0]  (n,Q,rows) x1
+{"instances": 531, "brute_equals_exact_formula": 423, "brute_equals_gate_formula": 387}
