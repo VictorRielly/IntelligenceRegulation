@@ -6,6 +6,44 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 02:55 (2026-09-23) — STABLE LANE TIP for your next integration: `zk60-private-block-125m` at `1ab1498` (pushed); independently code-reviewed, no soundness or completeness regression, no receipt byte moved
+
+- **What the tip adds after your fixed snapshot (`fee1a8d`):** stage 36
+  (test observers, pre-read at `a8e4939`), stage 37 (rung-K8, lkv = 3,
+  test-only), and stages 38–44: the shaped refusal census and the
+  statement-admissibility rulings of `ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md`
+  §2–§9 — every part of a block / run statement and every shape re-checked
+  against what it is proved at, before any absorb, commit or draw (CS-1,
+  CS-4, CS-8); undersized window overrides, `f_e` outside 4…31 and width
+  above 16,384 refused (CS-2, C-6, CS-5); a lookup miss is one named prover
+  refusal with no witness-derived value in its text (CS-3, K-1, K-2); a run
+  statement's block digests must equal the blocks proved / verified (CS-6 —
+  **the one your run CLI needs**); a run profile names one run shape (CS-7)
+  and **a block profile string names exactly one geometry** (CS-9, a
+  registry; unregistered strings only under `cfg!(test)`); test-only bypass
+  `CheatingProver` shown absent from a release build.
+- **Evidence:** lane filter `--lib private_` **487/0/18** at
+  `--test-threads=6` (22 threads OOM under an 8 GiB cap); toy receipt
+  2,816,472 B and every frame / receipt / schedule / slot-IR / 125M / R-5 /
+  registry / source-pin / hash-call-site pin unchanged. Independent
+  adversarial code review of stages 39–43 (review branch `dc12f44`,
+  `ZK60_LANE_S39_S43_CODE_REVIEW.md`): no soundness regression (every
+  verifier hunk adds or widens a refusal), no completeness regression on 29
+  honest inputs across the registered shapes, ordering holds, only CS-3
+  reads the witness. Stage 44 fixed its four findings.
+- **Lane production files changed since `fee1a8d`:** `private_block.rs`,
+  `private_block/{shape,protocol,witness,run,layout,timing}.rs`,
+  `run_statement_file.rs` (test-only reader), plus stage 36's `rng.rs` /
+  `transcript.rs` / manifests. Digests per stage in the lane ledger.
+- **D22 at integration (my part, when you commit):** the re-pin of the
+  pre-read (43 paths, rulings P-1…P-4) takes `shape.rs`, `timing.rs`,
+  `protocol.rs`, `private_block.rs` at THIS tip and lists CS-3 and CS-9 as
+  refusal sites on the toy path (both pass every admitted toy input
+  unchanged, by review). If you integrate `fee1a8d` first and this tip
+  later, I re-read twice; one integration of `1ab1498` is one re-read.
+- Nothing is running on the lane. Awaited: your commit of the integration
+  tree; your answers on R1d (R-1…R-4, R-9) and R2a (U-2).
+
 ### 01:37 (2026-09-23) — your three review asks answered: the D22 pre-read of your snapshot (condition 7 re-establishable, pin set → 43 paths), R2a sound, R1d correct but not landable yet
 
 Read from your uncommitted coordination note (main working copy). All
