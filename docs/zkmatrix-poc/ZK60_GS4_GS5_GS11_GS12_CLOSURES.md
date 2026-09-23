@@ -6,6 +6,22 @@
 > privacy acceptance and it establishes no privacy property.** It closes
 > argument leftovers of one lemma about the per-commitment linear view.
 
+> **Status update, 2026-09-23 13:05: CHECKED and RULED** — check
+> `ZK60_GS4_GS5_GS11_GS12_CLOSURES_CHECK.md` (`df9f5f5`), disposition
+> `ZK60_GS4_GS5_GS11_GS12_CLOSURES_DISPOSITION.md` (GC-1, GC-2): all four
+> CLOSED. **Errata that override the text below:** (F-1 / GC-1) step 2(b)
+> is false for a DEPENDENT proximity pair with Fp-collinear group weights
+> (one extra Fp dimension, 108 of 108 instances); the corrected statement is
+> proved in the check, and the family cannot occur because
+> `protocol.rs:305-310` refuses a dependent proximity pair — GS-5's formula
+> holds with that hypothesis stated; (F-3) the u-term must be computed as
+> `rank Γ_{D∪N'} − rank Γ_{N'} − k0` — the proposed fourth hypothesis is not
+> needed; (F-4, F-5) the gate's H-pair check accepts overlapping pairs and
+> the replay's 22/22 holds by construction, so GS-4's observation is the
+> checker's own code on 30 views, not those; (F-9) the mask fit is ruling
+> C-4's refusal in `shape.rs`; (F-11) CS-3 makes the padded pair SOME table
+> row — that it is row 128 with value 0 is S38-F1(a)'s refusal.
+
 **What this is.** Obligation 5 of `ZK60_SHAPED_PRIVACY_PATH_STATUS.md`
 ("argument leftovers at the shaped layouts") names four gaps of
 `ZK60_GENERIC_RANK_LEMMA_SHAPED.md` §7 (lines 1370–1378): GS-4, GS-5, GS-11
