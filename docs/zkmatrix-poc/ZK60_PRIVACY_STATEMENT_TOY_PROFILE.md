@@ -199,6 +199,13 @@ of the statement.
 - A retained capture bundle counts as **publishing**: nothing computed from a
   hidden input is ever added to one.
 - A refusal reason is never shown to anyone not entitled to the input.
+- *(Added 2026-09-23, ruling P-2 of `ZK60_D22_PREREAD_SHAPED_SNAPSHOT.md`
+  §9.)* The operator diagnostics `HL_PB_BASEFIELD` and `HL_PB_TIMING` print
+  to the prover's own stdout, and the base-field census's counts depend on
+  the hidden input. Their output from a run on a hidden input is
+  **prover-private**: never retained in a capture bundle or a published log.
+  Production runs leave both unset. This is an operating rule, not a change
+  to what a receipt shows.
 
 ## 7. What must not be claimed, even when this is in force
 
