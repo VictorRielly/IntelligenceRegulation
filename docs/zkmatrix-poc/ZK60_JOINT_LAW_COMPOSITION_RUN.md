@@ -325,6 +325,19 @@ shape; it is a consequence of one line of the shape module.
 | left over `= Σ dim ker R_s` | 23 | **23** | **23** |
 | largest `L_s` (budget `L_s + 256 ≤ 512`, `zk.rs:493`) | 50 | **72** | **117** at `SC_SZC` |
 
+> **Correction, 2026-09-22 (GS-13 check N-3, disposition
+> `ZK60_NONLINEAR_CHANNEL_SHAPED_DISPOSITION.md`).** The rung-G and 125M
+> columns above were counted at lane tip `caa9b9a`, before the S19-F1 repair
+> (stage 20, `5155d5b`) added `lkv` rounds to slots 08/09. After the repair,
+> reproduced by two independent scripts: `Σ L_s` = **859** (rung-G) / **1,239**
+> (125M), `dim C` = **836** / **1,216**, left over 23 / 23 unchanged; largest
+> `L_s` 72 at rung-G is a tie of slots 17 and 18, 117 at 125M unchanged. The
+> same pre-repair figures stand at the theorem statement below (817 / 1,185),
+> the simulator `O1_run` (817 / 1,185) and the B-8 draw reconciliation
+> (1,208); each carries a pointer to this note. Every draw count here built
+> on `Σ L_s` is +62 per 125M block after the repair; the residual 2^-69.3 does
+> not move at that precision.
+
 The kernel dimension is exactly one per slot at every shape — 23 of 23 — which
 is the identity restated. The budget is comfortable at both new shapes.
 (`ZK60_JOINT_LAW_COMPOSITION.md` §6 item 4 says "the worst `L` is 94 at 125M";
@@ -595,7 +608,9 @@ uniform-blinding idealisation plus M-3. Unchanged in form at a shaped block;
 > §3.2 and §5.1 say why a **run** is the opposite —
 > the joint law of the shaped block's published field
 > values is the same, and it is given by the same explicit formula as Theorem
-> 3.3 with `dim C` replaced by 817 (rung-G) or 1,185 (125M).
+> 3.3 with `dim C` replaced by 817 (rung-G) or 1,185 (125M) [pre-S19-F1
+> schedule; 836 / 1,216 after the repair — correction note under §2.1's table,
+> 2026-09-22].
 >
 > **Status: the proof of Theorem 3.3 applies unchanged** — it never uses a
 > shape constant, only (H1)–(H5) and the algebraic form of the view, which §1.2
@@ -753,7 +768,8 @@ O1_run(run statement, layout, L, rho):
      (which commitment each stage commits and opens, and which reserved pair
      each IO tab uses), which is covered by the run's schedule digest.
   for k = 1..L:
-     1. the stage's SUMCHECK CHANNEL: uniform on C^k (dimension 817 or 1,185)
+     1. the stage's SUMCHECK CHANNEL: uniform on C^k (dimension 817 or 1,185;
+        836 / 1,216 after S19-F1 — note under §2.1, 2026-09-22)
      2. the stage's COMMITMENT CHANNEL: zeros in every data rectangle of
         A_k, H_k; fresh uniform entries in every non-data row; fresh uniform
         pads; read the terminals off.
@@ -1661,7 +1677,10 @@ new.]
 > = the design memo's figure                              8,999,942   ✔ exact
 > ```
 >
-> 23 × 117 = 2,691 against the true `Σ L_s` = 1,208 (§2.1). The design's text
+> 23 × 117 = 2,691 against the true `Σ L_s` = 1,208 (§2.1). [2026-09-22: this
+> reconciliation is exact for the PRE-S19-F1 schedule; after the repair
+> `Σ L_s` = 1,239 and the term is 2 × (2,691 − 1,239) = 2,904 — note under
+> §2.1.] The design's text
 > announces the second error and is silent on the first.
 >
 > **The toy control settles which formula is right.** The same formula gives

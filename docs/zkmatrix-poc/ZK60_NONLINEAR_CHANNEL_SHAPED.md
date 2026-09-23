@@ -5,6 +5,24 @@
 acceptance** — only the security owner rules, and nothing here has been ruled
 on.
 
+> **Status update, 2026-09-22 evening: CHECKED and RULED.** Attacked by
+> `ZK60_NONLINEAR_CHANNEL_SHAPED_CHECK.md` (independent monomial expansion,
+> own field library, own parser); ruled in
+> `ZK60_NONLINEAR_CHANNEL_SHAPED_DISPOSITION.md` (NL-1..NL-9). No
+> counterexample; core accepted as an algebraic reading. **Errata that
+> override the text below:** (N-1) the fibre test "207 of 207" is a test
+> only for the 108 Private-slot rows; at the 11 Standalone and Host slots its
+> worlds were not the protocol's — the check's re-run with the real slot
+> kinds (4 Standalone at the full rung-G cube, 18 host runs, 4 full-size
+> 125M runs of slots 08/09) is the evidence there, all pass; (N-2) the
+> in-test D9 control cannot fail — D9 stands from `argument.rs:613` (a
+> Private slot pushes no Γ functional; read by the security owner), and the
+> check's host-run control (18/18) replaces it; (N-3) the run memo's stale
+> totals sat in four places, all now corrected with a dated note; (N-4)
+> rung-G's largest `L` 72 is a tie of slots 17 and 18; (N-5) the "69 / 69"
+> terminal rank and controls C7/C8 are illustrations that cannot fail, not
+> tests — they leave the headline figures.
+
 > **Headline: no counterexample.** At rung-G, rung-K4 and 125M (and five
 > further development shapes) every one of the 23 slots satisfies every
 > dependency of the toy's non-linear argument that can be tested from the
