@@ -140,3 +140,41 @@ rather than failing a proof). No target is that wide (the 8B width is
 4,096). **Ruling, simplest first:** `Shape::new` refuses a width above
 16,384 by name; re-deriving the norm window for wider shapes is the
 alternative, worth doing only when a wider model is a target.
+
+## 6. Built (lane stage 41, `17d10ac`, 2026-09-23 00:42) and two further rulings
+
+**Built, test-first** (census memo §10, ledger "Stage 41"; 11 new tests; lane
+filter 463/0/18; toy and every frame / receipt / schedule / slot-IR / 125M /
+R-5 pin unchanged): CS-4 — `AttentionPublic::check_words`,
+`IoSpec::check_for_shape` and `BlockPublic::check_for_shape` re-run at every
+stage-40 site (`build_shaped`, `prove_inner_at`, `prove_core`,
+`verify_bytes(_at)`, `verify_inner_at`, `verify_core`, `RunStatement::new`,
+`prove_run`, `RunVerifier::start`), firing with 0 draws / 0 squeezes /
+transcript unmoved. Five cross-shape parts were reproduced failing first: the
+attention `Wq` (S40-N2), the attention gain, the rotary tables, **the exp
+table's scale — refused before only by the builder's softmax-denominator
+check, and in one direction on some inputs only, i.e. input-dependent; now
+one statement refusal whatever the input** — and the endpoint policy (a
+rung-G spec in a rung-K4 proof failed at `endpoint 0: Merkle path`). CS-5 —
+widths 16,385 … 65,536 refused by name, 16,384 admitted.
+
+**CS-6 (finding S41-N2 — statement binding, the most important item of the
+night).** I read it in `run.rs`: the run absorbs the STATEMENT's
+`block_digests[k]` (`:602`, `:752`) but proves and verifies against the
+`BlockPublic` values it is HANDED (`prove_run(st, blocks, …)`,
+`RunVerifier::start(st, blocks)`), and nothing compares
+`blocks[k].digest()` with `st.block_digests[k]`. A statement naming block X,
+proved with block Y, is accepted by a verifier handed Y: a caller who trusts
+the statement's digests accepts a run about other weights. Today's callers
+build the statement from the same blocks (`RunStatement::new`, `:207`), so no
+recorded run is affected. **Ruling:** `prove_run`, `RunVerifier::start` and
+every reader of a run statement from bytes refuse, by name and before
+anything is absorbed, unless `blocks[k].digest() == st.block_digests[k]` for
+every `k`. No byte moves.
+
+**CS-7 (finding S41-N1).** `RunShape::new` accepts a registered run profile
+over a block shape it was not registered for (rung-G's run profile over the
+rung-K4 shape verifies). Nothing fails, but privacy statements and hash keys
+(D19a) are per PROFILE, so a profile string must name exactly one shape.
+**Ruling:** `RunShape::new` refuses, by name, a profile not registered for
+the block shape it is given. Registered shapes unchanged.
