@@ -12131,3 +12131,45 @@ a registered profile: rung-K8 lives in a test file, and registering it
 (`shape.rs`, `run.rs`, `shape_of_profile`, the registries) is a production
 change for whoever owns those files. Not a completeness claim beyond the
 cases run, and not a test of `lkv >= 4`.
+
+## Stage 38 — TEST-ONLY: the shaped builder-versus-kernel REFUSAL CENSUS (GS-14's first item) (2026-09-22, 20:4x–)
+
+**Status: `IN PROGRESS`.** Opened 2026-09-22 20:49 PDT on the lane tip
+`bacc274`, one writer. **Why:** ruling NL-8 of
+`ZK60_NONLINEAR_CHANNEL_SHAPED_DISPOSITION.md` and finding N-9 of
+`ZK60_NONLINEAR_CHANNEL_SHAPED_CHECK.md`: gap GS-14 (completeness for every
+ADMISSIBLE witness at the shaped layouts) needs a shaped equivalent of the
+toy's refusal-site census (`refusals.rs:270-280`, asserted at `:321-322`).
+The toy proves `AO` unreachable from 16 terms; at 125M the sum has 768 terms,
+`|aoacc| <= 12,484,608`, `requant(., 7)` reaches +-97,536 — the site is
+REACHABLE and the witness builder refuses there first (`witness.rs:594`). If
+the builder ADMITS a witness on which the prover or the verifier then refuses,
+an honest proof fails on a legal input — a completeness hole. This stage
+enumerates every refusal site of the witness builder, the shaped kernel and
+the argument / prover, classifies each data-dependent one per shape from
+exact integer bounds computed off the `Shape`, and encodes the census as a
+test.
+
+**THE WRITE SET**, and nothing else: one new test file
+`hashline/src/private_block/census_shaped_tests.rs`, its one `#[cfg(test)]
+mod` line in `hashline/src/private_block.rs` (next to stage 37's `mod
+k8_tests;`), the memo `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md`, this
+ledger, and logs under `results/zk60_block125m_lane/` with the prefix `s38-`.
+**No production file moves** (`argument.rs`, `protocol.rs`, `layout.rs`,
+`wire.rs`, `witness.rs`, `run.rs`, `boundary.rs`, `run_capture.rs`,
+`refusals.rs`, `shape.rs`, `private-block-kernel-shaped/src/lib.rs`, and
+everything under `zkp-core/`, `hashline/src/{zk,layer,pcs,wcache,
+native_capture}.rs`, `hashline/src/gpu/`, `private-block-kernel/`,
+`zkvm-block/`). The toy receipt stays 2,816,472 B. No 125M prove.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | enumerate every refusal site: builder, shaped kernel, argument / prover (range, lookup, `nonzero`, `Err`, panic, `debug_assert`) | a site list with file:line |
+| 2 | per shape (rung-G, rung-K4, rung-K8, 125M; rung-C6 / W14 / E32 / P2) the worst-case magnitude of every data-dependent site, exact integers, from the `Shape` | classified UNREACHABLE / REACHABLE-BUILDER-REFUSES-FIRST / finding |
+| 3 | the census as a test module computing every bound from the `Shape`; boundary tests (just past: the builder refuses by name; just inside: proves and verifies) at the small rungs | green, or an `#[ignore]`d reproducer per finding |
+| 4 | the memo `ZK60_SHAPED_REFUSAL_CENSUS.md` | site table per shape, findings, what it does not cover |
+| 5 | the `--lib private_` filter once | against 429 / 0 / 18 |
+
+**No privacy claim.** A completeness census; development grade.
