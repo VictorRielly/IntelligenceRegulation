@@ -1,0 +1,171 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling find-msvc-tools v0.1.11
+   Compiling crossbeam-deque v0.8.7
+   Compiling shlex v2.0.1
+   Compiling rayon-core v1.13.0
+   Compiling cfg-if v1.0.4
+   Compiling cpufeatures v0.3.1
+   Compiling arrayvec v0.7.8
+   Compiling either v1.18.0
+   Compiling constant_time_eq v0.4.2
+   Compiling cpufeatures v0.2.17
+   Compiling private-block-kernel v0.1.0 (/home/victor/wt-zk60-block125m-review/private-block-kernel)
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/wt-zk60-block125m-review/private-block-kernel-shaped)
+   Compiling cc v1.4.4
+   Compiling generic-array v0.14.7
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling blake3 v1.8.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling rayon v1.12.0
+   Compiling zkp-core v0.1.0 (/home/victor/wt-zk60-block125m-review/zkp-core)
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m-review/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:687:13
+    |
+687 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 10s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m-review/hashline/target/release/deps/hashline-fcfe986a7398ab9d)
+
+running 19 tests
+test private_block::census_check_tests::c1_reproducer_an_admitted_cross_shape_statement_is_refused_before_a_receipt_exists ... ignored, reproducer of check finding C-1: the S38-F1(a) refusal is keyed on a shape the statement does not carry; an admitted cross-shape statement yields a receipt the verifier rejects
+test private_block::census_check_tests::c2_reproducer_an_admitted_input_at_an_admitted_shape_proves ... ignored, reproducer of check finding C-2: Shape::new admits wrho_s below clog2(tokens) + f_e; the builder and kernel check sigma_s only, so a last-row rho_s above the window is admitted and the honest proof is rejected
+test private_block::census_check_tests::c2_an_overridden_softmax_window_lets_an_admitted_input_break_the_rho_s_lookups ... ok
+test private_block::census_check_tests::the_s38_f1_condition_is_exactly_the_padded_feed_forward_positions_on_a_grid_of_admitted_shapes ... ok
+test private_block::census_check_tests::c1_a_statement_built_at_another_shape_bypasses_the_s38_f1_refusal ... ok
+test private_block::census_shaped_tests::s39_new_shaped_refuses_a_nonzero_gate_zero_activation_by_name_exactly_where_the_feed_forward_domain_pads ... ok
+test private_block::census_shaped_tests::the_builder_class_of_every_looked_plane_is_the_lookup_window_at_every_shape ... ok
+test private_block::census_shaped_tests::the_challenge_only_refusals_are_counted_per_shape ... ok
+test private_block::census_shaped_tests::s38_f1_the_padded_feed_forward_positions_look_up_a_pair_that_is_not_a_row_when_act_128_is_nonzero ... ok
+test private_block::census_shaped_tests::the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape ... ok
+test private_block::census_shaped_tests::the_unreachable_sites_premises_hold_at_every_shape ... ok
+test private_block::p2_tests::the_draw_census_is_the_rules_count_and_differs_from_rung_k4_only_where_the_pad_rule_does ... ok
+test private_block::census_shaped_tests::s38_f1_reproducer_a_statement_with_a_nonzero_gate_zero_activation_is_refused_at_construction_at_rung_g ... ok
+test private_block::s28_review_tests::the_census_of_which_shape_crosses_which_stage_28_parallel_threshold ... ok
+test private_block::p2_tests::the_verifiers_own_draw_census_at_the_rung_p2_is_the_provers ... ok
+test private_block::census_shaped_tests::the_output_projection_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_c6 ... ok
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_g ... ok
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_k4 ... ok
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_k8 ... ok
+
+test result: ok. 17 passed; 0 failed; 2 ignored; 0 measured; 516 filtered out; finished in 8.95s
+
