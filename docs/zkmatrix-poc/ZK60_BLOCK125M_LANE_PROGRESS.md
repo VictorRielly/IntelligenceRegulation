@@ -13410,7 +13410,8 @@ admissibility: the field-wrap premise is untouched.
 
 ## Stage 44 — rulings K-1, K-2, K-3 and CS-9 (K-4) of the stage 39–43 code review (2026-09-23, 02:3x–)
 
-**Status: `OPEN`.** Opened 2026-09-23 02:30 PDT on the lane tip `f486e6f`,
+**Status: `CLOSED` 2026-09-23 02:5x PDT** — see "Stage 44 — CLOSED" below.
+Opened 2026-09-23 02:30 PDT on the lane tip `f486e6f`,
 one writer (the delegated stage-44 agent). Rulings from §8 of
 `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
 owner) on the independent adversarial code review of `a9d6d4c..f486e6f`
@@ -13461,3 +13462,164 @@ prove. Gate: stages 37–43's focused filters plus `s44_`, then `--lib
 private_` once at `--test-threads=6`, recorded against 479 / 0 / 18.
 
 **No privacy claim.**
+
+### Stage 44 — the rulings built (2026-09-23 02:30 – 02:44)
+
+All runs under `flock /tmp/zk-build.lock`, `--test-threads=6`, detached
+with `.done` markers; shared box, not quiesced. Census memo §13 has the
+texts, the design and the tables.
+
+**Failing first** (at `6336377` = `f486e6f` + the skeleton, plus
+`s44_tests.rs` and its mod line; no production line moved):
+
+| run | log | result |
+|---|---|---|
+| the named tests | `s44-before-named.log` (`.done` = 101) | **6 of 6 FAIL**: `Shape::new` ADMITS the toy's profile string at rung-G's geometry; all 90 ordered pairs of the ten registered/test shapes admitted by `Shape::new` and by `check_constructed` on a written profile (180 admissions); rung-G with its `profile` written to the toy's **PROVED** and the in-memory verifier rejected it at slot 2; CS-3 printed `1` vs `4` witness-derived counts, and in a run its "nothing … committed" clause after `boundary_plane(0)`; no registry in the source |
+| the review's K-4 reproducer, `--ignored` | `s44-before-reproducer.log` (`.done` = 101) | builder admits, honest prover proves, verifier **REJECTS** on the dense input, the tame input and all zeros, each at slot 2 (the norm squares zero-check) |
+
+**BUILT.**
+* `protocol.rs` — `refuse_lookup_misses`'s text (K-1: what precedes the
+  refusal, single block and run; K-2: the family that missed, no count) and
+  two comments. Text only.
+* `shape.rs` — `Shape::new` split: the old body is the private
+  `Shape::build`; `new` = `build` + ruling CS-9's check
+  (`block_profile_names_this_shape(cfg!(test))`), after every existing
+  refusal. `REGISTERED_BLOCK_SHAPES` (the nine registered constructors, which
+  now call `Shape::build` — they are the entries) and
+  `registered_block_shape`, with rung-K8's arm under `#[cfg(test)]` only.
+  A registered profile is admitted only with its registered shape, compared
+  whole (the name included, as CS-7 compares); an unregistered one is
+  refused unless `cfg(test)`. `#[cfg(test)] check_block_profile_as_a_release_build`.
+  Doc comments on `Shape`, `new`, `build`, `check_constructed`.
+* `private_block.rs` — the `cfg(test)` mod line.
+* `k8_tests.rs` — `rung_k8_built_by(build)`: rung-K8's parameters once;
+  `rung_k8()` passes `Shape::new`, the registry arm the private
+  `Shape::build`.
+* `s43_tests.rs` — K-3: the reviewer's stronger guard (plus the
+  `RunStatement` literal's placement), with in-test mutations; the
+  written-width `d_max` case moved onto an unregistered fixture.
+* Adapted (CS-9 now refuses the shape they built): `s42_tests.rs` (rung-G's
+  profile at width 100), `review_tests.rs` attack 5 (the rung's profile at
+  another head layout) — both now assert the CS-9 refusal and reach the
+  value by a field write for the check they were about. `s40_tests.rs` —
+  the pinned CS-3 text.
+
+**MEASURED after** (`s44-after-s44.log`, `.done` = 0; `s44_ s43_` 15 / 0 /
+0): the corrected CS-3 text in a run (block 0 and the last block) and in a
+single block, identical at 1 and 4 misses of each family; CS-9 by name at
+construction for the K-4 shape and all 90 pairs, and on a renamed toy; on
+the written profile at `prove_inner_at`, `verify_bytes_at` (64 zero bytes),
+`verify_inner_at`, `prove_core` (0 bytes drawn, 0 squeezes, transcript
+unmoved) and `verify_core` (0 squeezes, unmoved); the release form refuses
+two unregistered probes by name and admits the ten; the structure guard and
+its three mutations; K-3's guard and its mutations.
+`s44-after-focused.log` (`.done` = 0): `--lib -- s44_ s43_ s42_ s41_ s40_
+census_shaped k8_ hash_tag a_receipt_does_not_verify_under_another_shape_at_the_rung`
+**72 passed / 0 failed / 1 ignored**, 19.00 s, the same 16 warning lines.
+
+### Stage 44 — CLOSED (2026-09-23 02:30 – 02:5x)
+
+**Status: `LANDED`.** K-1, K-2, K-3 and CS-9 built. No 125M prove; no GPU.
+
+#### The gates
+
+| run | log | result |
+|---|---|---|
+| `--lib -- s44_ s43_ s42_ s41_ s40_ census_shaped k8_ hash_tag a_receipt_…_at_the_rung --nocapture` | `s44-after-focused.log` (`.done` = 0) | **72 passed / 0 failed / 1 ignored**, 19.00 s |
+| **THE GATE**: `--lib private_` at the final code, `--test-threads=6`, `/usr/bin/time -v` | `s44-gate-private.log` (`.done` = 0) | **487 passed / 0 failed / 18 ignored**, 135.93 s (2:15.99 wall, test binary already built), peak RSS 4.40 GB (4,399,168 kB), the same 16 `warning` lines as stage 43 |
+| `cargo build --release --lib` (no tests) | `s44-release-lib.log` (`.done` = 0), `s44-release-lib-scan.txt` | builds, 33.73 s; the 109 warning lines of the review's release build, one shorter (the nine registered constructors are no longer dead code: the registry calls them). The rlib's code member is LLVM bitcode here, so no symbol scan; the build itself shows no non-`cfg(test)` reference to `k8_tests` |
+
+**Accounting against stage 43's 479 / 0 / 18:** +7 = `s44_tests.rs`
+(K-1, K-2, CS-9 × 5); +1 = K-3's test in `s43_tests.rs`; the review's K-4
+reproducer was run `--ignored` before the fix and deleted (a note stands);
+nothing newly ignored.
+
+#### Byte identity
+
+* **The toy stays 2,816,472 B** and every pin holds — in the gate's pass
+  list: `tests::honest_receipt_verifies_in_typed_and_wire_form_…`,
+  `zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length`,
+  `grow_tests::{the_shape_driven_layout_reproduces_the_toy_exactly,
+  the_toy_schedule_digest_is_frozen, the_toy_parameter_line_is_the_frozen_literal,
+  the_125m_receipt_is_reproduced_part_by_part}`,
+  `review_tests::a_toy_receipt_made_before_the_lane_still_verifies`,
+  `run_tests::{the_twelve_block_125m_receipt_is_the_counted_figure,
+  the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5}`,
+  `slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`,
+  `s24_tests::{every_registered_profile_is_covered_…,
+  the_capture_writer_pins_every_run_layer_source_it_depends_on}`,
+  `s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified`,
+  `s33_tests::every_registered_profile_context_and_label_is_printable_ascii_with_no_nul`.
+* **Nothing absorbed, drawn or hashed anew**: `git diff -U0` of the three
+  production files, grepped for
+  `absorb|challenge|rng\.|squeeze|commit|digest|update\(|from_os|transcript|blake3|hash`,
+  matches only comments, the CS-3 refusal string, and the 125M constructor
+  line (`Shape::new` → `Shape::build`, same parameters). Every registered
+  shape is built from the same parameters; every registered block and run
+  profile unchanged.
+
+#### The pins that move, for the gate owner
+
+PRODUCTION files (old at `f486e6f` -> new at `51f8f2b`):
+
+| file | old SHA-256 | new SHA-256 |
+|---|---|---|
+| `hashline/src/private_block.rs` | `9356fdf663a302c1be403bfa59d8d8819d63456001a9e259b24ee8ba7e09d59f` | `7f4603d89a429b307f66078ca96f4207ed470b4bc3a39d6d5e9630f6761ce56a` |
+| `hashline/src/private_block/protocol.rs` | `2684dc182b75efb6be691fce6214c5663f84664a74b6654b618afa7676826650` | `c8b9f5ecbb5e11f8ebd68c903ad4553cbfa6122d198178131ca3b5558a1af2b1` |
+| `hashline/src/private_block/shape.rs` | `64b1071e665dbd58a1c6b331aea304345f81fd6e4e3f33a717de100674ccec64` | `5acecd8e431ea37d6669ab097be4e64c1102cff6617bd09712f4a742c658328f` |
+
+`run.rs` unchanged (`f5f4d571…`). Test files: `s40_tests.rs`
+`824d86c28efb5364787412b79d5bab2d1e54c6ae0503fed1bb35d6c8e57d62b2` ->
+`6267d0c63b6aeb1575ebbd4738c1606beb42d311bdf697ccb50c0b22e1aa95af`;
+`s42_tests.rs` `1e5a520e0ef6893d73782e410dd0e86fbbf1636fed1442b27234a25f59f72077` ->
+`98830730a5d893b4a39b9b68d6cf02018104257a5f57b4b00028cdfcb6625be9`;
+`s43_tests.rs` `a21de23b2b6fc6b5d50f431e003f2e8063cab01785586a78b645d718eded3355` ->
+`9556e67913a18b4bc8d103645f457ab30b8b62d6545cd1791bbb5abb515deb9e`;
+`review_tests.rs` `aaac73ed529d5fea04fcd8467795af2b02f49d445fd35c9b7f2387b3e79ec238` ->
+`2429dce5cb20befffc17a36c27c2b1db3859d7dc427778d46e37ffca8c4ba03f`;
+`k8_tests.rs` `500a35faa21c4d1f72553955587840cf3849265d8048924704c8a61fb412c1ed` ->
+`de4e7f0856019495ab8fd2ec054eeb1cdf760940a59cb2228eb3914463516d21`;
+`s44_tests.rs` (new) `b39780ffe7e7498c90464b79814b2876bdfafb0fcae13d1f58afbad634c8ba2e`.
+
+**For the D22 re-pin:** `shape.rs` and `protocol.rs` move again. CS-9's
+check is on the toy path (inside `check_constructed` at the toy's entries)
+and admits `Shape::toy()` — class (ii); the CS-3 text is text on a refusal
+unreachable for admitted witnesses — class (ii).
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat f486e6f -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock hashline/src/private_block/run.rs` prints NOTHING. The
+untracked `u31-c6-run1.*` files are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `6336377` | the skeleton |
+| `51f8f2b` | K-1/K-2 text, CS-9, K-3's guard, `s44_tests.rs`, the test adaptations, the failing-first and after logs |
+| this one | the gate and release-build logs, census memo §13, this ledger |
+
+#### Open, for the security owner
+
+* **CS-9 compares the whole shape, the display name included** (as CS-7
+  does): a registered profile with its own geometry under another name is
+  refused. The name is hashed nowhere; the stricter reading was taken so
+  that a profile names one shape VALUE. Relax to the parameters if a
+  renamed registered shape is ever wanted.
+* **CS-9's release half is shown, not run in release**: a test build
+  admits unregistered strings (the probes), so the refusal is exercised
+  through the `cfg(test)` release-form accessor; the release library build
+  proves the gating compiles. The run layer is still dead code in release
+  (review O-1); `Shape::new` is live there (through `check_constructed`).
+* **K-2's residue**: the text still names which family missed, which is
+  derived from the hidden witness — the class the ruling allows.
+* **The witness builder, `IoSpec::new_shaped` and `Layout::for_shape` do
+  not run `check_constructed`** (stage 43's open item), so they accept a
+  field-written shape CS-9 refuses; no proof follows — every entry refuses
+  it first, measured.
+
+#### What stage 44 is NOT
+
+Not a privacy result. Not a soundness statement beyond statement, shape and
+profile admissibility.
