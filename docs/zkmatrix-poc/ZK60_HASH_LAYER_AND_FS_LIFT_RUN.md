@@ -1214,7 +1214,7 @@ entirely.
 |---|---|
 | rung-G, `L = 2` and `L = 3` | **yes** — `run_tests.rs`'s `the_all_zero_hidden_input_proves_and_verifies_as_a_run`, and the capture bundles `run-b-zero`, `run-d-zero`, `run-f-zero-tagged`, `run-h-zero-s20` [MEASURED by the lane] |
 | rung-K4, `L = 3` | **yes** — bundle `run-j-zero-k4` [MEASURED by the lane] |
-| **125M, any `L`** | **no test exists — GAP G-R3, BLOCKING (ruling R-4)**, and the zero witness sits on two exact range boundaries whose constants moved at that shape |
+| **125M, any `L`** | **no test exists — GAP G-R3, BLOCKING (ruling R-4)**, and the zero witness sits on two exact range boundaries whose constants moved at that shape *[2026-09-23: no longer blocking — ruling R-4 is closed on its own terms. The witness builder admits the all-zero input at 125M under both weight recipes, with the three zero-headroom boundaries pinned at the shape's constants (262,143 of 262,144; 512 of 512; 262,144 of 262,144), and asserts the zero chain identically zero and its witness weight-independent (lane stage 19 task 9); `L = 1` proves and verifies, 26.98 s / 1.23 s (`ZK60_BLOCK125M_S19F1_DISPOSITION.md` §6); `L = 2` proved, verified, was captured (2026-09-21 08:57) and gated (run gate round 9). `L = 12` has not been run on the all-zero input; it rests on the stage-19 test, not on a run]* |
 
 This page predicts nothing about G-R3's outcome and does not narrow it.
 **Every 125M figure below is conditional on it.**
@@ -1576,7 +1576,8 @@ see how far short the page falls.
 
 **And what today stops that sentence being written**, in the order a reader
 should be told: G-R1, G-R2 and G-R4 under Theorem B; **G-R3 at 125M, which is
-blocking**; **G-H1 (= O-4)**, the sequential composition in the form the
+blocking** *[2026-09-23: no longer blocking — see the dated note in §4.6's
+table; a twelve-block all-zero run is still not run]*; **G-H1 (= O-4)**, the sequential composition in the form the
 project asked for — now diagnosed as a **paper task**, extending the
 sequential-kernel lemma to (field, hash) message pairs, which closes the
 toy's O-4 at the same time; and conditions **C-R1 … C-R5**, of which
@@ -1605,7 +1606,7 @@ weakest step on the page and how it was ruled.
 | 5 | the model: BLAKE3 as a family indexed by mode and key (D19a), with conventions V-1 (indifferentiability) and V-2 | **ASSUMED** — **CHANGED**: the *form* is what the argument uses; the *justification* is an **ideal compression function at an adversary-chosen chaining value**, stronger than D19 as accepted, and **PROPOSED as D19b** (ruling H-4) |
 | 6 | three of the toy's length arguments become unnecessary; two counted terms are **re-priced**, not deleted (N4) | **PROVED HERE**, inside step 5 — and it is a *simplification*, not a strengthening. **CHANGED** (H-4): their price is the tag-key-collision row, now in §6.2 |
 | 7 | inside F_U, 40 bytes is unoccupied on a run's path, so the generator stream is unreachable (N5) | **COUNTED**; load-bearing **because** the stream is the UNKEYED function (ruling H-3) |
-| 8 | inside F_T, 47 is unoccupied — but the 125M run profile is one byte away and nothing checks it (N6, **F-2**) | **COUNTED** + **CONDITION C-R2** + ruling **H-8**'s one-line test, **owed on the lane** |
+| 8 | inside F_T, 47 is unoccupied — but the 125M run profile is one byte away and nothing checks it (N6, **F-2**) | **COUNTED** + **CONDITION C-R2** + ruling **H-8**'s one-line test, **owed on the lane** *[2026-09-23: built — lane stage 24 item 3 (`68e8769`): no registered profile's constructor input has the squeeze length, the margin (one byte, the 125M run profile at 46) watched by a test]* |
 | 9 | key-collision and tag-key-equals-generator-key terms (N7) | **COUNTED** — **CHANGED**: `m = 12` tag keys exist at `8c5922b`, `C(12,2)·2^-256 =` 2^-249.96, and the pairwise-distinct test is owed over all twelve (H-4) |
 | 10 | cross-profile and cross-run separation: the transcript domain, the run binding, the context digest (N8) | **VERIFIED IN THE CODE**; the context is **CONDITION C-R4** |
 | 11 | **Lemma H^run** | **PROVED HERE**, inside step 5, conditional on Theorem B |
@@ -1614,7 +1615,7 @@ weakest step on the page and how it was ruled.
 | 14 | the node induction and the public map `T`, `4L+1` times | **PROVED HERE** |
 | 15 | the position tags carry nothing prover-private and are re-derived by the verifier (N9) | **VERIFIED IN THE CODE** |
 | 16 | a tag query never coincides with a live challenge query **on the schedule** (§3.5 iii) | **PROVED HERE** (a source reading plus the counter argument) — **NARROWED** (H-7): the non-local case is an F_T state collision and is priced in B6, not 0 |
-| 17 | **the trailer of segment `k` is the header tag of segment `k+1`** (**F-1**) | **VERIFIED IN THE CODE** and **MEASURED** on ten bundles (§8.2); **CONFIRMED** independently by the check. **Ruling H-5**: the PROPERTY (no transcript operation between `run.rs:551` and the next `:492`) is pinned, not the coincidence — **owed on the lane** |
+| 17 | **the trailer of segment `k` is the header tag of segment `k+1`** (**F-1**) | **VERIFIED IN THE CODE** and **MEASURED** on ten bundles (§8.2); **CONFIRMED** independently by the check. **Ruling H-5**: the PROPERTY (no transcript operation between `run.rs:551` and the next `:492`) is pinned, not the coincidence — **owed on the lane** *[2026-09-23: built — lane stage 24 item 2 (`68e8769`): the property pinned as a property of the stage loop and measured on a generic three-block rung-K4 run, with its non-vacuity checks]* |
 | 18 | the binding and the framing are public functions of the published prefix (N10) | **PROVED HERE** |
 | 19 | **Route A^run**, the ten-hop hybrid, with the D9 replacement as one hop | **PROVED HERE**, inside step 5, conditional on Theorem B and Lemma H^run |
 | 20 | replacing the blinding at once costs the same as stage by stage, and needs G-R4 once instead of `L−1` times | **PROVED HERE** (elementary) |
@@ -1622,7 +1623,7 @@ weakest step on the page and how it was ruled.
 | 22 | the transcript query count `A` | **MEASURED** at the two rungs (the gate's `final_counter`); **BOUNDED** at 125M |
 | 23 | the number of transcript operations does not move with the hidden input | **MEASURED** (dense vs all-zero bundles at both rungs) |
 | 24 | no oracle programming is needed; the ideal world is the honest prover on the all-zero chain (N12) | **RELIES ON** D18-A; **MEASURED** at rung-G and rung-K4 |
-| 25 | the all-zero chain at 125M | **GAP G-R3, BLOCKING** (ruling R-4), not narrowed here |
+| 25 | the all-zero chain at 125M | **GAP G-R3, BLOCKING** (ruling R-4), not narrowed here *[2026-09-23: no longer blocking — the witness-builder test (lane stage 19 task 9), one block and a two-block run on the all-zero input proved and verified, the two-block run captured and gated (round 9); twelve blocks not run. See the dated note in §4.6's table]* |
 | 26 | **the run header commits BOTH hidden endpoint planes before any challenge exists, so "the witness is fixed before the first message" is a CODE FACT for an accepted run** (N11, rewritten) | **VERIFIED IN THE CODE** (`run.rs:316`, `:470`; `private_block.rs:213`, `:686-695`; `protocol.rs:451`) → **CHANGED** (ruling H-1): C-R3 is no longer a hypothesis of the lift; what remains is the **interface item** (make `RunWitnessSource` take the chain at construction) |
 | 27 | **Route B^run and condition O-4** | **GAP G-H1** — the lemma is stated, its four hypotheses are named, and it is not closed. **NARROWED in diagnosis, not in size** (disposition §3): hypothesis (ii) is now a code fact, a run is **longer not harder**, and the open work is one paper task — extend the sequential-kernel lemma to (field, hash) message pairs, which closes the toy's O-4 too |
 | 28 | the privacy game for a run, and that M-9 is a hypothesis and not a nicety (§5.1, N13) | **ARGUED** — **CHANGED** (ruling H-2): the code side is `#[cfg(test)]` (`private_block.rs:178-179`) and `prove_run` has **no production caller** at `8c5922b`, so M-9 is a rule plus a tested writer and is carried in §7.2 as a **CONDITION**, not a fact |
@@ -1655,7 +1656,7 @@ softened**, and the one row whose *direction* reversed is **26**.
 | # | condition | true today? |
 |---|---|---|
 | **C-R1** | no F_U input on an accepted run's path is 40 bytes — in particular no public weight set makes the block public-statement digest's input 40 bytes | **TRUE** at all three configurations [COUNTED]; asserted by nothing |
-| **C-R2** | no transcript domain on an accepted run's path has length 35 (which gives a 47-byte constructor input, inside F_T's own squeeze class) | **TRUE** at all seven profile strings (constructor inputs 46 / 48 / 51 / 56 / 57 / 58 / 59, none 47; nearest domain length 34); **checked by nothing today** — the completed guard is off for tagged profiles and never saw the run's own domain anyway (**F-2**). **Ruling H-8 owes the one-line test**, after which this row reads "checked" |
+| **C-R2** | no transcript domain on an accepted run's path has length 35 (which gives a 47-byte constructor input, inside F_T's own squeeze class) | **TRUE** at all seven profile strings (constructor inputs 46 / 48 / 51 / 56 / 57 / 58 / 59, none 47; nearest domain length 34); **checked by nothing today** — the completed guard is off for tagged profiles and never saw the run's own domain anyway (**F-2**). **Ruling H-8 owes the one-line test**, after which this row reads "checked" *[2026-09-23: **checked** — the test is lane stage 24 item 3 (`68e8769`): no registered profile's constructor input has the squeeze's 47 bytes (eight profiles at the time; nearest the 125M run profile's 46), both layouts reproduced from outside `Transcript`, and a 35-character string shown to land on 47 so the check cannot become vacuous. Lane not yet integrated]* |
 | **C-R3** *(RE-SIZED, ruling H-1)* | the whole hidden run input is fixed before the first message | **A CODE FACT for an accepted run**, not an operating condition: the header absorbs binding commitments to the hidden **input and output** planes (`run.rs:316`, `private_block.rs:213`, `:686-695`) before any challenge exists, and `check_endpoints` (`run.rs:470` → `protocol.rs:451`) refuses unless the prover's own owners produce exactly them. It is **computational** (endpoint-commitment binding + the proved chain), where the toy's was syntactic. **What is left is an interface item, not a proof obligation**: `RunWitnessSource` still *permits* an adaptive source, which cannot make an accepted run but can make an aborted one — tighten it by taking the chain at construction when the production caller is written |
 | **C-R4** | the 32-byte context inside `ExpectedIo` and inside every boundary spec is a constant of the statement, never derived from a request | true of the tests; a deployment hypothesis |
 | **C-R5** *(wording corrected, H-7 / B-11)* | no tagged commitment routes through an unkeyed commit path | **TRUE, and for one more reason than the first draft gave**: `commit_zk_device` is **`#[cfg(feature = "gpu-cuda")]`** (`hashline/src/pcs.rs:82`) and so does not exist in a build without that feature — which is every build this lane takes; `zkp-core/src/pcs.rs:782-785` declines the backend whenever a column key is set; `commit_zk_device` has no caller on this path; and the tag type admits no partial key set, so "a column key is set" and "the profile is tagged" are one condition. The first draft's wording is if anything conservative |
@@ -1750,14 +1751,24 @@ owner's ruling.**
   toy and for a run in the same way and for the same single reason, with
   the extension of the sequential-kernel lemma to (field, hash) message
   pairs named as the next paper task. Theorem B's own gaps G-R1, G-R2, G-R4
-  and, at 125M, the blocking G-R3 are untouched.
+  and, at 125M, the blocking G-R3 are untouched. *[2026-09-23: G-R3 is no
+  longer blocking (dated note in §4.6); the paper task was done the same night
+  (`ZK60_SEQUENTIAL_KERNEL_LEMMA_HASHED_DISPOSITION.md`, 02:19) and G-H1 stays
+  open because Route B's usability is unruled.]*
 * **Not a ruling on the model.** The ideal-compression justification behind
   D19a (§2.1) is **proposed to the project owner as D19b** and is not
   accepted. **Nothing accepted rests on it**: no tagged profile has a
   privacy statement, and D22 — the toy block — rests on the *untagged*
   profile and on D19 as Victor accepted it.
 * **Not a statement about the 125M shape.** Everything at 125M is counted or
-  bounded from the code and nothing has been measured there.
+  bounded from the code and nothing has been measured there. *[2026-09-23:
+  since 2026-09-21 the hash layer is measured at 125M for what a receipt
+  opens — on two two-block captures, 2,304 opened columns (52,867,072 B)
+  re-hashed under independently derived keys and authenticated, and 27,828
+  challenges re-derived (run gate round 9,
+  `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md` §2b). Still true: this page
+  makes no statement about the 125M shape, and nothing at twelve blocks is
+  measured by the gate.]*
 * **Nothing about timing, memory or power** (D20), nor about the refusal
   string beyond M-9's rule.
 * **Soundness is untouched**; G-H3 remains.
