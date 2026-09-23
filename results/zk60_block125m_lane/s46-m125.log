@@ -1,0 +1,60 @@
+
+running 1 test
+test private_block::s36_tests::s46_a_standalone_125m_block_draws_the_counted_figures_on_each_of_its_three_generators ... S46 125M standalone: witness + owners 5.23 s, proof + typed verify + encode + verify from bytes 21.18 s, peak RSS after the proof 10199 MiB (shared box, one run)
+S46 125M: the twelve-block sum of measured parts is 109728784 field draws; the post-repair count (H-6) is 109728784; the PRE-repair figure 109728040 is 744 below it (= 12 x 62)
+S46 125M: total 26.60 s, peak RSS 10199 MiB (VmHWM, whole process)
+S46 | 125M   | standalone block           | block (in situ)                | stream bytes               | measured   148802240 | counted   148802240 | EQUAL | MEASURED, ZkRng::consumed_bytes
+S46 | 125M   | standalone block           | block (in situ)                | field draws                | measured     9029804 | counted     9029804 | EQUAL | MEASURED bytes at the geometry's salts
+S46 | 125M   | standalone block           | block (in situ)                | salts                      | measured      135168 | counted      135168 | EQUAL | GEOMETRY (A, H columns; M domain)
+S46 | 125M   | standalone block           | block (in situ)                | refills                    | measured       18165 | counted       18165 | EQUAL | MEASURED vs its own bytes
+S46 | 125M   | standalone block           | block: A                       | field draws                | measured     5484800 | counted     5484800 | EQUAL | DERIVED closed form (S36-F3)
+S46 | 125M   | standalone block           | block: H                       | field draws                | measured     3526654 | counted     3526654 | EQUAL | DERIVED closed form (S36-F3)
+S46 | 125M   | standalone block           | block: M                       | field draws                | measured       18350 | counted       18350 | EQUAL | DERIVED closed form (S36-F3)
+S46 | 125M   | standalone block           | block: A+H+M                   | field draws                | measured     9029804 | counted     9029804 | EQUAL | DERIVED = MEASURED
+S46 | 125M   | standalone block           | endpoint in: REPLICA           | stream bytes               | measured     3559424 | counted     3559424 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | 125M   | standalone block           | endpoint in: REPLICA           | field draws                | measured       91392 | counted       91392 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | 125M   | standalone block           | endpoint in: REPLICA           | salts                      | measured       65536 | counted       65536 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | 125M   | standalone block           | endpoint in: real owner        | mask words + pads          | measured       91392 | counted       91392 | EQUAL | READ in situ off the real commitment
+S46 | 125M   | standalone block           | endpoint in: real owner        | salts                      | measured       65536 | counted       65536 | EQUAL | READ in situ off the real commitment
+S46 | 125M   | standalone block           | endpoint out: REPLICA          | stream bytes               | measured     3559424 | counted     3559424 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | 125M   | standalone block           | endpoint out: REPLICA          | field draws                | measured       91392 | counted       91392 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | 125M   | standalone block           | endpoint out: REPLICA          | salts                      | measured       65536 | counted       65536 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | 125M   | standalone block           | endpoint out: real owner       | mask words + pads          | measured       91392 | counted       91392 | EQUAL | READ in situ off the real commitment
+S46 | 125M   | standalone block           | endpoint out: real owner       | salts                      | measured       65536 | counted       65536 | EQUAL | READ in situ off the real commitment
+S46 | 125M   | standalone block           | all three                      | field draws per proof      | measured     9212588 | counted     9212588 | EQUAL | sum of the three above
+S46 | 125M   | standalone block           | all three                      | salts per proof            | measured      266240 | counted      266240 | EQUAL | sum of the three above
+S46 | 125M   | standalone block           | live transcript                | squeezes                   | measured       14252 | counted       14252 | EQUAL | MEASURED, Transcript::squeezes; counted = the GATE's
+S46 | 125M   | standalone block           | refusal replay                 | points                     | measured       13050 | counted       13050 | EQUAL | MEASURED, the stage-36 observer
+S46 | 125M   | standalone block           | receipt                        | frame bytes                | measured    40783352 | counted    40783352 | EQUAL | MEASURED, the verified frame
+S46 | 125M   | run boundary (alone)       | boundary::prepare              | stream bytes               | measured     3825664 | counted     3825664 | EQUAL | MEASURED, production preparer, our generator
+S46 | 125M   | run boundary (alone)       | boundary::prepare              | field draws                | measured      108032 | counted      108032 | EQUAL | MEASURED bytes at the geometry's salts
+S46 | 125M   | run boundary (alone)       | boundary::prepare              | salts                      | measured       65536 | counted       65536 | EQUAL | GEOMETRY
+S46 | 125M   | run L=12 (sum of parts)    | all three                      | field draws per run        | measured   109728784 | counted   109728784 | EQUAL | sum of MEASURED parts vs COUNTED (H-6)
+S46 | 125M   | run L=12 (sum of parts)    | all three                      | salts per run              | measured     2473984 | counted     2473984 | EQUAL | GEOMETRY vs COUNTED (F_L row)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 583 filtered out; finished in 26.60s
+
+	Command being timed: "/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555 --ignored --exact --nocapture --test-threads=1 private_block::s36_tests::s46_a_standalone_125m_block_draws_the_counted_figures_on_each_of_its_three_generators"
+	User time (seconds): 177.36
+	System time (seconds): 39.51
+	Percent of CPU this job got: 815%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:26.60
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10443356
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 5733473
+	Voluntary context switches: 1023847
+	Involuntary context switches: 13032
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

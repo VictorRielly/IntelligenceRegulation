@@ -499,6 +499,15 @@ pub(super) const LOOKUP_MISS_REFUSAL: &str = "private block: ruling CS-3 — the
 /// one: under `#[cfg(test)]` a thread-local switch ([`CheatingProver`]) makes
 /// it return `Ok`, so a tampered witness still reaches the verifier. A
 /// release build has no switch.
+///
+/// **ERRATA K-1 and K-2 (stage 44, the code review of stages 39–43).** The
+/// text says exactly what precedes the refusal (it used to say nothing of the
+/// block was drawn, absorbed or committed, which is false inside a run: the
+/// stage header is absorbed and the boundary `B_k` drawn, committed and
+/// absorbed first, `run.rs`, ruling M-9), and it names the CLASS of the miss
+/// only — which table family missed — never how many words did: the three
+/// counts are computed from the hidden witness. Text only; the counts are
+/// still what decides whether the refusal fires.
 fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String> {
     #[cfg(test)]
     if CHEATING_PROVER.with(|c| c.get()) {
@@ -507,8 +516,10 @@ fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String>
     if u8 + exp + act == 0 {
         return Ok(());
     }
+    let families: Vec<&str> = [(u8, "the byte table"), (exp, "the exp table"), (act, "the activation table")].iter().filter(|(n, _)| *n > 0).map(|(_, f)| *f).collect();
     Err(format!(
-        "{LOOKUP_MISS_REFUSAL} (refused before the A commitment; nothing of this block was drawn, absorbed or committed): {u8} U8 words outside the byte table, {exp} exp pairs and {act} activation pairs not rows of the statement's tables"
+        "{LOOKUP_MISS_REFUSAL}; the table family that missed: {} (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).",
+        families.join(", ")
     ))
 }
 
@@ -959,7 +970,9 @@ pub(crate) fn prove_core(
     // activation pair that is not a table row) are ONE named refusal HERE —
     // after the three histograms, from values this function already holds,
     // and BEFORE the first draw of the `A` mask rows, the `A` commitment and
-    // any absorb or challenge of this block. For a witness the builder admits
+    // any absorb or challenge of this block's body (inside a run the stage
+    // header and the boundary `B_k` come first — ruling M-9, erratum K-1;
+    // the refusal's text says so). For a witness the builder admits
     // it is unreachable (the census); it turns a future admissibility gap
     // into a refusal of the prover instead of a receipt the verifier rejects.
     refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
@@ -1228,11 +1241,16 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     // returns `None` unless a recorder is attached.
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
+    // STAGE 45: the standalone shaped block capture, the same rule
+    #[cfg(test)]
+    let block_capture_before = super::block_capture_shaped::checkpoint(tr);
     zk::mask_verify_tagged(&v.mask_root, &lay.mask_specs(), &acc.fs, v.mask_open, ntt, tr, &tag).map_err(|e| format!("M: {e}"))?;
     #[cfg(test)]
     super::capture::mask(&v.mask_root, &acc.fs, v.mask_open, capture_before, tr);
     #[cfg(test)]
     super::run_capture::mask(&lay.mask_specs(), &v.mask_root, &acc.fs, v.mask_open, ntt, run_capture_before, tr);
+    #[cfg(test)]
+    super::block_capture_shaped::mask(&lay.mask_specs(), &v.mask_root, &acc.fs, v.mask_open, ntt, block_capture_before, tr);
     ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
@@ -1241,6 +1259,8 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let capture_before = super::capture::checkpoint(tr);
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
+    #[cfg(test)]
+    let block_capture_before = super::block_capture_shaped::checkpoint(tr);
     pcs::verify_zk_tagged(&params, &zko, &commitment(v.a_root, lay.a_rows, sh.log_cols), &ac, v.a_open, ntt, tr, &tag).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("A", v.a_root, lay.a_rows, &ac, v.a_open, capture_before, tr);
@@ -1265,12 +1285,16 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
         run_capture_before,
         tr,
     );
+    #[cfg(test)]
+    super::block_capture_shaped::block_pcs("A", lay, v.a_root, &ac, v.a_open, ntt, block_capture_before, tr);
     ph.mark(Half::Open, "verify A (schedule audit + pcs::verify_zk)", ac.len() as u64, "claims");
     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(tr);
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
+    #[cfg(test)]
+    let block_capture_before = super::block_capture_shaped::checkpoint(tr);
     pcs::verify_zk_tagged(&params, &zko, &commitment(v.h_root, lay.h_rows, sh.log_cols), &hc, v.h_open, ntt, tr, &tag).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("H", v.h_root, lay.h_rows, &hc, v.h_open, capture_before, tr);
@@ -1295,6 +1319,8 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
         run_capture_before,
         tr,
     );
+    #[cfg(test)]
+    super::block_capture_shaped::block_pcs("H", lay, v.h_root, &hc, v.h_open, ntt, block_capture_before, tr);
     ph.mark(Half::Open, "verify H (schedule audit + pcs::verify_zk)", hc.len() as u64, "claims");
     Ok(([ic, oc], order))
 }
@@ -1334,6 +1360,10 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     let ntt = NttTables::new(ntt_log_at(sh));
     ph.mark(Half::Setup, "setup: NTT tables", 1u64 << ntt_log_at(sh), "domain");
     let mut tr = transcript(blk, expected, &lay);
+    // STAGE 45: the standalone shaped block capture opens at the header. A
+    // no-op unless a recorder is attached; handed what the verifier holds.
+    #[cfg(test)]
+    super::block_capture_shaped::begin_block(sh, &lay, blk, expected, receipt, &tr);
     let view = CoreView {
         a_root: receipt.a_root,
         h_root: receipt.h_root,
@@ -1351,13 +1381,19 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
         check_endpoint_opening(claims, sh, &tr)?;
         #[cfg(test)]
         let capture_before = super::capture::checkpoint(&tr);
+        #[cfg(test)]
+        let block_capture_before = super::block_capture_shaped::checkpoint(&tr);
         pcs::verify_zk_tagged(&e_params, &e_zko, &commitment(root, sh.endpoint_rows, sh.endpoint_log_n), claims, &receipt.io_open[i], &ntt, &mut tr, &tag).map_err(|e| format!("endpoint {i}: {e}"))?;
         #[cfg(test)]
         super::capture::pcs(["Input", "Output"][i], root, sh.endpoint_rows, claims, &receipt.io_open[i], capture_before, &tr);
+        #[cfg(test)]
+        super::block_capture_shaped::endpoint_pcs(i, sh, root, claims, &receipt.io_open[i], &ntt, block_capture_before, &tr);
         ph.mark(Half::Open, ["verify endpoint IN (pcs::verify_zk)", "verify endpoint OUT (pcs::verify_zk)"][i], sh.endpoint_rows as u64, "rows");
     }
     ph.report("verify", sh.name);
     #[cfg(test)]
     super::capture::publish(blk, expected, receipt);
+    #[cfg(test)]
+    super::block_capture_shaped::block_accepted(sh, blk, expected, receipt, &tr);
     Ok(order)
 }

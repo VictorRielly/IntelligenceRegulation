@@ -1,0 +1,14 @@
+stage 44: scan of hashline/target/release/libhashline.rlib after cargo build --release --lib (s44-release-lib.log, .done = 0)
+rlib members: lib.rmeta, lib.rmeta-link, one codegen unit hashline-...-cgu.0.rcgu.o, which is LLVM BITCODE here (nm: "file format not recognized"),
+so neither a symbol scan nor a scan of format-string pieces is possible on this build (only const &str items and metadata identifiers are visible as bytes).
+The evidence that the cfg(test) items stay out of the library is the release build itself: registered_block_shape references super::k8_tests only under #[cfg(test)],
+and a non-cfg(test) reference to k8_tests (absent from a non-test build) would not compile.
+byte counts in the rlib:
+     2  const: CS-3 name (control)
+     2  const: CS-8 shape prefix (control)
+     2  const: CS-9 prefix
+     0  rung-K8 block profile (const in k8_tests, cfg(test))
+     0  rung-K8 run profile
+     0  identifier rung_k8_built_by
+     0  identifier check_block_profile_as_a_release_build
+     0  old CS-3 clause (format piece; not visible either way)

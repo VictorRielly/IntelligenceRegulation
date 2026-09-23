@@ -55,6 +55,9 @@ const WIDTH_MAX: usize = 16_384;
 /// **Ruling CS-8 (stage 43).** The prefix of [`Shape::check_constructed`]'s
 /// refusals.
 const CS8_SHAPE_REFUSAL: &str = "private block shape: ruling CS-8 — ";
+/// **Ruling CS-9 (stage 44).** The prefix of the block profile registry's two
+/// refusals ([`Shape::new`]).
+const CS9_REFUSAL: &str = "private block shape: ruling CS-9 — ";
 
 // the wire format's shape-independent counts (`wire.rs`)
 const WIRE_HEADER: usize = 8 + 32;
@@ -107,7 +110,9 @@ fn bit_length(v: i128) -> u32 {
 /// ONE block geometry, plus the PCS parameters its receipt is priced at.
 ///
 /// Built only through [`Shape::new`], which refuses by name every geometry the
-/// construction cannot express.
+/// construction cannot express and (ruling CS-9) every profile string that
+/// does not name exactly this shape — or by the registered constructors
+/// below, which ARE the registry's entries.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct Shape {
     pub name: &'static str,
@@ -146,9 +151,133 @@ pub(crate) struct Shape {
     pub d_max: i128,
 }
 
+/// **RULING CS-9: THE BLOCK PROFILE REGISTRY** — the constructor of every
+/// block shape this build registers, one per block profile string (the nine
+/// profiles of stage 24's registry test). Each constructor builds its shape
+/// past CS-9's own check because it IS the entry for its profile.
+const REGISTERED_BLOCK_SHAPES: [fn() -> Shape; 9] = [Shape::toy, Shape::rung, Shape::rung_g, Shape::rung_k4, Shape::rung_p2, Shape::rung_c6, Shape::rung_w14, Shape::rung_e32, Shape::m125];
+
+/// The one shape a block profile string names, or `None` for a string this
+/// build does not register. A TEST-ONLY shape's profile is registered only in
+/// a test build, as ruling CS-7 registers its run profile: rung-K8 (stage 37)
+/// is built in `k8_tests.rs`, so its arm exists under `#[cfg(test)]` and a
+/// release build refuses its profile string as unregistered. No profile
+/// string is written here, so the source registry of stages 24 and 33 is
+/// unchanged.
+fn registered_block_shape(profile: &str) -> Option<Shape> {
+    if let Some(sh) = REGISTERED_BLOCK_SHAPES.iter().map(|ctor| ctor()).find(|s| s.profile == profile) {
+        return Some(sh);
+    }
+    #[cfg(test)]
+    if profile == super::k8_tests::K8_BLOCK_PROFILE {
+        return Some(super::k8_tests::rung_k8_built_by(Shape::build));
+    }
+    None
+}
+
 impl Shape {
+    /// **THE one place a block profile string meets a geometry.** Every
+    /// refusal of the construction ([`Shape::build`], below), and then
+    /// **RULING CS-9** (security owner, 2026-09-23; the code review's note
+    /// K-4): a privacy statement is per PROFILE (D22 names a profile string),
+    /// so a profile string names exactly one shape. A REGISTERED block profile
+    /// string is admitted only with the one shape it is registered for
+    /// ([`registered_block_shape`]), compared field by field as ruling CS-7
+    /// compares a run's block shape, and a profile string this build does not
+    /// register is refused — outside `#[cfg(test)]`: a test build admits an
+    /// unregistered string, which is how the probe and fixture shapes of the
+    /// test files are built. Before this ruling the frozen toy's profile
+    /// string at rung-G's geometry passed every check, carried no pad rule
+    /// while its `Dom::F` and `Dom::D` pad, hashed under the legacy rule, and
+    /// every honest proof at it was rejected by the verifier at slot 2
+    /// (`s44-before-reproducer.log`). CS-9 comes AFTER every other refusal, so
+    /// each of them keeps its own message first. A refusal and nothing else:
+    /// every registered shape is built exactly as before, and
+    /// [`Shape::check_constructed`], which runs this again at every entry,
+    /// re-checks it on a value whose profile or parameters were written.
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
+        name: &'static str,
+        profile: &'static str,
+        tokens: usize,
+        width: usize,
+        hidden: usize,
+        q_heads: usize,
+        head_dim: usize,
+        kv_heads: usize,
+        log_cols: usize,
+        inv_rate: usize,
+        f_e: u32,
+        endpoint_rows: usize,
+        endpoint_log_n: Option<usize>,
+        endpoint_inv_rate: Option<usize>,
+        norm_wrho: Option<u32>,
+        wrho_s: Option<u32>,
+    ) -> Result<Shape, String> {
+        let sh = Shape::build(name, profile, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s)?;
+        sh.block_profile_names_this_shape(cfg!(test))?;
+        Ok(sh)
+    }
+
+    /// **Ruling CS-9's check** (see [`Shape::new`]). `admit_unregistered` is
+    /// `cfg!(test)` at its one production caller.
+    fn block_profile_names_this_shape(&self, admit_unregistered: bool) -> Result<(), String> {
+        match registered_block_shape(self.profile) {
+            Some(reg) if reg == *self => Ok(()),
+            Some(reg) => {
+                // the parameters `Shape::new` is handed; every other field is
+                // derived from them or pinned, so a difference shows here
+                let differ: Vec<&str> = [
+                    ("name", reg.name != self.name),
+                    ("tokens", reg.tokens != self.tokens),
+                    ("width", reg.width != self.width),
+                    ("hidden", reg.hidden != self.hidden),
+                    ("q_heads", reg.q_heads != self.q_heads),
+                    ("head_dim", reg.head_dim != self.head_dim),
+                    ("kv_heads", reg.kv_heads != self.kv_heads),
+                    ("log_cols", reg.log_cols != self.log_cols),
+                    ("inv_rate", reg.inv_rate != self.inv_rate),
+                    ("f_e", reg.f_e != self.f_e),
+                    ("endpoint_rows", reg.endpoint_rows != self.endpoint_rows),
+                    ("endpoint_log_n", reg.endpoint_log_n != self.endpoint_log_n),
+                    ("endpoint_inv_rate", reg.endpoint_inv_rate != self.endpoint_inv_rate),
+                    ("norm_wrho", reg.norm_wrho != self.norm_wrho),
+                    ("wrho_s", reg.wrho_s != self.wrho_s),
+                ]
+                .iter()
+                .filter(|(_, d)| *d)
+                .map(|(n, _)| *n)
+                .collect();
+                Err(format!(
+                    "{CS9_REFUSAL}the block profile {:?} is registered for exactly one shape, {:?}; the shape handed, {:?}, differs from it in {}",
+                    self.profile,
+                    reg.name,
+                    self.name,
+                    differ.join(", ")
+                ))
+            }
+            None if admit_unregistered => Ok(()),
+            None => Err(format!("{CS9_REFUSAL}{:?} is not a block profile this build registers, so it names no shape ({:?} was handed)", self.profile, self.name)),
+        }
+    }
+
+    /// **TEST ONLY (ruling CS-9).** The check as a build WITHOUT
+    /// `#[cfg(test)]` makes it — an unregistered profile string refused — so
+    /// a test can show what a release build does with the probe shapes a test
+    /// build admits. A release build has no such method.
+    #[cfg(test)]
+    pub(crate) fn check_block_profile_as_a_release_build(&self) -> Result<(), String> {
+        self.block_profile_names_this_shape(false)
+    }
+
+    /// Every refusal of the construction but ruling CS-9's. PRIVATE: it is
+    /// called by [`Shape::new`] (which then runs CS-9) and by the registered
+    /// constructors below, which are the registry's own entries (building
+    /// them through `Shape::new` would consult the registry for the entry
+    /// being built); rung-K8's `#[cfg(test)]` registry arm is handed it as a
+    /// function pointer. `s44_tests` pins that there is no other caller.
+    #[allow(clippy::too_many_arguments)]
+    fn build(
         name: &'static str,
         profile: &'static str,
         tokens: usize,
@@ -534,7 +663,10 @@ impl Shape {
     /// single-block entry and in the two shared bodies (`protocol.rs`,
     /// `verify_bytes_at`); a run's shape is sealed inside `RunShape` and
     /// compared with its registered shape by ruling CS-7. It computes no
-    /// digest, absorbs nothing, draws nothing and moves no byte.
+    /// digest, absorbs nothing, draws nothing and moves no byte. Since
+    /// stage 44 `Shape::new` includes ruling CS-9, so a value whose PROFILE
+    /// was written (or whose parameters were, under a registered profile) is
+    /// refused here with CS-9's refusal inside CS-8's.
     pub(crate) fn check_constructed(&self) -> Result<(), String> {
         let rebuilt = Shape::new(
             self.name,
@@ -578,7 +710,7 @@ impl Shape {
 
     /// THE TOY, the only shape that proves anything today.
     pub(crate) fn toy() -> Shape {
-        Shape::new("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", TOY_PROFILE, 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("the toy shape is well formed")
+        Shape::build("toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)", TOY_PROFILE, 32, 16, 16, 2, 8, 1, 8, 8, 9, 7, None, None, None, None).expect("the toy shape is well formed")
     }
 
     /// THE DEVELOPMENT RUNG of ruling P-7 (memo §9a). `F_E = 12` is a
@@ -587,7 +719,7 @@ impl Shape {
     /// Development grade, never a deliverable: no receipt from it is shown to
     /// anyone and no soundness or privacy statement is made from it.
     pub(crate) fn rung() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
             FROZEN_SEAM_RUNG_PROFILE,
             24,
@@ -632,7 +764,7 @@ impl Shape {
     /// shape cannot use — and `4 + MASK_ROWS = 9` commitment rows.
     /// Development grade, never a deliverable.
     pub(crate) fn rung_g() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)",
             "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
             24,
@@ -692,7 +824,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_k4() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-k4-t24-dev/1",
             24,
@@ -755,7 +887,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_p2() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-p2-t32-dev/1",
             32,
@@ -830,7 +962,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_c6() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-c6-t32-dev/1",
             32,
@@ -909,7 +1041,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_w14() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-w14-t64-dev/1",
             64,
@@ -971,7 +1103,7 @@ impl Shape {
     /// Development grade, never a deliverable (ruling P-7), its OWN profile
     /// (D17) and therefore its own hash-tag key set. No existing shape moves.
     pub(crate) fn rung_e32() -> Shape {
-        Shape::new(
+        Shape::build(
             "development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)",
             "hashline-zk-mr1/private-block-rung-e32-t32-dev/1",
             32,
@@ -1007,7 +1139,7 @@ impl Shape {
     /// 733,184 B. **Padding is what removes the need for C6 here**: there is
     /// no non-power-of-two plane left to batch over (finding S11b-F1).
     pub(crate) fn m125() -> Shape {
-        Shape::new("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
+        Shape::build("125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)", "hashline-zk-mr1/private-block-m125/1", 512, 768, 2048, 12, 64, 4, 14, 4, 9, 37, None, None, None, None)
             .expect("the 125M shape is well formed")
     }
 

@@ -410,6 +410,108 @@ fn s43_cs8_no_field_of_a_sealed_type_is_visible_outside_its_module() {
     assert!(visible.is_empty(), "a field of a sealed type is visible outside its module:\n{}", visible.join("\n"));
 }
 
+// ------------------------------------------------ STAGE 44, note K-3: the stronger guard
+
+/// the declaration pin's own parser (above), applied to a SOURCE TEXT
+fn visible_fields(src: &str, decl: &str) -> Vec<String> {
+    let body = fn_body(src, decl, "\n}\n");
+    body.lines().skip(1).map(str::trim).filter(|l| !l.is_empty() && !l.starts_with("//") && !l.starts_with("#[")).filter(|f| f.starts_with("pub")).map(str::to_string).collect()
+}
+
+/// **THE STRONGER GUARD (stage 44, note K-3 of the code review of stages
+/// 39–43; the reviewer's `stronger_guard`, moved here).** What would reopen
+/// S42-N1 is not only a field regaining a modifier but any second way to MAKE
+/// a value or to change one in place. In `run.rs`: exactly one `RunShape`
+/// struct literal, inside `RunShape::new`, and exactly one `RunStatement`
+/// literal, inside `RunStatement::new`; the two statement escape hatches
+/// `with_run_shape` and `with_calibration` each directly under
+/// `#[cfg(test)]`; no method of either type hands out `&mut` to a field.
+/// Returns the violations.
+fn stronger_guard(src: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let lit_rs = src.matches("RunShape { sh").count();
+    if lit_rs != 1 {
+        out.push(format!("{lit_rs} RunShape struct literals (1 expected, in RunShape::new)"));
+    }
+    let lit_st = src.matches("RunStatement { rs").count();
+    if lit_st != 1 {
+        out.push(format!("{lit_st} RunStatement struct literals (1 expected, in RunStatement::new)"));
+    }
+    for (sig, lit, what) in [
+        ("    pub(crate) fn new(sh: Shape, l: usize, profile: &'static str) -> Result<RunShape, String> {", "RunShape { sh", "RunShape"),
+        ("    pub(crate) fn new(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)]) -> Result<RunStatement, String> {", "RunStatement { rs", "RunStatement"),
+    ] {
+        match src.find(sig) {
+            None => out.push(format!("{what}::new's signature moved")),
+            Some(at) => {
+                let end = src[at..].find("\n    }\n").map(|e| e + at).unwrap_or(src.len());
+                if !src[at..end].contains(lit) {
+                    out.push(format!("the {what} literal is not inside {what}::new"));
+                }
+            }
+        }
+    }
+    for hatch in ["pub(crate) fn with_run_shape(", "pub(crate) fn with_calibration("] {
+        match src.find(hatch) {
+            None => out.push(format!("{hatch} is gone")),
+            Some(at) => {
+                let line_start = src[..at].rfind('\n').unwrap_or(0);
+                let above = src[..line_start].lines().last().map(str::trim);
+                if above != Some("#[cfg(test)]") {
+                    out.push(format!("{hatch} is not directly under #[cfg(test)]"));
+                }
+            }
+        }
+    }
+    for pat in ["-> &mut Shape", "-> &mut RunShape", "-> &mut ExpectedIo", "-> &mut Vec<Digest>", "&mut self.sh", "&mut self.rs", "&mut self.block_digests"] {
+        if src.contains(pat) {
+            out.push(format!("a mutable accessor: {pat}"));
+        }
+    }
+    out
+}
+
+/// **NOTE K-3: the declaration pin above is real but narrow; the stronger
+/// guard catches what it misses.** Measured on `run.rs`'s own text, by
+/// in-test mutations of the text (the reviewer's approach; nothing is ever
+/// written to disk): (a) as it stands, the pin sees 0 visible fields and the
+/// guard 0 violations; (b) one `pub(crate)` constructor added inside `impl
+/// RunShape` that builds a literal and skips ruling CS-7 — S42-N1 again,
+/// from any file of the crate — the pin still sees 0, the guard FAILS; (c)
+/// `#[cfg(test)]` removed from `with_run_shape` — a production path that
+/// swaps a statement's run shape past every check `RunStatement::new` makes
+/// — the pin still sees 0, the guard FAILS; (d) a field made `pub` again:
+/// the pin catches it (its real guard).
+#[test]
+fn s44_k3_the_stronger_guard_catches_a_second_constructor_and_an_uncfgd_escape_hatch() {
+    let src = source("src/private_block/run.rs");
+    let (decl_rs, decl_st) = ("pub(crate) struct RunShape {", "pub(crate) struct RunStatement {");
+    // (a) the source as it stands
+    assert!(visible_fields(&src, decl_rs).is_empty() && visible_fields(&src, decl_st).is_empty(), "(a) the pin sees a visible field in the source as it stands");
+    assert_eq!(stronger_guard(&src), Vec::<String>::new(), "(a) the stronger guard fails on the source as it stands");
+    // (b) a second constructor, skipping CS-7
+    let anchor = "impl RunShape {\n";
+    assert_eq!(src.matches(anchor).count(), 1, "one impl RunShape block");
+    let b = src.replacen(anchor, "impl RunShape {\n    pub(crate) fn from_parts(sh: Shape, l: usize, profile: &'static str) -> RunShape {\n        RunShape { sh, l, profile }\n    }\n", 1);
+    let guard_b = stronger_guard(&b);
+    eprintln!("S44 K-3 (b) a pub(crate) RunShape::from_parts skipping CS-7: the pin sees {} visible field(s); the stronger guard: {guard_b:?}", visible_fields(&b, decl_rs).len());
+    assert!(visible_fields(&b, decl_rs).is_empty(), "(b) the pin now catches a second constructor (update this note)");
+    assert!(!guard_b.is_empty(), "(b) the stronger guard missed the second constructor");
+    // (c) the escape hatch un-cfg'd
+    let hatch = "    #[cfg(test)]\n    pub(crate) fn with_run_shape(";
+    assert_eq!(src.matches(hatch).count(), 1, "with_run_shape sits directly under #[cfg(test)]");
+    let c = src.replacen(hatch, "    pub(crate) fn with_run_shape(", 1);
+    let guard_c = stronger_guard(&c);
+    eprintln!("S44 K-3 (c) with_run_shape without #[cfg(test)]: the pin sees {} visible field(s); the stronger guard: {guard_c:?}", visible_fields(&c, decl_st).len());
+    assert!(visible_fields(&c, decl_st).is_empty(), "(c) the pin now catches an un-cfg'd escape hatch (update this note)");
+    assert!(!guard_c.is_empty(), "(c) the stronger guard missed the un-cfg'd escape hatch");
+    // (d) the pin's real guard: a field made visible again
+    let d = src.replacen("pub(crate) struct RunShape {\n    sh: Shape,", "pub(crate) struct RunShape {\n    pub sh: Shape,", 1);
+    assert_ne!(d, src, "(d) the RunShape declaration moved; update the mutation");
+    assert_eq!(visible_fields(&d, decl_rs), vec!["pub sh: Shape,".to_string()], "(d) the pin no longer catches a visible field");
+    eprintln!("S44 K-3: the declaration pin catches a field made visible (d) and misses a second constructor (b) and an un-cfg'd escape hatch (c); the stronger guard catches (b) and (c) and passes the source as it stands");
+}
+
 // ------------------------------------------------ where the checks sit (failing first)
 
 /// **WHERE THE CS-8 CHECKS SIT, READ OUT OF THE SOURCE.** In each
@@ -558,10 +660,20 @@ fn s43_cs8_check_constructed_admits_every_shape_new_builds_and_names_each_writte
         assert_eq!(s.check_constructed().err(), Some(cs8_shape_differs(s, fields)), "CS-8 did not name the written {fields}");
     }
     // a written PARAMETER that moves a derived field: width 96 -> 100 keeps
-    // every padded axis and moves the norm bound d_max
-    let mut wider = g.clone();
+    // every padded axis and moves the norm bound d_max. STAGE 44: under a
+    // REGISTERED profile a written parameter is now refused by ruling CS-9
+    // inside `Shape::new` (the profile names one shape), so the derived-field
+    // naming is shown on a test-only shape under its own unregistered profile
+    // (the five-limb override above, width 96 like rung-G's), and rung-G's
+    // written width carries CS-9's refusal
+    let mut wider = admitted[10].clone();
+    assert_eq!(wider.width, 96, "the unregistered fixture moved");
     wider.width = 100;
     assert_eq!(wider.check_constructed().err(), Some(cs8_shape_differs(&wider, "d_max")), "CS-8 did not name the derived field a written width moves");
+    let mut wider_g = g.clone();
+    wider_g.width = 100;
+    let e = wider_g.check_constructed().err().unwrap_or_default();
+    assert!(e.starts_with(&format!("{}private block shape: ruling CS-9 — ", cs8_shape_refused_prefix(&wider_g))), "CS-8 did not carry ruling CS-9's refusal of rung-G's profile at width 100: {e}");
     // a written PARAMETER that Shape::new refuses: Shape::new's own refusal, inside CS-8's
     let written = |f: &dyn Fn(&mut Shape)| -> Shape {
         let mut s = g.clone();

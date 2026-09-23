@@ -323,6 +323,16 @@ mod s43_tests;
 // (`docs/zkmatrix-poc/ZK60_LANE_S39_S43_CODE_REVIEW.md`); not to be integrated.
 #[cfg(test)]
 mod s39_s43_review_tests;
+// STAGE 44: rulings K-1, K-2 and CS-9 of the disposition §8 on the
+// independent code review of stages 39–43 (census memo §13).
+#[cfg(test)]
+mod s44_tests;
+// STAGE 45: the STANDALONE SHAPED BLOCK CAPTURE — the verifier's view of one
+// block receipt at a shaped profile, beside `run_capture`, `cfg(test)` like it.
+#[cfg(test)]
+mod block_capture_shaped;
+#[cfg(test)]
+mod block_capture_shaped_tests;
 // REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
 // pre-read of stage 36): the reviewer's own tests of the observer hook and of
 // the endpoint replica's fidelity. NOT part of the lane's delta and not to be

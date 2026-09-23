@@ -1,0 +1,177 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:869:13
+    |
+869 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 07s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555)
+
+running 15 tests
+S43 CS-8 check_constructed: 12 shapes Shape::new builds admitted (every registered one, rung-K8, two above-derived overrides); 8 derived/pinned-field writes named; a written width names d_max; f_e 64, wrho_s 8 and head_dim 12 refused with Shape::new's own refusal inside CS-8's
+test private_block::s43_tests::s43_cs8_check_constructed_admits_every_shape_new_builds_and_names_each_written_field ... ok
+S43 CS-8 sealed declarations: 0 visible field(s)
+S43 CS-8 placement: the shape's check first in prove_inner_at, verify_inner_at and verify_bytes_at; the shape's and the layout's checks before the statement re-check, every draw, commitment and absorb in prove_core and verify_core
+test private_block::s43_tests::s43_cs8_no_field_of_a_sealed_type_is_visible_outside_its_module ... ok
+test private_block::s43_tests::s43_cs8_each_single_block_entry_checks_its_shape_first ... ok
+S44 K-3 (b) a pub(crate) RunShape::from_parts skipping CS-7: the pin sees 0 visible field(s); the stronger guard: ["2 RunShape struct literals (1 expected, in RunShape::new)"]
+S44 K-3 (c) with_run_shape without #[cfg(test)]: the pin sees 0 visible field(s); the stronger guard: ["pub(crate) fn with_run_shape( is not directly under #[cfg(test)]"]
+S44 K-3: the declaration pin catches a field made visible (d) and misses a second constructor (b) and an un-cfg'd escape hatch (c); the stronger guard catches (b) and (c) and passes the source as it stands
+test private_block::s43_tests::s44_k3_the_stronger_guard_catches_a_second_constructor_and_an_uncfgd_escape_hatch ... ok
+S44 CS-9 release form: the ten registered/test shapes pass; two unregistered probes (admitted by this test build) refused by name
+test private_block::s44_tests::s44_cs9_an_unregistered_block_profile_is_refused_outside_cfg_test ... ok
+S44 CS-9 pairs: 0 of 90 ordered pairs admitted somewhere
+S44 CS-9: the 90 ordered pairs of the ten registered/test shapes refused by CS-9's name at Shape::new and by CS-8 carrying it on a written profile; a renamed toy refused; the ten admitted on their own
+test private_block::s44_tests::s44_cs9_every_registered_block_profile_at_every_other_registered_shape_is_refused_by_name ... ok
+S44 CS-9 structure: build private, called only by new and the nine registered constructors, handed once to rung-K8's cfg(test) arm; the registry lists the nine; the guard catches a second caller, a visible build and a dropped constructor
+test private_block::s44_tests::s44_cs9_the_registry_is_one_list_and_build_has_no_other_caller ... ok
+S44 CS-9 the toy profile string at rung-G geometry: Err("private block shape: ruling CS-9 — the block profile \"hashline-zk-mr1/private-block-t32-poc/1\" is registered for exactly one shape, \"toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)\"; the shape handed, \"review: the toy profile at rung-G geometry\", differs from it in name, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s")
+test private_block::s44_tests::s44_cs9_the_toy_profile_string_at_rung_g_geometry_is_refused_by_name_at_construction ... ok
+S43 CS-8 shape, the norm window written: the prover refuses: private block shape: ruling CS-8 — "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" is not a shape Shape::new builds: Shape::new refuses its own parameters (private block shape: ruling CS-2 — the norm window override norm_wrho = 30 is below the window this shape derives, 31 bits (the norm denominator reaches isqrt(1 + 96 x 32768^2) x 2^12 = 1315057664); the norm remainder would be reachable and refused by the builder on some private inputs)
+S44 K-1 block 0 tampered: the run prover asked for ["boundary_plane(0)", "witness(0)"], sank 0 segment(s), and refused: private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the activation table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+S43 CS-8 shape, the opened columns written: the prover refuses: private block shape: ruling CS-8 — "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" is not a shape Shape::new builds: its opened_cols differ from what Shape::new derives from its parameters
+S43 CS-8 endpoint policy, scales written to (3, 3): the endpoint owner refuses: private block: ruling CS-8 — the endpoint policy's scales (3, 3) are not the approved calibration's (0, 0), which IoSpec::new pins (D12 item 5)
+S43 CS-8 layout, A planes 0 and 1 (T) with their row offsets swapped, at the toy: the core prover refuses: private block: ruling CS-8 — the layout is not the one Layout::for_shape derives for the shape it is proved at: its a_off differ from what Layout::for_shape derives (the core prover drew 0 bytes and squeezed 0 times before returning)
+S43 CS-8 layout, two A rows written before the proximity pair, at the toy: the core prover refuses: private block: ruling CS-8 — the layout is not the one Layout::for_shape derives for the shape it is proved at: its a_prox, a_rows differ from what Layout::for_shape derives (the core prover drew 0 bytes and squeezed 0 times before returning)
+S43 CS-8 endpoint policy: the written scales refused by name at prepare_endpoints, the prover's entry, verify_bytes (also on 64 zero bytes), verify and RunStatement::new; the control proves and verifies
+test private_block::s43_tests::s43_cs8_an_endpoint_policy_whose_scales_were_written_is_refused_by_name_at_every_entry ... ok
+S43 CS-8 layout: the written layout and rung-G's layout at the toy refused by name at prove_core (0 bytes drawn, 0 squeezes, transcript unmoved) and verify_core (0 squeezes, transcript unmoved); the honest toy core proves and verifies
+test private_block::s43_tests::s43_cs8_a_layout_written_past_layout_for_shape_is_refused_by_name_at_the_two_bodies ... ok
+S43 CS-8 confirmation: field writes on the attention half (CS-4), the feed-forward half (CS-1), the policy's hash tag (CS-4), swapped endpoint owners (spec digests), a receipt one slot short (frame check) and a witness one word short (witness shape) are each refused at the entry
+test private_block::s43_tests::s43_cs8_field_writes_on_the_types_already_rechecked_are_refused_at_the_entries ... ok
+S44 K-2 the byte table: misses (U8, exp, act) (1, 0, 0) and (4, 0, 0); the refusals:
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the byte table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the byte table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+S44 K-1 block 1 tampered: the run prover asked for ["boundary_plane(0)", "witness(0)", "witness(1)"], sank 1 segment(s), and refused: private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the activation table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+test private_block::s44_tests::s44_k1_the_cs3_refusal_text_says_what_precedes_it_in_a_run ... ok
+S44 K-2 the exp table: misses (U8, exp, act) (0, 1, 0) and (0, 4, 0); the refusals:
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the exp table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the exp table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+S44 CS-9 rung-G with its profile written to the toy's, at the prover's entry: the prover refuses: private block shape: ruling CS-8 — "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)" is not a shape Shape::new builds: Shape::new refuses its own parameters (private block shape: ruling CS-9 — the block profile "hashline-zk-mr1/private-block-t32-poc/1" is registered for exactly one shape, "toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)"; the shape handed, "development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)", differs from it in name, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s)
+S44 K-2 the activation table: misses (U8, exp, act) (0, 0, 1) and (0, 0, 4); the refusals:
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the activation table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the activation table (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).
+S43 CS-8 shape: both written shapes refused by name at prove_inner_at, verify_bytes_at (on 64 zero bytes), verify_inner_at, prove_core (0 bytes drawn, 0 squeezes, transcript unmoved) and verify_core (0 squeezes, transcript unmoved); the rung-G control proves and verifies
+test private_block::s43_tests::s43_cs8_a_shape_written_past_shape_new_is_refused_by_name_at_every_single_block_entry ... ok
+S44 CS-9 prove_core at the written shape: Err("private block shape: ruling CS-8 — \"development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)\" is not a shape Shape::new builds: Shape::new refuses its own parameters (private block shape: ruling CS-9 — the block profile \"hashline-zk-mr1/private-block-t32-poc/1\" is registered for exactly one shape, \"toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)\"; the shape handed, \"development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)\", differs from it in name, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s)") (0 bytes drawn, 0 squeezes, transcript moved: false)
+S44 CS-9 entries: the written profile refused by name at prove_inner_at, verify_bytes_at (64 zero bytes), verify_inner_at, prove_core (0 bytes drawn, 0 squeezes, transcript unmoved) and verify_core (0 squeezes, transcript unmoved); the rung-G control proves and verifies
+test private_block::s44_tests::s44_cs9_a_written_profile_is_refused_by_name_at_every_entry_before_anything_is_drawn ... ok
+S44 K-2: the refusal names the family that missed, is identical at 1 and 4 misses, and names all three when all three miss
+test private_block::s44_tests::s44_k2_the_cs3_refusal_names_the_table_family_that_missed_and_no_count ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 557 filtered out; finished in 0.85s
+

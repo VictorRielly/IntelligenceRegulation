@@ -70,8 +70,16 @@ fn cs1_run(k: usize, inner: &str) -> String {
     format!("private run: block {k}: {}", cs1(inner))
 }
 
+/// **STAGE 44, errata K-1 and K-2**: the text says what precedes the refusal
+/// and names the table family that missed, never how many words did (the
+/// counts are computed from the hidden witness); the counts here only choose
+/// the families
 fn cs3(u8: usize, exp: usize, act: usize) -> String {
-    format!("{CS3} (refused before the A commitment; nothing of this block was drawn, absorbed or committed): {u8} U8 words outside the byte table, {exp} exp pairs and {act} activation pairs not rows of the statement's tables")
+    let families: Vec<&str> = [(u8, "the byte table"), (exp, "the exp table"), (act, "the activation table")].iter().filter(|(n, _)| *n > 0).map(|(_, f)| *f).collect();
+    format!(
+        "{CS3}; the table family that missed: {} (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).",
+        families.join(", ")
+    )
 }
 
 fn check_context() -> Digest {

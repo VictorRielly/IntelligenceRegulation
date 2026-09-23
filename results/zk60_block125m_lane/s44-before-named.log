@@ -1,0 +1,365 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:869:13
+    |
+869 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: function `cs9_unregistered` is never used
+  --> src/private_block/s44_tests.rs:86:4
+   |
+86 | fn cs9_unregistered(given: &Shape) -> String {
+   |    ^^^^^^^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 16 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 05s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555)
+
+running 7 tests
+S44 CS-9 the toy profile string at rung-G geometry: Ok("review: the toy profile at rung-G geometry")
+
+thread 'private_block::s44_tests::s44_cs9_the_toy_profile_string_at_rung_g_geometry_is_refused_by_name_at_construction' (965211) panicked at src/private_block/s44_tests.rs:336:5:
+assertion `left == right` failed: CS-9: Shape::new did not refuse the toy's profile string at rung-G's geometry by name
+  left: None
+ right: Some("private block shape: ruling CS-9 — the block profile \"hashline-zk-mr1/private-block-t32-poc/1\" is registered for exactly one shape, \"toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)\"; the shape handed, \"review: the toy profile at rung-G geometry\", differs from it in name, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::s44_tests::s44_before_k4_reproducer_an_admitted_toy_profile_shape_at_rung_g_geometry_fails_its_honest_proofs ... ignored, the review's K-4 reproducer, run failing first on this lane
+test private_block::s44_tests::s44_cs9_the_toy_profile_string_at_rung_g_geometry_is_refused_by_name_at_construction ... FAILED
+S44 CS-9 pairs: 180 of 90 ordered pairs admitted somewhere
+
+thread 'private_block::s44_tests::s44_cs9_the_registry_is_one_list_and_build_has_no_other_caller' (965210) panicked at src/private_block/s44_tests.rs:514:5:
+assertion `left == right` failed: (a) CS-9's structure fails on the source as it stands
+  left: ["no fn build( in shape.rs", "Shape::build( is called from [], not exactly from new and the nine registered constructors", "Shape::build is handed as a function pointer 0 times (1 expected, rung-K8's registry arm)", "no REGISTERED_BLOCK_SHAPES list of nine constructors"]
+ right: []
+
+thread 'private_block::s44_tests::s44_cs9_every_registered_block_profile_at_every_other_registered_shape_is_refused_by_name' (965209) panicked at src/private_block/s44_tests.rs:377:5:
+CS-9: a registered block profile string was admitted at another registered shape:
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-t32-poc/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-t32-poc/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-t24-dev/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-g-t24-dev/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-g-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k4-t24-dev/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k4-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-p2-t32-dev/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-p2-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-c6-t32-dev/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-c6-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-w14-t64-dev/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-w14-t64-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-e32-t32-dev/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-e32-t32-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-m125/1 at the shape of development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+check_constructed: development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads) with its profile written to hashline-zk-mr1/private-block-m125/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+check_constructed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+check_constructed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+check_constructed: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+check_constructed: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+check_constructed: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+Shape::new: profile hashline-zk-mr1/private-block-rung-k8-t24-dev/1 at the shape of 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+check_constructed: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) with its profile written to hashline-zk-mr1/private-block-rung-k8-t24-dev/1
+test private_block::s44_tests::s44_cs9_the_registry_is_one_list_and_build_has_no_other_caller ... FAILED
+test private_block::s44_tests::s44_cs9_every_registered_block_profile_at_every_other_registered_shape_is_refused_by_name ... FAILED
+S44 K-1 block 0 tampered: the run prover asked for ["boundary_plane(0)", "witness(0)"], sank 0 segment(s), and refused: private block: ruling CS-3 — the witness looks up a value that is not a row of its table (refused before the A commitment; nothing of this block was drawn, absorbed or committed): 0 U8 words outside the byte table, 0 exp pairs and 1 activation pairs not rows of the statement's tables
+
+thread 'private_block::s44_tests::s44_k1_the_cs3_refusal_text_says_what_precedes_it_in_a_run' (965212) panicked at src/private_block/s44_tests.rs:239:9:
+K-1: the CS-3 refusal still says nothing of the block was drawn, absorbed or committed (["boundary_plane(0)", "witness(0)"] came first)
+test private_block::s44_tests::s44_k1_the_cs3_refusal_text_says_what_precedes_it_in_a_run ... FAILED
+S44 K-2 the byte table: misses (U8, exp, act) (1, 0, 0) and (4, 0, 0); the refusals:
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table (refused before the A commitment; nothing of this block was drawn, absorbed or committed): 1 U8 words outside the byte table, 0 exp pairs and 0 activation pairs not rows of the statement's tables
+  private block: ruling CS-3 — the witness looks up a value that is not a row of its table (refused before the A commitment; nothing of this block was drawn, absorbed or committed): 4 U8 words outside the byte table, 0 exp pairs and 0 activation pairs not rows of the statement's tables
+
+thread 'private_block::s44_tests::s44_k2_the_cs3_refusal_names_the_table_family_that_missed_and_no_count' (965213) panicked at src/private_block/s44_tests.rs:309:9:
+assertion `left == right` failed: K-2: the CS-3 refusal depends on how many words of the byte table missed
+  left: "private block: ruling CS-3 — the witness looks up a value that is not a row of its table (refused before the A commitment; nothing of this block was drawn, absorbed or committed): 1 U8 words outside the byte table, 0 exp pairs and 0 activation pairs not rows of the statement's tables"
+ right: "private block: ruling CS-3 — the witness looks up a value that is not a row of its table (refused before the A commitment; nothing of this block was drawn, absorbed or committed): 4 U8 words outside the byte table, 0 exp pairs and 0 activation pairs not rows of the statement's tables"
+test private_block::s44_tests::s44_k2_the_cs3_refusal_names_the_table_family_that_missed_and_no_count ... FAILED
+S44 CS-9 rung-G with its profile written to the toy's, at the prover's entry: PROVED; the in-memory verifier rejects: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+
+thread 'private_block::s44_tests::s44_cs9_a_written_profile_is_refused_by_name_at_every_entry_before_anything_is_drawn' (965208) panicked at src/private_block/s44_tests.rs:418:5:
+assertion `left == right` failed: 1. the prover's entry did not refuse the written profile by name
+  left: "PROVED; the in-memory verifier rejects: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim"
+ right: "the prover refuses: private block shape: ruling CS-8 — \"development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)\" is not a shape Shape::new builds: Shape::new refuses its own parameters (private block shape: ruling CS-9 — the block profile \"hashline-zk-mr1/private-block-t32-poc/1\" is registered for exactly one shape, \"toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)\"; the shape handed, \"development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)\", differs from it in name, tokens, width, hidden, q_heads, head_dim, kv_heads, log_cols, inv_rate, f_e, endpoint_rows, endpoint_log_n, endpoint_inv_rate, norm_wrho, wrho_s)"
+test private_block::s44_tests::s44_cs9_a_written_profile_is_refused_by_name_at_every_entry_before_anything_is_drawn ... FAILED
+
+failures:
+
+failures:
+    private_block::s44_tests::s44_cs9_a_written_profile_is_refused_by_name_at_every_entry_before_anything_is_drawn
+    private_block::s44_tests::s44_cs9_every_registered_block_profile_at_every_other_registered_shape_is_refused_by_name
+    private_block::s44_tests::s44_cs9_the_registry_is_one_list_and_build_has_no_other_caller
+    private_block::s44_tests::s44_cs9_the_toy_profile_string_at_rung_g_geometry_is_refused_by_name_at_construction
+    private_block::s44_tests::s44_k1_the_cs3_refusal_text_says_what_precedes_it_in_a_run
+    private_block::s44_tests::s44_k2_the_cs3_refusal_names_the_table_family_that_missed_and_no_count
+
+test result: FAILED. 0 passed; 6 failed; 1 ignored; 0 measured; 564 filtered out; finished in 1.12s
+
+error: test failed, to rerun pass `--lib`

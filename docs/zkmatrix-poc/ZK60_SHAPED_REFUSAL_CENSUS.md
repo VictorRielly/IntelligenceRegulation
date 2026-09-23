@@ -912,3 +912,150 @@ moves. The re-checks call `Shape::new` (pure arithmetic) and
 `Layout::for_shape`, whose T-3 guard derives the profile's hash tag from
 the public profile string exactly as every entry's own call already does;
 nothing is digested, absorbed or drawn by either.
+
+## 13. Stage 44 — errata K-1 and K-2, note K-3, and ruling CS-9 as built (2026-09-23 02:30 – 02:5x PDT)
+
+The disposition's §8 ruled on the independent adversarial code review of
+lane stages 39–43 (review branch `zk60-private-block-125m-review` at
+`dc12f44`, `docs/zkmatrix-poc/ZK60_LANE_S39_S43_CODE_REVIEW.md`; its tests
+`s39_s43_review_tests.rs` supplied the K-1 and K-4 reproducers). Built on the
+lane at `51f8f2b`. Tests: `hashline/src/private_block/s44_tests.rs` (7) and
+one K-3 test in `s43_tests.rs`. **Not a privacy result.**
+
+### K-1 and K-2: ruling CS-3's refusal text (text only)
+
+Before (`protocol.rs`, stage 40): *"… (refused before the A commitment;
+nothing of this block was drawn, absorbed or committed): {u8} U8 words
+outside the byte table, {exp} exp pairs and {act} activation pairs not rows
+of the statement's tables"*. The clause was false inside a run (the stage
+header is absorbed and `B_k` drawn, committed and absorbed before
+`prove_core`, ruling M-9) and loosely false in a single block (the header is
+absorbed first); the three counts are computed from the hidden witness.
+
+After: *"private block: ruling CS-3 — the witness looks up a value that is
+not a row of its table; the table family that missed: <the byte table | the
+exp table | the activation table, comma-separated> (the class of the miss
+only, never a count — ruling K-2). It is refused before this block's A mask
+rows are drawn, its A commitment is made or any challenge of it is drawn.
+What precedes the refusal: in a single block, the transcript header's
+absorbs; inside a run, the run header, every earlier stage, this stage's
+header absorbs and, below the last block, the boundary B_k to the next
+block, drawn from the run's stream, committed and absorbed (ruling M-9)."*
+
+The counts still decide whether the refusal fires; only the text changed. No
+code path, order or byte moved. **What the text still derives from the
+witness:** which family (or families) missed — the class the ruling allows.
+Measured: 1 and 4 misses of each family give the identical text; a run
+tampered in block 0 asks for `boundary_plane(0)` before `witness(0)` and
+sinks nothing; tampered in its last block it proves stage 0 whole and sinks
+one segment first — both refuse with the new text.
+
+### K-3: the stronger declaration guard (moved into `s43_tests.rs`)
+
+The reviewer's guard over `run.rs`'s text: exactly one `RunShape` literal,
+inside `RunShape::new`; exactly one `RunStatement` literal, inside
+`RunStatement::new` (the reviewer checked the first placement only; the
+second is added); `with_run_shape` and `with_calibration` each directly
+under `#[cfg(test)]`; no `&mut` accessor to a sealed field. Shown by in-test
+mutations of the source text (nothing written to disk): a second
+`pub(crate)` constructor that skips CS-7 — the stage-43 pin sees 0 visible
+fields, the guard fails; `with_run_shape` without `#[cfg(test)]` — the pin
+sees 0, the guard fails; a field made `pub` — the pin catches it. The narrow
+pin stays beside it.
+
+### CS-9: the block profile registry
+
+**The one place a profile string meets a geometry is `Shape::new`.** It is
+now two steps: `Shape::build` (the old body, every refusal of stages 5–41,
+PRIVATE to `shape.rs`), then CS-9's check. Every existing refusal therefore
+keeps its message first.
+
+* **The registry**: `REGISTERED_BLOCK_SHAPES`, the nine registered
+  constructors (`toy`, `rung`, `rung_g`, `rung_k4`, `rung_p2`, `rung_c6`,
+  `rung_w14`, `rung_e32`, `m125`). They build through `Shape::build` because
+  each IS the entry for its profile (through `Shape::new` the lookup would
+  consult the entry being built). No profile string is written anywhere new,
+  so stage 24's and stage 33's source registry is unchanged.
+* **A registered profile string** is admitted only with its registered
+  shape, compared whole — as CS-7 compares a run's block shape, the display
+  name included (a profile names one shape VALUE). Otherwise: *"private
+  block shape: ruling CS-9 — the block profile "<p>" is registered for
+  exactly one shape, "<its name>"; the shape handed, "<name>", differs from it
+  in <the Shape::new parameters that differ>"*.
+* **An unregistered profile string** is refused outside `#[cfg(test)]`:
+  *"… — "<p>" is not a block profile this build registers, so it names no
+  shape ("<name>" was handed)"*. The check takes `admit_unregistered =
+  cfg!(test)`: a test build admits the probe and fixture shapes the test
+  files build under their own unregistered strings (the `Shape::new` call
+  sites of `s23`, `s24`, `s33`, `s40`, `s41`, `s43`, `grow`, `k8`, `w14`,
+  `e32`, `s20_review` and `pad`'s test module).
+* **Test-only shapes** register only under `#[cfg(test)]`, as stage 42 did
+  for runs: rung-K8's arm (`super::k8_tests::K8_BLOCK_PROFILE`) exists only
+  in a test build. Its parameters stay written once, in `k8_tests.rs`
+  (`rung_k8_built_by(build)`): `rung_k8()` passes `Shape::new`, the registry
+  arm passes the private `Shape::build` as a function pointer — the only
+  place outside `shape.rs` that can call it, and only in a test build. A
+  release build has neither the arm nor the helper; its K8 profile string is
+  unregistered.
+* **At the entries**: `Shape::check_constructed` runs `Shape::new` on the
+  value's own parameters, so CS-9 is re-checked at `prove_inner_at`,
+  `verify_inner_at`, `verify_bytes_at`, `prove_core` and `verify_core` —
+  which closes the FIELD-WRITE route to K-4 (a rung-G value with its
+  `profile` written to the toy's), measured before as proving and being
+  rejected at slot 2.
+* **The release half, shown**: `#[cfg(test)] check_block_profile_as_a_release_build`
+  runs the check with `admit_unregistered = false`; `cargo build --release
+  --lib` builds (`s44-release-lib.log`, `.done` = 0; the 109 warning lines of
+  the review's release build, one of them shorter because the nine
+  constructors are no longer dead code — the registry calls them).
+* **Its structure, pinned** (`s44_cs9_the_registry_is_one_list_and_build_has_no_other_caller`):
+  `build` private; `Shape::build(` called only from `new` and the nine
+  constructors; handed as a pointer once, inside `registered_block_shape`,
+  directly under `#[cfg(test)]`; the list is the nine; the block profile
+  literals of `shape.rs` are exactly the nine registered profiles. In-test
+  mutations: a second caller, a visible `build`, and 125M dropped from the
+  list are each caught.
+
+**Cost**: one lookup per `Shape::new`; it builds registered shapes lazily
+until the profile matches (the toy's is first, so the toy path builds one;
+an unregistered test probe builds all nine). Arithmetic only.
+
+### Failing first, and after
+
+At `6336377` (the skeleton over `f486e6f`, plus `s44_tests.rs` and its mod
+line; no production line moved):
+
+| run | log | result before | after (`51f8f2b`) |
+|---|---|---|---|
+| the named tests | `s44-before-named.log` (`.done` = 101) | **6 of 6 FAIL**: `Shape::new` ADMITS the toy's profile string at rung-G's geometry; all 90 ordered pairs of the ten registered/test shapes (profile `i` at shape `j`) admitted by `Shape::new` AND by `check_constructed` on a written profile (180 admissions); rung-G with its profile written to the toy's: **PROVED**, the in-memory verifier rejected it at slot 2 (the norm squares zero-check); CS-3 printed `1` vs `4` witness-derived counts, and in a run the "nothing … committed" clause after `boundary_plane(0)`; the structure guard found no registry | `s44-after-s44.log` (`s44_ s43_`): 15 / 0 / 0 |
+| the review's K-4 reproducer (`--ignored`) | `s44-before-reproducer.log` (`.done` = 101) | the builder admits, the honest prover proves, the verifier **REJECTS** the honest proof on the dense input, the tame input and all zeros, each at slot 2 | deleted (its first line, `Shape::new` admitting the shape, is what CS-9 refuses); a note stands where it was |
+
+**Where CS-9 fires, measured** (`s44-after-s44.log`): at `Shape::new`
+(construction, nothing to absorb); on the written profile at
+`prove_inner_at`, `verify_bytes_at` (on 64 zero bytes: nothing decoded
+first), `verify_inner_at`, `prove_core` (**0 bytes drawn, 0 squeezes,
+transcript unmoved**) and `verify_core` (**0 squeezes, unmoved**), each as
+CS-8's refusal carrying CS-9's; the rung-G control proves and verifies.
+
+**Test edits the ruling moved** (test-only): `s42_tests.rs` — rung-G's block
+profile at width 100 is now refused by `Shape::new` (asserted); CS-7's
+same-string check uses a field-written rung-G instead. `review_tests.rs`
+(attack 5) — the rung's profile at an 8-head / 2-KV layout is now refused by
+CS-9 (asserted); the verifier-side claim uses a field-written rung, still
+refused. `s43_tests.rs` — the written-width `d_max` naming is shown on an
+unregistered fixture (rung-G's written width now carries CS-9 inside CS-8,
+asserted). `s40_tests.rs` — the pinned CS-3 text. `k8_tests.rs` —
+`rung_k8_built_by`.
+
+**What does not move.** No absorb, challenge, draw, commit or hash call is
+added (the production diff: comments, refusal strings, the `new` / `build`
+split, the registry and one check). Every registered shape is built from the
+same parameters as before; the toy stays 2,816,472 B; every frame, receipt,
+schedule, slot-IR, 125M, R-5, registry, source-pin and hash-call-site pin
+passes in the gate (`s44-gate-private.log`).
+
+**For the D22 re-pin.** `shape.rs` and `protocol.rs` move again. On the toy
+path: CS-9's check runs inside `check_constructed` at the toy's entries and
+admits `Shape::toy()` (class (ii): the same for every admitted toy input,
+since the toy's public API always builds `Shape::toy()`); the CS-3 text is
+class (ii) (unreachable for admitted witnesses; text only).

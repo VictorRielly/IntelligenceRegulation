@@ -13407,3 +13407,626 @@ left alone.
 
 Not a privacy result. Not a soundness statement beyond statement and shape
 admissibility: the field-wrap premise is untouched.
+
+## Stage 44 — rulings K-1, K-2, K-3 and CS-9 (K-4) of the stage 39–43 code review (2026-09-23, 02:3x–)
+
+**Status: `CLOSED` 2026-09-23 02:5x PDT** — see "Stage 44 — CLOSED" below.
+Opened 2026-09-23 02:30 PDT on the lane tip `f486e6f`,
+one writer (the delegated stage-44 agent). Rulings from §8 of
+`docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
+owner) on the independent adversarial code review of `a9d6d4c..f486e6f`
+(review branch `zk60-private-block-125m-review` at `dc12f44`,
+`docs/zkmatrix-poc/ZK60_LANE_S39_S43_CODE_REVIEW.md`, tests
+`hashline/src/private_block/s39_s43_review_tests.rs` — read only here):
+
+* **K-1 + K-2 (errata, text only)** — ruling CS-3's refusal text says
+  exactly what precedes it (in a single block the transcript header; inside
+  a run the stage header and the boundary `B_k`, drawn, committed and
+  absorbed, `run.rs:746-757`) and no longer prints the three counts computed
+  from the hidden witness: it names the class of miss only (which table
+  family missed, never how many). No code path, order or byte changes. The
+  pinned text (`s40_tests.rs:73`) moves with it; the review's `rv_k1_`
+  reproducer comes over as a passing test of the corrected text.
+* **K-3 (note)** — the review's stronger declaration guard (exactly one
+  `RunShape` literal, inside `RunShape::new`; exactly one `RunStatement`
+  literal, inside `RunStatement::new`; `with_run_shape` and
+  `with_calibration` directly under `#[cfg(test)]`; no `&mut` accessor to a
+  sealed field) goes into `s43_tests.rs` beside the narrow pin, shown to
+  fail on a second `pub(crate)` constructor that skips CS-7 and on
+  `with_run_shape` losing its `#[cfg(test)]` (in-test source mutations, the
+  review's approach; no mutation committed).
+* **CS-9 (from note K-4)** — a block-profile registry, as CS-7 is for runs:
+  the one place a block profile string meets a geometry refuses, by name, a
+  registered block profile string with any geometry other than its own, and
+  an unregistered profile string outside `#[cfg(test)]`; test-only shapes
+  (rung-K8) register only under `#[cfg(test)]`. Failing first: the review's
+  K-4 reproducer on this lane (`s44-before-*.log`), then a named-refusal
+  test failing before the fix. The refusal before any absorb, commitment or
+  draw (0 draws / 0 squeezes / transcript unmoved, measured as stages 40–43
+  did).
+
+**THE WRITE SET:** `hashline/src/private_block/protocol.rs` (CS-3's text
+only), `hashline/src/private_block/shape.rs` (CS-9), the `cfg(test)` mod
+line in `hashline/src/private_block.rs`; test files `s40_tests.rs`,
+`s43_tests.rs`, the new `s44_tests.rs`, and test files whose shapes CS-9
+now refuses; census memo §13; this ledger; logs
+`results/zk60_block125m_lane/s44-*`.
+**Forbidden:** `hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`,
+`hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`, `zkvm-block/`;
+the untracked `u31-c6-run1.*` files are left alone.
+
+**Byte identity to hold:** the toy 2,816,472 B; every frame / receipt /
+schedule / slot-IR / 125M / R-5 / registry / source-pin / hash-call-site
+pin unchanged; every registered shape unchanged. Small rungs only; no 125M
+prove. Gate: stages 37–43's focused filters plus `s44_`, then `--lib
+private_` once at `--test-threads=6`, recorded against 479 / 0 / 18.
+
+**No privacy claim.**
+
+### Stage 44 — the rulings built (2026-09-23 02:30 – 02:44)
+
+All runs under `flock /tmp/zk-build.lock`, `--test-threads=6`, detached
+with `.done` markers; shared box, not quiesced. Census memo §13 has the
+texts, the design and the tables.
+
+**Failing first** (at `6336377` = `f486e6f` + the skeleton, plus
+`s44_tests.rs` and its mod line; no production line moved):
+
+| run | log | result |
+|---|---|---|
+| the named tests | `s44-before-named.log` (`.done` = 101) | **6 of 6 FAIL**: `Shape::new` ADMITS the toy's profile string at rung-G's geometry; all 90 ordered pairs of the ten registered/test shapes admitted by `Shape::new` and by `check_constructed` on a written profile (180 admissions); rung-G with its `profile` written to the toy's **PROVED** and the in-memory verifier rejected it at slot 2; CS-3 printed `1` vs `4` witness-derived counts, and in a run its "nothing … committed" clause after `boundary_plane(0)`; no registry in the source |
+| the review's K-4 reproducer, `--ignored` | `s44-before-reproducer.log` (`.done` = 101) | builder admits, honest prover proves, verifier **REJECTS** on the dense input, the tame input and all zeros, each at slot 2 (the norm squares zero-check) |
+
+**BUILT.**
+* `protocol.rs` — `refuse_lookup_misses`'s text (K-1: what precedes the
+  refusal, single block and run; K-2: the family that missed, no count) and
+  two comments. Text only.
+* `shape.rs` — `Shape::new` split: the old body is the private
+  `Shape::build`; `new` = `build` + ruling CS-9's check
+  (`block_profile_names_this_shape(cfg!(test))`), after every existing
+  refusal. `REGISTERED_BLOCK_SHAPES` (the nine registered constructors, which
+  now call `Shape::build` — they are the entries) and
+  `registered_block_shape`, with rung-K8's arm under `#[cfg(test)]` only.
+  A registered profile is admitted only with its registered shape, compared
+  whole (the name included, as CS-7 compares); an unregistered one is
+  refused unless `cfg(test)`. `#[cfg(test)] check_block_profile_as_a_release_build`.
+  Doc comments on `Shape`, `new`, `build`, `check_constructed`.
+* `private_block.rs` — the `cfg(test)` mod line.
+* `k8_tests.rs` — `rung_k8_built_by(build)`: rung-K8's parameters once;
+  `rung_k8()` passes `Shape::new`, the registry arm the private
+  `Shape::build`.
+* `s43_tests.rs` — K-3: the reviewer's stronger guard (plus the
+  `RunStatement` literal's placement), with in-test mutations; the
+  written-width `d_max` case moved onto an unregistered fixture.
+* Adapted (CS-9 now refuses the shape they built): `s42_tests.rs` (rung-G's
+  profile at width 100), `review_tests.rs` attack 5 (the rung's profile at
+  another head layout) — both now assert the CS-9 refusal and reach the
+  value by a field write for the check they were about. `s40_tests.rs` —
+  the pinned CS-3 text.
+
+**MEASURED after** (`s44-after-s44.log`, `.done` = 0; `s44_ s43_` 15 / 0 /
+0): the corrected CS-3 text in a run (block 0 and the last block) and in a
+single block, identical at 1 and 4 misses of each family; CS-9 by name at
+construction for the K-4 shape and all 90 pairs, and on a renamed toy; on
+the written profile at `prove_inner_at`, `verify_bytes_at` (64 zero bytes),
+`verify_inner_at`, `prove_core` (0 bytes drawn, 0 squeezes, transcript
+unmoved) and `verify_core` (0 squeezes, unmoved); the release form refuses
+two unregistered probes by name and admits the ten; the structure guard and
+its three mutations; K-3's guard and its mutations.
+`s44-after-focused.log` (`.done` = 0): `--lib -- s44_ s43_ s42_ s41_ s40_
+census_shaped k8_ hash_tag a_receipt_does_not_verify_under_another_shape_at_the_rung`
+**72 passed / 0 failed / 1 ignored**, 19.00 s, the same 16 warning lines.
+
+### Stage 44 — CLOSED (2026-09-23 02:30 – 02:5x)
+
+**Status: `LANDED`.** K-1, K-2, K-3 and CS-9 built. No 125M prove; no GPU.
+
+#### The gates
+
+| run | log | result |
+|---|---|---|
+| `--lib -- s44_ s43_ s42_ s41_ s40_ census_shaped k8_ hash_tag a_receipt_…_at_the_rung --nocapture` | `s44-after-focused.log` (`.done` = 0) | **72 passed / 0 failed / 1 ignored**, 19.00 s |
+| **THE GATE**: `--lib private_` at the final code, `--test-threads=6`, `/usr/bin/time -v` | `s44-gate-private.log` (`.done` = 0) | **487 passed / 0 failed / 18 ignored**, 135.93 s (2:15.99 wall, test binary already built), peak RSS 4.40 GB (4,399,168 kB), the same 16 `warning` lines as stage 43 |
+| `cargo build --release --lib` (no tests) | `s44-release-lib.log` (`.done` = 0), `s44-release-lib-scan.txt` | builds, 33.73 s; the 109 warning lines of the review's release build, one shorter (the nine registered constructors are no longer dead code: the registry calls them). The rlib's code member is LLVM bitcode here, so no symbol scan; the build itself shows no non-`cfg(test)` reference to `k8_tests` |
+
+**Accounting against stage 43's 479 / 0 / 18:** +7 = `s44_tests.rs`
+(K-1, K-2, CS-9 × 5); +1 = K-3's test in `s43_tests.rs`; the review's K-4
+reproducer was run `--ignored` before the fix and deleted (a note stands);
+nothing newly ignored.
+
+#### Byte identity
+
+* **The toy stays 2,816,472 B** and every pin holds — in the gate's pass
+  list: `tests::honest_receipt_verifies_in_typed_and_wire_form_…`,
+  `zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length`,
+  `grow_tests::{the_shape_driven_layout_reproduces_the_toy_exactly,
+  the_toy_schedule_digest_is_frozen, the_toy_parameter_line_is_the_frozen_literal,
+  the_125m_receipt_is_reproduced_part_by_part}`,
+  `review_tests::a_toy_receipt_made_before_the_lane_still_verifies`,
+  `run_tests::{the_twelve_block_125m_receipt_is_the_counted_figure,
+  the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5}`,
+  `slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`,
+  `s24_tests::{every_registered_profile_is_covered_…,
+  the_capture_writer_pins_every_run_layer_source_it_depends_on}`,
+  `s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified`,
+  `s33_tests::every_registered_profile_context_and_label_is_printable_ascii_with_no_nul`.
+* **Nothing absorbed, drawn or hashed anew**: `git diff -U0` of the three
+  production files, grepped for
+  `absorb|challenge|rng\.|squeeze|commit|digest|update\(|from_os|transcript|blake3|hash`,
+  matches only comments, the CS-3 refusal string, and the 125M constructor
+  line (`Shape::new` → `Shape::build`, same parameters). Every registered
+  shape is built from the same parameters; every registered block and run
+  profile unchanged.
+
+#### The pins that move, for the gate owner
+
+PRODUCTION files (old at `f486e6f` -> new at `51f8f2b`):
+
+| file | old SHA-256 | new SHA-256 |
+|---|---|---|
+| `hashline/src/private_block.rs` | `9356fdf663a302c1be403bfa59d8d8819d63456001a9e259b24ee8ba7e09d59f` | `7f4603d89a429b307f66078ca96f4207ed470b4bc3a39d6d5e9630f6761ce56a` |
+| `hashline/src/private_block/protocol.rs` | `2684dc182b75efb6be691fce6214c5663f84664a74b6654b618afa7676826650` | `c8b9f5ecbb5e11f8ebd68c903ad4553cbfa6122d198178131ca3b5558a1af2b1` |
+| `hashline/src/private_block/shape.rs` | `64b1071e665dbd58a1c6b331aea304345f81fd6e4e3f33a717de100674ccec64` | `5acecd8e431ea37d6669ab097be4e64c1102cff6617bd09712f4a742c658328f` |
+
+`run.rs` unchanged (`f5f4d571…`). Test files: `s40_tests.rs`
+`824d86c28efb5364787412b79d5bab2d1e54c6ae0503fed1bb35d6c8e57d62b2` ->
+`6267d0c63b6aeb1575ebbd4738c1606beb42d311bdf697ccb50c0b22e1aa95af`;
+`s42_tests.rs` `1e5a520e0ef6893d73782e410dd0e86fbbf1636fed1442b27234a25f59f72077` ->
+`98830730a5d893b4a39b9b68d6cf02018104257a5f57b4b00028cdfcb6625be9`;
+`s43_tests.rs` `a21de23b2b6fc6b5d50f431e003f2e8063cab01785586a78b645d718eded3355` ->
+`9556e67913a18b4bc8d103645f457ab30b8b62d6545cd1791bbb5abb515deb9e`;
+`review_tests.rs` `aaac73ed529d5fea04fcd8467795af2b02f49d445fd35c9b7f2387b3e79ec238` ->
+`2429dce5cb20befffc17a36c27c2b1db3859d7dc427778d46e37ffca8c4ba03f`;
+`k8_tests.rs` `500a35faa21c4d1f72553955587840cf3849265d8048924704c8a61fb412c1ed` ->
+`de4e7f0856019495ab8fd2ec054eeb1cdf760940a59cb2228eb3914463516d21`;
+`s44_tests.rs` (new) `b39780ffe7e7498c90464b79814b2876bdfafb0fcae13d1f58afbad634c8ba2e`.
+
+**For the D22 re-pin:** `shape.rs` and `protocol.rs` move again. CS-9's
+check is on the toy path (inside `check_constructed` at the toy's entries)
+and admits `Shape::toy()` — class (ii); the CS-3 text is text on a refusal
+unreachable for admitted witnesses — class (ii).
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat f486e6f -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock hashline/src/private_block/run.rs` prints NOTHING. The
+untracked `u31-c6-run1.*` files are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `6336377` | the skeleton |
+| `51f8f2b` | K-1/K-2 text, CS-9, K-3's guard, `s44_tests.rs`, the test adaptations, the failing-first and after logs |
+| this one | the gate and release-build logs, census memo §13, this ledger |
+
+#### Open, for the security owner
+
+* **CS-9 compares the whole shape, the display name included** (as CS-7
+  does): a registered profile with its own geometry under another name is
+  refused. The name is hashed nowhere; the stricter reading was taken so
+  that a profile names one shape VALUE. Relax to the parameters if a
+  renamed registered shape is ever wanted.
+* **CS-9's release half is shown, not run in release**: a test build
+  admits unregistered strings (the probes), so the refusal is exercised
+  through the `cfg(test)` release-form accessor; the release library build
+  proves the gating compiles. The run layer is still dead code in release
+  (review O-1); `Shape::new` is live there (through `check_constructed`).
+* **K-2's residue**: the text still names which family missed, which is
+  derived from the hidden witness — the class the ruling allows.
+* **The witness builder, `IoSpec::new_shaped` and `Layout::for_shape` do
+  not run `check_constructed`** (stage 43's open item), so they accept a
+  field-written shape CS-9 refuses; no proof follows — every entry refuses
+  it first, measured.
+
+#### What stage 44 is NOT
+
+Not a privacy result. Not a soundness statement beyond statement, shape and
+profile admissibility.
+
+## Stage 45 — TEST-ONLY: a capture of a STANDALONE shaped block receipt (obligation 3 of the shaped privacy status) (2026-09-23, 03:1x–)
+
+**Status: `CLOSED` 2026-09-23 03:4x PDT** — see "Stage 45 — CLOSED" below.
+Opened 2026-09-23 03:14 PDT on the lane tip `1ab1498`,
+one writer (the delegated stage-45 agent). **Why:**
+`ZK60_SHAPED_PRIVACY_PATH_STATUS.md` (main tree, 2026-09-23) §0 and
+obligation 3: every 125M privacy-gate measurement so far is of a TWO-BLOCK
+RUN (schema `hashline-native-capture/4-run` / `/5-run`, written by
+`run_capture.rs`). No STANDALONE single-block receipt at a shaped profile
+(125M or a development rung) has ever been captured; its transcript differs
+from a run stage's (its own `parameters` absorb, both external endpoints in
+one proof, no run header, no stage words, no boundary). The integrator's
+capture writer (`hashline/src/native_capture.rs`, schema 3) is toy-only and
+is not touched.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | read how `run_capture.rs` was built (stages 14 / 15 / 18 / 27, ruling M-8) and what the toy capture records | the field set mirrored, the differences named |
+| 2 | a NEW `#[cfg(test)]` verifier-side module `private_block/block_capture_shaped.rs`, schema `hashline-native-capture/5-block-shaped` | hooked exactly as `run_capture` is: a no-op unless a recorder is attached, handed only what the verifier holds, returns nothing; no absorb / draw / hash call in production; production files byte-identical except `#[cfg(test)]` hook lines (SHA-256 old -> new recorded) |
+| 3 | bundles under `results/zk60_block_captures_20260923/`: rung-G (dense generic + all-zero) and 125M (dense generic + all-zero), fresh-process re-verify and canonical recapture, a manifest and a validation file each, `source_commit` = HEAD (finding E32-F1) | sizes and digests recorded; a 125M file over 100 MB stays out of git with its digest recorded |
+| 4 | tests: the bundle round-trips, the hook changes no byte, a fresh verifier accepts the saved receipt; then stages 37–44's focused filters and `--lib private_` once at 6 threads | against 487 / 0 / 18; the toy 2,816,472 B and every pin unchanged |
+| 5 | this section, and a README in the capture directory saying what the bundles are and are NOT | no privacy claim |
+
+**Forbidden:** `hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`,
+`hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`, `zkvm-block/`;
+any production-behaviour change. The untracked `u31-c6-run1.*` files are left
+alone.
+
+**No privacy claim.** A capture is the INPUT to a gate; no gate has read one.
+
+### Stage 45 — CLOSED (2026-09-23 03:14 – 03:4x)
+
+**Status: `LANDED`.** A new `cfg(test)` capture module for a STANDALONE
+shaped block, four bundles (rung-G and 125M, dense generic and all-zero),
+each re-verified and recaptured in a fresh process. No production behaviour
+moved; no GPU. **Not a privacy result: no gate has read a bundle.**
+
+#### Task 1 — what was mirrored, and what differs
+
+Read: stages 14 / 15 / 18 / 27 of this ledger (the run capture's schema, the
+plane index table, the public tables, the array store), ruling M-8 and
+finding E32-F1 in `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md`, the toy
+writer `hashline/src/native_capture.rs` (schema 3: one JSON per proof beside
+`.receipt` / `.expected`, a fresh-process `native_capture_saved_receipt`,
+`canonical_capture_reproduced` / `native_reverified` in its
+`validation.json`). The block bundle takes the RUN capture's field set and
+encoders (the per-slot objects with `definition_challenges`, `c`, `scalar`,
+`claimed_sum`, `rho`, `sumcheck_final`, `mask_eval`, `terminal_polynomial`,
+`terminals`, `rounds`, `hosted`, `tables` — `eq` with its point (slots
+08/09's group factor), `public` with length, SHA-256 and values, `private`
+with role, claim, slices, coordinates, `mask_row` — and the transcript
+positions; the `M` opening; the four role objects with `groups`,
+`proximity_rhos`, `columns` with salts and paths, `row_roles`,
+`public_linear_constraints`; the plane index table; the hash tag; the source
+pins) and the toy's per-proof conventions (`receipt.bin` + `expected.bin`
+beside the JSON, `proof_sha256`, a fresh-process validation file).
+The single-block differences are listed in
+`results/zk60_block_captures_20260923/README.md` ("What a gate has to learn")
+and as data in each `block.json` (`transcript_labels`, `transcript_program`).
+
+#### Task 2 — the module
+
+`hashline/src/private_block/block_capture_shaped.rs` (new, `cfg(test)`),
+schema **`hashline-native-capture/5-block-shaped`**: `block.json` (header —
+`block_binding`, `context`, `calibration`, `public_statement_digest`,
+`parameter_line`, `schedule_digest`, `expected_policy`, `proof_bytes`,
+`proof_sha256`, `shape`, `external_endpoints` with `site_rows` / `prox_row` /
+`claim_sites`, `layout_description`, `hash_tag`, `transcript_labels`,
+`transcript_program`, `mask_domain`, `plane_index`, `not_in_a_capture`),
+`observations.json` (a run stage file's members minus the run framing),
+`arrays.bin` (the `/5-run` store, always on), `receipt.bin`, `expected.bin`,
+`README.md`, `manifest.json` LAST (lengths + SHA-256 of every file, 35 source
+pins: 12 on the block's path + the run capture's 23 shared files; recipe and
+witness tags). Allow-list = the run capture's + 7 block-only keys
+(`block_binding`, `proof_bytes`, `proof_sha256`, `proof_digest_encoding`,
+`observation_files`, `recipe`, `witness`). The recorder rebuilds the header
+from the block's public words and replays every challenge, `zk::mask_verify`
+and `pcs::verify_zk` on its own transcript; `take` refuses unless the
+verifier ACCEPTED (`block_accepted`), which re-encodes the receipt for its
+length and SHA-256. The writer refuses a label that is not the full `git
+rev-parse HEAD` or a pinned source that is not committed as it stands
+(E32-F1, for this writer).
+
+**The hook lines** — `#[cfg(test)]` only, each a no-op unless a recorder is
+attached (`checkpoint` is `None`, the others find no recorder), handed what
+the verifier holds, returning nothing: `protocol.rs` `verify_inner_at` (the
+header, both endpoint openings, the acceptance), `verify_core` (`M`, `A`,
+`H`), `argument.rs` (`start_slot`, the per-slot checkpoint, `slot` inside
+the existing `cfg(test)` block), and two `cfg(test)` `mod` lines. `git diff
+-U0` of the three files: additions only, every one `#[cfg(test)]`, a comment,
+a `block_capture_shaped::` call under it, or a `mod` line. `cargo build
+--release --lib` builds (108 warnings, as stage 44), so no hook is reachable
+without `cfg(test)`. No absorb, draw, commit or hash call added to any
+production path.
+
+| file | SHA-256 at `1ab1498` | SHA-256 now |
+|---|---|---|
+| `hashline/src/private_block/argument.rs` | `f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d` | `2cee0a2253d6ef91bea23f564d8e24a3362663da53a10182d6b0edaa8a10a013` |
+| `hashline/src/private_block/protocol.rs` | `c8b9f5ecbb5e11f8ebd68c903ad4553cbfa6122d198178131ca3b5558a1af2b1` | `974892cc1c45f27e446e1fd4595c888b6a1be647105bfbab3fe6298f7a731ea7` |
+| `hashline/src/private_block.rs` | `7f4603d89a429b307f66078ca96f4207ed470b4bc3a39d6d5e9630f6761ce56a` | `58a73b4004ce11c6dd0d0cc2bbef9bce4f180e08797388883753d50c7ba1be1f` |
+| `hashline/src/private_block/s25_tests.rs` (test) | `93e7590dada559d8a541f8c1763e47cfdc0962f260e6085b3b08775af81ea9df` | `a3cccb25a37118326d49351de02c29862554f45718d9b5211d085fb85afab17d` |
+| `block_capture_shaped.rs` (new) | — | `37312d49ccea469dbea25936d11e1a54943274328efdf8759e39a0eef640fd8f` |
+| `block_capture_shaped_tests.rs` (new) | — | `b676957eb88b07215b0ec0a0631e7324863dc4a058ad7aaab8c6dd2f5439ba50` |
+
+`run.rs` and `run_capture.rs` are byte-identical (the encoders were COPIED,
+so no run bundle's pin moves). **For the D22 re-pin and the run gate's pin
+tables:** `protocol.rs`, `argument.rs` and `private_block.rs` move, by
+`cfg(test)` lines only (class (ii): not compiled into a production build).
+
+#### Task 3 — the bundles
+
+`results/zk60_block_captures_20260923/` (README there). rung-G in git; the
+two 125M bundles in `/home/victor/zk60-artifacts/block-captures-20260923/`
+(each `arrays.bin` > 100 MB), their manifest, validation file and README
+copied into `m125/`.
+
+| bundle | files | `manifest.json` SHA-256 | proof (`receipt.bin`) SHA-256 | `source_commit` |
+|---|---:|---|---|---|
+| `rung-g/rung-g-dense` | 12,516,502 B | `d56975b0e68c26aa…62e312164` | `7fb81aff8c05fd4b…9f33f705` | `feae674` |
+| `rung-g/rung-g-zero` | 12,456,570 B | `5455070dd38be135…8ea8bdaf` | `6c173105b5972302…c36fe607` | `feae674` |
+| `m125-dense` | 276,686,082 B | `49b0336b131a67de…efe40587c` | `bddb04937ec8c0c6…5e386f0` | `19f06bf` |
+| `m125-zero` | 268,253,974 B | `f58eb60b15be2a37…ff647d35` | `8999067de00aea03…5b27e9` | `19f06bf` |
+
+(Full digests in the capture README.) Each was re-verified in a FRESH
+process (`reverify_a_shaped_block_bundle`): every manifest file and all 35
+pins checked against the tree, the public statement regenerated from the
+recipe tag, the saved receipt verified from bytes, the recapture
+byte-identical (`block.json`, `observations.json`, `arrays.bin`), and the
+bundle's values equal to the decoded receipt's — `validation.json` with
+`native_reverified`, `canonical_capture_reproduced`, `source_pins_match`,
+`values_match_the_decoded_receipt` all `true`.
+
+**125M, MEASURED, one run each, shared box (not quiesced), detached under the
+heavy lock with `MALLOC_MMAP_THRESHOLD_=131072`, no memory cap:**
+
+| | dense | zero |
+|---|---:|---:|
+| prove | **28.12 s** | **20.10 s** |
+| verify from bytes, no recorder | **1.85 s** | **1.20 s** |
+| verify + record | 2.94 s | 2.34 s |
+| frame | 40,783,352 B (the counted length) | 40,783,352 B |
+| peak RSS (`VmHWM`) | **10,088 MiB (9.85 GiB)** | **10,143 MiB (9.91 GiB)** |
+| `/usr/bin/time` max RSS | 10,330,220 kB | 10,386,736 kB |
+| writer wall | 39.68 s | 29.70 s |
+| `arrays.bin` | 230,479,888 B, 590 distinct arrays | 222,045,832 B, 588 |
+| fresh re-verify + recapture | 15.23 s, 774 MiB | 13.79 s, 758 MiB |
+
+rung-G: prove 0.44 / 0.45 s, verify 0.09 / 0.10 s, peak 73 / 72 MiB. The
+125M single-block bundle (277 MB) is close to the two-block run bundle's
+281 MB, as S27-F4 predicted: the shape-only public tables dominate both.
+
+#### Task 4 — the tests and the gate
+
+`block_capture_shaped_tests.rs`: (1) a dense rung-G block captured, written,
+read back against itself, then a fresh verifier accepts the saved receipt and
+the recapture reproduces the three capture files byte for byte, and the
+bundle's values are the decoded receipt's; (2) the same verdict, absorb order
+and refusal text with and without a recorder, the frame untouched, no bundle
+for a tampered frame, a forged header refused by the replay, nothing left
+attached; (3) every key on the allow-list and every block-only key emitted,
+no run framing key present; (4) every slot object, the `M` opening and the
+four roles carry a ONE-BLOCK rung-G run capture's key sequences exactly, the
+transcript sites differ only by `stage`, and the IO tables' reserved pairs
+equal the run's external endpoints' (617/4 and 619/4 at rung-G); (5) the
+source-pin partition (12 own + 4 run-only production modules named with a
+reason); (6) the E32-F1 label refusal. Plus the two `#[ignore]`d writers.
+
+| run | log | result |
+|---|---|---|
+| first build | `s45-build1.log` | compiled with no error, the same 16 warning lines as stage 44 |
+| `--lib block_capture_shaped` | `s45-tests1.log` | 5 passed / 1 failed — the test's own "no public-table values" pattern also matched an opened column's `"values":`; the pattern was narrowed to the public tables' (`","values":` after the digest) |
+| the same | `s45-tests2.log` | **6 passed / 0 failed / 2 ignored** |
+| focused: `s44_ s43_ s42_ s41_ s40_ census_shaped k8_ hash_tag s25_ s24_ s36_ block_capture_shaped run_capture` | `s45-focused.log` | **123 passed / 0 failed / 12 ignored**, 27.00 s |
+| **THE GATE** `--lib private_`, 6 threads, `/usr/bin/time -v` | `s45-gate-private.log` | **493 passed / 0 failed / 20 ignored**, 135.63 s, peak RSS 4.41 GB, the same 16 warning lines — against 487 / 0 / 18: +6 tests, +2 ignored writers, nothing lost |
+| `cargo build --release --lib` | `s45-release-lib.log` | builds, 108 warnings (stage 44's count) |
+
+The toy stays **2,816,472 B** and every pin in stage 44's list is in the
+pass list (`tests::honest_receipt_…`, `zero_witness_tests::…fixture_receipt_length`,
+`grow_tests::{…toy_exactly, …schedule_digest_is_frozen, …parameter_line…,
+…125m_receipt_is_reproduced_part_by_part}`, `review_tests::a_toy_receipt_…`,
+`run_tests::{…twelve_block_125m…, …ruling_r5}`, `slot_ir_tests::…pinned…`,
+`s24_tests::{…registered_profile…, …capture_writer_pins…}`,
+`s25_tests::every_hash_call_site…` (the new module classified: 7
+`sha256_hex(` sites, kind C1), `s33_tests::…printable_ascii…`, both
+`native_capture_roundtrip_and_refusals`).
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat 1ab1498 -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock hashline/src/private_block/run.rs
+hashline/src/private_block/run_capture.rs` prints NOTHING. The whole source
+diff: the two new files, `private_block.rs` +6, `argument.rs` +6,
+`protocol.rs` +23 (all `cfg(test)` hooks and comments), `s25_tests.rs`. The
+untracked `u31-c6-run1.*` files are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `d581247` | the skeleton |
+| `feae674` | the module, its tests, the hooks, s25's classification, the gate logs |
+| `19f06bf` | the two rung-G bundles with their fresh-process validation files |
+| this one | the 125M manifests / validations / READMEs, the capture README, the 125M logs and the launch script, this section |
+
+#### What stage 45 is NOT
+
+Not a privacy result and not gate evidence: the Python gate has not read a
+single-block bundle and must first learn the schema (the capture README's
+list). Not a statement about a twelve-block run. The 125M timings are one
+run each on a shared box. The hash layer for the standalone tagged block
+(obligation 3's last clause) and its residual column (obligation 10) are not
+written here.
+
+---
+
+## Stage 46 — TEST-ONLY: the generator's draws MEASURED at rung-G and 125M for a standalone block, and for a two-block rung-G run (obligation 6a) (2026-09-23, 09:2x–)
+
+**Status: `CLOSED` 2026-09-23 09:4x PDT** — see "Stage 46 — CLOSED" below.
+Opened 2026-09-23 09:26 PDT on the lane tip
+`544fbaf`, one writer (the delegated stage-46 agent). **Why:** obligation 6a
+of `ZK60_SHAPED_PRIVACY_PATH_STATUS.md` and §3 of
+`ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_DISPOSITION.md`: the generator's
+draw counts are MEASURED in situ only at the toy (327,052) and rung-K4
+(750,540 block stream; endpoints 7,424 each on a REPLICA, S36-F2) by stage
+36's observers. The standalone-block hash-layer argument uses COUNTED
+figures at rung-G (701,876 per proof) and 125M (9,212,588 per proof), and
+the run's argument a COUNTED per-run total.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | extend stage 36's draw-accounting tests (test-only, in `s36_tests.rs`) to MEASURE, per generator, a STANDALONE block at rung-G and at 125M (block stream in situ as stage 36 did; each endpoint's generator — on the replica if it cannot be observed where it runs without a production change), and a TWO-BLOCK rung-G run (the run's one generator, `run.rs`'s `ZkRng::from_os`) | every measured count compared with the COUNTED figure and the check's per-commitment breakdown; a mismatch is a finding, the expectation is not adjusted |
+| 2 | the live squeeze counts | against the gate's 2,356 (rung-G) and 14,252 (125M) for a standalone block |
+| 3 | the 125M measurement as an `#[ignore]`d heavy test, prebuilt under the build lock, run DETACHED under the heavy lock with `MALLOC_MMAP_THRESHOLD_` pinned | peak RSS and times recorded |
+| 4 | byte identity | no production change; toy 2,816,472 B and every pin unchanged; the focused filters and `--lib private_` once at 6 threads against 493 / 0 / 20 |
+| 5 | this section, with the table shape × scope × generator → MEASURED / COUNTED / equal? | — |
+
+**Forbidden:** any production change anywhere;
+`hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`, `hashline/src/gpu/*`,
+`zkp-core/` (its test-observers code included), `private-block-kernel/`,
+`zkvm-block/`. The untracked `u31-c6-run1.*` files are left alone.
+
+**No privacy claim.** A draw count says where and how much blinding is drawn,
+not that it suffices.
+
+### Stage 46 — CLOSED (2026-09-23 09:26 – 09:4x)
+
+**Status: `LANDED`. Every measured figure equals its counted figure, at
+rung-G, at 125M and on the two-block rung-G run — no mismatch, no finding
+against a count.** Test-only: one test file changed
+(`hashline/src/private_block/s36_tests.rs`), no production line anywhere.
+Shared box, not quiesced; no GPU.
+
+#### What was measured, and how (in situ vs replica)
+
+| generator | how it is observed | in situ? |
+|---|---|---|
+| the standalone block's (`prove_inner_at`'s `ZkRng::from_os`) | stage 36's `measure_block`: `prove_inner_at`'s body with the generator and transcript ours, every draw made by the production `prove_core`, the receipt verified typed AND from bytes before a counter is read | **yes** (as stage 36) |
+| each external endpoint's (`endpoint_g::prepare`'s own `ZkRng::from_os`) | stage 36's replica (`measure_endpoint`) — **finding S36-F2 stands**: the generator lives and dies inside `endpoint_g::prepare`, and `prepare_with_rng` would be a production change this stage may not make. **New:** the objects that real generator filled are READ in situ off the real owners' commitments (`endpoint_object_counts`: mask words above the shape's data rows, `pads`, `salts`) and equal the replica's counts at both shapes | **replica** for the byte counter; **in situ** for the filled objects |
+| the run's one generator (`run.rs:727`) | new `s46_measure_run`: `prove_run`'s body with the generator and transcript ours; the run header rebuilt from `capture_header()` and required to equal `binding()`; every draw made by the production `boundary::prepare` and `prove_core`; the segments verified by the production `run::verify_run` before a counter is read; the generator read BETWEEN the steps, so the per-boundary and per-stage consumption is measured (the run-level half of S36-F3 closes; the split inside `prove_core` stays derived) | **yes** |
+| the 125M run's boundary | the production `boundary::prepare` of a 125M run statement's boundary 0, handed our generator (a boundary takes its generator from its caller by design) — not inside a run that verifies; at rung-G the same measurement equals the in-run boundary's, 270,336 B both | the preparer itself, outside a run |
+
+`s46_the_replicas_draw_where_the_production_provers_draw` reads the
+production bodies: `prove_run` uses `rng` exactly three times (the one
+`ZkRng::from_os`, `boundary::prepare`, `prove_core`), opens with no generator,
+makes no second one; `prove_inner_at` exactly twice (`from_os`,
+`prove_core`); `boundary::prepare` one `rng.` draw (the mask-row fill) and the
+tagged commitment on the caller's generator.
+
+**What the accessor measures is STREAM BYTES** (`16 × fp() + 32 ×
+bytes32()`); a "field draws" figure below is the measured bytes less 32 per
+salt, over 16, with the salt count from the geometry (encoded columns), as
+stage 36's figures of record were read.
+
+#### The table — shape × scope × generator → MEASURED / COUNTED / equal?
+
+COUNTED sources: the standalone check
+(`results/zk60_hash_layer_standalone_block_check/check_standalone_block.json`,
+main tree `cb83a97`, `targets.<shape>`); the run memo's §6.2 parts (ruling
+H-6, post-S19-F1-repair). Logs `s46-tests1.log` (rung-G) and
+`s46-m125.log` (125M).
+
+| shape | scope | generator | quantity | MEASURED | COUNTED | equal? |
+|---|---|---|---|---:|---:|---|
+| rung-G | standalone block | block (in situ) | stream bytes | 11,385,664 | 11,385,664 | yes |
+| rung-G | standalone block | block (in situ) | field draws / salts | 687,028 / 12,288 | 687,028 / 12,288 | yes |
+| rung-G | standalone block | block: A / H / M (closed form, DERIVED) | field draws | 411,392 / 258,046 / 17,590 | 411,392 / 258,046 / 17,590 | yes |
+| rung-G | standalone block | endpoint in, out (REPLICA) | field draws / salts, each | 7,424 / 4,096 | 7,424 / 4,096 | yes |
+| rung-G | standalone block | endpoint in, out (real owner, READ in situ) | mask words + pads / salts, each | 7,424 / 4,096 | 7,424 / 4,096 | yes |
+| rung-G | standalone block | all three | field draws / salts per proof | **701,876** / 20,480 | **701,876** / 20,480 | yes |
+| rung-G | run L=2 | run (in situ) | stream bytes | 23,041,664 | 23,041,664 | yes |
+| rung-G | run L=2 | run (in situ) | field draws / salts | 1,382,760 / 28,672 | 1,382,760 / 28,672 (2 × 687,028 + 8,704) | yes |
+| rung-G | run L=2 | run: boundary 0 (between steps) | stream bytes / field draws | 270,336 / 8,704 | 270,336 / 8,704 | yes |
+| rung-G | run L=2 | run: stage 0, stage 1 `prove_core` | field draws, each | 687,028 | 687,028 | yes |
+| rung-G | run L=2 | external endpoints (real owners; replica) | field draws / salts, each | 7,424 / 4,096 | 7,424 / 4,096 | yes |
+| rung-G | run L=2 | all three | field draws / salts per run | 1,397,608 / 36,864 | 1,397,608 / 36,864 (arithmetic on counted parts) | yes |
+| rung-G | run L=3, sum of measured parts | all three | field draws / salts per run | 2,093,340 / 53,248 | **2,093,340** / 53,248 (H-6) | yes |
+| 125M | standalone block | block (in situ) | stream bytes | 148,802,240 | 148,802,240 | yes |
+| 125M | standalone block | block (in situ) | field draws / salts | 9,029,804 / 135,168 | 9,029,804 / 135,168 | yes |
+| 125M | standalone block | block: A / H / M (closed form, DERIVED) | field draws | 5,484,800 / 3,526,654 / 18,350 | 5,484,800 / 3,526,654 / 18,350 | yes |
+| 125M | standalone block | endpoint in, out (REPLICA) | field draws / salts, each | 91,392 / 65,536 | 91,392 / 65,536 | yes |
+| 125M | standalone block | endpoint in, out (real owner, READ in situ) | mask words + pads / salts, each | 91,392 / 65,536 | 91,392 / 65,536 | yes |
+| 125M | standalone block | all three | field draws / salts per proof | **9,212,588** / 266,240 | **9,212,588** / 266,240 | yes |
+| 125M | run boundary, alone | `boundary::prepare` | field draws / salts | 108,032 / 65,536 | 108,032 / 65,536 | yes |
+| 125M | run L=12, sum of measured parts | all three | field draws / salts per run | 109,728,784 / 2,473,984 | **109,728,784** / 2,473,984 (H-6) | yes |
+
+**On the brief's 109,728,040.** That is the run-composition memo's
+PRE-repair count (`ZK60_HASH_LAYER_AND_FS_LIFT_RUN.md` §6.2, finding F-3,
+ruling H-6: "must be quoted as such"). The sum of the parts measured here is
+the post-repair **109,728,784**, which is 744 = 12 × 62 above it — exactly
+the 62 draws per block the S19-F1 repair added. Not a mismatch with the code;
+a stale figure in whatever still quotes 109,728,040.
+
+**The 12-block 125M figure is a SUM OF MEASURED PARTS** (twelve 125M block
+streams measured once, eleven boundaries measured once outside a run, two
+endpoints on the replica), not a measured twelve-block run. The rung-G run
+shows the parts compose: each stage's `prove_core` consumed exactly a
+standalone block's stream and the boundary measured outside the run equals
+the one inside.
+
+#### The squeezes and replayed points
+
+| shape | scope | quantity | MEASURED | COUNTED | equal? |
+|---|---|---|---:|---:|---|
+| rung-G | standalone block | live squeezes | 2,356 | 2,356 (the gate, round 9j) | yes |
+| rung-G | standalone block | refusal-replay points (4 calls, all accepted) | 1,394 | 1,394 (the check) | yes |
+| rung-G | standalone block | frame bytes | 4,234,984 | 4,234,984 | yes |
+| 125M | standalone block | live squeezes | 14,252 | 14,252 (the gate, round 9j) | yes |
+| 125M | standalone block | refusal-replay points (4 calls, all accepted) | 13,050 | 13,050 (the check) | yes |
+| 125M | standalone block | frame bytes | 40,783,352 | 40,783,352 | yes |
+| rung-G | run L=2 | live squeezes | 4,640 | 4,640 — MODEL, DERIVED here | yes |
+| rung-G | run L=2 | refusal-replay points (7 calls, all accepted; the boundary's 2 groups) | 2,780 | 2,780 — MODEL, DERIVED here | yes |
+| rung-G | run L=2 | segment bytes | 4,067,160 / 4,257,592 | the same (`run_tests::counted_segment_bytes`) | yes |
+
+The run MODEL (no document states an `L = 2` figure): a block is `core + two
+endpoint openings`, a run `L cores + two endpoint openings + (L − 1) boundary
+openings`; an opening's live challenges are its group members plus its rows
+(`1 + 9` external, `2 + 10` boundary at rung-G), plus control C7's 64 index
+squeezes per PCS opening (5 per block, `4L + 1` per run). Before predicting
+`L = 2` it reproduces the run gate's MEASURED **6,924** at rung-G `L = 3`
+(`zk60_native_run_gate_s20`), which the test asserts.
+
+#### The 125M heavy run (`s46-m125.log`, `.done` = 0)
+
+Prebuilt with `--no-run` under `/tmp/zk-build.lock` (`s46-build1.log`,
+2 m 22 s, the same 16 warning lines as stage 45); launched detached:
+`setsid nohup bash -c 'flock /tmp/zk-heavy.lock env
+MALLOC_MMAP_THRESHOLD_=131072 /usr/bin/time -v <test binary> --ignored
+--exact --nocapture --test-threads=1
+private_block::s36_tests::s46_a_standalone_125m_block_draws_the_counted_figures_on_each_of_its_three_generators
+>> s46-m125.log 2>&1; echo $? > s46-m125.done'`; 13 GiB available at launch.
+One run, shared box: dense generic witness + endpoint owners **5.23 s**; the
+measured proof + typed verify + encode + verify from bytes **21.18 s**; whole
+test **26.60 s**; peak RSS **10,199 MiB** (`VmHWM`) / 10,443,356 kB
+(`/usr/bin/time`). The prove alone is not separated from the two
+verifications in this test (stage 45's one-run 28.12 s prove is the timing
+figure of record; D20).
+
+#### Byte identity and the gates
+
+| gate | log | result |
+|---|---|---|
+| the stage's tests, rung-G | `s46-tests1.log` | **3 passed / 0 failed / 1 ignored** (the 125M one), 2.09 s |
+| the 125M test, `--ignored`, detached | `s46-m125.log` | **1 passed**, 26.60 s |
+| focused: `s36_tests block_capture_shaped s25_ s24_`, 6 threads | `s46-focused.log` | **40 passed / 0 failed / 3 ignored**, 13.23 s |
+| **THE GATE** `--lib private_`, 6 threads, `/usr/bin/time -v`, under the build lock | `s46-gate-private.log` (`.done` = 0) | **496 passed / 0 failed / 21 ignored**, 140.29 s (2:20.43 wall, binary already built), peak RSS 4.21 GB (4,207,512 kB), the same 16 warning lines — against 493 / 0 / 20: +3 tests, +1 ignored heavy test, nothing lost |
+
+The toy stays **2,816,472 B** and every pin of stage 44/45's list is in the
+pass list (`tests::honest_receipt_…`, `zero_witness_tests::…fixture_receipt_length`,
+`grow_tests::{…toy_exactly, …schedule_digest_is_frozen, …parameter_line…,
+…125m_receipt_is_reproduced_part_by_part}`, `review_tests::a_toy_receipt_…`,
+`run_tests::{…twelve_block_125m…, …ruling_r5}`, `s25_tests::{every_hash_call_site…,
+the_draw_accounting_assertions_are_no_longer_blocked…}`, stage 36's seven).
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat 544fbaf HEAD -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock hashline/src/private_block.rs
+hashline/src/private_block/{run,protocol,boundary,endpoint_g}.rs
+hashline/src/private_seam.rs` prints NOTHING. The whole source diff is
+`s36_tests.rs` (SHA-256 `924ba60a…e2ab17f2` → `0a4a65f7…97c119e3`), a test
+file no bundle pins. No D22 pin moves. The untracked `u31-c6-run1.*` files
+are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `5794531` | the skeleton |
+| `61e557b` | the tests (rung-G standalone, rung-G run, replica fidelity, the ignored 125M test) and the rung-G logs |
+| `d7f140b` | the 125M log |
+| this one | the focused and gate logs, this section |
+
+#### What stage 46 is NOT
+
+Not a privacy result: it measures where and how much blinding is drawn, not
+that it suffices (G-R4's LAW, Theorem B's conditions, D19b are untouched).
+Not an in-situ measurement of the endpoint generators' byte counters (S36-F2:
+`endpoint_g::prepare_with_rng` is the one-line production change that would
+close it, for the file's owner). Not a measured twelve-block 125M run (a sum
+of measured parts). Not J-5's widened assertion 2 at run scope (obligation
+6b: the `11L + 3(L − 1)` segment offsets) — though the run's boundary and
+stage totals are now measured between steps at rung-G `L = 2`.
