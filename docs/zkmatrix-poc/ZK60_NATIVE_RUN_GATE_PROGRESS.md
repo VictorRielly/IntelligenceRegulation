@@ -4984,11 +4984,94 @@ establishes a privacy property.
 
 | # | item | state |
 |---|---|---|
-| K0 | ledger skeleton, round 9k opened | this commit |
-| K1 | the prediction, written and committed BEFORE the control is run on any bundle | open |
+| K0 | ledger skeleton, round 9k opened | done (`c0d3777`) |
+| K1 | the prediction, written and committed BEFORE the control is run on any bundle | done -- this commit, R9k.2 |
 | K2 | the control in `block_controls` (model-only, no captured byte altered), its tests | open |
 | K3 | rung-G, both block bundles, the whole gate as round 9j ran it | open |
 | K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | open |
 | K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | open |
 | K6 | the suites (toy subset, record guard, whole native suite) | open |
 | K7 | results, limits, NEXT | open |
+
+## R9k.2 The prediction (written 2026-09-23 09:29 PDT, BEFORE the control ran on any bundle)
+
+**The control, C3c.** In the joint MODEL only (no captured byte altered, as
+C3b): `E-Input`'s first claim-pair row and `E-Output`'s first claim-pair row
+(`site_rows[0]`; the same index in both -- rung-G row **4**, 125M row
+**32**) are made the SAME unknown. Two systems are ranked, honest and
+perturbed:
+
+* **(i) the pair** `{E-Input, E-Output}`, no `M` -- C3b's form. Honestly the
+  two endpoints share nothing with each other (each shares its data plane
+  with `A@0` only), so the pair is block diagonal.
+* **(ii) the whole block** -- `A@0`, `H@0`, `M@0`, both endpoints, with
+  stage 4's 8 / 64 data identifications -- the figure every block record
+  reports as joint 2 = sum 2.
+
+It fires iff both honest systems are `ok` (joint = sum, no finding), both
+perturbed joints exceed their sums, and no marginal moves.
+
+| # | figure | rung-G honest | rung-G perturbed | 125M honest | 125M perturbed |
+|---|---|---|---|---|---|
+| K-a | pair: generators x classes | 8 x 18 | **8 x 17** | 8 x 74 | **8 x 73** |
+| K-b | pair: identified rows | 0 | **1** | 0 | **1** |
+| K-c | pair: rank all / rank on non-data / `k0` | 8 / 8 / 0 | **8 / 7 / 1** | 8 / 8 / 0 | **8 / 7 / 1** |
+| K-d | pair: joint / sum | 0 / 0 | **1,024 / 0** | 0 / 0 | **16,384 / 0** |
+| K-e | whole: generators x classes | 104 x 1,259 | **104 x 1,258** | 104 x 12,861 | **104 x 12,860** |
+| K-f | whole: identified rows | 8 | **9** | 64 | **65** |
+| K-g | whole: rank all / rank on non-data / `k0` / u-row term | 104 / 104 / 0 / 2 | **104 / 103 / 1 / 2** | 104 / 104 / 0 / 2 | **104 / 103 / 1 / 2** |
+| K-h | whole: joint / sum | 2 / 2 | **1,026 / 2** | 2 / 2 | **16,386 / 2** |
+| K-i | parts | `A` 0, `H` 2, `E-Input` 0, `E-Output` 0, `M` 0 | unmoved | the same | unmoved |
+| K-j | non-data block diagonal by role | yes | **no** (one shared non-data class) | yes | **no** |
+| K-k | block controls | 5 of 5 | **6 of 6** fire | -- | 6 of 6 |
+
+Dense = zero, figure for figure: the figure reads no witness.
+
+**Why these numbers.**
+1. An endpoint's ONE claim has three parts -- its data plane and one row
+   each at `s` and `s+1` (rung-G: offsets 0 / 4,096 / 5,120 at log sizes
+   12 / 10 / 10, read from the capture) -- so its two `Fp` group generators,
+   restricted to its five non-data rows (`s`, `s+1`, the proximity pair,
+   one spare), are supported on `{s, s+1}`.
+2. Each endpoint's non-data rank is 4 of 4 (recorded: `rank_P1` 4, `k0` 0,
+   5 non-data rows). With (1) that forces the group generators' 2 x 2
+   block on `{s, s+1}` to be invertible, so one combination `v` of them is
+   a nonzero multiple of `e_s` on the non-data rows, and its data part
+   (the claim's `eq` weights on the plane) is nonzero.
+3. Merging the two `s` columns, `c = d_out v_in - d_in v_out` vanishes on
+   every non-data class: rank on non-data drops by exactly 1 (merging two
+   columns lowers a rank by at most one). `c`'s data part lies on
+   `E-Input`'s data classes -- in the whole block `A@0`'s input-plane rows
+   8..11 / 8..39 -- and `E-Output`'s -- `A@0`'s output-plane rows
+   124..127 / 936..967 -- which are disjoint, so `c` is not zero on data;
+   any combination zero on EVERY class is zero on non-data, hence a
+   multiple of `c`; so rank all stays. `k0` 0 -> 1: one message width,
+   1,024 / 16,384.
+4. The u-row term: `H`'s two LogUp indicator solutions live on `H`'s data
+   classes; the one new kernel vector (`c`'s data part) lives on `A@0`'s IO
+   classes; disjoint, so the term stays 2.
+5. The parts are per commitment and cannot see an identification.
+
+**Why the claim row, and what the control cannot see.** The claim row is
+the one reserved row whose sharing leaves a functional of the data
+unmasked. Sharing the SPARE row instead would not move the figure, and
+correctly so in this model: each endpoint keeps rank 4 on its other four
+non-data rows (C2b's honest 4 of 4 on `{s, s+1, p, p+1}`), so nothing is
+unmasked. And ruling R-3's limit holds unchanged: C3c models a shared
+SYMBOL; two distinct rows whose VALUES coincide score like an honest block.
+Independence of the endpoints' generators (E-1, M-3) is an assumption, not
+a measurement of this control.
+
+**The records** (every figure of record predicted unmoved): the two rung-G
+block records are re-taken with round 9j's command line and may differ
+from their committed bytes ONLY by wall clocks, the
+`tool_sha256/zk60_native_rg_block.py` leaf, the NEW leaves under
+`stage6_negative_controls/C3c_...` and the NEW
+`stage6_negative_controls/controls/[5]` (C3c is appended after C6 so no
+existing list index moves). The 28 run development records of round 9j's
+list (its 29 minus the toy-equivalence record, which hashes no tool) move
+ONLY in wall clocks and that one tool hash. The four 125M block records of
+round 9j are not re-taken (no test guards their tool bytes; the everything
+pass is out of scope); the control runs at 125M through the staged driver's
+`load, replay, commitments, boundary, runcontrols` into two NEW records
+(estimated ~3 min, ~1.5 GB each from round 9j's stage clocks).

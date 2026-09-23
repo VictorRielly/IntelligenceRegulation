@@ -1,0 +1,48 @@
+{
+ "round": "9k",
+ "written": "2026-09-23 09:29 PDT, before the control ran on any bundle",
+ "control": "C3c_a_blinding_row_shared_between_the_two_external_endpoints",
+ "what": "E-Input[site_rows[0]] and E-Output[site_rows[0]] made the SAME unknown in the joint model; no captured byte altered",
+ "shared_row": {"rung-g": 4, "m125": 32},
+ "msg_width": {"rung-g": 1024, "m125": 16384},
+ "pair": {
+  "rung-g": {
+   "honest": {"generators": 8, "coordinate_classes": 18, "identified_rows": 0,
+              "rank_all": 8, "rank_on_non_data": 8, "k0": 0,
+              "joint_fp": 0, "sum_of_parts_fp": 0, "block_diagonal": true},
+   "perturbed": {"generators": 8, "coordinate_classes": 17, "identified_rows": 1,
+                 "rank_all": 8, "rank_on_non_data": 7, "k0": 1,
+                 "joint_fp": 1024, "sum_of_parts_fp": 0, "block_diagonal": false}
+  },
+  "m125": {
+   "honest": {"generators": 8, "coordinate_classes": 74, "identified_rows": 0,
+              "rank_all": 8, "rank_on_non_data": 8, "k0": 0,
+              "joint_fp": 0, "sum_of_parts_fp": 0, "block_diagonal": true},
+   "perturbed": {"generators": 8, "coordinate_classes": 73, "identified_rows": 1,
+                 "rank_all": 8, "rank_on_non_data": 7, "k0": 1,
+                 "joint_fp": 16384, "sum_of_parts_fp": 0, "block_diagonal": false}
+  }
+ },
+ "whole_block": {
+  "rung-g": {
+   "honest": {"generators": 104, "coordinate_classes": 1259, "identified_rows": 8,
+              "rank_all": 104, "rank_on_non_data": 104, "k0": 0, "u_row_term_fp": 2,
+              "joint_fp": 2, "sum_of_parts_fp": 2, "block_diagonal": true},
+   "perturbed": {"generators": 104, "coordinate_classes": 1258, "identified_rows": 9,
+                 "rank_all": 104, "rank_on_non_data": 103, "k0": 1, "u_row_term_fp": 2,
+                 "joint_fp": 1026, "sum_of_parts_fp": 2, "block_diagonal": false}
+  },
+  "m125": {
+   "honest": {"generators": 104, "coordinate_classes": 12861, "identified_rows": 64,
+              "rank_all": 104, "rank_on_non_data": 104, "k0": 0, "u_row_term_fp": 2,
+              "joint_fp": 2, "sum_of_parts_fp": 2, "block_diagonal": true},
+   "perturbed": {"generators": 104, "coordinate_classes": 12860, "identified_rows": 65,
+                 "rank_all": 104, "rank_on_non_data": 103, "k0": 1, "u_row_term_fp": 2,
+                 "joint_fp": 16386, "sum_of_parts_fp": 2, "block_diagonal": false}
+  }
+ },
+ "parts_fp": {"A@0": 0, "H@0": 2, "E-Input": 0, "E-Output": 0, "M@0": 0},
+ "marginals_unchanged": true,
+ "block_controls_that_fire": 6,
+ "dense_equals_zero": true
+}
