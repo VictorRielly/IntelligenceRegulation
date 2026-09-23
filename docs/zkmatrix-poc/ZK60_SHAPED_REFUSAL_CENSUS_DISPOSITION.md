@@ -213,3 +213,51 @@ what it is proved against (the CS-1 pattern). The sweep lists every such
 type with its choice. After it, the lane's production delta since
 `27398d0` gets an independent adversarial code review before a stable tip
 is named for the integrator.
+
+## 8. Stage 43 and the independent code review of stages 39–43 (2026-09-23 02:22)
+
+**Stage 43 (`f45b842`) accepted:** the CS-8 sweep of 22 types (census memo
+§12); five had an in-crate bypass that was ACCEPTED before (a `Shape` with a
+written window, a `Layout` with two plane offsets swapped, a run shape by
+struct literal or written field, an `IoSpec` with written scales — at the
+toy's size); `RunShape` / the run statement's shape made private,
+`Shape::check_constructed`, `Layout::check_is_for_shape` and the `IoSpec`
+scale pin re-checked first at every entry, 0 draws when firing; filter
+479/0/18. Plus my comment correction in `timing.rs` (`f486e6f`, ruling P-2 of
+the D22 pre-read).
+
+**Independent adversarial code review of `a9d6d4c..f486e6f`** (review branch
+`dc12f44`, `docs/zkmatrix-poc/ZK60_LANE_S39_S43_CODE_REVIEW.md`): **no
+soundness regression** (every verifier hunk adds or strictly widens a
+refusal; the 41 removed lines are moves or supersets; no early `Ok`; the
+verifier never reads the test switch), **no completeness regression**
+(`check_constructed` exact for every registered shape and K8; the norm-window
+derivation first falls short at width 16,385, which CS-5 refuses; CS-3 fired
+on none of 29 honest inputs), **ordering holds** (the one exception is CS-3
+inside a run, accepted under M-9), **test-only gating holds in a release
+build** (no `cheating`, `with_run_shape` or `k8` symbol by `nm`), **only
+CS-3 reads the witness**. D22: six pinned files move, every hunk off the toy
+path or identical for every admitted toy input; the re-pin takes `shape.rs`
+and `timing.rs` at the lane tip and lists CS-3 as a refusal site. Gate on the
+merged branch 490/0/25.
+
+Rulings on its findings:
+- **K-1 (erratum):** CS-3's refusal text claims nothing of the block was
+  drawn, absorbed or committed; inside a run the stage header and boundary
+  `B_k` precede it (`run.rs:746-757`), and in a single block the header does.
+  The text says exactly what precedes it. Text only.
+- **K-2 (erratum):** the same message prints three counts computed from the
+  hidden witness. **Dropped**: the message names the class of miss only.
+  (The same D21 point was made to the integrator for R1d, R-9.)
+- **K-3 (note):** the stage-43 declaration pin misses a second constructor
+  that skips CS-7 and a test-only `with_run_shape` losing its `#[cfg(test)]`;
+  the review's stronger guard moves into the lane.
+- **K-4 → ruling CS-9.** A BLOCK profile string is bound to no geometry: the
+  toy's profile string at rung-G's geometry passes every check and carries no
+  pad rule and the legacy hash; the honest proof is then refused at slot 2. A
+  privacy statement is per profile (D22 names a profile string), so a profile
+  string must name exactly one geometry. **Ruling:** a block-profile registry,
+  as CS-7 is for runs — `Shape::new` (or the one place a profile string meets
+  a geometry) refuses a registered profile string with any geometry other
+  than its own, and an unregistered string outside `#[cfg(test)]`. The toy's
+  shape and bytes are unchanged.
