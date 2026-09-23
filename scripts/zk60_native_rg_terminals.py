@@ -278,6 +278,25 @@ ALSO_ACCEPTED = {
             "replay re-derives every challenge) and the LogUp identity `H` "
             "carries is unmoved (slot 05's terminal identity and `H`'s "
             "disclosed 2 are recomputed here)",
+        # [ROUND 9i] the rung-K8 capture commit, 99a8de8 (this digest from
+        # stage 36's `5d0022f` onward).
+        "e0e617be617a548641cb33c8564cee86ee7d2af90f9c6487b5fb7af30113d45b":
+            "stage 36 task 4 (the read-only test observer), at commit "
+            "5d0022f and unchanged to 99a8de8.  `git diff 6d71b40 99a8de8 -- "
+            ".../protocol.rs` is **21 added, 0 removed, ONE hunk, inside "
+            "`check_opening_challenges`**: an 11-line doc comment and five "
+            "`#[cfg(test)]` statements -- one shadowing `draw` with "
+            "`draw_observer::counting` (which bumps a thread-local counter "
+            "and returns `inner()` unchanged, one call per call) and one "
+            "noting the verdict beside each of the three exits.  Not one "
+            "existing line is restructured.  NOTE that the bundles are "
+            "written by a `cargo test` binary, so these five lines ARE "
+            "compiled into the build that made them: they are pass-through, "
+            "and the function draws from a CLONED challenge prefix anyway.  "
+            "**Nothing this port reads moved**: `lookups_at`, the plane "
+            "orders and row counts, the calibration constants and the "
+            "`(beta, gamma, alpha)` draw are byte-identical, and the rung-K8 "
+            "replay re-derives every challenge",
     },
 }
 

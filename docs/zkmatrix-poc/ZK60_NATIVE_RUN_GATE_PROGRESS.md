@@ -4016,10 +4016,10 @@ establishes a privacy property.
 
 | # | item | state |
 |---|---|---|
-| K0 | ledger skeleton, round 9i opened | in progress |
-| K1 | the pins between the last capture commit read (`6d71b40`) and `99a8de8`, hunk by hunk | open |
-| K2 | the prediction, written and committed BEFORE the gate is run at rung-K8 | open |
-| K3 | any `lkv ≤ 2` assumption in the ports or controls found, generalised, tested | open |
+| K0 | ledger skeleton, round 9i opened | done — `836f717` |
+| K1 | the pins between the last capture commit read (`6d71b40`) and `99a8de8`, hunk by hunk | done — §R9i.5; five moved, not one |
+| K2 | the prediction, written and committed BEFORE the gate is run at rung-K8 | done — `710d80b`, §R9i.4 |
+| K3 | any `lkv ≤ 2` assumption in the ports or controls found, generalised, tested | done — §R9i.6, finding R9i-F1 (`GQ-7`) |
 | K4 | the whole gate on both bundles, every arm, every control | open |
 | K5 | dense against zero; rung-K8 against rung-K4 | open |
 | K6 | the records re-taken where a tool moved; the suite and the record guard at 8G | open |
@@ -4086,3 +4086,170 @@ f39aec79`, `boundary.rs 5b1c85fe` — all read in round 9c and unchanged at
 `99a8de8`). **What it MUST do until they are read**: refuse `argument.rs`
 and `protocol.rs`, whose digests moved after the last capture commit this
 gate read (`6d71b40`) — stages 35 and 36, which no round has read.
+
+## R9i.5 Results — K1, failing first, then the pins read
+
+**Failing first** (`probe/run-s-dense-k8.json`, round 9h's tool bytes,
+20:17): stages 1–7 and 9 ran; **stage 8 refused all 69 slot checks** —
+*"src/private_block/argument.rs: the bundle pins f7fa2ad4213d, which is
+neither definition of the bilinear attention slots this port has read
+(909670c96562, dd8469cb0279, ec3f97443245); src/private_block/protocol.rs:
+the bundle pins e0e617be617a, the port was read at 4e916c693ad8"* — and
+**stage 10 refused by name** (*"the bundle pins an `argument.rs` this port
+has never read (f7fa2ad4213d)"*). The run-layer pins were all at digests
+already read; the shared-file check reported `rng.rs` and `transcript.rs`
+moved (it suspends no stage by design). The refusals are the pins working.
+
+**The brief's premise, corrected.** The orchestrator's brief said stage 37
+moved `private_block.rs` (`d540404b…` → `7a9b31ac…`) and that "the gate
+pins that file". Both halves need correcting, against the files:
+
+1. **Five pinned files moved between the last capture commit this gate
+   read and `99a8de8`, not one** — because stages 34, 35 and 36 landed
+   between `6d71b40` (rung-E32) and the rung-K8 capture, and no round had
+   read them. The whole-file digests, all recomputed here from the lane's
+   blobs and equal to both bundles' manifests (`pins_k8.py` →
+   `pins_k8.txt`: the two bundles pin identical sets; 38 of 38 equal to
+   the blobs at `99a8de8`; the rung-E32 pins all equal to the blobs at
+   `6d71b40`; five moved):
+
+   | file | at `6d71b40` | at `99a8de8` | `git diff --numstat 6d71b40 99a8de8` | pinned by |
+   |---|---|---|---|---|
+   | `src/private_block/argument.rs` | `ec3f9744…` | **`f7fa2ad4…`** | 137 / 18 | `rg_gqa.ARGUMENT_DEFINITIONS` (selects the definition), `rg_mask.MASK_LAYER_PINS` |
+   | `src/private_block/protocol.rs` | `ac412237…` | **`e0e617be…`** | 21 / 0 | `rg_terminals` (`PORTED_FROM` + `ALSO_ACCEPTED`) |
+   | `../zkp-core/src/rng.rs` | `0d4a99ab…` | **`b9920aeb…`** | 225 / 0 | `rg_runpins.SHARED_LAYER_PINS` (reported, never suspends) |
+   | `../zkp-core/src/transcript.rs` | `cc9752d0…` | **`b8a228d9…`** | 114 / 0 | the same |
+   | `src/private_block.rs` | `0529e548…` | **`7a9b31ac…`** (`d540404b…` at `a8e4939`) | 37 / 0 | **nothing in the run gate** — see item 2 |
+
+2. **`private_block.rs` is compared by NO run-gate table.** It is in the
+   writer's 38 pins since stage 27, and the run gate names it only in
+   `rg_runpins.NEWLY_PINNED_OWN_FILES` — *"the module root; nothing is
+   transcribed"* — beside `wire.rs`, `run_sink.rs`, `endpoint_g.rs`,
+   `hash_domain.rs` and `witness.rs`, which are likewise recorded and not
+   compared. The digests the brief quotes, and the two-digest table in
+   `results/zk60_native_gate_record_refresh/README.md` it points to, are
+   the TOY gates' (`zk60_native_mask_commit.PATH_PINS`: `5d9dd178…` for
+   this lane's tree, `412a43f4…` for main at `4751b93`) — a different
+   profile, a different tree, and records this round does not touch. So
+   there is **no run-gate pin of `private_block.rs` to re-pin**, and none
+   was invented: a pin nobody depends on is what `DEPENDS` exists to keep
+   out. The file was READ anyway, every move since the last shape this
+   gate read: `6d71b40 → a8e4939` is 35 added / 0 removed, all comments
+   and six `#[cfg(test)] mod` lines (`slot_ir`, `slot_ir_tests`,
+   `s35_tests`, `draw_observer`, `s36_tests`, `p36_preread_tests`);
+   `a8e4939 → 99a8de8` (= `a8e4939 → bacc274`, read with the command the
+   brief gives) is exactly `#[cfg(test)]` / `mod k8_tests;`. **No
+   production line.** Named for the owner in R9i.11.
+3. **`k8_tests.rs` is not pinnable bundle-side**, and its role is not the
+   writer's. The writer is `run_capture.rs` (pinned, `d09f3853…`,
+   unchanged); `k8_tests::write_the_k8_gate_bundles` is the test that
+   calls it, exactly as `dense_tests` / `p2_tests` / `c6_tests` called it
+   for earlier bundles, none of which is pinned. It is in no bundle's
+   `source_pins`, and this gate reads bundles, not the lane tree. What the
+   file decides — the shape (`Shape::new(…, 24, 128, 192, 16, 8, 8, 10, 4,
+   12, 9, …)`, read at `k8_tests.rs:153`) and the two profile strings — is
+   RE-DERIVED here: the geometry from `run.json["shape"]` and compared
+   with the shape's own `slots` array, the four hash keys from the profile
+   string (CH-1…CH-7). Its digest at `99a8de8`, recorded:
+   `0f7c45d5dd0d15fe82e8f43fece3c9de1e0c0754310a7592dfee90fc4a41b227`
+   (blob `a94efd2e`, 51,510 B).
+
+**The readings** (each diff read whole; the reading is written beside the
+digest in the tool, and `test_zk60_native_run_gate_k8.ThePinsRoundNineIRead`
+asserts it is there):
+
+* **`argument.rs` `f7fa2ad4`** — four hunks, every one inside two arms of
+  `define`: slot 14 `SC_DZC` and slot 17 `SC_SZC` (stage 35, lever (b),
+  commits `fa3ed3b..9e11312`). Per arm: the public constants `k(…)` (each
+  `Fp2::from_i64`, imaginary part 0) multiplied through `mul_base` on
+  their base parts; `limbs`'s weights as `pow256(k).c0` with the `256^0`
+  multiply dropped; `k_den·d` and `k_den·dm` formed once; the support gate
+  hoisted by distributivity; `#[cfg(test)]` blocks handing the closures'
+  captures to `s35_tests`. Checked against `limbs` (`argument.rs:825`),
+  `pow256` (`layout.rs:1300`, `Fp2::from_u64`) and `p1 = pow256(1)`
+  (`:1103`): every rewrite is a field identity, so slots 14 and 17 are the
+  SAME polynomial. The bilinear arms, every other closure, the push order,
+  `pad_on`, the `mu`/`nu`/`zeta` draws, `B::group_eq`, the `pb-scalar`
+  absorb, `run_slot` (`:444`), `sum_weights` (`:433`) and
+  `acc.fs.extend(hosts)` / the `N_FUNCTIONALS` guard (`:1877-1878`) are
+  outside every hunk. **Selects stage 20's repaired definition**, and the
+  mask port's declared functional order is round 8's.
+* **`protocol.rs` `e0e617be`** — one hunk in `check_opening_challenges`
+  (stage 36 task 4): an 11-line doc comment and five `#[cfg(test)]`
+  statements. **These ARE compiled into the binary that wrote the
+  bundles** (it is a `cargo test` binary), so they were read as code:
+  `draw_observer::counting` bumps a thread-local counter and returns
+  `inner()` unchanged, one call per call (`draw_observer.rs:135`), and the
+  three `note_*` calls record a verdict. Pass-through; and the function
+  draws from a cloned challenge prefix in any case.
+* **`rng.rs` `b9920aeb`, `transcript.rs` `b8a228d9`** — additions only:
+  one `#[cfg(any(test, feature = "test-observers"))]` `impl` each
+  (`consumed_bytes` / `refills` / `OBSERVED_BLOCK_BYTES`; `squeezes`), all
+  `&self`, derived from existing fields, and tests in `mod tests`.
+  `next_u64`, `refill`, `fp`, `fp2`, `bytes32`, `absorb`, `squeeze_bytes`
+  and every `challenge_*` are byte-identical.
+* **The three run-layer pins** (`run_capture.rs d09f3853`, `run.rs
+  f39aec79`, `boundary.rs 5b1c85fe`) did not move; `99a8de8` and the two
+  bundle names are appended to their commit and bundle lists, round 9c's
+  form for "a digest that did not move". There is no `RUN_PROFILE_RUNG_K8`
+  in `run.rs`: the run profile string is the test file's and reaches the
+  replay through `run.json`, where `RunReplay` has always read it.
+
+## R9i.6 What changed in the tools — K3, and the one `lkv = 2` assumption found
+
+**The search.** Every `rg_*` module and the gate were read for `lkv`,
+`kv_heads`, fixed point indices and literal group counts. The port of slots
+08/09 is shape-driven throughout: `Geometry` derives `lkv = clog2(kv_heads)`
+and the dimensions, `coordinate_schedule` splits `r_h` into `r_g = r_h[..lkv]`
+and `r_hj = r_h[lkv..]` for any `lkv`, `GroupFactors` compares
+`len(point) == lkv` entries, the terminal port evaluates
+`eq_point(point, rho[start:start+len(point)])`, and `PadGeometry.head_slot`
+reads `q_heads / kv_heads` and `h_pad / kv_heads` (the identity at
+rung-K8). `GQ-3` / `GQ-4` were made families over `range(lkv)` in round 5.
+A quick default-arm run on the re-pinned tree (scratch, not a record) read
+69 of 69 slot checks and 6 of 6 group points at 18 entries.
+
+**FINDING R9i-F1 — control `GQ-7` was written for exactly two group bits.**
+It swaps the declared point's coordinates 0 and 1 (`pt[0], pt[1] =
+pt[1], pt[0]`) and its `distinct` guard compares only those two. At
+`lkv = 3` it still fires, but no REORDERING reaches the third coordinate —
+the bit that separates groups 4-7 from 0-3: a comparison that checked the
+first two entries in order and the rest as a set would pass every control
+the gate had. Not a defect of the port (whose comparison is entry by entry)
+but a hole in the evidence that it is. Generalised in
+`zk60_native_rg_gcontrols`: `_docs_with_group_point_perturbed(swap=…)`
+takes the pair (`True` is still round 5's `(0, 1)`), and **`GQ-7.j.j+1`**
+is added for each further adjacent pair `j ≥ 1`, with its own `distinct`
+guard. At `lkv ≤ 2` the range is empty, so every record at rung-G, K4, P2,
+C6, W14, E32 and 125M keeps exactly its controls; at `lkv = 3` it is one
+member, `GQ-7.1.2`. The prediction's P14 said "group 17 **as the tools
+stand**"; with this member it is 18.
+
+**The five tool files that moved**, and nothing else:
+
+| tool | what | why |
+|---|---|---|
+| `zk60_native_rg_gqa.py` | `ARGUMENT_DEFINITIONS` + `f7fa2ad4` → `repaired`, with its reading | R9i.5 |
+| `zk60_native_rg_terminals.py` | `ALSO_ACCEPTED["protocol.rs"]` + `e0e617be`, with its reading | R9i.5 |
+| `zk60_native_rg_mask.py` | `MASK_LAYER_PINS["argument.rs"]` + `f7fa2ad4`; `99a8de8` / the K8 bundles on `shape.rs dbf4e2bc`; a dated comment on the two shared files | R9i.5 |
+| `zk60_native_rg_runpins.py` | `99a8de8` / the K8 bundles on the three unmoved run-layer digests; `SHARED_ALSO_READ` for `rng.rs` / `transcript.rs` with its readings, and `check_shared_pins` counting a second digest as READ while keeping it OUT of `equal_to_the_bytes_round_8_read`; the new keys appear only when a second digest is in play | R9i.5 |
+| `zk60_native_rg_gcontrols.py` | `GQ-7.j.j+1` | R9i-F1 |
+
+All five are in the gate's hashed `TOOLS` list, so every development record
+of record is re-taken (R9i.8). **No refusal was weakened**: a third digest
+of any of the four files is still refused or reported moved, and
+`test_zk60_native_run_gate_k8.ThePinsRoundNineIRead` asserts it for each.
+
+**Three earlier assertions moved DELIBERATELY** (the first run of
+`test_zk60_native_run_gate*.py` on the edited tools, before any re-take:
+354 tests, 10 failures and 1 error — `tests_run_gate_pre.log` — seven of
+them the expected tool-byte checks):
+
+| test | was | is | why |
+|---|---|---|---|
+| `…_runpins.test_every_pinned_digest_is_the_blob_at_every_commit_it_names` | 33 (file, commit) pairs | **36** | `99a8de8` appended to the three run-layer digests; each checked against the blob there |
+| `…_runpins.test_the_tables_bundle_cross_reference_is_the_manifests` | `KeyError: 'run-s-dense-k8'` | the rung-K8 pair routed in from its own directory, like the 125M and rung-W14 pairs; absent bundles skipped by name AFTER all three paths are checked (the old form skipped after the first) | the table now names them |
+| `…_s20.test_both_argument_digests_are_definitions_this_port_has_read` | 3 digests, 2 repaired | **4, 3 repaired** | `f7fa2ad4` |
+
+Not one of the three is a measured figure. `…_runpins` alone after the
+change: **26 tests, OK**, 38.2 s.

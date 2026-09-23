@@ -1,0 +1,10 @@
+source_commit: rung-E32 4505ddf, run-s 99a8de8, run-t 99a8de8
+run-s and run-t pin identical sets: True (38 pins)
+pins not equal to the blob at 99a8de8: [] (38 of 38 equal)
+rung-E32 pins not equal to the blob at 6d71b40: []
+moved since the rung-E32 bundles: 5
+  ../zkp-core/src/rng.rs: 0d4a99abbc424286 -> b9920aeb3a12c2fd   numstat: 225	0	zkp-core/src/rng.rs
+  ../zkp-core/src/transcript.rs: cc9752d0ef9bcd6d -> b8a228d9b33f7dbf   numstat: 114	0	zkp-core/src/transcript.rs
+  src/private_block.rs: 0529e5488063e20b -> 7a9b31ac7b9ff322   numstat: 37	0	hashline/src/private_block.rs
+  src/private_block/argument.rs: ec3f97443245f119 -> f7fa2ad4213d925b   numstat: 137	18	hashline/src/private_block/argument.rs
+  src/private_block/protocol.rs: ac4122375397a155 -> e0e617be617a5486   numstat: 21	0	hashline/src/private_block/protocol.rs

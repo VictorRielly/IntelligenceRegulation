@@ -16,6 +16,9 @@ round exists:
                 does not look like
     GQ-7        the DECLARED point's group coordinates SWAPPED (round 5;
                 skipped by name at `lkv = 1`, where it does not exist)
+    GQ-7.j.j+1  [round 9i] the same reorder on each further ADJACENT pair
+                (j, j+1), j >= 1 -- present only at `lkv >= 3`, where GQ-7's
+                (0, 1) no longer reaches every coordinate
 
 GQ-3 and GQ-4 are the two halves of one rule.  The group factor is
 VERIFIER-COMPUTED: this tool derives it and only compares.  GQ-3 shows that
@@ -109,9 +112,15 @@ def _docs_with_group_point_perturbed(bundle, stage: int, slot: int,
         raise ValueError(f"slot {slot}: table 0 is not the group eq table")
     pt = list(tab["point"])
     if swap:
+        # [round 9i] `swap` may name the PAIR to exchange; `True` is round
+        # 5's (0, 1), which is the only pair a two-entry point has.
         if len(pt) < 2:
             raise ValueError("a point of one entry cannot be reordered")
-        pt[0], pt[1] = pt[1], pt[0]
+        a, b = (0, 1) if swap is True else swap
+        if not (0 <= a < len(pt) and 0 <= b < len(pt) and a != b):
+            raise ValueError(f"cannot exchange group coordinates {a} and {b} "
+                             f"of a point of {len(pt)}")
+        pt[a], pt[b] = pt[b], pt[a]
     else:
         if not 0 <= entry < len(pt):
             raise ValueError(f"group coordinate {entry} of a point of {len(pt)}")
@@ -409,6 +418,46 @@ def group_controls(bundle, index, replay=None, other_definition=None) -> dict:
                 and any("not r_g" in f for f in s7["failures"]),
             })
         out["controls"].append(gq7)
+
+        # ------------- GQ-7.j.j+1 [round 9i]: the reorder reaching bit 2 on
+        #
+        # GQ-7 exchanges coordinates 0 and 1 -- written at lkv = 2, where
+        # that is the only pair there is.  At lkv = 3 (rung-K8) the third
+        # group bit, the one that separates groups 4-7 from 0-3, is reached
+        # by GQ-3 / GQ-4 (a VALUE moved) but by no REORDERING: a comparison
+        # that checked only the first two entries in order, and the rest as
+        # a set, would pass GQ-7 and still accept a point whose last two
+        # coordinates are exchanged.  One member per further ADJACENT pair
+        # (j, j+1), j >= 1, so every coordinate is in at least one reorder.
+        # At lkv <= 2 the range is empty and nothing is added, so every
+        # record at rung-G, rung-K4, rung-P2 and 125M is unchanged.
+        for j in range(1, lkv - 1):
+            name = f"GQ-7.{j}.{j + 1}"
+            docsj = _docs_with_group_point_perturbed(bundle, 0, 8,
+                                                     swap=(j, j + 1))
+            gj = GroupFactors(bundle, replay=replay, stage_docs=docsj)
+            sj = gj.summary()
+            gotj = check_terminals(bundle, index, replay=replay,
+                                   stage_docs=docsj, group=gj)
+            whyj = _not_checked(gotj, 8)
+            ptj = bundle.stages[0].doc["arguments"][8]["tables"][0]["point"]
+            distinct_j = f2_from_list(ptj[j]) != f2_from_list(ptj[j + 1])
+            out["controls"].append({
+                "control": name,
+                "what": f"the DECLARED eq point's group coordinates {j} and "
+                        f"{j + 1} (of {lkv}) SWAPPED, every value kept",
+                "mechanism": "the entry-by-entry comparison, which is ordered",
+                "slot": 8,
+                "swapped_coordinates": [j, j + 1],
+                "the_two_group_challenges_differ": distinct_j,
+                "group_factor_ok": sj["ok"],
+                "refusal": (sj["failures"] or [""])[0][:220],
+                "the_slot_is_not_evaluated": bool(whyj),
+                "slot_checks_equal": gotj["slot_checks_equal"],
+                "of_expected": gotj["slot_checks_expected"],
+                "fires": distinct_j and (not sj["ok"]) and bool(whyj)
+                and any("not r_g" in f for f in sj["failures"]),
+            })
 
     # ------------------------------- GQ-5: the other definition, forced whole
     other = other_definition or (PRE_REPAIR if group.definition == REPAIRED

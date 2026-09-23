@@ -141,6 +141,35 @@ ARGUMENT_DEFINITIONS = {
         "The two bilinear slots therefore carry stage 20's repaired "
         "definition, unchanged",
     ),
+    # [ROUND 9i] the rung-K8 capture commit, 99a8de8.  This digest first
+    # appears at stage 35's `9e11312` and is carried unchanged through stage
+    # 36 and stage 37.  The SAME definition, and again the diff is why.
+    "f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d": (
+        REPAIRED,
+        "stage 35 (lever (b) inside two closures, commits fa3ed3b..9e11312), "
+        "unchanged through stages 36-37 to 99a8de8.  `git diff 6d71b40 "
+        "99a8de8 -- .../argument.rs` is **137 added, 18 removed, FOUR hunks, "
+        "every one inside two arms of `define`: `SC_DZC` (slot 14) and "
+        "`SC_SZC` (slot 17)**.  Per arm: (i) the public constants `k(..)` -- "
+        "each `Fp2::from_i64` of a profile integer, imaginary part zero -- "
+        "are taken as their base parts and multiplied with `mul_base`, which "
+        "for such a constant is the same field product; (ii) `limbs`'s "
+        "weight vector is `pow256(k).c0`, the `256^0 = 1` multiply dropped; "
+        "(iii) `k_den * d` / `k_den * dm` formed once instead of twice; "
+        "(iv) the support gate hoisted, `sum mu_i g c_i = g sum mu_i c_i`, "
+        "distributivity in Fp2; plus `#[cfg(test)]` blocks that hand the "
+        "closures' captures to `s35_tests` for a differential check against "
+        "the `89e393f` bodies.  Every rewrite is an identity of the field, "
+        "so slots 14 and 17 are the SAME polynomial of the same terminals; "
+        "the new `let`s absorb and squeeze nothing.  **The two bilinear "
+        "slots' arms, every other slot's closure, the push order of every "
+        "private table, `pad_on`, the `mu` / `nu` / `zeta` draws, `lg`, "
+        "`B::supp` / `B::group_eq` and the single `pb-scalar` absorb are "
+        "byte-identical** -- stage 20's repaired definition, unchanged.  "
+        "The gate's own confirmation is slot 14's and 17's terminal "
+        "identities, evaluated by this port's formulas of round 3, holding "
+        "at every stage of both rung-K8 bundles",
+    ),
 }
 
 

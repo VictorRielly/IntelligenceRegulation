@@ -370,6 +370,48 @@ SHARED_LAYER_PINS = {
     "../zkp-core/src/pcs/backend.rs": {"sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499", "depended_on_by": None, "same_as_the_mask_port_read": None},
 }
 
+# [ROUND 9i] SECOND digests of two shared files, READ.  `SHARED_LAYER_PINS`
+# carries one digest per file (the bytes round 8 read), and the rung-K8
+# bundles -- the first written after stage 36 -- pin different bytes for two
+# of the eight a port depends on.  Both diffs were read whole
+# (`git --no-pager diff 6d71b40 99a8de8 -- zkp-core/src/{rng,transcript}.rs`)
+# and both are ADDITIONS ONLY: a read-only accessor behind
+# `#[cfg(any(test, feature = "test-observers"))]` and its tests.  A digest
+# here is reported as READ but is kept apart from the first one, so that
+# `equal_to_the_bytes_round_8_read` stays a statement about round 8's bytes.
+# A digest in neither table is still reported as moved, exactly as before.
+SHARED_ALSO_READ = {
+    "../zkp-core/src/rng.rs": {
+        "b9920aeb3a12c2fd45e7f50f701852086cdf8bf73530de4f7658d4b4c09c3b9f":
+            "stage 36 task 1 (`c031c25`) and its cosmetic fix (`1016dca`), "
+            "unchanged to 99a8de8.  `git diff 6d71b40 99a8de8 -- "
+            "zkp-core/src/rng.rs` is **225 added, 0 removed, two hunks**: one "
+            "`#[cfg(any(test, feature = \"test-observers\"))] impl ZkRng` "
+            "with `OBSERVED_BLOCK_BYTES`, `consumed_bytes()` and `refills()` "
+            "-- both `&self`, both functions of the existing `counter` and "
+            "`pos`, no field added -- and four tests inside `mod tests` (the "
+            "exact byte count per draw kind, the refill boundary, reading "
+            "changes no drawn value, `ZkRng` is still not `Clone`).  "
+            "**`ZkRng::new`, `from_os`, `refill`, `next_u64`, `fp`, `fp2`, "
+            "`fp_vec`, `fp2_vec` and `bytes32` are byte-identical**, so the "
+            "DRAW ORDER the mask port transcribes is the one round 8 read",
+    },
+    "../zkp-core/src/transcript.rs": {
+        "b8a228d9b33f7dbf19cd631c7b9a08eb9465b56ab3c32ea40c06fee2416adad4":
+            "stage 36 task 2 (`e9b2738`, finding U-3), unchanged to "
+            "99a8de8.  `git diff 6d71b40 99a8de8 -- zkp-core/src/"
+            "transcript.rs` is **114 added, 0 removed, two hunks**: one "
+            "`#[cfg(any(test, feature = \"test-observers\"))] impl "
+            "Transcript` with `squeezes(&self) -> u64 { self.counter }` and "
+            "two tests inside `mod tests`.  **`Transcript::new`, `absorb`, "
+            "`squeeze_bytes`, `challenge_fp`, `challenge_fp2`, "
+            "`challenge_fp2_vec`, `challenge_indices`, `clone_state` and the "
+            "keyed D19 form are byte-identical**; the rung-K8 replay "
+            "re-derives every challenge, which is the machine statement of "
+            "it",
+    },
+}
+
 # The seven `private_block` files stage 27 added to the bundle's OWN pins,
 # with what this gate reads from each.  Four of them are exactly the four
 # `NOT_PINNABLE_FROM_A_BUNDLE` names above; the other three were pinned by
@@ -438,18 +480,25 @@ RUN_LAYER_PINS = {
         # though `run.rs` is not (finding E32-F1).  Three more
         # commits and six more bundles on a digest that did not
         # move, which IS the statement that it did not move.
+        # [ROUND 9i] byte-identical at `99a8de8` (rung-K8): `git diff
+        # --numstat 6d71b40 99a8de8` does not list this file.  The rung-K8
+        # bundles were written by `k8_tests::write_the_k8_gate_bundles`, a
+        # TEST that calls this same writer; the test file itself is in no
+        # bundle's `source_pins` (see R9i of the ledger).
         "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6": {
             "blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
             "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
                         "4ccbad1b1da0a23449ac06461740750a6818c6e8",
                         "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
                         "11703c94df428c3e53dbc6c37eac835e348f5bf9",
-                        "4505ddfa24fc99ff57fa086be8c73dae8117875c"),
+                        "4505ddfa24fc99ff57fa086be8c73dae8117875c",
+                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8"),
             "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
                         "run-k-dense-p2", "run-l-zero-p2",
                         "run-m-dense-c6", "run-n-zero-c6",
                         "run-o-dense-w14", "run-p-zero-w14",
-                        "run-q-dense-e32", "run-r-zero-e32"),
+                        "run-q-dense-e32", "run-r-zero-e32",
+                        "run-s-dense-k8", "run-t-zero-k8"),
             "bytes": 85434,
         },
     },
@@ -515,12 +564,20 @@ RUN_LAYER_PINS = {
             "bytes": 46205,
         },
         # [ROUND 9c] stage 33: the rung-E32 run profile.
+        # [ROUND 9i] byte-identical at `99a8de8`: rung-K8 is a TEST-ONLY
+        # shape, built in `k8_tests.rs` through the unchanged
+        # `RunShape::new`, so there is no `RUN_PROFILE_RUNG_K8` constant and
+        # no `RunShape::rung_k8` here -- the run profile string lives in the
+        # test file and reaches the replay through `run.json`, which is
+        # where `RunReplay` has always read it from.
         "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0": {
             "blob": "6af1c39cec721e4a16db27de7906f78f82de5d98",
             "commits": ("6d71b405de9863a7a95dc166ba932f6e12e5a2d0",
                         "2d04d941f1e7e4e52b72f7d1434060779814405e",
-                        "226f3b2c6aed44fe9b1f495cd7c7e34b900e4e90"),
-            "bundles": ("run-q-dense-e32", "run-r-zero-e32"),
+                        "226f3b2c6aed44fe9b1f495cd7c7e34b900e4e90",
+                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8"),
+            "bundles": ("run-q-dense-e32", "run-r-zero-e32",
+                        "run-s-dense-k8", "run-t-zero-k8"),
             "bytes": 46667,
         },
     },
@@ -552,18 +609,21 @@ RUN_LAYER_PINS = {
         # though `run.rs` is not (finding E32-F1).  Three more
         # commits and six more bundles on a digest that did not
         # move, which IS the statement that it did not move.
+        # [ROUND 9i] byte-identical at `99a8de8` (rung-K8).
         "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581": {
             "blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
             "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
                         "4ccbad1b1da0a23449ac06461740750a6818c6e8",
                         "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
                         "11703c94df428c3e53dbc6c37eac835e348f5bf9",
-                        "4505ddfa24fc99ff57fa086be8c73dae8117875c"),
+                        "4505ddfa24fc99ff57fa086be8c73dae8117875c",
+                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8"),
             "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
                         "run-k-dense-p2", "run-l-zero-p2",
                         "run-m-dense-c6", "run-n-zero-c6",
                         "run-o-dense-w14", "run-p-zero-w14",
-                        "run-q-dense-e32", "run-r-zero-e32"),
+                        "run-q-dense-e32", "run-r-zero-e32",
+                        "run-s-dense-k8", "run-t-zero-k8"),
             "bytes": 36123,
         },
     },
@@ -911,7 +971,7 @@ def check_shared_pins(bundle) -> dict:
             "of": len(SHARED_LAYER_PINS),
             "ok": True,
         }
-    at_read, moved, depended = [], [], []
+    at_read, second, moved, depended = [], [], [], []
     for f in sorted(present):
         want = SHARED_LAYER_PINS[f]
         got = pins[f]
@@ -920,6 +980,11 @@ def check_shared_pins(bundle) -> dict:
             depended.append(f)
         if got == want["sha256"]:
             at_read.append(f)
+        elif got in SHARED_ALSO_READ.get(f, {}):
+            # [ROUND 9i] a SECOND digest this gate has read.  Kept apart from
+            # `at_read`, so that the round-8 list below stays about round
+            # 8's bytes; counted as read, with the reading in the record.
+            second.append(f)
         else:
             moved.append(
                 f"{f}: the bundle pins {got[:12]}, this gate read "
@@ -927,7 +992,16 @@ def check_shared_pins(bundle) -> dict:
                 + (f" -- and {dep} depends on it" if dep else
                    " -- no run-gate port depends on it")
             )
-    return {
+
+    def _entry(f):
+        e = {"file": f, "declared": pins[f], **SHARED_LAYER_PINS[f]}
+        # [ROUND 9i] only on a file at a second digest, so that a record of
+        # a bundle at the first digests is leaf-for-leaf what it was
+        if f in second:
+            e["accepted_second_digest"] = SHARED_ALSO_READ[f][pins[f]]
+        return e
+
+    out = {
         "pinned": True,
         "what": "the 23 SHARED files stage 27 added to a bundle's "
         "source_pins, the writer-side ask of R6.8 item 1 and R8.9 item 4",
@@ -935,17 +1009,14 @@ def check_shared_pins(bundle) -> dict:
         "newly_pinned_own_files": NEWLY_PINNED_OWN_FILES,
         "files_pinned": len(present),
         "of": len(SHARED_LAYER_PINS),
-        "at_a_digest_this_gate_read": len(at_read),
+        "at_a_digest_this_gate_read": len(at_read) + len(second),
         "depended_on_by_a_port": sorted(depended),
         "equal_to_the_bytes_round_8_read": sorted(
             f for f in at_read
             if SHARED_LAYER_PINS[f]["same_as_the_mask_port_read"]
         ),
         "pins_that_moved": moved,
-        "per_file": [
-            {"file": f, "declared": pins[f], **SHARED_LAYER_PINS[f]}
-            for f in sorted(present)
-        ],
+        "per_file": [_entry(f) for f in sorted(present)],
         "what_this_is_not": "a pin is a statement about which bytes this "
         "gate has read, not that the Rust is right, and a shared file's "
         "pin suspends no stage: the ports that depend on these eight were "
@@ -953,6 +1024,11 @@ def check_shared_pins(bundle) -> dict:
         "makes the reading checkable from the bundle",
         "ok": not moved,
     }
+    if second:
+        # [ROUND 9i] present only when a second digest is in play, for the
+        # same reason as `accepted_second_digest` above
+        out["pins_at_an_accepted_second_digest"] = sorted(second)
+    return out
 
 
 def check_run_layer_pins(bundle) -> dict:

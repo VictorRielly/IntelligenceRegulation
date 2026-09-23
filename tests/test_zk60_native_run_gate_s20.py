@@ -181,12 +181,18 @@ class TestTheGeometry(unittest.TestCase):
         # thresholds -- and not one slot closure, push order or draw.  So
         # there are still exactly two DEFINITIONS and now three digests
         # that select one of them.
-        self.assertEqual(len(ARGUMENT_DEFINITIONS), 3)
+        # [ROUND 9i, DELIBERATE] three digests became FOUR.  The fourth is
+        # `argument.rs` at `99a8de8` (the rung-K8 capture; stage 35's
+        # rewrite of the slot 14 and slot 17 closures, field identities
+        # only), and it too carries stage 20's repaired definition: the
+        # bilinear arms are outside every hunk.  Still exactly two
+        # DEFINITIONS; three digests select the repaired one.
+        self.assertEqual(len(ARGUMENT_DEFINITIONS), 4)
         names = sorted(set(v[0] for v in ARGUMENT_DEFINITIONS.values()))
         self.assertEqual(names, [PRE_REPAIR, REPAIRED])
         self.assertEqual(
             sorted(v[0] for v in ARGUMENT_DEFINITIONS.values()).count(REPAIRED),
-            2)
+            3)
         self.assertEqual(definition_of_pin("0" * 64), (None, None))
 
     def test_the_factor_names_are_the_push_order(self):

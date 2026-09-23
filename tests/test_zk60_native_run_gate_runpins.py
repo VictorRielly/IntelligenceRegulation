@@ -83,6 +83,16 @@ W14_IN_SCOPE = ("run-o-dense-w14", "run-p-zero-w14")
 # not the blob at the commit they name.  The digests are honest -- all 38
 # match at `6d71b40` and after -- and the label is what is stale.
 E32_F1 = ("run-q-dense-e32", "run-r-zero-e32")
+# [ROUND 9i] the rung-K8 pair (lane stage 37, `99a8de8`), the first bundles
+# at THREE key-value group bits.  They live in their own dated directory of
+# the lane's results, not in `zk60_run_captures_20260920`, so they are
+# routed like the 125M and rung-W14 pairs: in scope for the tables, and
+# named as skipped when absent rather than silently narrowing.
+K8_DIR = os.environ.get(
+    "ZK60_K8_BUNDLES",
+    "/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260922_k8")
+K8_IN_SCOPE = ("run-s-dense-k8", "run-t-zero-k8")
+HAVE_K8 = all(os.path.isdir(os.path.join(K8_DIR, b)) for b in K8_IN_SCOPE)
 HAVE_M125 = all(os.path.isdir(os.path.join(M125_DIR, b))
                 for b in M125_IN_SCOPE)
 HAVE_W14 = all(os.path.isdir(os.path.join(M125_DIR, b)) for b in W14_IN_SCOPE)
@@ -116,6 +126,7 @@ NEWLY_PINNED = (
 
 def _bundle(name):
     root = (M125_DIR if name in M125_IN_SCOPE or name in W14_IN_SCOPE
+            else K8_DIR if name in K8_IN_SCOPE
             else BUNDLES)
     return RunBundle(os.path.join(root, name))
 
@@ -270,7 +281,8 @@ class EveryInScopeBundlePasses(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         names = (list(IN_SCOPE) + (list(M125_IN_SCOPE) if HAVE_M125 else [])
-                 + (list(W14_IN_SCOPE) if HAVE_W14 else []))
+                 + (list(W14_IN_SCOPE) if HAVE_W14 else [])
+                 + (list(K8_IN_SCOPE) if HAVE_K8 else []))
         cls.names = tuple(names)
         cls.bundles = {n: _bundle(n) for n in names}
 
@@ -289,6 +301,8 @@ class EveryInScopeBundlePasses(unittest.TestCase):
         for path, table in RUN_LAYER_PINS.items():
             for digest, entry in table.items():
                 for name in entry["bundles"]:
+                    if name not in self.bundles:
+                        continue      # absent on this box: skipped below
                     pins = {p["file"]: p["sha256"]
                             for p in self.bundles[name].manifest["source_pins"]}
                     self.assertEqual(pins[path], digest, (path, name))
@@ -296,13 +310,15 @@ class EveryInScopeBundlePasses(unittest.TestCase):
             # [ROUND 9] the tables now claim the two 125M bundles as well.
             # A box without them checks the ten it has and says so, rather
             # than asserting a narrower set and calling that a pass.
+            # [ROUND 9i] and the rung-K8 pair, routed the same way.
             self.assertEqual(
                 claimed,
-                set(IN_SCOPE) | set(M125_IN_SCOPE) | set(W14_IN_SCOPE), path)
-            if not (HAVE_M125 and HAVE_W14):
-                self.skipTest("the 125M and/or rung-W14 bundles are not on "
-                              "this box, so the table's claim about them is "
-                              "unchecked")
+                set(IN_SCOPE) | set(M125_IN_SCOPE) | set(W14_IN_SCOPE)
+                | set(K8_IN_SCOPE), path)
+        if not (HAVE_M125 and HAVE_W14 and HAVE_K8):
+            self.skipTest("the 125M, rung-W14 and/or rung-K8 bundles are not "
+                          "on this box, so the table's claim about them is "
+                          "unchecked")
 
     def test_the_source_commit_a_bundle_declares_is_one_the_table_lists(self):
         """A bundle names its own lane commit in `run.json`; the digest it
@@ -531,11 +547,17 @@ class TheDigestsAreTheCommittedBlobs(unittest.TestCase):
         # `3e106e1`, `11703c9` and `4505ddf` -- on the digest they
         # already had, which IS the statement that they did not move
         # there.  21 + 6 + 3 + 3 = 33.
-        self.assertEqual(checked, 33,
+        # [ROUND 9i, DELIBERATE] 33 became 36: the rung-K8 capture commit
+        # `99a8de8` is appended to all three files' existing digests --
+        # none of the three moved there (rung-K8 is built in a TEST file) --
+        # so each is checked once more, at the new commit, against the
+        # digest it already had.
+        self.assertEqual(checked, 36,
                          "three files at SEVEN capture commits each, plus "
                          "run.rs at the six commits round 9c's three new "
                          "shapes are written at, plus the two unmoved "
-                         "files at three of them")
+                         "files at three of them, plus all three at the "
+                         "rung-K8 capture commit")
 
     def test_one_flipped_byte_in_each_file_is_not_a_read_digest(self):
         """The refusal above is asserted on a made-up digest; this is the

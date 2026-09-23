@@ -331,6 +331,23 @@ MASK_LAYER_PINS = {
             "`acc.fs.len() != N_FUNCTIONALS` are byte-identical, so the "
             "DECLARED functional order is the one round 8 read",
         },
+        # [ROUND 9i] the rung-K8 capture commit.
+        "f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d": {
+            "commits": ("99a8de832a6322c94bf951f0f443b96e1dc63cb8",),
+            "bundles": ("run-s-dense-k8", "run-t-zero-k8"),
+            "reading": "READ 2026-09-22 (round 9i).  `git diff 6d71b40 "
+            "99a8de8 -- .../argument.rs` is 137 added, 18 removed, four "
+            "hunks, all of them stage 35's rewrite of two closure bodies "
+            "inside `define` -- slot 14 (`SC_DZC`) and slot 17 (`SC_SZC`): "
+            "base-field constants through `mul_base`, the `256^0` weight "
+            "dropped, one shared sub-product, the support gate hoisted, and "
+            "`#[cfg(test)]` differential blocks.  **The block this port "
+            "reads is untouched**: `run_slot` (argument.rs:444), "
+            "`fn sum_weights(sh, slot)` (:433), `acc.fs.extend(hosts)` and "
+            "the guard `acc.fs.len() != N_FUNCTIONALS` (:1877-1878) are "
+            "outside every hunk and byte-identical, so the DECLARED "
+            "functional order is the one round 8 read",
+        },
     },
     "src/private_block/layout.rs": {
         "b765bdcbe5762cce3402dac9fb44b5359d53cb492f67c62dbee18f3b559b0d05": {
@@ -457,8 +474,14 @@ MASK_LAYER_PINS = {
         "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911": {
             "commits": ("6d71b405de9863a7a95dc166ba932f6e12e5a2d0",
                         "2d04d941f1e7e4e52b72f7d1434060779814405e",
-                        "226f3b2c6aed44fe9b1f495cd7c7e34b900e4e90"),
-            "bundles": ("run-q-dense-e32", "run-r-zero-e32"),
+                        "226f3b2c6aed44fe9b1f495cd7c7e34b900e4e90",
+                        # [ROUND 9i] byte-identical at the rung-K8 capture
+                        # commit: rung-K8 is built in a TEST file
+                        # (`k8_tests.rs`) through the unchanged
+                        # `Shape::new`, so `shape.rs` did not move.
+                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8"),
+            "bundles": ("run-q-dense-e32", "run-r-zero-e32",
+                        "run-s-dense-k8", "run-t-zero-k8"),
             "reading": "READ 2026-09-21 (round 9c).  `git diff 4ccbad1 "
             "6d71b40 -- .../shape.rs` is **273 added, 0 removed -- "
             "ADDITIONS ONLY**: the three constructors, ruling S-6's named "
@@ -522,6 +545,14 @@ NOT_PINNABLE_FROM_A_BUNDLE = {
         "reading": "UNCHANGED: P, the nonresidue 7, and the byte encodings",
         "why_not_pinnable": "as above",
     },
+    # [ROUND 9i] `rng.rs` and `transcript.rs` below are NOT at these bytes at
+    # the rung-K8 capture commit `99a8de8`: stage 36 added a gated read-only
+    # accessor to each (`consumed_bytes` / `refills`, `squeezes`) and their
+    # tests, ADDITIONS ONLY -- `next_u64`, `refill`, `fp`, `fp2`, `bytes32`,
+    # `absorb`, `squeeze_bytes` and every `challenge_*` are byte-identical.
+    # The reading and the two digests are in
+    # `zk60_native_rg_runpins.SHARED_ALSO_READ`, where the bundle-side check
+    # lives; the entries here keep the bytes round 8 read.
     "zkp-core/src/rng.rs": {
         "toy_pin": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
         "at_the_capture_commits": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
