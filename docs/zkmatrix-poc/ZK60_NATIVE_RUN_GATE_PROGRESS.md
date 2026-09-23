@@ -4500,3 +4500,42 @@ but whose committed summaries quote it):
    layer's HIDING (M-2, M-3); more than two blocks at 125M; the capture
    writer's 38-file list (R9h.9 item 6). Nothing here is a privacy
    acceptance.
+
+# ROUND 9j (2026-09-23 03:47 PDT) — the gate reads a STANDALONE shaped block receipt (obligation 3 of the shaped privacy status)
+
+## R9j.0 Why there is a round 9j
+
+`ZK60_SHAPED_PRIVACY_PATH_STATUS.md` (main tree, 2026-09-23) obligation 3:
+every 125M gate measurement so far is of a TWO-BLOCK RUN; no STANDALONE
+shaped block receipt has ever been gated. Lane stage 45
+(`zk60-private-block-125m`, tip `544fbaf`, READ-ONLY here) wrote a
+verifier-side capture for one, schema `hashline-native-capture/5-block-shaped`,
+and four bundles (rung-G dense + zero, 125M dense + zero). This round teaches
+the gate that schema, predicts its output first, runs it, and corrects the
+three stale channel texts the status page (rows 26–28) routed here.
+
+Nothing in this round is a privacy acceptance and no statement here
+establishes a privacy property.
+
+## R9j.1 Input (READ-ONLY, never copied into this repository)
+
+| bundle | witness | source commit | where |
+|---|---|---|---|
+| `rung-g-dense` | dense generic (`dense_run_case`) | `feae674` | `/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/` |
+| `rung-g-zero` | all-zero input (tame fixture) | `feae674` | the same |
+| `m125-dense` | dense generic, down band 1 | `19f06bf` | `/home/victor/zk60-artifacts/block-captures-20260923/` |
+| `m125-zero` | all-zero input | `19f06bf` | the same |
+
+## R9j.2 Status
+
+| # | item | state |
+|---|---|---|
+| J0 | ledger skeleton, round 9j opened | this commit |
+| J1 | how to read a standalone block: a mode of the run gate or a thin entry script | pending |
+| J2 | the prediction, written and committed BEFORE the gate reads a block bundle with its pins read | pending |
+| J3 | the pins: the 35 source pins read; every moved file re-pinned with a written reason, old digests kept | pending |
+| J4 | the gate on both rung-G bundles, every arm, every control; then both 125M bundles, one at a time, detached | pending |
+| J5 | dense against zero; the block against the run it would be a stage of | pending |
+| J6 | the stale channel texts of `m125-dense-everything.json` (status rows 26–28) | pending |
+| J7 | records re-taken where a tool moved; the suites (toy subset, record guard, whole native suite) | pending |
+| J8 | results, limits, NEXT | pending |
