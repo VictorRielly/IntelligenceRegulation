@@ -90,3 +90,21 @@ this section makes no claim either way.
 The revision of the draft (LW-1, F-3…F-8); LW-2 in the lane; the §3 reading;
 m3 on the Rust, anything at 125M, a `prove_run` replay and a seeded endpoint
 replay (not checked).
+
+## 5. The §3 reading (2026-09-23 16:52)
+
+`ZK60_BLINDING_LAW_GR4_TOY_READING.md` (`bd04fde`): **verdict (i), covered —
+wording only.** The toy's hash-layer lemma counts all five roots, both
+endpoint trees included (`ZK60_HASH_LAYER_AND_FS_LIFT.md` §2.1 l.423,
+`N_leaf = 12,288` l.561, the proof building every root from salted leaves
+§2.3), and the lift puts the roots in the view (§3.1, §5.2 l.1311-1313). The
+composition memo's "P includes the whole policy" and "three roots" (l.107,
+l.1437) are wrong wording; a dated note on that memo points to T-1…T-8. The
+run case was already written right (Lemma H^run's `4L + 1` roots). **D22's
+sentence, figures and conditions are unchanged.** The reading also surfaced
+that the privacy case's hypothesis **O-2** (an accepted receipt's endpoint
+roots never registered or referred to by a later artifact; ask R-9) was never
+listed in D22's statement nor put to Victor: now carried in the statement §6
+as a hypothesis and proposed to Victor as **D23**. The G-R4 draft is revised
+per LW-1…LW-3 (`bd04fde`); lane stage 47 brought the root-rebuild check in
+(gates closing).
