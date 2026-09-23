@@ -40,11 +40,19 @@ Cases (each at several (n, Q), including n > Q, n = Q and n < Q):
                have k0 = 1, 2, 3 and the u rows present: expect n*k0 + u_dim
                exactly (the Kronecker step of the derivation, no hypothesis)
   cm0-single   a singleton claim's cm = 0 (H-pair broken): report both
+  cm0-multi    cm = 0 for a member of a TWO-member group: k0 stays 0, the
+               claim's value is then an unblinded data functional, and the
+               formula must UNDER-count by 2 (step 2 needs cm != 0)
   shared-pair  two claims of different groups on one reserved pair
                (exclusivity broken): the formula must UNDER-count, because
                the individual claim values are no longer absorbed (step 2)
   shared-pair-same-group  two claims of ONE group on one pair: the same
   prox-dep     an Fp-dependent proximity pair (H-prox broken): report
+  boundary-honest / boundary-prox-dep
+               a zero-slack commitment (two singleton claims, a pair each,
+               the proximity pair, no spare row): 0 honest; with a dependent
+               proximity pair k0 = 1 and the brute force must read n (Finding
+               N-1's "one row's worth"), and the formula must read the same
   over-budget  d = Q + 1 distinct opened columns (H-pad broken): brute > formula
 """
 
@@ -170,8 +178,10 @@ def build_model(rng, ln, q, *, nd=4, kind="H", u_constrained=True, n_eval=3,
         r0 = (2 * k) % nd
         cd = rnd_f2(rng)
         cm = rnd_f2(rng)
-        if cm_zero_singleton and k == n_eval - 1:
+        if cm_zero_singleton == "single" and k == n_eval - 1:
             cm = ZERO
+        if cm_zero_singleton == "multi" and k == 1:
+            cm = ZERO  # claim 1 shares claim 0's key: a member of a 2-member group
         rw = [ZERO] * R
         for i, e in enumerate(eq_table(point[:1])):
             rw[r0 + i] = f2_add(rw[r0 + i], f2_mul(cd, e))
@@ -487,13 +497,23 @@ def run_case(rng, ln, q, case):
     elif case == "u-free":
         kw = {"u_constrained": False}
     elif case == "cm0-single":
-        kw = {"cm_zero_singleton": True}
+        kw = {"cm_zero_singleton": "single"}
+    elif case == "cm0-multi":
+        kw = {"cm_zero_singleton": "multi"}
     elif case == "shared-pair":
         kw = {"shared_pair": "other-group"}
     elif case == "shared-pair-same-group":
         kw = {"shared_pair": "same-group"}
     elif case == "prox-dep":
         kw = {"prox_dependent": True}
+    elif case == "prox-dep-A":
+        kw = {"kind": "A", "prox_dependent": True}
+    elif case == "boundary-honest":
+        # a boundary-like commitment: two singleton claims, one pair each, the
+        # proximity pair, NO spare row and no u rows -- zero slack
+        kw = {"kind": "B", "n_eval": 2, "shared_key": False}
+    elif case == "boundary-prox-dep":
+        kw = {"kind": "B", "n_eval": 2, "shared_key": False, "prox_dependent": True}
     elif case == "over-budget":
         kw = {"d_extra": 1}
     m = build_model(rng, ln, q, **kw)
@@ -522,7 +542,8 @@ def brute_msg_only(m, gens):
 def main():
     grid = [(3, 8), (3, 4), (3, 2), (4, 4), (4, 2), (5, 4), (2, 8)]  # (log n, Q): n=8/Q=8 is n = Q
     cases = ["honest-H", "honest-A", "u-free", "msg-only-k0=1", "msg-only-k0=2", "msg-only-k0=3",
-             "cm0-single", "shared-pair", "shared-pair-same-group", "prox-dep", "over-budget"]
+             "cm0-single", "shared-pair", "shared-pair-same-group", "prox-dep", "over-budget",
+             "boundary-honest", "boundary-prox-dep", "cm0-multi", "prox-dep-A"]
     seeds = [1, 2, 3, 4, 5]
     results = []
     for ln, q in grid:
