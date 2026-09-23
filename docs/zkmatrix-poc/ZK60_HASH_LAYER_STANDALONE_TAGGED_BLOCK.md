@@ -7,6 +7,25 @@
 > plus the residual column of obligation 10. **Not a privacy acceptance and
 > not a privacy claim**: D22 (the toy) is the only statement in force.
 
+> **Status update, 2026-09-23 09:18: CHECKED and RULED** — check
+> `ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_CHECK.md` (`cb83a97`), disposition
+> `ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_DISPOSITION.md` (HB-1…HB-4). No
+> counterexample; every figure re-derived independently. **Errata that
+> override the text below:** (F-1 / HB-1) S-5(b)'s reason for D21 is
+> incomplete — the prover has no output-equality precheck
+> (`protocol.rs:770-771`), so D21 is kept by the production caller verifying
+> before transmitting; (F-2) the absorb counts 495 / 376 are COUNTED, only the
+> squeezes are MEASURED; (F-3) rung-K4's 765,388 is a sum of measured parts
+> (750,540 block stream in situ + 2 × 7,424 endpoint draws on a replica);
+> (F-4) H^blk's real-versus-all-zero distance is 2^-71.86 (the one-sided
+> sampler figure and a two-world LogUp figure were mixed); (F-5) at a block
+> the constructor inputs (48 / 58 B) are shorter than every actual absorb
+> (60 B) — separated by length too; (F-6) the tag-key `m` is a convention, and
+> the "twelve keys" comment at `s24_tests.rs:151` is stale (28 at `544fbaf`);
+> (F-9) the 47-byte constructor test pins 3 of the 7 run profiles; (F-10) S-3
+> should say that before stage 26 the endpoint domains were identical, so a
+> total failure of E-1 would then have shown as identical all-zero roots.
+
 | | |
 |---|---|
 | Lane read | `/home/victor/wt-zk60-block125m` at **`544fbaf`** (stage 45 closed), read-only, working tree clean for source. Every `file:line` below is at that commit; paths without a crate are `hashline/src/private_block/…`, `zkp-core/src/…` is named |
