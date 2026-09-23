@@ -1,5 +1,19 @@
 # The joint law of the field view (U-3b), and the nonlinear link between the two channels (item 21)
 
+> **Dated wording note, 2026-09-23 16:52 (security owner).** This memo's
+> (H6) names "three roots" (l.1437) and fixes the whole expected-IO policy in
+> `P` (l.107); read literally, the last hop of Route A (setting `w := 0`)
+> could not be taken, because the two ENDPOINT roots in the policy are
+> functions of the endpoints' blinding. **The argument is unaffected**: the
+> accepted hash-layer lemma counts all five roots, both endpoint trees
+> included (`ZK60_HASH_LAYER_AND_FS_LIFT.md` §2.1 l.423, `N_leaf = 12,288`
+> l.561; the lift puts the roots in the view, §3.1, §5.2 l.1311-1313), so the
+> fix is wording only — `P` read without the endpoint roots, the roots routed
+> through H6. The eight wording items T-1…T-8 are listed in
+> `ZK60_BLINDING_LAW_GR4_TOY_READING.md` and apply here; D22's sentence,
+> figures and conditions are unchanged (its statement gained hypothesis O-2,
+> proposed D23).
+
 **Status: REVISED AFTER INDEPENDENT CHECK — the theorem's core is accepted
 for the toy block, per `ZK60_JOINT_LAW_COMPOSITION_DISPOSITION.md` (security
 owner, 2026-09-20): at fixed challenges the prover does not refuse on, in the

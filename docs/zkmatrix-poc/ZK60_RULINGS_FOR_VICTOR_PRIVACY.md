@@ -175,6 +175,33 @@ for a purer sentence.
 
 **One line is enough:** "D19b yes", or "D19b no, use prefixes".
 
+## One more, added 2026-09-23 16:52 — proposed D23, an operating rule for the small test block's acceptance
+
+**What it is.** A private receipt ends with two public fingerprints (the
+"endpoint roots") of its hidden input and hidden output. The privacy
+argument accepted for the small test block (D22) holds only as long as **no
+later artifact registers, republishes or refers to those two fingerprints** —
+for example by using this receipt's output fingerprint as the input of a
+later proof, or by recording it in a registry something else checks against.
+The moment that happens, a different and harder question applies (whether a
+fingerprint fixed by one party and opened by another still hides — the open
+decisions D8/D11), and the acceptance would no longer cover that receipt. The
+privacy case wrote this down in September as a condition (O-2) and as a
+question for you (R-9), but it was never put to you and never made it into
+the register or the statement. Found today by a reading done for another
+gap; the argument and its numbers are unchanged — only the conditions list
+was incomplete. I have added it to the statement as a stated hypothesis.
+
+**Why it is yours:** it constrains how receipts may be used, not how they
+are built.
+
+**Recommendation: accept** — nothing today registers or chains an accepted
+test-block receipt, and chaining finished private proofs is already known not
+to work through a commitment root (the run design keeps block-to-block
+fingerprints inside one proof for exactly this reason).
+
+**One line is enough:** "D23 yes".
+
 ## If you answer in one line
 
 "D19 yes, D20 yes, D21 yes" is enough. If you want the tag added to the toy

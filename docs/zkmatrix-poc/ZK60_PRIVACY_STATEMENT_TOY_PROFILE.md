@@ -206,6 +206,16 @@ of the statement.
   **prover-private**: never retained in a capture bundle or a published log.
   Production runs leave both unset. This is an operating rule, not a change
   to what a receipt shows.
+- *(Added 2026-09-23 16:52, the security owner carrying the privacy case's
+  hypothesis O-2 — `ZK60_PRIVACY_CASE_FIRST_MVP.md` §1.2 item 1, §5.2, l.1633
+  — which was never listed here; found by
+  `ZK60_BLINDING_LAW_GR4_TOY_READING.md`.)* **The endpoint roots of an
+  accepted receipt are never registered, republished or referred to by a
+  later artifact.** The moment they are, the D8/D11 question applies to that
+  receipt and this statement no longer covers it. This is a hypothesis of the
+  statement, not a new condition on the code; the operating rule itself is
+  Victor's to accept (proposed **D23**, `ZK60_RULINGS_FOR_VICTOR_PRIVACY.md`).
+  Nothing in the argument or its figures changes.
 
 ## 7. What must not be claimed, even when this is in force
 
