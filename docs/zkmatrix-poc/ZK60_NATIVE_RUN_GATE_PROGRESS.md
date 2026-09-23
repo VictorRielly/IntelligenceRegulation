@@ -4960,3 +4960,35 @@ none of them a measured figure.
 6. Standing: the joint LAW (G-R4, "said exactly" -- status obligation 6),
    the hash layer's HIDING (D19b), twelve blocks at 125M. Nothing here is a
    privacy acceptance.
+
+# ROUND 9k (2026-09-23 09:28 PDT) — a control that shares one blinding row between the two external endpoints of a standalone block (ruling HB-4)
+
+## R9k.0 Why there is a round 9k
+
+Ruling **HB-4** of `ZK60_HASH_LAYER_STANDALONE_TAGGED_BLOCK_DISPOSITION.md`
+(main tree, 2026-09-23 09:18), on finding **F-8** of the check beside it:
+the gate has no negative control that makes one reserved (blinding) row of
+`E-Input` and one of `E-Output` the SAME unknown -- the pair the all-zero
+world worry is about (Input and Output commit identical planes there). The
+honest code makes the case moot (each endpoint has its own `ZkRng::from_os`),
+but the gate should show that its joint figure would SEE it. This round adds
+that control to the standalone-block mode of round 9j
+(`zk60_native_rg_block.block_controls`, the run family's block analogues),
+predicts its figures first, and runs it on both rung-G block bundles and,
+cheaply, both 125M ones.
+
+Nothing in this round is a privacy acceptance and no statement here
+establishes a privacy property.
+
+## R9k.1 Status
+
+| # | item | state |
+|---|---|---|
+| K0 | ledger skeleton, round 9k opened | this commit |
+| K1 | the prediction, written and committed BEFORE the control is run on any bundle | open |
+| K2 | the control in `block_controls` (model-only, no captured byte altered), its tests | open |
+| K3 | rung-G, both block bundles, the whole gate as round 9j ran it | open |
+| K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | open |
+| K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | open |
+| K6 | the suites (toy subset, record guard, whole native suite) | open |
+| K7 | results, limits, NEXT | open |
