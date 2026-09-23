@@ -14030,3 +14030,38 @@ close it, for the file's owner). Not a measured twelve-block 125M run (a sum
 of measured parts). Not J-5's widened assertion 2 at run scope (obligation
 6b: the `11L + 3(L − 1)` segment offsets) — though the run's boundary and
 stage totals are now measured between steps at rung-G `L = 2`.
+
+## Stage 47 — TEST-ONLY: the G-R4 seeded value-level replay moves into the lane (ruling LW-2) (2026-09-23, 16:4x–)
+
+**Status: `OPEN`** — skeleton. Opened 2026-09-23 16:40 PDT on the lane tip
+`2ea7221`, one writer (the delegated stage-47 agent). **Why:** ruling LW-2 of
+`ZK60_BLINDING_LAW_GR4_DISPOSITION.md` (main tree): the G-R4 check
+(`ZK60_BLINDING_LAW_GR4_CHECK.md`, review branch
+`zk60-private-block-125m-review` at `cfcf7cd`) showed on the Rust that stage
+36's assertion-6 source scan (`s36_tests.rs:727`) skips the `*x = rng.fp();`
+fill idiom and never sees `α`, so three mutations of production source (m1:
+A's proximity row overwritten; m2: an A reserved-pair word copied into H; m4:
+an `α` coefficient copied between slots inside `zk::mask_commit_tagged`) stay
+GREEN under it. The review branch's test-only `gr4_check_tests.rs` rebuilds
+A, M and H from the witness and the eleven predicted stream segments WITHOUT
+calling the commit functions and requires the three roots and the byte count
+to match; it fails on all three.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | bring `gr4_check_tests.rs` into the lane (verbatim, or with the minimal adaptation the tip needs — every difference listed), wired by one `#[cfg(test)] mod` in `private_block.rs` next to the existing test modules | green at the toy, rung-G and the run boundary under both hash rules |
+| 2 | re-demonstrate m1, m2, m4 against the lane's copy: each applied to production source TEMPORARILY, then restored | the new test FAILS naming the right root; assertion 6 stays GREEN (the documented blindness); `git diff` on `protocol.rs`, `zk.rs`, `zkp-core` EMPTY afterwards; no mutation committed |
+| 3 | a comment block at the top of assertion 6 documenting its blindness (LW-2), pointing at the new test | test files only |
+| 4 | byte identity | no production change; toy 2,816,472 B and every pin unchanged; `private_block.rs`'s digest old → new; focused stage 36/45/46 filters, the new test, and `--lib private_` once at 6 threads against 496 / 0 / 21 |
+| 5 | this section | — |
+
+**Forbidden:** any committed production change;
+`hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`, `hashline/src/gpu/*`,
+`zkp-core/`, `private-block-kernel/`, `zkvm-block/` beyond the temporary,
+reverted mutations of task 2. The untracked `u31-c6-run1.*` files are left
+alone. Logs: `results/zk60_block125m_lane/s47-*`.
+
+**No privacy claim.** The replay says every drawn word of A, M and H is where
+and what the schedule says; it is not an acceptance of the blinding law.
