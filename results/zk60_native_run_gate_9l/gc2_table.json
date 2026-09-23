@@ -1,0 +1,2256 @@
+{
+ "rows": [
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate/run-a-tame",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate/run-b-zero",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_planeindex/run-c-tame",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_planeindex/run-d-zero",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_tagged/run-e-tame-tagged",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_tagged/run-f-zero-tagged",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_s20/run-g-dense-s20",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_s20/run-h-zero-s20",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_k4/run-i-dense-k4",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_k4/run-j-zero-k4",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_preimage/run-g-dense-s20",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_preimage/run-h-zero-s20",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_preimage/run-i-dense-k4",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_preimage/run-j-zero-k4",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_mask/run-g-dense-s20",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_mask/run-h-zero-s20",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_mask/run-i-dense-k4",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_mask/run-j-zero-k4",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_p2/run-k-dense-p2",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_p2/run-l-zero-p2",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9c/run-m-dense-c6",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ],
+    "H@1": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9c/run-n-zero-c6",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ],
+    "H@1": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9c/run-o-dense-w14",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ],
+    "H@1": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9c/run-p-zero-w14",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ],
+    "H@1": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9c/run-q-dense-e32",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ],
+    "H@1": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 7,
+   "commitments_16_of_16": 7,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 7,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9c/run-r-zero-e32",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ],
+    "H@1": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 4,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 4
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_k8/run-s-dense-k8",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 10,
+   "commitments_16_of_16": 10,
+   "controls": 24,
+   "controls_firing": 24,
+   "h_pair_true": 10,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_k8/run-t-zero-k8",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "A@1": [
+     244,
+     244
+    ],
+    "A@2": [
+     244,
+     244
+    ],
+    "B0": [
+     4,
+     4
+    ],
+    "B1": [
+     4,
+     4
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ],
+    "H@1": [
+     104,
+     104
+    ],
+    "H@2": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 6,
+   "u_term_values": [
+    [
+     2,
+     2
+    ],
+    [
+     4,
+     4
+    ],
+    [
+     6,
+     6
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 6
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 4,
+   "commitments_16_of_16": 4,
+   "controls": 23,
+   "controls_firing": 23,
+   "h_pair_true": 4,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_block/block-rung-g-dense",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 2,
+   "u_term_values": [
+    [
+     2,
+     2
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 2
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 4,
+   "commitments_16_of_16": 4,
+   "controls": 23,
+   "controls_firing": 23,
+   "h_pair_true": 4,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_block/block-rung-g-zero",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     104,
+     104
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 2,
+   "u_term_values": [
+    [
+     2,
+     2
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 2
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 4,
+   "commitments_16_of_16": 4,
+   "controls": 23,
+   "controls_firing": 23,
+   "h_pair_true": 4,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9l/block-m125-dense-gc2",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 2,
+   "u_term_values": [
+    [
+     2,
+     2
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 2
+  },
+  {
+   "clauses_exercised": 16,
+   "commitments": 4,
+   "commitments_16_of_16": 4,
+   "controls": 23,
+   "controls_firing": 23,
+   "h_pair_true": 4,
+   "ok": true,
+   "old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "record": "zk60_native_run_gate_9l/block-m125-zero-gc2",
+   "site_rows_used_exactly_once": {
+    "A@0": [
+     244,
+     244
+    ],
+    "E-Input": [
+     2,
+     2
+    ],
+    "E-Output": [
+     2,
+     2
+    ],
+    "H@0": [
+     100,
+     100
+    ]
+   },
+   "stage3_ok": true,
+   "u_term_entries": 2,
+   "u_term_values": [
+    [
+     2,
+     2
+    ]
+   ],
+   "u_terms_exact_equal_per_indicator": 2
+  }
+ ],
+ "summary": {
+  "commitments": 272,
+  "commitments_16_of_16": 272,
+  "controls": 764,
+  "controls_firing": 764,
+  "every_record_exercises_all_16": true,
+  "prediction_held": true,
+  "records": 32,
+  "u_term_entries": 160,
+  "u_terms_exact_equal_per_indicator": 160
+ },
+ "what": "ROUND 9l: ruling GC-2 on every record this round wrote, one table."
+}

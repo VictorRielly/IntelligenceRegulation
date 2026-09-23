@@ -142,7 +142,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 209.6,
+ "seconds": 209.3,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -876,14 +876,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.55,
-    "msg_groups_seconds": 0.63,
+    "layout_seconds": 2.57,
+    "msg_groups_seconds": 0.59,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.33,
+    "pads_seconds": 3.43,
     "preimage_exhibited": true,
-    "seconds": 11.38,
+    "seconds": 11.49,
     "solve_findings": [],
-    "solve_seconds": 4.01,
+    "solve_seconds": 4.06,
     "solved": true,
     "steps": [
      {
@@ -1504,7 +1504,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.76,
+     "seconds_opened_columns": 3.78,
      "seconds_vectors_and_claims": 1.03
     }
    },
@@ -1525,14 +1525,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.56,
-    "msg_groups_seconds": 0.13,
+    "layout_seconds": 2.45,
+    "msg_groups_seconds": 0.15,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.32,
+    "pads_seconds": 2.28,
     "preimage_exhibited": true,
-    "seconds": 8.17,
+    "seconds": 7.98,
     "solve_findings": [],
-    "solve_seconds": 2.47,
+    "solve_seconds": 2.45,
     "solved": true,
     "steps": [
      {
@@ -1755,8 +1755,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 2.84,
-     "seconds_vectors_and_claims": 0.27
+     "seconds_opened_columns": 2.77,
+     "seconds_vectors_and_claims": 0.28
     }
    },
    {
@@ -1776,12 +1776,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.54,
+    "layout_seconds": 2.5,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.08,
+    "pads_seconds": 0.07,
     "preimage_exhibited": true,
-    "seconds": 2.72,
+    "seconds": 2.67,
     "solve_findings": [],
     "solve_seconds": 0.09,
     "solved": true,
@@ -1880,7 +1880,7 @@
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
      "seconds_opened_columns": 0.07,
-     "seconds_vectors_and_claims": 0.0
+     "seconds_vectors_and_claims": 0.01
     }
    },
    {
@@ -1900,12 +1900,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.55,
+    "layout_seconds": 2.65,
     "msg_groups_seconds": 0.6,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.44,
+    "pads_seconds": 3.43,
     "preimage_exhibited": true,
-    "seconds": 11.46,
+    "seconds": 11.77,
     "solve_findings": [],
     "solve_seconds": 4.07,
     "solved": true,
@@ -2528,8 +2528,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.77,
-     "seconds_vectors_and_claims": 1.03
+     "seconds_opened_columns": 3.94,
+     "seconds_vectors_and_claims": 1.07
     }
    },
    {
@@ -2549,14 +2549,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.57,
-    "msg_groups_seconds": 0.13,
+    "layout_seconds": 2.56,
+    "msg_groups_seconds": 0.14,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.41,
+    "pads_seconds": 2.33,
     "preimage_exhibited": true,
-    "seconds": 8.19,
+    "seconds": 8.03,
     "solve_findings": [],
-    "solve_seconds": 2.56,
+    "solve_seconds": 2.5,
     "solved": true,
     "steps": [
      {
@@ -2779,8 +2779,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 2.76,
-     "seconds_vectors_and_claims": 0.27
+     "seconds_opened_columns": 2.67,
+     "seconds_vectors_and_claims": 0.26
     }
    },
    {
@@ -2919,7 +2919,7 @@
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
      "seconds_opened_columns": 0.11,
-     "seconds_vectors_and_claims": 0.01
+     "seconds_vectors_and_claims": 0.0
     }
    },
    {
@@ -2939,14 +2939,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.58,
-    "msg_groups_seconds": 0.63,
+    "layout_seconds": 2.73,
+    "msg_groups_seconds": 0.59,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.52,
+    "pads_seconds": 3.58,
     "preimage_exhibited": true,
-    "seconds": 11.65,
+    "seconds": 12.04,
     "solve_findings": [],
-    "solve_seconds": 4.19,
+    "solve_seconds": 4.21,
     "solved": true,
     "steps": [
      {
@@ -3567,8 +3567,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.74,
-     "seconds_vectors_and_claims": 1.08
+     "seconds_opened_columns": 3.91,
+     "seconds_vectors_and_claims": 1.16
     }
    },
    {
@@ -3588,14 +3588,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.55,
-    "msg_groups_seconds": 0.13,
+    "layout_seconds": 2.56,
+    "msg_groups_seconds": 0.12,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.39,
+    "pads_seconds": 2.26,
     "preimage_exhibited": true,
-    "seconds": 8.19,
+    "seconds": 7.93,
     "solve_findings": [],
-    "solve_seconds": 2.53,
+    "solve_seconds": 2.4,
     "solved": true,
     "steps": [
      {
@@ -3818,8 +3818,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 2.78,
-     "seconds_vectors_and_claims": 0.3
+     "seconds_opened_columns": 2.62,
+     "seconds_vectors_and_claims": 0.32
     }
    },
    {
@@ -3839,14 +3839,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.42,
+    "layout_seconds": 2.35,
     "msg_groups_seconds": 0.02,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.11,
+    "pads_seconds": 0.1,
     "preimage_exhibited": true,
-    "seconds": 2.66,
+    "seconds": 2.59,
     "solve_findings": [],
-    "solve_seconds": 0.14,
+    "solve_seconds": 0.13,
     "solved": true,
     "steps": [
      {
@@ -3957,7 +3957,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.09,
+     "seconds_opened_columns": 0.1,
      "seconds_vectors_and_claims": 0.0
     }
    },
@@ -3978,14 +3978,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.5,
+    "layout_seconds": 2.6,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
     "pads_seconds": 0.09,
     "preimage_exhibited": true,
-    "seconds": 2.7,
+    "seconds": 2.82,
     "solve_findings": [],
-    "solve_seconds": 0.11,
+    "solve_seconds": 0.12,
     "solved": true,
     "steps": [
      {
@@ -4081,14 +4081,14 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.08,
+     "seconds_opened_columns": 0.09,
      "seconds_vectors_and_claims": 0.0
     }
    }
   ],
   "requested": true,
   "salted_leaves_authenticated": 2560,
-  "seconds": 70.0,
+  "seconds": 70.2,
   "this_is_not_a_privacy_result": true,
   "view_entries_compared": 1097847,
   "view_entries_differing": 0,
@@ -4627,7 +4627,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 6.08,
+    "seconds": 6.24,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -5731,7 +5731,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 5.96,
+    "seconds": 6.12,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -6835,7 +6835,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 5.79,
+    "seconds": 5.86,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -7626,7 +7626,7 @@
   "profile": "hashline-zk-mr1/private-run-rung-g-t24-dev/1",
   "requested": true,
   "salted_leaves_authenticated": 768,
-  "seconds": 17.87,
+  "seconds": 18.24,
   "source_pins": {
    "accepted": [
     {
@@ -8047,6 +8047,780 @@
   "stages": 3
  },
  "stage3_per_commitment": {
+  "exclusivity_controls": {
+   "all_fire": true,
+   "clauses": [
+    {
+     "id": "EX-1",
+     "name": "geometry",
+     "source": "protocol.rs:233-235 (audit_claims: the proximity pair is the last two rows, an even number of reserved rows) and :356-370 (endpoint_geometry)",
+     "what": "A / H / boundary: the proximity pair is the last two rows, the reserved (non-data, non-proximity, non-zero-sum) rows are exactly the declared site rows and there is an even number of them, and H's zero-sum rows are its declared sum rows; an external endpoint: (rows, rows - 5, rows - 3), sites [d, d+1], proximity [d+2, d+3], one spare row d+4"
+    },
+    {
+     "id": "EX-2",
+     "name": "no claim reaches the proximity pair",
+     "source": "protocol.rs:242-244 (first half)",
+     "what": "no part's rows end past the first proximity row (A / H / boundary), and no claim puts weight on a proximity row (every kind)"
+    },
+    {
+     "id": "EX-3",
+     "name": "no claim part leaves the commitment",
+     "source": "protocol.rs:242-244 (second half)",
+     "what": "every part's rows lie inside the commitment"
+    },
+    {
+     "id": "EX-4",
+     "name": "a part on a site row has a nonzero coefficient",
+     "source": "protocol.rs:246-248 ('zero terminal mask coefficient')",
+     "what": "every part that covers a site row carries a nonzero coefficient"
+    },
+    {
+     "id": "EX-5",
+     "name": "an evaluation claim carries exactly two adjacent site rows",
+     "source": "protocol.rs:258-262",
+     "what": "every claim that is not point-free puts nonzero weight on exactly two site rows, and they are adjacent"
+    },
+    {
+     "id": "EX-6",
+     "name": "the pair sits at an even offset",
+     "source": "protocol.rs:259 ((touched[0] - site_rows[0]) % 2)",
+     "what": "the first site row a claim touches is an even number of rows past the first site row"
+    },
+    {
+     "id": "EX-7",
+     "name": "no weight on a spare reserved row",
+     "source": "the reduction's hypothesis (X); protocol.rs:379-384 for the endpoint",
+     "what": "no claim puts weight on a reserved row that is no site row (the endpoint's row d+4)"
+    },
+    {
+     "id": "EX-8",
+     "name": "the sum claim is masked by the zero-sum pair alone",
+     "source": "protocol.rs:252-257",
+     "what": "the point-free LAST claim of a commitment with sum rows touches no site row and covers both zero-sum rows with nonzero coefficients"
+    },
+    {
+     "id": "EX-9",
+     "name": "no unexpected sum claim",
+     "source": "protocol.rs:263 ('unexpected sum claim')",
+     "what": "no point-free claim before the last one, and none on a commitment without sum rows"
+    },
+    {
+     "id": "EX-10",
+     "name": "pairs are disjoint",
+     "source": "protocol.rs:268-270 (uses[r] != 1: the 'shared' face)",
+     "what": "no site row carries weight from two claims -- the OVERLAP refusal of finding F-4"
+    },
+    {
+     "id": "EX-11",
+     "name": "every reserved row is used",
+     "source": "protocol.rs:268-270 (uses[r] != 1: the 'unused' face)",
+     "what": "every site row carries weight from some claim"
+    },
+    {
+     "id": "EX-12",
+     "name": "the pair basis",
+     "source": "not in audit_claims; argument.rs:382-384 (build_claim's (cm, cm*U))",
+     "what": "a claim's two site-row weights are an Fp-basis of Fp2"
+    },
+    {
+     "id": "EX-13",
+     "name": "one column key per claim",
+     "source": "protocol.rs:203-205 (opening_groups_at)",
+     "what": "every part of a claim has the same column-weight key"
+    },
+    {
+     "id": "EX-14",
+     "name": "the group count is the schedule's",
+     "source": "protocol.rs:321-324 (check_opening) and :389 (the endpoint's one group)",
+     "what": "the first-occurrence groups number a_groups on A, h_groups on H, the boundary's sites on a boundary, and 1 on an endpoint"
+    },
+    {
+     "id": "EX-15",
+     "name": "the endpoint claim's shape",
+     "source": "protocol.rs:379-384 (check_endpoint_opening)",
+     "what": "an endpoint opens exactly one claim of three parts on rows 0..d, d and d+1, every coefficient nonzero"
+    },
+    {
+     "id": "EX-16",
+     "name": "every group coefficient is nonzero",
+     "source": "protocol.rs:296-301 (check_opening_challenges: 'zero group member coefficient')",
+     "what": "every replayed lambda is nonzero"
+    }
+   ],
+   "clauses_exercised": [
+    "EX-1",
+    "EX-2",
+    "EX-3",
+    "EX-4",
+    "EX-5",
+    "EX-6",
+    "EX-7",
+    "EX-8",
+    "EX-9",
+    "EX-10",
+    "EX-11",
+    "EX-12",
+    "EX-13",
+    "EX-14",
+    "EX-15",
+    "EX-16"
+   ],
+   "clauses_not_exercised": [],
+   "control_names": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X02_A_claim_part_on_the_proximity_row",
+    "X03_A_claim_part_outside_the_commitment",
+    "X04_A_zero_mask_coefficient",
+    "X05a_A_evaluation_claim_with_no_site_row",
+    "X05b_A_evaluation_claim_with_one_site_row",
+    "X05c_A_evaluation_claim_with_three_site_rows",
+    "X05d_A_non_adjacent_pair",
+    "X06_A_pair_shifted_one_row",
+    "X07_endpoint_mask_part_on_the_spare_row",
+    "X08a_H_sum_claim_touches_a_site_row",
+    "X08b_H_sum_claim_misses_the_second_zero_sum_row",
+    "X09a_H_sum_claim_first",
+    "X09b_H_sum_claim_appended_to_A",
+    "X10a_A_overlapping_pairs",
+    "X10b_A_one_pair_shared_by_two_claims",
+    "X10c_boundary_site1_on_site0s_pair",
+    "X11_A_last_claim_dropped",
+    "X12_A_pair_weights_Fp_dependent",
+    "X13_A_parts_with_different_column_weights",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X15a_endpoint_two_claims",
+    "X15b_endpoint_zero_coefficient",
+    "X16_A_zero_group_coefficient"
+   ],
+   "controls": {
+    "X01_A_last_reserved_pair_declared_spare": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-1",
+       "EX-5",
+       "EX-7"
+      ],
+      "finding": "2 reserved row(s) that are no site row, first 619",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-1",
+     "target_clause_name": "geometry",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: its last reserved pair, rows [619, 620], declared spare -- two reserved rows that are no site row"
+    },
+    "X02_A_claim_part_on_the_proximity_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-2",
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: a part reaches row 621 or beyond",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-2",
+     "target_clause_name": "no claim reaches the proximity pair",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 touches the proximity pair",
+       "A@0: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part moved onto the proximity row 621"
+    },
+    "X03_A_claim_part_outside_the_commitment": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-2",
+       "EX-3",
+       "EX-11"
+      ],
+      "finding": "claim 0: a part leaves the commitment's 623 rows",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-3",
+     "target_clause_name": "no claim part leaves the commitment",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": false,
+      "why": "a claim's row weights cannot be built, so the weight-level check has nothing to read"
+     },
+     "what": "A@0: claim 0's second mask part moved three rows past the last row"
+    },
+    "X04_A_zero_mask_coefficient": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-4",
+       "EX-5",
+       "EX-6",
+       "EX-11"
+      ],
+      "finding": "claim 0: a zero coefficient on a site row",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-4",
+     "target_clause_name": "a part on a site row has a nonzero coefficient",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's first mask coefficient set to zero"
+    },
+    "X05a_A_evaluation_claim_with_no_site_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 0 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's two mask parts removed (0 site rows)"
+    },
+    "X05b_A_evaluation_claim_with_one_site_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [377], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part removed (1 site row)"
+    },
+    "X05c_A_evaluation_claim_with_three_site_rows": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-10"
+      ],
+      "finding": "claim 0: site rows [377, 378, 379], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 3 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0 given a third mask part, on claim 1's first site row (3 site rows)"
+    },
+    "X05d_A_non_adjacent_pair": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "claim 0: site rows [377, 380], not one adjacent pair",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-5",
+     "target_clause_name": "an evaluation claim carries exactly two adjacent site rows",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask part moved onto claim 1's second row (a non-adjacent pair)"
+    },
+    "X06_A_pair_shifted_one_row": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-6",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "claim 0: its pair starts at row 378, an odd offset from 377",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-6",
+     "target_clause_name": "the pair sits at an even offset",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: claim 0's pair shifted down one row (an odd offset)"
+    },
+    "X07_endpoint_mask_part_on_the_spare_row": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-5",
+       "EX-7",
+       "EX-11",
+       "EX-15"
+      ],
+      "finding": "claim 0: weight on spare row 8",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-7",
+     "target_clause_name": "no weight on a spare reserved row",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 0 carries 2 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its claim's second mask part moved onto the spare row"
+    },
+    "X08a_H_sum_claim_touches_a_site_row": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-8",
+       "EX-10"
+      ],
+      "finding": "claim 52 (the sum claim) touches site row 470",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-8",
+     "target_clause_name": "the sum claim is masked by the zero-sum pair alone",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "H@0: claim 52 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "H@0: the sum claim given a point-free part on the first site row"
+    },
+    "X08b_H_sum_claim_misses_the_second_zero_sum_row": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-8"
+      ],
+      "finding": "claim 52 (the sum claim) does not cover zero-sum row 469",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-8",
+     "target_clause_name": "the sum claim is masked by the zero-sum pair alone",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "H@0: claim 52 carries 0 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "H@0: the sum claim's parts on zero-sum row 469 removed"
+    },
+    "X09a_H_sum_claim_first": {
+     "commitment": "H@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-9"
+      ],
+      "finding": "claim 0: a point-free claim before the last",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-9",
+     "target_clause_name": "no unexpected sum claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "H@0: the sum claim moved to the front of the claim list"
+    },
+    "X09b_H_sum_claim_appended_to_A": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-9",
+       "EX-10",
+       "EX-14"
+      ],
+      "finding": "claim 122: a point-free claim on a commitment without sum rows",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-9",
+     "target_clause_name": "no unexpected sum claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 122 carries 93 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: H@0's sum claim appended (A has no sum rows)"
+    },
+    "X10a_A_overlapping_pairs": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-6",
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "1 site row(s) carry two claims, first row 378 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: claim 1's pair moved to (s0+1, s0+2), overlapping claim 0's (s0, s0+1) in one row -- finding F-4's case on real bytes"
+    },
+    "X10b_A_one_pair_shared_by_two_claims": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "2 site row(s) carry two claims, first row 377 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 1's pair moved onto claim 0's pair"
+    },
+    "X10c_boundary_site1_on_site0s_pair": {
+     "commitment": "B0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-11"
+      ],
+      "finding": "2 site row(s) carry two claims, first row 4 (claims [0, 1])",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-10",
+     "target_clause_name": "pairs are disjoint",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "B0: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "B0: the site-1 claim's pair moved onto site 0's pair"
+    },
+    "X11_A_last_claim_dropped": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-11",
+       "EX-14"
+      ],
+      "finding": "2 site row(s) carry no claim, first row 619",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-11",
+     "target_clause_name": "every reserved row is used",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: its last claim dropped -- one reserved pair unused, nothing shared"
+    },
+    "X12_A_pair_weights_Fp_dependent": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-12"
+      ],
+      "finding": "claim 0: its pair's weights are Fp-dependent",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-12",
+     "target_clause_name": "the pair basis",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "A@0: claim 0: its pair's two coefficients are not an Fp-basis of Fp2"
+      ],
+      "h_pair": false
+     },
+     "what": "A@0: claim 0's second mask coefficient set to twice the first (an Fp-dependent pair)"
+    },
+    "X13_A_parts_with_different_column_weights": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-11",
+       "EX-13"
+      ],
+      "finding": "claim 0: parts with different column weights",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-13",
+     "target_clause_name": "one column key per claim",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": false,
+      "why": "a claim's row weights cannot be built, so the weight-level check has nothing to read"
+     },
+     "what": "A@0: the last coordinate of claim 0's last part's point changed"
+    },
+    "X14_A_singleton_group_rekeyed_into_group_0": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-14"
+      ],
+      "finding": "35 opening groups, the schedule declares 36",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-14",
+     "target_clause_name": "the group count is the schedule's",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: the first singleton group's claim given group 0's column key (its row weights unchanged) -- one group fewer than the schedule's"
+    },
+    "X15a_endpoint_two_claims": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-10",
+       "EX-15"
+      ],
+      "finding": "2 claim(s); the endpoint opens one claim of three parts on rows 0..4, 4, 5, every coefficient nonzero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-15",
+     "target_clause_name": "the endpoint claim's shape",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 1 shares its reserved pair with claim 0"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its one claim opened twice"
+    },
+    "X15b_endpoint_zero_coefficient": {
+     "commitment": "E-Input",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-4",
+       "EX-5",
+       "EX-6",
+       "EX-11",
+       "EX-15"
+      ],
+      "finding": "1 claim(s); the endpoint opens one claim of three parts on rows 0..4, 4, 5, every coefficient nonzero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-15",
+     "target_clause_name": "the endpoint claim's shape",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [
+       "E-Input: claim 0 carries 1 non-data mask rows, not one pair"
+      ],
+      "h_pair": false
+     },
+     "what": "E-Input: its claim's first mask coefficient set to zero"
+    },
+    "X16_A_zero_group_coefficient": {
+     "commitment": "A@0",
+     "fires": true,
+     "honest": {
+      "every_clause_holds": true,
+      "target_clause_holds": true
+     },
+     "perturbed": {
+      "clauses_that_fail": [
+       "EX-16"
+      ],
+      "finding": "group 0 member 0: lambda is zero",
+      "target_clause_holds": false
+     },
+     "target_clause": "EX-16",
+     "target_clause_name": "every group coefficient is nonzero",
+     "the_old_weight_level_check_on_the_same_weights": {
+      "applicable": true,
+      "findings": [],
+      "h_pair": true
+     },
+     "what": "A@0: group 0's first replayed lambda set to zero"
+    }
+   },
+   "every_clause_exercised": true,
+   "ok": true,
+   "the_old_check_accepted": [
+    "X01_A_last_reserved_pair_declared_spare",
+    "X06_A_pair_shifted_one_row",
+    "X09a_H_sum_claim_first",
+    "X10a_A_overlapping_pairs",
+    "X11_A_last_claim_dropped",
+    "X14_A_singleton_group_rekeyed_into_group_0",
+    "X16_A_zero_group_coefficient"
+   ],
+   "what": "one negative control per clause of exclusivity (ruling GC-2, finding F-6): each perturbs an in-memory COPY of one opening's claim list (or its declared geometry, or one replayed lambda), fires iff its target clause holds on the honest opening and fails on the perturbed one, and records every clause the perturbation broke and what the OLD weight-level H-pair check made of the same weights"
+  },
   "expected": {
    "A": 0,
    "H": 2,
@@ -8277,6 +9051,36 @@
     "distinct_columns": 252,
     "distinct_opened_columns": 252,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 122,
+     "failing": [],
+     "groups": 36,
+     "groups_the_schedule_declares": 36,
+     "ok": true,
+     "site_rows": 244,
+     "site_rows_used_exactly_once": 244,
+     "sum_claims": 0
+    },
     "expected_disclosed_dimension": 0,
     "findings": [],
     "group_claim_identities_checked": 36,
@@ -8379,6 +9183,36 @@
     "distinct_columns": 250,
     "distinct_opened_columns": 250,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 52,
+     "failing": [],
+     "groups": 9,
+     "groups_the_schedule_declares": 9,
+     "ok": true,
+     "site_rows": 104,
+     "site_rows_used_exactly_once": 104,
+     "sum_claims": 1
+    },
     "expected_disclosed_dimension": 2,
     "findings": [],
     "group_claim_identities_checked": 9,
@@ -8409,7 +9243,12 @@
     "sum_claims_on_u_rows": 1,
     "u_row_term": {
      "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
      "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 20,
+     "rank_gamma_on_n_prime": 18,
      "u_row_indicators_admissible": 2,
      "xi_row_weights_nonzero": [
       234,
@@ -8456,6 +9295,36 @@
     "distinct_columns": 246,
     "distinct_opened_columns": 246,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 1,
+     "failing": [],
+     "groups": 1,
+     "groups_the_schedule_declares": 1,
+     "ok": true,
+     "site_rows": 2,
+     "site_rows_used_exactly_once": 2,
+     "sum_claims": 0
+    },
     "expected_disclosed_dimension": 0,
     "findings": [],
     "group_claim_identities_checked": 1,
@@ -8663,6 +9532,36 @@
     "distinct_columns": 248,
     "distinct_opened_columns": 248,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 122,
+     "failing": [],
+     "groups": 36,
+     "groups_the_schedule_declares": 36,
+     "ok": true,
+     "site_rows": 244,
+     "site_rows_used_exactly_once": 244,
+     "sum_claims": 0
+    },
     "expected_disclosed_dimension": 0,
     "findings": [],
     "group_claim_identities_checked": 36,
@@ -8765,6 +9664,36 @@
     "distinct_columns": 246,
     "distinct_opened_columns": 246,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 52,
+     "failing": [],
+     "groups": 9,
+     "groups_the_schedule_declares": 9,
+     "ok": true,
+     "site_rows": 104,
+     "site_rows_used_exactly_once": 104,
+     "sum_claims": 1
+    },
     "expected_disclosed_dimension": 2,
     "findings": [],
     "group_claim_identities_checked": 9,
@@ -8795,7 +9724,12 @@
     "sum_claims_on_u_rows": 1,
     "u_row_term": {
      "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
      "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 20,
+     "rank_gamma_on_n_prime": 18,
      "u_row_indicators_admissible": 2,
      "xi_row_weights_nonzero": [
       234,
@@ -8846,6 +9780,36 @@
     "distinct_columns": 249,
     "distinct_opened_columns": 249,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 2,
+     "failing": [],
+     "groups": 2,
+     "groups_the_schedule_declares": 2,
+     "ok": true,
+     "site_rows": 4,
+     "site_rows_used_exactly_once": 4,
+     "sum_claims": 0
+    },
     "expected_disclosed_dimension": 0,
     "findings": [],
     "group_claim_identities_checked": 2,
@@ -9051,6 +10015,36 @@
     "distinct_columns": 251,
     "distinct_opened_columns": 251,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 122,
+     "failing": [],
+     "groups": 36,
+     "groups_the_schedule_declares": 36,
+     "ok": true,
+     "site_rows": 244,
+     "site_rows_used_exactly_once": 244,
+     "sum_claims": 0
+    },
     "expected_disclosed_dimension": 0,
     "findings": [],
     "group_claim_identities_checked": 36,
@@ -9153,6 +10147,36 @@
     "distinct_columns": 245,
     "distinct_opened_columns": 245,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 52,
+     "failing": [],
+     "groups": 9,
+     "groups_the_schedule_declares": 9,
+     "ok": true,
+     "site_rows": 104,
+     "site_rows_used_exactly_once": 104,
+     "sum_claims": 1
+    },
     "expected_disclosed_dimension": 2,
     "findings": [],
     "group_claim_identities_checked": 9,
@@ -9183,7 +10207,12 @@
     "sum_claims_on_u_rows": 1,
     "u_row_term": {
      "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
      "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 20,
+     "rank_gamma_on_n_prime": 18,
      "u_row_indicators_admissible": 2,
      "xi_row_weights_nonzero": [
       234,
@@ -9234,6 +10263,36 @@
     "distinct_columns": 242,
     "distinct_opened_columns": 242,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 2,
+     "failing": [],
+     "groups": 2,
+     "groups_the_schedule_declares": 2,
+     "ok": true,
+     "site_rows": 4,
+     "site_rows_used_exactly_once": 4,
+     "sum_claims": 0
+    },
     "expected_disclosed_dimension": 0,
     "findings": [],
     "group_claim_identities_checked": 2,
@@ -9299,6 +10358,36 @@
     "distinct_columns": 247,
     "distinct_opened_columns": 247,
     "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 1,
+     "failing": [],
+     "groups": 1,
+     "groups_the_schedule_declares": 1,
+     "ok": true,
+     "site_rows": 2,
+     "site_rows_used_exactly_once": 2,
+     "sum_claims": 0
+    },
     "expected_disclosed_dimension": 0,
     "findings": [],
     "group_claim_identities_checked": 1,
@@ -9999,8 +11088,13 @@
      "rank_all": 202,
      "rank_on_non_data": 202,
      "u_row_detail": {
+      "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
       "extra_dimension_beyond_k0": 4,
       "indicators_admissible": 4,
+      "per_indicator_equals_exact": true,
+      "per_indicator_term_fp": 4,
+      "rank_gamma_on_data_and_n_prime": 202,
+      "rank_gamma_on_n_prime": 198,
       "u_class_owners": [
        "H@0[468]",
        "H@0[469]",
@@ -10059,8 +11153,13 @@
      "rank_all": 202,
      "rank_on_non_data": 202,
      "u_row_detail": {
+      "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
       "extra_dimension_beyond_k0": 4,
       "indicators_admissible": 4,
+      "per_indicator_equals_exact": true,
+      "per_indicator_term_fp": 4,
+      "rank_gamma_on_data_and_n_prime": 202,
+      "rank_gamma_on_n_prime": 198,
       "u_class_owners": [
        "H@1[468]",
        "H@1[469]",
@@ -10727,8 +11826,13 @@
     "rank_all": 308,
     "rank_on_non_data": 308,
     "u_row_detail": {
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
      "extra_dimension_beyond_k0": 6,
      "indicators_admissible": 6,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term_fp": 6,
+     "rank_gamma_on_data_and_n_prime": 308,
+     "rank_gamma_on_n_prime": 302,
      "u_class_owners": [
       "H@0[468]",
       "H@0[469]",
@@ -10764,7 +11868,7 @@
    },
    "rows_total": 3785,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 1.0,
+   "seconds": 1.4,
    "sum_of_parts_fp": 6
   }
  },
@@ -12708,23 +13812,24 @@
   "zk60_native_rg_block.py": "89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b",
   "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
   "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
+  "zk60_native_rg_exclusivity.py": "caf3e1fd17aff4a04deca5f6ff5c35841c3031daa7458e04bc0b8b4f9cd3d070",
   "zk60_native_rg_gcontrols.py": "785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85",
   "zk60_native_rg_gqa.py": "f64903a9415f1c422d259d4718a438269310a4bb7764dcca48c1581d8fab11c2",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "0ca766b561707eeca44f424a2fef628cd7a22da4fd4e756dad92cfaae5d3f048",
-  "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
+  "zk60_native_rg_joint.py": "d8007a395094fde7d0a02eee163e0edc2cf91e610e2c23f2a01ad64186a02e1a",
   "zk60_native_rg_mask.py": "3d655b20990c6faedb9dd4a66bbb6b9c1f12613ca06a64830e3d7a3426fc5c19",
   "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
   "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
-  "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
+  "zk60_native_rg_pcs.py": "a29d28475759e898a2510d939efc11f15815510889c05dd598ab9d13e02c9e30",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "6852cd94ab0fcaa7780ce5f92ad3d9ebdb20614d43787e629015eeb97e141360",
   "zk60_native_rg_runpins.py": "bc676343a37fcdc948f3c6c7ec11a21e51bf098126d762452af78a6e7cbe59b3",
   "zk60_native_rg_tcontrols.py": "3804d60760366a429af82d5a2a8106f253cda4a53bd22d6b5cc1185b8ae94ad4",
   "zk60_native_rg_terminals.py": "f813b3b3b5343269bc1dba05c3fcb036c4a538a1f8dfcabe2be4ac1720b5951d",
-  "zk60_native_run_gate.py": "c228166cedb5b58de6712a6680e81dfb107ba9b79541851c077a47f25e4e513a"
+  "zk60_native_run_gate.py": "a9fd2112ab72cd62dcde734f2dc286a597b266ecc66f57a9292d40e86c6ef5ae"
  },
  "version": 1,
  "what_it_does_not_show": [

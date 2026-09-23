@@ -1,0 +1,471 @@
+{
+ "by_class_total": {
+  "E1 wall clock": 1130,
+  "E2 a tool this round edited": 90,
+  "E2 the tool this round added": 30,
+  "E3 per-commitment exclusivity (new)": 6600,
+  "E4 the exclusivity controls (new)": 13530,
+  "E5 the exact u-term's detail (new)": 780
+ },
+ "changed_total": 1220,
+ "identical_leaves_total": 181054,
+ "no_figure_of_record_moved": true,
+ "only_in_the_new_record_total": 20940,
+ "only_in_the_old_record_total": 0,
+ "per_record": [
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 6,
+   "identical_leaves": 2878,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate/run-a-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 6,
+   "identical_leaves": 2878,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate/run-b-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 6,
+   "identical_leaves": 3688,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_planeindex/run-c-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 5,
+   "identical_leaves": 3689,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_planeindex/run-d-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 5,
+   "identical_leaves": 4027,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_tagged/run-e-tame-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 6,
+   "identical_leaves": 4026,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_tagged/run-f-zero-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 5,
+   "identical_leaves": 4110,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_s20/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 6,
+   "identical_leaves": 4109,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_s20/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 6,
+   "identical_leaves": 4193,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k4/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 6,
+   "identical_leaves": 4193,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k4/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 60,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 63,
+   "identical_leaves": 6544,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 63,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 66,
+   "identical_leaves": 6541,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 65,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 68,
+   "identical_leaves": 6623,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 64,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 67,
+   "identical_leaves": 6624,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 60,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 63,
+   "identical_leaves": 8770,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 67,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 70,
+   "identical_leaves": 8763,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 67,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 70,
+   "identical_leaves": 8847,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 62,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 65,
+   "identical_leaves": 8852,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 44,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 47,
+   "identical_leaves": 6716,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_p2/run-k-dense-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 44,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 47,
+   "identical_leaves": 6716,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_p2/run-l-zero-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 49,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 52,
+   "identical_leaves": 6903,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-m-dense-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 50,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 53,
+   "identical_leaves": 6902,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-n-zero-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 56,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 59,
+   "identical_leaves": 6705,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-o-dense-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 61,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 64,
+   "identical_leaves": 6700,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-p-zero-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 49,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 52,
+   "identical_leaves": 7164,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-q-dense-e32"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 48,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 175,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 20
+   },
+   "changed": 51,
+   "identical_leaves": 7165,
+   "only_in_the_new_record": 648,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-r-zero-e32"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 65,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 68,
+   "identical_leaves": 9116,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k8/run-s-dense-k8"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 71,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 250,
+    "E4 the exclusivity controls (new)": 452,
+    "E5 the exact u-term's detail (new)": 30
+   },
+   "changed": 74,
+   "identical_leaves": 9110,
+   "only_in_the_new_record": 733,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k8/run-t-zero-k8"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 29,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 100,
+    "E4 the exclusivity controls (new)": 437,
+    "E5 the exact u-term's detail (new)": 10
+   },
+   "changed": 32,
+   "identical_leaves": 4251,
+   "only_in_the_new_record": 548,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_block/block-rung-g-dense"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 29,
+    "E2 a tool this round edited": 3,
+    "E2 the tool this round added": 1,
+    "E3 per-commitment exclusivity (new)": 100,
+    "E4 the exclusivity controls (new)": 437,
+    "E5 the exact u-term's detail (new)": 10
+   },
+   "changed": 32,
+   "identical_leaves": 4251,
+   "only_in_the_new_record": 548,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_block/block-rung-g-zero"
+  }
+ ],
+ "records": 30,
+ "unexpected": [],
+ "unexpected_count": 0,
+ "what": "ROUND 9l: what this round's tool change moved in the records it re-took,\nleaf by leaf, with a STRICT list (rounds 9j / 9k's form)."
+}
