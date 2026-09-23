@@ -785,3 +785,130 @@ stage-25 hash-call-site census are green; the production diff adds no
 absorb, challenge, draw, commit or hash call (only comments, refusal
 strings and `b.digest()` reads); the forbidden files' diff against
 `17d10ac` is empty.
+
+## 12. Stage 43 — ruling CS-8 as built: the sweep (2026-09-23 01:20 – 01:5x PDT)
+
+The disposition's §7 ruled that stages 38–42 had found one class five times
+— an invariant a constructor establishes, assumed downstream and skippable
+by a struct literal or a field write (the feed-forward half, the attention
+half, the endpoint policy, the run's block digests, and note S42-N1:
+`RunShape`) — and asked for ONE sweep: every type in `private_block/` and
+`private_block.rs` that a block statement, a shape, a run shape, a run
+statement, an endpoint policy/spec, a boundary spec or a receipt is
+assembled from, and whose invariant a constructor establishes, either has
+PRIVATE FIELDS (the constructor the only way in) or is RE-CHECKED at every
+entry where it meets what it is proved against (the CS-1 pattern). Built on
+the lane at `601e97f`. Test file `hashline/src/private_block/s43_tests.rs`
+(7 tests). **Not a privacy result.**
+
+**What "private" means in this lane (the fact the table turns on).** A Rust
+field without a visibility modifier is visible in its own module AND every
+module below it. Every lane file is a submodule of `private_block`, so the
+"private" fields of the types defined in `private_block.rs` (`IoSpec`,
+`ExpectedIo`, the two statement halves, `Endpoints`, `Receipt`) are
+writable from every lane file, tests included — stage 43's tests write them.
+Only a type defined in a LEAF submodule (`run.rs`, `boundary.rs`,
+`endpoint_g.rs`) is sealed by private fields. For the others the choice is
+between a re-check at every entry and moving the type into a module of its
+own, which would touch every test that builds or reads one; the re-check
+was taken wherever it already existed or could be added without that.
+
+### The table
+
+Visibility: `crate` = `pub` fields on a `pub(crate)` struct; `private_block`
+= no modifier, defined in `private_block.rs` (every lane file sees them);
+`module` = no modifier, defined in a leaf submodule. "Outside literals /
+writes" is grep over `hashline/src` for `Type {` and `.field =` outside the
+constructor, split production / test.
+
+| type | file:line | field visibility | outside literals / writes | invariant the constructor establishes | bypass accepted before stage 43? | choice | where enforced |
+|---|---|---|---|---|---|---|---|
+| `Shape` | `shape.rs:112` | crate (`pub` ×22) | prod: none; test: field writes `grow_tests.rs:760,763` (`window_shape`) and `s40_tests.rs:616`, on purpose, to measure the witness BUILDER at a window `Shape::new` refuses | every refusal of `Shape::new` (zero axes, T-8, T-2, `d_pad = h_pad·head_dim`, C-1, row geometry, note C-6, CS-5, CS-2 ×2, F-2, S-1, S-3, S-6, C-4) and the derived / pinned fields (`t_pad`, `d_pad`, `h_pad`, `f_pad`, `d_max`, `endpoint_general`, `opened_cols = 256`) | **YES** — `norm_wrho` written to 30 at rung-G (CS-2 refuses; derived 31): proved, 4,234,984 B, **ACCEPTED**; `opened_cols` written to 128: PROVED, only the encoder refused (`private block wire: opening shape`); in a run, `st.rs.sh.norm_wrho = 30`: **ACCEPTED** | **re-check** (the fields are read in hundreds of places in 50+ files) | `Shape::check_constructed` — `Shape::new` re-run on the value's own parameters (the windows and endpoint parameters passed as the overrides they already are, which it returns unchanged), equality field by field; FIRST in `prove_inner_at`, `verify_inner_at`, `verify_bytes_at`, `prove_core`, `verify_core` (the toy entries go through these). A run's shape: sealed in `RunShape`, whose CS-7 equality with a registered `Shape::new` product is the same check. NOT at `witness::build_shaped`: the two tests above measure the builder at such a shape on purpose, and a witness reaches no proof except through `prove_core` |
+| `Layout` | `layout.rs:992` | crate (10 row fields `pub`), 9 fields `module` | none (a literal cannot compile; no write of a `pub` field outside `layout.rs`) | it is `Layout::for_shape(self.sh)` (T-3 refusal, plane lists, rows), with the IO pair rows set only by `with_io_mask_rows` | **YES** — two committed `A` planes of `Dom::T` with their row offsets swapped, handed to both bodies: the core prover PROVED and the core verifier **ACCEPTED**; two `A` rows written before the proximity pair: the core prover drew 5,413,056 bytes, committed `A`, ran the slots and only the opening audit refused | **re-check** (≈250 reads of the row fields in 20 files) | `Layout::check_is_for_shape(sh)`: built for the shape handed (`self.sh == sh`), and the ten row fields equal a fresh `Layout::for_shape(sh)`'s; in `prove_core` and `verify_core` right after the shape's check, before the statement re-check and every draw, commitment and absorb. Every entry builds its own layout from its own shape |
+| `RunShape` | `run.rs:84` | was crate (`pub sh, l, profile`) → **module** | test: the literal `s42_tests.rs:600` (note S42-N1) | CS-7: a registered run profile over exactly its registered block shape (a `Shape::new` product); `L ≥ 1` | **YES** — (i) the literal (rung-G's run profile over rung-K4), (iii) `st.rs.profile` written, (iv) `st.rs.sh.norm_wrho` written: each run **ACCEPTED** | **private fields** + read accessors `sh()`, `l()`, `profile()` | `RunShape::new` only |
+| `RunStatement` | `run.rs:195` | `rs` was crate (`pub`) → **module**; the rest was already `module` | test: `st.rs = …` `s41_tests.rs:516` (the stage-41 policy test) | everything `RunStatement::new` checks: counts, CS-1/CS-4 per block and the policy, nonzero context, M-4, R-5, the T-3 hash-input set of the run, the block digests of the blocks it was given | **YES** — (ii) `rs` replaced by the literal: **ACCEPTED** | **private field** + `rs()`; `#[cfg(test)] with_run_shape` for the s41 test (like `with_calibration`: skips `RunStatement::new`'s checks, and can only swap in a `RunShape::new`-made shape) | `RunStatement::new`; `prove_run` / `RunVerifier::start` still re-run CS-1, CS-4 and CS-6 |
+| `AttentionPublic` | `private_block.rs:444` | private_block | prod: none; test: s43's confirmation write | `check_words` at the shape (lengths, P-2 on the four matrices and `gamma_a`, rotary and exp structure) | no — a field write (`gamma_a[100] = 1` at rung-G) is refused by CS-4's name at the prover's and the verifier's entries | **re-check** (existing, CS-4) | `BlockPublic::check_for_shape` at `prove_inner_at`, `prove_core`, `verify_bytes(_at)`, `verify_inner_at`, `verify_core`, `RunStatement::new`, `prove_run`, `RunVerifier::start`; and the builder |
+| `FeedForwardPublic` | `private_block.rs:611` | private_block | test: `census_shaped_tests.rs:880` (the S38-F1 bypass, on purpose) and s43's | `check_words` (lengths, P-2, table length, S38-F1(a)) | no — refused by CS-1's name (the census test since stage 40; s43: `act[128] = 1` at rung-G, both entries) | **re-check** (existing, CS-1) | the same sites |
+| `BlockPublic` | `private_block.rs:717` | private_block | none | its two halves' constructors | no | **re-check** (existing) | `check_for_shape` (attention, then feed-forward) |
+| `IoSpec` | `private_block.rs:767` | private_block | none outside `new_shaped` (s43 writes, test) | the two scales pinned to `(0, 0)` (D12 item 5); the shape-derived plane, construction, commitment parameters and hash tag (CS-4); `validate`: rows consistent, and a nonzero context (through the endpoint statement constructors) | **YES** (the scales) — both written to 3: the endpoint owner committed, the toy proved (2,816,472 B), the verifier **ACCEPTED**. The derived fields: no (CS-4, s43 confirms a written hash tag refused); the context: no (`validate` and the prover's owner check build the endpoint statements, which refuse a zero context) | **re-check**: the scale pin added, by CS-8's name, FIRST in `check_for_shape` and in `validate` | `check_for_shape` at every prover, verifier and run-statement entry (`prove_inner_at`, `verify_bytes(_at)`, `verify_inner_at`, `RunStatement::new`, `prove_run`, `start`); `validate` at `prepare_endpoints`, `verify_inner_at`, `prove_run`, `start` |
+| `ExpectedIo` | `private_block.rs:972` | private_block | none | `from_roots`: its spec's; `from_bytes`: the frame and `IoSpec::new` at the toy | no — its spec is the `IoSpec` row; its roots are caller-fixed by design | **re-check** (through the spec) | as `IoSpec` |
+| `Endpoints` / `EndpointOwner` | `private_block.rs:1019` / `:1027` | private_block | prod: `prepare_endpoints` only; test: s43 swaps the two owners in a literal | the two owners committed under the spec, in role order | no — `check_endpoints` (each owner's spec digest, the roots against the policy, the rows); s43: swapped owners refused `general endpoint: prepared context mismatch` | **re-check** (existing) | `check_endpoints` at `prove_inner_at` and `prove_run` |
+| `Receipt` | `private_block.rs:1088` | private_block | prod: the prover (`protocol.rs`), the decoder (`wire.rs`); test: `s36_tests.rs:245`, `hash_domain_tests.rs:492`, s43's write | the decoder's frame shape | no — `verify_inner_at` runs T-4's path check and `wire::validate` before anything else (s43: a slot proof removed → `private block wire: slot count`); the arithmetic is the rest. A receipt is untrusted by construction | **re-check** (existing) | `verify_inner_at` |
+| `Segment` | `wire.rs:269` | crate | prod: `prove_run`, `decode_segment` | the decoder's frame shape | no — no entry takes one: `RunVerifier::step` decodes the bytes it is handed | n/a (never an entry input) | `decode_segment` in `step` |
+| `SegGeom` | `wire.rs:290` | crate | prod: `RunStatement::seg_geom` only | none (a bundle of numbers the verifier derives from its own statement) | no | n/a | — |
+| `CoreProof` / `CoreView` / `SlotProof` | `protocol.rs:859` / `:1167`, `argument.rs:91` | crate | tests build views | none (the proof itself) | no | n/a (untrusted by construction) | the verifier's arithmetic |
+| `Witness` | `witness.rs:41` | crate (`pub planes`) | test: `tamper.rs` (8 literals), `review_tests.rs:41` — cheating witnesses on purpose | built by the builder from the input at the shape | no — prover-private, never seen by a verifier; `prove_core` refuses a mis-shaped one (s43: a plane one word short → `private block: witness shape`) and CS-3 refuses a lookup miss | **re-check** (existing); deliberately writable for the soundness tests | `prove_core` |
+| `BoundarySpec` | `boundary.rs:76` | **module** | none | M-1's derived rows, the geometry refusals, C-H4 | no | **private** (already) | `new` / `new_with_tag`; built afresh from the statement at each use |
+| `PreparedBoundary` | `boundary.rs:244` | **module** | `prepare` only | one owned commitment, its spec digest | no | **private** (already) | `into_opening` compares the spec digest |
+| `EndpointSpecG` | `endpoint_g.rs:103` | **module** | none | the geometry refusals, C-H4 | no | **private** (already) | built afresh from the `IoSpec` at each use |
+| `PreparedPlaneG` | `endpoint_g.rs:211` | **module** | `prepare` only | its spec digest | no | **private** (already) | `into_endpoint` compares the spec digest |
+
+**Types found and why the rest are out.** 19 rows (22 types). Bypass
+accepted before stage 43: **5 types** — `Shape`, `Layout`, `RunShape`,
+`RunStatement` and `IoSpec` (the scales). Choice: private fields for 6
+(`RunShape`, `RunStatement` new; the four boundary / generalised-endpoint
+types already), re-check for 11, n/a for 5 (never an entry input, or the
+proof itself). Out of scope — no constructor invariant a statement, shape,
+policy or receipt assumes, or `cfg(test)`: `Ids`, `HIds`, `Lk`
+(`layout.rs`; derived inside a `Layout`, whose `ids`/`hids` fields are
+private to `layout.rs`), `pad::{BitForm, IndicatorCost, Rule}`,
+`hash_domain::{RunFacts, LabelUse, HashInputs}` (the hash-domain refusal's
+inputs and outputs, built in `RunStatement::new`), `ProveStats`,
+`RunStats`, `Totals`, `ReceiptBytes` (outputs), `RunVerifier` (private to
+`run.rs`, built only by `start`), `timing::*`, `run_sink::{MemorySink,
+DirSink}` (segment storage; the verifier reads bytes), `CheatingProver`
+(`cfg(test)`), and every type of the `cfg(test)` modules `run_capture`,
+`plane_index`, `slot_ir`, `draw_observer`, `run_statement_file`
+(`WeightsRecipe` is a name the reader matches), `parity`, `refusals`,
+`norm_alias`, `tamper`. The frozen seam's `SeamSpec` / `PreparedPlane` are
+in `private_seam.rs`, outside the lane, untouched.
+
+### Failing first, and after
+
+At `e16b6f8` (the skeleton over `6b68561`, plus the test file and its
+`cfg(test)` mod line; no production line moved):
+
+| run | log | result before | after (`601e97f`) |
+|---|---|---|---|
+| the named tests | `s43-before-named.log` (`.done` = 101) | **5 of 6 FAIL**: the shape (norm window **ACCEPTED**), the layout (first version: two rows before the proximity pair, refused late by the audit), the policy's scales (**ACCEPTED**), the sealed declarations (4 visible fields), the placement pin (no CS-8 call); the confirmation of the existing re-checks passed | `s43-after-s43.log`: 7 / 0 / 0 |
+| the shape and layout tests again (the layout test given the swap, which is ACCEPTED) | `s43-before-layout.log` (`.done` = 101) | 2 of 2 FAIL: the swap **ACCEPTED** (5,396,672 bytes drawn, 1,719 squeezes); two rows refused by the audit after 5,413,056 bytes drawn; the norm window **ACCEPTED**; `opened_cols` 128 proved, the encoder refused | both refused by CS-8's name with 0 bytes drawn, 0 squeezes, the transcript unmoved |
+| the routes around `RunShape::new` | `s43-before-bypasses.log` (`.done` = 0) | 4 of 4 **ACCEPTED** (literal, replaced `rs`, written profile, written block shape) | none compiles; the test is deleted (a `compile_fail` doctest would pass vacuously: `run` is a private module and the type `pub(crate)`); the declaration pin stands in |
+
+**The names.** `private block shape: ruling CS-8 — "<shape>" is not a shape
+Shape::new builds: Shape::new refuses its own parameters (<its refusal>)` or
+`…: its <fields> differ from what Shape::new derives from its parameters`;
+`private block: ruling CS-8 — the layout is not the one Layout::for_shape
+derives for the shape it is proved at: it was built for the shape <a>, the
+shape handed is <b>` or `…: its <fields> differ from what Layout::for_shape
+derives`; `private block: ruling CS-8 — the endpoint policy's scales (<i>,
+<o>) are not the approved calibration's (0, 0), which IoSpec::new pins (D12
+item 5)`.
+
+**Where each fires, measured** (`s43-after-s43.log`): a written shape at
+`prove_inner_at`, `verify_bytes_at` (on 64 zero bytes: nothing decoded
+first), `verify_inner_at`, `prove_core` (0 bytes drawn, 0 squeezes,
+transcript unmoved) and `verify_core` (0 squeezes, unmoved); a written
+layout, and rung-G's layout handed with the toy, at `prove_core` (0 / 0 /
+unmoved) and `verify_core` (0 / unmoved); written scales at
+`prepare_endpoints`, the prover's entry, `verify_bytes` (also on 64 zero
+bytes), `verify` and `RunStatement::new` (before its own scale
+comparisons). `check_constructed` admits every registered shape, rung-K8
+and two above-derived window overrides, names each of the seven derived or
+pinned fields written alone, names `d_max` for a written width, and carries
+`Shape::new`'s own refusal (note C-6, CS-2, T-8) for a written parameter it
+refuses. Placement pinned from the source.
+
+**Test edits the ruling moved** (test-only): `s41_tests.rs` — the policy
+test's `st.rs = …` became `.with_run_shape(…)`; `s42_tests.rs` — the S42-N1
+note test deleted (its literal no longer compiles; its last run is
+`s43-before-bypasses.log`), `st.rs.l` → `st.rs().l()`; `run_tests.rs`
+`st.rs().l()`; `k8_tests.rs` `rs.profile()`; `run_statement_file.rs` (a
+`cfg(test)` reader) `st.rs().sh()` / `st.rs().l()`.
+
+**What does not move.** No absorb, challenge, draw, commit or hash call is
+added (the production diff adds comments, refusal strings, two equality
+checks and three accessors); no registered shape, profile, digest or byte
+moves. The re-checks call `Shape::new` (pure arithmetic) and
+`Layout::for_shape`, whose T-3 guard derives the profile's hash tag from
+the public profile string exactly as every entry's own call already does;
+nothing is digested, absorbed or drawn by either.

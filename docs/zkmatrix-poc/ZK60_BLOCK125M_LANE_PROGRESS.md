@@ -13187,7 +13187,8 @@ struct literal) is measured and open for a ruling, not fixed.
 
 ## Stage 43 — ruling CS-8 of the shaped refusal census disposition: ONE sweep of constructor-established invariants (2026-09-23, 01:2x–)
 
-**Status: `OPEN`** — opened 2026-09-23 01:20 PDT on the lane tip `6b68561`,
+**Status: `CLOSED` 2026-09-23 01:4x PDT** — see "Stage 43 — CLOSED" below.
+Opened 2026-09-23 01:20 PDT on the lane tip `6b68561`,
 one writer (the delegated stage-43 agent). Ruling from §7 of
 `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
 owner), on stage 42's note S42-N1:
@@ -13225,3 +13226,184 @@ stages 37–42's focused filters plus `s43_`, then `--lib private_` once at
 
 **No privacy claim.** Constructor invariants and statement admissibility
 only.
+
+### Stage 43 — the ruling built (2026-09-23 01:20 – 01:42)
+
+All runs under `flock /tmp/zk-build.lock`, `--test-threads=6`, detached
+with `.done` markers; shared box, not quiesced. Test file
+`hashline/src/private_block/s43_tests.rs` (7 tests), wired by one
+`#[cfg(test)] mod s43_tests;` line in `private_block.rs`. Census memo §12
+has the whole sweep table (19 rows, 22 types), the failing-first table and
+what was measured.
+
+**The sweep, in one paragraph.** 22 types a statement, shape, run shape,
+run statement, endpoint policy/spec, boundary spec or receipt is assembled
+from. A bypass was ACCEPTED before this stage for **5**: `Shape`, `Layout`,
+`RunShape`, `RunStatement` (its `rs`) and `IoSpec` (the pinned scales).
+**Private fields: 6** — `RunShape` and `RunStatement` (new), `BoundarySpec`,
+`PreparedBoundary`, `EndpointSpecG`, `PreparedPlaneG` (already).
+**Re-check at entry: 11** — `Shape` and `Layout` (new), `IoSpec` (the
+scales added to the existing CS-4 check), and `AttentionPublic`,
+`FeedForwardPublic`, `BlockPublic`, `ExpectedIo`, `Endpoints`,
+`EndpointOwner`, `Receipt`, `Witness` (existing, confirmed by field writes).
+**n/a: 5** — `Segment`, `SegGeom`, `CoreProof`, `CoreView`, `SlotProof`
+(never an entry input, or the proof itself). One fact decides most rows:
+a field with no modifier is visible in its module and every module below
+it, and every lane file is a submodule of `private_block`, so the types
+defined in `private_block.rs` cannot be sealed without moving them into
+modules of their own — which would touch every test that builds a policy
+or a statement; they are re-checked instead.
+
+**Failing first** (at `e16b6f8` = `6b68561` + the skeleton, the test file
+and its mod line; no production line moved):
+
+| run | log | result |
+|---|---|---|
+| the named tests | `s43-before-named.log` (`.done` = 101) | **5 of 6 FAIL**: a rung-G shape with `norm_wrho` written to 30 (CS-2 refuses; derived 31) proved, 4,234,984 B, **ACCEPTED**; a policy with both scales written to 3 — the owner committed, the toy proved (2,816,472 B), **ACCEPTED**; the layout (first version, two `A` rows before the proximity pair) refused only late, by the opening audit; 4 visible fields on the sealed types; no CS-8 call at any entry. The confirmation of the existing re-checks passed |
+| the shape and layout tests again | `s43-before-layout.log` (`.done` = 101) | 2 of 2 FAIL: two `Dom::T` planes' offsets swapped — the core prover proved (5,396,672 bytes drawn, 1,719 squeezes), the core verifier **ACCEPTED**; two rows before the proximity pair — 5,413,056 bytes drawn and `A` committed before the audit refused; `opened_cols` written to 128 — PROVED, only the encoder refused |
+| the routes around `RunShape::new` | `s43-before-bypasses.log` (`.done` = 0) | **4 of 4 ACCEPTED**: the struct literal (S42-N1), `st.rs` replaced by it, `st.rs.profile` written, `st.rs.sh.norm_wrho` written |
+
+**BUILT.**
+* `run.rs` — `RunShape`'s `sh`, `l`, `profile` and `RunStatement`'s `rs`
+  are private; read accessors `RunShape::sh()`, `l()`, `profile()`,
+  `RunStatement::rs()`; `#[cfg(test)] RunStatement::with_run_shape` (like
+  `with_calibration`: skips `RunStatement::new`'s checks and can only swap
+  in a `RunShape::new`-made shape) for the stage-41 policy test. Closes
+  S42-N1. Two doc comments that said "a visible field" updated.
+* `shape.rs` — `Shape::check_constructed`: `Shape::new` re-run on the
+  value's own parameters (windows and endpoint parameters passed as the
+  overrides they are, which it returns unchanged), equality field by field;
+  refusal names `Shape::new`'s own refusal, or the derived / pinned fields
+  that differ.
+* `layout.rs` — `Layout::check_is_for_shape`: built for the shape handed,
+  and the ten `pub` row fields equal a fresh `Layout::for_shape`'s.
+* `protocol.rs` — `sh.check_constructed()` first in `prove_inner_at` and
+  `verify_inner_at`; `sh.check_constructed()` then
+  `lay.check_is_for_shape(sh)` first in `prove_core` and `verify_core`.
+* `private_block.rs` — `sh.check_constructed()` first in
+  `verify_bytes_at`; `IoSpec::scales_are_the_approved_ones` (CS-8's name)
+  first in `IoSpec::check_for_shape` and `IoSpec::validate`; the
+  `cfg(test)` mod line.
+* `run_statement_file.rs` (`cfg(test)` reader) — two accessor reads.
+* NOT at `witness::build_shaped`: `grow_tests::window_shape` and
+  `s40_tests`' CS-2 test measure the BUILDER at a window `Shape::new`
+  refuses, on purpose; such a witness reaches no proof, since `prove_core`
+  refuses the shape first.
+
+**MEASURED after** (`s43-after-s43.log`, `.done` = 0; 7 / 0 / 0): every
+refusal above by CS-8's name — the written shapes at `prove_inner_at`,
+`verify_bytes_at` (on 64 zero bytes), `verify_inner_at`, `prove_core` (0
+bytes drawn, 0 squeezes, transcript unmoved) and `verify_core` (0 squeezes,
+unmoved); the written layouts and rung-G's layout at the toy at both
+bodies, the same counts; the written scales at `prepare_endpoints`, the
+prover's entry, `verify_bytes`, `verify` and `RunStatement::new`;
+`check_constructed` admits all ten registered/test shapes plus two
+above-derived overrides and names each written field; 0 visible fields on
+the six sealed types; placement pinned from the source.
+`s43-after-focused.log` (`.done` = 0): `--lib -- s43_ s42_ s41_ s40_
+census_shaped k8_ hash_tag` **63 passed / 0 failed / 1 ignored** (stage 42's
+57, minus the deleted S42-N1 note test, plus the 7 s43 tests), 17.92 s, the
+same 16 warning lines.
+
+**Test files the ruling moved** (test-only): `s41_tests.rs` (`st.rs = …` →
+`.with_run_shape(…)`), `s42_tests.rs` (the S42-N1 note test deleted, its
+literal no longer compiles — last run `s43-before-bypasses.log`; one
+accessor read; the module doc), `run_tests.rs` and `k8_tests.rs` (one
+accessor read each).
+
+### Stage 43 — CLOSED (2026-09-23 01:20 – 01:4x)
+
+**Status: `LANDED`.** CS-8 built; S42-N1 closed. No 125M prove; no GPU.
+
+#### The gates
+
+| run | log | result |
+|---|---|---|
+| `--lib -- s43_ s42_ s41_ s40_ census_shaped k8_ hash_tag --nocapture` | `s43-after-focused.log` (`.done` = 0) | **63 passed / 0 failed / 1 ignored**, 17.92 s |
+| **THE GATE**: `--lib private_` at the final code, `--test-threads=6`, `/usr/bin/time -v` | `s43-gate-private.log` (`.done` = 0) | **479 passed / 0 failed / 18 ignored**, 134.61 s (4:18.01 wall with the build), peak RSS 4.31 GB (4,305,508 kB), the same 16 `warning` lines as stage 42 (none in a stage-43 file; `run.rs`'s pre-existing `unused mut` moved to line 869) |
+
+**Accounting against stage 42's 473 / 0 / 18:** +7 = the seven `s43_tests`;
+−1 = `s42_note_n1_a_run_shape_built_as_a_struct_literal_skips_cs7_and_its_run_verifies`,
+deleted because the literal it built no longer compiles (recorded in
+`s43-before-bypasses.log` and in a note where it stood); nothing newly
+ignored.
+
+#### Byte identity
+
+* **The toy stays 2,816,472 B**: `tests::honest_receipt_verifies_in_typed_and_wire_form_...`,
+  `zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length`,
+  `grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+  `the_toy_schedule_digest_is_frozen`, `the_toy_parameter_line_is_the_frozen_literal`,
+  `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — all in
+  the pass list (and s43's control receipts are 2,816,472 B).
+* **Every shaped frame and pin**: `grow_tests::the_125m_receipt_is_reproduced_part_by_part`,
+  `run_tests::the_twelve_block_125m_receipt_is_the_counted_figure`,
+  `run_tests::the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5`,
+  `slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`,
+  the stage-18 statement-file tests, `s24_tests::every_registered_profile_is_covered_...`,
+  `s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on`,
+  `s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified`
+  — all pass.
+* **Nothing absorbed, drawn or hashed anew**: `git diff -U0 | grep -iE
+  "absorb|challenge|rng\.|squeeze|commit|digest|update\(|from_os|transcript|blake3|hash"`
+  over the six production files matches only comments. The re-checks call
+  `Shape::new` (arithmetic) and `Layout::for_shape`, whose T-3 guard
+  derives the profile's hash tag from the public profile string exactly as
+  every entry's own call already does; no statement digest, absorb, draw
+  or commitment. Every registered shape and run profile unchanged.
+
+#### The pins that move, for the gate owner (the privacy gates re-pin per bundle source commit)
+
+PRODUCTION files (old at `6b68561` -> new):
+
+| file | old SHA-256 | new SHA-256 |
+|---|---|---|
+| `hashline/src/private_block.rs` | `236e986c57dbf2ae6c1052d09819cb5eeef551cf01d0fd5805208868ca163b91` | `9356fdf663a302c1be403bfa59d8d8819d63456001a9e259b24ee8ba7e09d59f` |
+| `hashline/src/private_block/run.rs` | `0ce4896ec3183a4480e0ed68d1fd8e65fd1b9a1cfecedec2e4b8d705a59729c6` | `f5f4d571e04b8bd1b024478e9a477c75b3bbc93a9ef71b43b18510793b76367a` |
+| `hashline/src/private_block/shape.rs` | `648a549f515e8196d59fe95bf07b4662c10db0dd4abeccec9664ccfd37662fb4` | `64b1071e665dbd58a1c6b331aea304345f81fd6e4e3f33a717de100674ccec64` |
+| `hashline/src/private_block/layout.rs` | `1a48371540713712d8935101d2b9935f65d0f315dcd217b3eeb108e91dfba1fe` | `64c37a4956ed221cb549d8e88257a14f5f332bb549fc4028c9a38246b111f23c` |
+| `hashline/src/private_block/protocol.rs` | `33a74702619deaaf94ebd2c377ef9189e61dc29c6f8fda795675f23c1b1c66f9` | `2684dc182b75efb6be691fce6214c5663f84664a74b6654b618afa7676826650` |
+
+`cfg(test)` module (not compiled into the library, but a statement reader):
+`hashline/src/private_block/run_statement_file.rs`
+`5e634a06e180115ced8e855ddc60e055271e23d51df8280c898cf117a1031604` ->
+`9ab5586bb27861a59fe0cefe62cf207c7fbe6fea0a8a7431f3aea43646439051`.
+
+Test files: `s41_tests.rs` `cca4ca70392d3bfc42a5a2b9c0ffb0aa1319978c533584ab8a92ebfb2e4538c8` -> `1fa99b14bc7cb5e41a8e22e4d4b3afc4f8efcb9ded7e3a392aaa4972b21141b2`;
+`s42_tests.rs` `3601efaf1fb8b2023fe0ec346a9be0219a673cb39a88cc2bc25d7f9508319c22` -> `1e5a520e0ef6893d73782e410dd0e86fbbf1636fed1442b27234a25f59f72077`;
+`k8_tests.rs` `0f7c45d5dd0d15fe82e8f43fece3c9de1e0c0754310a7592dfee90fc4a41b227` -> `500a35faa21c4d1f72553955587840cf3849265d8048924704c8a61fb412c1ed`;
+`run_tests.rs` `8cb91be9d35fdb0388764923b73bbb339e4f92a88707422b2ff68ef6ca915f4d` -> `fa7456cad18b7af740984e31a0fbf5764c23bbe9c73342677c9166ab23663f92`;
+`s43_tests.rs` (new) `a21de23b2b6fc6b5d50f431e003f2e8063cab01785586a78b645d718eded3355`.
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat 6b68561 -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock` prints NOTHING. The untracked `u31-c6-run1.*` files are
+left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `e16b6f8` | the skeleton |
+| `601e97f` | CS-8: the two sealed types, the three re-checks, `s43_tests.rs` (7 tests), the test adaptations, the failing-first and after logs |
+| this one | the gate log, census memo §12, this ledger |
+
+#### Open, for the security owner
+
+* **The rule is a snapshot, not a mechanism.** The declaration pin covers
+  the six sealed types; a NEW type added to `private_block.rs` later is
+  visible across the lane by construction and needs its own re-check (or
+  its own module). The sweep table (census memo §12) is the checklist.
+* **`Witness`, `Receipt` and the statement halves stay writable across the
+  lane on purpose** (soundness tests forge them); each is refused at the
+  entry, measured.
+* **The witness builder does not run `check_constructed`** (two existing
+  tests measure it at a refused window on purpose); no proof can follow.
+* Per disposition §7, the lane's production delta since `27398d0` now goes
+  to an independent adversarial code review before a stable tip is named.
+
+#### What stage 43 is NOT
+
+Not a privacy result. Not a soundness statement beyond statement and shape
+admissibility: the field-wrap premise is untouched.
