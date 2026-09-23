@@ -262,8 +262,14 @@ The draft pins lane head `d597a1d`; the lane is at `4373fb6` (stage 37:
 `k8_tests.rs` and one `#[cfg(test)]` module line, test-only). Every digest the
 draft pinned (`argument.rs f7fa2ad4`, `layout.rs 14758039`, `shape.rs
 dbf4e2bc`, `zk.rs d4280962`, `sumcheck.rs 56dbb8c7`, `slot_ir.rs 734cd0e0`,
-nine IR exports) is byte-identical at `4373fb6`; the IR files were rewritten
-at 20:08 by a lane test run with identical bytes. No figure moves.
+nine IR exports) is byte-identical at `4373fb6`. The IR files were rewritten
+at 20:08:52 with identical bytes by the lane's stage-37 private gate
+(`results/zk60_block125m_lane/s37-gate-private.log`, untracked in the lane,
+`.done` = 0 at 20:10:38: 429 passed / 0 failed / 18 ignored), which includes
+`slot_ir_tests::the_slot_ir_evaluates_to_the_closure_at_every_registered_shape_and_slot
+... ok` and the export-canonical / digest test — so D14's oracle has a fresh
+green run at the current code (CITED from the lane's log, not re-run here).
+No figure moves.
 
 ### N-11 (note) — the norm gains' IR provenance
 
@@ -319,7 +325,7 @@ The dependencies of §1.2, one by one:
 | D11 (weights factor through `R`) | CONFIRMED | K4 augmented rank + §1 proof |
 | D12 (mask coefficients uniform) | UNVERIFIABLE | an assumption (sampler, D9 of the register) |
 | D13 (terminal formula, `e ∉ {0, 1}`) | CONFIRMED | K5 builds world 2's pairs from `cm = e_r Π_{m>r}(1 − e_m)` and the terminals align; `argument.rs:586-597` |
-| D14 (IR = closure) | UNVERIFIABLE here, partly re-read | the lane's oracle is cited; I read the 16 arms of `define`, and at 125M the IR agrees with them slot by slot on the public-table inventory (tables of kind `eq` / `pub` / `supp` / `group_eq` match the arms' `b.eq` / `b.public` / `b.supp` / `b.group_eq` pushes by count and label) and on the top-level terms (coefficient, wrapper tables, host expression — e.g. slot 14's `eq(tau)·zc + ν₀·eq(p_a)·supp(D)·host_wo + ν₁·eq(p_z)·supp(D)·host_dmm` against `argument.rs:1539`); inner node bodies compared in detail at slots 00, 04, 08, 09, 17, 19, 20, 21 only |
+| D14 (IR = closure) | UNVERIFIABLE here, partly re-read | the lane's oracle is cited, and it ran green today at the current lane code (N-10); I read the 16 arms of `define`, and at 125M the IR agrees with them slot by slot on the public-table inventory (tables of kind `eq` / `pub` / `supp` / `group_eq` match the arms' `b.eq` / `b.public` / `b.supp` / `b.group_eq` pushes by count and label) and on the top-level terms (coefficient, wrapper tables, host expression — e.g. slot 14's `eq(tau)·zc + ν₀·eq(p_a)·supp(D)·host_wo + ν₁·eq(p_z)·supp(D)·host_dmm` against `argument.rs:1539`); inner node bodies compared in detail at slots 00, 04, 08, 09, 17, 19, 20, 21 only |
 
 ## 4. Independent figures against the draft's
 
