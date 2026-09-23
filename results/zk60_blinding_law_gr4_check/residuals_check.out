@@ -1,0 +1,18 @@
+1. delta = TV(one fp(), U(Fp)) = r(p-r)/(p 2^128) = 2^-96.0000000003  (< 2^-96: True)
+   exactly (1 - 2^32/p) * 2^-96; relative per-outcome bias (k+1)/k - 1 = 2^-64.000000 (the rng.rs '2^-64', not a distance)
+2./3. N and the residual N x delta (sub-additivity of TV over independent coordinates, then data processing):
+   toy proof (three generators)     N =      327,052   log2(N delta) = -77.680839   log2(N 2^-96) = -77.680839   quoted 2^-77.68
+   125M standalone proof            N =    9,212,588   log2(N delta) = -72.864825   log2(N 2^-96) = -72.864825   quoted 2^-72.86
+   125M run, L = 12                 N =  109,728,784   log2(N delta) = -69.290633   log2(N 2^-96) = -69.290633   quoted 2^-69.29
+   rung-G standalone proof          N =      701,876   log2(N delta) = -76.579143   log2(N 2^-96) = -76.579143
+   rung-G run, L = 2                N =    1,397,608   log2(N delta) = -75.585472   log2(N 2^-96) = -75.585472
+4. over K proofs (a hybrid over proofs; ONLY under cross-proof independence of the generators):
+   toy proof                K =     1,000,000: 2^-57.75
+   toy proof                K = 1,073,741,824: 2^-47.68
+   125M standalone proof    K =     1,000,000: 2^-52.93
+   125M standalone proof    K = 1,073,741,824: 2^-42.86
+   125M run L = 12          K =     1,000,000: 2^-49.36
+   125M run L = 12          K = 1,073,741,824: 2^-39.29
+5. a repeated key across two proofs: the two blindings are EQUAL, advantage up to 1 (not a D9-type term)
+
+ALL ASSERTIONS PASSED
