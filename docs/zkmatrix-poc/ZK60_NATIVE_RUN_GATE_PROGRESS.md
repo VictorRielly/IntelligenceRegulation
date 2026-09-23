@@ -4643,3 +4643,61 @@ position tag for a block; or compute ANY figure while
 `block_capture_shaped.rs` (new), `protocol.rs` (`974892cc`), `argument.rs`
 (`2cee0a22`), `layout.rs` (`64c37a49`) or `shape.rs` (`5acecd8e`) is at a
 digest it has not read.
+
+## R9j.5 What changed in the tools (frozen at `1d7cfd2`)
+
+| tool | in `TOOLS`? | what | why |
+|---|---|---|---|
+| `zk60_native_rg_block.py` (NEW) | yes -- `load_bundle` is on every record's path | the loader (`BlockBundle` / `BlockStage`, each refusing the other kind BY NAME), `block_integrity` (manifest; `receipt.bin` against `proof_bytes` / `proof_sha256` and its 40-byte envelope `HLPBLOK1 + block_binding`; `expected.bin` against the absorbed policy, parsed as `ExpectedIo::to_bytes` and checked against the declared context, scales and roots; the header against the observations; both external endpoints' geometry and `claim_sources`; `validation.json` read and compared, never used for a figure), `BlockReplay`, the block layer's pins, `block_controls`, `block_channel_table` | R9j.3 |
+| `zk60_native_rg_replay.py` | yes | `RunReplay._stage`'s run-only lines lifted VERBATIM into `_open_stage` / `_sites_of` / `_close_stage`; `replay_for(bundle)` | a pure refactor for a run: the refactored replay reproduces the committed `run-g-dense-s20` and `run-k-dense-p2` replay summaries key for key |
+| `zk60_native_run_gate.py` | yes | `load_bundle`; for a block: the block pins, integrity, replay, `_stage4_block` (no boundary; the whole block as one system under the key `whole_run`), `block_controls`, `block_channel_table`, the block's `what_this_is` / `what_it_does_not_show`; for a run: the three corrected channels (rows 26-28, R9j.10) and one corrected `what_it_does_not_show` sentence | R9j.3, R9j.10 |
+| `zk60_native_rg_terminals.py`, `zk60_native_rg_gqa.py`, `zk60_native_rg_mask.py` | yes | the stage-45 digests, each with its reading (R9j.6) | the pins |
+| `zk60_native_rg_tcontrols.py` | yes | **finding R9j-F1**: CT-1 perturbed `stage = 1`, a literal that assumes a second stage -- M-F3's shape one `L` lower; at `L = 1` it raised `IndexError` and took the whole stage-8 arm with it. Now `min(1, blocks - 1)`: a run keeps stage 1, a block perturbs its one stage. And `replay_for` | found by RUNNING the controls on the first block (`time-block-rung-g-dense.log` of the first pass, 04:11) |
+| `zk60_native_rg_hcontrols.py` | yes | `replay_for` (a block's CH-4 replays under its OWN header), and CH-4's binding leaf named `..._block_binding_...` for a block | a control must perturb the object it names |
+| `zk60_native_rg_m125.py`, `zk60_native_rg_predict.py`, `zk60_native_rg_witcmp.py` | no | the staged driver, the prediction and the comparison take a block through `load_bundle` | -- |
+
+**No refusal was weakened.** A third digest of `argument.rs`, `protocol.rs`,
+`layout.rs` or `shape.rs`, and any digest of the three block-layer files
+other than the one read, is still refused -- asserted in
+`test_zk60_native_run_gate_block` (`ThePinsRoundNineJRead`,
+`TheBlockLayerPins`). The run path moved in exactly the named leaves: the
+edited gate on `run-g-dense-s20` (scratch) leaf-diffs against its committed
+record at 4,091 identical leaves plus the three corrected channels, the
+counts, eight tool hashes and one new tool, the new definition listing, one
+sentence and two wall clocks -- nothing else.
+
+## R9j.6 The pins: read, then re-pinned (every old digest kept)
+
+The 35 pins of all four bundles are one set (checked: the four manifests
+are equal pin for pin), recomputed from the lane's blobs at `feae674` /
+`19f06bf`. Against the gate's tables: **25 at a digest a table already
+read** (the 23 shared -- 21 at round 8's bytes, `rng.rs` / `transcript.rs`
+at round 9i's second digests -- plus `plane_index.rs` and `pad.rs`); **five
+report-only** files no run-gate table compared (`wire.rs`, `endpoint_g.rs`,
+`hash_domain.rs` unmoved since rung-K8; `private_block.rs`, `witness.rs`
+moved); **four port pins moved**; and **one new writer** -- the
+failing-first pass (`probe_before_repin/`,
+04:08) refused stage 8 by name on all four, stage 10 on `argument.rs`, and
+stage 12 on the mask port's three. Every diff was read whole with `git
+--no-pager -C /home/victor/wt-zk60-block125m diff 99a8de8 feae674 -- <file>`
+(`99a8de8` is the last capture commit this gate read, rung-K8):
+
+| file | old (kept) -> new | diff | reading (in the tool, beside the digest) |
+|---|---|---|---|
+| `argument.rs` | `f7fa2ad4` -> **`2cee0a22`** (rg_gqa: **repaired**; rg_mask) | +6 / -0, 3 hunks (stages 38-44 did not touch it) | every added line `#[cfg(test)]`, a comment or a `block_capture_shaped::` hook (a checkpoint clone beside the run capture's, a `slot` record inside the existing `#[cfg(test)] if let Side::Verify`, `start_slot`); the 23 define arms, push order, `pad_on`, the mu/nu/zeta draws, `B::group_eq`, `run_slot`'s M-functional block, `sum_weights`, `acc.fs.extend(hosts)` and the `N_FUNCTIONALS` guard byte-identical |
+| `protocol.rs` | `e0e617be` -> **`974892cc`** (rg_terminals ALSO_ACCEPTED) | +168 / -1, 13 hunks | REFUSALS before anything is absorbed/drawn/committed (CS-3's `refuse_lookup_misses` on the PROVER's path after the histograms; CS-8's `check_constructed` / `check_is_for_shape`; CS-1/CS-4's `check_for_shape` at the four entries), stage 45's 23 `#[cfg(test)]` hook lines, one doc comment; `lookups_at`, plane orders and row counts, the calibration constants, `transcript()`'s header, `check_opening_challenges` and the (beta, gamma, alpha) draw outside every hunk |
+| `layout.rs` | `14758039` -> **`64c37a49`** (rg_terminals, rg_mask) | +45 / -1, 2 hunks | a doc-comment figure (the 125M multiplicity bound 98,582,528 -> 98,598,912) and CS-8's `Layout::check_is_for_shape`, a refusal; `N_SLOTS`, `N_FUNCTIONALS`, `M_ROWS`, plane orders, row counts untouched |
+| `shape.rs` | `dbf4e2bc` -> **`5acecd8e`** (rg_terminals PINNED_IF_PRESENT, rg_mask) | +291 / -10, 8 hunks | refusals (note C-6 `f_e > 31`, CS-5 `width > 16,384`, CS-2's window floors, CS-8 `check_constructed`, CS-9's block-profile REGISTRY); `Shape::new` = the old body renamed `build` + CS-9; the ten removed lines are one doc line and the nine registered constructors' `new(` -> `build(`; `true_size`, `pads`, `head_slot`, `clog2`, `slot_dims`, `Shape::slots`, ruling C-4 untouched |
+| `block_capture_shaped.rs` (NEW) | -- -> **`37312d49`** (rg_block, the WRITER) | new, 1,369 lines, READ WHOLE | BASE reading in `rg_block.READINGS`: the schema, kinds, labels (15), `begin_block`'s header program, the COPIED run-capture encoders, `endpoint_pcs`'s geometry and stage-0 `claim_sources`, the manifest's 35 pins; reaches `run_capture.rs` for three constants none of which this gate transcribes |
+| `wire.rs` | `99e69b5c` (unmoved since `f4697f9`) -> now PINNED by rg_block | -- | the envelope `block_integrity` compares: `MAGIC` (:15), `HEADER = 8 + 32` (:16), `encode` (:145-146), `decode` (:218, :221) |
+| `private_block.rs` | `7a9b31ac` (rung-K8) -> `58a73b40`, now PINNED by rg_block | +220 / -12 | the policy frame `block_integrity` parses (`EXPECTED_BYTES` :357, `ExpectedIo::to_bytes` :998-1007) and `ENDPOINT_SCALES = (0, 0)` (:371); the diff since rung-K8 is eight `#[cfg(test)] mod` lines, CS-1/CS-4's `check_words` (the constructors' own checks lifted, same order and messages -- the 12 removed lines are the two bodies re-emitted), S38-F1(a)'s refusal, `check_for_shape` for the block, the policy and the scales (CS-8), and the re-checks at `verify_bytes_at` / `verify_bytes`; `digest`, `absorb_into`, `to_bytes` and `calibration_identity` outside every hunk |
+
+**`witness.rs`** moved `b9b66c02` -> `6fd11eae` (+5: CS-4/CS-1 re-checks
+in `build_shaped`) and is still compared by no table (no port transcribes
+it; `NEWLY_PINNED_OWN_FILES`). **`run.rs`, `boundary.rs`, `run_capture.rs`**
+are not pinned by a block bundle and are named in
+`NOT_ON_A_STANDALONE_BLOCKS_PATH` with the writer's own reasons; a block
+bundle that DID declare one is not passed (a test). The shared files are
+round 9i's exact set. `wire.rs` and `private_block.rs` now being compared
+by a table answers half of R9i.11 item 1 -- for the block layer, because a
+port there now depends on them.

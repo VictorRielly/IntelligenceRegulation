@@ -1,0 +1,893 @@
+{
+  "what": "every measured figure of each record, side by side, so a DENSE witness can be read against a DEGENERATE one",
+  "labels": [
+    "block-rung-g-dense",
+    "block-rung-g-zero"
+  ],
+  "witnesses": [
+    "dense",
+    "zero"
+  ],
+  "sources": [
+    "../wt-zk60-jointview/results/zk60_native_run_gate_block/block-rung-g-dense.json",
+    "../wt-zk60-jointview/results/zk60_native_run_gate_block/block-rung-g-zero.json"
+  ],
+  "the_witness_is_not_in_the_bundle": "no capture carries a witness, so the witness column is a claim about the Rust lane's test that made the bundle (its README), not something this tool measured",
+  "figures_compared": 97,
+  "figures_identical": 87,
+  "figures_that_differ": [
+    {
+      "figure": "distinct opened columns/0:A",
+      "values": [
+        247,
+        252
+      ]
+    },
+    {
+      "figure": "pad margin/0:A",
+      "values": [
+        9,
+        4
+      ]
+    },
+    {
+      "figure": "distinct opened columns/0:H",
+      "values": [
+        249,
+        246
+      ]
+    },
+    {
+      "figure": "pad margin/0:H",
+      "values": [
+        7,
+        10
+      ]
+    },
+    {
+      "figure": "distinct opened columns/0:Input",
+      "values": [
+        247,
+        245
+      ]
+    },
+    {
+      "figure": "pad margin/0:Input",
+      "values": [
+        9,
+        11
+      ]
+    },
+    {
+      "figure": "distinct opened columns/0:Output",
+      "values": [
+        252,
+        245
+      ]
+    },
+    {
+      "figure": "pad margin/0:Output",
+      "values": [
+        4,
+        11
+      ]
+    },
+    {
+      "figure": "pad block/distinct columns",
+      "values": [
+        247,
+        245
+      ]
+    },
+    {
+      "figure": "pad block/exact rank",
+      "values": [
+        247,
+        245
+      ]
+    }
+  ],
+  "all_identical": false,
+  "per_figure": [
+    {
+      "figure": "replay/block binding reproduced",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/transcript positions",
+      "values": [
+        127,
+        127
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/challenges re-derived",
+      "values": [
+        2036,
+        2036
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/final transcript counter",
+      "values": [
+        2356,
+        2356
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/segment position tags ok",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/challenges NOT re-derived",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/hash rule",
+      "values": [
+        "blake3-keyed/1",
+        "blake3-keyed/1"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "integrity/findings",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:A",
+      "values": [
+        623,
+        623
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/0:A",
+      "values": [
+        247,
+        252
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:A",
+      "values": [
+        9,
+        4
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:H",
+      "values": [
+        576,
+        576
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/0:H",
+      "values": [
+        249,
+        246
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:H",
+      "values": [
+        7,
+        10
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:Input",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:Input",
+      "values": [
+        9,
+        9
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/0:Input",
+      "values": [
+        247,
+        245
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:Input",
+      "values": [
+        9,
+        11
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:Output",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:Output",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:Output",
+      "values": [
+        9,
+        9
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/0:Output",
+      "values": [
+        252,
+        245
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:Output",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:Output",
+      "values": [
+        4,
+        11
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:Output",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@0",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@0",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@0",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad block/distinct columns",
+      "values": [
+        247,
+        245
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad block/exact rank",
+      "values": [
+        247,
+        245
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad block/full rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/generators x classes",
+      "values": [
+        "104 x 1259",
+        "104 x 1259"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/sum of parts",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/joint",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/identified rows",
+      "values": [
+        8,
+        8
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/attempted",
+      "values": [
+        [
+          "E-Input",
+          "E-Output"
+        ],
+        [
+          "E-Input",
+          "E-Output"
+        ]
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/half",
+      "values": [
+        "message only",
+        "message only"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/commitments exhibited",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/free field elements per position",
+      "values": [
+        [
+          1
+        ],
+        [
+          1
+        ]
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/slots covered",
+      "values": [
+        23,
+        23
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/checks equal",
+      "values": [
+        23,
+        23
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/checks expected",
+      "values": [
+        23,
+        23
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/matching the stored terminal_polynomial",
+      "values": [
+        23,
+        23
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/public tables rebuilt",
+      "values": [
+        16,
+        16
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/public tables taken from the capture",
+      "values": [
+        15,
+        15
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/public table structure checks",
+      "values": [
+        15,
+        15
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/derived group points used",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/controls that fire",
+      "values": [
+        9,
+        9
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/controls total",
+      "values": [
+        9,
+        9
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/carried",
+      "values": [
+        31,
+        31
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/length checked",
+      "values": [
+        31,
+        31
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/digest checked",
+      "values": [
+        31,
+        31
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/openings",
+      "values": [
+        5,
+        5
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/columns checked",
+      "values": [
+        1280,
+        1280
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/columns authenticated",
+      "values": [
+        1280,
+        1280
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/bytes hashed",
+      "values": [
+        2594816,
+        2594816
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/controls that fire",
+      "values": [
+        7,
+        7
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/definition in force",
+      "values": [
+        "repaired",
+        "repaired"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/lkv",
+      "values": [
+        1,
+        1
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/coordinate_entries_compared",
+      "values": [
+        45,
+        45
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/coordinate_lists_rederived_and_compared",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/definition_challenge_counts_compared",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/dimension_sets_derived_and_compared",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/fixed_coordinates_compared_with_a_rederived_challenge",
+      "values": [
+        23,
+        23
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/group_point_entries_compared",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/group_points_derived_and_compared",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/slots_examined",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/slots with a derived point",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/controls that fire",
+      "values": [
+        8,
+        8
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/controls total",
+      "values": [
+        9,
+        9
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/the repaired polynomial holds",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/the pre-repair polynomial holds",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/group factors equal to one",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/terminal products that are zero",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/total",
+      "values": [
+        28,
+        28
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/argued",
+      "values": [
+        5,
+        5
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/constructed",
+      "values": [
+        10,
+        10
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/derived",
+      "values": [
+        5,
+        5
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/open",
+      "values": [
+        8,
+        8
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/named",
+      "values": [
+        [
+          "C2b_an_external_endpoint_with_a_single_proximity_row",
+          "C3b_a_blinding_row_shared_between_an_endpoint_and_A",
+          "C4b_the_two_endpoints_claim_sources_swapped",
+          "C5b_observations_swapped_between_the_two_bundles",
+          "C6_one_pad_fewer_than_the_distinct_opened_columns"
+        ],
+        [
+          "C2b_an_external_endpoint_with_a_single_proximity_row",
+          "C3b_a_blinding_row_shared_between_an_endpoint_and_A",
+          "C4b_the_two_endpoints_claim_sources_swapped",
+          "C5b_observations_swapped_between_the_two_bundles",
+          "C6_one_pad_fewer_than_the_distinct_opened_columns"
+        ]
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/all fire",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/C2b_an_external_endpoint_with_a_single_proximity_row",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/C3b_a_blinding_row_shared_between_an_endpoint_and_A",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/C4b_the_two_endpoints_claim_sources_swapped",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/C5b_observations_swapped_between_the_two_bundles",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "run controls/C6_one_pad_fewer_than_the_distinct_opened_columns",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    }
+  ],
+  "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+  "this_is_not_a_privacy_result": true
+}

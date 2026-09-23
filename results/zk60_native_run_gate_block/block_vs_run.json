@@ -1,0 +1,309 @@
+{
+ "per_shape": [
+  {
+   "rows": [
+    {
+     "block": 623,
+     "figure": "A@0/rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 623
+    },
+    {
+     "block": 122,
+     "figure": "A@0/claims",
+     "holds": true,
+     "rule": "SAME",
+     "run": 122
+    },
+    {
+     "block": 36,
+     "figure": "A@0/groups",
+     "holds": true,
+     "rule": "SAME",
+     "run": 36
+    },
+    {
+     "block": 0,
+     "figure": "A@0/disclosed_dimension",
+     "holds": true,
+     "rule": "SAME",
+     "run": 0
+    },
+    {
+     "block": 74,
+     "figure": "A@0/rank_P1",
+     "holds": true,
+     "rule": "SAME",
+     "run": 74
+    },
+    {
+     "block": 0,
+     "figure": "A@0/k0",
+     "holds": true,
+     "rule": "SAME",
+     "run": 0
+    },
+    {
+     "block": 246,
+     "figure": "A@0/non_data_rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 246
+    },
+    {
+     "block": 576,
+     "figure": "H@0/rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 576
+    },
+    {
+     "block": 53,
+     "figure": "H@0/claims",
+     "holds": true,
+     "rule": "SAME",
+     "run": 53
+    },
+    {
+     "block": 9,
+     "figure": "H@0/groups",
+     "holds": true,
+     "rule": "SAME",
+     "run": 9
+    },
+    {
+     "block": 2,
+     "figure": "H@0/disclosed_dimension",
+     "holds": true,
+     "rule": "SAME",
+     "run": 2
+    },
+    {
+     "block": 20,
+     "figure": "H@0/rank_P1",
+     "holds": true,
+     "rule": "SAME",
+     "run": 20
+    },
+    {
+     "block": 0,
+     "figure": "H@0/k0",
+     "holds": true,
+     "rule": "SAME",
+     "run": 0
+    },
+    {
+     "block": 108,
+     "figure": "H@0/non_data_rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 108
+    },
+    {
+     "block": 9,
+     "figure": "E-Input/rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 9
+    },
+    {
+     "block": 1,
+     "figure": "E-Input/claims",
+     "holds": true,
+     "rule": "SAME",
+     "run": 1
+    },
+    {
+     "block": 1,
+     "figure": "E-Input/groups",
+     "holds": true,
+     "rule": "SAME",
+     "run": 1
+    },
+    {
+     "block": 0,
+     "figure": "E-Input/disclosed_dimension",
+     "holds": true,
+     "rule": "SAME",
+     "run": 0
+    },
+    {
+     "block": 4,
+     "figure": "E-Input/rank_P1",
+     "holds": true,
+     "rule": "SAME",
+     "run": 4
+    },
+    {
+     "block": 0,
+     "figure": "E-Input/k0",
+     "holds": true,
+     "rule": "SAME",
+     "run": 0
+    },
+    {
+     "block": 5,
+     "figure": "E-Input/non_data_rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 5
+    },
+    {
+     "block": 9,
+     "figure": "E-Output/rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 9
+    },
+    {
+     "block": 1,
+     "figure": "E-Output/claims",
+     "holds": true,
+     "rule": "SAME",
+     "run": 1
+    },
+    {
+     "block": 1,
+     "figure": "E-Output/groups",
+     "holds": true,
+     "rule": "SAME",
+     "run": 1
+    },
+    {
+     "block": 0,
+     "figure": "E-Output/disclosed_dimension",
+     "holds": true,
+     "rule": "SAME",
+     "run": 0
+    },
+    {
+     "block": 4,
+     "figure": "E-Output/rank_P1",
+     "holds": true,
+     "rule": "SAME",
+     "run": 4
+    },
+    {
+     "block": 0,
+     "figure": "E-Output/k0",
+     "holds": true,
+     "rule": "SAME",
+     "run": 0
+    },
+    {
+     "block": 5,
+     "figure": "E-Output/non_data_rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 5
+    },
+    {
+     "block": 50,
+     "figure": "M rows",
+     "holds": true,
+     "rule": "SAME",
+     "run": 50
+    },
+    {
+     "block": 23,
+     "figure": "slot checks per stage",
+     "holds": true,
+     "rule": "SAME",
+     "run": 23
+    },
+    {
+     "block": 15960,
+     "figure": "CFS entries per stage",
+     "holds": true,
+     "rule": "SAME",
+     "run": 15960
+    },
+    {
+     "block": 2036,
+     "derivation": "one run stage at this shape plus E-Output's 10 (1 lambda + 9 proximity coefficients); the run's 6092 is L stages",
+     "figure": "challenges (block) vs run stage 0 + E-Output's lambdas and rows",
+     "holds": null,
+     "rule": "ARITHMETIC",
+     "run": null
+    },
+    {
+     "block": 127,
+     "figure": "positions",
+     "holds": null,
+     "rule": "ARITHMETIC",
+     "run": 375
+    },
+    {
+     "block": 0,
+     "figure": "segment position tags",
+     "holds": null,
+     "rule": "NONE",
+     "run": 3
+    },
+    {
+     "block": 0,
+     "figure": "boundaries",
+     "holds": null,
+     "rule": "NONE",
+     "run": 2
+    },
+    {
+     "block": "104 x 1259",
+     "figure": "whole system",
+     "holds": null,
+     "rule": "ARITHMETIC",
+     "run": "308 x 3761"
+    },
+    {
+     "block": 2,
+     "figure": "whole system joint",
+     "holds": null,
+     "rule": "ARITHMETIC",
+     "run": 6
+    },
+    {
+     "block": 8,
+     "figure": "identified rows",
+     "holds": null,
+     "rule": "ARITHMETIC",
+     "run": 24
+    },
+    {
+     "block": 5,
+     "figure": "openings",
+     "holds": null,
+     "rule": "ARITHMETIC",
+     "run": 13
+    },
+    {
+     "block": {
+      "argued": 5,
+      "constructed": 10,
+      "derived": 5,
+      "open": 8
+     },
+     "derivation": "the block's table is 10/5/5/8 by construction; the 125M run record pins pre-9j bytes and reads 10/5/4/9 with a dated correction to 10/5/5/8",
+     "figure": "channels",
+     "holds": null,
+     "rule": "ARITHMETIC",
+     "run": {
+      "argued": 4,
+      "constructed": 10,
+      "derived": 5,
+      "open": 9
+     }
+    }
+   ],
+   "same_rows": 31,
+   "same_rows_that_do_not": [],
+   "same_rows_that_hold": 31,
+   "shape": "rung-G"
+  },
+  {
+   "shape": "125M",
+   "skipped": "a record is absent"
+  }
+ ],
+ "what": "ROUND 9j, J5: a STANDALONE block against the RUN it would be a stage of."
+}
