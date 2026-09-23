@@ -1,0 +1,261 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:869:13
+    |
+869 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:829:4
+    |
+829 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555)
+
+running 135 tests
+test private_block::block_capture_shaped_tests::reverify_a_shaped_block_bundle ... ignored, re-verifies a written block bundle in a fresh process; set HL_BLOCK_CAPTURE_BUNDLE
+test private_block::block_capture_shaped_tests::a_source_label_that_is_not_head_is_refused ... ok
+test private_block::block_capture_shaped_tests::write_a_shaped_block_bundle ... ignored, writes a standalone shaped block bundle; set HL_BLOCK_CAPTURE_SHAPE, HL_PB_INPUT, HL_BLOCK_CAPTURE_DIR and HL_TEST_SOURCE_COMMIT (=HEAD)
+test private_block::block_capture_shaped_tests::the_block_capture_pins_every_source_on_the_block_path ... ok
+test private_block::block_capture_shaped_tests::every_key_of_a_block_bundle_is_on_the_allow_list_and_every_block_only_key_is_emitted ... ok
+test private_block::block_capture_shaped_tests::the_block_objects_carry_the_run_captures_field_names_object_by_object ... ok
+test private_block::census_shaped_tests::s38_f1_reproducer_a_statement_with_a_nonzero_gate_zero_activation_is_refused_at_construction_at_rung_g ... ok
+test private_block::census_shaped_tests::s38_f1_the_padded_feed_forward_positions_look_up_a_pair_that_is_not_a_row_when_act_128_is_nonzero ... ok
+test private_block::census_shaped_tests::s39_new_shaped_refuses_a_nonzero_gate_zero_activation_by_name_exactly_where_the_feed_forward_domain_pads ... ok
+test private_block::census_shaped_tests::the_builder_class_of_every_looked_plane_is_the_lookup_window_at_every_shape ... ok
+test private_block::census_shaped_tests::the_challenge_only_refusals_are_counted_per_shape ... ok
+test private_block::block_capture_shaped_tests::a_block_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::census_shaped_tests::the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape ... ok
+test private_block::census_shaped_tests::the_unreachable_sites_premises_hold_at_every_shape ... ok
+test private_block::hash_tag_tests::a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions ... ok
+test private_block::hash_tag_tests::the_test_hook_can_only_force_the_legacy_rule ... ok
+test private_block::hash_tag_tests::the_toy_and_the_frozen_seam_rung_are_legacy_and_the_other_two_are_tagged ... ok
+test private_block::census_shaped_tests::the_output_projection_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_c6 ... ok
+test private_block::k8_tests::an_honest_dense_block_proves_and_verifies_from_bytes_at_the_rung_k8 ... ok
+test private_block::k8_tests::a_perturbation_in_the_last_key_value_group_is_rejected_by_the_verifier_at_the_rung_k8 ... ok
+test private_block::k8_tests::every_smaller_eight_key_value_head_geometry_is_accepted_and_the_choice_is_recorded ... ok
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_g ... ok
+test private_block::k8_tests::an_honest_three_block_fully_dense_run_verifies_streaming_at_the_rung_k8 ... ok
+test private_block::k8_tests::the_dense_witness_equals_the_reference_kernel_at_the_rung_k8 ... ok
+test private_block::k8_tests::the_pinned_rung_k8_chain_band_is_the_first_admissible_one ... ok
+test private_block::k8_tests::the_rung_k8_layout_is_the_independent_models ... ok
+test private_block::k8_tests::the_rung_k8_shape_is_the_eight_key_value_head_geometry_it_claims ... ok
+test private_block::k8_tests::write_the_k8_gate_bundles ... ignored, writes the stage-37 rung-K8 gate bundles; set HL_RUN_CAPTURE_DIR, HL_RUN_CAPTURE_PUBLIC_TABLES=1 and HL_TEST_SOURCE_COMMIT
+test private_block::run_capture_tests::a_capture_directory_inside_the_repository_is_refused ... ok
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_k4 ... ok
+test private_block::k8_tests::the_all_zero_input_is_a_degenerate_case_that_proves_and_verifies_at_the_rung_k8 ... ok
+test private_block::run_capture_tests::a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::run_capture_tests::capture_a_125m_run ... ignored, captures a 125M run; heavy. set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::census_shaped_tests::every_reachable_site_refuses_by_name_just_past_its_edge_and_proves_just_inside_at_rung_k8 ... ok
+test private_block::k8_tests::exchanging_group_sevens_keys_across_each_single_group_bit_is_rejected_at_the_rung_k8 ... ok
+test private_block::run_capture_tests::every_plane_a_slot_references_is_in_the_plane_index ... ok
+test private_block::run_capture_tests::a_tampered_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::run_capture_tests::the_bundle_pins_every_source_file_that_decides_its_contents ... ok
+test private_block::run_capture_tests::each_slots_terminal_vector_is_as_long_as_its_plane_list ... ok
+test private_block::block_capture_shaped_tests::a_rung_g_block_is_captured_and_its_bundle_round_trips_through_a_fresh_verifier ... ok
+test private_block::run_capture_tests::the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout ... ok
+test private_block::run_capture_tests::every_key_of_a_bundle_is_on_the_allow_list ... ok
+test private_block::run_capture_tests::a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent ... ok
+test private_block::run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values ... ok
+test private_block::run_capture_tests::write_the_c6_gate_bundles ... ignored, writes the stage-31 rung-C6 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_e32_gate_bundles ... ignored, writes the stage-33 rung-E32 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_gate_bundles ... ignored, writes the gate bundles; set HL_RUN_CAPTURE_DIR
+test private_block::run_capture_tests::write_the_k4_gate_bundles ... ignored, writes the stage-22 rung-K4 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_p2_gate_bundles ... ignored, writes the stage-30 rung-P2 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_s20_gate_bundles ... ignored, writes the stage-21 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_tagged_gate_bundles ... ignored, writes the tagged gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_w14_gate_bundles ... ignored, writes the stage-32 rung-W14 gate bundles (about 130 MB each, so OUTSIDE the repository); set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn ... ok
+test private_block::s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name ... ok
+test private_block::run_capture_tests::the_heavy_captures_code_path_works_at_a_development_shape ... ok
+test private_block::s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct ... ok
+test private_block::run_capture_tests::the_replay_refuses_a_header_that_is_not_the_verifiers ... ok
+test private_block::s24_tests::no_registered_profiles_constructor_input_has_the_squeeze_length ... ok
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... ok
+test private_block::s24_tests::every_slot_hosts_exactly_what_the_host_table_says_at_every_shape ... ok
+test private_block::s24_tests::the_mask_budget_holds_at_every_shape ... ok
+test private_block::run_capture_tests::the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it ... ok
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s24_tests::the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16 ... ok
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... ok
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
+test private_block::s24_tests::the_closure_vanishes_on_every_extension_round_vector_at_every_shape ... ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_no_longer_blocked_and_their_test_exists ... ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... ok
+test private_block::run_capture_tests::the_plane_index_is_the_same_in_two_independent_bundles ... ok
+test private_block::s36_tests::assertions_five_and_seven_are_asserted_and_are_where_this_module_says_they_are ... ok
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... ok
+test private_block::s36_tests::the_endpoint_replica_is_the_endpoint_preparers_own_draw_sequence ... ok
+test private_block::s36_tests::the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares ... ok
+test private_block::s24_tests::an_inadmissible_chain_is_refused_before_the_run_directory_exists ... ok
+test private_block::s36_tests::the_three_generators_of_one_proof_are_three_separate_streams ... ok
+test private_block::s36_tests::the_two_endpoint_generators_consume_the_counted_stream_at_every_shape ... ok
+test private_block::s40_tests::c1_reproducer_an_admitted_cross_shape_statement_is_refused_before_a_receipt_exists ... ok
+test private_block::s40_tests::c1b_reproducer_a_cross_shape_padded_weight_is_refused_before_a_receipt_exists ... ok
+test private_block::s36_tests::the_three_generators_of_a_toy_proof_draw_the_statements_327052_field_elements ... ok
+test private_block::s24_tests::a_segments_end_tag_is_the_next_segments_start_tag_in_a_rung_k4_run ... ok
+test private_block::s40_tests::c2_reproducer_an_admitted_input_at_an_admitted_shape_proves ... ok
+test private_block::s36_tests::consumption_does_not_depend_on_the_witness_or_on_the_public_statement ... ok
+test private_block::s40_tests::s40_cs1_the_padded_weight_check_of_ruling_p2_is_re_run_against_the_shape_it_is_proved_at ... ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
+test private_block::s40_tests::s40_cs2_a_norm_window_override_below_its_derivation_is_refused_by_name ... ok
+test private_block::s40_tests::s40_cs2_a_softmax_window_override_below_its_derivation_is_refused_by_name ... ok
+test private_block::s40_tests::s40_n2_an_attention_half_built_at_another_shape_is_refused_by_ruling_cs4_before_a_receipt_exists ... ok
+test private_block::s40_tests::s40_cs1_a_cross_shape_feed_forward_statement_is_refused_by_name_wherever_it_meets_the_shape_it_is_proved_at ... ok
+test private_block::s40_tests::s40_c6_a_width_other_than_q_heads_times_head_dim_admits_no_failing_honest_proof ... ok
+test private_block::s41_tests::s41_cs4_a_cross_shape_attention_statement_is_refused_by_name_wherever_it_meets_the_shape_it_is_proved_at ... ok
+test private_block::s40_tests::s40_cs3_a_lookup_miss_is_one_named_prover_refusal_before_anything_is_drawn_or_absorbed ... ok
+test private_block::s41_tests::s41_cs5_shape_new_refuses_a_width_above_16384_by_name ... ok
+test private_block::s41_tests::s41_exp_reproducer_a_cross_shape_exp_table_is_refused_by_one_name_whatever_the_input ... ok
+test private_block::s41_tests::s41_gamma_reproducer_a_cross_shape_norm_gain_is_refused_before_a_receipt_exists ... ok
+test private_block::s41_tests::s41_n2_reproducer_a_cross_shape_attention_half_is_refused_before_a_receipt_exists ... ok
+test private_block::s41_tests::s41_note_n1_a_registered_run_profile_over_another_block_shape_is_refused_by_ruling_cs7 ... ok
+test private_block::s41_tests::s41_note_n2_a_run_statement_over_x_handed_block_y_is_refused_by_ruling_cs6 ... ok
+test private_block::s41_tests::s41_policy_reproducer_a_cross_shape_endpoint_policy_is_refused_before_a_receipt_exists ... ok
+test private_block::s41_tests::s41_rope_reproducer_cross_shape_rotary_tables_are_refused_before_a_receipt_exists ... ok
+test private_block::s41_tests::s41_cs4_a_cross_shape_endpoint_policy_is_refused_by_name_wherever_it_meets_the_shape_it_is_proved_at ... ok
+test private_block::s42_tests::s42_cs6_each_run_check_sits_before_the_runs_randomness_and_transcript_exist ... ok
+test private_block::s42_tests::s42_cs6_a_statement_file_naming_other_blocks_is_refused_by_name_before_the_statement_is_built ... ok
+test private_block::s42_tests::s42_cs6_the_run_prover_refuses_blocks_its_statement_does_not_name_before_stage_0_begins ... ok
+test private_block::s40_tests::s40_c6_an_unbounded_f_e_admits_no_failing_honest_proof ... ok
+test private_block::s42_tests::s42_cs6_the_run_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read ... ok
+test private_block::s42_tests::s42_cs7_run_shape_new_refuses_a_run_profile_over_a_block_shape_it_is_not_registered_for ... ok
+test private_block::s42_tests::s42_reproducer_cs6_a_run_statement_over_x_proved_and_verified_with_y ... ok
+test private_block::s42_tests::s42_cs6_the_streaming_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read ... ok
+test private_block::s42_tests::s42_reproducer_cs6_the_statement_writer_handed_a_run_over_x_proved_with_y ... ok
+test private_block::s42_tests::s42_cs7_a_statement_file_pairing_a_run_profile_with_another_block_shape_is_refused_by_name ... ok
+test private_block::s43_tests::s43_cs8_a_layout_written_past_layout_for_shape_is_refused_by_name_at_the_two_bodies ... ok
+test private_block::s43_tests::s43_cs8_check_constructed_admits_every_shape_new_builds_and_names_each_written_field ... ok
+test private_block::s43_tests::s43_cs8_each_single_block_entry_checks_its_shape_first ... ok
+test private_block::s43_tests::s43_cs8_an_endpoint_policy_whose_scales_were_written_is_refused_by_name_at_every_entry ... ok
+test private_block::s43_tests::s43_cs8_no_field_of_a_sealed_type_is_visible_outside_its_module ... ok
+test private_block::s43_tests::s44_k3_the_stronger_guard_catches_a_second_constructor_and_an_uncfgd_escape_hatch ... ok
+test private_block::s41_tests::s41_cs4_every_shape_keyed_rule_of_the_attention_half_is_re_run_against_the_shape_it_is_proved_at ... ok
+test private_block::s44_tests::s44_cs9_an_unregistered_block_profile_is_refused_outside_cfg_test ... ok
+test private_block::s44_tests::s44_cs9_every_registered_block_profile_at_every_other_registered_shape_is_refused_by_name ... ok
+test private_block::s44_tests::s44_cs9_the_registry_is_one_list_and_build_has_no_other_caller ... ok
+test private_block::s44_tests::s44_cs9_the_toy_profile_string_at_rung_g_geometry_is_refused_by_name_at_construction ... ok
+test private_block::s43_tests::s43_cs8_field_writes_on_the_types_already_rechecked_are_refused_at_the_entries ... ok
+test private_block::s43_tests::s43_cs8_a_shape_written_past_shape_new_is_refused_by_name_at_every_single_block_entry ... ok
+test private_block::s44_tests::s44_k1_the_cs3_refusal_text_says_what_precedes_it_in_a_run ... ok
+test private_block::s44_tests::s44_k2_the_cs3_refusal_names_the_table_family_that_missed_and_no_count ... ok
+test private_block::s44_tests::s44_cs9_a_written_profile_is_refused_by_name_at_every_entry_before_anything_is_drawn ... ok
+test private_block::s40_tests::s40_n3_every_window_override_at_or_above_its_derivation_proves_or_is_refused_by_name ... ok
+test private_block::s36_tests::a_block_proof_consumes_exactly_the_counted_stream_at_every_shape ... ok
+
+test result: ok. 123 passed; 0 failed; 12 ignored; 0 measured; 445 filtered out; finished in 27.00s
+

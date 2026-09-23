@@ -1241,11 +1241,16 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     // returns `None` unless a recorder is attached.
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
+    // STAGE 45: the standalone shaped block capture, the same rule
+    #[cfg(test)]
+    let block_capture_before = super::block_capture_shaped::checkpoint(tr);
     zk::mask_verify_tagged(&v.mask_root, &lay.mask_specs(), &acc.fs, v.mask_open, ntt, tr, &tag).map_err(|e| format!("M: {e}"))?;
     #[cfg(test)]
     super::capture::mask(&v.mask_root, &acc.fs, v.mask_open, capture_before, tr);
     #[cfg(test)]
     super::run_capture::mask(&lay.mask_specs(), &v.mask_root, &acc.fs, v.mask_open, ntt, run_capture_before, tr);
+    #[cfg(test)]
+    super::block_capture_shaped::mask(&lay.mask_specs(), &v.mask_root, &acc.fs, v.mask_open, ntt, block_capture_before, tr);
     ph.mark(Half::Open, "verify M (zk::mask_verify, ONE call)", M_ROWS as u64, "rows");
     let order = acc.order;
     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
@@ -1254,6 +1259,8 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
     let capture_before = super::capture::checkpoint(tr);
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
+    #[cfg(test)]
+    let block_capture_before = super::block_capture_shaped::checkpoint(tr);
     pcs::verify_zk_tagged(&params, &zko, &commitment(v.a_root, lay.a_rows, sh.log_cols), &ac, v.a_open, ntt, tr, &tag).map_err(|e| format!("A: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("A", v.a_root, lay.a_rows, &ac, v.a_open, capture_before, tr);
@@ -1278,12 +1285,16 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
         run_capture_before,
         tr,
     );
+    #[cfg(test)]
+    super::block_capture_shaped::block_pcs("A", lay, v.a_root, &ac, v.a_open, ntt, block_capture_before, tr);
     ph.mark(Half::Open, "verify A (schedule audit + pcs::verify_zk)", ac.len() as u64, "claims");
     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
     #[cfg(test)]
     let capture_before = super::capture::checkpoint(tr);
     #[cfg(test)]
     let run_capture_before = super::run_capture::checkpoint(tr);
+    #[cfg(test)]
+    let block_capture_before = super::block_capture_shaped::checkpoint(tr);
     pcs::verify_zk_tagged(&params, &zko, &commitment(v.h_root, lay.h_rows, sh.log_cols), &hc, v.h_open, ntt, tr, &tag).map_err(|e| format!("H: {e}"))?;
     #[cfg(test)]
     super::capture::pcs("H", v.h_root, lay.h_rows, &hc, v.h_open, capture_before, tr);
@@ -1308,6 +1319,8 @@ pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreVi
         run_capture_before,
         tr,
     );
+    #[cfg(test)]
+    super::block_capture_shaped::block_pcs("H", lay, v.h_root, &hc, v.h_open, ntt, block_capture_before, tr);
     ph.mark(Half::Open, "verify H (schedule audit + pcs::verify_zk)", hc.len() as u64, "claims");
     Ok(([ic, oc], order))
 }
@@ -1347,6 +1360,10 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     let ntt = NttTables::new(ntt_log_at(sh));
     ph.mark(Half::Setup, "setup: NTT tables", 1u64 << ntt_log_at(sh), "domain");
     let mut tr = transcript(blk, expected, &lay);
+    // STAGE 45: the standalone shaped block capture opens at the header. A
+    // no-op unless a recorder is attached; handed what the verifier holds.
+    #[cfg(test)]
+    super::block_capture_shaped::begin_block(sh, &lay, blk, expected, receipt, &tr);
     let view = CoreView {
         a_root: receipt.a_root,
         h_root: receipt.h_root,
@@ -1364,13 +1381,19 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
         check_endpoint_opening(claims, sh, &tr)?;
         #[cfg(test)]
         let capture_before = super::capture::checkpoint(&tr);
+        #[cfg(test)]
+        let block_capture_before = super::block_capture_shaped::checkpoint(&tr);
         pcs::verify_zk_tagged(&e_params, &e_zko, &commitment(root, sh.endpoint_rows, sh.endpoint_log_n), claims, &receipt.io_open[i], &ntt, &mut tr, &tag).map_err(|e| format!("endpoint {i}: {e}"))?;
         #[cfg(test)]
         super::capture::pcs(["Input", "Output"][i], root, sh.endpoint_rows, claims, &receipt.io_open[i], capture_before, &tr);
+        #[cfg(test)]
+        super::block_capture_shaped::endpoint_pcs(i, sh, root, claims, &receipt.io_open[i], &ntt, block_capture_before, &tr);
         ph.mark(Half::Open, ["verify endpoint IN (pcs::verify_zk)", "verify endpoint OUT (pcs::verify_zk)"][i], sh.endpoint_rows as u64, "rows");
     }
     ph.report("verify", sh.name);
     #[cfg(test)]
     super::capture::publish(blk, expected, receipt);
+    #[cfg(test)]
+    super::block_capture_shaped::block_accepted(sh, blk, expected, receipt, &tr);
     Ok(order)
 }

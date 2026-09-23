@@ -1553,10 +1553,11 @@ fn the_draw_accounting_assertions_are_no_longer_blocked_and_their_test_exists() 
 ///
 /// The scanned set is the production modules (parsed from `private_block.rs`,
 /// so a new one is scanned automatically), the parent module, the frozen seam
-/// — and the three `cfg(test)` modules that WRITE a retained bundle, because
+/// — and the `cfg(test)` modules that WRITE a retained bundle (three until
+/// stage 45 added the standalone block capture as a fourth), because
 /// a retained capture counts as publishing and its digests are call sites
 /// like any other.
-const CALL_SITES: [(&str, &str, usize, &str); 11] = [
+const CALL_SITES: [(&str, &str, usize, &str); 12] = [
     ("src/private_block.rs", "blake3::hash(", 1, "D1 — the calibration identity, an unkeyed hash of a 30-byte public literal"),
     ("src/private_block.rs", "blake3::Hasher::new(", 1, "D2 — the block's public/weights digest, unkeyed, over a 31-byte literal and the framed public tensors"),
     ("src/private_block/layout.rs", "blake3::Hasher::new(", 1, "D3 — the block's schedule digest, unkeyed, over a 33-byte literal and the framed description lines"),
@@ -1573,6 +1574,13 @@ const CALL_SITES: [(&str, &str, usize, &str); 11] = [
     ("src/private_block/run_capture.rs", "sha256_hex(", 6, "C1 — the capture writer's file, public-word and array-store content digests, SHA-256"),
     ("src/private_block/run_statement_file.rs", "sha256_hex(", 5, "C1 — the retained run statement's file digests, SHA-256"),
     ("src/private_block/plane_index.rs", "sha256_hex(", 0, "no hash of its own: the plane index table is public layout data the capture writer digests"),
+    // STAGE 45: the standalone shaped block capture, a fourth `cfg(test)`
+    // writer of retained bundles. Its seven are the run capture's kinds:
+    // the source pins, the array store's content digest, the public-table
+    // digest, the endpoint-policy digest, the accepted frame's digest, and
+    // the writer's own receipt check and per-file digests. SHA-256 over bytes
+    // the bundle publishes anyway; no proof byte and no challenge depends on one.
+    ("src/private_block/block_capture_shaped.rs", "sha256_hex(", 7, "C1 — the block capture writer's file, public-word, frame and array-store content digests, SHA-256"),
 ];
 
 /// Hash entry points the scan looks for. Anything matched must be classified
@@ -1674,7 +1682,7 @@ fn every_hash_call_site_in_the_lanes_own_sources_is_classified() {
     }
 
     let mut scanned: Vec<(String, String)> = production_sources();
-    for extra in ["src/private_block/run_capture.rs", "src/private_block/run_statement_file.rs", "src/private_block/plane_index.rs"] {
+    for extra in ["src/private_block/run_capture.rs", "src/private_block/run_statement_file.rs", "src/private_block/plane_index.rs", "src/private_block/block_capture_shaped.rs"] {
         scanned.push((extra.to_string(), source(extra)));
     }
     let mut found = 0usize;
