@@ -158,6 +158,7 @@ fn c1_statement(c: &C1) -> Result<BlockPublic, String> {
 /// half inside a rung-K4 block, and exactly the 3,584 padded `Dom::F`
 /// positions look up `(128, 0)`, which is not a row of that table.
 #[test]
+#[ignore = "superseded at the merge of lane stage 43 (f486e6f): ruling CS-1 (lane stage 40) closed C-1, so this measurement of the open hole now fails by design; the stage 39-43 review (ZK60_LANE_S39_S43_CODE_REVIEW.md) runs it with --ignored as evidence of the fix"]
 fn c1_a_statement_built_at_another_shape_bypasses_the_s38_f1_refusal() {
     let c = c1_case();
     let p2 = Shape::rung_p2();
@@ -293,6 +294,7 @@ fn c2_words(s: &Shape) -> ([Vec<i8>; 9], Vec<i64>, Vec<i64>, Vec<i64>, Vec<i16>,
 /// every true head at token row 23. At rung-G itself (the derived 17-bit
 /// window) the same statement and input are LogUp-clean.
 #[test]
+#[ignore = "superseded at the merge of lane stage 43 (f486e6f): ruling CS-2 (lane stage 40) closed C-2, so this measurement of the open hole now fails by design; the stage 39-43 review (ZK60_LANE_S39_S43_CODE_REVIEW.md) runs it with --ignored as evidence of the fix"]
 fn c2_an_overridden_softmax_window_lets_an_admitted_input_break_the_rho_s_lookups() {
     let sh = wrho15().expect("Shape::new admits the overridden window");
     assert_eq!(sh.wrho_s, 15);
