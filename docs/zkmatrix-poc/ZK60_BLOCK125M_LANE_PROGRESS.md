@@ -12973,3 +12973,42 @@ left alone.
 Not a privacy result. Not a soundness statement: the field-wrap premise is
 untouched. The two notes S41-N1 (run profile pairing) and S41-N2 (run blocks
 against statement digests) are measured and open for a ruling, not fixed.
+
+## Stage 42 — rulings CS-6 and CS-7 of the shaped refusal census disposition (2026-09-23, 00:5x–)
+
+**Status: `OPEN`.** Opened 2026-09-23 00:51 PDT on the lane tip `17d10ac`,
+one writer (the delegated stage-42 agent). Rulings from §6 of
+`docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
+owner), on stage 41's two measured notes:
+
+* **CS-6 (finding S41-N2, statement binding)** — `run.rs` absorbs the
+  STATEMENT's `block_digests[k]` (`prove_run` `:602`, the verifier's `step`
+  `:752`) but proves and verifies against the `BlockPublic` values it is
+  HANDED, and nothing compares them. `prove_run`, `RunVerifier::start` and
+  every path that reads or reconstructs a run statement from bytes refuse,
+  BY NAME and before anything is absorbed, unless `blocks.len() == L` and
+  `blocks[k].digest() == st.block_digests[k]` for every `k`. No byte moves.
+* **CS-7 (finding S41-N1)** — `RunShape::new` refuses, by name, a run
+  profile not registered for the block shape it is given; every registered
+  shape and profile unchanged.
+
+**THE WRITE SET:** `hashline/src/private_block/run.rs` (the CS-6 and CS-7
+checks), `hashline/src/private_block/protocol.rs` (a `#[cfg(test)]` accessor
+of the existing CS-3 `CheatingProver` switch, so the soundness tests can
+still play a cheating RUN prover — only if the verifier-side evidence needs
+it), `hashline/src/private_block/run_statement_file.rs` (the reader's
+refusal named), `hashline/src/private_block.rs` (the `cfg(test)` mod line),
+the new test file `hashline/src/private_block/s42_tests.rs`, test files
+whose assertions the rulings move (`s41_tests.rs`'s two notes), the census
+memo §11, this ledger, logs `results/zk60_block125m_lane/s42-*`.
+**Forbidden:** `hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`,
+`hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`, `zkvm-block/`;
+the untracked `u31-c6-run1.*` files are left alone.
+
+**Byte identity to hold:** the toy 2,816,472 B; every shaped frame length,
+receipt length, schedule digest, slot-IR, 125M and R-5 pin; `absorb_into`,
+`BlockPublic::digest` and every statement digest untouched; 0 draws / 0
+squeezes / transcript unmoved when a refusal fires. Small rungs only; no
+125M prove.
+
+**No privacy claim.** Statement binding and profile naming only.
