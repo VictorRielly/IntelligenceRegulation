@@ -12760,8 +12760,9 @@ half's cross-shape exposure (S40-N2) and the norm derivation at widths above
 
 ## Stage 41 — rulings CS-4 and CS-5 of the shaped refusal census disposition (2026-09-23, 00:2x–)
 
-**Status: `OPEN`** (skeleton, 2026-09-23 00:20 PDT). Opened on the lane tip
-`c735d77`, one writer (the delegated stage-41 agent). Rulings from §5 of
+**Status: `CLOSED` 2026-09-23 00:4x PDT** — see "Stage 41 — CLOSED" below.
+Opened 2026-09-23 00:20 PDT on the lane tip `c735d77`, one writer (the
+delegated stage-41 agent). Rulings from §5 of
 `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
 owner), on stage 40's two open notes:
 
@@ -12795,3 +12796,180 @@ and every statement digest untouched; 0 draws / 0 squeezes / transcript
 unmoved when a refusal fires. Small rungs only; no 125M prove.
 
 **No privacy claim.** Completeness and statement admissibility only.
+
+### Stage 41 — the rulings built (2026-09-23 00:20 – 00:38)
+
+All runs under `flock /tmp/zk-build.lock`, `--test-threads=6`, detached with
+`.done` markers; shared box, not quiesced. Test file
+`hashline/src/private_block/s41_tests.rs` (11 tests), wired by one
+`#[cfg(test)] mod s41_tests;` line in `private_block.rs`. Census memo §10
+has the parts table and the re-check table.
+
+**The parts enumerated** (memo §10): the attention half (`Wq`, `Wk`, `Wv`,
+`Wo`, `gamma_a`, the two rotary tables, the exp table — lengths, P-2, table
+structures, all shape-keyed, checked only by the constructor), the
+feed-forward half (CS-1, stage 40), and the endpoint policy's `IoSpec`
+(padded plane, endpoint construction, commitment parameters, hash tag — all
+DERIVED from a shape at construction, none absorbed, never compared with a
+shape again: `validate()` checks the spec against itself). No shape in: the
+calibration identity, the pinned endpoint and interior (R-5) scales, the
+context, the roots; `RunShape` carries its own shape (its profile pairing is
+note S41-N1).
+
+**Failing first** (at `718ec01` + the test file, no production line moved):
+
+| run | log | result |
+|---|---|---|
+| stage 40's S40-N2 measurement, as it stood | `s41-before-n2.log` (`.done` = 0) | 1 / 0 / 0: builder ADMITS, **verifier rejected: slot 15 [04 Q zero-check]** |
+| the five reproducers, honest path | `s41-before-reproducers.log` (`.done` = 101) | **5 of 5 FAIL**: `Wq` P-2 (S40-N2) verifier-rejected; `gamma_a` P-2 ACCEPTED; 192-entry rotary tables at rung-K4 ACCEPTED; exp scale both ways refused only as `softmax denominator` (dense and all-zero inputs); rung-G policy in a rung-K4 proof verifier-rejected (`endpoint 0: pcs zk: Merkle path for column 151 fails`) |
+| the four named tests | `s41-before-named.log` (`.done` = 101) | **4 of 4 FAIL**: builder admitted the S40-N2 and `gamma_a` blocks; prover admitted the rung-G policy; `Shape::new` admitted widths 16,385, 20,000, 32,768, 65,536 |
+| the two notes | `s41-before-notes.log` (`.done` = 0) | 2 / 0 / 0 (measured states, below) |
+
+**CS-4 — BUILT** (`private_block.rs`, `protocol.rs`, `witness.rs`,
+`run.rs`). `AttentionPublic::check_words` (the constructor's whole rule set,
+its order, its messages; `new_shaped` calls it) and
+`AttentionPublic::check_for_shape` (prefix `private block: ruling CS-4 — the
+attention statement does not fit the shape it is proved at`);
+`IoSpec::check_for_shape` (the four derived fields against the shape's,
+first difference named; prefix `private block: ruling CS-4 — the endpoint
+policy does not fit the shape it is proved at`; `IoSpec::new_shaped` calls
+it); `BlockPublic::check_for_shape` (attention then feed-forward). Every
+stage-40 site now runs the BLOCK check instead of the feed-forward one —
+`witness::build_shaped` (attention then feed-forward, handed apart),
+`prove_inner_at`, `prove_core`, `verify_bytes_at`, the toy's
+`verify_bytes`, `verify_inner_at`, `verify_core`, `RunStatement::new`,
+`prove_run`, `RunVerifier::start` (the run layer via `blocks_fit_the_shape`)
+— and the policy check sits beside it at every entry that takes a policy
+(`prove_inner_at` before the owners are opened, both bytes entries before
+the frame is decoded, `verify_inner_at`, and at the run layer
+`policy_fits_the_shape` in `RunStatement::new`, `prove_run` and
+`RunVerifier::start`, prefixed `private run:`). CS-1's refusal texts are
+unchanged.
+
+**CS-5 — BUILT** (`shape.rs`): `WIDTH_MAX = 16_384`; `Shape::new` refuses a
+larger width by name (`private block shape: ruling CS-5 — width <w> is above
+16384; ...`) before the norm window is derived. The CS-2 comment gains one
+line pointing at it.
+
+**Test files the rulings moved** (test-only): `s40_tests.rs` — the S40-N2
+measurement test now asserts the builder's CS-4 refusal (renamed
+`s40_n2_an_attention_half_built_at_another_shape_is_refused_by_ruling_cs4_before_a_receipt_exists`).
+`hash_tag_tests.rs` — `a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions`
+handed a verifier of one hash rule a policy made under the other; the CS-4
+policy check would now stop that by name before any hashing, so each
+verifier gets its OWN rule's policy over the same two roots (absorbed bytes
+identical, asserted), the refusal is asserted NOT to be CS-4's (it is
+`slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1` in both
+directions, as before), and the other-rule policy is asserted refused by
+CS-4's name.
+
+**Findings for the security owner (measured, not built; outside the
+rulings).**
+
+* **S41-N1 — a registered run profile over another block shape.**
+  `RunShape::new(sh, l, profile)` accepts any pairing; only the
+  `RunShape::rung_*` constructors pair a registered run profile with its
+  block shape. MEASURED (`s41_note_n1_...`): rung-G's run profile over the
+  rung-K4 shape is admitted by `RunShape::new` and `RunStatement::new`, and
+  the one-block run VERIFIES. No honest proof fails (the pairing travels in
+  one struct), so it is a D17 naming question, not ruling CS-4's class. A
+  check would be one line in `RunShape::new` (a registered run profile only
+  over its registered block shape).
+* **S41-N2 — the run prover and verifier check the blocks they are HANDED,
+  not the digests the run statement holds.** MEASURED
+  (`s41_note_n2_...`): a run statement over rung-G block X (the tame case),
+  proved with block Y (the dense case) and Y's witness, is ACCEPTED by
+  `verify_run` handed Y — the transcript absorbs X's digest
+  (`pb-run-block`) while every slot is checked against Y — and rejected
+  handed X (`M: mask: ...`). Nothing on the in-memory path compares
+  `blocks[k].digest()` with `block_digests[k]`; `run_statement_file.rs`
+  does, when it regenerates blocks from a recipe. A caller that trusts a
+  statement's digests and loads the blocks from elsewhere would accept a
+  run about other weights. Not a shape check (outside CS-4); the fix would
+  be one comparison in `RunVerifier::start` and `prove_run`, before the
+  header, moving no byte.
+* **Pre-existing, noted:** `ExpectedIo::from_bytes` always rebuilds a TOY
+  spec (`IoSpec::new`), so a verifier cannot obtain a shaped policy from
+  bytes at all; since CS-4 such a policy would be refused by name at any
+  shaped entry rather than silently accepted. No shaped path uses it today.
+
+### Stage 41 — CLOSED (2026-09-23 00:20 – 00:4x)
+
+**Status: `LANDED`.** CS-4 and CS-5 built; notes S41-N1 and S41-N2 measured.
+No 125M prove; no GPU.
+
+#### The gates
+
+| run | log | result |
+|---|---|---|
+| `--lib -- s41_ s40_ census_shaped k8_ hash_tag --nocapture` (stages 37–41 and the hash-tag tests) | `s41-after-focused.log` (`.done` = 0) | **47 passed / 0 failed / 1 ignored** (`write_the_k8_gate_bundles`, as at stage 37), 18.09 s |
+| **THE GATE**: `--lib private_` at the final code, `--test-threads=6`, `/usr/bin/time -v` | `s41-gate-private.log` (`.done` = 0) | **463 passed / 0 failed / 18 ignored**, 131.18 s (2:11.23 wall), peak RSS 4.39 GB, the same 16 `warning` lines as stage 40 (none in a stage-41 file) |
+
+**Accounting against stage 40's 452 / 0 / 18:** +11 = the eleven
+`s41_tests` (5 reproducers, 4 named-refusal tests, 2 notes); the S40-N2 test
+renamed, not added; nothing lost, nothing newly ignored.
+
+#### Byte identity
+
+* **The toy stays 2,816,472 B**: `tests::honest_receipt_verifies_in_typed_and_wire_form_...`,
+  `zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length`,
+  `grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+  `the_toy_schedule_digest_is_frozen`, `the_toy_parameter_line_is_the_frozen_literal`,
+  `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — all in
+  the pass list.
+* **Every shaped frame and pin**: the honest proofs from bytes at every rung
+  (the frame-length pins), `grow_tests::the_125m_receipt_is_reproduced_part_by_part`,
+  `run_tests::the_twelve_block_125m_receipt_is_the_counted_figure`,
+  `run_tests::the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5`,
+  `slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`
+  — all pass.
+* **Nothing absorbed or drawn**: `absorb_into` (both halves),
+  `BlockPublic::digest`, `ExpectedIo::to_bytes` and the run statement's
+  digests are untouched; `git diff -U0 | grep -iE
+  "absorb|challenge|rng\.|squeeze|commit|digest|update\("` over the five
+  production files matches only comments and refusal strings. When a CS-4
+  refusal fires in `prove_core`: 0 bytes drawn, 0 squeezes, transcript
+  unmoved; in `verify_core`: 0 squeezes, transcript unmoved (the honest
+  block through the same calls draws, squeezes and absorbs). Every
+  registered shape unchanged (widest 768).
+
+#### The pins that move, for the gate owner (the privacy gates re-pin per bundle source commit)
+
+PRODUCTION files (old at `c735d77` -> new):
+
+| file | old SHA-256 | new SHA-256 |
+|---|---|---|
+| `hashline/src/private_block.rs` | `1aa38780ceaef5cadd78e6cc5c30cce69e5c747c9070a853b001e64370055d56` | `1f93f9eb9a06927e99a945092fc34ec35c8c5949ece59c41a37879171b9adce3` |
+| `hashline/src/private_block/shape.rs` | `a5498dd7088b66304be9843235df57db906cd608a5a39da82d7adcacb2c25814` | `648a549f515e8196d59fe95bf07b4662c10db0dd4abeccec9664ccfd37662fb4` |
+| `hashline/src/private_block/protocol.rs` | `a71821b5cf64cfb68f81decd03aeea2e5d3dbbcff31f684032c8351cc2850f3e` | `b63d6464e2547a599399c55ba75ca46c58038447ed619a8de81e3b3a546595d8` |
+| `hashline/src/private_block/witness.rs` | `32edf41429ead62350c0db93cedc5785e3a4d4cbb1fed80529565571ca0a6f11` | `6fd11eae847d6a2b3e9c22eaa1c20f9bb955e3371ae75d3e0421783e59c8eaab` |
+| `hashline/src/private_block/run.rs` | `c141d77f49b40dc544b114a2c297d7d4ba3767c8e538d389d34134f57924939d` | `a5700876bf4bf51c93360f89e2640b7c1d39ee40764101222a753e0a59d27d95` |
+
+Test files: `hash_tag_tests.rs`
+`15492d89f0cd68347ceeef96535f2fe097bbc2c5629f2abcb45816f4e2e7d943` ->
+`5c3bf1f8665f4694ce39bfc86fcddbcfe08da54a05152fb260648210371eb513`;
+`s40_tests.rs`
+`cae36035399bca0c984f63441e51b1224739d731a79f88dfa97ce1a1b9beb800` ->
+`824d86c28efb5364787412b79d5bab2d1e54c6ae0503fed1bb35d6c8e57d62b2`;
+`s41_tests.rs` (new)
+`8f186937e27eb456663643650f3b4736a8ead18236ef6096c8752828ebb38cc4`.
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat c735d77 -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock` prints NOTHING. The untracked `u31-c6-run1.*` files are
+left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `718ec01` | the skeleton |
+| `d5dd00e` | CS-4, CS-5, `s41_tests.rs` (11 tests), the `s40_tests` / `hash_tag_tests` edits, the failing-first, focused and gate logs |
+| this one | the census memo §10, this ledger |
+
+#### What stage 41 is NOT
+
+Not a privacy result. Not a soundness statement: the field-wrap premise is
+untouched. The two notes S41-N1 (run profile pairing) and S41-N2 (run blocks
+against statement digests) are measured and open for a ruling, not fixed.
