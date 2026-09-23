@@ -5412,3 +5412,105 @@ suite on the new bytes BEFORE any re-take (scratch): 660 tests, the only
 failures the twelve tool-byte assertions of the records not yet re-taken
 and this round's own recorded arm -- no logic assertion of any earlier
 round moved.
+
+## R9l.4 Commands and logs (round 9l)
+
+Evidence: `results/zk60_native_run_gate_9l/`. No systemd scope (no user bus
+on this box). The heavy steps run DETACHED (`setsid nohup bash queue.sh`),
+each under `flock /tmp/zk-heavy.lock`, each with a `.done` marker; the queue
+was launched at 13:38 PDT with the tool bytes frozen at `345bb69`.
+
+| what | script | log / marker |
+|---|---|---|
+| the basis of P-1, read from the committed records before the exact term ran | `u_admissibility_scan.py` | `u_admissibility_scan.{json,log}` |
+| the committed bytes of the 30 records, before any re-take (all 30 equal the files on disk) | `before.sh` (`records.txt`) | `before/`, `before.log` |
+| the whole gate on both rung-G block bundles, round 9j's command lines, records in place | `run_rung_g.sh` | `run_rung_g.log`, `.done`, `time-block-rung-g-*.log` |
+| the new code at 125M: the staged driver's `load, replay, commitments, boundary` on both standalone 125M block bundles, two NEW records | `m125.sh` | `m125.log`, `.done`, `block-m125-{dense,zero}-gc2.json`, `time-*.log` |
+| the 28 RUN development records re-taken in place, round 9k's command lines | `refresh.sh` | `refresh.log`, `.done` |
+| the strict leaf diff (E1 clocks, E2 the four tool hashes, E3 per-commitment exclusivity, E4 the controls, E5 the exact u-term's detail) | `repin_diff.py` | `repin_diff.{json,log}`, `.done` |
+| the toy subset, the record guard, the whole native suite | `suite.sh` | `suite.log`, `suite_{toy,guard,native_all}.log`, `.done` |
+| ruling GC-2 on every record written, one table | `gc2_table.py` | `gc2_table.{json,log}` |
+
+## R9l.5 Results -- rung-G and 125M (MEASURED 2026-09-23 13:38-13:45 PDT, shared laptop, CPU only)
+
+**Rung-G, the whole gate** (`run_rung_g.done` = 0): `block-rung-g-dense`
+143.5 s (wall 2:24, peak RSS 514 MB), `block-rung-g-zero` 143.4 s (2:24,
+520 MB) -- **13 of 13 stages `ok` on both**. Against their committed bytes
+(the classes `repin_diff.py` applies to all thirty): 4,251 identical leaves
+each, 29 wall clocks, 3 edited + 1 added tool hash, 100 new per-commitment
+exclusivity leaves, 437 new control leaves, 10 new u-term detail leaves
+(`H@0`'s and the whole block's) -- **0 unexpected**.
+
+**125M, the cheap stages** (`m125.done` = 0; `load, replay, commitments,
+boundary`, no arm, no run controls, not an everything pass): `block-m125-dense-gc2`
+51.4 s (wall 0:52, peak RSS 417 MB), `block-m125-zero-gc2` 52.6 s (0:53,
+409 MB), both `ok`. At the 125M geometry, on real bytes, both bundles:
+
+| commitment | rows | clauses | site rows used exactly once | groups / schedule | disclosed |
+|---|---|---|---|---|---|
+| `A@0` | 5,681 | **16 of 16** | 244 / 244 | 36 / 36 | 0 |
+| `H@0` | 7,120 | **16 of 16** | 100 / 100 | 9 / 9 | 2 -- exact `u*` 2 (`rank Γ_{D∪N'}` 20, `rank Γ_{N'}` 18, `k0` 0) = per-indicator 2 |
+| `E-Input`, `E-Output` | 37 (32 data, sites 32/33, prox 34/35, spare 36) | **16 of 16** | 2 / 2 | 1 / 1 | 0 |
+| the whole block, 104 x 12,861 | -- | -- | -- | -- | joint **2 = sum 2**, `k0` 0, exact `u*` 2 (104 / 102) = per-indicator 2 |
+
+The 23 controls fire at 125M on both bundles, all sixteen clauses exercised;
+the OLD weight-level check accepts the same seven perturbations it accepts
+at rung-G (X01, X06, X09a, X10a, X11, X14, X16). The figures equal the
+committed 125M records' (`block-m125-dense-everything`, the two C3c
+records): 104 x 12,861, joint 2 = sum 2, `H` 2. This is the gate's OWN
+observation of exclusivity at 125M -- the thing finding F-4 said the draft's
+evidence lacked -- on the two standalone block captures; the two 125M RUN
+captures (`m125-capture-{dense,zero}-l2`) were not re-read (R9l.8).
+
+## R9l.6 The clauses and their controls (F-4, F-6), as recorded at rung-G
+
+Every control fires on its TARGET clause and on no honest view (each
+records the honest verdict of its target clause beside the perturbed one);
+the "breaks" column is every clause the perturbation broke, because the
+audit evaluates each clause on its own. The last column is what the OLD
+H-pair (the inherited `RoleView._check_pair_schedule`) made of the same
+perturbed weights -- **seven of the 23 it accepted**, among them finding
+F-4's overlap. Read from `block-rung-g-dense`'s `exclusivity_controls`
+(the zero bundle and both 125M bundles read the same; a run adds X10c):
+
+| target | control | breaks | old check |
+|---|---|---|---|
+| EX-1 | `X01` A's last reserved pair, rows 619/620, declared spare | EX-1, EX-5, EX-7 | **accepts** |
+| EX-2 | `X02` claim 0's second mask part on the proximity row 621 | EX-2, EX-5, EX-11 | refuses |
+| EX-3 | `X03` the same part three rows past the last row | EX-2, EX-3, EX-11 | n/a (no weights can be built) |
+| EX-4 | `X04` claim 0's first mask coefficient zero | EX-4, EX-5, EX-6, EX-11 | refuses |
+| EX-5 | `X05a` claim 0 with no site row | EX-5, EX-11 | refuses |
+| EX-5 | `X05b` claim 0 with one site row | EX-5, EX-11 | refuses |
+| EX-5 | `X05c` claim 0 with three site rows | EX-5, EX-10 | refuses |
+| EX-5 | `X05d` claim 0 on a non-adjacent pair | EX-5, EX-10, EX-11 | refuses |
+| EX-6 | `X06` claim 0's pair shifted one row (odd offset) | EX-6, EX-10, EX-11 | **accepts** |
+| EX-7 | `X07` `E-Input`'s second mask part on the spare row | EX-5, EX-7, EX-11, EX-15 | refuses |
+| EX-8 | `X08a` the sum claim touching the first site row | EX-8, EX-10 | refuses |
+| EX-8 | `X08b` the sum claim missing zero-sum row 469 | EX-8 | refuses |
+| EX-9 | `X09a` the sum claim first | EX-9 | **accepts** |
+| EX-9 | `X09b` `H`'s sum claim appended to `A` | EX-9, EX-10, EX-14 | refuses |
+| EX-10 | **`X10a` claim 1's pair on (s0+1, s0+2), overlapping claim 0's (s0, s0+1) -- F-4's case on real bytes** | EX-6, **EX-10**, EX-11 | **accepts** |
+| EX-10 | `X10b` claim 1's pair ON claim 0's | EX-10, EX-11 | refuses |
+| EX-10 | `X10c` (runs) the boundary's site-1 claim on site 0's pair | EX-10, EX-11 | refuses |
+| EX-11 | `X11` A's last claim dropped (unused, nothing shared) | EX-11, EX-14 | **accepts** |
+| EX-12 | `X12` claim 0's second mask coefficient twice the first | EX-12 | refuses |
+| EX-13 | `X13` a coordinate of claim 0's last part's point changed | EX-11, EX-13 | n/a (no weights can be built) |
+| EX-14 | `X14` a singleton group's claim re-keyed into group 0 (row weights unchanged) | EX-14 | **accepts** |
+| EX-15 | `X15a` the endpoint claim twice | EX-10, EX-15 | refuses |
+| EX-15 | `X15b` a zero endpoint coefficient | EX-4, EX-5, EX-6, EX-11, EX-15 | refuses |
+| EX-16 | `X16` one replayed `λ` zero | EX-16 | **accepts** |
+
+Two things the table shows beyond "each clause fires". (i) A partial
+overlap can never be isolated from the parity clause: two even-offset
+adjacent pairs either coincide or are disjoint, so X10a breaks EX-6 as well
+as EX-10; it is EX-10 that names the shared row, and the inherited check
+saw neither. (ii) Of the checker's list
+of unexercised clauses (F-6), each now has a control: the sum claim on a
+site row (X08a) or missing a zero-sum row (X08b); 0 / 1 / 3 site rows
+(X05a-c); a non-adjacent pair (X05d); an unused pair without sharing
+(X11); a part leaving the commitment (X03); a data part on the proximity
+row (X02 moves a mask part there; EX-2's weight- and part-level halves
+cover any part); parts with different column weights (X13); an endpoint
+zero coefficient (X15b); two endpoint claims (X15a); plus the `(true,
+None)` branch of `audit_claims` (X09b) and the group-count mismatch (X14),
+which the check found still unexercised by its own thirteen.

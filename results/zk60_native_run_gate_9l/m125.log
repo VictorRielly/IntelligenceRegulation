@@ -1,0 +1,17 @@
++ M=/home/victor/zk60-artifacts/block-captures-20260923
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9l
++ S=load,replay,commitments,boundary
++ /usr/bin/time -v python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/block-captures-20260923/m125-dense --stages load,replay,commitments,boundary --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9l --name block-m125-dense-gc2
+[load          ]      0.6 s   peak RSS     323 MB   ok
+[replay        ]      0.5 s   peak RSS     323 MB   ok
+[commitments   ]     49.5 s   peak RSS     370 MB   ok
+[boundary      ]      0.8 s   peak RSS     407 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9l/block-m125-dense-gc2.json   total 51.4 s   peak RSS 407 MB   ok=True
++ /usr/bin/time -v python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/block-captures-20260923/m125-zero --stages load,replay,commitments,boundary --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9l --name block-m125-zero-gc2
+[load          ]      0.7 s   peak RSS     315 MB   ok
+[replay        ]      0.5 s   peak RSS     315 MB   ok
+[commitments   ]     50.6 s   peak RSS     361 MB   ok
+[boundary      ]      0.8 s   peak RSS     399 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9l/block-m125-zero-gc2.json   total 52.6 s   peak RSS 399 MB   ok=True
