@@ -12301,3 +12301,45 @@ not re-derived). Not a proof of every relation for every admissible witness:
 the lookups are censused exactly, the 23 slot relations are exercised on the
 edge witnesses and by the 37 accepted edge proofs. Not a 125M run: 125M is
 COUNTED. Not a fix of S38-F1 or S38-N1.
+
+## Stage 39 — FIXING S38-F1 by ruling S38-F1(a), and S38-N1 (2026-09-22, 21:3x–)
+
+**Status: `OPEN`** (skeleton). Opened 2026-09-22 21:34 PDT on the lane tip
+`a9d6d4c`, one writer.
+
+**The ruling, verbatim — ruling S38-F1(a), security owner, 2026-09-22:**
+`FeedForwardPublic::new_shaped` refuses, BY NAME, a statement with
+`act[128] != 0` at any shape whose `Dom::F` pads (i.e. where the feed-forward
+domain has padded positions — the condition derived from the `Shape` /
+layout exactly the way the census does, not from a list of shape names). At
+a shape whose `Dom::F` does not pad the constructor's behaviour is
+unchanged. Option (b) (writing `act[128]` into the pad and moving `A_A16` to
+EXEMPT) is NOT taken: it would move every shaped receipt; revisit only if an
+approved activation with a nonzero value at gate 0 is ever proposed.
+
+**THE WRITE SET**, and nothing else: `hashline/src/private_block.rs`
+(`FeedForwardPublic::new_shaped` only — the named refusal, a few lines),
+`hashline/src/private_block/census_shaped_tests.rs` (the new failing-first
+test, the re-purposed reproducer, the census's expected class for site 26),
+`hashline/src/private_block/s35_tests.rs` (S38-N1, test-only, if a
+test-only fix exists), the memo `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md`
+(§6 "FIXED at" note), this ledger, and logs under
+`results/zk60_block125m_lane/` with the prefix `s39-`. **Forbidden:**
+`argument.rs`, `protocol.rs`, `layout.rs`, `wire.rs`, `witness.rs`, `run.rs`,
+`boundary.rs`, `run_capture.rs`, `refusals.rs` production items,
+`private-block-kernel-shaped/src/lib.rs`, `hashline/src/{zk,layer,pcs,wcache,
+native_capture}.rs`, `hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`,
+`zkvm-block/`.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | FAILING FIRST: the S38-F1 reproducer as it stands (`s39-before.log`, verifier refusal); a NEW test — `new_shaped` refuses `act[128] = 1` at rung-G / K4 / K8 by the new name and accepts it at toy / P2 / C6 — run and failing before the fix | two logs |
+| 2 | the fix in `new_shaped` only, the refusal derived from `sh.pads(Dom::F)` | the new test green |
+| 3 | the reproducer re-purposed (expects REFUSAL at construction, un-ignored, history kept); census site 26 classified as covered by the refusal; memo §6 "FIXED at" | census filter green, 0 ignored |
+| 4 | byte identity: toy 2,816,472 B, every shaped receipt length and the pinned schedule digests unchanged, `absorb_into` untouched; the stage-37 K8 tests and stage-38 census tests re-run | green |
+| 5 | S38-N1: a test-only fix in `s35_tests.rs` if one exists (5 green runs at the default thread count), else the exact `zkp-core` ask | logged |
+| 6 | the `--lib private_` filter once, 8 GiB scope, `--test-threads=6` | against 437 / 0 / 19 (+1 skipped); `private_block.rs` SHA-256 `b6728273...` -> new |
+
+**No privacy claim.** A completeness fix of public-statement admissibility.
