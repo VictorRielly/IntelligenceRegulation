@@ -1,0 +1,105 @@
+{
+ "id": "m1",
+ "file": "hashline/src/private_block/protocol.rs",
+ "mutation": "A's proximity row: a DRAWN word overwritten after the fill (`a_data[lay.a_prox * n] = Fp::ZERO;`)",
+ "expected_root": "A",
+ "cargo_exit": 101,
+ "replay_fails_on_toy_and_rung_g": true,
+ "replay_names_the_expected_root": true,
+ "assertion6_stays_green": true,
+ "count_test_stays_green": true,
+ "boundary_replay_green": true,
+ "s36_tests::the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares": "ok",
+ "s36_tests::a_block_proof_consumes_exactly_the_counted_stream_at_every_shape": "ok",
+ "gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream": "FAILED",
+ "gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream": "FAILED",
+ "gr4_check_tests::gr4_replay_boundary_commits_exactly_the_predicted_stream": "ok",
+ "replay_failures_naming_root": {
+  "A": 2,
+  "M": 0,
+  "H": 0
+ },
+ "gr4_lines": [
+  "GR4 replay boundary (legacy): root rebuilt = true; 6 mask rows; replay stream bytes 270336 vs prover 270336",
+  "GR4 replay boundary (rung-G tag): root rebuilt = true; 6 mask rows; replay stream bytes 270336 vs prover 270336",
+  "GR4 replay toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): receipt verifies = true; A root rebuilt = false; M root rebuilt = true; H root rebuilt = false; replay stream bytes 5396672 vs prover 5396672; endpoint owners: 6144 drawn field values and 4096 salts, all distinct",
+  "GR4 replay development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): receipt verifies = true; A root rebuilt = false; M root rebuilt = true; H root rebuilt = false; replay stream bytes 11385664 vs prover 11385664; endpoint owners: 14848 drawn field values and 8192 salts, all distinct"
+ ],
+ "test_result": [
+  "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 582 filtered out; finished in 11.04s"
+ ],
+ "build_errors": [
+  "error: test failed, to rerun pass `--lib`"
+ ]
+}
+{
+ "id": "m2",
+ "file": "hashline/src/private_block/protocol.rs",
+ "mutation": "an A reserved-pair word copied into H's reserved rows (`h_data[lay.h_mask_base * n] = a.data[lay.a_mask_base * n];`)",
+ "expected_root": "H",
+ "cargo_exit": 101,
+ "replay_fails_on_toy_and_rung_g": true,
+ "replay_names_the_expected_root": true,
+ "assertion6_stays_green": true,
+ "count_test_stays_green": true,
+ "boundary_replay_green": true,
+ "s36_tests::the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares": "ok",
+ "s36_tests::a_block_proof_consumes_exactly_the_counted_stream_at_every_shape": "ok",
+ "gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream": "FAILED",
+ "gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream": "FAILED",
+ "gr4_check_tests::gr4_replay_boundary_commits_exactly_the_predicted_stream": "ok",
+ "replay_failures_naming_root": {
+  "A": 0,
+  "M": 0,
+  "H": 2
+ },
+ "gr4_lines": [
+  "GR4 replay boundary (legacy): root rebuilt = true; 6 mask rows; replay stream bytes 270336 vs prover 270336",
+  "GR4 replay boundary (rung-G tag): root rebuilt = true; 6 mask rows; replay stream bytes 270336 vs prover 270336",
+  "GR4 replay toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): receipt verifies = true; A root rebuilt = true; M root rebuilt = true; H root rebuilt = false; replay stream bytes 5396672 vs prover 5396672; endpoint owners: 6144 drawn field values and 4096 salts, all distinct",
+  "GR4 replay development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): receipt verifies = true; A root rebuilt = true; M root rebuilt = true; H root rebuilt = false; replay stream bytes 11385664 vs prover 11385664; endpoint owners: 14848 drawn field values and 8192 salts, all distinct"
+ ],
+ "test_result": [
+  "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 582 filtered out; finished in 10.93s"
+ ],
+ "build_errors": [
+  "error: test failed, to rerun pass `--lib`"
+ ]
+}
+{
+ "id": "m4",
+ "file": "hashline/src/zk.rs",
+ "mutation": "alpha: slot 1's first CFS coefficient := slot 0's inside zk::mask_commit_tagged (`masks[1].coeffs[0] = masks[0].coeffs[0];`)",
+ "expected_root": "M",
+ "cargo_exit": 101,
+ "replay_fails_on_toy_and_rung_g": true,
+ "replay_names_the_expected_root": true,
+ "assertion6_stays_green": true,
+ "count_test_stays_green": true,
+ "boundary_replay_green": true,
+ "s36_tests::the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares": "ok",
+ "s36_tests::a_block_proof_consumes_exactly_the_counted_stream_at_every_shape": "ok",
+ "gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream": "FAILED",
+ "gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream": "FAILED",
+ "gr4_check_tests::gr4_replay_boundary_commits_exactly_the_predicted_stream": "ok",
+ "replay_failures_naming_root": {
+  "A": 0,
+  "M": 2,
+  "H": 0
+ },
+ "gr4_lines": [
+  "GR4 replay boundary (legacy): root rebuilt = true; 6 mask rows; replay stream bytes 270336 vs prover 270336",
+  "GR4 replay boundary (rung-G tag): root rebuilt = true; 6 mask rows; replay stream bytes 270336 vs prover 270336",
+  "GR4 replay toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): receipt verifies = true; A root rebuilt = true; M root rebuilt = false; H root rebuilt = false; replay stream bytes 5396672 vs prover 5396672; endpoint owners: 6144 drawn field values and 4096 salts, all distinct",
+  "GR4 replay development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): receipt verifies = true; A root rebuilt = true; M root rebuilt = false; H root rebuilt = false; replay stream bytes 11385664 vs prover 11385664; endpoint owners: 14848 drawn field values and 8192 salts, all distinct"
+ ],
+ "test_result": [
+  "test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 582 filtered out; finished in 10.99s"
+ ],
+ "build_errors": [
+  "error: test failed, to rerun pass `--lib`"
+ ]
+}
+git --no-pager -C /home/victor/wt-zk60-block125m diff -- hashline/src/private_block/protocol.rs hashline/src/zk.rs zkp-core  -> 0 bytes of output (EMPTY = True)
+production files restored (git diff --quiet exit 0): True
+ALL EXPECTATIONS MET: True

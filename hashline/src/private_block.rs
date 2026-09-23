@@ -327,6 +327,9 @@ mod s44_tests;
 mod block_capture_shaped;
 #[cfg(test)]
 mod block_capture_shaped_tests;
+// STAGE 47: ruling LW-2 — the G-R4 seeded value-level replay of A, M and H.
+#[cfg(test)]
+mod gr4_check_tests;
 // REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
 // pre-read of stage 36): the reviewer's own tests of the observer hook and of
 // the endpoint replica's fidelity. NOT part of the lane's delta and not to be

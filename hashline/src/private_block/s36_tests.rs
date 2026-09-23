@@ -695,6 +695,36 @@ fn consumption_does_not_depend_on_the_witness_or_on_the_public_statement() {
 // ASSERTION 6 — the realised value map
 // =========================================================================
 
+// -------------------------------------------------------------------------
+// STAGE 47, RULING LW-2 (`ZK60_BLINDING_LAW_GR4_DISPOSITION.md`): THIS SCAN
+// IS BLIND TO TWO KINDS OF DRAWN VALUE. It is kept as a source-text tripwire
+// for `let`-bound draws only. The VALUE-LEVEL check of every drawn word of A,
+// M and H is `gr4_check_tests.rs` (the seeded replay: A, M and H rebuilt
+// from the witness and the eleven predicted stream segments without the
+// commit functions, the three roots and the byte count required equal).
+//
+//  1. The fill idiom `for x in &mut <slice> { *x = rng.fp(); }`. After
+//     trimming, the line `*x = rng.fp();` starts with `*`, so the
+//     comment filter below (`t.starts_with('*')`) skips it, and
+//     `binding_name` binds `let` names only. So `a_data` and `h_data`
+//     (A's and H's reserved pairs and proximity rows, `protocol.rs`), the
+//     boundary's and both endpoints' mask rows (`boundary.rs`,
+//     `endpoint_g.rs`, `private_seam.rs`) never enter `drawn`, and no later
+//     write into them is looked at. The doc comment's parenthesis below
+//     used to say the idiom is found; it is not.
+//  2. `α`, the CFS coefficients: drawn inside `CfsMask::random` as a struct
+//     field (`coeffs: rng.fp2_vec(..)`, not a `let`), and bound in `zk.rs`
+//     as `let masks = .. CfsMask::random(rng, n, d)`, which contains no
+//     draw pattern; no write into `masks[..].coeffs` is looked at.
+//
+// Demonstrated on the Rust (review branch `mut-m*.log`; again in the lane,
+// `results/zk60_block125m_lane/s47-mut-*.log`): m1
+// (`a_data[lay.a_prox * n] = Fp::ZERO;` after the A fill), m2
+// (`h_data[lay.h_mask_base * n] = a.data[lay.a_mask_base * n];` after the H
+// fill) and m4 (`masks[1].coeffs[0] = masks[0].coeffs[0];` in
+// `zk::mask_commit_tagged`) each leave THIS test green; `gr4_check_tests`
+// fails on each, naming the A, H and M root respectively.
+// -------------------------------------------------------------------------
 /// **ASSERTION 6 — values at distinct positions are not functions of one
 /// another EXCEPT where the schedule says so BY NAME.**
 ///
@@ -709,8 +739,9 @@ fn consumption_does_not_depend_on_the_witness_or_on_the_public_statement() {
 ///
 /// The test asserts the set is **exactly** that: it reads the production
 /// text of every module on the path, finds every buffer a generator filled
-/// (`rng.fp_vec`, `rng.fp2_vec`, `rng.bytes32` bound to a name, and the
-/// `for x in &mut <slice> { *x = rng.fp(); }` idiom), and then finds every
+/// (`rng.fp_vec`, `rng.fp2_vec`, `rng.bytes32` bound to a `let` name — NOT
+/// the `for x in &mut <slice> { *x = rng.fp(); }` idiom and NOT `α`: see the
+/// stage-47 LW-2 block above), and then finds every
 /// later assignment INTO one of those buffers. **Four sites are found and
 /// all four are declared** — the two overwrite relations, at each of the
 /// two mask-commit entry points (`mask_commit` keeps its own body beside
