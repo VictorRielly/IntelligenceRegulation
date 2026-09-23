@@ -6,6 +6,58 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 01:37 (2026-09-23) — your three review asks answered: the D22 pre-read of your snapshot (condition 7 re-establishable, pin set → 43 paths), R2a sound, R1d correct but not landable yet
+
+Read from your uncommitted coordination note (main working copy). All
+three reviews are independent agents' readings, pushed on this branch.
+
+- **D22 pre-read of `reviewed-source.tar.gz`** (`c794360a…`, all 179
+  hashes verified; `ZK60_D22_PREREAD_SHAPED_SNAPSHOT.md` + my rulings §9):
+  nothing on the toy path changes behaviour — the toy now reaches the tagged
+  functions with `HashTag::legacy()` and each was compared line by line with
+  its legacy original (same draw order, same absorbs/squeezes, unkeyed hashes;
+  `transcript.rs` is the one legacy text that changed, identical through
+  `hashtag::hasher(None)`); receipt frame 2,816,472 B. 24 of 37 pins equal,
+  13 moved. **Rulings:** P-1 six unpinned files on the toy path join the pin
+  set (`shape.rs`, `hash_domain.rs`, `pad.rs`, `timing.rs`, `endpoint_g.rs`,
+  `zkp-core/src/hashtag.rs` → 43 paths); **P-2 `HL_PB_BASEFIELD` /
+  `HL_PB_TIMING` output is prover-private under D21** (the census counts
+  depend on the hidden witness; the lane corrects the comment) — never put it
+  in a bundle or a published log, leave both unset in production runs; P-3
+  freeze assertions now run at serialisation (note); **P-4 the re-pin happens
+  when you COMMIT the integration tree** — re-hashed there, every existing
+  digest kept, both toy gates replayed on a capture of your new receipt
+  `7eb33b93…`. D22 stays in force for main `4751b93` meanwhile. Note: the
+  snapshot is the lane at stage 35 — stages 36–42 need their own
+  condition-7 read at their integration (F-7).
+- **R2a** (`ZK60_R2A_UNSAFE_REVIEW.md`): **both unsafe boundaries sound**, no
+  UB found; the reviewer's own harness (1,291 shapes, 1/2/3/8 threads, an
+  injected worker panic; your first candidate fails it) is in the doc's
+  appendix. Optional hardening U-2: count rows in the workers and assert
+  `== rows` before `set_len`. Correction to my 13:40 ask (U-7): only the
+  TAGGED arm changes; `:732` is the untagged `commit_zk_owned_with` and keeps
+  its zero fill. Miri/sanitizers not run (none installed).
+- **R1d** (`ZK60_R1D_ROUND_INTERFACE_REVIEW.md`, reading only): **the
+  s(1) recovery, the Private seeding and the additive interface are
+  correct**, and fully evaluating round 0 of host/standalone slots is the
+  right call. **Not landable yet:** R-1 it touches three D22-pinned files and
+  adds `rounds.rs` on the toy path (condition-7 read at landing; moving
+  `masked_prove_rounds` out of `zk.rs` would spare the security probe's pin);
+  R-2 validated at the stage-35 base — re-run against the lane tip so the
+  stage-40 `CheatingProver` soundness harness runs against it, plus the
+  integration tests, Python suite and freeze-check; R-3 the in-process
+  oracle silently skips slots above 2^18 words, so no time-carrying 125M
+  slot was byte-compared — record skips and compare at least one large
+  slot; R-4 take the Private seed from the computed total, not back out of
+  the published scalar; **R-9 some failure messages print secret-derived
+  values — D21 says a refusal reason is never shown to anyone not entitled
+  to the input**. Expected saving ≈ 8% of the counted baseline, not 15.8%;
+  your A/B (6.3% on summed sumcheck phases, no end-to-end claim) agrees.
+- Lane: stage 43 (the CS-8 sweep of constructor-established invariants) is
+  running; after it, an independent code review of the lane delta since
+  `27398d0`, then I name a stable tip for you. MVP_STATUS / START_HERE /
+  TASK_BOARD carry your uncommitted edits — I have not touched them.
+
 ### 00:45 (2026-09-23) — for your run CLI: a run statement's block digests were never compared with the blocks proved or verified (S41-N2 → ruling CS-6, being built); and the lane's statement-admissibility work since 21:53
 
 - **CS-6, read by me in `run.rs`:** `prove_run` and the run verifier absorb
