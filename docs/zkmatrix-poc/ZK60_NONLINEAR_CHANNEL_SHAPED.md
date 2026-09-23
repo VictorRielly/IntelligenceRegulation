@@ -5,9 +5,63 @@
 acceptance** — only the security owner rules, and nothing here has been ruled
 on.
 
+> **Headline: no counterexample.** At rung-G, rung-K4 and 125M (and five
+> further development shapes) every one of the 23 slots satisfies every
+> dependency of the toy's non-linear argument that can be tested from the
+> slot polynomials; the argument lifts **unchanged in its proof**. One
+> dependency — completeness for every admissible witness (GS-14) — cannot be
+> tested this way and stays open (§3.4, GN-1). The linear channel (H1) is
+> not this memo's subject and stays open at the shaped layouts.
+
 ## 0. Plain words first
 
-(pending — written last, in the final commit)
+**What was asked.** The toy block's privacy argument has two halves. The
+*linear* half shows that the commitments' openings give nothing away. The
+*non-linear* half — this memo — shows that the curved part of the proof (the
+sumcheck messages, whose values are polynomials in the hidden data, and the
+one number the mask commitment reveals about them) gives nothing away either.
+At the big shapes three things changed that the toy never had: some
+polynomials are one degree higher (5 instead of 4); the two attention-score
+steps now multiply by a public "which key-value group" factor, because of
+the completeness repair of finding S19-F1 (2026-09-20); and eight steps multiply by a
+public padding indicator. Gap GS-13 asked whether the non-linear half
+survives that.
+
+**The answer: yes, as far as it can be checked without a receipt, and I
+could not break it.** I wrote down the toy argument's fourteen dependencies
+(§1.2) and tested each one on the lane's own machine-readable description of
+the 23 polynomials — not a hand copy — in exact field arithmetic:
+
+* the masking "just covers" every step at every size the shapes use —
+  **210 of 210** exact rank computations at full size;
+* every step's polynomial vanishes where the protocol needs it to, and now
+  for the stronger of the two possible reasons — a public factor in every
+  term — at **184 of 184** step-and-shape pairs (the toy needed the weaker
+  reason at two steps);
+* for every step at every shape, I built **two worlds with different hidden
+  data that publish exactly the same numbers**, and checked that the one
+  value the mask commitment reveals is the same in both — **207 of 207**
+  (on small stand-in tables);
+* twelve deliberate breakages were each caught (or, where they should not
+  matter, correctly not caught).
+
+**Why the three changes do not hurt.** The masking grows with the degree
+automatically, so degree 5 costs bytes, not privacy (the tightest step uses
+117 of its 256 slots). The group factor is public and zero exactly where the
+argument needs a zero — it makes the attention steps *more* robust than at
+the toy. Every padding indicator is public and always sits next to another
+public factor.
+
+**What is still owed.** (1) Completeness for every admissible hidden input:
+if some legal input made an honest proof fail, the *failure itself* would
+leak; no algebra check can see that, and the evidence at 125M is dense
+test runs, not a proof (GN-1). (2) The linear half at the big shapes. (3) The
+hash layer and runs. Also three wording fixes to the toy argument (§3.3), a
+stale count in the run memo corrected (§3.5), and one design note for the
+future weights-hidden version: there, the seven matrix-multiply steps would
+lose their public factor and need a design change (§3.3, C9).
+
+**This is a draft by one agent, unchecked, and not a privacy acceptance.**
 
 ## 1. What the toy's non-linear argument claims, and what it rests on
 
@@ -479,12 +533,101 @@ predates, is 871 / 848.
 
 ## 4. What this memo does NOT establish
 
-(pending)
+1. **Not a privacy acceptance, and not a privacy property.** It re-tests,
+   at the shaped layouts, the hypotheses (H2)–(H4) of the toy's Theorem 3.3
+   and the proof's fibre step, per slot, at fixed challenges, in the
+   uniform-blinding idealisation. Only the security owner rules.
+2. **Not (H1).** The linear channel at the shaped layouts — the generic-rank
+   lemma, the terminal surjection jointly with the PCS openings, the joint
+   law across commitments (G-R1, G-R4, GS-6) — is untouched. Theorem 3.3 at
+   a shaped layout remains conditional on it.
+3. **Not completeness for every admissible witness** (GN-1). The one
+   dependency of (NL) that an algebraic check of the slot polynomials cannot
+   reach; a defect there would surface as an input-dependent abort.
+4. **Nothing was measured on a receipt or a capture.** Every figure is from
+   the IR exports, the sources, or a model built from them. "MEASURED" in
+   this memo means exact arithmetic on the real polynomial or the real mask
+   map, never a proof byte.
+5. **Not an independent check that the IR is the closure** (GN-2) — the
+   lane's oracle tests are cited, not re-run.
+6. **Not the hash layer, the Fiat–Shamir lift, a run, the GPU path, timing
+   or P3.** The P3 note of §3.3 is a design observation, not an analysis.
+7. **Not checked by anyone.** One delegated agent drafted the argument,
+   wrote the check and ran it, in one sitting. The draft has not been
+   attacked; §6 says where to start.
 
 ## 5. Evidence
 
-(pending)
+`results/zk60_nonlinear_channel_shaped/` — re-runnable with no arguments,
+about 30 s, CPU only, no Rust:
+
+```
+python3 results/zk60_nonlinear_channel_shaped/nl_check.py
+```
+
+| file | what it holds |
+|---|---|
+| `nl_field.py` | Goldilocks `Fp` / `Fp2` (`u² = 7`), exact rank and solve over `Fp2`, rank over `Fp`; a self-test (non-residue, 200 inverses, 30 random solve / rank systems) |
+| `nl_check.py` | stages S0–S5: S0 field self-test; S1 per slot and shape the degree walk, per-variable bound, public-factor entry points, the premise per extension round (exact, three seeds) with its mechanism and a syntactic liveness walk; S2 budgets and the structure parsed from `layout.rs` / `argument.rs`; S3 Fact 2.1 at 42 `(N, d)` pairs × 5 regimes and the closed-form round map against brute force; S4 the miniature runs and the fibre test, and the terminal-pair model; S5 the controls |
+| `nl_check.json` | every per-slot, per-shape row; the input digests; the summary |
+| `nl_check.log` | the run's own log, one line per verdict |
+
+Inputs, read-only, SHA-256 pinned in `nl_check.json` (first 8 hex digits):
+`slot_ir_m125.json` `2e8cdb87`, `slot_ir_rung_g.json` `5cb8323a`,
+`slot_ir_rung_k4.json` `e4050133`, `slot_ir_toy.json` `12e7ed01`, and the
+five development exports; lane sources `argument.rs` `f7fa2ad4`,
+`layout.rs` `14758039`, `shape.rs` `dbf4e2bc`, `zk.rs` `d4280962`,
+`zkp-core/src/sumcheck.rs` `56dbb8c7`, `slot_ir.rs` `734cd0e0` — all at the
+lane worktree `/home/victor/wt-zk60-block125m`, head `d597a1d`.
+
+Headline figures, with their labels:
+
+| figure | value | label |
+|---|---|---|
+| premise holds, shaped exports | 184 / 184 slot-shape pairs, all with a public factor in every monomial | MEASURED (on the IR) |
+| premise holds, toy | 23 / 23; 21 by a public factor, 08 and 09 by different rounds | MEASURED (on the IR) |
+| product degree `≤` declared | 207 / 207 | COUNTED |
+| Fact 2.1 exactly tight | 210 / 210 (42 pairs × 5 regimes) | MEASURED |
+| closed-form round map = brute force | 310 values | MEASURED |
+| miniature runs, all five checks | 207 / 207 | MODEL |
+| per-slot terminal maps onto `Fp2^m` (125M, rung-G, rung-K4) | 69 / 69 | MODEL |
+| control verdicts as expected | 12 / 12 | MEASURED / MODEL |
+| `Σ L_s / Σ dim C_s` | toy 583 / 560; rung-G 859 / 836; rung-K4 871 / 848; 125M 1,239 / 1,216 | COUNTED |
+| worst `L_s` (budget 256) | toy 50; rung-G 72; rung-K4 77; 125M 117 | COUNTED |
+| non-linear-channel words per block | toy 917; rung-K4 1,269; 125M 1,751 `Fp2` | COUNTED |
 
 ## 6. What an independent checker should attack first
 
-(pending)
+In the order I trust them least:
+
+1. **GN-1, semantic completeness.** Look for an admissible witness at a
+   shaped layout on which a Standalone or Host relation fails — the padded
+   head slots, the causal mask on padded tokens, an exempt plane (`A_E`,
+   the helper planes) non-zero on the pad, a limb that overflows only at
+   width 768 or hidden width 2,048. That is where S19-F1 lived, and no algebra in this memo can see
+   it.
+2. **The extension-round assignment.** The check reads it from `define` by
+   a regular expression (every `b.a_at` / `b.a_slice` last argument) and
+   assumes the IR's private tables come in push order (the IR's own contract,
+   `slot_ir.rs:55-57`). A mis-assignment would make the 08 / 09 rows
+   meaningless; C1/C2 show the pair survives either way at a shaped layout,
+   but not at the toy.
+3. **The coefficient model.** Challenge coefficients get independent random
+   values (§2.1). Argue whether some real identity could hold only for the
+   real, related values (it would show up here as a false failure — none
+   occurred) or whether the per-label choice for `mu` / `nu` / `ζ` hides one.
+4. **R-b.** Search the 184 shaped pairs for a monomial whose only public
+   factor is an affine expression with a constant. The mechanism probe says
+   there is none; attack the probe's notion of "public" (the four IR kinds
+   `eq`, `group_eq`, `pub`, `supp`) against the table provenance.
+5. **The miniature's faithfulness** (GN-3): three main variables, random
+   stand-ins for `eq` and public tables, one challenge vector per slot.
+   Re-run with real `eq` tables at the real point lengths, or with main-round
+   challenges 0 and 1.
+6. **§3.2's "nothing in (NL) uses a degree bound".** Check that no step of
+   Lemma 2.2, Lemma 3.1 or Fact 3.2 silently assumes `d ≤ 4` — for instance
+   in the `M` weight layout or the hash-length guard.
+7. **The fibre step's hand-off to (H1).** The construction shifts the
+   reserved-pair values to align the terminals. Check that (H1) as the shaped
+   lemma states it really absorbs that shift at the shaped layouts, and that
+   nothing in (NL) needs more from (H1) than the toy did.
