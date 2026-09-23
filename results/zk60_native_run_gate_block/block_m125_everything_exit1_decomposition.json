@@ -1,0 +1,66 @@
+{
+ "not_a_privacy_statement": true,
+ "nothing_raised": true,
+ "stage6": {
+  "M9_1_M9_2_ok": [
+   true,
+   true
+  ],
+  "M9_3": {
+   "domains_that_do_not_pad": [
+    "F",
+    "Kv",
+    "T"
+   ],
+   "fires": true,
+   "ok": false,
+   "refusals": [
+    "slot 18: the port declares 1 public tables, the capture has 0",
+    "slot 16: the port declares 3 public tables, the capture has 2",
+    "slot 2: the port declares 1 public tables, the capture has 0"
+   ],
+   "why_ok_is_false": "its criterion asks for a refusal naming two DRAW counts; the public-table count refuses first -- R9c.9 item 2, recorded not decided"
+  },
+  "hash_rule_controls_skipped": [
+   {
+    "control": "CH-6",
+    "why": "no legacy-rule bundle was supplied"
+   }
+  ],
+  "hash_rule_controls_that_did_not_fire": [
+   "CH-3"
+  ],
+  "run_family_block_analogues_all_fire": true,
+  "why_CH_3": "CH-3 substitutes the 125M profile, so at the 125M shape it is the identity and cannot refuse -- R9c.9 item 3, unchanged",
+  "why_CH_6": "CH-6 needs a LEGACY-rule bundle and the staged driver passes none -- as in round 9c"
+ },
+ "stage8": {
+  "controls_that_did_not_fire": [
+   "CT-4"
+  ],
+  "slot_checks": [
+   23,
+   23
+  ],
+  "terminal_identity_ok": true,
+  "why": "CT-4 needs a pre-plane-index bundle (--old) and the staged driver passes none; skipped BY NAME ('no old bundle was supplied (--old)'); it fires 9 of 9 at rung-G where --old is given. Predicted in R9j.4 B15"
+ },
+ "stages_not_ok": [
+  "stage6_negative_controls",
+  "stage8_plane_index_and_terminals"
+ ],
+ "stages_ok": [
+  "stage10_bilinear_group_factor",
+  "stage11_full_preimage",
+  "stage12_mask_and_cfs",
+  "stage13_joint_run_preimage",
+  "stage1_integrity",
+  "stage2_transcript_replay",
+  "stage3_per_commitment",
+  "stage4_the_boundary",
+  "stage5_zero_data_preimage",
+  "stage7_channels",
+  "stage9_hash_layer"
+ ],
+ "what": "ROUND 9j: why block-m125-dense-everything exits 1, leaf by leaf -- the same three bookkeeping causes round 9c decomposed for the two-block run (results/zk60_native_run_gate_9c/dense_everything_exit1_decomposition.json), and nothing else"
+}

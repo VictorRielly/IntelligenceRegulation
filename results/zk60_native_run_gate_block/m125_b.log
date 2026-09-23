@@ -1,0 +1,22 @@
++ M=/home/victor/zk60-artifacts/block-captures-20260923
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py
++ P=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block
++ A=load,replay,hash,terminals,commitments,boundary,preimage,channels
++ ALL=load,replay,hash,terminals,commitments,boundary,preimage,fullpreimage,mask,joint,runcontrols,channels
++ case "$1" in
++ /usr/bin/time -v python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/block-captures-20260923/m125-dense --other /home/victor/zk60-artifacts/block-captures-20260923/m125-zero --stages load,replay,hash,terminals,commitments,boundary,preimage,fullpreimage,mask,joint,runcontrols,channels --controls --cross-profile /home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-i-dense-k4 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block --name block-m125-dense-everything
+[load          ]      0.5 s   peak RSS     324 MB   ok
+[replay        ]      0.5 s   peak RSS     324 MB   ok
+[hash          ]      0.3 s   peak RSS     324 MB   ok
+[terminals     ]    830.6 s   peak RSS    1470 MB   FAIL
+[commitments   ]     49.1 s   peak RSS    1470 MB   ok
+[boundary      ]      0.6 s   peak RSS    1470 MB   ok
+[preimage      ]      0.4 s   peak RSS    1470 MB   ok
+[fullpreimage  ]   4737.5 s   peak RSS    5346 MB   ok
+[mask          ]     33.6 s   peak RSS    5346 MB   ok
+[joint         ]      0.0 s   peak RSS    5346 MB   ok
+[runcontrols   ]    127.9 s   peak RSS    5346 MB   FAIL
+[channels      ]      0.0 s   peak RSS    5346 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_block/block-m125-dense-everything.json   total 5781.0 s   peak RSS 5346 MB   ok=False
