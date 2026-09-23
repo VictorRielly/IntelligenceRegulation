@@ -261,3 +261,31 @@ Rulings on its findings:
   a geometry) refuses a registered profile string with any geometry other
   than its own, and an unregistered string outside `#[cfg(test)]`. The toy's
   shape and bytes are unchanged.
+
+## 9. Stage 44 accepted; the chain closes (2026-09-23 02:52)
+
+Lane `1ab1498` (census memo §13, ledger "Stage 44"; filter 487/0/18; toy and
+every pin unchanged; no absorb, draw, commit or hash call added). K-1/K-2:
+CS-3's text says exactly what precedes it and names only the table family
+that missed, never a count. K-3: the review's stronger declaration guard is
+in the lane, shown to catch both mutations the narrow pin missed. **CS-9:**
+`Shape::new` = the private `Shape::build` + a registry check; I read
+`shape.rs:222-262`: a registered profile string passes only with its own
+shape compared WHOLE (`reg == *self`), an unregistered one only when
+`cfg!(test)` — which is false in every non-test build of the crate; the nine
+registered constructors build through `build`, pinned by a source test;
+rung-K8 is registered only under `#[cfg(test)]`. Failing first: all 90
+ordered cross pairs of the ten shapes were admitted before, and a written
+`profile` field reached the verifier (refused at slot 2); both now refused
+by name with 0 draws. **The stricter reading — a renamed registered shape is
+refused — is accepted**: the display name is part of the profile's identity.
+
+**What stands at the end of this chain.** GS-14 remains narrowed, not closed
+(§3): every data-dependent refusal site of the ten shapes is covered by the
+witness builder, every part of a statement and every shape is re-checked
+against what it is proved at, and the statement–profile–geometry binding is
+one-to-one; the 23 slot relations for every admissible witness rest on edge
+proofs and dense runs, not a symbolic derivation. For the D22 re-pin at
+integration: `shape.rs`, `timing.rs`, `protocol.rs` and `private_block.rs`
+are taken at the lane tip, CS-3 and CS-9 are listed as refusal sites on the
+toy path (both pass every admitted toy input unchanged).
