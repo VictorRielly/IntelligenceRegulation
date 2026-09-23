@@ -4980,6 +4980,16 @@ cheaply, both 125M ones.
 Nothing in this round is a privacy acceptance and no statement here
 establishes a privacy property.
 
+**Headline (11:48): the control exists, fires only on the perturbed view,
+and every figure was predicted before it first ran.** C3c makes one claim-
+pair row of `E-Input` and of `E-Output` the same unknown in the model: the
+pair goes from joint 0 = sum 0 to **1,024 / 16,384** (rung-G / 125M), the
+whole block from joint 2 = sum 2 to **1,026 / 16,386** (non-data rank 104
+-> 103, `k0` 0 -> 1), exactly one message width, parts unmoved -- on all
+four standalone bundles, dense = zero. The honest bundles still pass: rung-G
+13 of 13 stages on both, block family 6 of 6. Thirty records re-taken (one
+tool hash moved), 0 unexpected leaves; suites 217 / 42 / 642 OK.
+
 ## R9k.1 Status
 
 | # | item | state |
@@ -4990,8 +5000,8 @@ establishes a privacy property.
 | K3 | rung-G, both block bundles, the whole gate as round 9j ran it | done -- R9k.4: 13 of 13 stages on both, C3c as predicted |
 | K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | done -- R9k.4: C3c as predicted on both |
 | K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | done -- R9k.5: 30 records, 0 UNEXPECTED |
-| K6 | the suites (toy subset, record guard, whole native suite) | IN FLIGHT -- `suite.done`, then `queue.finished` |
-| K7 | results, limits, NEXT | open |
+| K6 | the suites (toy subset, record guard, whole native suite) | done -- R9k.5: 217 / 42 / 642 OK |
+| K7 | results, limits, NEXT | done -- R9k.6, R9k.7 |
 
 ## R9k.2 The prediction (written 2026-09-23 09:29 PDT, BEFORE the control ran on any bundle)
 
@@ -5165,3 +5175,52 @@ figure, preimage, mask or channel figure. The toy-equivalence record hashes
 no tool and was not re-taken; the four 125M block records of round 9j and
 its failing-first probe keep their bytes (no test guards their tool bytes;
 they pin round 9j's, as the 125M run records pin pre-9c bytes).
+
+**The suites** (`suite.sh`, under the heavy lock after the re-take,
+11:36-11:48, `suite.done` = 0, `queue.finished`):
+
+| suite | result | round 9j |
+|---|---|---|
+| the toy gate's seven modules (`suite_toy.log`) | **Ran 217 tests in 205.4 s, OK** (skipped=1, expected failures=1) | 217 |
+| the record guard (`suite_guard.log`) | **Ran 42 tests in 0.092 s, OK** | 42 |
+| the WHOLE `test_zk60_native*.py` (`suite_native_all.log`) | **Ran 642 tests in 467.2 s, OK** (skipped=1, expected failures=1), peak RSS 6.5 GB | 630 -- +12, this round's `test_zk60_native_run_gate_c3c.py` |
+
+One earlier assertion moved deliberately, with its reason beside it: round
+9j's `test_every_control_family_fires` counted 5 block controls; it now
+counts 6. No measured figure of any earlier round moved.
+
+## R9k.6 What this round is NOT
+
+1. **Not a privacy acceptance, and no privacy property is established.**
+   Every record still carries `privacy_property_established: false`. C3c
+   shows that the gate's linear joint figure WOULD SEE one blinding symbol
+   shared between the two external endpoints -- it says nothing about
+   whether the endpoints' generators ARE independent (E-1, M-3), nothing
+   about two distinct rows whose VALUES coincide (ruling R-3's
+   counterexample scores like an honest block), and nothing about the
+   joint LAW beyond the linear rank (Theorem B's per-stage part).
+2. **Not a statement about the all-zero world's receipts beyond the model**:
+   the rung-G and 125M zero bundles read exactly as the dense ones, which is
+   R4.4b's limit (a capture carries no witness), not evidence about the
+   hidden data.
+3. **Not every choice of shared row.** C3c shares the first claim-pair row;
+   a shared spare row provably (in this model) and measurably (the live arm,
+   rung-G) leaves the figure at 2 = 2, and correctly so. A shared proximity
+   row was not examined.
+4. **Not a re-take of any 125M record**: C3c at 125M is two NEW records
+   from the staged driver's cheap stages; round 9j's four 125M block records
+   and the 125M run records keep their bytes.
+5. **Not a benchmark**: one run per bundle on a shared, unquiesced box.
+
+## R9k.7 NEXT after round 9k
+
+1. **For the owner: ruling HB-4 is discharged at the gate** -- the standalone
+   block's run-control family now has C3c, shown honest-pass /
+   perturbed-fire at rung-G (whole gate, 13 of 13) and at 125M, with every
+   figure predicted beforehand. The disposition's §3 list is otherwise
+   unchanged (D19b, G-R1 / G-R2 / G-R4, obligation 6a, the verify-before-
+   transmit caller HB-1, the shaped pin set).
+2. R9j.13 items 3-6 stand as written (M-F4; R9c.9 items 2 and 3; the
+   unpinned `witness.rs` / `endpoint_g.rs` / `hash_domain.rs` /
+   `run_sink.rs`; the joint LAW, HIDING, twelve blocks). Nothing here is a
+   privacy acceptance.
