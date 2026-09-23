@@ -1,0 +1,61 @@
+{
+ "id": "m1",
+ "file": "hashline/src/private_block/protocol.rs",
+ "mutation": "overwrite a DRAWN A proximity-row word after the fill (the draft's m1, verbatim)",
+ "cargo_exit": 101,
+ "the_only_relations_imposed_on_drawn_values": "ok",
+ "a_block_proof_consumes_exactly_the_counted_stream_at_every_shape": "ok",
+ "gr4_replay_toy_block": "FAILED",
+ "gr4_replay_rung_g_block": "FAILED",
+ "failure_lines": [
+  "thread 'private_block::gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream' (1050964) panicked at src/private_block/gr4_check_tests.rs:389:5:",
+  "assertion `left == right` failed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): A's root is not the root of (witness rows, segment 1 as the reserved and proximity rows, segment 2 as pads, segment 3 as salts): a drawn A word is not where, or not what, the schedule says",
+  "thread 'private_block::gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream' (1050963) panicked at src/private_block/gr4_check_tests.rs:389:5:",
+  "assertion `left == right` failed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): A's root is not the root of (witness rows, segment 1 as the reserved and proximity rows, segment 2 as pads, segment 3 as salts): a drawn A word is not where, or not what, the s"
+ ],
+ "gr4_lines": [
+  "GR4 replay toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): receipt verifies = true; A root rebuilt = false; M root rebuilt = true; H root rebuilt = false; replay stream bytes 5396672 vs prover 5396672; endpoint owners: 6144 drawn field values and 4096 salts, all distinct",
+  "GR4 replay development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): receipt verifies = true; A root rebuilt = false; M root rebuilt = true; H root rebuilt = false; replay stream bytes 11385664 vs prover 11385664; endpoint owners: 14848 drawn field values and 8192 salts, all distinct"
+ ]
+}
+{
+ "id": "m2",
+ "file": "hashline/src/private_block/protocol.rs",
+ "mutation": "copy an A reserved-pair word into H's reserved rows (the draft's m2; `a_data` is moved into the A commitment by then, so the Rust reads `a.data`)",
+ "cargo_exit": 101,
+ "the_only_relations_imposed_on_drawn_values": "ok",
+ "a_block_proof_consumes_exactly_the_counted_stream_at_every_shape": "ok",
+ "gr4_replay_toy_block": "FAILED",
+ "gr4_replay_rung_g_block": "FAILED",
+ "failure_lines": [
+  "thread 'private_block::gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream' (1051448) panicked at src/private_block/gr4_check_tests.rs:391:5:",
+  "assertion `left == right` failed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): H's root is not the root of (LogUp rows, segment 8 as the reserved and proximity rows, segment 9 as the zero-sum rows, 10 as pads, 11 as salts): a drawn H word is not where, or not what, the schedule says",
+  "thread 'private_block::gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream' (1051447) panicked at src/private_block/gr4_check_tests.rs:391:5:",
+  "assertion `left == right` failed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): H's root is not the root of (LogUp rows, segment 8 as the reserved and proximity rows, segment 9 as the zero-sum rows, 10 as pads, 11 as salts): a drawn H word is not where, or"
+ ],
+ "gr4_lines": [
+  "GR4 replay toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): receipt verifies = true; A root rebuilt = true; M root rebuilt = true; H root rebuilt = false; replay stream bytes 5396672 vs prover 5396672; endpoint owners: 6144 drawn field values and 4096 salts, all distinct",
+  "GR4 replay development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): receipt verifies = true; A root rebuilt = true; M root rebuilt = true; H root rebuilt = false; replay stream bytes 11385664 vs prover 11385664; endpoint owners: 14848 drawn field values and 8192 salts, all distinct"
+ ]
+}
+{
+ "id": "m4",
+ "file": "hashline/src/zk.rs",
+ "mutation": "alpha: slot 1's first CFS coefficient := slot 0's, inside zk::mask_commit_tagged",
+ "cargo_exit": 101,
+ "the_only_relations_imposed_on_drawn_values": "ok",
+ "a_block_proof_consumes_exactly_the_counted_stream_at_every_shape": "ok",
+ "gr4_replay_toy_block": "FAILED",
+ "gr4_replay_rung_g_block": "FAILED",
+ "failure_lines": [
+  "thread 'private_block::gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream' (1051622) panicked at src/private_block/gr4_check_tests.rs:390:5:",
+  "assertion `left == right` failed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): M's root is not the root of segments 4-7 with b[m] := -b[0] only: a CFS coefficient, pad, b, u or salt of M is not where, or not what, the schedule says",
+  "thread 'private_block::gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream' (1051621) panicked at src/private_block/gr4_check_tests.rs:390:5:",
+  "assertion `left == right` failed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): M's root is not the root of segments 4-7 with b[m] := -b[0] only: a CFS coefficient, pad, b, u or salt of M is not where, or not what, the schedule says"
+ ],
+ "gr4_lines": [
+  "GR4 replay toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): receipt verifies = true; A root rebuilt = true; M root rebuilt = false; H root rebuilt = false; replay stream bytes 5396672 vs prover 5396672; endpoint owners: 6144 drawn field values and 4096 salts, all distinct",
+  "GR4 replay development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): receipt verifies = true; A root rebuilt = true; M root rebuilt = false; H root rebuilt = false; replay stream bytes 11385664 vs prover 11385664; endpoint owners: 14848 drawn field values and 8192 salts, all distinct"
+ ]
+}
+production files restored (git diff --quiet exit 0): True

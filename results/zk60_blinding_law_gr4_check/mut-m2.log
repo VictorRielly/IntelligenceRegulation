@@ -1,0 +1,224 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m-review/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:869:13
+    |
+869 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:829:4
+    |
+829 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 10s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m-review/hashline/target/release/deps/hashline-fcfe986a7398ab9d)
+
+running 4 tests
+S36 assertion 6: exactly the declared relations are imposed on drawn values — `b_re[m] := -b_re[0]` and `b_im[m] := -b_im[0]` at both mask-commit entry points, and the H zero-sum closing entry at a position the loop never draws; nine production files scanned
+test private_block::s36_tests::the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares ... ok
+S36 [toy]: 5396672 stream bytes = 320908 fp x 16 + 8192 salts x 32, 659 refills, 1863 live squeezes, 1027 replayed points in 4 calls, frame 2816472 B
+    A mask + proximity rows      Fp      61952 [           0 ..       991232)   protocol.rs: `for x in &mut a_data[lay.a_mask_base * n..]`
+    A pads                       Fp     116480 [      991232 ..      2854912)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    A salts                      Salt       2048 [     2854912 ..      2920448)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+    M CFS mask coefficients      Fp       1166 [     2920448 ..      2939104)   zk.rs -> sumcheck.rs: `CfsMask::random`
+    M per-row pads               Fp      11776 [     2939104 ..      3127520)   zk.rs: `rng.fp_vec(MASK_Q)` per a-row
+    M b_re, b_im, u_re, u_im     Fp       4096 [     3127520 ..      3193056)   zk.rs: four `rng.fp_vec(2 * m)`
+    M salts                      Salt       4096 [     3193056 ..      3324128)   zk.rs: `(0..dom).map(|_| rng.bytes32())`
+    H mask + proximity rows      Fp      26624 [     3324128 ..      3750112)   protocol.rs: `for x in &mut h_data[lay.h_mask_base * n..]`
+    H zero-sum rows              Fp        510 [     3750112 ..      3758272)   protocol.rs: the `lay.h_u_rows()` loop over `0..n - 1`
+    H pads                       Fp      98304 [     3758272 ..      5331136)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    H salts                      Salt       2048 [     5331136 ..      5396672)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+GR4 replay toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): receipt verifies = true; A root rebuilt = true; M root rebuilt = true; H root rebuilt = false; replay stream bytes 5396672 vs prover 5396672; endpoint owners: 6144 drawn field values and 4096 salts, all distinct
+
+thread 'private_block::gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream' (1051448) panicked at src/private_block/gr4_check_tests.rs:391:5:
+assertion `left == right` failed: toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): H's root is not the root of (LogUp rows, segment 8 as the reserved and proximity rows, segment 9 as the zero-sum rows, 10 as pads, 11 as salts): a drawn H word is not where, or not what, the schedule says
+  left: [175, 232, 146, 122, 248, 220, 86, 117, 176, 175, 196, 123, 146, 132, 141, 61, 97, 83, 173, 70, 220, 54, 31, 196, 160, 36, 181, 138, 104, 229, 17, 87]
+ right: [147, 144, 128, 36, 178, 23, 12, 19, 73, 41, 127, 103, 176, 43, 202, 92, 3, 169, 51, 160, 2, 160, 104, 19, 121, 67, 92, 210, 248, 151, 86, 245]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream ... FAILED
+GR4 replay development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): receipt verifies = true; A root rebuilt = true; M root rebuilt = true; H root rebuilt = false; replay stream bytes 11385664 vs prover 11385664; endpoint owners: 14848 drawn field values and 8192 salts, all distinct
+
+thread 'private_block::gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream' (1051447) panicked at src/private_block/gr4_check_tests.rs:391:5:
+assertion `left == right` failed: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): H's root is not the root of (LogUp rows, segment 8 as the reserved and proximity rows, segment 9 as the zero-sum rows, 10 as pads, 11 as salts): a drawn H word is not where, or not what, the schedule says
+  left: [132, 11, 18, 77, 162, 9, 98, 161, 1, 179, 10, 229, 216, 137, 126, 69, 78, 138, 246, 165, 178, 26, 218, 124, 107, 14, 136, 68, 87, 4, 79, 100]
+ right: [130, 213, 15, 174, 104, 200, 209, 189, 134, 103, 64, 216, 12, 220, 59, 42, 10, 224, 31, 97, 115, 213, 106, 150, 237, 34, 132, 213, 133, 107, 204, 137]
+test private_block::gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream ... FAILED
+S36 [rung-K4]: 12401856 stream bytes = 750540 fp x 16 + 12288 salts x 32, 1514 refills, 2610 live squeezes, 1642 replayed points in 4 calls, frame 4743128 B
+    A mask + proximity rows      Fp     251904 [           0 ..      4030464)   protocol.rs: `for x in &mut a_data[lay.a_mask_base * n..]`
+    A pads                       Fp     186112 [     4030464 ..      7008256)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    A salts                      Salt       4096 [     7008256 ..      7139328)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+    M CFS mask coefficients      Fp       1742 [     7139328 ..      7167200)   zk.rs -> sumcheck.rs: `CfsMask::random`
+    M per-row pads               Fp      11776 [     7167200 ..      7355616)   zk.rs: `rng.fp_vec(MASK_Q)` per a-row
+    M b_re, b_im, u_re, u_im     Fp       4096 [     7355616 ..      7421152)   zk.rs: four `rng.fp_vec(2 * m)`
+    M salts                      Salt       4096 [     7421152 ..      7552224)   zk.rs: `(0..dom).map(|_| rng.bytes32())`
+    H mask + proximity rows      Fp     108544 [     7552224 ..      9288928)   protocol.rs: `for x in &mut h_data[lay.h_mask_base * n..]`
+    H zero-sum rows              Fp       2046 [     9288928 ..      9321664)   protocol.rs: the `lay.h_u_rows()` loop over `0..n - 1`
+    H pads                       Fp     184320 [     9321664 ..     12270784)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    H salts                      Salt       4096 [    12270784 ..     12401856)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+S36 [rung-P2]: 12401056 stream bytes = 750490 fp x 16 + 12288 salts x 32, 1514 refills, 2604 live squeezes, 1642 replayed points in 4 calls, frame 4742728 B
+    A mask + proximity rows      Fp     251904 [           0 ..      4030464)   protocol.rs: `for x in &mut a_data[lay.a_mask_base * n..]`
+    A pads                       Fp     186112 [     4030464 ..      7008256)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    A salts                      Salt       4096 [     7008256 ..      7139328)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+    M CFS mask coefficients      Fp       1692 [     7139328 ..      7166400)   zk.rs -> sumcheck.rs: `CfsMask::random`
+    M per-row pads               Fp      11776 [     7166400 ..      7354816)   zk.rs: `rng.fp_vec(MASK_Q)` per a-row
+    M b_re, b_im, u_re, u_im     Fp       4096 [     7354816 ..      7420352)   zk.rs: four `rng.fp_vec(2 * m)`
+    M salts                      Salt       4096 [     7420352 ..      7551424)   zk.rs: `(0..dom).map(|_| rng.bytes32())`
+    H mask + proximity rows      Fp     108544 [     7551424 ..      9288128)   protocol.rs: `for x in &mut h_data[lay.h_mask_base * n..]`
+    H zero-sum rows              Fp       2046 [     9288128 ..      9320864)   protocol.rs: the `lay.h_u_rows()` loop over `0..n - 1`
+    H pads                       Fp     184320 [     9320864 ..     12269984)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    H salts                      Salt       4096 [    12269984 ..     12401056)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+S36 [rung-C6]: 17654944 stream bytes = 1078858 fp x 16 + 12288 salts x 32, 2156 refills, 3977 live squeezes, 2962 replayed points in 4 calls, frame 7452040 B
+    A mask + proximity rows      Fp     251904 [           0 ..      4030464)   protocol.rs: `for x in &mut a_data[lay.a_mask_base * n..]`
+    A pads                       Fp     342272 [     4030464 ..      9506816)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    A salts                      Salt       4096 [     9506816 ..      9637888)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+    M CFS mask coefficients      Fp       1868 [     9637888 ..      9667776)   zk.rs -> sumcheck.rs: `CfsMask::random`
+    M per-row pads               Fp      11776 [     9667776 ..      9856192)   zk.rs: `rng.fp_vec(MASK_Q)` per a-row
+    M b_re, b_im, u_re, u_im     Fp       4096 [     9856192 ..      9921728)   zk.rs: four `rng.fp_vec(2 * m)`
+    M salts                      Salt       4096 [     9921728 ..     10052800)   zk.rs: `(0..dom).map(|_| rng.bytes32())`
+    H mask + proximity rows      Fp     104448 [    10052800 ..     11723968)   protocol.rs: `for x in &mut h_data[lay.h_mask_base * n..]`
+    H zero-sum rows              Fp       2046 [    11723968 ..     11756704)   protocol.rs: the `lay.h_u_rows()` loop over `0..n - 1`
+    H pads                       Fp     360448 [    11756704 ..     17523872)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    H salts                      Salt       4096 [    17523872 ..     17654944)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+S36 [rung-W14]: 100308416 stream bytes = 5998940 fp x 16 + 135168 salts x 32, 12245 refills, 2254 live squeezes, 1156 replayed points in 4 calls, frame 16421048 B
+    A mask + proximity rows      Fp    4030464 [           0 ..     64487424)   protocol.rs: `for x in &mut a_data[lay.a_mask_base * n..]`
+    A pads                       Fp     134912 [    64487424 ..     66646016)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    A salts                      Salt      65536 [    66646016 ..     68743168)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+    M CFS mask coefficients      Fp       2142 [    68743168 ..     68777440)   zk.rs -> sumcheck.rs: `CfsMask::random`
+    M per-row pads               Fp      11776 [    68777440 ..     68965856)   zk.rs: `rng.fp_vec(MASK_Q)` per a-row
+    M b_re, b_im, u_re, u_im     Fp       4096 [    68965856 ..     69031392)   zk.rs: four `rng.fp_vec(2 * m)`
+    M salts                      Salt       4096 [    69031392 ..     69162464)   zk.rs: `(0..dom).map(|_| rng.bytes32())`
+    H mask + proximity rows      Fp    1671168 [    69162464 ..     95901152)   protocol.rs: `for x in &mut h_data[lay.h_mask_base * n..]`
+    H zero-sum rows              Fp      32766 [    95901152 ..     96425408)   protocol.rs: the `lay.h_u_rows()` loop over `0..n - 1`
+    H pads                       Fp     111616 [    96425408 ..     98211264)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    H salts                      Salt      65536 [    98211264 ..    100308416)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+S36 [rung-E32]: 25356928 stream bytes = 1560232 fp x 16 + 12288 salts x 32, 3096 refills, 5919 live squeezes, 4874 replayed points in 4 calls, frame 11368824 B
+    A mask + proximity rows      Fp     251904 [           0 ..      4030464)   protocol.rs: `for x in &mut a_data[lay.a_mask_base * n..]`
+    A pads                       Fp     565504 [     4030464 ..     13078528)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    A salts                      Salt       4096 [    13078528 ..     13209600)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+    M CFS mask coefficients      Fp       1962 [    13209600 ..     13240992)   zk.rs -> sumcheck.rs: `CfsMask::random`
+    M per-row pads               Fp      11776 [    13240992 ..     13429408)   zk.rs: `rng.fp_vec(MASK_Q)` per a-row
+    M b_re, b_im, u_re, u_im     Fp       4096 [    13429408 ..     13494944)   zk.rs: four `rng.fp_vec(2 * m)`
+    M salts                      Salt       4096 [    13494944 ..     13626016)   zk.rs: `(0..dom).map(|_| rng.bytes32())`
+    H mask + proximity rows      Fp     104448 [    13626016 ..     15297184)   protocol.rs: `for x in &mut h_data[lay.h_mask_base * n..]`
+    H zero-sum rows              Fp       2046 [    15297184 ..     15329920)   protocol.rs: the `lay.h_u_rows()` loop over `0..n - 1`
+    H pads                       Fp     618496 [    15329920 ..     25225856)   zkp-core/pcs.rs: `rng.fp_vec(rows * q)`
+    H salts                      Salt       4096 [    25225856 ..     25356928)   zkp-core/pcs.rs: `(0..nn).map(|_| rng.bytes32())`
+test private_block::s36_tests::a_block_proof_consumes_exactly_the_counted_stream_at_every_shape ... ok
+
+failures:
+
+failures:
+    private_block::gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream
+    private_block::gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream
+
+test result: FAILED. 2 passed; 2 failed; 0 ignored; 0 measured; 601 filtered out; finished in 10.72s
+
+error: test failed, to rerun pass `--lib`

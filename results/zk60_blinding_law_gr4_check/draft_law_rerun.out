@@ -1,0 +1,42 @@
+1. ONE fp() DRAW
+   p = 18446744069414584321
+   2^128 mod p = r = 18446744065119617025 = p - 2^32
+   TV(one draw, uniform on Fp) = r(p-r)/(p 2^128) = 2^-96.0000000003   (< 2^-96)
+   rejection-region mass r/2^128 = 2^-64.0000000007   (the 2^-64 of the rng.rs:72 comment; NOT a distance)
+   bytes32() salts: 4 x next_u64, no reduction -> exactly uniform in the ideal stream; they carry NO D9 term
+
+2. DRAW COUNTS: segment formulas (COUNTED) against the lane's MEASURED parts
+   toy      block    320,908 fp /    8,192 salts   endpoint   3,072 /  2,048 each   = MEASURED
+   rung-G   block    687,028 fp /   12,288 salts   endpoint   7,424 /  4,096 each   boundary   8,704 /  4,096   = MEASURED
+   rung-K4  block    750,540 fp /   12,288 salts   endpoint   7,424 /  4,096 each   = MEASURED
+   125M     block  9,029,804 fp /  135,168 salts   endpoint  91,392 / 65,536 each   boundary 108,032 / 65,536   = MEASURED
+   (the two overwritten b entries per M are INCLUDED: they are drawn, and a discarded draw costs its 2^-96 too)
+
+3. THE SAMPLER RESIDUAL  N x TV(one draw)   [exact rational; log2 printed]
+   object                             N (fp draws)    log2(N*delta)    log2(N*2^-96)   provenance
+   toy proof (three generators)            327,052       -77.680839       -77.680839   D9 / D22 figure; stage 36 MEASURED
+   rung-G standalone proof                 701,876       -76.579143       -76.579143   stage 46 MEASURED (endpoints: replica + in-situ objects)
+   rung-K4 standalone proof                765,388       -76.454168       -76.454168   stage 36 block + replica endpoints
+   125M standalone proof                 9,212,588       -72.864825       -72.864825   stage 46 MEASURED (endpoints: replica + in-situ objects)
+   rung-G run L=2                        1,397,608       -75.585472       -75.585472   stage 46 MEASURED in situ on the run stream (1,382,760) + endpoints
+   rung-G run L=3                        2,093,340       -75.002625       -75.002625   H-6; stage 46 sum of measured parts
+   125M run L=12                       109,728,784       -69.290633       -69.290633   H-6; stage 46 sum of measured parts (not a measured run)
+   125M run L=12, PRE-repair count     109,728,040       -69.290643   (744 = 12 x 62 below H-6; the residual does not move at 2 decimals)
+
+   Over many proofs (a hybrid over proofs; VALID ONLY IF the proofs' blinding is independent across proofs):
+   toy proof (three generators)     x 10^6 proofs: 2^-57.75
+   125M standalone proof            x 10^6 proofs: 2^-52.93
+
+4. EXACT SMALL MODELS over F_5 (ILLUSTRATION): is law(V | world, accept) the same in both worlds?
+   honest discipline, no refusal                  equal=True   uniform(w0)=True   TV=0
+   honest, challenge-only refusal                 equal=True   uniform(w0)=True   TV=0
+   honest, refusal on (w, rho) -- LogUp-like      equal=True   uniform(w0)=True   TV=0
+   ORDER chosen by the hidden data (injective)    equal=True   uniform(w0)=True   TV=0
+   CONTROL: one value reused by two roles         equal=False  uniform(w0)=False  TV=1
+   CONTROL: a refusal that reads the blinding     equal=False  uniform(w0)=False  TV=1/4
+   Reading: a refusal measurable in (w, rho) and a data-chosen but injective ORDER leave the law exact;
+   REUSE of a drawn value and a refusal that READS a drawn value break it.  The load-bearing code
+   facts are therefore injectivity of use and 'no control flow reads a drawn value'; a public ORDER is
+   sufficient, checkable by counting, and fixes N -- but it is not what makes the law exact.
+
+ALL ASSERTIONS PASSED

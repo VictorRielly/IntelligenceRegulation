@@ -1,0 +1,183 @@
+A. EVERY GENERATOR LINE ON THE PATH, at 2ea7221
+   protocol.rs:1003 [prove_core] *x = rng.fp();
+        within 1002:`for x in &mut a_data[lay.a_mask_base * n..] {`
+   protocol.rs:1116 [prove_core] *x = rng.fp();
+        within 1115:`for x in &mut h_data[lay.h_mask_base * n..] {`
+   protocol.rs:1121 [prove_core] let v = rng.fp();
+        within 1120:`for j in 0..n - 1 {` <- 1118:`for r in lay.h_u_rows() {`
+   boundary.rs:347 [prepare] *x = rng.fp();
+        within 346:`for x in &mut data[first_mask * n..] {`
+   endpoint_g.rs:277 [prepare] *x = rng.fp();
+        within 276:`for x in &mut data[first_mask * n..] {`
+   zk.rs:496 [mask_commit_tagged] let pads = rng.fp_vec(MASK_Q);
+        within 492:`for (k, part) in [re, im].iter().enumerate() {` <- 489:`for (s, mk) in masks.iter().enumerate() {`
+   zk.rs:503 [mask_commit_tagged] let mut b_re = rng.fp_vec(2 * m);
+        within (function body)
+   zk.rs:504 [mask_commit_tagged] let mut b_im = rng.fp_vec(2 * m);
+        within (function body)
+   zk.rs:507 [mask_commit_tagged] let u_re = rng.fp_vec(2 * m);
+        within (function body)
+   zk.rs:508 [mask_commit_tagged] let u_im = rng.fp_vec(2 * m);
+        within (function body)
+   zk.rs:513 [mask_commit_tagged] let salts: Vec<[u8; 32]> = (0..dom).map(|_| rng.bytes32()).collect();
+        within (function body)
+   private_seam.rs:212 [prepare_with_rng] *x = rng.fp();
+        within 211:`for x in &mut data[first_mask * n..] {`
+   pcs.rs:724 [commit_zk_owned_with] let pads = rng.fp_vec(rows * q);
+        within (function body)
+   pcs.rs:725 [commit_zk_owned_with] let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
+        within (function body)
+   pcs.rs:777 [commit_zk_owned_with_tag] let pads = rng.fp_vec(rows * q);
+        within (function body)
+   pcs.rs:778 [commit_zk_owned_with_tag] let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
+        within (function body)
+   sumcheck.rs:202 [random] CfsMask { n_vars, degree, coeffs: rng.fp2_vec(Self::len(n_vars, degree)) }
+        within (function body)
+   off-path generator functions (named, excluded, and asserted uncalled from the private-block files):
+      pcs.rs::commit_zk — a borrowed-data wrapper; the block's paths pass owned data
+      pcs.rs::commit_zk_device — the FFN GPU H path
+      private_seam.rs::prove — the seam prover (the block only calls private_seam::prepare)
+      zk.rs::mask_commit — the legacy untagged M (the seam prover and the FFN line); prove_core calls mask_commit_tagged
+      zk.rs::prepare_layer_zk_v3_inner — the FFN line
+      zk.rs::prove_layer_zk — the FFN line
+      zk.rs::prove_layer_zk_v3_inner — the FFN line
+      pcs.rs::commit_zk — a borrowed-data wrapper
+      pcs.rs::commit_zk_owned — the CPU-backend wrapper of commit_zk_owned_with
+      pcs.rs::commit_zk_with — a borrowed-data wrapper
+   -> 17 draw lines; every enclosing header is a reviewed public bound; no if/match/while/loop/else.
+
+   trip-count expressions of the vector draws (each must be a shape/layout/spec constant):
+      zk.rs:496 [mask_commit_tagged]  count = MASK_Q
+      zk.rs:503 [mask_commit_tagged]  count = 2 * m
+      zk.rs:504 [mask_commit_tagged]  count = 2 * m
+      zk.rs:507 [mask_commit_tagged]  count = 2 * m
+      zk.rs:508 [mask_commit_tagged]  count = 2 * m
+      zk.rs:513 [mask_commit_tagged]  count = dom
+      pcs.rs:724 [commit_zk_owned_with]  count = rows * q
+      pcs.rs:725 [commit_zk_owned_with]  count = nn
+      pcs.rs:777 [commit_zk_owned_with_tag]  count = rows * q
+      pcs.rs:778 [commit_zk_owned_with_tag]  count = nn
+      sumcheck.rs:202 [random]  count = Self::len(n_vars, degree)
+
+B. THE GENERATOR'S REACH (functions whose production text names it)
+   ?                                        ['boundary.rs', 'endpoint_g.rs', 'hash_domain.rs', 'pcs.rs', 'pcs.rs', 'private_seam.rs', 'protocol.rs', 'rng.rs', 'run.rs', 'sumcheck.rs', 'zk.rs']
+   commit_zk_owned                          ['pcs.rs']
+   commit_zk_owned_tagged                   ['pcs.rs']
+   commit_zk_owned_with                     ['pcs.rs']
+   commit_zk_owned_with_tag                 ['pcs.rs']
+   from_entropy_reader                      ['rng.rs']
+   mask_commit_tagged                       ['zk.rs']
+   new                                      ['rng.rs']
+   prepare                                  ['boundary.rs', 'endpoint_g.rs', 'private_seam.rs']
+   prepare_with_rng                         ['private_seam.rs']
+   prove_core                               ['protocol.rs']
+   prove_inner_at                           ['protocol.rs']
+   prove_run                                ['run.rs']
+   random                                   ['sumcheck.rs']
+   rng                                      ['zk.rs']
+   statement_class                          ['hash_domain.rs']
+   -> never the slot argument, the masked sumcheck, an opening, a refusal check, the wire encoder,
+      the transcript or a verifier.
+
+C. EXITS AFTER THE FIRST DRAW (for the check's refusal table)
+   protocol.rs :: pub(crate) fn prove_core(  (after `*x = rng.fp();`)
+       1052  Some(second) => helper_pair_inverses_u8(&cols[2 * k], second, alpha, g_u8, &u8_inv)?,
+       1053  None => helper_inverses_u8(&cols[2 * k], alpha, g_u8, &u8_inv)?,
+       1060  write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+       1062  write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+       1092  let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+       1140  let acc = argument(&mut side, &ctx, tr, ph)?;
+       1143  Side::Verify { .. } => unreachable!(),
+       1153  check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+       1157  check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
+   protocol.rs :: pub(crate) fn prove_inner_at(  (after `ZkRng::from_os`)
+        813  let mut rng = ZkRng::from_os(&super::hash_domain::single_block_seed_domain(sh)).map_err(|e| format!("private block rando
+        818  let core = prove_core(sh, &lay, blk, wit, [ein.data.as_slice(), eout.data.as_slice()], &ntt, &mut rng, &mut tr, &mut ph,
+        820  check_endpoint_opening(&ic, sh, &tr)?;
+        824  check_endpoint_opening(&oc, sh, &tr)?;
+   run.rs :: pub(crate) fn prove_run(  (after `ZkRng::from_os`)
+        727  let mut rng = ZkRng::from_os(&super::hash_domain::run_seed_domain(st.rs.profile)).map_err(|e| format!("private run rando
+        731  let mut tr = st.transcript()?;
+        751  let spec = st.boundary_spec(k)?;
+        752  let plane = src.boundary_plane(k)?;
+        754  return Err(format!("private run: boundary {k}'s plane is {} words, the padded plane is {}", plane.len(), spec.len()));
+        756  let p = boundary::prepare(&spec, &words(&plane), &ntt, &mut rng, &tag)?;
+        763  let lay = st.stage_layout(k)?;
+        764  let wit = src.witness(k)?;
+        768  None => &ein.as_ref().ok_or("private run: the input endpoint was already consumed")?.data,
+        772  None => &eout.as_ref().ok_or("private run: the output endpoint was already consumed")?.data,
+        774  protocol::prove_core(sh, &lay, &blocks[k], wit, [in_data, out_data], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut
+        782  owner.into_opening(&spec, &claims, &mut tr)?
+        785  let e = ein.take().ok_or("private run: the input endpoint was already consumed")?;
+        786  protocol::check_endpoint_opening(&ic, sh, &tr)?;
+        793  let e = eout.take().ok_or("private run: the output endpoint was already consumed")?;
+        794  protocol::check_endpoint_opening(&oc, sh, &tr)?;
+        816  let bytes = wire::encode_segment(&seg, &lay, st.seg_geom(k)?, &binding, &start_tag, &end_tag)?;
+        820  sink(k, bytes)?;
+   private_block.rs :: pub fn prepare_endpoints(  (after `let (input, output) = if spec.general`)
+       1067  let [si, so] = spec.endpoints_g()?;
+       1075  EndpointOwner::General(endpoint_g::prepare(&si, &words(input), &ntt, &spec.hash_tag, endpoint_g::EndpointRole::Input)?),
+       1076  EndpointOwner::General(endpoint_g::prepare(&so, &words(output), &ntt, &spec.hash_tag, endpoint_g::EndpointRole::Output)?
+       1079  let [si, so] = spec.seams()?;
+       1081  (EndpointOwner::Frozen(private_seam::prepare(&si, Side::Right, &words(input), &ntt)?), EndpointOwner::Frozen(private_sea
+   argument.rs :: pub(crate) fn run_slot(  (9 exits)
+        451  return Err(format!("private block: slot {s} differs from the declared schedule"));
+        454  return Err(format!("private block: slot {s} table shape"));
+        463  return Err(format!("private block: slot {s} public table length"));
+        481  return Err("zero CFS mask challenge; discard attempt".into());
+        497  return Err(format!("private block: slot {s} table length"));
+        559  let sp = slots.get(s).ok_or("private block: missing slot")?;
+        561  return Err(format!("private block: slot {s} terminal count"));
+        565  let (fin, rho_full) = sumcheck::verify(claimed, degree, n + ext, &sp.sc, tr).map_err(|e| format!("slot {s} [{}]: {e}", S
+        590  return Err("degenerate terminal mask challenge; discard attempt".into());
+   protocol.rs :: pub(crate) fn audit_claims(  (0 exits)
+   protocol.rs :: pub(crate) fn check_opening_challenges(  (2 exits)
+        300  return Err("zero group member coefficient; discard attempt".into());
+        309  return Err("dependent proximity mask coefficients; discard attempt".into());
+   protocol.rs :: pub(crate) fn check_opening(  (3 exits)
+        319  audit_claims(claims, 1usize << log_n, rows, site_rows, sum_rows, prox)?;
+        321  let groups = opening_groups_at(claims, log_n)?;
+        323  return Err(format!("private block: {} opening groups, the schedule declares {want_groups}", groups.len()));
+   protocol.rs :: pub(super) fn check_endpoint_opening(  (2 exits)
+        377  let (rows, data, prox) = endpoint_geometry(sh)?;
+        386  return Err("private block: endpoint claim differs from the declared schedule".into());
+   protocol.rs :: pub(super) fn check_endpoints(  (4 exits)
+        758  let (rows, _, _) = endpoint_geometry(sh)?;
+        760  let [input, output] = expected.spec.into_committed(endpoints)?;
+        762  return Err("private block: expected endpoint root mismatch".into());
+        765  return Err("private block: endpoint geometry".into());
+   protocol.rs :: fn inverses(  (1 exits)
+        590  batch_inverse2_checked(&mut den).map_err(|_| "zero LogUp denominator; discard attempt".to_string())?;
+   boundary.rs :: pub(crate) fn into_opening(  (2 exits)
+        277  return Err("boundary: prepared context mismatch".into());
+        279  check_opening(spec, claims, tr)?;
+   wire.rs :: fn validate_segment(  (4 exits)
+        347  return Err("private run wire: slot count".into());
+        352  return Err("private run wire: argument shape".into());
+        356  return Err("private run wire: this segment's parts are not the run schedule's".into());
+        369  return Err("private run wire: opening shape".into());
+   wire.rs :: pub(crate) fn encode_segment(  (3 exits)
+        377  validate_segment(s, lay, g)?;
+        380  return Err("private run wire: segment exceeds bound".into());
+        410  return Err(format!("private run wire: segment {} is {} B, the counted length is {len}", g.k, out.len()));
+   zk.rs :: pub(crate) fn masked_prove<  (1 exits)
+       1081  assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
+   zk.rs :: pub(crate) fn extension<  (3 exits)
+       1093  assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
+       1094  assert_eq!(degree, mask.degree, "masked extension: round degree mismatch");
+       1097  assert_eq!(sk.len(), gk.len(), "masked extension: round length mismatch");
+   zk.rs :: pub fn mask_open(  (0 exits)
+   pcs.rs :: pub fn open_zk<  (2 exits)
+       1031  let prox_vec = vecs.pop().unwrap();
+       1047  let cols = dc.columns(&idx).expect("pcs: external store column gather");
+   pcs.rs :: pub fn assert_mask_sites<  (4 exits)
+        994  assert!(!masked.is_empty(), "zk pcs: group {gi}'s clear vector has no mask row (unmasked opening site)");
+        997  let pm = cmz.prox_mask_row.expect("zk pcs: no proximity mask row reserved");
+        998  assert!(!rhos[g][pm].is_zero(), "zk pcs: the proximity vector does not touch the prox mask row");
+       1000  assert!(cmz.zk.q_pad >= cmz.cm.params.num_col_checks);
+   sumcheck.rs :: pub fn round(&self  (1 exits)
+        256  assert_eq!(prev.len(), j);
+   sumcheck.rs :: fn mask_round(&mut self  (1 exits)
+        287  assert_eq!(sums.len(), self.mask.degree + 1, "masked sumcheck: round degree mismatch");
+
+ALL ASSERTIONS PASSED

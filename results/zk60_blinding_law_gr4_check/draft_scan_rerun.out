@@ -1,0 +1,141 @@
+A. GENERATOR CONSUMPTION IN SOURCE ORDER at 2ea7221
+   hashline/src/private_block/protocol.rs :: pub(crate) fn prove_inner_at(  (lines 787-852)
+        813  let mut rng = ZkRng::from_os(&super::hash_domain::single_block_seed_domain(sh)
+             within (function body)
+        818  let core = prove_core(sh, &lay, blk, wit, [ein.data.as_slice(), eout.data.as_s
+             within (function body)
+   hashline/src/private_block/protocol.rs :: pub(crate) fn prove_core(  (lines 911-1173)
+       1003  *x = rng.fp();
+             within 1002:`for x in &mut a_data[lay.a_mask_base * n..] {`
+       1009  let mut a = pcs::commit_zk_owned_tagged(&params, a_data, ntt, &zko, rng, &tag)
+             within (function body)
+       1021  let mc = zk::mask_commit_tagged(&lay.mask_specs(), ntt, rng, &tag);
+             within (function body)
+       1116  *x = rng.fp();
+             within 1115:`for x in &mut h_data[lay.h_mask_base * n..] {`
+       1121  let v = rng.fp();
+             within 1120:`for j in 0..n - 1 {` <- 1118:`for r in lay.h_u_rows() {`
+       1128  let mut h = pcs::commit_zk_owned_tagged(&params, h_data, ntt, &zko, rng, &tag)
+             within (function body)
+   hashline/src/private_block/run.rs :: pub(crate) fn prove_run(  (lines 700-826)
+        727  let mut rng = ZkRng::from_os(&super::hash_domain::run_seed_domain(st.rs.profil
+             within (function body)
+        756  let p = boundary::prepare(&spec, &words(&plane), &ntt, &mut rng, &tag)?;
+             within 750:`let cur = if k + 1 < l {` <- 739:`for k in 0..l {`
+        774  protocol::prove_core(sh, &lay, &blocks[k], wit, [in_data, out_data], &ntt, &mu
+             within 765:`let core = {` <- 739:`for k in 0..l {`
+   hashline/src/private_block/boundary.rs :: pub(crate) fn prepare(spec: &BoundarySpec  (lines 337-354)
+        347  *x = rng.fp();
+             within 346:`for x in &mut data[first_mask * n..] {`
+        350  let mut committed = pcs::commit_zk_owned_tagged(&params, data, ntt, &ZkOpts::s
+             within (function body)
+   hashline/src/private_block/endpoint_g.rs :: pub(crate) fn prepare(spec: &EndpointSpecG  (lines 259-284)
+        269  let mut rng = ZkRng::from_os(&seed_domain(spec, role)).map_err(|_| "general en
+             within (function body)
+        277  *x = rng.fp();
+             within 276:`for x in &mut data[first_mask * n..] {`
+        280  let mut committed = pcs::commit_zk_owned_tagged(&params, data, ntt, &ZkOpts::s
+             within (function body)
+   hashline/src/private_seam.rs :: pub fn prepare(  (lines 191-198)
+        196  let mut rng = ZkRng::from_os(DOMAIN).map_err(|_| "seam: secret entropy unavail
+             within (function body)
+        197  prepare_with_rng(spec, side, values, ntt, &mut rng)
+             within (function body)
+   hashline/src/private_seam.rs :: fn prepare_with_rng(  (lines 206-223)
+        212  *x = rng.fp();
+             within 211:`for x in &mut data[first_mask * n..] {`
+        215  let mut committed = pcs::commit_zk_owned(&params, data, ntt, &ZkOpts::standard
+             within (function body)
+   hashline/src/zk.rs :: pub fn mask_commit_tagged(  (lines 481-518)
+        485  let masks: Vec<CfsMask> = specs.iter().map(|&(n, d)| CfsMask::random(rng, n, d
+             within (function body)
+        496  let pads = rng.fp_vec(MASK_Q);
+             within 492:`for (k, part) in [re, im].iter().enumerate() {` <- 489:`for (s, mk) in masks.iter().enumerate() {`
+        503  let mut b_re = rng.fp_vec(2 * m);
+             within (function body)
+        504  let mut b_im = rng.fp_vec(2 * m);
+             within (function body)
+        507  let u_re = rng.fp_vec(2 * m);
+             within (function body)
+        508  let u_im = rng.fp_vec(2 * m);
+             within (function body)
+        513  let salts: Vec<[u8; 32]> = (0..dom).map(|_| rng.bytes32()).collect();
+             within (function body)
+   zkp-core/src/pcs.rs :: pub fn commit_zk_owned_with_tag<  (lines 769-808)
+        777  let pads = rng.fp_vec(rows * q);
+             within (function body)
+        778  let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
+             within (function body)
+   zkp-core/src/pcs.rs :: pub fn commit_zk_owned_with<  (lines 716-751)
+        724  let pads = rng.fp_vec(rows * q);
+             within (function body)
+        725  let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
+             within (function body)
+   zkp-core/src/sumcheck.rs :: pub fn random(rng: &mut crate::rng::ZkRng  (lines 201-203)
+        202  CfsMask { n_vars, degree, coeffs: rng.fp2_vec(Self::len(n_vars, degree)) }
+             within (function body)
+   -> every draw is under public loops only (shape/layout constants, the run index k and L);
+      no draw is under an if/match/while/loop on a witness value, a challenge, a drawn value,
+      a feature flag or an environment variable.
+
+B. EARLY EXITS in prove_core AFTER its first draw (the refusal inventory of section 5)
+       1052  Some(second) => helper_pair_inverses_u8(&cols[2 * k], second, alpha, g_u8, &u8_inv)?,
+       1053  None => helper_inverses_u8(&cols[2 * k], alpha, g_u8, &u8_inv)?,
+       1060  write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+       1062  write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+       1092  let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+       1111  let val = inverses(vec![alpha.sub(tv[to])])?[0];
+       1140  let acc = argument(&mut side, &ctx, tr, ph)?;
+       1153  check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+       1157  check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(
+   (1111 is inside a #[cfg(test)] injection block, 1102-1114; not in a release build)
+
+C. NO GENERATOR IN THE SLOT ARGUMENT OR THE OPENINGS
+   argument.rs (production text): no `rng`;  pcs::open_zk: no generator;  zk::mask_open: no generator
+
+D. THE GENERATOR'S PUBLIC SURFACE (zkp-core/src/rng.rs, production part = lines 1-100)
+      pub fn new(seed: u64, domain: &[u8]) -> ZkRng {
+      pub fn from_os(domain: &[u8]) -> std::io::Result<ZkRng> {
+      pub fn next_u64(&mut self) -> u64 {
+      pub fn fp(&mut self) -> Fp {
+      pub fn fp2(&mut self) -> Fp2 {
+      pub fn fp_vec(&mut self, n: usize) -> Vec<Fp> {
+      pub fn fp2_vec(&mut self, n: usize) -> Vec<Fp2> {
+      pub fn bytes32(&mut self) -> [u8; 32] {
+   -> no seek/set/rewind, fields private, not Clone/Copy/Serialize: `pos` only grows by 8 inside a
+      buffer and `counter` only grows, so each stream word is returned AT MOST ONCE per generator.
+
+E. REPLICA of the Rust assertion-6 scan (J-5 #6) on its own nine files at 2ea7221
+      drawn buffers the scan can see in hashline/src/zk.rs: ['b_im', 'b_re', 'pads', 'salts', 'u_im', 'u_re', 'v']
+      drawn buffers the scan can see in hashline/src/pcs.rs: ['pads', 'salts']
+      drawn buffers the scan can see in hashline/src/private_seam.rs: []
+      drawn buffers the scan can see in hashline/src/private_block/protocol.rs: ['v']
+      drawn buffers the scan can see in hashline/src/private_block/endpoint_g.rs: []
+      drawn buffers the scan can see in hashline/src/private_block/boundary.rs: []
+      drawn buffers the scan can see in zkp-core/src/pcs.rs: ['pads', 'salts']
+      drawn buffers the scan can see in zkp-core/src/sumcheck.rs: []
+      drawn buffers the scan can see in zkp-core/src/rng.rs: []
+   relations found: 4
+      hashline/src/zk.rs:454: b_re[m] = b_re[0].neg();
+      hashline/src/zk.rs:455: b_im[m] = b_im[0].neg();
+      hashline/src/zk.rs:505: b_re[m] = b_re[0].neg();
+      hashline/src/zk.rs:506: b_im[m] = b_im[0].neg();
+   -> reproduces the Rust test's result: exactly the four declared overwrite sites.
+   the fill idiom `*x = rng.fp();` (skipped by the scan: the line starts with '*'): 5 production sites
+      hashline/src/private_seam.rs:212
+      hashline/src/private_block/protocol.rs:1003
+      hashline/src/private_block/protocol.rs:1116
+      hashline/src/private_block/endpoint_g.rs:277
+      hashline/src/private_block/boundary.rs:347
+   -> NOT in the scan's drawn set: A's and H's reserved pairs + proximity rows (a_data, h_data),
+      every endpoint's and boundary's mask rows (data), and the CFS coefficients alpha (masks,
+      drawn through CfsMask::random(rng, ..), which contains no `rng.` pattern).
+
+   mutations (one inserted line each; does the replica flag it?)
+      m1: overwrite a DRAWN A proximity-row word after the fill      flagged=False
+      m2: copy an A reserved-pair word into H's reserved rows        flagged=False
+      m3 (CONTROL): overwrite a drawn u_re word (a let-bound draw)   flagged=True
+   -> the scan pins the relations on pads, salts, b and u; it cannot see a relation or a copy
+      imposed on the reserved pairs, the proximity rows, the endpoint/boundary mask rows or alpha.
+
+ALL ASSERTIONS PASSED
