@@ -1,7 +1,7 @@
 # The shaped refusal census (gap GS-14, first item) — disposition
 
 By the interactive Claude session acting as security owner (Opus 5.5,
-continuing the Fable 5.1 lane), 2026-09-22, 23:55 PDT. It rules on the census
+continuing the Fable 5.1 lane), 2026-09-22, 23:22 PDT. It rules on the census
 of lane stages 38–39 (branch `zk60-private-block-125m`, tip `27398d0`: memo
 `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md`, tests
 `hashline/src/private_block/census_shaped_tests.rs`) after its independent
