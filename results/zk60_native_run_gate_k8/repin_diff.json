@@ -1,0 +1,346 @@
+{
+ "identical_leaves_total": 154131,
+ "no_figure_of_record_moved": true,
+ "per_record": [
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 tool hash of a tool this round moved": 5
+   },
+   "changed": 8,
+   "identical_leaves": 2871,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate/run-a-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 tool hash of a tool this round moved": 5
+   },
+   "changed": 7,
+   "identical_leaves": 2872,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate/run-b-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 7,
+   "identical_leaves": 3678,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_planeindex/run-c-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 7,
+   "identical_leaves": 3678,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_planeindex/run-d-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 8,
+   "identical_leaves": 4015,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_tagged/run-e-tame-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 7,
+   "identical_leaves": 4016,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_tagged/run-f-zero-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 8,
+   "identical_leaves": 4098,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_s20/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 1,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 6,
+   "identical_leaves": 4100,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_s20/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 1,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 6,
+   "identical_leaves": 4184,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k4/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 8,
+   "identical_leaves": 4182,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k4/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 56,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 61,
+   "identical_leaves": 6537,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 61,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 66,
+   "identical_leaves": 6532,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 68,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 73,
+   "identical_leaves": 6609,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 58,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 63,
+   "identical_leaves": 6619,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 64,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 69,
+   "identical_leaves": 8755,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 65,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 70,
+   "identical_leaves": 8754,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 69,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 74,
+   "identical_leaves": 8834,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 74,
+    "E2 tool hash of a tool this round moved": 5,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2
+   },
+   "changed": 79,
+   "identical_leaves": 8829,
+   "only_in_the_new_record": 2,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 1
+   },
+   "changed": 1,
+   "identical_leaves": 183,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/toy_equivalence"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 52,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 6,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 2
+   },
+   "changed": 59,
+   "identical_leaves": 6689,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_p2/run-k-dense-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 53,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 6,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 2
+   },
+   "changed": 60,
+   "identical_leaves": 6688,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_p2/run-l-zero-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 58,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 6,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 2
+   },
+   "changed": 65,
+   "identical_leaves": 6875,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-m-dense-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 51,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 6,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 2
+   },
+   "changed": 58,
+   "identical_leaves": 6882,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-n-zero-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 57,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 6,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 2
+   },
+   "changed": 64,
+   "identical_leaves": 6685,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-o-dense-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 59,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 6,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 2
+   },
+   "changed": 66,
+   "identical_leaves": 6683,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-p-zero-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 43,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 9,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 3
+   },
+   "changed": 51,
+   "identical_leaves": 7147,
+   "only_in_the_new_record": 11,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-q-dense-e32"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 54,
+    "E2 tool hash of a tool this round moved": 5,
+    "E3 the run-layer pin table names the rung-K8 commit/bundles": 9,
+    "E4 the terminal port lists the definition it read at f7fa2ad4": 2,
+    "E5 the same commit list, in the pin's one-line summary": 3
+   },
+   "changed": 62,
+   "identical_leaves": 7136,
+   "only_in_the_new_record": 11,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-r-zero-e32"
+  }
+ ],
+ "records": 27,
+ "unexpected": [],
+ "unexpected_count": 0,
+ "what": "ROUND 9i: what the re-pin moved, leaf by leaf, with a STRICT list."
+}

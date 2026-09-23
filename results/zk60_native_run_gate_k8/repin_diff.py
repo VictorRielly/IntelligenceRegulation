@@ -28,7 +28,11 @@ The expected changes, and nothing else:
       move;
   E4  `.../source_pins/argument_definitions_this_port_implements/f7fa2ad4213d`
       ONLY IN THE NEW RECORD, value "repaired" -- the terminal port listing
-      the definitions it has read.
+      the definitions it has read;
+  E5  (added after the first full pass named it UNEXPECTED, see
+      `classify`) `run_layer_source_pins/pins_at_a_read_digest/[i]`
+      CHANGED to exactly its old string plus ", 99a8de8" -- E3's commit
+      list, in the pin's one-line summary.
 """
 
 from __future__ import annotations
@@ -63,9 +67,20 @@ def is_wall_clock(path):
             or last.startswith("seconds_"))
 
 
-def classify(path, where, value):
+RE_E5 = re.compile(r"^run_layer_source_pins/pins_at_a_read_digest/\[\d+\]$")
+
+
+def classify(path, where, value, old=None):
     if where == "changed" and is_wall_clock(path):
         return "E1 wall clock"
+    # E5, added after the first full pass (22:02) reported it UNEXPECTED on
+    # the P2 / C6 / E32 records: the one-line SUMMARY of a read run-layer
+    # pin, "<path>: <digest> -- read at c1, c2, ...", which lists the same
+    # commits E3 appends to.  Admitted only when the new string is EXACTLY
+    # the old one with ", 99a8de8" appended.
+    if where == "changed" and RE_E5.match(path) and isinstance(old, str) \
+            and value == old + ", 99a8de8":
+        return "E5 the same commit list, in the pin's one-line summary"
     if where == "changed" and path.startswith("tool_sha256/") \
             and path.split("/", 1)[1] in MOVED_TOOLS:
         return "E2 tool hash of a tool this round moved"
@@ -97,11 +112,12 @@ def main():
         from zk60_native_rg_recdiff import _walk
         _walk(b, [], fb)
         counts = {}
-        rows = ([(x, "old", None) for x in d["only_in_the_old_record"]]
-                + [(x, "new", fb[x]) for x in d["only_in_the_new_record"]]
-                + [(c["path"], "changed", c["new"]) for c in d["changed"]])
-        for path, where, val in rows:
-            k = classify(path, where, val)
+        rows = ([(x, "old", None, None) for x in d["only_in_the_old_record"]]
+                + [(x, "new", fb[x], None) for x in d["only_in_the_new_record"]]
+                + [(c["path"], "changed", c["new"], c["old"])
+                   for c in d["changed"]])
+        for path, where, val, old in rows:
+            k = classify(path, where, val, old)
             counts[k] = counts.get(k, 0) + 1
             if k == "UNEXPECTED":
                 out["unexpected"].append({"record": p, "path": path,

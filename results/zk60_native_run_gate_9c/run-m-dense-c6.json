@@ -75,7 +75,9 @@
      "run-o-dense-w14",
      "run-p-zero-w14",
      "run-q-dense-e32",
-     "run-r-zero-e32"
+     "run-r-zero-e32",
+     "run-s-dense-k8",
+     "run-t-zero-k8"
     ],
     "bytes": 36123,
     "declared": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
@@ -86,7 +88,8 @@
      "4ccbad1b1da0a23449ac06461740750a6818c6e8",
      "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
      "11703c94df428c3e53dbc6c37eac835e348f5bf9",
-     "4505ddfa24fc99ff57fa086be8c73dae8117875c"
+     "4505ddfa24fc99ff57fa086be8c73dae8117875c",
+     "99a8de832a6322c94bf951f0f443b96e1dc63cb8"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split **production +22 / -0** and `#[cfg(test)] mod tests` **+22 / -6**.  STAGE 26 again.  In production: one accessor, `index() -> u64` (the boundary's own index, a PUBLIC word of the run statement), and a 16-line doc comment saying that a boundary is the one commitment on the path with no generator of its own -- it is handed the run's single stream -- and naming the domain it WOULD use (`hash_domain::boundary_seed_domain(index, spec.digest())`) without calling it.  In the tests: a `test_generator(spec)` helper and six call sites that now seed from that domain instead of the module's `DOMAIN` label.  **Not one geometry accessor moved**: `data_rows`, `commitment_rows`, `site_rows`, `prox_row`, `mask_row`, `MAX_SITES` and ruling M-1's refusal are byte-identical, and the ports read only those"
@@ -117,7 +120,9 @@
      "run-o-dense-w14",
      "run-p-zero-w14",
      "run-q-dense-e32",
-     "run-r-zero-e32"
+     "run-r-zero-e32",
+     "run-s-dense-k8",
+     "run-t-zero-k8"
     ],
     "bytes": 85434,
     "declared": "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6",
@@ -128,7 +133,8 @@
      "4ccbad1b1da0a23449ac06461740750a6818c6e8",
      "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
      "11703c94df428c3e53dbc6c37eac835e348f5bf9",
-     "4505ddfa24fc99ff57fa086be8c73dae8117875c"
+     "4505ddfa24fc99ff57fa086be8c73dae8117875c",
+     "99a8de832a6322c94bf951f0f443b96e1dc63cb8"
     ],
     "read": true,
     "reading": "`git diff 3247a89 f4697f9`: **368 added, 23 removed, 36 hunks**, and this file has no test module (its tests are `run_capture_tests.rs`, which no bundle pins), so the whole diff is production.  STAGE 27, and it is two changes.  (1) **The `/5-run` array store**: `SCHEMA_V5`, `ARRAY_MIN = 256`, `CaptureOpts`, `schema_of(arrays)`, an `ArrayStore` that appends an array's little-endian image to one blob, deduplicates by SHA-256 and returns `{array, elem, len, offset, bytes}`, and the six emission sites that now route through it -- an opened column's `values`, an opening group's `vector`, `proximity_rhos`, `proximity_vector`, the M opening's `q` and `prox`, and a public table's `values`.  The 23 removed lines are those same six `write!`s and the `SOURCE_FILES` constant, each re-emitted.  **Not one field name, member order, kind, coverage string or transcript label moves**, and `ALLOWED_KEYS` gains exactly two entries, `array` and `elem` (format 12: `offset`, `len`, `bytes` and `sha256` were already on it).  A `/4-run` bundle is still written when `HL_RUN_CAPTURE_ARRAYS=store` is absent, and the writer's own `the_array_store_and_the_classic_encoding_carry_the_same_values` captures one run twice in one process and asserts byte-for-byte equality of the expanded store with the classic encoding.  `zk60_native_rg_arrays` is this lane's reader for it, proved against a re-encoded development bundle (round 9, item N1).  (2) **`SOURCE_FILES` 8 -> `OWN_SOURCE_FILES` 15 + `SHARED_SOURCE_FILES` 23 = 38 pins**, plus `NOT_ON_THE_RUNS_PATH` naming `timing.rs` with its reason.  That is the writer-side ask R6.8 item 1 and R8.9 item 4, GRANTED: see `SHARED_LAYER_PINS` below"
@@ -138,9 +144,9 @@
    "src/private_block/plane_index.rs": "zk60_native_rg_terminals.PORTED_FROM (one digest, 9de8320a8477...); a moved pin makes every slot of every stage NOT CHECKED"
   },
   "pins_at_a_read_digest": [
-   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf",
+   "src/private_block/boundary.rs: 5b1c85feefac -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf, 99a8de8",
    "src/private_block/run.rs: e161190b2626 -- read at 3e106e1",
-   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf"
+   "src/private_block/run_capture.rs: d09f385315ca -- read at f4697f9, 4ccbad1, 3e106e1, 11703c9, 4505ddf, 99a8de8"
   ],
   "pins_missing_from_the_bundle": [],
   "pins_that_moved": [],
@@ -362,7 +368,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 292.1,
+ "seconds": 355.4,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -1041,14 +1047,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.61,
-    "msg_groups_seconds": 0.69,
-    "msg_proximity_seconds": 0.05,
-    "pads_seconds": 5.77,
+    "layout_seconds": 4.19,
+    "msg_groups_seconds": 1.17,
+    "msg_proximity_seconds": 0.07,
+    "pads_seconds": 9.81,
     "preimage_exhibited": true,
-    "seconds": 18.21,
+    "seconds": 30.29,
     "solve_findings": [],
-    "solve_seconds": 6.51,
+    "solve_seconds": 11.05,
     "solved": true,
     "steps": [
      {
@@ -1669,8 +1675,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 6.94,
-     "seconds_vectors_and_claims": 2.06
+     "seconds_opened_columns": 11.43,
+     "seconds_vectors_and_claims": 3.47
     }
    },
    {
@@ -1690,14 +1696,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.64,
-    "msg_groups_seconds": 0.17,
-    "msg_proximity_seconds": 0.02,
-    "pads_seconds": 4.94,
+    "layout_seconds": 4.18,
+    "msg_groups_seconds": 0.29,
+    "msg_proximity_seconds": 0.04,
+    "pads_seconds": 8.83,
     "preimage_exhibited": true,
-    "seconds": 14.92,
+    "seconds": 24.63,
     "solve_findings": [],
-    "solve_seconds": 5.13,
+    "solve_seconds": 9.15,
     "solved": true,
     "steps": [
      {
@@ -1920,8 +1926,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 6.45,
-     "seconds_vectors_and_claims": 0.62
+     "seconds_opened_columns": 10.14,
+     "seconds_vectors_and_claims": 1.03
     }
    },
    {
@@ -1941,14 +1947,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.58,
+    "layout_seconds": 4.07,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.11,
+    "pads_seconds": 0.19,
     "preimage_exhibited": true,
-    "seconds": 2.84,
+    "seconds": 4.51,
     "solve_findings": [],
-    "solve_seconds": 0.13,
+    "solve_seconds": 0.22,
     "solved": true,
     "steps": [
      {
@@ -2044,7 +2050,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.12,
+     "seconds_opened_columns": 0.21,
      "seconds_vectors_and_claims": 0.01
     }
    },
@@ -2065,14 +2071,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.74,
-    "msg_groups_seconds": 0.72,
-    "msg_proximity_seconds": 0.04,
-    "pads_seconds": 5.57,
+    "layout_seconds": 4.1,
+    "msg_groups_seconds": 1.19,
+    "msg_proximity_seconds": 0.06,
+    "pads_seconds": 10.01,
     "preimage_exhibited": true,
-    "seconds": 18.03,
+    "seconds": 30.16,
     "solve_findings": [],
-    "solve_seconds": 6.33,
+    "solve_seconds": 11.26,
     "solved": true,
     "steps": [
      {
@@ -2693,8 +2699,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 6.78,
-     "seconds_vectors_and_claims": 2.1
+     "seconds_opened_columns": 11.23,
+     "seconds_vectors_and_claims": 3.41
     }
    },
    {
@@ -2714,14 +2720,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.49,
-    "msg_groups_seconds": 0.19,
-    "msg_proximity_seconds": 0.02,
-    "pads_seconds": 4.92,
+    "layout_seconds": 3.92,
+    "msg_groups_seconds": 0.27,
+    "msg_proximity_seconds": 0.04,
+    "pads_seconds": 9.42,
     "preimage_exhibited": true,
-    "seconds": 14.4,
+    "seconds": 26.3,
     "solve_findings": [],
-    "solve_seconds": 5.13,
+    "solve_seconds": 9.73,
     "solved": true,
     "steps": [
      {
@@ -2944,8 +2950,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 6.09,
-     "seconds_vectors_and_claims": 0.6
+     "seconds_opened_columns": 11.17,
+     "seconds_vectors_and_claims": 1.34
     }
    },
    {
@@ -2965,14 +2971,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.55,
-    "msg_groups_seconds": 0.02,
-    "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.17,
+    "layout_seconds": 4.29,
+    "msg_groups_seconds": 0.03,
+    "msg_proximity_seconds": 0.02,
+    "pads_seconds": 0.26,
     "preimage_exhibited": true,
-    "seconds": 2.93,
+    "seconds": 4.82,
     "solve_findings": [],
-    "solve_seconds": 0.2,
+    "solve_seconds": 0.3,
     "solved": true,
     "steps": [
      {
@@ -3083,7 +3089,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.17,
+     "seconds_opened_columns": 0.22,
      "seconds_vectors_and_claims": 0.01
     }
    },
@@ -3104,14 +3110,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.46,
+    "layout_seconds": 3.9,
     "msg_groups_seconds": 0.01,
-    "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.13,
+    "msg_proximity_seconds": 0.02,
+    "pads_seconds": 0.2,
     "preimage_exhibited": true,
-    "seconds": 2.75,
+    "seconds": 4.32,
     "solve_findings": [],
-    "solve_seconds": 0.15,
+    "solve_seconds": 0.23,
     "solved": true,
     "steps": [
      {
@@ -3207,14 +3213,14 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.13,
-     "seconds_vectors_and_claims": 0.0
+     "seconds_opened_columns": 0.18,
+     "seconds_vectors_and_claims": 0.01
     }
    }
   ],
   "requested": true,
   "salted_leaves_authenticated": 1792,
-  "seconds": 74.1,
+  "seconds": 125.1,
   "this_is_not_a_privacy_result": true,
   "view_entries_compared": 1510974,
   "view_entries_differing": 0,
@@ -3753,7 +3759,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 6.99,
+    "seconds": 5.88,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -4857,7 +4863,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 6.63,
+    "seconds": 5.74,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -5648,7 +5654,7 @@
   "profile": "hashline-zk-mr1/private-run-rung-c6-t32-dev/1",
   "requested": true,
   "salted_leaves_authenticated": 512,
-  "seconds": 13.63,
+  "seconds": 11.64,
   "source_pins": {
    "accepted": [
     {
@@ -6222,7 +6228,7 @@
    "exact_rank_of_the_pad_block": 247,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.4,
+   "seconds": 4.4,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -7533,7 +7539,8 @@
     "argument_definitions_this_port_implements": {
      "909670c96562": "pre-repair",
      "dd8469cb0279": "repaired",
-     "ec3f97443245": "repaired"
+     "ec3f97443245": "repaired",
+     "f7fa2ad4213d": "repaired"
     },
     "bilinear_definition_reason": "stages 28 and 29 (the 125M prover made faster), at commit 4ccbad1.  `git diff f4697f9 4ccbad1 -- .../argument.rs` is **230 added, 48 removed, FIVE hunks**, and every one is on the PROVER'S table-build path: (1) `priv_table` reads its `(x, z)` out of two precomputed bit-permutation maps instead of walking `p.log` coordinates per entry, with a plain store when nothing can collide and the broadcast pass skipped when the plane uses every variable; (2) the `eq` cube is built by filling one block and doubling it (`eq_cube`), with the precondition `start + |point| <= n_vars` now a hard assertion; (3) a public table is MOVED into the table set on the proving path instead of copied (`table_of_taking`); (4) a slot's tables are built in parallel above `TABLES_PAR_MIN` through an INDEXED iterator; (5) the claimed sum is chunked and reduced above `TOTAL_PAR_MIN`, which is a regrouping of an exact field sum.  Plus `timing::slot_step` wrappers and the env-gated base-field census, which counts and prints.  **NOTHING THIS PORT PORTS MOVED**: the slot closures of all 23 slots, the push order of every private table, `n_pad` / `pad_on` and the `mu`, `nu`, `zeta` draws at argument.rs:936, `lg`, `lk_tables`, `table_values_u8_at`, `B::supp` / `B::group_eq` and the single `tr.absorb_fp2(b\"pb-scalar\", ...)` are byte-identical -- the five hunks are HOW a table is filled, never WHICH polynomial a slot is.  The two bilinear slots therefore carry stage 20's repaired definition, unchanged",
     "bilinear_definition_selected_by_the_argument_pin": "repaired",
@@ -8261,7 +8268,7 @@
    },
    "rows_total": 5654,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 0.7,
+   "seconds": 1.0,
    "sum_of_parts_fp": 4
   }
  },
@@ -9690,7 +9697,8 @@
     "argument_definitions_this_port_implements": {
      "909670c96562": "pre-repair",
      "dd8469cb0279": "repaired",
-     "ec3f97443245": "repaired"
+     "ec3f97443245": "repaired",
+     "f7fa2ad4213d": "repaired"
     },
     "bilinear_definition_reason": "stages 28 and 29 (the 125M prover made faster), at commit 4ccbad1.  `git diff f4697f9 4ccbad1 -- .../argument.rs` is **230 added, 48 removed, FIVE hunks**, and every one is on the PROVER'S table-build path: (1) `priv_table` reads its `(x, z)` out of two precomputed bit-permutation maps instead of walking `p.log` coordinates per entry, with a plain store when nothing can collide and the broadcast pass skipped when the plane uses every variable; (2) the `eq` cube is built by filling one block and doubling it (`eq_cube`), with the precondition `start + |point| <= n_vars` now a hard assertion; (3) a public table is MOVED into the table set on the proving path instead of copied (`table_of_taking`); (4) a slot's tables are built in parallel above `TABLES_PAR_MIN` through an INDEXED iterator; (5) the claimed sum is chunked and reduced above `TOTAL_PAR_MIN`, which is a regrouping of an exact field sum.  Plus `timing::slot_step` wrappers and the env-gated base-field census, which counts and prints.  **NOTHING THIS PORT PORTS MOVED**: the slot closures of all 23 slots, the push order of every private table, `n_pad` / `pad_on` and the `mu`, `nu`, `zeta` draws at argument.rs:936, `lg`, `lk_tables`, `table_values_u8_at`, `B::supp` / `B::group_eq` and the single `tr.absorb_fp2(b\"pb-scalar\", ...)` are byte-identical -- the five hunks are HOW a table is filled, never WHICH polynomial a slot is.  The two bilinear slots therefore carry stage 20's repaired definition, unchanged",
     "bilinear_definition_selected_by_the_argument_pin": "repaired",
@@ -9963,22 +9971,22 @@
   "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
   "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
   "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
-  "zk60_native_rg_gcontrols.py": "eee6192b617a8f056133ba5e5fcb7e155f8376167a53b29a6db70d41579ef818",
-  "zk60_native_rg_gqa.py": "9f7c3379df6d9c4de7772de2819c7aa146e5f1227779178c7a3f9cfe8b67eacc",
+  "zk60_native_rg_gcontrols.py": "785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85",
+  "zk60_native_rg_gqa.py": "a05a8de8e44785ebd2d69321b47af4d1faf3a2e5c53f7043a2bee94edfa07eb7",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
   "zk60_native_rg_hcontrols.py": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
   "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
-  "zk60_native_rg_mask.py": "dad273d3b429723da956103ad4ee2aa7a5a900773d8902927f046f67875aad77",
+  "zk60_native_rg_mask.py": "d4114585d2dc7ca8cb88ffa71b917e9beb580cd86648238d0eb1356982c78727",
   "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
   "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
   "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
-  "zk60_native_rg_runpins.py": "bbff3f4298d1f40d395b6babe2a767475b45725aed4ad534385fb42525aef733",
+  "zk60_native_rg_runpins.py": "bc676343a37fcdc948f3c6c7ec11a21e51bf098126d762452af78a6e7cbe59b3",
   "zk60_native_rg_tcontrols.py": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
-  "zk60_native_rg_terminals.py": "f17491a1215823ea30271da263f9103ae511df66f9f081947eb20b52df58dea2",
+  "zk60_native_rg_terminals.py": "4cc6a98b1097cd264597546fb6db4c537cd5f590fe4de276889befe9247ef065",
   "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"
  },
  "version": 1,

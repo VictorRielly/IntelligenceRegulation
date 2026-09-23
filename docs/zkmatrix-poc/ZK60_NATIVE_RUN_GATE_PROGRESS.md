@@ -874,6 +874,15 @@ dimension, challenge count, slot check and channel count asserted by rounds
    gate has run has `lkv ≤ 2` — rung-G 2 key-value heads, rung-K4 and
    rung-P2 4 (`lkv = 2`), 125M 4 (`lkv = 2`), and rung-C6 / rung-W14 /
    rung-E32 add row width and endpoint rows, not head groups.)*
+   *(**CLOSED 2026-09-22 20:45 (round 9i, §R9i.7)**: the whole gate read
+   lane stage 37's rung-K8 — 16 query heads over **8** key-value heads,
+   `lkv = 3` — end to end on both bundles, every arm and every control:
+   13 of 13 stages `ok`, 69 of 69 slot checks, the three-entry group point
+   derived from the replay and compared 6 of 6, 144 coordinate entries,
+   the 28-channel table at 10 / 5 / 4 / 9. One control had been written
+   for exactly two group bits (finding R9i-F1, `GQ-7`) and was widened.
+   Still unread: `lkv ≥ 4`, and `lkv = 3` WITH a padded head slot — the
+   lane names 24 × 4 over 8 as the shape that would carry it.)*
 4. The masked sumcheck / CFS channel, still the largest open one a port
    could close, and `zk60_native_pg_pcs` at `MSG != PAD`.
 5. The run-wide preimage as ONE joint object; ruling R-3's machine
@@ -4036,6 +4045,16 @@ inside the same scope at `MemoryMax=8G`, each with a `.done` marker.
 |---|---|---|
 | failing first: the UNEDITED gate (round 9h's tool bytes) on the dense rung-K8 bundle, default arms, every control | `probe.sh` | `probe.log` (the gate's `exit 1`), `probe/run-s-dense-k8.done` = 1, `probe/run-s-dense-k8.json` (NOT a record of record); `probe.done` = 0 is the wrapper script's own exit |
 | the prediction at rung-K8, validated on the committed rung-K4, rung-P2 and rung-E32 records | `predict.sh` | `predict.log`, `predict.done` = 0, `prediction_k8_{dense,zero}.json` |
+| the 38 pins of both bundles against the lane's blobs, and what moved since rung-E32 | `python3 …/pins_k8.py` | `pins_k8.txt` |
+| the run-gate tests on the edited tools, BEFORE any re-take (which exact-set assertions the change widens) | `python3 -m unittest discover -s tests -p 'test_zk60_native_run_gate*.py'` at 8G | `tests_run_gate_pre.log`, `.done` = 1 (354 tests, 10 F / 1 E, R9i.6) |
+| the committed baselines of the 27 records | `before.sh` (list in `records.txt`) | `before/`, `before.log` |
+| **the whole gate, both rung-K8 bundles, every arm** | `run.sh` | `run.log`, `run.done` = 0, `run-{s,t}-*.json`, `time-run-*.log` |
+| dense against zero; rung-K8 against rung-K4 against the prediction | `tables.sh` (`zk60_native_rg_witcmp`, `k8_vs_k4.py`) | `tables.log`, `witness_comparison_k8_dense_vs_zero.json`, `comparison_table_k8.json` |
+| this round's test file | `python3 tests/test_zk60_native_run_gate_k8.py -v` at 4G | `tests_k8.log` — **32 tests, OK** |
+| the 9b / 9c leaf diffs re-read strictly (R9i-F2) | `python3 …/recheck_9b_9c_diffs.py` | `recheck_9b_9c_diffs.txt` |
+| the 26 development records + the toy-equivalence record re-taken in place | `refresh.sh` | `refresh.log`, `refresh.done` |
+| what the re-take moved, leaf by leaf, strictly | `python3 …/repin_diff.py` | `repin_diff.json`, `repin_diff.log` |
+| the toy subset, the record guard, the whole native suite | `suite.sh`, queued behind `refresh.done` | `suite.log`, `suite_{toy,guard,native_all}.log`, `suite.done` |
 
 ## R9i.4 The prediction (written 2026-09-22 20:24 PDT, BEFORE the gate read either bundle with its pins read)
 
@@ -4335,16 +4354,33 @@ other control count — is identical at the two shapes.
 
 ## R9i.9 Results — K6, the records re-taken, and finding R9i-F2
 
-**IN FLIGHT when this paragraph was written (20:50).** `refresh.sh` re-runs
-the twenty-six development records of record and the mask port's
-toy-equivalence record in place, detached under the heavy lock
-(`refresh.log`, `refresh.done`); `suite.sh` waits for `refresh.done`
-before it even queues for the lock, so it cannot read a stale record. The
-baseline is `before/`, taken with `git show HEAD:` at `710d80b`, before
-any tool moved. The list is `records.txt`, BUILT FROM DISK: every
-`results/*/run-*.json` whose `tool_sha256` names the run gate's tools,
-minus the eleven 125M-directory records, which have pinned older tool
-bytes deliberately since round 9c and are not re-taken here either.
+**LANDED 22:40.** `refresh.sh` re-ran the twenty-six development records
+of record and the mask port's toy-equivalence record in place, detached
+under the heavy lock, 20:45 → 22:40 (the two rung-W14 records 1,419 s and
+1,410 s of it), `refresh.done` = 0, **all 27 `ok`**. The baseline is
+`before/`, taken with `git show HEAD:` at `710d80b`, before any tool moved.
+The list is `records.txt`, BUILT FROM DISK: every `results/*/run-*.json`
+whose `tool_sha256` names the run gate's tools, minus the eleven
+125M-directory records, which have pinned older tool bytes deliberately
+since round 9c and are not re-taken here either.
+
+**`repin_diff.py` → `repin_diff.json`, `repin_diff.log`: 27 records,
+154,131 identical leaves, 1,113 changed, 102 new, 0 only in the old
+record — and 0 UNEXPECTED.** By kind: 965 changed wall clocks (E1), 130
+tool hashes (E2, the five moved tools × 26 gate records), 54 new
+commit/bundle entries on the three unmoved run-layer digests (E3, at the
+eight `/5-run` records P2 / C6 / W14 / E32 — six each, nine at E32 whose
+`run.rs` digest is also rung-K8's), 48 new `f7fa2ad4 = repaired` listings
+(E4, two per record that runs the terminal port — none at `run-a/b`,
+which predate the plane index), and 18 E5. **E5 was added after the first
+full pass, and is stated as such**: the 22:02 pass reported 14 leaves
+UNEXPECTED — `run_layer_source_pins/pins_at_a_read_digest/[i]`, the
+one-line summary *"<path>: <digest> -- read at c1, c2, …"* of the same
+commit list E3 appends to. E5 admits such a leaf only when the new string
+is EXACTLY the old one with `", 99a8de8"` appended, and all 18 are. **Not
+one rank, disclosed dimension, challenge count, slot check, group count,
+preimage or mask figure, control figure or channel count moved on any of
+the 27.** The toy-equivalence record moved in one wall clock only.
 
 **FINDING R9i-F2 — the leaf classifier grades whole stages.**
 `zk60_native_rg_recclass`'s round-3 class is "any path under
@@ -4374,3 +4410,63 @@ but whose committed summaries quote it):
    `argument_definitions_this_port_implements/f7fa2ad4213d = "repaired"`.
    An early pass at 20:47, with eight of the 27 records re-taken, read
    **0 UNEXPECTED** on those eight (E1 1–3, E2 5 and E4 2 per record).
+
+## R9i.10 What this round is NOT
+
+1. **Not a privacy acceptance, and no privacy property is established.**
+   Both rung-K8 records carry `privacy_property_established: false` and
+   `privacy_acceptance: false`; nine channels stay OPEN; the joint LAW
+   (O-R2 / G-R4) and the hash layer's HIDING (M-2, M-3) are where rounds
+   7–9h left them; nothing here moves D8/D11 or ruling M-8's decision.
+2. **Not a check of finding S19-F1 at three group bits from the witness
+   side.** R4.4b's limit is unchanged: a capture carries no witness, so
+   the gate reads which POLYNOMIAL the published numbers satisfy (GQ-6:
+   the repaired one 6 of 6, the pre-repair one 0 of 6), not whether the
+   prover's claim equals the true sum over eight groups. The positive
+   side of that — an honest proof with eight pairwise different groups
+   ACCEPTED through the three-bit sum — is the lane's (stage 37, test
+   (b)), and the gate's dense-against-zero comparison cannot tell the two
+   witnesses apart, by construction.
+3. **Not `lkv ≥ 4`, not `lkv = 3` with a padded head slot, not
+   `head_dim = 4`.** rung-K8 has two query heads per group and no padded
+   slot, so `head_slot` is the identity there; the padded-slot arithmetic
+   (`{3, 7, 11, 15}` at rung-K4) was last exercised at `lkv = 2`.
+4. **Not a registration of rung-K8.** It is a test-only shape in
+   `k8_tests.rs`; the gate needed no registry (there is none), but the
+   slot-IR export of round 9c's task C and the lane's layout-model CLI do
+   not cover it, so the independent IR cross-check was NOT run at
+   rung-K8.
+5. **Not a read of the lane's tree by the gate.** Every pin is checked
+   bundle-side; the readings in R9i.5 were made with `git show` on the
+   lane's committed blobs, read-only.
+6. **Not a re-take of the 125M records**, which pin older tool bytes by
+   the decision of round 9c; none of this round's readings concerns a
+   file at the 125M capture commit.
+
+## R9i.11 NEXT after round 9i
+
+1. **For the owner — `private_block.rs` and five sibling files are pinned
+   by the WRITER and compared by NO run-gate table** (`wire.rs`,
+   `run_sink.rs`, `endpoint_g.rs`, `hash_domain.rs`, `witness.rs`,
+   `private_block.rs`; `NEWLY_PINNED_OWN_FILES`). By the gate's own rule
+   none belongs in `DEPENDS` — no port transcribes them — but a
+   report-only table like `SHARED_LAYER_PINS` would make a move of any of
+   them VISIBLE in a record. If that is wanted, the digests and the
+   reading of every `private_block.rs` move since `3247a89` are in R9i.5
+   (all `#[cfg(test)] mod` lines and comments, except the stage-26
+   endpoint-role change at `f4697f9`), ready to paste.
+2. **For the Rust lane — the two shapes stage 37 named and did not
+   build**: `lkv = 3` with a padded head slot (24 × 4 over 8, width 96),
+   which is also the first `head_dim = 4`; and any `lkv ≥ 4`. The gate's
+   port and controls are ready for either (GQ-3 / GQ-4 / GQ-7.j.j+1 are
+   families over `lkv`).
+3. **R9i-F2**: retire or tighten `zk60_native_rg_recclass` — adopt this
+   round's named-kind form (`repin_diff.py`) for the next refresh. Rounds
+   5–9's committed diffs were not re-read strictly; 9b's and 9c's were
+   (residue 0).
+4. **rung-K8 in the slot-IR export** (round 9c task C), if the lane
+   registers it; until then the IR cross-check stops at seven shapes.
+5. Standing and unchanged: the joint LAW (O-R2 / G-R4) and the hash
+   layer's HIDING (M-2, M-3); more than two blocks at 125M; the capture
+   writer's 38-file list (R9h.9 item 6). Nothing here is a privacy
+   acceptance.
