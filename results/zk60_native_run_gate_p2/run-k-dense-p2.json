@@ -368,7 +368,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 270.1,
+ "seconds": 194.2,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -1047,14 +1047,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.02,
-    "msg_groups_seconds": 0.77,
+    "layout_seconds": 2.66,
+    "msg_groups_seconds": 0.7,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 4.37,
+    "pads_seconds": 3.61,
     "preimage_exhibited": true,
-    "seconds": 14.64,
+    "seconds": 12.49,
     "solve_findings": [],
-    "solve_seconds": 5.18,
+    "solve_seconds": 4.35,
     "solved": true,
     "steps": [
      {
@@ -1675,8 +1675,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 5.0,
-     "seconds_vectors_and_claims": 1.38
+     "seconds_opened_columns": 4.25,
+     "seconds_vectors_and_claims": 1.18
     }
    },
    {
@@ -1696,14 +1696,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.97,
-    "msg_groups_seconds": 0.17,
-    "msg_proximity_seconds": 0.03,
-    "pads_seconds": 3.23,
+    "layout_seconds": 2.62,
+    "msg_groups_seconds": 0.14,
+    "msg_proximity_seconds": 0.02,
+    "pads_seconds": 2.71,
     "preimage_exhibited": true,
-    "seconds": 10.86,
+    "seconds": 9.14,
     "solve_findings": [],
-    "solve_seconds": 3.43,
+    "solve_seconds": 2.87,
     "solved": true,
     "steps": [
      {
@@ -1926,8 +1926,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.98,
-     "seconds_vectors_and_claims": 0.43
+     "seconds_opened_columns": 3.29,
+     "seconds_vectors_and_claims": 0.31
     }
    },
    {
@@ -1947,14 +1947,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.81,
+    "layout_seconds": 2.53,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.09,
+    "pads_seconds": 0.07,
     "preimage_exhibited": true,
-    "seconds": 3.02,
+    "seconds": 2.7,
     "solve_findings": [],
-    "solve_seconds": 0.1,
+    "solve_seconds": 0.09,
     "solved": true,
     "steps": [
      {
@@ -2050,7 +2050,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.1,
+     "seconds_opened_columns": 0.07,
      "seconds_vectors_and_claims": 0.0
     }
    },
@@ -2071,14 +2071,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.89,
-    "msg_groups_seconds": 0.72,
+    "layout_seconds": 2.57,
+    "msg_groups_seconds": 0.58,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 4.31,
+    "pads_seconds": 3.67,
     "preimage_exhibited": true,
-    "seconds": 14.3,
+    "seconds": 12.12,
     "solve_findings": [],
-    "solve_seconds": 5.07,
+    "solve_seconds": 4.29,
     "solved": true,
     "steps": [
      {
@@ -2699,8 +2699,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 4.86,
-     "seconds_vectors_and_claims": 1.42
+     "seconds_opened_columns": 4.11,
+     "seconds_vectors_and_claims": 1.1
     }
    },
    {
@@ -2720,14 +2720,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 3.09,
-    "msg_groups_seconds": 0.18,
-    "msg_proximity_seconds": 0.03,
-    "pads_seconds": 3.19,
+    "layout_seconds": 2.48,
+    "msg_groups_seconds": 0.14,
+    "msg_proximity_seconds": 0.02,
+    "pads_seconds": 2.99,
     "preimage_exhibited": true,
-    "seconds": 10.9,
+    "seconds": 9.4,
     "solve_findings": [],
-    "solve_seconds": 3.4,
+    "solve_seconds": 3.15,
     "solved": true,
     "steps": [
      {
@@ -2950,8 +2950,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 4.0,
-     "seconds_vectors_and_claims": 0.36
+     "seconds_opened_columns": 3.4,
+     "seconds_vectors_and_claims": 0.32
     }
    },
    {
@@ -2971,14 +2971,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.85,
+    "layout_seconds": 2.49,
     "msg_groups_seconds": 0.02,
     "msg_proximity_seconds": 0.01,
-    "pads_seconds": 0.13,
+    "pads_seconds": 0.1,
     "preimage_exhibited": true,
-    "seconds": 3.14,
+    "seconds": 2.71,
     "solve_findings": [],
-    "solve_seconds": 0.17,
+    "solve_seconds": 0.13,
     "solved": true,
     "steps": [
      {
@@ -3089,8 +3089,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.12,
-     "seconds_vectors_and_claims": 0.01
+     "seconds_opened_columns": 0.09,
+     "seconds_vectors_and_claims": 0.0
     }
    },
    {
@@ -3110,12 +3110,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.81,
+    "layout_seconds": 2.4,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
     "pads_seconds": 0.09,
     "preimage_exhibited": true,
-    "seconds": 3.01,
+    "seconds": 2.58,
     "solve_findings": [],
     "solve_seconds": 0.11,
     "solved": true,
@@ -3213,14 +3213,14 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.08,
+     "seconds_opened_columns": 0.07,
      "seconds_vectors_and_claims": 0.0
     }
    }
   ],
   "requested": true,
   "salted_leaves_authenticated": 1792,
-  "seconds": 59.9,
+  "seconds": 51.2,
   "this_is_not_a_privacy_result": true,
   "view_entries_compared": 862980,
   "view_entries_differing": 0,
@@ -3759,7 +3759,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 9.78,
+    "seconds": 5.79,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -4863,7 +4863,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 9.63,
+    "seconds": 5.94,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -5654,7 +5654,7 @@
   "profile": "hashline-zk-mr1/private-run-rung-p2-t32-dev/1",
   "requested": true,
   "salted_leaves_authenticated": 512,
-  "seconds": 19.43,
+  "seconds": 11.75,
   "source_pins": {
    "accepted": [
     {
@@ -6228,7 +6228,7 @@
    "exact_rank_of_the_pad_block": 249,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.9,
+   "seconds": 3.6,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -7537,6 +7537,7 @@
      "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
     },
     "argument_definitions_this_port_implements": {
+     "2cee0a2253d6": "repaired",
      "909670c96562": "pre-repair",
      "dd8469cb0279": "repaired",
      "ec3f97443245": "repaired",
@@ -8028,7 +8029,7 @@
    },
    "rows_total": 3022,
    "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
-   "seconds": 0.6,
+   "seconds": 0.4,
    "sum_of_parts_fp": 4
   }
  },
@@ -8579,9 +8580,11 @@
    {
     "assumption": null,
     "channel": "the cross-block joint law beyond the linear rank",
+    "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 28): until this date the reason read 'a composition argument for a run, which is unwritten' and ended with ruling R-3's 'is to be machine-asserted elsewhere'; Theorem B was written and accepted as a reduction on 2026-09-20 and the draw accounting is asserted on single blocks since lane stage 36.  Grade unchanged: OPEN",
     "preimage_exhibited": null,
-    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b).  ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  The joint LAW of a run is Theorem B -- the toy theorem per stage plus one factorisation over stages, whose key hypothesis (no run-wide masking commitment; every slot of block k masked by block k's own M) is a fact of the code -- WRITTEN and ACCEPTED AS A REDUCTION (ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md, 2026-09-20 17:58, section 1), conditional on G-R1, G-R2 and G-R4.  The draw accounting ruling R-3 asked for is machine-asserted on single-block proofs (lane stage 36), not at run scope and not at 125M.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b)",
     "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+    "ruling_R3_as_of_2026_09_23": "2026-09-23 (round 9j): the draw-accounting test ruling R-3 asked for EXISTS -- lane stage 36, the seven assertions of ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md section 3.1, MEASURED on single-block proofs at six shapes (toy, rung-K4, rung-P2, rung-C6, rung-W14, rung-E32).  Not at 125M, where the per-block draw total is a count, and not at run scope (J-5's widened assertion 2 over 11L + 3(L-1) segments is unmeasured).  `joint == sum` in this gate remains a consistency check of the model, as the ruling says",
     "section": "run 2.2 (NEW)",
     "status": "open"
    },
@@ -8622,22 +8625,24 @@
     ]
    },
    {
-    "assumption": null,
+    "assumption": "D12b(3) as built (ruling R-5) + ruling M-4",
     "boundary_scales": [
      0
     ],
     "channel": "the boundary scale tags and the one calibration identity",
+    "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 26): until this date this channel was graded OPEN on check A7.5 -- 'nothing in the run's privacy section covers the boundary's scale/calibration binding, and D12 item 5 records that a tag equality check would pass on a factor-of-8 mismatch'.  D12b(3) closed that BY CONSTRUCTION at lane stage 21 (2026-09-20), so the grade was stale",
+    "model_assumption": "a boundary's scale pair is a CONSTANT of the approved calibration and so carries nothing about the hidden input: RunStatement::new refuses any interior scale pair but ENDPOINT_SCALES (ruling R-5, register D12b item 3; built at lane stage 21 item 3, 71c6509, 2026-09-20; run.rs at every capture commit since 0426ad2 -- zk60_native_rg_runpins READINGS on 65d55d25 -- and at f4697f9 run.rs:143-169), and the scales are then bound through the ONE calibration identity the run header absorbs (ruling M-4).  The gate reads the declared scales as public constants and checks that the run declares one calibration identity; it does NOT re-run R-5's refusal, which is a code fact the run.rs pin covers",
     "one_calibration_identity": true,
     "preimage_exhibited": null,
-    "reason": "check A7.5: nothing in the run's privacy section covers the boundary's scale/calibration binding, and D12 item 5 records that a tag equality check would pass on a factor-of-8 mismatch.  The gate reads the scales as public constants and checks that the run declares ONE calibration identity (ruling M-4); it does not check what the tag proves",
     "section": "run 2.2 (NEW)",
-    "status": "open"
+    "status": "argued"
    },
    {
     "assumption": null,
     "channel": "whether a proof attempt produced a receipt (refusal events)",
+    "corrected": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 27): until this date the reason read 'with 49 commitments a run makes 23 more ZkRng::from_os calls, and from_os fails closed -- now possibly in stage 12, minutes in (A7.2)', the design's one-generator-per-commitment recommendation, which ruling R-2 withdrew on 2026-09-20.  Grade unchanged: OPEN",
     "preimage_exhibited": null,
-    "reason": "the refusal channel is inside the game (ruling C-2); a capture exists only when the run was accepted.  For a RUN the check adds one more refusal class: with 49 commitments a run makes 23 more ZkRng::from_os calls, and from_os fails closed -- now possibly in stage 12, minutes in (A7.2)",
+    "reason": "the refusal channel is inside the game (ruling C-2); a capture exists only when the run was accepted.  Its ENTROPY side is one fail-closed read per generator and THREE generators per run, accepted as built (ruling R-2 of ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md; J-2; run memo section 6.3): prove_run makes ONE ZkRng::from_os(run_seed_domain(profile)) before the run header is absorbed and before stage 0 (run.rs:523 at f4697f9), every boundary is drawn from that stream, and the two external endpoints read once each (endpoint_g.rs:269); boundary.rs's own from_os is in its test module.  A run's other refusals (a witness the builder refuses, a lookup miss under CS-3) can still fire inside stage k and name the stage: rule M-9 / D12b(1) governs who may see that reason",
     "section": "run 2.2",
     "status": "open"
    },
@@ -8691,10 +8696,10 @@
    }
   ],
   "counts": {
-   "argued": 4,
+   "argued": 5,
    "constructed": 10,
    "derived": 5,
-   "open": 9
+   "open": 8
   },
   "grading_failures": [],
   "new_for_a_run": [
@@ -9455,6 +9460,7 @@
      "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
     },
     "argument_definitions_this_port_implements": {
+     "2cee0a2253d6": "repaired",
      "909670c96562": "pre-repair",
      "dd8469cb0279": "repaired",
      "ec3f97443245": "repaired",
@@ -9729,32 +9735,33 @@
   "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
   "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
+  "zk60_native_rg_block.py": "cc4911bfab9be4888be06a53d6858e9ed4ffa40b9c28587dee5fd06ce92a39d4",
   "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
   "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
   "zk60_native_rg_gcontrols.py": "785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85",
-  "zk60_native_rg_gqa.py": "a05a8de8e44785ebd2d69321b47af4d1faf3a2e5c53f7043a2bee94edfa07eb7",
+  "zk60_native_rg_gqa.py": "f64903a9415f1c422d259d4718a438269310a4bb7764dcca48c1581d8fab11c2",
   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
-  "zk60_native_rg_hcontrols.py": "12a092bcfe1a47fb745c2d8aba9448aac95c4927569dfccc4b9a8c6049608385",
+  "zk60_native_rg_hcontrols.py": "0ca766b561707eeca44f424a2fef628cd7a22da4fd4e756dad92cfaae5d3f048",
   "zk60_native_rg_joint.py": "2049618f8671331d88ae68eefa5c89ce0de089dcfe94758069880460e715860c",
-  "zk60_native_rg_mask.py": "d4114585d2dc7ca8cb88ffa71b917e9beb580cd86648238d0eb1356982c78727",
+  "zk60_native_rg_mask.py": "3d655b20990c6faedb9dd4a66bbb6b9c1f12613ca06a64830e3d7a3426fc5c19",
   "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
   "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
   "zk60_native_rg_pcs.py": "69808ca57cd8b8372c561a924f4a991aaf14dfe9862287603cb1354d041fe572",
   "zk60_native_rg_planes.py": "990173caf4026852fddb7a21d635594af5493ddae50d41a052e7ed347e922944",
   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
-  "zk60_native_rg_replay.py": "2833fbadf985bf06d7013f0a194cd2042c02688513c1bdf79e7f9d9038f6adfc",
+  "zk60_native_rg_replay.py": "6852cd94ab0fcaa7780ce5f92ad3d9ebdb20614d43787e629015eeb97e141360",
   "zk60_native_rg_runpins.py": "bc676343a37fcdc948f3c6c7ec11a21e51bf098126d762452af78a6e7cbe59b3",
-  "zk60_native_rg_tcontrols.py": "e1df42e40b398303198f35ba98c5b76867ad71faad9cec50f521d46e2f7ae653",
-  "zk60_native_rg_terminals.py": "4cc6a98b1097cd264597546fb6db4c537cd5f590fe4de276889befe9247ef065",
-  "zk60_native_run_gate.py": "2ed3bfae2bb787695b3c9d172403817a2308405e9473a269269ecbdea8a379ad"
+  "zk60_native_rg_tcontrols.py": "3804d60760366a429af82d5a2a8106f253cda4a53bd22d6b5cc1185b8ae94ad4",
+  "zk60_native_rg_terminals.py": "f813b3b3b5343269bc1dba05c3fcb036c4a538a1f8dfcabe2be4ac1720b5951d",
+  "zk60_native_run_gate.py": "c228166cedb5b58de6712a6680e81dfb107ba9b79541851c077a47f25e4e513a"
  },
  "version": 1,
  "what_it_does_not_show": [
   "linear channels of ONE captured three-block run at ONE development shape",
   "nothing about the 125M shape, where exact rank over thousands of rows per commitment is a different computation",
   "the hash layer's HIDING is still ARGUED, not computed: stage 9 authenticates every OPENED column under the rule, which says nothing about what an unopened leaf hides (M-2, M-3)",
-  "the joint-law composition for a run is unwritten",
+  "the joint LAW (Theorem B) is a reduction accepted on paper, not a computation of this gate: what is computed is a rank",
   "the per-slot terminal identity is checked for 23 of 23 slots and OPEN for the other 0, whose public tables this bundle does not carry",
   "a captured public table is checked against the capture's own length, SHA-256 and the structure its builder gives it -- NOT against the weight matrix the statement names, which no bundle carries",
   "the bilinear slots' group factor is DERIVED and compared, which says the claim point and the schedule are the repaired construction's -- it says nothing about the witness the run was proved on.  A capture carries no witness, so THIS GATE CANNOT TELL A DENSE WITNESS FROM A DEGENERATE ONE, and cannot reproduce finding S19-F1, which is a disagreement between the prover's claim and the true sum over key-value groups.  Which witness made a bundle is a fact of the Rust lane's test, read from the capture's README, not from the bundle",

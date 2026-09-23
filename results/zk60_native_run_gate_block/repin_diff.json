@@ -1,0 +1,469 @@
+{
+ "changed_total": 1484,
+ "identical_leaves_total": 172188,
+ "no_figure_of_record_moved": true,
+ "only_in_the_new_record_total": 220,
+ "only_in_the_old_record_total": 28,
+ "per_record": [
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 16,
+   "identical_leaves": 2862,
+   "only_in_the_new_record": 6,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate/run-a-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 16,
+   "identical_leaves": 2862,
+   "only_in_the_new_record": 6,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate/run-b-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 1,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 15,
+   "identical_leaves": 3671,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_planeindex/run-c-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 16,
+   "identical_leaves": 3670,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_planeindex/run-d-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 1,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 15,
+   "identical_leaves": 4009,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_tagged/run-e-tame-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 17,
+   "identical_leaves": 4007,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_tagged/run-f-zero-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 17,
+   "identical_leaves": 4090,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_s20/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 16,
+   "identical_leaves": 4091,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_s20/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 16,
+   "identical_leaves": 4175,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_k4/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 17,
+   "identical_leaves": 4174,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_k4/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 57,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 71,
+   "identical_leaves": 6528,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_preimage/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 63,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 77,
+   "identical_leaves": 6522,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_preimage/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 67,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 81,
+   "identical_leaves": 6602,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_preimage/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 59,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 73,
+   "identical_leaves": 6610,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_preimage/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 59,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 73,
+   "identical_leaves": 8752,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_mask/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 68,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 82,
+   "identical_leaves": 8743,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_mask/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 68,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 82,
+   "identical_leaves": 8827,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_mask/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 74,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 88,
+   "identical_leaves": 8821,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_mask/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 1
+   },
+   "changed": 1,
+   "identical_leaves": 183,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/toy_equivalence"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 51,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 65,
+   "identical_leaves": 6690,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_p2/run-k-dense-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 53,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 67,
+   "identical_leaves": 6688,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_p2/run-l-zero-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 59,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 73,
+   "identical_leaves": 6874,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_9c/run-m-dense-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 45,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 59,
+   "identical_leaves": 6888,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_9c/run-n-zero-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 54,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 68,
+   "identical_leaves": 6688,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_9c/run-o-dense-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 58,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 72,
+   "identical_leaves": 6684,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_9c/run-p-zero-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 48,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 62,
+   "identical_leaves": 7146,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_9c/run-q-dense-e32"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 53,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 67,
+   "identical_leaves": 7141,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_9c/run-r-zero-e32"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 65,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 79,
+   "identical_leaves": 9097,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_k8/run-s-dense-k8"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 69,
+    "E2 the new block-layer tool": 1,
+    "E2 tool hash of a tool this round moved": 7,
+    "E3 the stage-45 argument definition read": 2,
+    "E4 a corrected channel (rows 26-28)": 10,
+    "E5 row 26's regrade in the counts": 2,
+    "E6 the corrected what-it-does-not-show sentence": 1
+   },
+   "changed": 83,
+   "identical_leaves": 9093,
+   "only_in_the_new_record": 8,
+   "only_in_the_old_record": 1,
+   "record": "zk60_native_run_gate_k8/run-t-zero-k8"
+  }
+ ],
+ "records": 29,
+ "unexpected": [],
+ "unexpected_count": 0,
+ "what": "ROUND 9j: what this round's tools moved in the development records of\nrecord, leaf by leaf, with a STRICT list (round 9i's form, finding R9i-F2)."
+}
