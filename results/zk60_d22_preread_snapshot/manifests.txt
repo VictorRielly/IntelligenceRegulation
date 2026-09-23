@@ -1,0 +1,9 @@
+zkp-core/Cargo.toml: snapshot b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842  pin b9038a52f34e0ee8313aa93eec656ff62ea29571a04b3df7f3db349d623ba842  EQUAL
+  EXPECTED_AFTER_INTEGRATION 0c746b9d7dc46b0866638a6ea9cfc8932e3cf7d594dc97a77f2bff3130ea0d56 != snapshot
+  content assertion: ACCEPTED {'sections': 3, 'keys': 13, 'features_default': 'absent', 'test-observers': 'absent', 'verdict': 'this manifest cannot put the test-only observers into a release build'}
+  token 'test-observers' present: False; 'resolver' key present: False
+hashline/Cargo.toml: snapshot e3acda1bf4cf1a8cbbd671e51885a3e4b31b41e976f7ecf15057fdf0018015fc  pin eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a  MOVED
+  EXPECTED_AFTER_INTEGRATION 10d99a63f465900ad6cad29f547a6d396b66c7a59320e0f8cb60ad3b3b721acf != snapshot
+  content assertion: ACCEPTED {'sections': 7, 'keys': 24, 'features_default': 'absent', 'test-observers': 'absent', 'verdict': 'this manifest cannot put the test-only observers into a release build'}
+  token 'test-observers' present: False; 'resolver' key present: False
+check_manifest_pins(snapshot): REFUSED ManifestPinError: manifest pin MISMATCH for hashline/Cargo.toml:

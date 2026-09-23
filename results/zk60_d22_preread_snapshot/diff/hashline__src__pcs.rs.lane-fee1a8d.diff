@@ -1,0 +1,56 @@
+--- fee1a8d:hashline/src/pcs.rs
++++ snapshot:hashline/src/pcs.rs
+@@ -35,6 +35,53 @@
+ /// (`HL_GPU=1`) is offered first and declines to the CPU body.
+ pub fn commit(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Committed {
+     zkp_core::pcs::commit_with(&backend(), params, data, ntt)
++}
++
++/// [FSP-HOST] ITEM (a) of the five-second plan's step 4: commit a v3
++/// layer's W matrix with the three int8 weight planes as the SOURCE,
++/// instead of the `Vec<Fp>` block tiling of them that `prove_layer_v3`
++/// builds and throws away.
++///
++/// `None` is a DECLINE and never an error: the caller (layer.rs, through
++/// `wcache::commit_w_planes`) then builds that `Vec<Fp>` exactly as before
++/// and calls `commit`, so the inherited arm stays in the binary for the
++/// A/B and for rollback, and every configuration this entry does not serve
++/// — no `gpu-cuda` feature, `HL_GPU` unset, the device declining the
++/// shape, `HL_GPU_NARROW=0`, no `k_widen`, no packing scratch — keeps the
++/// behaviour it has today.
++///
++/// It cannot go through `zkp_core::pcs::commit_with` (the core is not this
++/// lane's crate and its `Backend` seam passes `&[Fp]`), so it mirrors that
++/// function's DEVICE BRANCH exactly — `try_commit`'s leaves,
++/// `MerkleTree::build`, `Committed { params, rows, store: Device, tree }` —
++/// the way `commit_zk_device` below already does.
++#[cfg(feature = "gpu-cuda")]
++pub fn commit_planes(params: &PcsParams, pt: &crate::gpu::PlaneTiling, ntt: &NttTables) -> Option<Committed> {
++    use crate::merkle::MerkleTree;
++    if !crate::gpu::enabled() {
++        return None;
++    }
++    let n = params.cols();
++    let len = pt.len();
++    if len == 0 || len % n != 0 {
++        return None;
++    }
++    match crate::gpu::dev_commit_planes(params, pt, ntt) {
++        Ok((dc, leaves)) => {
++            let tree = MerkleTree::build(leaves);
++            Some(Committed { params: *params, rows: len / n, store: Store::Device(dc), tree })
++        }
++        Err(e) => {
++            eprintln!("[FSP-HOST] plane commit declined ({e}); Vec<Fp> path");
++            None
++        }
++    }
++}
++
++/// Without the device feature there is no plane path at all.
++#[cfg(not(feature = "gpu-cuda"))]
++pub fn commit_planes(_params: &PcsParams, _pt: &crate::gpu::PlaneTiling, _ntt: &NttTables) -> Option<Committed> {
++    None
+ }
+ 
+ /// Prover: open `claims` on the commitment (see `zkp_core::pcs::open`);

@@ -1,0 +1,309 @@
+################ hashline/src/zk.rs: fn mask_commit#0 -> fn mask_commit_tagged#0  (38 -> 50 lines)
+--- hashline/src/zk.rs fn mask_commit#0
++++ hashline/src/zk.rs fn mask_commit_tagged#0
+@@ -1,2 +1,14 @@
+-pub fn mask_commit(specs: &[(usize, usize)], ntt: &NttTables, rng: &mut ZkRng) -> MaskCommit {
++/// [ZK60 D19, ruling T-1] `mask_commit` under a
++/// [`zkp_core::hashtag::HashTag`]: the masking commitment `M` is the one
++/// other place in this crate that builds a column-hashed, salted Merkle
++/// tree, so a tagged profile has to carry the tag here as well or its `M`
++/// would be the only unkeyed commitment of the proof. `mask_commit` above
++/// keeps its own body: this is a separate entry point and not a forward.
++///
++/// The generator draws in exactly the order `mask_commit` draws — the mask
++/// coefficients, the per-row pads, `b`, `u`, then the salts — so a tag moves
++/// no byte of the randomness. `M` never reaches the accelerator (it is
++/// hashed here, not through `pcs::commit_zk_owned`), so ruling T-8 has
++/// nothing to decline in this function.
++pub fn mask_commit_tagged(specs: &[(usize, usize)], ntt: &NttTables, rng: &mut ZkRng, tag: &zkp_core::hashtag::HashTag) -> MaskCommit {
+     let m = 1usize << MASK_LOG_MSG;
+@@ -33,5 +45,5 @@
+     let salts: Vec<[u8; 32]> = (0..dom).map(|_| rng.bytes32()).collect();
+-    let leaves = pcs::hash_columns(&encoded, n_base, dom);
+-    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf(l, s)).collect();
+-    let tree = MerkleTree::build(salted);
++    let leaves = pcs::hash_columns_keyed(&encoded, n_base, dom, tag.column_key());
++    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| pcs::salt_leaf_keyed(l, s, tag.leaf_key())).collect();
++    let tree = MerkleTree::build_keyed(salted, tag.node_key());
+     MaskCommit { specs: specs.to_vec(), masks, a_coefs, encoded, b: (b_re, b_im), u: (u_re, u_im), salts, tree }
+
+################ hashline/src/zk.rs: fn mask_verify#0 -> fn mask_verify_tagged#0  (39 -> 43 lines)
+--- hashline/src/zk.rs fn mask_verify#0
++++ hashline/src/zk.rs fn mask_verify_tagged#0
+@@ -1,2 +1,7 @@
+-pub fn mask_verify(root: &Digest, specs: &[(usize, usize)], functionals: &[MaskFunctional], op: &MaskOpening, ntt: &NttTables, tr: &mut Transcript) -> Result<(), String> {
++/// [ZK60 D19, rulings T-1 and T-7] `mask_verify` under a
++/// [`zkp_core::hashtag::HashTag`]. `mask_verify` above keeps its own body.
++///
++/// The tag is the CALLER's, from the profile it trusts; nothing in `op` — a
++/// structure decoded from an untrusted frame — selects or carries a key.
++pub fn mask_verify_tagged(root: &Digest, specs: &[(usize, usize)], functionals: &[MaskFunctional], op: &MaskOpening, ntt: &NttTables, tr: &mut Transcript, tag: &zkp_core::hashtag::HashTag) -> Result<(), String> {
+     let m = 1usize << MASK_LOG_MSG;
+@@ -7,3 +12,2 @@
+     if op.q.len() != 2 * m { return Err("mask: q length".into()); }
+-    // sum over G_512 of q' = 512 (q_0 + q_512)
+     let got = op.q[0].add(op.q[m]).mul_base(Fp::new(m as u64));
+@@ -24,4 +28,4 @@
+         if col.len() != n_base { return Err("mask: column length".into()); }
+-        let leaf = salt_leaf(&pcs_hash_column(col), salt);
+-        if !MerkleTree::verify_path(root, *j, &leaf, path) { return Err(format!("mask: Merkle path for column {j} fails")); }
++        let leaf = pcs::salt_leaf_keyed(&pcs_hash_column_keyed(col, tag.column_key()), salt, tag.leaf_key());
++        if !MerkleTree::verify_path_keyed(root, *j, &leaf, path, tag.node_key()) { return Err(format!("mask: Merkle path for column {j} fails")); }
+         let mut acc = Fp2::new(col[2 * specs.len()], col[2 * specs.len() + 1]);
+
+################ hashline/src/zk.rs: fn pcs_hash_column#0 -> fn pcs_hash_column_keyed#0  (4 -> 9 lines)
+--- hashline/src/zk.rs fn pcs_hash_column#0
++++ hashline/src/zk.rs fn pcs_hash_column_keyed#0
+@@ -1,4 +1,9 @@
+-fn pcs_hash_column(col: &[Fp]) -> Digest {
++/// [ZK60 D19, ruling T-1] `pcs_hash_column` under a tagged profile's COLUMN
++/// key. `pcs_hash_column` above keeps its own body; keyed BLAKE3 has no
++/// one-shot `blake3::hash` equivalent, so this builds the hasher.
++fn pcs_hash_column_keyed(col: &[Fp], key: Option<&[u8; 32]>) -> Digest {
+     let bytes: Vec<u8> = col.iter().flat_map(|v| v.to_bytes()).collect();
+-    *blake3::hash(&bytes).as_bytes()
++    let mut h = zkp_core::hashtag::hasher(key);
++    h.update(&bytes);
++    *h.finalize().as_bytes()
+ }
+
+################ hashline/src/pcs.rs: fn commit_zk_owned#0 -> fn commit_zk_owned_tagged#0  (4 -> 12 lines)
+--- hashline/src/pcs.rs fn commit_zk_owned#0
++++ hashline/src/pcs.rs fn commit_zk_owned_tagged#0
+@@ -1,4 +1,12 @@
+-/// `commit_zk` taking the data by value (no host copy: the commitment keeps it).
+-pub fn commit_zk_owned(params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng) -> CommittedZk {
+-    zkp_core::pcs::commit_zk_owned_with(&backend(), params, data, ntt, zk, rng)
++/// [ZK60 D19, rulings T-1 and T-8] `commit_zk_owned` under a
++/// [`zkp_core::hashtag::HashTag`]. `commit_zk_owned` above keeps its own
++/// body.
++///
++/// The backend is offered exactly as before — and the core's tagged
++/// commitment declines to offer a KEYED column digest to it, because the
++/// device kernel is an unkeyed BLAKE3 with the IV hard-coded. That is a
++/// **temporary CPU fallback**, recorded as such in `zkp_core::pcs`; nothing
++/// under `gpu/` is touched and no keyed device path is claimed.
++pub fn commit_zk_owned_tagged(params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng, tag: &zkp_core::hashtag::HashTag) -> CommittedZk {
++    zkp_core::pcs::commit_zk_owned_with_tag(&backend(), params, data, ntt, zk, rng, tag)
+ }
+
+################ zkp-core/src/pcs.rs: fn commit_zk_owned_with#0 -> fn commit_zk_owned_with_tag#0  (39 -> 56 lines)
+--- zkp-core/src/pcs.rs fn commit_zk_owned_with#0
++++ zkp-core/src/pcs.rs fn commit_zk_owned_with_tag#0
+@@ -1,5 +1,18 @@
+-/// `commit_zk_owned` offering the coset encode-and-hash to `backend` first.
+-/// The pads and the salts are drawn from `rng` BEFORE the offer, in this
+-/// order, on every path, so the bytes do not depend on who encoded.
+-pub fn commit_zk_owned_with<B: Backend>(backend: &B, params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng) -> CommittedZk<B::Store> {
++/// [ZK60 D19, rulings T-1 and T-8] `commit_zk_owned_with` under a
++/// [`HashTag`]. `commit_zk_owned_with` above keeps its own body.
++///
++/// The pads and the salts are drawn from `rng` FIRST and in exactly the
++/// legacy order, before any branch, so the generator's byte order is the same
++/// under both rules and a tag never moves a random draw.
++///
++/// **THE ACCELERATOR (ruling T-8).** A TAGGED commitment does not offer its
++/// column hashing to the backend. The device kernel
++/// (`hashline/src/gpu/kernels.cu`) is a hand-written BLAKE3 with the IV
++/// hard-coded and no key input, so it can only produce UNKEYED column
++/// digests; offering the work to it would silently return the wrong leaves.
++/// This is a **TEMPORARY CPU FALLBACK, recorded as such** — not accelerator
++/// support, and not a performance result. The keyed device path (load the
++/// key words in place of `b3_iv` and OR in `KEYED_HASH`) is a separate,
++/// later, reviewable kernel change and is the integrator's.
++pub fn commit_zk_owned_with_tag<B: Backend>(backend: &B, params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng, tag: &HashTag) -> CommittedZk<B::Store> {
+     let data_ref: &[Fp] = &data;
+@@ -14,4 +27,8 @@
+     let pows = coset_powers(zk.coset, nn);
+-    // [UPERF3-ZA] the external path (rung 4): the same coset encoding elsewhere, leaves back, salted here.
+-    let dev: Option<(B::Store, Vec<Digest>)> = backend.try_commit_zk(params, data_ref, &pads, &pows, ntt);
++    // ruling T-8: the one condition. A keyed column digest is not offered to
++    // the unkeyed device hasher.
++    let dev: Option<(B::Store, Vec<Digest>)> = match tag.column_key() {
++        None => backend.try_commit_zk(params, data_ref, &pads, &pows, ntt),
++        Some(_) => None,
++    };
+     let (store, leaves) = match dev {
+@@ -23,3 +40,3 @@
+             });
+-            let leaves = hash_columns(&encoded, rows, nn);
++            let leaves = hash_columns_keyed(&encoded, rows, nn, tag.column_key());
+             (Store::Host { encoded }, leaves)
+@@ -27,4 +44,4 @@
+     };
+-    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf(l, s)).collect();
+-    let tree = MerkleTree::build(salted);
++    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf_keyed(l, s, tag.leaf_key())).collect();
++    let tree = MerkleTree::build_keyed(salted, tag.node_key());
+     CommittedZk {
+
+################ zkp-core/src/pcs.rs: fn verify_zk#0 -> fn verify_zk_tagged#0  (95 -> 121 lines)
+--- zkp-core/src/pcs.rs fn verify_zk#0
++++ zkp-core/src/pcs.rs fn verify_zk_tagged#0
+@@ -1,3 +1,20 @@
+-/// Verifier of a ZK opening.
+-pub fn verify_zk(
++/// [ZK60 D19, ruling T-1] `verify_zk` under a [`HashTag`]. `verify_zk` above
++/// keeps its own body.
++///
++/// **The tag is the CALLER's, from the profile it trusts.** Nothing read out
++/// of a receipt or a capture selects or carries a key (ruling T-7): the
++/// `opening` argument is untrusted bytes and is never consulted about the
++/// rule.
++///
++/// **It also checks the Merkle path LENGTH**, which `verify_zk` does not
++/// (`merkle.rs`'s `verify_path` folds however many siblings it is handed).
++/// This is new code with no legacy byte at stake, so the check the
++/// disposition asks the integrator for is simply in it from the start: a
++/// path must have exactly `log2(enc_cols)` entries. It rejects no honest
++/// proof — an honest path is `tree.path(j)`, whose length is the tree's depth
++/// — and it is what stops an inner node being presented as a salted leaf
++/// under a short path. Under a tag the two are different functions anyway;
++/// the length check is the second line and the only line a legacy caller of
++/// this function would have.
++pub fn verify_zk_tagged(
+     params: &PcsParams,
+@@ -9,2 +26,3 @@
+     tr: &mut Transcript,
++    tag: &HashTag,
+ ) -> Result<(), String> {
+@@ -19,2 +37,10 @@
+         return Err("pcs zk: fewer pads than column checks".into());
++    }
++    // the tree over `nn` salted leaves is `log2(nn)` deep, and `nn` is a
++    // power of two by `enc_cols`'s construction
++    let depth = nn.trailing_zeros() as usize;
++    for (at, (_, _, _, path)) in opening.columns.iter().enumerate() {
++        if path.len() != depth {
++            return Err(format!("pcs zk: opened column {at} carries a Merkle path of {} entries; this commitment's tree is {depth} deep", path.len()));
++        }
+     }
+@@ -72,4 +98,4 @@
+             }
+-            let leaf = salt_leaf(&hash_column(col), salt);
+-            if !MerkleTree::verify_path(&cm.root, *j, &leaf, path) {
++            let leaf = salt_leaf_keyed(&hash_column_keyed(col, tag.column_key()), salt, tag.leaf_key());
++            if !MerkleTree::verify_path_keyed(&cm.root, *j, &leaf, path, tag.node_key()) {
+                 return Err(format!("pcs zk: Merkle path for column {j} fails"));
+
+################ zkp-core/src/pcs.rs: fn hash_column#0 -> fn hash_column_keyed#0  (7 -> 8 lines)
+--- zkp-core/src/pcs.rs fn hash_column#0
++++ zkp-core/src/pcs.rs fn hash_column_keyed#0
+@@ -1,4 +1,5 @@
+-fn hash_column(col: &[Fp]) -> Digest {
+-    let mut h = blake3::Hasher::new();
+-    // one update over the little-endian bytes
++/// [ZK60 D19, ruling T-1] `hash_column` under a tagged profile's COLUMN key.
++/// `hash_column` above keeps its own body.
++fn hash_column_keyed(col: &[Fp], key: Option<&[u8; 32]>) -> Digest {
++    let mut h = crate::hashtag::hasher(key);
+     let bytes: Vec<u8> = col.iter().flat_map(|v| v.to_bytes()).collect();
+
+################ zkp-core/src/pcs.rs: fn hash_columns#0 -> fn hash_columns_keyed#0  (21 -> 26 lines)
+--- zkp-core/src/pcs.rs fn hash_columns#0
++++ zkp-core/src/pcs.rs fn hash_columns_keyed#0
+@@ -1,4 +1,7 @@
+-/// The column leaves of an encoded matrix (rows x nn, row-major): blake3
+-/// of each column's little-endian bytes, hashed in tiles of 64 columns.
+-pub fn hash_columns(encoded: &[Fp], rows: usize, nn: usize) -> Vec<Digest> {
++/// [ZK60 D19, ruling T-1] `hash_columns` under a tagged profile's COLUMN
++/// key. `hash_columns` above keeps its own body, so the legacy path is the
++/// same text it always was — including its `blake3::hash` fast path, which
++/// keyed mode has no equivalent of and which is why the keyed body builds a
++/// hasher per column instead.
++pub fn hash_columns_keyed(encoded: &[Fp], rows: usize, nn: usize, key: Option<&[u8; 32]>) -> Vec<Digest> {
+     let tile = 64usize;
+@@ -16,3 +19,5 @@
+         for (o, b) in out.iter_mut().zip(bufs.iter()) {
+-            *o = *blake3::hash(b).as_bytes();
++            let mut h = crate::hashtag::hasher(key);
++            h.update(b);
++            *o = *h.finalize().as_bytes();
+         }
+
+################ zkp-core/src/pcs.rs: fn salt_leaf#0 -> fn salt_leaf_keyed#0  (7 -> 13 lines)
+--- zkp-core/src/pcs.rs fn salt_leaf#0
++++ zkp-core/src/pcs.rs fn salt_leaf_keyed#0
+@@ -1,4 +1,10 @@
+-/// leaf = blake3(unsalted leaf || salt)
+-pub fn salt_leaf(leaf: &Digest, salt: &[u8; 32]) -> Digest {
+-    let mut h = blake3::Hasher::new();
++/// [ZK60 D19, ruling T-1] `salt_leaf` under a tagged profile's LEAF key.
++/// `salt_leaf` above keeps its own body.
++///
++/// **This is the function that ends the leaf/node ambiguity.** Under the
++/// legacy rule a salted leaf and a Merkle inner node are the same BLAKE3 call
++/// on the same 64 bytes; under a tag they are two members of the family, with
++/// the leaf key and the node key, and the tests in this file pin both facts.
++pub fn salt_leaf_keyed(leaf: &Digest, salt: &[u8; 32], key: Option<&[u8; 32]>) -> Digest {
++    let mut h = crate::hashtag::hasher(key);
+     h.update(leaf);
+
+################ zkp-core/src/merkle.rs: fn hash_pair#0 -> fn hash_pair_keyed#0  (7 -> 12 lines)
+--- zkp-core/src/merkle.rs fn hash_pair#0
++++ zkp-core/src/merkle.rs fn hash_pair_keyed#0
+@@ -1,4 +1,9 @@
++/// [ZK60 D19, ruling T-1] The same inner node under a tagged profile's NODE
++/// key. `hash_pair` above keeps its own body: this is a separate entry
++/// point, not a forward, so "the legacy callers are byte-identical" is a fact
++/// about unchanged text. With `None` it computes the same digest `hash_pair`
++/// does, which is what the isolated control in this file's tests pins.
+ #[inline]
+-pub fn hash_pair(a: &Digest, b: &Digest) -> Digest {
+-    let mut h = blake3::Hasher::new();
++pub fn hash_pair_keyed(a: &Digest, b: &Digest, key: Option<&[u8; 32]>) -> Digest {
++    let mut h = crate::hashtag::hasher(key);
+     h.update(a);
+
+################ zkp-core/src/merkle.rs: impl MerkleTree::fn build#0 -> impl MerkleTree::fn build_keyed#0  (14 -> 16 lines)
+--- zkp-core/src/merkle.rs impl MerkleTree::fn build#0
++++ zkp-core/src/merkle.rs impl MerkleTree::fn build_keyed#0
+@@ -1,2 +1,4 @@
+-pub fn build(leaves: Vec<Digest>) -> MerkleTree {
++/// [ZK60 D19, ruling T-1] `build` under a tagged profile's NODE key.
++    /// `build` above keeps its own body.
++    pub fn build_keyed(leaves: Vec<Digest>, key: Option<&[u8; 32]>) -> MerkleTree {
+         let n = leaves.len();
+@@ -8,3 +10,3 @@
+                 .par_chunks(2)
+-                .map(|pair| hash_pair(&pair[0], &pair[1]))
++                .map(|pair| hash_pair_keyed(&pair[0], &pair[1], key))
+                 .collect();
+
+################ zkp-core/src/merkle.rs: impl MerkleTree::fn verify_path#0 -> impl MerkleTree::fn verify_path_keyed#0  (8 -> 15 lines)
+--- zkp-core/src/merkle.rs impl MerkleTree::fn verify_path#0
++++ zkp-core/src/merkle.rs impl MerkleTree::fn verify_path_keyed#0
+@@ -1,5 +1,12 @@
+-pub fn verify_path(root: &Digest, mut idx: usize, leaf: &Digest, path: &[Digest]) -> bool {
++/// [ZK60 D19, ruling T-1] `verify_path` under a tagged profile's NODE
++    /// key. `verify_path` above keeps its own body. It still folds however
++    /// many siblings it is handed — the LENGTH is the caller's check
++    /// (`verify_zk_tagged` in `pcs.rs` makes it one) — but under a tagged
++    /// profile a node and a salted leaf are no longer the same function, so
++    /// the depth confusion the disposition describes needs a key it does not
++    /// have.
++    pub fn verify_path_keyed(root: &Digest, mut idx: usize, leaf: &Digest, path: &[Digest], key: Option<&[u8; 32]>) -> bool {
+         let mut cur = *leaf;
+         for sib in path {
+-            cur = if idx & 1 == 0 { hash_pair(&cur, sib) } else { hash_pair(sib, &cur) };
++            cur = if idx & 1 == 0 { hash_pair_keyed(&cur, sib, key) } else { hash_pair_keyed(sib, &cur, key) };
+             idx >>= 1;
+
+################ zkp-core/src/transcript.rs: impl Transcript::fn new#0 -> impl Transcript::fn new_tagged#0  (6 -> 10 lines)
+--- zkp-core/src/transcript.rs impl Transcript::fn new#0
++++ zkp-core/src/transcript.rs impl Transcript::fn new_tagged#0
+@@ -1,6 +1,10 @@
+-pub fn new(domain: &[u8]) -> Transcript {
+-        let mut h = blake3::Hasher::new();
++/// [ZK60 D19, ruling T-1] The same transcript in BLAKE3's KEYED mode,
++    /// under a tagged profile's Fiat-Shamir key. The absorbed messages and
++    /// their order are unchanged; only the hash function is another member of
++    /// the family. `new` is this with no key, and keeps its own body.
++    pub fn new_tagged(domain: &[u8], key: [u8; 32]) -> Transcript {
++        let mut h = crate::hashtag::hasher(Some(&key));
+         h.update(b"hashline-v1/");
+         h.update(domain);
+-        Transcript { state: *h.finalize().as_bytes(), counter: 0, masker: None, masked_rounds: Vec::new(), key: None }
++        Transcript { state: *h.finalize().as_bytes(), counter: 0, masker: None, masked_rounds: Vec::new(), key: Some(key) }
+     }
+

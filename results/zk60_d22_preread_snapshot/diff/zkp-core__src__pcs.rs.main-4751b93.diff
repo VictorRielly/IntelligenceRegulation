@@ -1,0 +1,492 @@
+--- 4751b93:zkp-core/src/pcs.rs
++++ snapshot:zkp-core/src/pcs.rs
+@@ -27,6 +27,7 @@
+ //! consumption, RNG draw order and serialization are unchanged.
+ 
+ use crate::field::{Fp, Fp2};
++use crate::hashtag::HashTag;
+ use crate::merkle::{Digest, MerkleTree};
+ use crate::mle::eq_table_msb;
+ use crate::ntt::NttTables;
+@@ -137,6 +138,15 @@
+ fn hash_column(col: &[Fp]) -> Digest {
+     let mut h = blake3::Hasher::new();
+     // one update over the little-endian bytes
++    let bytes: Vec<u8> = col.iter().flat_map(|v| v.to_bytes()).collect();
++    h.update(&bytes);
++    *h.finalize().as_bytes()
++}
++
++/// [ZK60 D19, ruling T-1] `hash_column` under a tagged profile's COLUMN key.
++/// `hash_column` above keeps its own body.
++fn hash_column_keyed(col: &[Fp], key: Option<&[u8; 32]>) -> Digest {
++    let mut h = crate::hashtag::hasher(key);
+     let bytes: Vec<u8> = col.iter().flat_map(|v| v.to_bytes()).collect();
+     h.update(&bytes);
+     *h.finalize().as_bytes()
+@@ -159,6 +169,33 @@
+         }
+         for (o, b) in out.iter_mut().zip(bufs.iter()) {
+             *o = *blake3::hash(b).as_bytes();
++        }
++    });
++    leaves
++}
++
++/// [ZK60 D19, ruling T-1] `hash_columns` under a tagged profile's COLUMN
++/// key. `hash_columns` above keeps its own body, so the legacy path is the
++/// same text it always was — including its `blake3::hash` fast path, which
++/// keyed mode has no equivalent of and which is why the keyed body builds a
++/// hasher per column instead.
++pub fn hash_columns_keyed(encoded: &[Fp], rows: usize, nn: usize, key: Option<&[u8; 32]>) -> Vec<Digest> {
++    let tile = 64usize;
++    let mut leaves = vec![[0u8; 32]; nn];
++    leaves.par_chunks_mut(tile).enumerate().for_each(|(ti, out)| {
++        let c0 = ti * tile;
++        let w = out.len();
++        let mut bufs: Vec<Vec<u8>> = (0..w).map(|_| Vec::with_capacity(rows * 8)).collect();
++        for i in 0..rows {
++            let row = &encoded[i * nn + c0..i * nn + c0 + w];
++            for (b, v) in bufs.iter_mut().zip(row.iter()) {
++                b.extend_from_slice(&v.to_bytes());
++            }
++        }
++        for (o, b) in out.iter_mut().zip(bufs.iter()) {
++            let mut h = crate::hashtag::hasher(key);
++            h.update(b);
++            *o = *h.finalize().as_bytes();
+         }
+     });
+     leaves
+@@ -644,6 +681,20 @@
+     *h.finalize().as_bytes()
+ }
+ 
++/// [ZK60 D19, ruling T-1] `salt_leaf` under a tagged profile's LEAF key.
++/// `salt_leaf` above keeps its own body.
++///
++/// **This is the function that ends the leaf/node ambiguity.** Under the
++/// legacy rule a salted leaf and a Merkle inner node are the same BLAKE3 call
++/// on the same 64 bytes; under a tag they are two members of the family, with
++/// the leaf key and the node key, and the tests in this file pin both facts.
++pub fn salt_leaf_keyed(leaf: &Digest, salt: &[u8; 32], key: Option<&[u8; 32]>) -> Digest {
++    let mut h = crate::hashtag::hasher(key);
++    h.update(leaf);
++    h.update(salt);
++    *h.finalize().as_bytes()
++}
++
+ /// Commit in ZK mode on the CPU. `rng` supplies the pads and the salts.
+ pub fn commit_zk(params: &PcsParams, data: &[Fp], ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng) -> CommittedZk {
+     commit_zk_owned(params, data.to_vec(), ntt, zk, rng)
+@@ -699,6 +750,63 @@
+     }
+ }
+ 
++/// [ZK60 D19, rulings T-1 and T-8] `commit_zk_owned_with` under a
++/// [`HashTag`]. `commit_zk_owned_with` above keeps its own body.
++///
++/// The pads and the salts are drawn from `rng` FIRST and in exactly the
++/// legacy order, before any branch, so the generator's byte order is the same
++/// under both rules and a tag never moves a random draw.
++///
++/// **THE ACCELERATOR (ruling T-8).** A TAGGED commitment does not offer its
++/// column hashing to the backend. The device kernel
++/// (`hashline/src/gpu/kernels.cu`) is a hand-written BLAKE3 with the IV
++/// hard-coded and no key input, so it can only produce UNKEYED column
++/// digests; offering the work to it would silently return the wrong leaves.
++/// This is a **TEMPORARY CPU FALLBACK, recorded as such** — not accelerator
++/// support, and not a performance result. The keyed device path (load the
++/// key words in place of `b3_iv` and OR in `KEYED_HASH`) is a separate,
++/// later, reviewable kernel change and is the integrator's.
++pub fn commit_zk_owned_with_tag<B: Backend>(backend: &B, params: &PcsParams, data: Vec<Fp>, ntt: &NttTables, zk: &ZkOpts, rng: &mut ZkRng, tag: &HashTag) -> CommittedZk<B::Store> {
++    let data_ref: &[Fp] = &data;
++    let n = params.cols();
++    let nn = params.enc_cols();
++    assert!(data_ref.len() % n == 0 && !data_ref.is_empty(), "pcs zk: data length {} not a multiple of n = {n}", data_ref.len());
++    assert!(zk.q_pad >= params.num_col_checks, "pcs zk: fewer pad symbols ({}) than opened columns ({})", zk.q_pad, params.num_col_checks);
++    let rows = data_ref.len() / n;
++    let q = zk.q_pad;
++    let pads = rng.fp_vec(rows * q);
++    let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();
++    let pows = coset_powers(zk.coset, nn);
++    // ruling T-8: the one condition. A keyed column digest is not offered to
++    // the unkeyed device hasher.
++    let dev: Option<(B::Store, Vec<Digest>)> = match tag.column_key() {
++        None => backend.try_commit_zk(params, data_ref, &pads, &pows, ntt),
++        Some(_) => None,
++    };
++    let (store, leaves) = match dev {
++        Some((dc, leaves)) => (Store::Device(dc), leaves),
++        None => {
++            let mut encoded = vec![Fp::ZERO; rows * nn];
++            encoded.par_chunks_mut(nn).zip(data_ref.par_chunks(n)).zip(pads.par_chunks(q)).for_each(|((erow, drow), prow)| {
++                encode_row_zk(ntt, drow, prow, &pows, erow);
++            });
++            let leaves = hash_columns_keyed(&encoded, rows, nn, tag.column_key());
++            (Store::Host { encoded }, leaves)
++        }
++    };
++    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf_keyed(l, s, tag.leaf_key())).collect();
++    let tree = MerkleTree::build_keyed(salted, tag.node_key());
++    CommittedZk {
++        cm: Committed { params: *params, rows, store, tree },
++        zk: *zk,
++        data,
++        pads,
++        salts,
++        mask_rows: Vec::new(),
++        prox_mask_row: None,
++    }
++}
++
+ // (`commit_zk_device`, the ZK commitment of a buffer the device already
+ // holds, is hashline's: it takes a `gpu::Pooled` and lives in the adapter,
+ // drawing the pads and salts in this same order.)
+@@ -1017,6 +1125,128 @@
+             }
+             let leaf = salt_leaf(&hash_column(col), salt);
+             if !MerkleTree::verify_path(&cm.root, *j, &leaf, path) {
++                return Err(format!("pcs zk: Merkle path for column {j} fails"));
++            }
++            for (g, rho) in rhos.iter().enumerate() {
++                let mut acc = Fp2::ZERO;
++                for i in 0..rows {
++                    acc = acc.add(rho[i].mul_base(col[i]));
++                }
++                let (ere, eim) = &encoded_vecs[g];
++                let want = Fp2::new(ere[*j], eim[*j]);
++                if acc != want {
++                    return Err(format!("pcs zk: column {j} disagrees with clear vector {g}"));
++                }
++            }
++            Ok(())
++        })
++        .collect();
++    for r in results {
++        r?;
++    }
++    Ok(())
++}
++
++/// [ZK60 D19, ruling T-1] `verify_zk` under a [`HashTag`]. `verify_zk` above
++/// keeps its own body.
++///
++/// **The tag is the CALLER's, from the profile it trusts.** Nothing read out
++/// of a receipt or a capture selects or carries a key (ruling T-7): the
++/// `opening` argument is untrusted bytes and is never consulted about the
++/// rule.
++///
++/// **It also checks the Merkle path LENGTH**, which `verify_zk` does not
++/// (`merkle.rs`'s `verify_path` folds however many siblings it is handed).
++/// This is new code with no legacy byte at stake, so the check the
++/// disposition asks the integrator for is simply in it from the start: a
++/// path must have exactly `log2(enc_cols)` entries. It rejects no honest
++/// proof — an honest path is `tree.path(j)`, whose length is the tree's depth
++/// — and it is what stops an inner node being presented as a salted leaf
++/// under a short path. Under a tag the two are different functions anyway;
++/// the length check is the second line and the only line a legacy caller of
++/// this function would have.
++pub fn verify_zk_tagged(
++    params: &PcsParams,
++    zk: &ZkOpts,
++    cm: &Commitment,
++    claims: &[ZClaim],
++    opening: &OpeningZk,
++    ntt: &NttTables,
++    tr: &mut Transcript,
++    tag: &HashTag,
++) -> Result<(), String> {
++    let rows = cm.rows;
++    let n = params.cols();
++    let nn = params.enc_cols();
++    let q = zk.q_pad;
++    if cm.log_cols != params.log_cols {
++        return Err("pcs zk: log_cols mismatch".into());
++    }
++    if q < params.num_col_checks {
++        return Err("pcs zk: fewer pads than column checks".into());
++    }
++    // the tree over `nn` salted leaves is `log2(nn)` deep, and `nn` is a
++    // power of two by `enc_cols`'s construction
++    let depth = nn.trailing_zeros() as usize;
++    for (at, (_, _, _, path)) in opening.columns.iter().enumerate() {
++        if path.len() != depth {
++            return Err(format!("pcs zk: opened column {at} carries a Merkle path of {} entries; this commitment's tree is {depth} deep", path.len()));
++        }
++    }
++    let groups = group_zclaims(claims, rows, params.log_cols);
++    if opening.group_vecs.len() != groups.len() {
++        return Err(format!("pcs zk: {} group vectors for {} groups", opening.group_vecs.len(), groups.len()));
++    }
++    let (rhos, wants) = zk_rhos(&groups, rows, tr);
++    for (g, (cw, _)) in groups.iter().enumerate() {
++        let v = &opening.group_vecs[g];
++        if v.len() != n + q {
++            return Err(format!("pcs zk: group vector {g} has length {}", v.len()));
++        }
++        let got = v[..n].iter().zip(cw.iter()).fold(Fp2::ZERO, |a, (x, y)| a.add(x.mul(*y)));
++        if got != wants[g] {
++            return Err(format!("pcs zk: group {g}: <v, c> != combined claim"));
++        }
++    }
++    for v in &opening.group_vecs {
++        tr.absorb_fp2(b"pcs-vec", v);
++    }
++    if opening.prox_vec.len() != n + q {
++        return Err("pcs zk: prox vector length".into());
++    }
++    tr.absorb_fp2(b"pcs-prox", &opening.prox_vec);
++    let idx = tr.challenge_indices(params.num_col_checks, nn);
++    if opening.columns.len() != idx.len() {
++        return Err("pcs zk: wrong number of columns".into());
++    }
++    let pows = coset_powers(zk.coset, nn);
++    let mut all_vecs: Vec<&Vec<Fp2>> = opening.group_vecs.iter().collect();
++    all_vecs.push(&opening.prox_vec);
++    let encoded_vecs: Vec<(Vec<Fp>, Vec<Fp>)> = all_vecs
++        .par_iter()
++        .map(|v| {
++            let re: Vec<Fp> = v.iter().map(|x| x.c0).collect();
++            let im: Vec<Fp> = v.iter().map(|x| x.c1).collect();
++            let mut ere = vec![Fp::ZERO; nn];
++            let mut eim = vec![Fp::ZERO; nn];
++            encode_row_zk(ntt, &re[..n], &re[n..], &pows, &mut ere);
++            encode_row_zk(ntt, &im[..n], &im[n..], &pows, &mut eim);
++            (ere, eim)
++        })
++        .collect();
++    let results: Vec<Result<(), String>> = opening
++        .columns
++        .par_iter()
++        .zip(idx.par_iter())
++        .map(|((j, col, salt, path), &want_j)| {
++            if *j != want_j {
++                return Err(format!("pcs zk: column index {j} != sampled {want_j}"));
++            }
++            if col.len() != rows {
++                return Err("pcs zk: column length".into());
++            }
++            let leaf = salt_leaf_keyed(&hash_column_keyed(col, tag.column_key()), salt, tag.leaf_key());
++            if !MerkleTree::verify_path_keyed(&cm.root, *j, &leaf, path, tag.node_key()) {
+                 return Err(format!("pcs zk: Merkle path for column {j} fails"));
+             }
+             for (g, rho) in rhos.iter().enumerate() {
+@@ -1308,3 +1538,217 @@
+         assert!(verify(&p, &com, &claims, &op3, &ntt, &mut tv).is_err());
+     }
+ }
++
++/// [ZK60 D19, ruling T-6] **The isolated layer controls of the tag.** Each
++/// test below pins ONE hash layer on its own, so that a cross-rule rejection
++/// somewhere higher up cannot be mistaken for evidence that a particular
++/// layer is keyed.
++#[cfg(test)]
++mod tag_tests {
++    use super::*;
++    use crate::hashtag::HashTag;
++    use crate::mle::eval_mle_base;
++
++    const RUNG_G: &str = "hashline-zk-mr1/private-block-rung-g-t24-dev/1";
++
++    fn tparams() -> PcsParams {
++        PcsParams { log_cols: 4, inv_rate: 4, num_col_checks: 12 }
++    }
++
++    fn vals(seed: u64, len: usize) -> Vec<Fp> {
++        let mut s = seed;
++        (0..len)
++            .map(|_| {
++                s = s.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
++                Fp::from_i64(((s >> 33) % 256) as i64 - 128)
++            })
++            .collect()
++    }
++
++    fn point(seed: u64, n: usize) -> Vec<Fp2> {
++        (0..n).map(|i| Fp2::new(Fp::new(seed * 1000 + i as u64 * 7 + 3), Fp::new(seed + i as u64 * 11 + 5))).collect()
++    }
++
++    /// Three rows: the private row 0, its mask row 1, the proximity mask row
++    /// 2. One claim, opened through the masked combination, which is the
++    /// smallest structure `open_zk`'s mask-site assertion accepts.
++    fn rig(tag: &HashTag, zk_seed: u64) -> (CommittedZk, Vec<ZClaim>, OpeningZk) {
++        let p = tparams();
++        let n = p.cols();
++        let ntt = NttTables::new(8);
++        let mut rng = ZkRng::new(zk_seed, b"pcs-tag-test");
++        let mut d = vals(7, 3 * n);
++        for r in [1usize, 2] {
++            for j in 0..n {
++                d[r * n + j] = rng.fp();
++            }
++        }
++        let zk = ZkOpts::standard(&p);
++        let mut cmz = commit_zk_owned_with_tag(&Cpu, &p, d.clone(), &ntt, &zk, &mut rng, tag);
++        cmz.mask_rows = vec![1];
++        cmz.prox_mask_row = Some(2);
++        let r = point(3, 4);
++        let e = Fp2::new(Fp::new(99991), Fp::new(7));
++        let vp = eval_mle_base(&d[0..n], &r);
++        let vr = eval_mle_base(&d[n..2 * n], &r);
++        let claims = vec![ZClaim {
++            parts: vec![
++                ZPart { slice: Slice { offset: 0, log_size: 4 }, coef: Fp2::ONE.sub(e), point: r.clone() },
++                ZPart { slice: Slice { offset: n, log_size: 4 }, coef: e, point: r.clone() },
++            ],
++            value: Fp2::ONE.sub(e).mul(vp).add(e.mul(vr)),
++        }];
++        let mut tp = Transcript::new(b"pcs-tag");
++        let op = open_zk(&cmz, &claims, &mut tp);
++        (cmz, claims, op)
++    }
++
++    /// **The leaf/node ambiguity, written down.** Under the LEGACY rule a
++    /// salted leaf and a Merkle inner node are literally the same function on
++    /// the same 64 bytes; under a tag they are not.
++    #[test]
++    fn a_salted_leaf_is_a_merkle_node_under_the_legacy_rule_and_is_not_under_a_tag() {
++        let (a, b) = ([11u8; 32], [22u8; 32]);
++        assert_eq!(salt_leaf(&a, &b), crate::merkle::hash_pair(&a, &b), "the legacy leaf/node ambiguity has changed");
++        let t = HashTag::for_profile(RUNG_G);
++        assert_ne!(salt_leaf_keyed(&a, &b, t.leaf_key()), crate::merkle::hash_pair_keyed(&a, &b, t.node_key()), "the leaf and node keys did not separate the two");
++        // and each keyed form differs from the legacy one
++        assert_ne!(salt_leaf_keyed(&a, &b, t.leaf_key()), salt_leaf(&a, &b));
++        assert_ne!(crate::merkle::hash_pair_keyed(&a, &b, t.node_key()), crate::merkle::hash_pair(&a, &b));
++    }
++
++    /// **The column digest's isolated control**: right key, another role's
++    /// key, no key — pairwise different, both singly and through
++    /// `hash_columns_keyed`.
++    #[test]
++    fn a_column_digest_under_three_rules_is_three_digests() {
++        let t = HashTag::for_profile(RUNG_G);
++        let col = vals(5, 9);
++        let right = hash_column_keyed(&col, t.column_key());
++        let wrong = hash_column_keyed(&col, t.node_key());
++        let none = hash_column_keyed(&col, None);
++        assert_eq!(none, hash_column(&col), "the unkeyed keyed-variant is not the legacy column digest");
++        assert_ne!(right, wrong);
++        assert_ne!(right, none);
++        assert_ne!(wrong, none);
++        // the tiled commit path agrees with the single-column one, under a key
++        let (rows, nn) = (3usize, 8usize);
++        let enc = vals(9, rows * nn);
++        let keyed = hash_columns_keyed(&enc, rows, nn, t.column_key());
++        let plain = hash_columns(&enc, rows, nn);
++        for j in 0..nn {
++            let c: Vec<Fp> = (0..rows).map(|i| enc[i * nn + j]).collect();
++            assert_eq!(keyed[j], hash_column_keyed(&c, t.column_key()), "tiled != single, keyed");
++            assert_eq!(plain[j], hash_column(&c), "tiled != single, legacy");
++            assert_ne!(keyed[j], plain[j], "the key did not change column {j}");
++        }
++        assert_eq!(hash_columns_keyed(&enc, rows, nn, None), plain, "hash_columns_keyed(None) is not hash_columns");
++    }
++
++    /// The tagged round trip: commit, open, verify under the SAME tag.
++    #[test]
++    fn a_tagged_commitment_opens_and_verifies_under_its_own_tag() {
++        let (p, ntt, zk) = (tparams(), NttTables::new(8), ZkOpts::standard(&tparams()));
++        let tag = HashTag::for_profile(RUNG_G);
++        let (cmz, claims, op) = rig(&tag, 31);
++        let mut tv = Transcript::new(b"pcs-tag");
++        verify_zk_tagged(&p, &zk, &cmz.commitment(), &claims, &op, &ntt, &mut tv, &tag).expect("the tagged opening verifies under its own tag");
++    }
++
++    /// **Cross-rule rejection at the PCS layer, both directions.** The
++    /// transcript here is the same in both runs, so what is isolated is the
++    /// commitment's own hashing: the refusal must be the Merkle one.
++    #[test]
++    fn a_tagged_commitment_is_refused_under_the_legacy_rule_and_the_reverse() {
++        let (p, ntt, zk) = (tparams(), NttTables::new(8), ZkOpts::standard(&tparams()));
++        let tag = HashTag::for_profile(RUNG_G);
++        let (cmz, claims, op) = rig(&tag, 41);
++        let mut tv = Transcript::new(b"pcs-tag");
++        let e = verify_zk(&p, &zk, &cmz.commitment(), &claims, &op, &ntt, &mut tv).expect_err("a tagged opening verified under the legacy rule");
++        assert!(e.contains("Merkle path"), "the legacy verifier's refusal of a tagged opening: {e}");
++        let (cmz2, claims2, op2) = rig(&HashTag::legacy(), 41);
++        let mut tv = Transcript::new(b"pcs-tag");
++        let e = verify_zk_tagged(&p, &zk, &cmz2.commitment(), &claims2, &op2, &ntt, &mut tv, &tag).expect_err("a legacy opening verified under a tag");
++        assert!(e.contains("Merkle path"), "the tagged verifier's refusal of a legacy opening: {e}");
++        // and the legacy round trip still works, unchanged
++        let mut tv = Transcript::new(b"pcs-tag");
++        verify_zk(&p, &zk, &cmz2.commitment(), &claims2, &op2, &ntt, &mut tv).expect("the legacy round trip moved");
++    }
++
++    /// **`verify_zk_tagged` refuses a path of the wrong length, by name** —
++    /// shorter and longer. `verify_zk` does not; that is the disposition's
++    /// finding and the reason the check is in the NEW function only.
++    #[test]
++    fn the_tagged_verifier_refuses_a_path_of_the_wrong_length() {
++        let (p, ntt, zk) = (tparams(), NttTables::new(8), ZkOpts::standard(&tparams()));
++        let tag = HashTag::for_profile(RUNG_G);
++        let (cmz, claims, op) = rig(&tag, 51);
++        let depth = p.enc_cols().trailing_zeros() as usize;
++        assert_eq!(op.columns[0].3.len(), depth, "an honest path is not the tree depth");
++        for (what, mutate) in [
++            ("short", Box::new(|v: &mut Vec<Digest>| { v.pop(); }) as Box<dyn Fn(&mut Vec<Digest>)>),
++            ("long", Box::new(|v: &mut Vec<Digest>| v.push([0u8; 32]))),
++        ] {
++            let mut bad = op.clone();
++            mutate(&mut bad.columns[0].3);
++            let mut tv = Transcript::new(b"pcs-tag");
++            let e = verify_zk_tagged(&p, &zk, &cmz.commitment(), &claims, &bad, &ntt, &mut tv, &tag).expect_err("a path of the wrong length verified");
++            assert!(e.contains("Merkle path of") && e.contains(&format!("tree is {depth} deep")), "the {what} path's refusal: {e}");
++        }
++    }
++
++    /// **Ruling T-8, the accelerator seam.** A counting backend records
++    /// every offer it is made. A LEGACY commitment offers its columns; a
++    /// TAGGED one never does. The stub declines in both cases, so the CPU
++    /// body runs and the test says nothing about what a device would compute
++    /// — only about whether it was asked.
++    struct Counting(std::cell::Cell<usize>);
++
++    impl Backend for Counting {
++        type Store = NoExternal;
++        fn try_commit_zk(&self, _params: &PcsParams, _data: &[Fp], _pads: &[Fp], _pows: &[Fp], _ntt: &NttTables) -> Option<(Self::Store, Vec<Digest>)> {
++            self.0.set(self.0.get() + 1);
++            None
++        }
++    }
++
++    #[test]
++    fn a_tagged_commitment_never_offers_its_columns_to_the_backend() {
++        let (p, ntt, zk) = (tparams(), NttTables::new(8), ZkOpts::standard(&tparams()));
++        let n = p.cols();
++        let d = vals(7, 3 * n);
++        let b = Counting(std::cell::Cell::new(0));
++        let mut rng = ZkRng::new(61, b"pcs-tag-test");
++        let _ = commit_zk_owned_with_tag(&b, &p, d.clone(), &ntt, &zk, &mut rng, &HashTag::legacy());
++        assert_eq!(b.0.get(), 1, "a LEGACY tagged commitment did not offer its columns to the backend");
++        let mut rng = ZkRng::new(61, b"pcs-tag-test");
++        let _ = commit_zk_owned_with_tag(&b, &p, d.clone(), &ntt, &zk, &mut rng, &HashTag::for_profile(RUNG_G));
++        assert_eq!(b.0.get(), 1, "a TAGGED commitment offered its columns to the unkeyed device hasher (ruling T-8)");
++        // the legacy entry point is unchanged and still offers
++        let mut rng = ZkRng::new(61, b"pcs-tag-test");
++        let _ = commit_zk_owned_with(&b, &p, d, &ntt, &zk, &mut rng);
++        assert_eq!(b.0.get(), 2, "commit_zk_owned_with stopped offering its columns");
++    }
++
++    /// The pads and the salts are drawn in the LEGACY order on both paths, so
++    /// a tag never moves a generator byte: the same seed gives the same pads
++    /// and the same salts under both rules.
++    #[test]
++    fn the_tag_does_not_move_one_byte_of_the_generator() {
++        let (p, ntt, zk) = (tparams(), NttTables::new(8), ZkOpts::standard(&tparams()));
++        let n = p.cols();
++        let d = vals(7, 3 * n);
++        let mut r1 = ZkRng::new(71, b"pcs-tag-test");
++        let a = commit_zk_owned_with_tag(&Cpu, &p, d.clone(), &ntt, &zk, &mut r1, &HashTag::legacy());
++        let mut r2 = ZkRng::new(71, b"pcs-tag-test");
++        let b = commit_zk_owned_with_tag(&Cpu, &p, d.clone(), &ntt, &zk, &mut r2, &HashTag::for_profile(RUNG_G));
++        assert_eq!(a.pads, b.pads, "the pads moved under the tag");
++        assert_eq!(a.salts, b.salts, "the salts moved under the tag");
++        assert_ne!(a.cm.tree.root(), b.cm.tree.root(), "the tag did not change the root");
++        // and the legacy entry point produces exactly the legacy tagged one
++        let mut r3 = ZkRng::new(71, b"pcs-tag-test");
++        let c = commit_zk_owned_with(&Cpu, &p, d, &ntt, &zk, &mut r3);
++        assert_eq!(a.cm.tree.root(), c.cm.tree.root(), "commit_zk_owned_with_tag(LEGACY) is not commit_zk_owned_with");
++        assert_eq!(a.salts, c.salts);
++    }
++}

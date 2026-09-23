@@ -1,0 +1,962 @@
+--- 4751b93:hashline/src/private_block/layout.rs
++++ snapshot:hashline/src/private_block/layout.rs
+@@ -46,7 +46,17 @@
+ /// feed-forward width (the `f` axis)
+ pub(crate) const F: usize = 16;
+ pub(crate) const LOG_N: usize = 8;
++/// THE WIDTH OF A COMMITTED ROW, and nothing else (trap T-1 of the 125M layout
++/// memo). It moves with the row geometry: 16,384 at the 125M shape.
+ pub(crate) const N: usize = 1 << LOG_N;
++/// THE NUMBER OF ENTRIES IN EACH OF THE THREE LOOKUP TABLES — the byte class
++/// `[0, 256)`. It is `256` at EVERY shape and must never be conflated with the
++/// row width `N` (trap T-1): the three table-value vectors, the three
++/// multiplicity histograms and the two in-class guards that index
++/// `AttentionPublic::exp` (256 words) and `FeedForwardPublic::act`
++/// (`[i16; 256]`) are all sized by THIS constant. At the toy shape
++/// `U8_LEN == N`, so the split moves no byte of a toy proof.
++pub(crate) const U8_LEN: usize = 256;
+ 
+ /// Fixed public calibration (private-block-kernel `calib`).
+ pub(crate) const NORM_TN: u32 = 11;
+@@ -94,8 +104,80 @@
+     Tab,
+ }
+ 
++/// THE P-3 LIFT (memo section 4.1, blocking item B-3), named here so it can be
++/// tested at a geometry the module cannot yet be instantiated at.
++///
++/// The value-0 LogUp identity is ONE sum claim with one part per `H` plane
++/// (`protocol::logup_sum_claim`), and the PCS keys a part by
++/// `(point tail, column offset, slice length)`: at or above the row width that
++/// is `(_, 0, N)`, below it `(_, offset % N, 1 << log)`. So every `H` plane
++/// whose domain sits BELOW the row width raises a different column-weight key,
++/// `check_opening` refuses with "claim parts with different column weights"
++/// and `zkp-core`'s `pcs` asserts below it — **no receipt is produced at all**.
++/// At the toy every `H` domain is already at or above `LOG_N = 8`, so the
++/// question has never arisen.
++///
++/// **THE REPAIR (ruling P-3).** A domain that carries `H` planes and whose
++/// natural log sits BELOW the row width is lifted TO the row width.
++/// `rows_of` is 1 either way below the row width, so the lift costs no
++/// committed row, no claim site and no slot.
++///
++/// Two conditions travel with it, and neither is discharged here:
++///  * the padded TABLE positions must repeat an existing entry
++///    (`argument::table_values_*` build entry `i` from `i % U8_LEN`), so the
++///    proved set is still exactly the `U8_LEN` byte values. Get this wrong
++///    and the byte range proof admits `1 << log_n` values — a soundness hole
++///    created by the fix for a shape bug;
++///  * the padded MULTIPLICITIES must be zero, which they are: `prove_inner`
++///    writes only `0..U8_LEN` into a zero-initialised plane.
++///
++/// At the toy this function is the identity: every `H` domain is already at
++/// or above `LOG_N = 8` (`Tab` is exactly 8), so no toy byte moves.
++///
++/// ---
++///
++/// **AN INVARIANT THAT MUST NOT BE WEAKENED (lane stage 23, ruling S-1; the
++/// shaped check's finding B-2).** This lift is where the condition
++/// `log(Dom::Tab) == log_cols` is decided, and the private block's privacy
++/// argument at the shaped layouts rests on it.
++///
++/// The argument's "Fact 1" claims that a claim's evaluation point never
++/// reaches a commitment's non-data rows. That is **false on the helper
++/// commitment `H`**: the claim of slot `SC_ZS` on the hidden plane `H_U`
++/// (`argument.rs`'s `b.h(hids.u())`) and the pairless LogUp sum claim
++/// (`protocol::logup_sum_claim`) both place data parts on the two ZERO-SUM
++/// rows, which the argument counts as non-data, and `audit_claims` does not
++/// forbid it — its only row-placement checks are the proximity pair and
++/// site-row exclusivity.
++///
++/// What makes it harmless is this lift and nothing else. With
++/// `log(Dom::Tab) == log_cols` both claims have `ls == log_cols`, hence
++/// `lr = ls - log_cols = 0` and `eq_table_msb(&point[..0]) = [1]`, so each
++/// zero-sum row's weight is the point-INDEPENDENT coefficient (`cd` and
++/// `cd * U`, or `1` and `U` for the sum claim). The point reaches the
++/// non-data block and contributes nothing to it. Put `log(Dom::Tab)` ABOVE
++/// the row width and those two rows carry an eq-tensor in the claim's point:
++/// the non-data block becomes point-dependent and the argument's corollary
++/// about the repaired bilinear slots has to be re-derived.
++///
++/// Because `Dom::Tab`'s natural log is the fixed `clog2(U8_LEN)` and this
++/// function only lifts UPWARD, the condition is exactly "the row width is at
++/// least the table's natural size". **`Shape::new` refuses any shape that
++/// breaks it, by name**, and `s23_tests.rs` asserts that all five existing
++/// shapes satisfy it and that a shape below it is refused. Changing either
++/// this function's direction or `Dom::Tab`'s natural log reopens the
++/// argument.
++pub(crate) fn domain_log_at(natural: usize, carries_h_planes: bool, log_n: usize) -> usize {
++    if carries_h_planes && natural < log_n {
++        log_n
++    } else {
++        natural
++    }
++}
++
+ impl Dom {
+-    pub(crate) fn log(self) -> usize {
++    /// the log the domain's PADDED true extent asks for, before the P-3 lift
++    pub(crate) fn natural_log(self) -> usize {
+         match self {
+             Dom::T => 5,
+             Dom::Ht => 6,
+@@ -103,6 +185,14 @@
+             Dom::Kv | Dom::Tab => 8,
+             Dom::S => 11,
+         }
++    }
++    /// `Dom::T` and `Dom::Ht` carry `A` planes only; every other domain owns
++    /// LogUp helper planes and so contributes a part to the single sum claim.
++    pub(crate) fn carries_h_planes(self) -> bool {
++        !matches!(self, Dom::T | Dom::Ht)
++    }
++    pub(crate) fn log(self) -> usize {
++        domain_log_at(self.natural_log(), self.carries_h_planes(), LOG_N)
+     }
+     pub(crate) fn len(self) -> usize {
+         1usize << self.log()
+@@ -219,6 +309,132 @@
+     matches!(plane, A_MU8 | A_MEXP | A_MACT)
+ }
+ 
++// ---- STEP S8: the `A_*` ids as a function of a shape -----------------------
++
++/// the toy's three variable group lengths, for the segment table below
++pub(crate) const LN_TOY: usize = 4;
++pub(crate) const LS_TOY: usize = 2;
++pub(crate) const LP_TOY: usize = 2;
++
++/// **The `A_*` ids at a shape (finding S6-F2, step S8).**
++///
++/// The constants above are the TOY's, and three plane groups have a length
++/// that moves with a shape's calibration windows:
++///
++/// | group | length | toy | rung | 125M |
++/// |---|---|---:|---:|---:|
++/// | each norm's `rho` / `sigma` byte limbs | `limbs_norm` | 4 | 4 | 4 |
++/// | the softmax quotient's limbs | `limbs_p` | 2 | 2 | 2 |
++/// | `rho_s` / `sigma_s` byte limbs | `limbs_sigma_s` | **2** | **3** | **3** |
++///
++/// A longer group shifts every plane above it, so a plane id is a FUNCTION of
++/// the shape. [`Ids::at`] maps a toy id to the same plane's id at this shape;
++/// the growing groups get their own accessors, because the toy has no name
++/// for a third `sigma_s` limb.
++///
++/// The segment table below and [`super::shape::Shape::a_plane_doms`] are two
++/// independent statements of the same plane list, written from the memo's
++/// §2.4 and not from each other; [`Ids::new`] refuses unless they agree.
++pub(crate) struct Ids {
++    /// `map[toy id]` = the same plane's id at this shape
++    map: Vec<usize>,
++    /// the domain of every plane at this shape, in plane order
++    doms: Vec<Dom>,
++    pub ln: usize,
++    pub ls: usize,
++    pub lp: usize,
++}
++
++impl Ids {
++    pub(crate) fn new(sh: &super::shape::Shape) -> Result<Ids, String> {
++        let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
++        if ln < LN_TOY || ls < LS_TOY || lp < LP_TOY {
++            return Err("private block: this shape's A plane list is shorter than the pinned one".into());
++        }
++        // (first toy id, toy length, this shape's length, domain), in plane
++        // order. Only the four norm limb groups, the `p` limbs and the two
++        // `sigma_s` limb groups have a length that is not a literal.
++        let segs: [(usize, usize, usize, Dom); 18] = [
++            (A_D, 4, 4, Dom::T),
++            (A_MX, 2, 2, Dom::Ht),
++            (A_LIMB, 2, 2, Dom::L),
++            (A_X, 4, 4, Dom::D),
++            (A_NR0, LN_TOY, ln, Dom::D),
++            (A_NS0, LN_TOY, ln, Dom::D),
++            (A_AO, 8, 8, Dom::D),
++            (A_MR0, LN_TOY, ln, Dom::D),
++            (A_MS0, LN_TOY, ln, Dom::D),
++            (A_Z16, 7, 7, Dom::D),
++            (A_Q8, 7, 7, Dom::Q),
++            (A_K8, 6, 6, Dom::Kv),
++            (A_S8, 5, 5, Dom::S),
++            (A_PL0, LP_TOY, lp, Dom::S),
++            (A_SR0, LS_TOY, ls, Dom::S),
++            (A_SG0, LS_TOY, ls, Dom::S),
++            (A_G8, 11, 11, Dom::F),
++            (A_MU8, 3, 3, Dom::Tab),
++        ];
++        let mut map = vec![usize::MAX; N_A];
++        let mut doms: Vec<Dom> = Vec::new();
++        for (start, toy_len, len, dom) in segs {
++            let base = doms.len();
++            for k in 0..toy_len {
++                map[start + k] = base + k;
++            }
++            for _ in 0..len {
++                doms.push(dom);
++            }
++        }
++        if map.iter().any(|v| *v == usize::MAX) {
++            return Err("private block: the A plane segment table does not cover every plane".into());
++        }
++        if doms != sh.a_plane_doms() {
++            return Err("private block: this shape's A plane list differs from the pinned one".into());
++        }
++        Ok(Ids { map, doms, ln, ls, lp })
++    }
++
++    /// the toy's own map, which is the identity (asserted by `Layout::new`)
++    pub(crate) fn toy() -> Ids {
++        Ids::new(&super::shape::Shape::toy()).expect("the toy's plane list is the pinned one")
++    }
++
++    /// the same plane, at this shape
++    pub(crate) fn at(&self, toy_id: usize) -> usize {
++        self.map[toy_id]
++    }
++    pub(crate) fn nr(&self, k: usize) -> usize {
++        self.map[A_NR0] + k
++    }
++    pub(crate) fn ns(&self, k: usize) -> usize {
++        self.map[A_NS0] + k
++    }
++    pub(crate) fn mr(&self, k: usize) -> usize {
++        self.map[A_MR0] + k
++    }
++    pub(crate) fn ms(&self, k: usize) -> usize {
++        self.map[A_MS0] + k
++    }
++    pub(crate) fn pl(&self, k: usize) -> usize {
++        self.map[A_PL0] + k
++    }
++    pub(crate) fn sr(&self, k: usize) -> usize {
++        self.map[A_SR0] + k
++    }
++    pub(crate) fn sg(&self, k: usize) -> usize {
++        self.map[A_SR0] + self.ls + k
++    }
++    pub(crate) fn n_a(&self) -> usize {
++        self.doms.len()
++    }
++    pub(crate) fn dom(&self, plane: usize) -> Dom {
++        self.doms[plane]
++    }
++    pub(crate) fn is_multiplicity(&self, plane: usize) -> bool {
++        plane >= self.map[A_MU8]
++    }
++}
++
+ // ---- the H planes (every one Fp2-valued: a `re` slice then an `im` slice) ----
+ pub(crate) const H_L: usize = 0;
+ /// 19 helpers for the 38 `Dom::D` lookups
+@@ -256,6 +472,119 @@
+     matches!(plane, H_GU8 | H_GEXP | H_GACT)
+ }
+ 
++/// **The `H_*` ids at a shape (finding S9-F6, the analogue of [`Ids`]).**
++///
++/// The constants above are the TOY's, and the `H` plane LIST moves with the
++/// shape in BOTH directions:
++///
++/// | block | toy | rung | 125M | why |
++/// |---|---:|---:|---:|---|
++/// | `Dom::D` helpers | 19 | 19 | **17** | C-6 drops four `Dom::D` lookups where the norm window fills its top limb exactly |
++/// | `Dom::S` helpers | 7 | **8** | **8** | the third `sigma_s` limb adds two lookups |
++/// | total `N_H` | 51 | **52** | **50** | |
++///
++/// So a toy id is not even a total function of the shape — the `Dom::D`
++/// block SHRINKS at 125M, where `H_D_LAST` names a plane that does not
++/// exist. The accessors below are therefore by ROLE (`helper(dom, k)`, and a
++/// name for each singleton), which is how `argument.rs` already reads them
++/// (`b.h(H_D0 + j)` for `j` in `0 .. helpers(Dom::D)`).
++///
++/// This table and [`super::shape::Shape::h_plane_doms`] are two independent
++/// statements of the same plane list; [`HIds::new`] refuses unless they
++/// agree, exactly as [`Ids::new`] does on the `A` side.
++///
++/// **NOT YET WIRED IN.** `argument.rs` and `protocol.rs` still read the
++/// literals, which are correct at the toy and only at the toy; replacing
++/// them is step C of the ledger's NEXT.
++pub(crate) struct HIds {
++    doms: Vec<Dom>,
++    first_l: usize,
++    first_d: usize,
++    first_q: usize,
++    first_kv: usize,
++    first_s: usize,
++    first_f: usize,
++    sexp: usize,
++    fact: usize,
++    gu8: usize,
++    u: usize,
++}
++
++impl HIds {
++    pub(crate) fn new(sh: &super::shape::Shape) -> Result<HIds, String> {
++        let mut doms: Vec<Dom> = Vec::new();
++        let seg = |doms: &mut Vec<Dom>, dom: Dom, n: usize| -> usize {
++            let first = doms.len();
++            for _ in 0..n {
++                doms.push(dom);
++            }
++            first
++        };
++        // the plane order of `Shape::h_plane_doms`: the five lookup-domain
++        // helper blocks, the exponential pair's own helper inside `Dom::S`,
++        // the feed-forward helpers, the activation pair's own helper, the
++        // three table helpers and the zero-sum pair
++        let first_l = seg(&mut doms, Dom::L, sh.helpers(Dom::L));
++        let first_d = seg(&mut doms, Dom::D, sh.helpers(Dom::D));
++        let first_q = seg(&mut doms, Dom::Q, sh.helpers(Dom::Q));
++        let first_kv = seg(&mut doms, Dom::Kv, sh.helpers(Dom::Kv));
++        let first_s = seg(&mut doms, Dom::S, sh.helpers(Dom::S));
++        let sexp = seg(&mut doms, Dom::S, 1);
++        let first_f = seg(&mut doms, Dom::F, sh.helpers(Dom::F));
++        let fact = seg(&mut doms, Dom::F, 1);
++        let gu8 = seg(&mut doms, Dom::Tab, 3);
++        let u = seg(&mut doms, Dom::Tab, 1);
++        if doms != sh.h_plane_doms() {
++            return Err("private block: this shape's H plane list differs from the pinned one".into());
++        }
++        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, u })
++    }
++
++    /// the `k`-th LogUp helper of a lookup domain
++    pub(crate) fn helper(&self, dom: Dom, k: usize) -> usize {
++        self.first_helper(dom) + k
++    }
++    /// the first LogUp helper plane of a lookup domain (the replacement for
++    /// the literal half of [`helpers`])
++    pub(crate) fn first_helper(&self, dom: Dom) -> usize {
++        match dom {
++            Dom::L => self.first_l,
++            Dom::D => self.first_d,
++            Dom::Q => self.first_q,
++            Dom::Kv => self.first_kv,
++            Dom::S => self.first_s,
++            Dom::F => self.first_f,
++            _ => 0,
++        }
++    }
++    /// the exponential pair's own helper (`H_SEXP` at the toy)
++    pub(crate) fn sexp(&self) -> usize {
++        self.sexp
++    }
++    /// the activation pair's own helper (`H_FACT` at the toy)
++    pub(crate) fn fact(&self) -> usize {
++        self.fact
++    }
++    /// the three table helpers, in the toy's order `(U8, exp, act)`
++    pub(crate) fn table_helpers(&self) -> [usize; 3] {
++        [self.gu8, self.gu8 + 1, self.gu8 + 2]
++    }
++    /// the zero-sum masking pair `u` (`H_U` at the toy)
++    pub(crate) fn u(&self) -> usize {
++        self.u
++    }
++    pub(crate) fn n_h(&self) -> usize {
++        self.doms.len()
++    }
++    pub(crate) fn dom(&self, plane: usize) -> Dom {
++        self.doms[plane]
++    }
++    /// the table helpers enter the value-0 LogUp identity with a negative sign
++    pub(crate) fn is_table(&self, plane: usize) -> bool {
++        (self.gu8..self.gu8 + 3).contains(&plane)
++    }
++}
++
+ // ---- lookups (all into the 256-entry U8 table; value = cst + sum coef * plane) ----
+ #[derive(Clone, Debug)]
+ pub(crate) struct Lk {
+@@ -280,87 +609,167 @@
+ ///
+ /// CONSTRUCTION PREMISE (integer soundness; to be re-derived by the reviewer, not
+ /// checked by code). Every relation of `argument::define` is an identity between
+-/// integers only if no term wraps the 64-bit field. With every limb in [0, 256):
++/// integers only if no term wraps the 64-bit field.
++///
++/// **STEP S8 rewrote this premise as a premise about a SHAPE** (memo §3.3,
++/// §3.4, condition O-4, decision D16 items 1-5). The clauses below are stated
++/// once, with each shape's numbers beside them; the three that used to be
++/// literals — the norm window, the softmax window and the byte-limb counts
++/// that hold them — now read off the shape, and `lookups_at` emits exactly
++/// the lookups the clause names. The numbers for the three shapes that exist:
++///
++/// | quantity | toy | rung | 125M |
++/// |---|---:|---:|---:|
++/// | width `d`, tokens `T` | 16 / 32 | 96 / 24 | 768 / 512 |
++/// | `D_max = isqrt(1 + d 32767^2)` | 131,068 | 321,049 | 908,065 |
++/// | norm window `wrho = tn + 1 + bits(D_max)` | **29** | **31** | **32** |
++/// | norm limbs `ln`, top-limb lookup `1 << (8 ln - wrho)` | 4, `8 l3` | 4, `2 l3` | 4, **dropped (C-6)** |
++/// | `f_E`, `Sum <= T 2^fE` | 9, 2^14 | 12, 98,304 | 9, 2^18 |
++/// | softmax window `wrho_s`, limbs `ls` | **14**, 2 | **17**, 3 | **18**, 3 |
++/// | top `sigma_s` lookup `1 << (8 ls - wrho_s)` | `4 l1` | `128 l2` | `64 l2` |
++///
++/// With every limb in [0, 256):
+ /// * x, ao, xres1, xres2, u16, h16, z16 in int16 (two limbs, offset 32768);
+ ///   y, nm, q8, k8, v8, qr8, kr8, s8, o8 in [-127, 127] (`v + 127` and
+ ///   `127 - v` both bytes); g8 in [-128, 127] from the 256-row activation
+ ///   table itself, never from `sym`;
+ /// * D, a1, a2 < 2^24 (three limbs each), so D^2 + a1 < 2^49 equals sum x^2 + ceps
+-///   (< 2^35) over the integers, a2 = 2D - a1 >= 0 and a1 >= 0 give
+-///   D^2 <= ss <= D^2 + 2D, i.e. D = isqrt(ss), and ceps = 1 gives D >= 1;
+-/// * norm: |2 cn g x| < 2^34, y D 2^(tn+1) < 2^44, rho and sigma < 2^29 exactly
+-///   (top limb `8 * l3` a byte), so 0 <= rho <= den - 1 and y is the floor quotient;
++///   over the integers (< 2^35 at the toy, 2^39.58 at 125M), a2 = 2D - a1 >= 0
++///   and a1 >= 0 give D^2 <= ss <= D^2 + 2D, i.e. D = isqrt(ss), and ceps = 1
++///   gives D >= 1. **Three limbs suffice at every shape here** (D16 item 3:
++///   908,065 < 2^24), and a shape that needed a fourth would change the plane
++///   list, which `Ids::new` refuses;
++/// * norm: `|2 cn g x| < 2^34` and `y D 2^(tn+1) < 2^44` at the toy, `2^36.6`
++///   and `2^45.3` at 125M; **rho and sigma < `2^wrho` exactly**, because the
++///   `ln` limbs hold `8 ln` bits and the top limb's `1 << (8 ln - wrho)`
++///   lookup forbids the slack — when `8 ln == wrho` (125M) the limbs are
++///   exactly the window and that lookup is dropped, not forgotten. Hence
++///   `0 <= rho <= den - 1` and y is the floor quotient. **The margin at 125M
++///   is 0.21 bits** (memo §3.8 row 9): a wider input class needs decision 2's
++///   pin, not another limb;
+ /// * requant remainders are biased limbs: 7-bit (`2 l`), 6-bit (`4 l`), 9-bit
+ ///   (l0 + 256 l1 with `128 l1` a byte), 14-bit (l0 + 256 l1 with `4 l1` a
+-///   byte), so r in [-2^(s-1), 2^(s-1)) exactly;
+-/// * softmax: p < 2^10 (`64 l1`), rho_s and sigma_s < 2^14 exactly (`4 l1`),
+-///   Sum <= 2^14, so p Sum + rho < 2^25 and the quotient relation is over the
+-///   integers; off the causal support it forces p = rho = 0 because Sum >= 2^9 > 0
+-///   (some position ON the support has delta = 0, hence E[0] = 2^fE: the selected
+-///   one, or, if the selector sits on a masked position, the max is -127 and every
+-///   supported score equals it);
++///   byte), so r in [-2^(s-1), 2^(s-1)) exactly. These are requantization
++///   SHIFTS, which are one fixed calibration across shapes (memo §3.8), so
++///   they are the same literals at every shape;
++/// * softmax: `p < 2^(F_P + 1)` (`lp` limbs with `1 << (8 lp - F_P - 1)` on
++///   the top one: `64 l1`), **rho_s and sigma_s < `2^wrho_s` exactly** by the
++///   same top-limb argument at `ls` limbs, and `Sum <= T 2^fE <= 2^wrho_s`,
++///   so `p Sum + rho_s < 2^25` at the toy and `2^28` at 125M and the quotient
++///   relation is over the integers; off the causal support it forces
++///   p = rho_s = 0 because Sum >= 2^fE > 0 (some position ON the support has
++///   delta = 0, hence E[0] = 2^fE: the selected one, or, if the selector sits
++///   on a masked position, the max is -127 and every supported score equals
++///   it);
+ /// * delta in [0, 256) and E = exp[delta] come from the two-column exp lookup;
+ ///   (g8 + 128, a16) comes from the two-column activation lookup, whose value
+ ///   range is enforced by the public statement, not promised by the caller;
+-/// * feed-forward (T2 section E): gacc and uacc below 2^18, the product
+-///   a16 u16 at most 2^30 and `f0` below 2^31 (the worst new case), zacc at
+-///   most 2^26.
++/// * feed-forward (T2 section E): gacc and uacc below 2^18 at the toy and
++///   2^23.56 at 125M, the product a16 u16 at most 2^30, `f0` below 2^31 (the
++///   worst new case) and zacc at most 2^26 at the toy, 2^32.99 at 125M.
+ /// All bounds are far below p = 2^64 - 2^32 + 1. The LogUp multiplicities (at
+-/// most 61,440) cannot wrap.
++/// most 61,440 at the toy, 98,582,528 at 125M) cannot wrap.
++///
++/// **What this premise does NOT cover, and must not be read as covering:**
++/// the PAD. At any shape where a domain pads, every clause above is a
++/// statement about the true support only; what a padded position contains is
++/// ruling P-1's pad-zero term (memo §3.7a), which is step S9.
+ pub(crate) fn lookups(dom: Dom) -> Vec<Lk> {
++    lookups_at(&super::shape::Shape::toy(), &Ids::toy(), dom)
++}
++
++/// **STEP S8: the same list at any shape.** Three things move with the
++/// calibration windows and nothing else does:
++///
++/// 1. the plane IDS, through [`Ids`];
++/// 2. the byte-limb COUNTS — `ln` limbs per norm remainder, `ls` per softmax
++///    remainder, `lp` per softmax quotient;
++/// 3. the `scaled` coefficient that pins the TOP limb's high bits. A window
++///    of `w` bits held in `l` byte limbs leaves `8l - w` slack bits in the
++///    top limb, so `scaled(top, 1 << (8l - w))` is exactly the lookup that
++///    forbids them: `1 << (32 - 29) = 8` at the toy, `1 << (32 - 31) = 2` at
++///    the rung, and at 125M `8l == w` so the coefficient is 1 and the lookup
++///    says nothing — **that is correction C-6, and the four norm lookups are
++///    DROPPED there** (`Shape::norm_top_is_full_byte`). The softmax pair's
++///    coefficient is `1 << (8 ls - wrho_s)`: 4 at the toy (two limbs, 14
++///    bits), 64 at 125M (three limbs, 18 bits — the memo's `scaled(l2, 64)`)
++///    and 128 at the rung (three limbs, 17 bits).
++///
++/// The counts this produces are asserted against
++/// [`super::shape::Shape::lookups_per_position`], which counts the same list
++/// from the memo's §4 without building it, at every named shape.
++pub(crate) fn lookups_at(sh: &super::shape::Shape, ids: &Ids, dom: Dom) -> Vec<Lk> {
++    let (ln, ls, lp) = (ids.ln, ids.ls, ids.lp);
++    // C-6: when the window fills its top limb exactly the `scaled` lookup is
++    // the identity and is not emitted at all.
++    let norm_top = !sh.norm_top_is_full_byte();
++    let norm_scale = 1i64 << (8 * ln as u32 - sh.norm_wrho);
++    let sigma_scale = 1i64 << (8 * ls as u32 - sh.wrho_s);
++    let p_scale = 1i64 << (8 * lp as u32 - (F_P + 1));
+     let mut v = Vec::new();
+     match dom {
+         Dom::L => {
+-            v.push(byte(A_LIMB));
+-            v.push(byte(A_LIMBM));
++            v.push(byte(ids.at(A_LIMB)));
++            v.push(byte(ids.at(A_LIMBM)));
+         }
+         Dom::D => {
+-            v.extend([byte(A_XL0), byte(A_XL1)]);
+-            v.extend(sym(A_Y));
+-            v.extend((0..4).map(|k| byte(A_NR0 + k)));
+-            v.push(scaled(A_NR0 + 3, 1 << (32 - NORM_WRHO)));
+-            v.extend((0..4).map(|k| byte(A_NS0 + k)));
+-            v.push(scaled(A_NS0 + 3, 1 << (32 - NORM_WRHO)));
+-            v.extend([byte(A_AL0), byte(A_AL1), byte(A_RAL), scaled(A_RAL, 2), byte(A_X1L0), byte(A_X1L1)]);
++            v.extend([byte(ids.at(A_XL0)), byte(ids.at(A_XL1))]);
++            v.extend(sym(ids.at(A_Y)));
++            v.extend((0..ln).map(|k| byte(ids.nr(k))));
++            if norm_top {
++                v.push(scaled(ids.nr(ln - 1), norm_scale));
++            }
++            v.extend((0..ln).map(|k| byte(ids.ns(k))));
++            if norm_top {
++                v.push(scaled(ids.ns(ln - 1), norm_scale));
++            }
++            v.extend([byte(ids.at(A_AL0)), byte(ids.at(A_AL1)), byte(ids.at(A_RAL)), scaled(ids.at(A_RAL), 2), byte(ids.at(A_X1L0)), byte(ids.at(A_X1L1))]);
+             // T1 section C.1: norm_m's class, its rho / sigma limbs, and
+-            // residual 2's int16 limbs. Fourteen lookups.
+-            v.extend(sym(A_YM));
+-            v.extend((0..4).map(|k| byte(A_MR0 + k)));
+-            v.push(scaled(A_MR0 + 3, 1 << (32 - NORM_WRHO)));
+-            v.extend((0..4).map(|k| byte(A_MS0 + k)));
+-            v.push(scaled(A_MS0 + 3, 1 << (32 - NORM_WRHO)));
+-            v.extend([byte(A_X2L0), byte(A_X2L1)]);
++            // residual 2's int16 limbs. Fourteen lookups at four limbs.
++            v.extend(sym(ids.at(A_YM)));
++            v.extend((0..ln).map(|k| byte(ids.mr(k))));
++            if norm_top {
++                v.push(scaled(ids.mr(ln - 1), norm_scale));
++            }
++            v.extend((0..ln).map(|k| byte(ids.ms(k))));
++            if norm_top {
++                v.push(scaled(ids.ms(ln - 1), norm_scale));
++            }
++            v.extend([byte(ids.at(A_X2L0)), byte(ids.at(A_X2L1))]);
+             // T2 section B.3: z16's int16 class and the down remainder.
+-            v.extend([byte(A_ZL0), byte(A_ZL1), byte(A_RDL), scaled(A_RDL, 4)]);
++            v.extend([byte(ids.at(A_ZL0)), byte(ids.at(A_ZL1)), byte(ids.at(A_RDL)), scaled(ids.at(A_RDL), 4)]);
+         }
+         Dom::F => {
+-            v.extend([byte(A_RGL), scaled(A_RGL, 2)]);
+-            v.extend([byte(A_UL0), byte(A_UL1)]);
+-            v.extend([byte(A_HL0), byte(A_HL1)]);
+-            v.extend([byte(A_RH0), byte(A_RH1), scaled(A_RH1, 4)]);
++            v.extend([byte(ids.at(A_RGL)), scaled(ids.at(A_RGL), 2)]);
++            v.extend([byte(ids.at(A_UL0)), byte(ids.at(A_UL1))]);
++            v.extend([byte(ids.at(A_HL0)), byte(ids.at(A_HL1))]);
++            v.extend([byte(ids.at(A_RH0)), byte(ids.at(A_RH1)), scaled(ids.at(A_RH1), 4)]);
+         }
+         Dom::Q => {
+-            v.extend(sym(A_Q8));
+-            v.extend([byte(A_RQL), scaled(A_RQL, 2)]);
+-            v.extend(sym(A_QR8));
+-            v.extend([byte(A_RQRL), scaled(A_RQRL, 2)]);
+-            v.extend(sym(A_O8));
+-            v.extend([byte(A_RO0), byte(A_RO1), scaled(A_RO1, 128)]);
++            v.extend(sym(ids.at(A_Q8)));
++            v.extend([byte(ids.at(A_RQL)), scaled(ids.at(A_RQL), 2)]);
++            v.extend(sym(ids.at(A_QR8)));
++            v.extend([byte(ids.at(A_RQRL)), scaled(ids.at(A_RQRL), 2)]);
++            v.extend(sym(ids.at(A_O8)));
++            v.extend([byte(ids.at(A_RO0)), byte(ids.at(A_RO1)), scaled(ids.at(A_RO1), 128)]);
+         }
+         Dom::Kv => {
+-            v.extend(sym(A_K8));
+-            v.extend([byte(A_RKL), scaled(A_RKL, 2)]);
+-            v.extend(sym(A_V8));
+-            v.extend([byte(A_RVL), scaled(A_RVL, 2)]);
+-            v.extend(sym(A_KR8));
+-            v.extend([byte(A_RKRL), scaled(A_RKRL, 2)]);
++            v.extend(sym(ids.at(A_K8)));
++            v.extend([byte(ids.at(A_RKL)), scaled(ids.at(A_RKL), 2)]);
++            v.extend(sym(ids.at(A_V8)));
++            v.extend([byte(ids.at(A_RVL)), scaled(ids.at(A_RVL), 2)]);
++            v.extend(sym(ids.at(A_KR8)));
++            v.extend([byte(ids.at(A_RKRL)), scaled(ids.at(A_RKRL), 2)]);
+         }
+         Dom::S => {
+-            v.extend(sym(A_S8));
+-            v.extend([byte(A_RSL), scaled(A_RSL, 4)]);
+-            v.extend([byte(A_PL0), byte(A_PL1), scaled(A_PL1, 64)]);
+-            v.extend([byte(A_SR0), byte(A_SR1), scaled(A_SR1, 4)]);
+-            v.extend([byte(A_SG0), byte(A_SG1), scaled(A_SG1, 4)]);
++            v.extend(sym(ids.at(A_S8)));
++            v.extend([byte(ids.at(A_RSL)), scaled(ids.at(A_RSL), 4)]);
++            v.extend((0..lp).map(|k| byte(ids.pl(k))));
++            v.push(scaled(ids.pl(lp - 1), p_scale));
++            v.extend((0..ls).map(|k| byte(ids.sr(k))));
++            v.push(scaled(ids.sr(ls - 1), sigma_scale));
++            v.extend((0..ls).map(|k| byte(ids.sg(k))));
++            v.push(scaled(ids.sg(ls - 1), sigma_scale));
+         }
+         Dom::T | Dom::Ht | Dom::Tab => {}
+     }
+@@ -381,6 +790,8 @@
+ }
+ 
+ pub(crate) const LOOKUP_DOMS: [Dom; 6] = [Dom::L, Dom::D, Dom::F, Dom::Q, Dom::Kv, Dom::S];
++/// the nine domains, in the fixed order the layout lays planes out in
++pub(crate) const ALL_DOMS: [Dom; 9] = [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F, Dom::Tab];
+ 
+ // ---- the CFS slots, in transcript order (T2 section C.3) ---------------------
+ pub(crate) const N_SLOTS: usize = 23;
+@@ -534,8 +945,47 @@
+     SLOTS.iter().map(|&(n, e, d)| (n + e, d)).collect()
+ }
+ 
+-fn rows_of(log: usize) -> usize {
++/// rows a plane of `1 << log` elements occupies at THIS profile's row width.
++/// Superseded for layout construction by `shape::Shape::rows_of` (S5); kept
++/// as the toy profile's own statement of the rule, and asserted equal to the
++/// shape's in `grow_tests`.
++pub(crate) fn rows_of(log: usize) -> usize {
+     (1usize << log).div_ceil(N)
++}
++
++/// **CODE CONDITION C-H4** of the hash-layer disposition, pinned here because
++/// this is the one place every commitment of the block path declares its row
++/// count. A committed column is hashed as `8 * rows` bytes, and no other hash
++/// input on the path may have that length, or the two are ambiguous — every
++/// hash in this system is an untagged blake3, so LENGTH is the whole of the
++/// domain separation. The condition is checked at construction for EVERY
++/// shape, before a byte is committed, and it changes no proof byte: the toy's
++/// counts are 455, 384, 50 and 7, all clear.
++///
++/// **STAGE 16, ruling T-3.** This used to be the hard-coded pair `{5, 8}` —
++/// the 40-byte randomness-refill block and the 64-byte internal Merkle node —
++/// and that set was INCOMPLETE: with today's labels 11, 12, 13, 15, 17 and 19
++/// rows are dangerous too. The whole set is computed from the shape now, in
++/// [`super::hash_domain`], and this function is the SHAPE-FREE part of it,
++/// which is what the two statement constructors that hold no profile string
++/// ([`super::endpoint_g::EndpointSpecG::new`] and
++/// [`super::boundary::BoundarySpec::new`]) can check for themselves.
++/// [`Layout::for_shape`] uses the full, shape-driven set.
++pub(crate) fn no_commitment_has_a_node_shaped_column(rows: &[(&str, usize)]) -> Result<(), String> {
++    no_commitment_has_a_node_shaped_column_under(rows, &zkp_core::hashtag::HashTag::legacy())
++}
++
++/// **STAGE 18, T-3 AS AMENDED**: the same shape-free half of the set, under
++/// the hash rule the CALLER knows — whole under the legacy rule, EMPTY under
++/// a tag (see [`super::hash_domain::imposed_shape_free`] for why). The two
++/// bare statement constructors take that rule from the shape, through
++/// [`super::endpoint_g::EndpointSpecG::new_with_tag`] and
++/// [`super::boundary::BoundarySpec::new_with_tag`].
++/// [`no_commitment_has_a_node_shaped_column`] is this at
++/// `HashTag::legacy()`, so a caller with no tag to offer still gets the whole
++/// set, which is the fail-closed direction.
++pub(crate) fn no_commitment_has_a_node_shaped_column_under(rows: &[(&str, usize)], tag: &zkp_core::hashtag::HashTag) -> Result<(), String> {
++    super::hash_domain::imposed_shape_free(tag).refuse(rows)
+ }
+ 
+ pub(crate) struct Layout {
+@@ -553,78 +1003,225 @@
+     pub h_rows: usize,
+     a_prefix: Vec<usize>,
+     h_prefix: Vec<usize>,
++    /// **STEP B.** The shape this layout was built from, and the two plane-id
++    /// maps that go with it. Everything below that used to read a toy literal
++    /// now reads one of these.
++    sh: super::shape::Shape,
++    ids: Ids,
++    hids: HIds,
++    /// the row width `1 << sh.log_cols`
++    n: usize,
++    a_sites: [usize; N_SLOTS],
++    h_sites: [usize; N_SLOTS],
++    slots: [(usize, usize, usize); N_SLOTS],
++    /// **STAGE 12.** `[incoming, outgoing]`: the first row of the reserved
++    /// pair each IO tab claims. See [`Layout::with_io_mask_rows`].
++    io_mask_row: [usize; 2],
+ }
+ 
+ impl Layout {
++    /// **S5.** The row geometry is now computed from a SHAPE
++    /// (`shape::Shape::toy`), not read off the plane table: the plane list,
++    /// the rows each plane takes, the claim-site counts, the slot table and
++    /// the opening-group counts all come from there. The frozen toy constants
++    /// stay exactly where they were and become the GATE — if the shape-driven
++    /// layout ever differs from them by one plane, one site or one row, this
++    /// panics before a byte is committed. That is what lets the same code
++    /// serve the rung and the 125M shapes later (steps S6..S13) without the
++    /// toy profile moving.
+     pub(crate) fn new() -> Layout {
++        let sh = super::shape::Shape::toy();
++        let lay = Layout::for_shape(&sh).expect("the toy shape is the pinned one");
++        // ---- THE TOY FREEZE GATE. Every literal of the accepted profile,
++        // re-asserted against what the shape-driven constructor produced. If
++        // one plane, one site or one row ever differs, this panics before a
++        // byte is committed.
++        assert_eq!(lay.ids.n_a(), N_A, "the shape-driven A plane list is not the declared one");
++        assert_eq!(lay.hids.n_h(), N_H, "the shape-driven H plane list is not the declared one");
++        assert!((0..N_A).all(|p| lay.ids.dom(p) == a_dom(p)), "a shape-driven A plane sits on another domain");
++        assert!((0..N_H).all(|p| lay.hids.dom(p) == h_dom(p)), "a shape-driven H plane sits on another domain");
++        assert!((0..N_A).all(|p| lay.ids.at(p) == p), "the toy's A plane id map is not the identity");
++        assert_eq!(lay.a_sites, A_SITES, "the shape-driven A claim sites are not the declared ones");
++        assert_eq!(lay.h_sites, H_SITES, "the shape-driven H claim sites are not the declared ones");
++        assert_eq!(lay.slots, SLOTS, "the shape-driven slot table is not the declared one");
++        assert_eq!((sh.a_groups(), sh.h_groups()), (A_GROUPS, H_GROUPS), "the shape-driven opening groups are not the declared ones");
++        assert_eq!(lay.n, N, "the shape's row width is not this profile's");
++        // the derived counts of the disposition section 1.2
++        assert_eq!(lay.a_data_rows, A_DATA_ROWS, "block A data rows");
++        assert_eq!(lay.h_data_rows, H_DATA_ROWS, "block H data rows");
++        assert_eq!(lay.a_rows, A_ROWS, "block A rows");
++        assert_eq!(lay.h_rows, H_ROWS, "block H rows");
++        lay
++    }
++
++    /// **STEP B: the same row geometry at ANY shape.** The toy is one
++    /// instance of it ([`Layout::new`], which adds the frozen assertions),
++    /// and a new shape is a NEW profile beside it (D17) — nothing here edits
++    /// the toy. Construction REFUSES BY NAME (through [`Ids::new`] and
++    /// [`HIds::new`]) any shape whose plane list is not the one the segment
++    /// tables describe.
++    pub(crate) fn for_shape(sh: &super::shape::Shape) -> Result<Layout, String> {
++        let ids = Ids::new(sh)?;
++        let hids = HIds::new(sh)?;
++        let n = 1usize << sh.log_cols;
++        let a_doms = sh.a_plane_doms();
++        let h_doms = sh.h_plane_doms();
++        let (a_sites, h_sites) = sh.claim_sites();
++        let slots = sh.slots();
+         let mut row = 0usize;
+-        let mut a_off = Vec::with_capacity(N_A);
+-        for p in 0..N_A {
+-            a_off.push(row * N);
+-            row += rows_of(a_dom(p).log());
++        let mut a_off = Vec::with_capacity(a_doms.len());
++        for d in &a_doms {
++            a_off.push(row * n);
++            row += sh.rows_of(*d);
+         }
+         let a_data_rows = row;
+         let mut a_prefix = vec![0usize; N_SLOTS + 1];
+         let mut h_prefix = vec![0usize; N_SLOTS + 1];
+         for s in 0..N_SLOTS {
+-            a_prefix[s + 1] = a_prefix[s] + A_SITES[s];
+-            h_prefix[s + 1] = h_prefix[s] + H_SITES[s];
++            a_prefix[s + 1] = a_prefix[s] + a_sites[s];
++            h_prefix[s + 1] = h_prefix[s] + h_sites[s];
+         }
+         let a_mask_base = a_data_rows;
+         let a_prox = a_mask_base + 2 * a_prefix[N_SLOTS];
+         let a_rows = a_prox + 2;
+         let mut row = 0usize;
+-        let mut h_off = Vec::with_capacity(N_H);
+-        for p in 0..N_H {
+-            let r = rows_of(h_dom(p).log());
+-            h_off.push((row * N, (row + r) * N));
++        let mut h_off = Vec::with_capacity(h_doms.len());
++        for d in &h_doms {
++            let r = sh.rows_of(*d);
++            h_off.push((row * n, (row + r) * n));
+             row += 2 * r;
+         }
+         let h_data_rows = row;
+         let h_mask_base = h_data_rows;
+         let h_prox = h_mask_base + 2 * h_prefix[N_SLOTS];
+         let h_rows = h_prox + 2;
+-        // the derived counts of the disposition section 1.2
+-        assert_eq!(a_data_rows, A_DATA_ROWS, "block A data rows");
+-        assert_eq!(h_data_rows, H_DATA_ROWS, "block H data rows");
+-        assert_eq!(a_rows, A_ROWS, "block A rows");
+-        assert_eq!(h_rows, H_ROWS, "block H rows");
+-        Layout { a_off, a_data_rows, a_mask_base, a_prox, a_rows, h_off, h_data_rows, h_mask_base, h_prox, h_rows, a_prefix, h_prefix }
++        // **C-H4 / T-3, at the FULL shape-driven set.** The shape-free set
++        // above is what a bare statement constructor can check; here the
++        // profile string and the geometry are both in hand, so the profile's
++        // transcript constructor length and its clear-vector lengths are in
++        // the set too (6 rows is dangerous at 125M and 7 at the frozen-seam
++        // rung, and neither is visible without the profile).
++        //
++        // **STAGE 17, T-3 AS AMENDED.** Imposed on LEGACY-RULE profiles only
++        // (the toy, the frozen-seam rung). On a tagged profile the four hash
++        // domains are four different functions and a coincidence of input
++        // lengths between them means nothing — see
++        // `hash_domain::imposed_at_shape_with` for why that is not a
++        // weakening.
++        super::hash_domain::imposed_at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", M_ROWS), ("endpoint", sh.endpoint_rows)])?;
++        Ok(Layout {
++            a_off,
++            a_data_rows,
++            a_mask_base,
++            a_prox,
++            a_rows,
++            h_off,
++            h_data_rows,
++            h_mask_base,
++            h_prox,
++            h_rows,
++            a_prefix,
++            h_prefix,
++            sh: sh.clone(),
++            ids,
++            hids,
++            n,
++            a_sites,
++            h_sites,
++            slots,
++            // **STAGE 12.** A single block's two IO commitments are
++            // `endpoint_g`/`private_seam` planes with ONE claim site, whose
++            // terminal pair sits immediately above the data rows. That is
++            // today's `argument.rs` constant `sh.endpoint_rows - 5`, moved
++            // here unchanged: nothing of any existing profile moves, and a
++            // RUN overrides it per stage through `with_io_mask_rows`.
++            io_mask_row: [sh.endpoint_rows.saturating_sub(super::endpoint_g::MASK_ROWS); 2],
++        })
++    }
++
++    /// **STAGE 12.** The reserved pair each IO tab of this stage uses, as
++    /// `[incoming, outgoing]`. A single block leaves it alone. A stage of a
++    /// run sets it from the DERIVED boundary geometry: the outgoing claim
++    /// (slot 22, block `k`'s output) takes site 0 at `data`, and the incoming
++    /// claim (slot 21, block `k + 1`'s input) takes site 1 at `data + 2`, so
++    /// that the two claims a boundary carries land on DISJOINT pairs — the
++    /// whole defence against the shared-pair counterexample. The assignment
++    /// is the run's declared schedule and is covered by the run's schedule
++    /// digest; it is not in `describe()` and so moves no existing byte.
++    pub(crate) fn with_io_mask_rows(mut self, rows: [usize; 2]) -> Layout {
++        self.io_mask_row = rows;
++        self
++    }
++
++    /// the reserved pair of the incoming (`Cm::In`) or outgoing (`Cm::Out`)
++    /// IO commitment of this stage
++    pub(crate) fn io_mask_row(&self, outgoing: bool) -> usize {
++        self.io_mask_row[usize::from(outgoing)]
++    }
++
++    // ---- what this layout was built from ----
++    pub(crate) fn shape(&self) -> &super::shape::Shape {
++        &self.sh
++    }
++    pub(crate) fn ids(&self) -> &Ids {
++        &self.ids
++    }
++    pub(crate) fn hids(&self) -> &HIds {
++        &self.hids
++    }
++    /// the row width `1 << log_cols`
++    pub(crate) fn n(&self) -> usize {
++        self.n
++    }
++    pub(crate) fn slots(&self) -> &[(usize, usize, usize); N_SLOTS] {
++        &self.slots
++    }
++    /// **STEP C part 2.** The CFS mask specification of THIS layout's slot
++    /// table — `(rounds, degree)` per slot — the shaped form of the free
++    /// [`mask_specs`], which reads the toy's `SLOTS` literal. At the toy the
++    /// two are equal (asserted in `grow_tests`), so no toy byte moves.
++    pub(crate) fn mask_specs(&self) -> Vec<(usize, usize)> {
++        self.slots.iter().map(|&(n, e, d)| (n + e, d)).collect()
++    }
++    /// private terminals slot `s` publishes at THIS shape (the shaped form of
++    /// the free [`slot_terms`], which reads `A_SITES` / `H_SITES`)
++    pub(crate) fn slot_terms(&self, slot: usize) -> usize {
++        self.a_sites[slot] + self.h_sites[slot] + usize::from(slot >= SC_IO_IN)
+     }
+ 
+     // ---- the slot schedule ----
+-    pub(crate) fn a_sites(&self) -> &'static [usize] {
+-        &A_SITES
+-    }
+-    pub(crate) fn h_sites(&self) -> &'static [usize] {
+-        &H_SITES
++    pub(crate) fn a_sites(&self) -> &[usize] {
++        &self.a_sites
++    }
++    pub(crate) fn h_sites(&self) -> &[usize] {
++        &self.h_sites
+     }
+     pub(crate) fn lookup_doms(&self) -> &'static [Dom] {
+         &LOOKUP_DOMS
+     }
+     pub(crate) fn lookups(&self, dom: Dom) -> Vec<Lk> {
+-        lookups(dom)
++        lookups_at(&self.sh, &self.ids, dom)
+     }
+     pub(crate) fn helpers(&self, dom: Dom) -> (usize, usize) {
+-        helpers(dom)
++        (self.hids.first_helper(dom), self.sh.helpers(dom))
+     }
+     /// every A / H plane, in plane order
+     pub(crate) fn a_planes(&self) -> Vec<usize> {
+-        (0..N_A).collect()
++        (0..self.ids.n_a()).collect()
+     }
+     pub(crate) fn h_planes(&self) -> Vec<usize> {
+-        (0..N_H).collect()
++        (0..self.hids.n_h()).collect()
+     }
+ 
+     /// first row of the reserved pair of A site `k` of `slot`
+     pub(crate) fn a_site(&self, slot: usize, k: usize) -> Result<usize, String> {
+-        if k >= A_SITES[slot] {
++        if k >= self.a_sites[slot] {
+             return Err(format!("private block: undeclared A site {k} in slot {slot}"));
+         }
+         Ok(self.a_mask_base + 2 * (self.a_prefix[slot] + k))
+     }
+     pub(crate) fn h_site(&self, slot: usize, k: usize) -> Result<usize, String> {
+-        if k >= H_SITES[slot] {
++        if k >= self.h_sites[slot] {
+             return Err(format!("private block: undeclared H site {k} in slot {slot}"));
+         }
+         Ok(self.h_mask_base + 2 * (self.h_prefix[slot] + k))
+@@ -638,35 +1235,48 @@
+     }
+     /// the two zero-sum rows `u`
+     pub(crate) fn h_u_rows(&self) -> [usize; 2] {
+-        let (re, im) = self.h_off[H_U];
+-        [re / N, im / N]
++        let (re, im) = self.h_off[self.hids.u()];
++        [re / self.n, im / self.n]
+     }
+     pub(crate) fn limb_off(&self, k: usize) -> usize {
+-        self.a_off[A_LIMB] + k * T
++        self.a_off[self.ids.at(A_LIMB)] + k * self.sh.t_pad
+     }
+     pub(crate) fn limb_off_m(&self, k: usize) -> usize {
+-        self.a_off[A_LIMBM] + k * T
++        self.a_off[self.ids.at(A_LIMBM)] + k * self.sh.t_pad
+     }
+ 
+     /// The declared schedule, line by line; its digest is transcript-bound.
+     pub(crate) fn describe(&self) -> Vec<String> {
++        let sh = &self.sh;
++        // The toy's first line opens with a LEGACY label that is not its
++        // profile id; it is transcript-bound through `schedule_digest`, so
++        // normalising it would move every toy byte (D17). It is therefore
++        // kept verbatim for the toy profile and only for it, and every NEW
++        // profile puts its own profile id there — which is also what makes
++        // this digest separate two shapes of identical geometry.
++        let tag = if sh.profile == super::shape::TOY_PROFILE { "private-block-t32/1" } else { sh.profile };
+         let mut out = vec![
+-            format!("private-block-t32/1: T{T} d{D} H{H} KV1 dh{DH} F{F}; n={N} inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)"),
++            format!(
++                "{tag}: T{} d{} H{} KV{} dh{} F{}; n={} inv_rate={} Q={}; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)",
++                sh.tokens, sh.width, sh.q_heads, sh.kv_heads, sh.head_dim, sh.hidden, self.n, sh.inv_rate, sh.opened_cols
++            ),
+             format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[N_SLOTS], self.a_prox, self.a_prox + 1),
+             format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[N_SLOTS], self.h_u_rows(), self.h_prox, self.h_prox + 1),
+-            format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={A_GROUPS} H-groups={H_GROUPS} collapse=0"),
++            format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={} H-groups={} collapse=0", sh.a_groups(), sh.h_groups()),
+             format!(
+-                "calibration: norm tn={NORM_TN} cn={NORM_CN} ceps={NORM_CEPS} wrho={NORM_WRHO}; shifts qkv={SH_QKV} rope={SH_ROPE} score={SH_S} o={SH_O} ao={SH_AO} residual=0; fE={F_E} fP={F_P} fRo={F_RO} wrhoS={WRHO_S} mask={MASK_SCORE}; classes int8=[-127,127] int16; tables U8 + exp"
++                "calibration: norm tn={NORM_TN} cn={NORM_CN} ceps={NORM_CEPS} wrho={}; shifts qkv={SH_QKV} rope={SH_ROPE} score={SH_S} o={SH_O} ao={SH_AO} residual=0; fE={} fP={F_P} fRo={F_RO} wrhoS={} mask={MASK_SCORE}; classes int8=[-127,127] int16; tables U8 + exp",
++                sh.norm_wrho, sh.f_e, sh.wrho_s
+             ),
+             format!(
+-                "feed-forward: F={F} shifts gate={SH_G} up=0 product={SH_H_PROD} down={SH_Z} residual2=0; gate class int8=[-128,127]; tables U8 + exp + act"
++                "feed-forward: F={} shifts gate={SH_G} up=0 product={SH_H_PROD} down={SH_Z} residual2=0; gate class int8=[-128,127]; tables U8 + exp + act",
++                sh.hidden
+             ),
+         ];
+         for s in 0..N_SLOTS {
+-            let (n, e, d) = SLOTS[s];
++            let (n, e, d) = self.slots[s];
+             out.push(format!(
+                 "slot {s:02} [{}] main={n} ext={e} degree={d} kind={:?} A-sites={} H-sites={}",
+-                SLOT_NAMES[s], SLOT_KINDS[s], A_SITES[s], H_SITES[s]
++                SLOT_NAMES[s], SLOT_KINDS[s], self.a_sites[s], self.h_sites[s]
+             ));
+         }
+         for (host, hosted) in HOSTS {

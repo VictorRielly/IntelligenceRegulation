@@ -1,0 +1,234 @@
+== archive ==
+reviewed-source.tar.gz sha256 c794360a09de1770104d8e40ce043344b25c21498cfe37ed661575a8ac06626a expected c794360a09de1770104d8e40ce043344b25c21498cfe37ed661575a8ac06626a EQUAL
+review-snapshot.json: 179 entries; extracted files 179; mismatched-or-missing 0 []; extra 0 []
+
+== pin set: 37 distinct paths (35 Rust, 2 manifests) ==
+path                                        pin of record    2nd accepted     snapshot         verdict                    snapshot bytes equal to
+hashline/Cargo.toml                         eaba50ecf1434ad8 -                e3acda1bf4cf1a8c MOVED                      lane fee1a8d
+hashline/src/field.rs                       1dc6c53b9d3b014b -                1dc6c53b9d3b014b EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/gpu/mod.rs                     a5ceeba218429637 706ca7fafb3e5411 706ca7fafb3e5411 EQUAL (second accepted)    main 4751b93
+hashline/src/lib.rs                         fcb784d3853c9d3e -                fcb784d3853c9d3e EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/merkle.rs                      06fd5f0bd725599d -                06fd5f0bd725599d EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/mle.rs                         bffe83fb5636f445 -                bffe83fb5636f445 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/native_capture.rs              621f6459ccf516eb -                621f6459ccf516eb EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/ntt.rs                         a7f7ac0b838747c4 -                a7f7ac0b838747c4 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/pcs.rs                         6d27f3a5bc28fb7b 9537915b26b21ea9 6f4b2cd4ef1128f8 MOVED                      none of the four
+hashline/src/private_attention.rs           dfc02d91356974b0 -                dfc02d91356974b0 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_attention/argument.rs  3343620eefa84842 -                3343620eefa84842 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_attention/layout.rs    17159dcc677d47a9 -                17159dcc677d47a9 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_attention/protocol.rs  cf29722099739cb7 -                cf29722099739cb7 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_attention/wire.rs      a35a468cf19eb672 -                a35a468cf19eb672 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_attention/witness.rs   795cf6292e366bc4 -                795cf6292e366bc4 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_block.rs               5d9dd178beb70865 412a43f488f809a5 b4aeb6ed32331b29 MOVED                      lane fee1a8d
+hashline/src/private_block/argument.rs      e62f46c29fe41848 -                f7fa2ad4213d925b MOVED                      lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_block/layout.rs        6cc8f6fed8bc55cc -                14758039fbe9daa6 MOVED                      lane fee1a8d, s36 29cba9a
+hashline/src/private_block/protocol.rs      d9455a1054aab7e1 -                ac4122375397a155 MOVED                      lane fee1a8d
+hashline/src/private_block/wire.rs          5b11631d4c74b24d -                99e69b5c92154ed2 MOVED                      lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/private_block/witness.rs       640754fb5b3acb85 -                b9b66c024e7ca68d MOVED                      lane fee1a8d, s36 29cba9a
+hashline/src/private_seam.rs                2f36c779e79c4d7a -                2f36c779e79c4d7a EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/sumcheck.rs                    f097dd71fab7888e -                f097dd71fab7888e EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/tables_attn.rs                 5a874788e2058101 -                5a874788e2058101 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/transcript.rs                  4850b2b4dc803176 -                4850b2b4dc803176 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+hashline/src/zk.rs                          c5b54753d01d85f3 ce8cc51648d0da51 07282c766e882029 MOVED                      none of the four
+zkp-core/Cargo.toml                         b9038a52f34e0ee8 -                b9038a52f34e0ee8 EQUAL (pin of record)      main 4751b93, lane fee1a8d
+zkp-core/src/field.rs                       df3eb5a68eb8f563 -                df3eb5a68eb8f563 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/lib.rs                         1c2a6ce1755df396 -                388f012fbb535617 MOVED                      lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/merkle.rs                      77bc5f51e5f11f15 -                6e7817bd767a8839 MOVED                      lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/mle.rs                         b20c8b75c9246471 -                b20c8b75c9246471 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/ntt.rs                         97572d4f242637d2 -                97572d4f242637d2 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/pcs.rs                         2d9149564ff7f774 -                6b8d1bfa1a69293e MOVED                      lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/pcs/backend.rs                 1734c03ce6897e78 -                1734c03ce6897e78 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/rng.rs                         0d4a99abbc424286 -                0d4a99abbc424286 EQUAL (pin of record)      main 4751b93, lane fee1a8d
+zkp-core/src/sumcheck.rs                    56dbb8c742d970d3 -                56dbb8c742d970d3 EQUAL (pin of record)      main 4751b93, lane fee1a8d, s36 29cba9a, lane tip
+zkp-core/src/transcript.rs                  31ce3c9a72da3bd3 -                cc9752d0ef9bcd6d MOVED                      lane fee1a8d
+
+equal 24 / moved 13 / absent 0
+
+== moved pins, full digests ==
+hashline/Cargo.toml
+  pin of record   eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a
+  snapshot        e3acda1bf4cf1a8cbbd671e51885a3e4b31b41e976f7ecf15057fdf0018015fc
+  main 4751b93    eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a
+  lane fee1a8d    e3acda1bf4cf1a8cbbd671e51885a3e4b31b41e976f7ecf15057fdf0018015fc
+  s36 29cba9a     5633d1e46fd1c0878751283bf722a5cdbfb565bdf414aa521d7c160d4276fb38
+  lane tip        10d99a63f465900ad6cad29f547a6d396b66c7a59320e0f8cb60ad3b3b721acf
+  EXPECTED_AFTER_INTEGRATION (recorded, not accepted) 10d99a63f465900ad6cad29f547a6d396b66c7a59320e0f8cb60ad3b3b721acf  != snapshot
+  tables          manifest_pins.MANIFEST_PINS
+hashline/src/pcs.rs
+  pin of record   6d27f3a5bc28fb7bb57ab14ddb395f4c6911db2b8541876af73344125520d8a8
+  2nd accepted    9537915b26b21ea906b0098d14afedf65c3d33320619bd380d4987d0c5fcf5a7
+  snapshot        6f4b2cd4ef1128f85d1c813a2702e5bdfb5f5a99bb1c603dfa3b87340608314c
+  main 4751b93    9537915b26b21ea906b0098d14afedf65c3d33320619bd380d4987d0c5fcf5a7
+  lane fee1a8d    f16932674e49dcf9d2426b89978aa33be9d71665b19f47c527ca4183cdad8789
+  s36 29cba9a     f16932674e49dcf9d2426b89978aa33be9d71665b19f47c527ca4183cdad8789
+  lane tip        f16932674e49dcf9d2426b89978aa33be9d71665b19f47c527ca4183cdad8789
+  tables          mask_commit.PATH_PINS
+hashline/src/private_block.rs
+  pin of record   5d9dd178beb708650d37a0af2bb7736e20c797cbb39d5ca7dfdadc300b48e001
+  2nd accepted    412a43f488f809a5b479cf20690f06e35d79807c39d380f52abddb8966b09cf7
+  snapshot        b4aeb6ed32331b29b3d470ca5fc2f4789c1f2f4a9785751ca52aacaa51a3300e
+  main 4751b93    412a43f488f809a5b479cf20690f06e35d79807c39d380f52abddb8966b09cf7
+  lane fee1a8d    b4aeb6ed32331b29b3d470ca5fc2f4789c1f2f4a9785751ca52aacaa51a3300e
+  s36 29cba9a     fa0daca6797501ec9fe9ad93a5b890c0fa72165fbdb21c6854d4eaddac47ec94
+  lane tip        236e986c57dbf2ae6c1052d09819cb5eeef551cf01d0fd5805208868ca163b91
+  tables          mask_commit.PATH_PINS
+hashline/src/private_block/argument.rs
+  pin of record   e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab
+  snapshot        f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d
+  main 4751b93    e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab
+  lane fee1a8d    f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d
+  s36 29cba9a     f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d
+  lane tip        f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d
+  tables          mask_commit.SOURCE_PINS, terminal_polys.SOURCE_PINS
+hashline/src/private_block/layout.rs
+  pin of record   6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989
+  snapshot        14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30
+  main 4751b93    6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989
+  lane fee1a8d    14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30
+  s36 29cba9a     14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30
+  lane tip        1a48371540713712d8935101d2b9935f65d0f315dcd217b3eeb108e91dfba1fe
+  tables          mask_commit.PATH_PINS, terminal_polys.SOURCE_PINS
+hashline/src/private_block/protocol.rs
+  pin of record   d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65
+  snapshot        ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413
+  main 4751b93    d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65
+  lane fee1a8d    ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413
+  s36 29cba9a     e0e617be617a548641cb33c8564cee86ee7d2af90f9c6487b5fb7af30113d45b
+  lane tip        33a74702619deaaf94ebd2c377ef9189e61dc29c6f8fda795675f23c1b1c66f9
+  tables          mask_commit.PATH_PINS, terminal_polys.SOURCE_PINS
+hashline/src/private_block/wire.rs
+  pin of record   5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5
+  snapshot        99e69b5c92154ed2ba44c6c568d14704ecd66ae2ee85b13ae337b6501bffc8a1
+  main 4751b93    5b11631d4c74b24d0ba82388385ad20c19c4304fa3a6c0026c0074b2c55d17d5
+  lane fee1a8d    99e69b5c92154ed2ba44c6c568d14704ecd66ae2ee85b13ae337b6501bffc8a1
+  s36 29cba9a     99e69b5c92154ed2ba44c6c568d14704ecd66ae2ee85b13ae337b6501bffc8a1
+  lane tip        99e69b5c92154ed2ba44c6c568d14704ecd66ae2ee85b13ae337b6501bffc8a1
+  tables          mask_commit.PATH_PINS
+hashline/src/private_block/witness.rs
+  pin of record   640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5
+  snapshot        b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad
+  main 4751b93    640754fb5b3acb85d383e7505e2e3f5ac6b41739d307c10f2f971819b7ab70a5
+  lane fee1a8d    b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad
+  s36 29cba9a     b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad
+  lane tip        6fd11eae847d6a2b3e9c22eaa1c20f9bb955e3371ae75d3e0421783e59c8eaab
+  tables          mask_commit.PATH_PINS
+hashline/src/zk.rs
+  pin of record   c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310
+  2nd accepted    ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b
+  snapshot        07282c766e882029d6886fcaee27d1503d595af1839263f61c802fb3f1a0f18c
+  main 4751b93    ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b
+  lane fee1a8d    d4280962af3a89b61b3af69f35650d21f79dc9f51600dcf130442e44a50f1849
+  s36 29cba9a     d4280962af3a89b61b3af69f35650d21f79dc9f51600dcf130442e44a50f1849
+  lane tip        d4280962af3a89b61b3af69f35650d21f79dc9f51600dcf130442e44a50f1849
+  tables          mask_commit.SOURCE_PINS
+zkp-core/src/lib.rs
+  pin of record   1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa
+  snapshot        388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164
+  main 4751b93    1c2a6ce1755df396d0e9f8c87eece27ac23657a24005b6d286ab5f551b7453fa
+  lane fee1a8d    388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164
+  s36 29cba9a     388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164
+  lane tip        388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164
+  tables          mask_commit.PATH_PINS
+zkp-core/src/merkle.rs
+  pin of record   77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62
+  snapshot        6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a
+  main 4751b93    77bc5f51e5f11f150bec0813a2a810dd77d3dff3d1d4963e43a8923d106e4f62
+  lane fee1a8d    6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a
+  s36 29cba9a     6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a
+  lane tip        6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a
+  tables          mask_commit.SOURCE_PINS
+zkp-core/src/pcs.rs
+  pin of record   2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d
+  snapshot        6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a
+  main 4751b93    2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d
+  lane fee1a8d    6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a
+  s36 29cba9a     6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a
+  lane tip        6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a
+  tables          mask_commit.SOURCE_PINS
+zkp-core/src/transcript.rs
+  pin of record   31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8
+  snapshot        cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967
+  main 4751b93    31ce3c9a72da3bd3d6dcc9203c9ed7a51963cde462b59a66186467b4cb733da8
+  lane fee1a8d    cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967
+  s36 29cba9a     b8a228d9b33f7dbf19cd631c7b9a08eb9465b56ab3c32ea40c06fee2416adad4
+  lane tip        b8a228d9b33f7dbf19cd631c7b9a08eb9465b56ab3c32ea40c06fee2416adad4
+  tables          mask_commit.SOURCE_PINS
+
+== every snapshot file vs main 4751b93 and lane fee1a8d ==
+-- = lane only: 62
+   hashline/Cargo.lock
+   hashline/Cargo.toml [PINNED]
+   hashline/src/private_block.rs [PINNED]
+   hashline/src/private_block/argument.rs [PINNED]
+   hashline/src/private_block/boundary.rs
+   hashline/src/private_block/c6_tests.rs
+   hashline/src/private_block/dense_tests.rs
+   hashline/src/private_block/e32_tests.rs
+   hashline/src/private_block/endpoint_g.rs
+   hashline/src/private_block/grow_tests.rs
+   hashline/src/private_block/hash_domain.rs
+   hashline/src/private_block/hash_domain_tests.rs
+   hashline/src/private_block/hash_tag_tests.rs
+   hashline/src/private_block/k4_tests.rs
+   hashline/src/private_block/layout.rs [PINNED]
+   hashline/src/private_block/norm_alias.rs
+   hashline/src/private_block/p2_tests.rs
+   hashline/src/private_block/pad.rs
+   hashline/src/private_block/parity.rs
+   hashline/src/private_block/plane_index.rs
+   hashline/src/private_block/protocol.rs [PINNED]
+   hashline/src/private_block/review_tests.rs
+   hashline/src/private_block/rulings_tests.rs
+   hashline/src/private_block/run.rs
+   hashline/src/private_block/run_capture.rs
+   hashline/src/private_block/run_capture_tests.rs
+   hashline/src/private_block/run_sink.rs
+   hashline/src/private_block/run_statement_file.rs
+   hashline/src/private_block/run_tests.rs
+   hashline/src/private_block/rung_tests.rs
+   hashline/src/private_block/s20_review_tests.rs
+   hashline/src/private_block/s23_tests.rs
+   hashline/src/private_block/s24_tests.rs
+   hashline/src/private_block/s25_tests.rs
+   hashline/src/private_block/s26_tests.rs
+   hashline/src/private_block/s28_review_tests.rs
+   hashline/src/private_block/s28_tests.rs
+   hashline/src/private_block/s29_tests.rs
+   hashline/src/private_block/s33_tests.rs
+   hashline/src/private_block/s35_tests.rs
+   hashline/src/private_block/shape.rs
+   hashline/src/private_block/slot_ir.rs
+   hashline/src/private_block/slot_ir_tests.rs
+   hashline/src/private_block/tamper.rs
+   hashline/src/private_block/tests.rs
+   hashline/src/private_block/timing.rs
+   hashline/src/private_block/w14_tests.rs
+   hashline/src/private_block/wire.rs [PINNED]
+   hashline/src/private_block/witness.rs [PINNED]
+   hashline/src/private_block/zero_witness_tests.rs
+   private-block-kernel-shaped/Cargo.toml
+   private-block-kernel-shaped/src/lib.rs
+   private-block-kernel-shaped/src/tests.rs
+   scripts/zk60_private_block_inventory.py
+   scripts/zk60_private_block_layout_model.py
+   tests/test_zk60_private_block_inventory.py
+   tests/test_zk60_private_block_layout_model.py
+   zkp-core/src/hashtag.rs
+   zkp-core/src/lib.rs [PINNED]
+   zkp-core/src/merkle.rs [PINNED]
+   zkp-core/src/pcs.rs [PINNED]
+   zkp-core/src/transcript.rs [PINNED]
+-- = main only: 7
+   hashline/examples/zk60_private_block.rs
+   hashline/examples/zk60_repaired_mask_probe.rs
+   hashline/src/gpu/cuda.rs
+   hashline/src/gpu/mod.rs [PINNED]
+   hashline/src/layer.rs
+   hashline/src/wcache.rs
+   hashline/src/zk_mr1_probe_tests.rs
+-- NEITHER (new blob): 2
+   hashline/src/pcs.rs [PINNED]
+   hashline/src/zk.rs [PINNED]
+-- NEW (in neither): 1
+   private-block-kernel-shaped/Cargo.lock
+-- equal both: 107

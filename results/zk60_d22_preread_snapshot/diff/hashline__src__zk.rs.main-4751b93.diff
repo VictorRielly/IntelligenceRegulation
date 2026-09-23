@@ -1,0 +1,124 @@
+--- 4751b93:hashline/src/zk.rs
++++ snapshot:hashline/src/zk.rs
+@@ -466,6 +466,57 @@
+     MaskCommit { specs: specs.to_vec(), masks, a_coefs, encoded, b: (b_re, b_im), u: (u_re, u_im), salts, tree }
+ }
+ 
++/// [ZK60 D19, ruling T-1] `mask_commit` under a
++/// [`zkp_core::hashtag::HashTag`]: the masking commitment `M` is the one
++/// other place in this crate that builds a column-hashed, salted Merkle
++/// tree, so a tagged profile has to carry the tag here as well or its `M`
++/// would be the only unkeyed commitment of the proof. `mask_commit` above
++/// keeps its own body: this is a separate entry point and not a forward.
++///
++/// The generator draws in exactly the order `mask_commit` draws — the mask
++/// coefficients, the per-row pads, `b`, `u`, then the salts — so a tag moves
++/// no byte of the randomness. `M` never reaches the accelerator (it is
++/// hashed here, not through `pcs::commit_zk_owned`), so ruling T-8 has
++/// nothing to decline in this function.
++pub fn mask_commit_tagged(specs: &[(usize, usize)], ntt: &NttTables, rng: &mut ZkRng, tag: &zkp_core::hashtag::HashTag) -> MaskCommit {
++    let m = 1usize << MASK_LOG_MSG;
++    let dom = 1usize << MASK_LOG_DOM;
++    let pows = coset_powers(Fp::new(7), dom);
++    let masks: Vec<CfsMask> = specs.iter().map(|&(n, d)| CfsMask::random(rng, n, d)).collect();
++    let n_base = 2 * masks.len() + 4;
++    let mut encoded = vec![Fp::ZERO; n_base * dom];
++    let mut a_coefs = Vec::with_capacity(2 * masks.len());
++    for (s, mk) in masks.iter().enumerate() {
++        let re: Vec<Fp> = mk.coeffs.iter().map(|c| c.c0).collect();
++        let im: Vec<Fp> = mk.coeffs.iter().map(|c| c.c1).collect();
++        for (k, part) in [re, im].iter().enumerate() {
++            assert!(part.len() + MASK_Q <= m, "mask row: {} coefficients + {MASK_Q} pads > {m}", part.len());
++            let mut msg = vec![Fp::ZERO; m];
++            msg[..part.len()].copy_from_slice(part);
++            let pads = rng.fp_vec(MASK_Q);
++            msg[part.len()..part.len() + MASK_Q].copy_from_slice(&pads);
++            ntt.inverse(&mut msg);
++            encode_coeffs_coset(ntt, &msg, &pows, &mut encoded[(2 * s + k) * dom..(2 * s + k + 1) * dom]);
++            a_coefs.push(msg);
++        }
++    }
++    let mut b_re = rng.fp_vec(2 * m);
++    let mut b_im = rng.fp_vec(2 * m);
++    b_re[m] = b_re[0].neg();
++    b_im[m] = b_im[0].neg();
++    let u_re = rng.fp_vec(2 * m);
++    let u_im = rng.fp_vec(2 * m);
++    let base0 = 2 * masks.len();
++    for (k, c) in [&b_re, &b_im, &u_re, &u_im].iter().enumerate() {
++        encode_coeffs_coset(ntt, c, &pows, &mut encoded[(base0 + k) * dom..(base0 + k + 1) * dom]);
++    }
++    let salts: Vec<[u8; 32]> = (0..dom).map(|_| rng.bytes32()).collect();
++    let leaves = pcs::hash_columns_keyed(&encoded, n_base, dom, tag.column_key());
++    let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| pcs::salt_leaf_keyed(l, s, tag.leaf_key())).collect();
++    let tree = MerkleTree::build_keyed(salted, tag.node_key());
++    MaskCommit { specs: specs.to_vec(), masks, a_coefs, encoded, b: (b_re, b_im), u: (u_re, u_im), salts, tree }
++}
++
+ /// The combined weight vector of mask row s under theta (over the 512 message positions) and the combined value.
+ fn combined_weights(specs: &[(usize, usize)], functionals: &[MaskFunctional], theta: Fp2) -> (Vec<Vec<Fp2>>, Fp2) {
+     let m = 1usize << MASK_LOG_MSG;
+@@ -589,9 +640,63 @@
+     Ok(())
+ }
+ 
++/// [ZK60 D19, rulings T-1 and T-7] `mask_verify` under a
++/// [`zkp_core::hashtag::HashTag`]. `mask_verify` above keeps its own body.
++///
++/// The tag is the CALLER's, from the profile it trusts; nothing in `op` — a
++/// structure decoded from an untrusted frame — selects or carries a key.
++pub fn mask_verify_tagged(root: &Digest, specs: &[(usize, usize)], functionals: &[MaskFunctional], op: &MaskOpening, ntt: &NttTables, tr: &mut Transcript, tag: &zkp_core::hashtag::HashTag) -> Result<(), String> {
++    let m = 1usize << MASK_LOG_MSG;
++    let dom = 1usize << MASK_LOG_DOM;
++    let n_base = 2 * specs.len() + 4;
++    let theta = tr.challenge_fp2();
++    let (ws, v) = combined_weights(specs, functionals, theta);
++    if op.q.len() != 2 * m { return Err("mask: q length".into()); }
++    let got = op.q[0].add(op.q[m]).mul_base(Fp::new(m as u64));
++    if got != v { return Err("mask: the product polynomial's sum != the combined functional".into()); }
++    tr.absorb_fp2(b"mask-q", &op.q);
++    let rs = tr.challenge_fp2_vec(2 * specs.len() + 2);
++    if op.prox.len() != 2 * m { return Err("mask: prox length".into()); }
++    tr.absorb_fp2(b"mask-prox", &op.prox);
++    let idx = tr.challenge_indices(MASK_Q, dom);
++    if op.columns.len() != idx.len() { return Err("mask: column count".into()); }
++    let pows = coset_powers(Fp::new(7), dom);
++    let enc = |c: &[Fp]| -> Vec<Fp> { let mut o = vec![Fp::ZERO; dom]; encode_coeffs_coset(ntt, c, &pows, &mut o); o };
++    let w_enc: Vec<(Vec<Fp>, Vec<Fp>)> = ws.iter().map(|w| { let (re, im) = weight_polys(w, ntt); (enc(&re), enc(&im)) }).collect();
++    let q_enc = { let re: Vec<Fp> = op.q.iter().map(|x| x.c0).collect(); let im: Vec<Fp> = op.q.iter().map(|x| x.c1).collect(); (enc(&re), enc(&im)) };
++    let p_enc = { let re: Vec<Fp> = op.prox.iter().map(|x| x.c0).collect(); let im: Vec<Fp> = op.prox.iter().map(|x| x.c1).collect(); (enc(&re), enc(&im)) };
++    for ((j, col, salt, path), &want_j) in op.columns.iter().zip(idx.iter()) {
++        if *j != want_j { return Err("mask: column index".into()); }
++        if col.len() != n_base { return Err("mask: column length".into()); }
++        let leaf = pcs::salt_leaf_keyed(&pcs_hash_column_keyed(col, tag.column_key()), salt, tag.leaf_key());
++        if !MerkleTree::verify_path_keyed(root, *j, &leaf, path, tag.node_key()) { return Err(format!("mask: Merkle path for column {j} fails")); }
++        let mut acc = Fp2::new(col[2 * specs.len()], col[2 * specs.len() + 1]);
++        for s in 0..specs.len() {
++            let w = Fp2::new(w_enc[s].0[*j], w_enc[s].1[*j]);
++            let a = Fp2::new(col[2 * s], col[2 * s + 1]);
++            acc = acc.add(a.mul(w));
++        }
++        if acc != Fp2::new(q_enc.0[*j], q_enc.1[*j]) { return Err(format!("mask: column {j} disagrees with the product polynomial")); }
++        let mut pacc = Fp2::new(col[n_base - 2], col[n_base - 1]);
++        for (row, r) in rs.iter().enumerate() { pacc = pacc.add(r.mul_base(col[row])); }
++        if pacc != Fp2::new(p_enc.0[*j], p_enc.1[*j]) { return Err(format!("mask: column {j} disagrees with the proximity vector")); }
++    }
++    Ok(())
++}
++
+ fn pcs_hash_column(col: &[Fp]) -> Digest {
+     let bytes: Vec<u8> = col.iter().flat_map(|v| v.to_bytes()).collect();
+     *blake3::hash(&bytes).as_bytes()
++}
++
++/// [ZK60 D19, ruling T-1] `pcs_hash_column` under a tagged profile's COLUMN
++/// key. `pcs_hash_column` above keeps its own body; keyed BLAKE3 has no
++/// one-shot `blake3::hash` equivalent, so this builds the hasher.
++fn pcs_hash_column_keyed(col: &[Fp], key: Option<&[u8; 32]>) -> Digest {
++    let bytes: Vec<u8> = col.iter().flat_map(|v| v.to_bytes()).collect();
++    let mut h = zkp_core::hashtag::hasher(key);
++    h.update(&bytes);
++    *h.finalize().as_bytes()
+ }
+ 
+ // ===========================================================================

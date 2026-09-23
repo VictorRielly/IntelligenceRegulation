@@ -1,0 +1,366 @@
+== zkp-core/src/transcript.rs  (4751b93 -> snapshot): 14 identical, 7 CHANGED, 3 NEW, 0 REMOVED
+  CHANGED   [prod] struct Transcript#0
+  CHANGED   [prod] impl Transcript::fn new#0
+  CHANGED   [prod] impl Transcript::fn absorb#0
+  CHANGED   [prod] impl Transcript::fn squeeze_bytes#0
+  CHANGED   [prod] impl Transcript::fn clone_state#0
+  CHANGED   [prod] impl Transcript#0
+  CHANGED   [test] mod tests#0
+  NEW       [prod] impl Transcript::fn new_tagged#0
+  NEW       [test] mod tests::fn a_keyed_transcript_separates_and_its_clone_does_not#0
+  NEW       [test] mod tests::fn the_unkeyed_transcript_is_unchanged#0
+== zkp-core/src/merkle.rs  (4751b93 -> snapshot): 11 identical, 2 CHANGED, 4 NEW, 0 REMOVED
+  CHANGED   [prod] impl MerkleTree#0
+  CHANGED   [test] mod tests#0
+  NEW       [prod] fn hash_pair_keyed#0
+  NEW       [prod] impl MerkleTree::fn build_keyed#0
+  NEW       [prod] impl MerkleTree::fn verify_path_keyed#0
+  NEW       [test] mod tests::fn a_keyed_node_separates_and_a_wrong_node_key_fails_the_path#0
+== zkp-core/src/pcs.rs  (4751b93 -> snapshot): 85 identical, 0 CHANGED, 25 NEW, 0 REMOVED
+  NEW       [prod] use crate::hashtag::HashTag#0
+  NEW       [prod] fn hash_column_keyed#0
+  NEW       [prod] fn hash_columns_keyed#0
+  NEW       [prod] fn salt_leaf_keyed#0
+  NEW       [prod] fn commit_zk_owned_with_tag#0
+  NEW       [prod] fn verify_zk_tagged#0
+  NEW       [test] mod tag_tests::use super::*#0
+  NEW       [test] mod tag_tests::use crate::hashtag::HashTag#0
+  NEW       [test] mod tag_tests::use crate::mle::eval_mle_base#0
+  NEW       [test] mod tag_tests::const RUNG_G:#0
+  NEW       [test] mod tag_tests::fn tparams#0
+  NEW       [test] mod tag_tests::fn vals#0
+  NEW       [test] mod tag_tests::fn point#0
+  NEW       [test] mod tag_tests::fn rig#0
+  NEW       [test] mod tag_tests::fn a_salted_leaf_is_a_merkle_node_under_the_legacy_rule_and_is_not_under_a_tag#0
+  NEW       [test] mod tag_tests::fn a_column_digest_under_three_rules_is_three_digests#0
+  NEW       [test] mod tag_tests::fn a_tagged_commitment_opens_and_verifies_under_its_own_tag#0
+  NEW       [test] mod tag_tests::fn a_tagged_commitment_is_refused_under_the_legacy_rule_and_the_reverse#0
+  NEW       [test] mod tag_tests::fn the_tagged_verifier_refuses_a_path_of_the_wrong_length#0
+  NEW       [test] mod tag_tests::impl Backend for Counting::type Store#0
+  NEW       [test] mod tag_tests::impl Backend for Counting::fn try_commit_zk#0
+  NEW       [test] mod tag_tests::impl Backend for Counting#0
+  NEW       [test] mod tag_tests::fn a_tagged_commitment_never_offers_its_columns_to_the_backend#0
+  NEW       [test] mod tag_tests::fn the_tag_does_not_move_one_byte_of_the_generator#0
+  NEW       [test] mod tag_tests#0
+== zkp-core/src/lib.rs  (4751b93 -> snapshot): 10 identical, 0 CHANGED, 1 NEW, 0 REMOVED
+  NEW       [prod] mod hashtag#0
+== hashline/src/pcs.rs  (4751b93 -> snapshot): 15 identical, 0 CHANGED, 1 NEW, 0 REMOVED
+  NEW       [prod] fn commit_zk_owned_tagged#0
+== hashline/src/zk.rs  (4751b93 -> snapshot): 179 identical, 0 CHANGED, 3 NEW, 0 REMOVED
+  NEW       [prod] fn mask_commit_tagged#0
+  NEW       [prod] fn mask_verify_tagged#0
+  NEW       [prod] fn pcs_hash_column_keyed#0
+== hashline/src/private_block.rs  (4751b93 -> snapshot): 57 identical, 12 CHANGED, 56 NEW, 1 REMOVED
+  REMOVED   [prod] use crate::pcs::OpeningZk#0
+  CHANGED   [prod] impl AttentionPublic::fn new#0
+  CHANGED   [prod] impl AttentionPublic#0
+  CHANGED   [prod] impl FeedForwardPublic::fn new#0
+  CHANGED   [prod] impl FeedForwardPublic#0
+  CHANGED   [prod] struct IoSpec#0
+  CHANGED   [prod] impl IoSpec::fn new#0
+  CHANGED   [prod] impl IoSpec::fn seams#0
+  CHANGED   [prod] impl IoSpec#0
+  CHANGED   [prod] struct Endpoints#0
+  CHANGED   [prod] fn prepare_endpoints#0
+  CHANGED   [prod] fn prove_with_stats#0
+  CHANGED   [prod] impl Receipt#0
+  NEW       [prod] mod boundary#0
+  NEW       [prod] mod endpoint_g#0
+  NEW       [prod] mod hash_domain#0
+  NEW       [prod] mod pad#0
+  NEW       [prod] mod run#0
+  NEW       [prod] mod run_sink#0
+  NEW       [prod] mod shape#0
+  NEW       [prod] mod timing#0
+  NEW       [test] mod grow_tests#0
+  NEW       [test] mod dense_tests#0
+  NEW       [test] mod k4_tests#0
+  NEW       [test] mod rung_tests#0
+  NEW       [test] mod review_tests#0
+  NEW       [test] mod rulings_tests#0
+  NEW       [test] mod run_tests#0
+  NEW       [test] mod run_capture#0
+  NEW       [test] mod run_capture_tests#0
+  NEW       [test] mod plane_index#0
+  NEW       [test] mod hash_tag_tests#0
+  NEW       [test] mod run_statement_file#0
+  NEW       [test] mod s20_review_tests#0
+  NEW       [test] mod s23_tests#0
+  NEW       [test] mod s24_tests#0
+  NEW       [test] mod s25_tests#0
+  NEW       [test] mod s26_tests#0
+  NEW       [test] mod s28_tests#0
+  NEW       [test] mod s28_review_tests#0
+  NEW       [test] mod s29_tests#0
+  NEW       [test] mod p2_tests#0
+  NEW       [test] mod c6_tests#0
+  NEW       [test] mod w14_tests#0
+  NEW       [test] mod e32_tests#0
+  NEW       [test] mod s33_tests#0
+  NEW       [test] mod slot_ir#0
+  NEW       [test] mod slot_ir_tests#0
+  NEW       [test] mod s35_tests#0
+  NEW       [test] mod zero_witness_tests#0
+  NEW       [prod] use zkp_core::hashtag::HashTag#0
+  NEW       [prod] enum Axis#0
+  NEW       [prod] impl Axis::fn len#0
+  NEW       [prod] impl Axis::fn supported#0
+  NEW       [prod] impl Axis#0
+  NEW       [prod] fn weights_vanish_off_support#0
+  NEW       [prod] impl AttentionPublic::fn new_shaped#0
+  NEW       [prod] impl FeedForwardPublic::fn new_shaped#0
+  NEW       [prod] impl IoSpec::fn new_shaped#0
+  NEW       [prod] impl IoSpec::fn validate#0
+  NEW       [prod] impl IoSpec::fn plane_len#0
+  NEW       [prod] impl IoSpec::fn endpoints_g#0
+  NEW       [prod] impl IoSpec::fn into_committed#0
+  NEW       [prod] enum EndpointOwner#0
+  NEW       [prod] impl EndpointOwner::fn root#0
+  NEW       [prod] impl EndpointOwner#0
+  NEW       [prod] impl Receipt::fn to_bytes_at#0
+  NEW       [prod] impl Receipt::fn from_bytes_at#0
+  NEW       [prod] fn verify_bytes_at#0
+== hashline/src/private_block/protocol.rs  (4751b93 -> snapshot): 11 identical, 15 CHANGED, 35 NEW, 1 REMOVED
+  CHANGED   [prod] fn pcs_params#0
+  CHANGED   [prod] fn transcript#0
+  CHANGED   [prod] fn absorb_root#0
+  CHANGED   [prod] fn commitment#0
+  CHANGED   [prod] fn logup_sum_claim#0
+  REMOVED   [prod] fn part_key#0
+  CHANGED   [prod] fn part_rows#0
+  CHANGED   [prod] fn audit_claims#0
+  CHANGED   [prod] fn check_opening#0
+  CHANGED   [prod] fn check_endpoint_opening#0
+  CHANGED   [prod] fn lookup_values#0
+  CHANGED   [prod] fn act_indices#0
+  CHANGED   [prod] fn exp_deltas#0
+  CHANGED   [prod] fn check_endpoints#0
+  CHANGED   [prod] fn prove_inner#0
+  CHANGED   [prod] fn verify_inner#0
+  NEW       [prod] use super::shape::Shape#0
+  NEW       [prod] fn ntt_log_at#0
+  NEW       [prod] const NTT_LOG_MAX:u32#0
+  NEW       [prod] fn log2_exact#0
+  NEW       [prod] fn fits_the_ntt_tables#0
+  NEW       [prod] fn pcs_params_at#0
+  NEW       [prod] fn endpoint_pcs_params#0
+  NEW       [prod] fn tagged_transcript#0
+  NEW       [prod] fn parameter_line#0
+  NEW       [prod] type PartKey#0
+  NEW       [prod] fn part_key_at#0
+  NEW       [prod] fn opening_groups_at#0
+  NEW       [prod] const ENDPOINT_MASK_ROWS:usize#0
+  NEW       [prod] fn endpoint_geometry#0
+  NEW       [prod] const LOOKUP_PAR_MIN:usize#0
+  NEW       [prod] fn lookup_values_at#0
+  NEW       [prod] const HISTOGRAM_PAR_MIN:u64#0
+  NEW       [prod] fn byte_histogram_at#0
+  NEW       [prod] const ZERO_DENOMINATOR:#0
+  NEW       [prod] fn u8_denominator_inverses#0
+  NEW       [prod] fn helper_inverses_u8#0
+  NEW       [prod] const HELPER_PAR_MIN:usize#0
+  NEW       [prod] fn helper_one#0
+  NEW       [prod] fn helper_inverses_u8_at#0
+  NEW       [prod] fn helper_pair_inverses_u8#0
+  NEW       [prod] fn helper_pair_inverses_u8_at#0
+  NEW       [test] fn set_moved_multiplicity#0
+  NEW       [test] fn moved_multiplicity#0
+  NEW       [prod] fn prove_inner_at#0
+  NEW       [prod] fn lap#0
+  NEW       [prod] struct CoreProof#0
+  NEW       [prod] fn prove_core#0
+  NEW       [prod] struct CoreView#0
+  NEW       [prod] fn verify_core#0
+  NEW       [prod] fn verify_inner_at#0
+== hashline/src/private_block/argument.rs  (4751b93 -> snapshot): 25 identical, 25 CHANGED, 31 NEW, 0 REMOVED
+  CHANGED   [prod] struct SlotDef#0
+  CHANGED   [prod] fn priv_table#0
+  CHANGED   [prod] fn table_of#0
+  CHANGED   [prod] fn mask_eval#0
+  CHANGED   [prod] fn build_claim#0
+  CHANGED   [prod] fn total#0
+  CHANGED   [prod] fn sum_weights#0
+  CHANGED   [prod] fn run_slot#0
+  CHANGED   [prod] struct B#0
+  CHANGED   [prod] impl <'a> B<'a>::fn new#0
+  CHANGED   [prod] impl <'a> B<'a>::fn a_at#0
+  CHANGED   [prod] impl <'a> B<'a>::fn a#0
+  CHANGED   [prod] impl <'a> B<'a>::fn a_range#0
+  CHANGED   [prod] impl <'a> B<'a>::fn h#0
+  CHANGED   [prod] impl <'a> B<'a>::fn endpoint#0
+  CHANGED   [prod] impl <'a> B<'a>::fn finish#0
+  CHANGED   [prod] impl <'a> B<'a>#0
+  CHANGED   [prod] fn lk_tables#0
+  CHANGED   [prod] fn causal_mask#0
+  CHANGED   [prod] fn rope_tables#0
+  CHANGED   [prod] fn table_values_u8#0
+  CHANGED   [prod] fn table_values_exp#0
+  CHANGED   [prod] fn table_values_act#0
+  CHANGED   [prod] fn define#0
+  CHANGED   [prod] fn argument#0
+  NEW       [prod] use super::shape::Shape#0
+  NEW       [test] impl Points::fn p_s#0
+  NEW       [test] impl Points::fn p_o#0
+  NEW       [test] impl Points#0
+  NEW       [prod] fn eq_cube#0
+  NEW       [prod] fn table_of_taking#0
+  NEW       [prod] const TABLES_PAR_MIN:usize#0
+  NEW       [prod] fn build_tables_at#0
+  NEW       [prod] fn row_log#0
+  NEW       [prod] const TOTAL_PAR_MIN:usize#0
+  NEW       [prod] fn total_at#0
+  NEW       [prod] impl <'a> B<'a>::fn group_eq#0
+  NEW       [prod] impl <'a> B<'a>::fn a_log#0
+  NEW       [prod] impl <'a> B<'a>::fn tab#0
+  NEW       [prod] impl <'a> B<'a>::fn supp#0
+  NEW       [prod] fn tile_rep#0
+  NEW       [prod] fn tab_group_is_declared#0
+  NEW       [prod] fn lg#0
+  NEW       [prod] fn limbs#0
+  NEW       [prod] struct PadTerm#0
+  NEW       [prod] impl PadTerm::fn none#0
+  NEW       [prod] impl PadTerm::fn add#0
+  NEW       [prod] impl PadTerm::fn eval#0
+  NEW       [prod] impl PadTerm#0
+  NEW       [prod] impl Gate::fn at#0
+  NEW       [prod] impl Gate#0
+  NEW       [prod] fn causal_mask_at#0
+  NEW       [prod] fn rope_tables_at#0
+  NEW       [prod] fn table_values_u8_at#0
+  NEW       [prod] fn table_values_exp_at#0
+  NEW       [prod] fn table_values_act_at#0
+== hashline/src/private_block/layout.rs  (4751b93 -> snapshot): 173 identical, 20 CHANGED, 48 NEW, 0 REMOVED
+  CHANGED   [prod] const N:usize#0
+  CHANGED   [prod] impl Dom::fn log#0
+  CHANGED   [prod] impl Dom#0
+  CHANGED   [prod] fn lookups#0
+  CHANGED   [prod] fn rows_of#0
+  CHANGED   [prod] struct Layout#0
+  CHANGED   [prod] impl Layout::fn new#0
+  CHANGED   [prod] impl Layout::fn a_sites#0
+  CHANGED   [prod] impl Layout::fn h_sites#0
+  CHANGED   [prod] impl Layout::fn lookups#0
+  CHANGED   [prod] impl Layout::fn helpers#0
+  CHANGED   [prod] impl Layout::fn a_planes#0
+  CHANGED   [prod] impl Layout::fn h_planes#0
+  CHANGED   [prod] impl Layout::fn a_site#0
+  CHANGED   [prod] impl Layout::fn h_site#0
+  CHANGED   [prod] impl Layout::fn h_u_rows#0
+  CHANGED   [prod] impl Layout::fn limb_off#0
+  CHANGED   [prod] impl Layout::fn limb_off_m#0
+  CHANGED   [prod] impl Layout::fn describe#0
+  CHANGED   [prod] impl Layout#0
+  NEW       [prod] const U8_LEN:usize#0
+  NEW       [prod] fn domain_log_at#0
+  NEW       [prod] impl Dom::fn natural_log#0
+  NEW       [prod] impl Dom::fn carries_h_planes#0
+  NEW       [prod] const LN_TOY:usize#0
+  NEW       [prod] const LS_TOY:usize#0
+  NEW       [prod] const LP_TOY:usize#0
+  NEW       [prod] struct Ids#0
+  NEW       [prod] impl Ids::fn new#0
+  NEW       [prod] impl Ids::fn toy#0
+  NEW       [prod] impl Ids::fn at#0
+  NEW       [prod] impl Ids::fn nr#0
+  NEW       [prod] impl Ids::fn ns#0
+  NEW       [prod] impl Ids::fn mr#0
+  NEW       [prod] impl Ids::fn ms#0
+  NEW       [prod] impl Ids::fn pl#0
+  NEW       [prod] impl Ids::fn sr#0
+  NEW       [prod] impl Ids::fn sg#0
+  NEW       [prod] impl Ids::fn n_a#0
+  NEW       [prod] impl Ids::fn dom#0
+  NEW       [prod] impl Ids::fn is_multiplicity#0
+  NEW       [prod] impl Ids#0
+  NEW       [prod] struct HIds#0
+  NEW       [prod] impl HIds::fn new#0
+  NEW       [prod] impl HIds::fn helper#0
+  NEW       [prod] impl HIds::fn first_helper#0
+  NEW       [prod] impl HIds::fn sexp#0
+  NEW       [prod] impl HIds::fn fact#0
+  NEW       [prod] impl HIds::fn table_helpers#0
+  NEW       [prod] impl HIds::fn u#0
+  NEW       [prod] impl HIds::fn n_h#0
+  NEW       [prod] impl HIds::fn dom#0
+  NEW       [prod] impl HIds::fn is_table#0
+  NEW       [prod] impl HIds#0
+  NEW       [prod] fn lookups_at#0
+  NEW       [prod] const ALL_DOMS:#0
+  NEW       [prod] fn no_commitment_has_a_node_shaped_column#0
+  NEW       [prod] fn no_commitment_has_a_node_shaped_column_under#0
+  NEW       [prod] impl Layout::fn for_shape#0
+  NEW       [prod] impl Layout::fn with_io_mask_rows#0
+  NEW       [prod] impl Layout::fn io_mask_row#0
+  NEW       [prod] impl Layout::fn shape#0
+  NEW       [prod] impl Layout::fn ids#0
+  NEW       [prod] impl Layout::fn hids#0
+  NEW       [prod] impl Layout::fn n#0
+  NEW       [prod] impl Layout::fn slots#0
+  NEW       [prod] impl Layout::fn mask_specs#0
+  NEW       [prod] impl Layout::fn slot_terms#0
+== hashline/src/private_block/wire.rs  (4751b93 -> snapshot): 17 identical, 7 CHANGED, 24 NEW, 8 REMOVED
+  REMOVED   [prod] use super::protocol::ENDPOINT_ROWS#0
+  REMOVED   [prod] use crate::pcs::OpeningZk#0
+  REMOVED   [prod] const CHECKS:usize#0
+  REMOVED   [prod] const VEC:usize#0
+  REMOVED   [prod] const ENC_COLS:usize#0
+  REMOVED   [prod] const PATH:usize#0
+  CHANGED   [prod] const MAX_WIRE_BYTES:usize#0
+  REMOVED   [prod] fn opening_len#0
+  CHANGED   [prod] fn encoded_len#0
+  REMOVED   [prod] fn hiding_ok#0
+  CHANGED   [prod] fn validate#0
+  CHANGED   [prod] fn encode#0
+  CHANGED   [prod] impl Reader<'_>::fn hiding#0
+  CHANGED   [prod] impl Reader<'_>#0
+  CHANGED   [prod] fn decode#0
+  NEW       [prod] const MAX_WIRE_BYTES_ANY:usize#0
+  NEW       [prod] fn wire_bound#0
+  NEW       [prod] struct Dim#0
+  NEW       [prod] impl Dim::fn new#0
+  NEW       [prod] impl Dim::fn block#0
+  NEW       [prod] impl Dim::fn endpoint#0
+  NEW       [prod] impl Dim::fn opening_len#0
+  NEW       [prod] impl Dim::fn hiding_ok#0
+  NEW       [prod] impl Dim#0
+  NEW       [prod] fn path_len#0
+  NEW       [prod] const MASK_PATH_LEN:usize#0
+  NEW       [prod] const RUN_MAGIC:#0
+  NEW       [prod] const RUN_HEADER:usize#0
+  NEW       [prod] const RUN_TRAILER:usize#0
+  NEW       [prod] struct Segment#0
+  NEW       [prod] struct SegGeom#0
+  NEW       [prod] impl SegGeom::fn commits_boundary#0
+  NEW       [prod] impl SegGeom::fn closes_output#0
+  NEW       [prod] impl SegGeom::fn incoming#0
+  NEW       [prod] impl SegGeom#0
+  NEW       [prod] fn segment_len#0
+  NEW       [prod] fn validate_segment#0
+  NEW       [prod] fn encode_segment#0
+  NEW       [prod] fn decode_segment#0
+== hashline/src/private_block/witness.rs  (4751b93 -> snapshot): 6 identical, 10 CHANGED, 15 NEW, 0 REMOVED
+  CHANGED   [prod] use super::layout::*#0
+  CHANGED   [prod] impl Witness::fn output#0
+  CHANGED   [prod] impl Witness#0
+  CHANGED   [prod] fn quantize#0
+  CHANGED   [prod] fn matmul#0
+  CHANGED   [prod] fn matmul_in_out#0
+  CHANGED   [prod] fn rotate#0
+  CHANGED   [prod] struct NormPlanes#0
+  CHANGED   [prod] fn rms_norm#0
+  CHANGED   [prod] fn build#0
+  NEW       [prod] struct Geom#0
+  NEW       [prod] impl <'a> Geom<'a>::fn new#0
+  NEW       [prod] impl <'a> Geom<'a>::fn len#0
+  NEW       [prod] impl <'a> Geom<'a>::fn dix#0
+  NEW       [prod] impl <'a> Geom<'a>::fn slot#0
+  NEW       [prod] impl <'a> Geom<'a>::fn qix#0
+  NEW       [prod] impl <'a> Geom<'a>::fn kvix#0
+  NEW       [prod] impl <'a> Geom<'a>::fn six#0
+  NEW       [prod] impl <'a> Geom<'a>::fn fix#0
+  NEW       [prod] impl <'a> Geom<'a>::fn htix#0
+  NEW       [prod] impl <'a> Geom<'a>::fn lix#0
+  NEW       [prod] impl <'a> Geom<'a>::fn support#0
+  NEW       [prod] impl <'a> Geom<'a>#0
+  NEW       [prod] fn norm_limbs_are_the_pinned_count#0
+  NEW       [prod] fn build_shaped#0

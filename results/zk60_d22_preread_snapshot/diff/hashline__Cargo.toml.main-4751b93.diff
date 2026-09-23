@@ -1,0 +1,14 @@
+--- 4751b93:hashline/Cargo.toml
++++ snapshot:hashline/Cargo.toml
+@@ -40,6 +40,11 @@
+ # A path dependency inside this checkout: nothing is fetched, the offline build
+ # resolves it, and no dependency enters the library or the binary.
+ private-block-kernel = { path = "../private-block-kernel" }
++# [ZK60 job K] the SHAPE-DRIVEN reference kernel, a separate crate because
++# `private-block-kernel` is compiled into the zkVM guest and is byte-frozen at
++# commit 11c01b2. Also a test-only path dependency; it does not depend on the
++# frozen crate, so the guest still compiles that crate as a leaf.
++private-block-kernel-shaped = { path = "../private-block-kernel-shaped" }
+ 
+ [profile.release]
+ opt-level = 3

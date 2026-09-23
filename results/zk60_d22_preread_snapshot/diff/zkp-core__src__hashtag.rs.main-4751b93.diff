@@ -1,0 +1,256 @@
+--- 4751b93:zkp-core/src/hashtag.rs
++++ snapshot:zkp-core/src/hashtag.rs
+@@ -0,0 +1,253 @@
++//! **The D19 separating hash tag** — ruling T-1 of
++//! `docs/zkmatrix-poc/ZK60_D19_HASH_TAG_DISPOSITION.md` (the security owner,
++//! 2026-09-20), with the amendments of its §2a.
++//!
++//! Every hash in this crate is BLAKE3. Until this module existed every one of
++//! them was the same UNKEYED function, so a transcript absorb, a column
++//! digest, a salted Merkle leaf and a Merkle inner node were separated only
++//! by the LENGTH of their inputs. That is the legacy rule, and it is what
++//! every byte produced to date was made under.
++//!
++//! A TAGGED profile instead hashes in BLAKE3's **keyed mode** under one fixed
++//! public 32-byte key per domain, derived once from that profile's own
++//! string:
++//!
++//! | domain | context string |
++//! |---|---|
++//! | Fiat–Shamir transcript | `hashline-zk-mr1 2026-09-20 fiat-shamir transcript` |
++//! | PCS column digest | `hashline-zk-mr1 2026-09-20 pcs column digest` |
++//! | salted Merkle leaf | `hashline-zk-mr1 2026-09-20 pcs salted merkle leaf` |
++//! | Merkle inner node | `hashline-zk-mr1 2026-09-20 pcs merkle inner node` |
++//!
++//! **The model, stated (T-1 as amended).** Key derivation is a hash, so
++//! "two profiles can never share a key" would be wrong: distinct profiles or
++//! roles share a key with negligible probability (a `derive_key` collision),
++//! not never. For a tagged profile, decision D19's random oracle is read as a
++//! FAMILY of independent random functions indexed by BLAKE3's mode and key —
++//! the four keyed functions of a profile, the generator's keyed function
++//! under its own secret key, and the unkeyed function the legacy rule uses.
++//! That is BLAKE3's own design claim for its modes; it is an idealisation
++//! like the rest of D19, and it is what "separating hash tag" means in that
++//! model. Keyed mode costs no extra compression (the key words replace the
++//! IV), which is a COUNT and not a timing: run time is re-measured, never
++//! assumed.
++//!
++//! **The type is opaque (ruling T-7).** A [`HashTag`] is either the legacy
++//! rule or the COMPLETE key set of one profile. There are no public fields,
++//! no partial sets and no constructor that takes key bytes: only
++//! [`HashTag::legacy`] and [`HashTag::for_profile`]. A verifier derives its
++//! tag from the profile IT trusts; nothing deserialised from a receipt may
++//! select or carry keys. The four keys are public functions of public
++//! strings, so publishing them is not a disclosure — but they are never an
++//! INPUT.
++//!
++//! Nothing here is a privacy or soundness acceptance of anything.
++
++/// The context string of the Fiat–Shamir transcript's key.
++pub const CTX_TRANSCRIPT: &str = "hashline-zk-mr1 2026-09-20 fiat-shamir transcript";
++/// The context string of the PCS column digest's key.
++pub const CTX_COLUMN: &str = "hashline-zk-mr1 2026-09-20 pcs column digest";
++/// The context string of the salted Merkle leaf's key.
++pub const CTX_LEAF: &str = "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf";
++/// The context string of the Merkle inner node's key.
++pub const CTX_NODE: &str = "hashline-zk-mr1 2026-09-20 pcs merkle inner node";
++
++/// The name of the keyed rule, for a capture or a tool that must say which
++/// rule made a bundle. It names the rule; it is not a key and it selects
++/// nothing.
++pub const KEYED_RULE_NAME: &str = "blake3-keyed/1";
++/// The name of the legacy (unkeyed) rule.
++pub const LEGACY_RULE_NAME: &str = "legacy";
++
++/// Which rule a profile hashes under. Private: a `HashTag` is whole or it is
++/// legacy, and there is no third state.
++#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
++enum Rule {
++    /// the literal `blake3::Hasher::new()` that produced every byte to date
++    #[default]
++    Legacy,
++    /// the complete key set of ONE profile
++    Keyed { transcript: [u8; 32], column: [u8; 32], leaf: [u8; 32], node: [u8; 32] },
++}
++
++/// **The tag (ruling T-7).** Either the legacy rule or the complete key set
++/// of one profile. `Default` is the legacy rule, so a structure that forgets
++/// to name a tag behaves exactly as it did before this module existed.
++#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
++pub struct HashTag {
++    rule: Rule,
++}
++
++impl HashTag {
++    /// **The LEGACY rule**: no key anywhere. Every hash is the unkeyed
++    /// `blake3::Hasher::new()` call that produced the byte-frozen artifacts.
++    pub const fn legacy() -> HashTag {
++        HashTag { rule: Rule::Legacy }
++    }
++
++    /// **A tagged profile's complete key set (D19).** The four keys are
++    /// `blake3::derive_key(<context>, profile.as_bytes())`, so a new profile
++    /// string cannot exist without a new key set and the obligation cannot be
++    /// forgotten by a reviewer's memory.
++    pub fn for_profile(profile: &str) -> HashTag {
++        HashTag {
++            rule: Rule::Keyed {
++                transcript: blake3::derive_key(CTX_TRANSCRIPT, profile.as_bytes()),
++                column: blake3::derive_key(CTX_COLUMN, profile.as_bytes()),
++                leaf: blake3::derive_key(CTX_LEAF, profile.as_bytes()),
++                node: blake3::derive_key(CTX_NODE, profile.as_bytes()),
++            },
++        }
++    }
++
++    /// Is this the legacy rule?
++    pub fn is_legacy(&self) -> bool {
++        matches!(self.rule, Rule::Legacy)
++    }
++
++    /// The name of the rule (`"legacy"` or `"blake3-keyed/1"`), for a capture
++    /// or a tool. It names; it selects nothing.
++    pub fn rule_name(&self) -> &'static str {
++        match self.rule {
++            Rule::Legacy => LEGACY_RULE_NAME,
++            Rule::Keyed { .. } => KEYED_RULE_NAME,
++        }
++    }
++
++    /// The Fiat–Shamir transcript's key, or `None` under the legacy rule.
++    pub fn transcript_key(&self) -> Option<&[u8; 32]> {
++        match &self.rule {
++            Rule::Legacy => None,
++            Rule::Keyed { transcript, .. } => Some(transcript),
++        }
++    }
++
++    /// The PCS column digest's key, or `None` under the legacy rule.
++    pub fn column_key(&self) -> Option<&[u8; 32]> {
++        match &self.rule {
++            Rule::Legacy => None,
++            Rule::Keyed { column, .. } => Some(column),
++        }
++    }
++
++    /// The salted Merkle leaf's key, or `None` under the legacy rule.
++    pub fn leaf_key(&self) -> Option<&[u8; 32]> {
++        match &self.rule {
++            Rule::Legacy => None,
++            Rule::Keyed { leaf, .. } => Some(leaf),
++        }
++    }
++
++    /// The Merkle inner node's key, or `None` under the legacy rule.
++    pub fn node_key(&self) -> Option<&[u8; 32]> {
++        match &self.rule {
++            Rule::Legacy => None,
++            Rule::Keyed { node, .. } => Some(node),
++        }
++    }
++}
++
++/// The ONE place a hasher is chosen. With `None` this is the identical
++/// `blake3::Hasher::new()` call the legacy functions make, so a legacy caller
++/// routed through here is byte-identical by construction.
++#[inline]
++pub fn hasher(key: Option<&[u8; 32]>) -> blake3::Hasher {
++    match key {
++        None => blake3::Hasher::new(),
++        Some(k) => blake3::Hasher::new_keyed(k),
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++
++    /// The two development profiles the lane tags, and their EIGHT derived
++    /// keys as hex literals. The same numbers are cross-checked against the
++    /// Python `blake3` module in the lane ledger, because the Python run gate
++    /// and the joint-view tools must re-derive exactly these.
++    const RUNG_G: &str = "hashline-zk-mr1/private-block-rung-g-t24-dev/1";
++    const M125: &str = "hashline-zk-mr1/private-block-m125/1";
++
++    fn hex(d: &[u8; 32]) -> String {
++        d.iter().map(|b| format!("{b:02x}")).collect()
++    }
++
++    #[test]
++    fn the_legacy_rule_has_no_key_anywhere() {
++        let t = HashTag::legacy();
++        assert!(t.is_legacy(), "legacy() is not the legacy rule");
++        assert_eq!(t.rule_name(), "legacy");
++        assert!(t.transcript_key().is_none() && t.column_key().is_none() && t.leaf_key().is_none() && t.node_key().is_none(), "the legacy rule carries a key");
++        assert_eq!(HashTag::default(), HashTag::legacy(), "the default tag is not the legacy rule");
++    }
++
++    /// **The key pins.** Change one of these and the Python tools stop
++    /// agreeing with the Rust; that is the point of pinning them.
++    #[test]
++    fn the_four_keys_of_each_tagged_profile_are_pinned() {
++        let g = HashTag::for_profile(RUNG_G);
++        assert_eq!(hex(g.transcript_key().expect("keyed")), "51b7d0b0171d54b5bb45fd42c3f9369cad87894b625e0569b89fac0036d20dbe");
++        assert_eq!(hex(g.column_key().expect("keyed")), "2295498fd6fd5e41320da717e9da89462e5c90a5b3b2d72ac496bcc157c2cd2c");
++        assert_eq!(hex(g.leaf_key().expect("keyed")), "fe211417895c73c4a70430cb9bfb7081289ec7532f2716d2a86f609b0de54032");
++        assert_eq!(hex(g.node_key().expect("keyed")), "8c4d2cfe7b8528d350f20dece1250c8d81596eb25d26bffda1247238f0f71fcc");
++        let m = HashTag::for_profile(M125);
++        assert_eq!(hex(m.transcript_key().expect("keyed")), "125f9b4d44ac3c46712a35419cdeda6c1428db443ccaf58da67f35b15b37291c");
++        assert_eq!(hex(m.column_key().expect("keyed")), "d5fc391cc58eed85631b4c3dabc7d377477eb1a0a725aeccaec0f4d10061b135");
++        assert_eq!(hex(m.leaf_key().expect("keyed")), "1dc6f7146ad501ede6d90b3071da2f3251d38137303ffcc0a6a48b7f89effe83");
++        assert_eq!(hex(m.node_key().expect("keyed")), "798eb64ff187f6f3e8e889ac4c4742607ac71a71fa09e2944a0ecc5e8a42026b");
++        assert_eq!(g.rule_name(), "blake3-keyed/1");
++    }
++
++    /// All eight keys pairwise distinct: across the four roles and across the
++    /// two profiles. (A collision would be a `derive_key` collision, which is
++    /// the negligible event T-1's amended wording names.)
++    #[test]
++    fn all_eight_keys_are_pairwise_distinct() {
++        let mut all: Vec<[u8; 32]> = Vec::new();
++        for p in [RUNG_G, M125] {
++            let t = HashTag::for_profile(p);
++            for k in [t.transcript_key(), t.column_key(), t.leaf_key(), t.node_key()] {
++                all.push(*k.expect("a tagged profile carries all four keys"));
++            }
++        }
++        assert_eq!(all.len(), 8);
++        for i in 0..all.len() {
++            for j in i + 1..all.len() {
++                assert_ne!(all[i], all[j], "keys {i} and {j} collide");
++            }
++        }
++    }
++
++    /// The four context strings are the ones the disposition pins, and they
++    /// really do separate: the same profile under two contexts gives two
++    /// keys.
++    #[test]
++    fn the_context_strings_are_the_dispositions() {
++        assert_eq!(CTX_TRANSCRIPT, "hashline-zk-mr1 2026-09-20 fiat-shamir transcript");
++        assert_eq!(CTX_COLUMN, "hashline-zk-mr1 2026-09-20 pcs column digest");
++        assert_eq!(CTX_LEAF, "hashline-zk-mr1 2026-09-20 pcs salted merkle leaf");
++        assert_eq!(CTX_NODE, "hashline-zk-mr1 2026-09-20 pcs merkle inner node");
++        for (a, b) in [(CTX_TRANSCRIPT, CTX_COLUMN), (CTX_COLUMN, CTX_LEAF), (CTX_LEAF, CTX_NODE), (CTX_TRANSCRIPT, CTX_NODE)] {
++            assert_ne!(blake3::derive_key(a, RUNG_G.as_bytes()), blake3::derive_key(b, RUNG_G.as_bytes()));
++        }
++    }
++
++    /// `hasher(None)` IS the legacy call: the same digest as
++    /// `blake3::Hasher::new()` on the same message, and a keyed hasher gives
++    /// another.
++    #[test]
++    fn an_unkeyed_hasher_is_the_legacy_call_and_a_keyed_one_is_not() {
++        let msg = b"the same sixty-four bytes, hashed three ways, twice over aaaaaaa";
++        assert_eq!(msg.len(), 64);
++        let mut legacy = blake3::Hasher::new();
++        legacy.update(msg);
++        let mut through = hasher(None);
++        through.update(msg);
++        assert_eq!(legacy.finalize().as_bytes(), through.finalize().as_bytes(), "hasher(None) is not the legacy call");
++        let t = HashTag::for_profile(RUNG_G);
++        let mut keyed = hasher(t.node_key());
++        keyed.update(msg);
++        assert_ne!(legacy.finalize().as_bytes(), keyed.finalize().as_bytes(), "a keyed hasher matched the unkeyed one");
++    }
++}

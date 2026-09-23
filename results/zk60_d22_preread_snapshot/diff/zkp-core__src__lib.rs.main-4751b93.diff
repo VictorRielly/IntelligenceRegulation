@@ -1,0 +1,14 @@
+--- 4751b93:zkp-core/src/lib.rs
++++ snapshot:zkp-core/src/lib.rs
+@@ -14,6 +14,11 @@
+ 
+ pub mod ffn_v3;
+ pub mod field;
++/// [ZK60 D19, ruling T-1] the separating hash tag: BLAKE3's keyed mode, one
++/// public key per hash domain, derived from a profile string. Additive: the
++/// legacy unkeyed rule is the default and every existing function keeps its
++/// body.
++pub mod hashtag;
+ pub mod merkle;
+ pub mod mle;
+ pub mod ntt;

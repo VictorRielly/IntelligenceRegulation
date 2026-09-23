@@ -1,0 +1,661 @@
+--- 4751b93:hashline/src/private_block.rs
++++ snapshot:hashline/src/private_block.rs
+@@ -59,29 +59,251 @@
+ //! Transcript, ownership and openings: `protocol.rs`. Bounded codec: `wire.rs`.
+ 
+ mod argument;
++// STAGE 12: the INTERNAL BOUNDARY of a private run — one hiding commitment to
++// a hidden plane with TWO claim sites, opened once, whose row count is DERIVED
++// from the plane and the site count (ruling M-1) and never accepted from a
++// caller. Built additively beside `endpoint_g.rs`, which the run's two
++// EXTERNAL endpoints keep unchanged (ruling M-7).
++mod boundary;
++// STEP S11b: the GENERALISED hidden endpoint, built ADDITIVELY beside the
++// FROZEN `private_seam.rs` (which this lane does not edit). The frozen seam
++// carries the toy and the rung profiles at exactly its 4,096-word ceiling;
++// every wider shape — the rung-G profile and 125M — takes its endpoint
++// parameters from the `Shape` through this module.
++mod endpoint_g;
++// STAGE 16: the two HASH-DOMAIN guards, rulings T-3 and T-4 of the D19
++// disposition. Every hash here is an untagged blake3, so hash domains are
++// separated only by input LENGTH: this module rebuilds, from the shape alone,
++// the whole set of hash-input lengths on a profile's path and refuses any
++// commitment whose column digest lands on one (T-3, which completes the
++// hard-coded C-H4 of `layout.rs`), and it checks explicitly that every opened
++// column's Merkle path has exactly its commitment's tree depth (T-4, which
++// makes a protection that was an accident of the wire format into a named
++// check of the verifier). It reads no witness and moves no proof byte.
++mod hash_domain;
+ mod layout;
++// STEP S9: the pad rule of ruling P-1 — the support indicators, the per-plane
++// ZERO / EXEMPT table and the slot map. Part 4 built the term itself in
++// `argument::define`, so this module is no longer `cfg(test)`: it is now
++// library code beside `layout` and `witness`, and its two acceptance tests
++// PZ-1 and PZ-2 live in its own `mod tests`.
++mod pad;
+ mod protocol;
++// STAGE 12: the private RUN of `L` blocks under ONE transcript — the run
++// statement, the stage order, the segmented receipt, and the prover and
++// verifier that drive them. A run is a NEW profile (D17) beside the
++// single-block ones, which it leaves byte for byte where they were.
++mod run;
++// STAGE 13: WHERE a run's segments go — the sink the prover hands each
++// finished segment to (in memory, or a directory of one atomically written
++// file per segment) and the `L` file names a streaming verifier reads back
++// one at a time. The wire format of a segment does not move here.
++mod run_sink;
++mod shape;
++// STAGE 11: the phase clock. A write-only recorder, inert unless
++// `HL_PB_TIMING=1`, that answers WHERE the seconds of one block go (the P5
++// question: is the feed-forward half worth moving to a second prover?). It
++// touches no transcript, no randomness and no committed buffer, and no branch
++// of the protocol reads it back.
++mod timing;
+ mod wire;
+ mod witness;
+ 
+ #[cfg(test)]
++mod grow_tests;
++// STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
++// witness at the shaped geometries, where the diagonal fixture leaves every
++// hidden unit above `d` with no input and no output weight.
++#[cfg(test)]
++mod dense_tests;
++// STAGE 22: the FOUR-key-value-head development shape `Shape::rung_k4`, the
++// only small geometry at which the repaired bilinear slots carry more than
++// ONE group bit — proved, tampered with and captured, so that the Python
++// privacy gate's ports can finally read a bundle with `lkv = 2`.
++#[cfg(test)]
++mod k4_tests;
++#[cfg(test)]
+ mod norm_alias;
+ #[cfg(test)]
+ mod parity;
+ #[cfg(test)]
+ mod refusals;
++// STEP S12a: the development rung end to end — the first step of this lane
++// that proves at the rung shape and hands the bytes to a fresh verifier.
++#[cfg(test)]
++mod rung_tests;
++// INDEPENDENT ADVERSARIAL CODE REVIEW (delegated reviewer, 2026-09-20): the
++// soundness attacks on the lane's shaped block at the development rung. Report:
++// `docs/zkmatrix-poc/ZK60_BLOCK125M_RUNG_CODE_REVIEW.md`.
++#[cfg(test)]
++mod review_tests;
++// STAGE 9: the SECURITY OWNER'S RULINGS on that review's findings F-1 … F-9,
++// one test per ruling, and the grouped-attention acceptance tamper tests the
++// layout memo's section 9a asks for.
++#[cfg(test)]
++mod rulings_tests;
++// STAGE 12: the private RUN of several blocks under ONE transcript, block k's
++// hidden output being block k+1's hidden input. Section R1 of this module pins
++// the claim audit on a hand-built two-claim boundary schedule BEFORE the
++// boundary module exists; the rest drives the run at the development rung.
++#[cfg(test)]
++mod run_tests;
++// STAGE 14: the RUN CAPTURE — the verifier's view of a private run, written
++// for the privacy gate of ruling M-8. A NEW module beside the integrator's
++// `native_capture.rs`, which it never edits; `cfg(test)` like that one, so no
++// production build carries an export surface.
++#[cfg(test)]
++mod run_capture;
++#[cfg(test)]
++mod run_capture_tests;
++// STAGE 15: the PLANE INDEX TABLE a run capture carries — for every committed
++// A and H plane its id, name, domain and row range, and per slot the ordered
++// list of planes its terminal vector evaluates. Public layout data derived
++// from the shape, written independently of `argument.rs` and checked against
++// every captured stage. A recorder's module, `cfg(test)` like `run_capture`.
++#[cfg(test)]
++mod plane_index;
++// STAGE 17: the D19 SEPARATING HASH TAG (ruling T-6 as amended) — which
++// profiles are tagged, their eight pinned keys, and the cross-rule rejection
++// in both directions at rung-G. The isolated per-layer controls are in
++// `zkp-core`; this is the profile-level half.
++#[cfg(test)]
++mod hash_tag_tests;
++// STAGE 18: the PUBLIC RUN STATEMENT retained beside a run's segments, so
++// that a process that did not prove the run can rebuild the verifier's
++// statement from the files on disk plus the public shape and weights recipe,
++// and check the run. Only public values, and ruling D21's rule structurally:
++// the only writer verifies the whole run first. `cfg(test)` like
++// `run_capture`, and the tests are in `run_tests.rs` beside the runs.
++#[cfg(test)]
++mod run_statement_file;
++// STAGE 20, INDEPENDENT ADVERSARIAL REVIEW (delegated reviewer, 2026-09-20):
++// the S19-F1 repair driven through the REAL `argument::define`, plus the
++// completeness battery and the padded-head-slot / cross-group cheating
++// witnesses. Report:
++// `docs/zkmatrix-poc/ZK60_BLOCK125M_S20_FIX_REVIEW.md`.
++#[cfg(test)]
++mod s20_review_tests;
++// STAGE 23: the two shape refusals of the security owner's disposition on the
++// generic-rank lemma at the shaped layouts (rulings S-1 and S-3). Both name a
++// shape condition the privacy argument depends on that nothing checked.
++#[cfg(test)]
++mod s23_tests;
++// STAGE 24: the ENFORCEMENT BATCH of the security owner's dispositions of
++// 2026-09-21 on the run's hash layer (rulings H-1, H-4, H-5, H-8) and on the
++// slot closures at the shaped layouts (rulings C-2, C-3, C-4, C-7), plus
++// round 6 of the native run gate. Each item turns something that was true
++// into something that is CHECKED.
++#[cfg(test)]
++mod s24_tests;
++// STAGE 25: the lane's share of the QUERY-CLASS work list of
++// `ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md` §8 (W-2, W-3, W-4, W-6, W-7,
++// W-8's assertions 5 and 7, W-11). Every hash input kind of every registered
++// profile with its length, the refusal replay's two properties on real
++// openings, the statement digests in the legacy length guard, and the source
++// scan extended from absorb LABELS to hash CALL SITES.
++#[cfg(test)]
++mod s25_tests;
++// STAGE 26: the STRUCTURAL SEPARATION of the generators' seed derivations at
++// every UNFROZEN profile — the ruling on finding B-1 of
++// `ZK60_TOY_ROUTE_A_REEXAMINATION.md` and item 6 of the toy statement's §9.
++// A domain says what its generator is for; the two frozen legacy-rule
++// profiles keep theirs byte for byte.
++#[cfg(test)]
++mod s26_tests;
++// STAGE 28: the PERFORMANCE stage's equality gates. Every arithmetic change
++// it makes to the prover is compared, in the same test, against the
++// computation it replaces — on ordinary inputs, on the inputs a dishonest
++// witness carries, and on the inputs that must be refused.
++#[cfg(test)]
++mod s28_tests;
++// STAGE 28, THE INDEPENDENT ADVERSARIAL REVIEW (test-only, written by a
++// reviewer who did not write stage 28): the same equalities re-derived on
++// randomised descriptors, the refusal branch the stage's own gates never
++// take, every parallel path under one, two and eight threads, and a census of
++// which shape crosses which of the stage's five parallel thresholds.
++// Report: `docs/zkmatrix-poc/ZK60_BLOCK125M_S28_REVIEW.md`.
++#[cfg(test)]
++mod s28_review_tests;
++// STAGE 29 (ruling V-4 of the security owner's disposition): both branches of
++// every size threshold stage 28 introduced, crossed in the ORDINARY filter
++// and each compared against the text at `79f0726`; and `eq_cube`'s
++// precondition, now a hard assertion, agreeing with the old gather on every
++// admitted triple and panicking by name on a violated one.
++#[cfg(test)]
++mod s29_tests;
++// STAGE 30: the UNPADDED arm of ruling P-1's pad rule. `Shape::rung_p2` is
++// 125M's own padded-domain set — `Dom::T`, `Dom::Kv` and `Dom::F` unpadded,
++// the other six padded — at a size the ordinary filter runs in seconds, so
++// the arm that only an `#[ignore]`d 125M test used to reach is tested here.
++#[cfg(test)]
++mod p2_tests;
++// STAGE 31: correction C-6. `Shape::rung_c6` is the first development shape
++// whose norm window fills its top byte limb exactly, so the four `scaled`
++// norm lookups are dropped, `Dom::D` carries 17 helpers instead of 19 and
++// the `H` plane list is two planes shorter — the last branch of stage 30's
++// heavy-only list that a small shape could reach.
++#[cfg(test)]
++mod c6_tests;
++// STAGE 32: the 125M ROW GEOMETRY. `Shape::rung_w14` is the first
++// development shape at the 125M row width (`log_cols = 14`, encoded 2^16),
++// the 125M head size (`head_dim = 64`) and the 125M endpoint log
++// (`endpoint_log_n = 14`) — the three branches stage 31 left that one small
++// shape could reach, at the smallest token count refusal F-2 admits.
++#[cfg(test)]
++mod w14_tests;
++// STAGE 33, item 4b of stage 32's heavy-only list: the 125M ENDPOINT's ROW
++// COUNT. `Shape::rung_e32` is rung-W14's head axis at 32 tokens and a row
++// width of 2^10, so the endpoint cube is 2^15 and the endpoint has 32 data
++// rows and 37 commitment rows — 125M's own counts — at a twentieth of 125M's
++// receipt. It does not reach the endpoint LOG, which is rung-W14's half.
++#[cfg(test)]
++mod e32_tests;
++// STAGE 33: the two closures the security owner ruled after reading stage 32.
++// Ruling J-7a — the premise under stage 32's DECLARED 60-byte transcript
++// coincidence ("a profile string is ASCII and has no NUL") becomes a check
++// over the whole registry, and the separation becomes a lemma over every
++// registered profile length and every absorb layout of that length. Ruling
++// S-6 — the family of shapes that reaches `Shape::a_groups`'s first arm,
++// which no registered shape does, becomes a NAMED construction refusal.
++#[cfg(test)]
++mod s33_tests;
++// STAGE 34 (ruling I-8 of the slot expression IR disposition): the twenty-three
++// slot polynomials written down as DATA beside the closures, with the closures
++// as the oracle. `cfg(test)` on purpose and not merely for tidiness — the
++// stage's whole claim is that no execution path changes and no byte moves, and
++// a module no production build compiles is the strongest form of it. The
++// base-field classification is DERIVED from each table's provenance and never
++// declared (ruling I-2, the check's finding IR-C1).
++#[cfg(test)]
++mod slot_ir;
++#[cfg(test)]
++mod slot_ir_tests;
++// STAGE 35 (stage 2 of ruling I-4 of the same disposition): lever (b) inside
++// the closures of slots 17 and 14. The module holds the two closure bodies as
++// they stood at `89e393f`, VERBATIM, and the two arms hand it their real
++// definition-time captures under `cfg(test)` so that the old form and the new
++// one are compared on the same table vector at every definition.
++#[cfg(test)]
++mod s35_tests;
+ #[cfg(test)]
+ mod tamper;
+ #[cfg(test)]
+ mod tests;
++#[cfg(test)]
++mod zero_witness_tests;
+ 
+ use crate::field::Fp;
+ use crate::merkle::Digest;
+ use crate::ntt::NttTables;
+-use crate::pcs::OpeningZk;
++use crate::pcs::{self, OpeningZk};
+ use crate::private_seam::{self, PreparedPlane, SeamSpec, Side};
++use endpoint_g::{EndpointSpecG, PreparedPlaneG};
+ use crate::zk::MaskOpening;
+-use layout::{D, DH, F, F_E, F_RO, HALF, KV, T};
++use zkp_core::hashtag::HashTag;
++// `D` left this list at S11a: `IoSpec` now takes the endpoint plane's extent
++// from its shape (`t_pad`, `d_pad`) instead of the toy's two literals.
++use layout::{DH, F_E, F_RO, T};
+ 
+ pub const PROFILE: &[u8] = b"hashline-zk-mr1/private-block-t32-poc/1";
+ pub use wire::MAX_WIRE_BYTES;
+@@ -100,6 +322,79 @@
+ /// The approved calibration's two endpoint exponents, `e_r` for `x_in` and
+ /// `e_r2` for `xres2`. `IoSpec::new` accepts no others.
+ pub const ENDPOINT_SCALES: (i32, i32) = (0, 0);
++
++/// One axis of a public weight matrix, named by the DOMAIN whose support it
++/// carries (ruling P-2, memo §3.7a condition 3).
++#[derive(Clone, Copy, Debug)]
++enum Axis {
++    /// the `Dom::D` model-width axis: supported on `[0, width)`
++    D,
++    /// the head-permuted `Dom::Q` axis: supported on the true head SLOTS,
++    /// which interleave one padded slot per key-value group (correction C-1)
++    Q,
++    /// the feed-forward `Dom::F` axis: supported on `[0, hidden)`
++    F,
++    /// an axis that does not pad, of this length (`Dom::Kv`'s width; or 1 for
++    /// a one-dimensional gain vector)
++    Full(usize),
++}
++
++impl Axis {
++    fn len(self, sh: &shape::Shape) -> usize {
++        match self {
++            Axis::D | Axis::Q => sh.d_pad,
++            Axis::F => sh.f_pad,
++            Axis::Full(n) => n,
++        }
++    }
++    /// `Ok(())` if index `i` of this axis is supported; the refusal names
++    /// WHICH KIND of padded index it is, so the two B-2 cases of §9a — a
++    /// weight nonzero at a padded width index, and a `Wo` whose input columns
++    /// are in true-head rather than slot order — are told apart by name.
++    fn supported(self, sh: &shape::Shape, i: usize) -> Result<(), String> {
++        let ok = match self {
++            Axis::D => i < sh.width,
++            Axis::Q => sh.slot_is_true_head(i / sh.head_dim),
++            Axis::F => i < sh.hidden,
++            Axis::Full(_) => true,
++        };
++        if ok {
++            Ok(())
++        } else if matches!(self, Axis::Q) {
++            Err("private block: a public weight is nonzero at a padded head slot".into())
++        } else {
++            Err("private block: a public weight is nonzero at a padded width index".into())
++        }
++    }
++}
++
++/// **RULING P-2's construction-time check.** `w` is `(outer, inner)`
++/// row-major over the two padded axes; every entry whose outer OR inner index
++/// is off its axis's support must be zero.
++///
++/// This is entrywise, which is strictly stronger than the memo's wording
++/// ("the folded weight vector vanishes off the support"): folding is a linear
++/// combination over the other axis, so an entrywise-zero block folds to zero
++/// at every challenge, while a folded vector could vanish at one point and
++/// not at another. `pad::tests::the_folded_weight_vectors_vanish_off_support`
++/// ties the two together.
++fn weights_vanish_off_support(sh: &shape::Shape, w: &[i8], outer: Axis, inner: Axis) -> Result<(), String> {
++    let (no, ni) = (outer.len(sh), inner.len(sh));
++    debug_assert_eq!(w.len(), no * ni, "the length check runs before this one");
++    for o in 0..no {
++        let o_ok = outer.supported(sh, o).is_ok();
++        for i in 0..ni {
++            if w[o * ni + i] == 0 {
++                continue;
++            }
++            if !o_ok {
++                outer.supported(sh, o)?;
++            }
++            inner.supported(sh, i)?;
++        }
++    }
++    Ok(())
++}
+ 
+ /// The attention half of the public statement: attention weights ((output,
+ /// input) row-major, as `causal_oracle::PublicBlockWeights`), the first norm
+@@ -123,17 +418,57 @@
+ impl AttentionPublic {
+     #[allow(clippy::too_many_arguments)]
+     pub fn new(wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8], rope_cos: &[i64], rope_sin: &[i64], exp: &[i64]) -> Result<Self, String> {
+-        if [wq.len(), wo.len()] != [D * D; 2] || [wk.len(), wv.len()] != [KV * D; 2] || gamma_a.len() != D {
++        Self::new_shaped(&shape::Shape::toy(), wq, wk, wv, wo, gamma_a, rope_cos, rope_sin, exp)
++    }
++
++    /// The same statement at any [`shape::Shape`] (step S6): the weight and
++    /// table LENGTHS and the exponential table's scale come from the shape,
++    /// the structural rules do not move. `new` is this at `Shape::toy()`.
++    ///
++    /// **STEP S9, ruling P-2 (memo §3.7a, "the prover side", condition 3).**
++    /// The matrices are the **zero-padded, head-permuted** ones: every axis
++    /// is the PADDED extent, and every entry off the destination axis's
++    /// support must be zero. That is checked here, by name, at construction —
++    /// it is the one condition of B-2 that no later relation can recover,
++    /// because the matmul slots fold the weight over the padded inner index
++    /// and a nonzero padded weight would read a padded activation.
++    ///
++    /// At the toy every padded extent equals its true extent and the head
++    /// permutation is the identity, so the accepted set of statements does
++    /// not move by one word.
++    #[allow(clippy::too_many_arguments)]
++    pub(crate) fn new_shaped(
++        sh: &shape::Shape,
++        wq: &[i8],
++        wk: &[i8],
++        wv: &[i8],
++        wo: &[i8],
++        gamma_a: &[i8],
++        rope_cos: &[i64],
++        rope_sin: &[i64],
++        exp: &[i64],
++    ) -> Result<Self, String> {
++        let (d, kv, half) = (sh.d_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
++        if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
+             return Err("private block: public weight shape".into());
+         }
+-        if [rope_cos.len(), rope_sin.len()] != [T * HALF; 2] || exp.len() != 256 {
++        // P-2: the destination axis's support, axis by axis. `Wq` writes the
++        // head-permuted `Dom::Q` axis and reads `Dom::D`; `Wk` / `Wv` write
++        // `Dom::Kv` (which does not pad on its width axis) and read `Dom::D`;
++        // `Wo` reads `Dom::Q` and writes `Dom::D`.
++        weights_vanish_off_support(sh, wq, Axis::Q, Axis::D)?;
++        weights_vanish_off_support(sh, wk, Axis::Full(kv), Axis::D)?;
++        weights_vanish_off_support(sh, wv, Axis::Full(kv), Axis::D)?;
++        weights_vanish_off_support(sh, wo, Axis::D, Axis::Q)?;
++        weights_vanish_off_support(sh, gamma_a, Axis::Full(1), Axis::D)?;
++        if [rope_cos.len(), rope_sin.len()] != [sh.tokens * half; 2] || exp.len() != 256 {
+             return Err("private block: public table shape".into());
+         }
+         let one_ro = 1i64 << F_RO;
+-        let one_e = 1i64 << F_E;
++        let one_e = 1i64 << sh.f_e;
+         if rope_cos.iter().chain(rope_sin.iter()).any(|v| !(-one_ro..=one_ro).contains(v))
+-            || rope_cos[..HALF].iter().any(|c| *c != one_ro)
+-            || rope_sin[..HALF].iter().any(|s| *s != 0)
++            || rope_cos[..half].iter().any(|c| *c != one_ro)
++            || rope_sin[..half].iter().any(|s| *s != 0)
+         {
+             return Err("private block: rope table structure".into());
+         }
+@@ -201,9 +536,23 @@
+ 
+ impl FeedForwardPublic {
+     pub fn new(gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
+-        if gamma_m.len() != D || [wg_t.len(), wu_t.len()] != [D * F; 2] || wd_t.len() != F * D {
++        Self::new_shaped(&shape::Shape::toy(), gamma_m, wg_t, wu_t, wd_t, act)
++    }
++
++    /// The same feed-forward statement at any [`shape::Shape`] (step S6),
++    /// with ruling P-2's construction-time support check (step S9): the three
++    /// matrices are the zero-padded ones and every entry off the destination
++    /// axis's support must be zero. The feed-forward axis carries no head
++    /// permutation — only `Dom::Q` does — so its support is a prefix.
++    pub(crate) fn new_shaped(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
++        let (d, f) = (sh.d_pad, sh.f_pad);
++        if gamma_m.len() != d || [wg_t.len(), wu_t.len()] != [d * f; 2] || wd_t.len() != f * d {
+             return Err("private block: feed-forward weight shape".into());
+         }
++        weights_vanish_off_support(sh, gamma_m, Axis::Full(1), Axis::D)?;
++        weights_vanish_off_support(sh, wg_t, Axis::D, Axis::F)?;
++        weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;
++        weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;
+         let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+         Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
+     }
+@@ -283,6 +632,34 @@
+     context: Digest,
+     input_scale: i32,
+     output_scale: i32,
++    /// **S11a.** The endpoint plane's PADDED extent, `(t_pad, d_pad)` of the
++    /// shape this spec is for. `SeamSpec::new` requires both axes to be
++    /// powers of two, so the TRUE `(24, 96)` rung endpoint is refused by name
++    /// and the padded `(32, 128)` is what the block commits — which is
++    /// exactly the `Dom::D` slice `SC_IO_IN` / `SC_IO_OUT` already claim.
++    /// The toy's `(T, D)` are unchanged, so [`IoSpec::new`] is byte for byte
++    /// what it was.
++    t_pad: usize,
++    d_pad: usize,
++    /// **S11b.** The shape's endpoint PCS parameters and which of the two
++    /// endpoint constructions carries them: the FROZEN `private_seam.rs`
++    /// (`general == false`, the toy and the rung profiles) or the
++    /// GENERALISED `endpoint_g.rs` (`general == true`, the rung-G profile
++    /// and 125M). All three are derived by [`shape::Shape::new`]; nothing
++    /// here chooses them.
++    general: bool,
++    endpoint_log_n: usize,
++    endpoint_inv_rate: usize,
++    endpoint_rows: usize,
++    opened_cols: usize,
++    /// **STAGE 17, ruling T-1.** The hash tag of the SHAPE this spec is for,
++    /// taken once from [`shape::Shape::hash_tag`] in [`IoSpec::new_shaped`].
++    /// The endpoint owner commits under it and the block's verifier verifies
++    /// under its own shape's, so an endpoint is never the one commitment of a
++    /// profile hashed under another rule. It is a derived, public function of
++    /// the profile string and no caller supplies it (ruling T-7: the key set
++    /// is never an input).
++    hash_tag: HashTag,
+ }
+ 
+ impl IoSpec {
+@@ -294,12 +671,45 @@
+     /// declare `(-3, -3)`; that is Codex's fix on that component and is not
+     /// touched from here.
+     pub fn new(context: Digest, input_scale: i32, output_scale: i32) -> Result<Self, String> {
++        Self::new_shaped(&shape::Shape::toy(), context, input_scale, output_scale)
++    }
++    /// The same spec at any [`shape::Shape`] (S11a). `new` is this at `Shape::toy()`.
++    pub(crate) fn new_shaped(sh: &shape::Shape, context: Digest, input_scale: i32, output_scale: i32) -> Result<Self, String> {
+         if (input_scale, output_scale) != ENDPOINT_SCALES {
+             return Err("private block: endpoint scales are pinned to the approved calibration (0, 0)".into());
+         }
+-        let spec = Self { context, input_scale, output_scale };
+-        spec.seams()?;
++        let spec = Self {
++            context,
++            input_scale,
++            output_scale,
++            t_pad: sh.t_pad,
++            d_pad: sh.d_pad,
++            general: sh.endpoint_general,
++            endpoint_log_n: sh.endpoint_log_n,
++            endpoint_inv_rate: sh.endpoint_inv_rate,
++            endpoint_rows: sh.endpoint_rows,
++            opened_cols: sh.opened_cols,
++            hash_tag: sh.hash_tag(),
++        };
++        spec.validate()?;
+         Ok(spec)
++    }
++
++    /// **S11b.** Build whichever endpoint statements this spec carries, and
++    /// check that their derived commitment geometry is the one the shape
++    /// DECLARES. A shape whose `endpoint_rows` disagrees with what its own
++    /// parameters give is refused here, at construction, instead of at the
++    /// first proof.
++    pub(crate) fn validate(&self) -> Result<(), String> {
++        let rows = if self.general { self.endpoints_g()?[0].commitment_rows() } else { self.seams()?[0].len().div_ceil(1usize << self.endpoint_log_n) + endpoint_g::MASK_ROWS };
++        if rows != self.endpoint_rows {
++            return Err(format!("private block: this shape declares {} endpoint rows, its endpoint parameters give {rows}", self.endpoint_rows));
++        }
++        Ok(())
++    }
++    /// the padded endpoint plane's word count, `t_pad * d_pad`
++    pub(crate) fn plane_len(&self) -> usize {
++        self.t_pad * self.d_pad
+     }
+     pub fn input_scale(&self) -> i32 {
+         self.input_scale
+@@ -311,7 +721,42 @@
+     // attention-half endpoint (21..24) or an FFN-IO endpoint (1..4) does not
+     // fit, and the separation is structural rather than by the scale field.
+     fn seams(&self) -> Result<[SeamSpec; 2], String> {
+-        Ok([SeamSpec::new(self.context, T, D, self.input_scale, 41, 42)?, SeamSpec::new(self.context, T, D, self.output_scale, 43, 44)?])
++        let (t, d) = (self.t_pad, self.d_pad);
++        Ok([SeamSpec::new(self.context, t, d, self.input_scale, 41, 42)?, SeamSpec::new(self.context, t, d, self.output_scale, 43, 44)?])
++    }
++
++    /// **S11b.** The same two statements on the GENERALISED endpoint: the
++    /// same context, the same padded plane and the same slot pairs, with the
++    /// PCS parameters taken from the shape instead of from
++    /// `private_seam.rs`'s four constants.
++    fn endpoints_g(&self) -> Result<[EndpointSpecG; 2], String> {
++        let (t, d, l, r) = (self.t_pad, self.d_pad, self.endpoint_log_n, self.endpoint_inv_rate);
++        let q = self.opened_cols;
++        // STAGE 18 (ruling T-3 as amended): the endpoint statement is built
++        // under THIS SPEC'S OWN hash tag, which `new_shaped` took once from
++        // the shape. The tag decides one refusal — the C-H4 length guard,
++        // imposed under the legacy rule and not under a tag — and nothing
++        // else about the statement.
++        Ok([
++            EndpointSpecG::new_with_tag(self.context, t, d, self.input_scale, 41, 42, l, r, q, &self.hash_tag)?,
++            EndpointSpecG::new_with_tag(self.context, t, d, self.output_scale, 43, 44, l, r, q, &self.hash_tag)?,
++        ])
++    }
++
++    /// **S11b.** The two committed endpoint planes, whichever construction
++    /// carries them, in (input, output) order. The owners are consumed.
++    pub(crate) fn into_committed(&self, owners: Endpoints) -> Result<[pcs::CommittedZk; 2], String> {
++        match (owners.input, owners.output) {
++            (EndpointOwner::Frozen(i), EndpointOwner::Frozen(o)) if !self.general => {
++                let [si, so] = self.seams()?;
++                Ok([i.into_ffn_endpoint(&si)?, o.into_ffn_endpoint(&so)?])
++            }
++            (EndpointOwner::General(i), EndpointOwner::General(o)) if self.general => {
++                let [si, so] = self.endpoints_g()?;
++                Ok([i.into_endpoint(&si)?, o.into_endpoint(&so)?])
++            }
++            _ => Err("private block: the endpoint owners are not this profile's".into()),
++        }
+     }
+ }
+ 
+@@ -367,23 +812,60 @@
+ /// }
+ /// ```
+ pub struct Endpoints {
+-    input: PreparedPlane,
+-    output: PreparedPlane,
++    input: EndpointOwner,
++    output: EndpointOwner,
++}
++
++/// **S11b.** One committed endpoint plane, on whichever of the two
++/// constructions its profile selects. Neither variant has a `Clone`, a data
++/// getter or a repeated-opening method, and both are consumed by value.
++enum EndpointOwner {
++    /// the FROZEN `private_seam.rs` (the toy and the rung profiles)
++    Frozen(PreparedPlane),
++    /// the GENERALISED `endpoint_g.rs` (the rung-G profile and 125M)
++    General(PreparedPlaneG),
++}
++
++impl EndpointOwner {
++    fn root(&self) -> Digest {
++        match self {
++            EndpointOwner::Frozen(p) => p.commitment().root,
++            EndpointOwner::General(p) => p.commitment().root,
++        }
++    }
+ }
+ 
+ /// The endpoint owner's step: commit the private input and output planes with
+ /// fresh OS randomness. `output` is whatever the owner fixes; a value other
+ /// than the block output makes every later proof fail verification.
+ pub fn prepare_endpoints(spec: IoSpec, input: &[i16], output: &[i16]) -> Result<(ExpectedIo, Endpoints), String> {
+-    let [si, so] = spec.seams()?;
+-    if input.len() != T * D || output.len() != T * D {
++    spec.validate()?;
++    if input.len() != spec.plane_len() || output.len() != spec.plane_len() {
+         return Err("private block: endpoint shape".into());
+     }
+-    let ntt = NttTables::new(12);
+     let words = |v: &[i16]| -> Vec<Fp> { v.iter().map(|x| Fp::from_i64(i64::from(*x))).collect() };
+-    let input = private_seam::prepare(&si, Side::Right, &words(input), &ntt)?;
+-    let output = private_seam::prepare(&so, Side::Right, &words(output), &ntt)?;
+-    let expected = ExpectedIo::from_roots(spec, input.commitment().root, output.commitment().root);
++    // **S11b.** The frozen seam pins EXACTLY `NttTables::new(12)`
++    // (`private_seam.rs:167-174`), so the toy and rung profiles keep building
++    // that table and no toy byte moves; the generalised endpoint builds the
++    // table its own encoding domain needs.
++    let (input, output) = if spec.general {
++        let [si, so] = spec.endpoints_g()?;
++        let ntt = NttTables::new(si.enc_log().max(so.enc_log()));
++        // **STAGE 26 (finding B-1).** The two endpoint generators are told
++        // WHICH endpoint they are seeding. The role byte is the only thing
++        // that separates their two key-derivation inputs when the two spec
++        // digests agree; before this stage the two inputs were byte-identical
++        // and the two `/dev/urandom` reads were the whole separation.
++        (
++            EndpointOwner::General(endpoint_g::prepare(&si, &words(input), &ntt, &spec.hash_tag, endpoint_g::EndpointRole::Input)?),
++            EndpointOwner::General(endpoint_g::prepare(&so, &words(output), &ntt, &spec.hash_tag, endpoint_g::EndpointRole::Output)?),
++        )
++    } else {
++        let [si, so] = spec.seams()?;
++        let ntt = NttTables::new(12);
++        (EndpointOwner::Frozen(private_seam::prepare(&si, Side::Right, &words(input), &ntt)?), EndpointOwner::Frozen(private_seam::prepare(&so, Side::Right, &words(output), &ntt)?))
++    };
++    let expected = ExpectedIo::from_roots(spec, input.root(), output.root());
+     Ok((expected, Endpoints { input, output }))
+ }
+ 
+@@ -434,7 +916,7 @@
+ pub fn prove_with_stats(public: &BlockPublic, input: &[i16], expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
+     // `endpoints` is dropped on the refusal path too: the owners never outlive the attempt
+     let wit = witness::build(public.attention(), public.feed_forward(), input)?;
+-    protocol::prove_inner(public, &wit, expected, endpoints)
++    protocol::prove_inner(public, wit, expected, endpoints)
+ }
+ 
+ /// Verify against the caller's public statement and endpoint policy only.
+@@ -462,6 +944,31 @@
+     pub fn payload_size(&self) -> usize {
+         encoded_len() - wire::HEADER
+     }
++    /// **S12a.** The same codec at any [`shape::Shape`]; `to_bytes` is this at
++    /// the toy, whose path is left exactly where it was.
++    pub(crate) fn to_bytes_at(&self, sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
++        let lay = layout::Layout::for_shape(sh)?;
++        // STAGE 11: the encode is outside `prove_inner_at`'s recorder, so it
++        // gets its own line. `timing::timed` calls the closure and nothing
++        // else when the switch is off.
++        let n = wire::encoded_len(&lay) as u64;
++        timing::timed("prove", "encode to bytes (wire::encode)", n, "B", || wire::encode(self, &protocol::transcript(public, expected, &lay).state(), &lay))
++    }
++    pub(crate) fn from_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, String> {
++        let lay = layout::Layout::for_shape(sh)?;
++        let n = bytes.len() as u64;
++        timing::timed("verify", "decode from bytes (wire::decode)", n, "B", || wire::decode(bytes, &protocol::transcript(public, expected, &lay).state(), &lay))
++    }
++}
++
++/// **S12a.** `verify_bytes` at any [`shape::Shape`]: decode from bytes with a
++/// FRESH layout and verify, which is the only form in which a rung run counts
++/// for anything.
++pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
++    #[cfg(test)]
++    capture::begin();
++    let receipt = Receipt::from_bytes_at(sh, public, expected, bytes)?;
++    protocol::verify_inner_at(sh, public, expected, &receipt).map(|_| ())
+ }
+ 
+ pub fn verify_bytes(public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
