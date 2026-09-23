@@ -1,0 +1,19 @@
+{
+  "schema": "hashline-native-capture/5-block-shaped",
+  "kind": "zk60-block-capture-validation",
+  "profile": "hashline-zk-mr1/private-block-m125/1",
+  "proof_sha256": "bddb04937ec8c0c6a2655fc4e816d625e363694e55b329e9bd21d208d5e386f0",
+  "slots": 23,
+  "source_commit": "19f06bfde4a1e4fcb0f39acc19da1f6654d66f9c",
+  "reverified_at_commit": "19f06bfde4a1e4fcb0f39acc19da1f6654d66f9c",
+  "manifest_sha256": "49b0336b131a67de883dd1d0724781556518642d00c040780571b24efe40587c",
+  "bundle_bytes_on_disk": 276684955,
+  "source_pins_match": true,
+  "native_reverified": true,
+  "canonical_capture_reproduced": true,
+  "values_match_the_decoded_receipt": true,
+  "fresh_process": true,
+  "privacy_review_complete": false,
+  "verifier_binary_sha256": "32dd53a4d9184ec59f3555f04048fa423b75d720ead8dd531a42d2564a0f977d",
+  "what_this_is": "a fresh process that did not prove this block read the saved receipt and policy, regenerated the public statement from the recipe tag, verified the receipt from bytes, recaptured it, and found block.json, observations.json and arrays.bin byte-identical to the saved ones. NOT a privacy result."
+}

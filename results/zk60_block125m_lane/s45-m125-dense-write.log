@@ -1,0 +1,33 @@
+
+running 1 test
+test private_block::block_capture_shaped_tests::write_a_shaped_block_bundle ... S45 WRITER m125-dense: MALLOC_MMAP_THRESHOLD_ is pinned
+S45 WRITER m125-dense: prove 28.12 s, frame 40783352 B, peak RSS after proving 10088 MiB (9.85 GiB)
+S45 WRITER m125-dense: verify from bytes 1.85 s (no recorder), verify+record 2.94 s; block.json 34383 B, observations.json 5380207 B, arrays.bin 230479888 B over 590 distinct arrays (595 references, 5 deduplicated, 770 inline)
+S45 WRITER m125-dense: 276684955 B on disk (276.7 MB) in /home/victor/zk60-artifacts/block-captures-20260923/m125-dense, manifest SHA-256 49b0336b131a67de883dd1d0724781556518642d00c040780571b24efe40587c, proof SHA-256 bddb04937ec8c0c6a2655fc4e816d625e363694e55b329e9bd21d208d5e386f0, source_commit 19f06bfde4a1e4fcb0f39acc19da1f6654d66f9c; self-consistent, every key on the allow-list, every array reference resolved; wall 39.68 s, peak RSS 10088 MiB (9.85 GiB)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 579 filtered out; finished in 39.71s
+
+	Command being timed: "/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555 --ignored --exact --nocapture --test-threads=1 private_block::block_capture_shaped_tests::write_a_shaped_block_bundle"
+	User time (seconds): 299.76
+	System time (seconds): 58.99
+	Percent of CPU this job got: 902%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:39.74
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10330220
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 5945346
+	Voluntary context switches: 1094408
+	Involuntary context switches: 12824
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 540448
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

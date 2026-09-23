@@ -13626,7 +13626,8 @@ profile admissibility.
 
 ## Stage 45 — TEST-ONLY: a capture of a STANDALONE shaped block receipt (obligation 3 of the shaped privacy status) (2026-09-23, 03:1x–)
 
-**Status: `OPEN`.** Opened 2026-09-23 03:14 PDT on the lane tip `1ab1498`,
+**Status: `CLOSED` 2026-09-23 03:4x PDT** — see "Stage 45 — CLOSED" below.
+Opened 2026-09-23 03:14 PDT on the lane tip `1ab1498`,
 one writer (the delegated stage-45 agent). **Why:**
 `ZK60_SHAPED_PRIVACY_PATH_STATUS.md` (main tree, 2026-09-23) §0 and
 obligation 3: every 125M privacy-gate measurement so far is of a TWO-BLOCK
@@ -13654,3 +13655,186 @@ any production-behaviour change. The untracked `u31-c6-run1.*` files are left
 alone.
 
 **No privacy claim.** A capture is the INPUT to a gate; no gate has read one.
+
+### Stage 45 — CLOSED (2026-09-23 03:14 – 03:4x)
+
+**Status: `LANDED`.** A new `cfg(test)` capture module for a STANDALONE
+shaped block, four bundles (rung-G and 125M, dense generic and all-zero),
+each re-verified and recaptured in a fresh process. No production behaviour
+moved; no GPU. **Not a privacy result: no gate has read a bundle.**
+
+#### Task 1 — what was mirrored, and what differs
+
+Read: stages 14 / 15 / 18 / 27 of this ledger (the run capture's schema, the
+plane index table, the public tables, the array store), ruling M-8 and
+finding E32-F1 in `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md`, the toy
+writer `hashline/src/native_capture.rs` (schema 3: one JSON per proof beside
+`.receipt` / `.expected`, a fresh-process `native_capture_saved_receipt`,
+`canonical_capture_reproduced` / `native_reverified` in its
+`validation.json`). The block bundle takes the RUN capture's field set and
+encoders (the per-slot objects with `definition_challenges`, `c`, `scalar`,
+`claimed_sum`, `rho`, `sumcheck_final`, `mask_eval`, `terminal_polynomial`,
+`terminals`, `rounds`, `hosted`, `tables` — `eq` with its point (slots
+08/09's group factor), `public` with length, SHA-256 and values, `private`
+with role, claim, slices, coordinates, `mask_row` — and the transcript
+positions; the `M` opening; the four role objects with `groups`,
+`proximity_rhos`, `columns` with salts and paths, `row_roles`,
+`public_linear_constraints`; the plane index table; the hash tag; the source
+pins) and the toy's per-proof conventions (`receipt.bin` + `expected.bin`
+beside the JSON, `proof_sha256`, a fresh-process validation file).
+The single-block differences are listed in
+`results/zk60_block_captures_20260923/README.md` ("What a gate has to learn")
+and as data in each `block.json` (`transcript_labels`, `transcript_program`).
+
+#### Task 2 — the module
+
+`hashline/src/private_block/block_capture_shaped.rs` (new, `cfg(test)`),
+schema **`hashline-native-capture/5-block-shaped`**: `block.json` (header —
+`block_binding`, `context`, `calibration`, `public_statement_digest`,
+`parameter_line`, `schedule_digest`, `expected_policy`, `proof_bytes`,
+`proof_sha256`, `shape`, `external_endpoints` with `site_rows` / `prox_row` /
+`claim_sites`, `layout_description`, `hash_tag`, `transcript_labels`,
+`transcript_program`, `mask_domain`, `plane_index`, `not_in_a_capture`),
+`observations.json` (a run stage file's members minus the run framing),
+`arrays.bin` (the `/5-run` store, always on), `receipt.bin`, `expected.bin`,
+`README.md`, `manifest.json` LAST (lengths + SHA-256 of every file, 35 source
+pins: 12 on the block's path + the run capture's 23 shared files; recipe and
+witness tags). Allow-list = the run capture's + 7 block-only keys
+(`block_binding`, `proof_bytes`, `proof_sha256`, `proof_digest_encoding`,
+`observation_files`, `recipe`, `witness`). The recorder rebuilds the header
+from the block's public words and replays every challenge, `zk::mask_verify`
+and `pcs::verify_zk` on its own transcript; `take` refuses unless the
+verifier ACCEPTED (`block_accepted`), which re-encodes the receipt for its
+length and SHA-256. The writer refuses a label that is not the full `git
+rev-parse HEAD` or a pinned source that is not committed as it stands
+(E32-F1, for this writer).
+
+**The hook lines** — `#[cfg(test)]` only, each a no-op unless a recorder is
+attached (`checkpoint` is `None`, the others find no recorder), handed what
+the verifier holds, returning nothing: `protocol.rs` `verify_inner_at` (the
+header, both endpoint openings, the acceptance), `verify_core` (`M`, `A`,
+`H`), `argument.rs` (`start_slot`, the per-slot checkpoint, `slot` inside
+the existing `cfg(test)` block), and two `cfg(test)` `mod` lines. `git diff
+-U0` of the three files: additions only, every one `#[cfg(test)]`, a comment,
+a `block_capture_shaped::` call under it, or a `mod` line. `cargo build
+--release --lib` builds (108 warnings, as stage 44), so no hook is reachable
+without `cfg(test)`. No absorb, draw, commit or hash call added to any
+production path.
+
+| file | SHA-256 at `1ab1498` | SHA-256 now |
+|---|---|---|
+| `hashline/src/private_block/argument.rs` | `f7fa2ad4213d925b2d8dcb8d8273b92c6af2e9f90f94978da8630cc123fcef3d` | `2cee0a2253d6ef91bea23f564d8e24a3362663da53a10182d6b0edaa8a10a013` |
+| `hashline/src/private_block/protocol.rs` | `c8b9f5ecbb5e11f8ebd68c903ad4553cbfa6122d198178131ca3b5558a1af2b1` | `974892cc1c45f27e446e1fd4595c888b6a1be647105bfbab3fe6298f7a731ea7` |
+| `hashline/src/private_block.rs` | `7f4603d89a429b307f66078ca96f4207ed470b4bc3a39d6d5e9630f6761ce56a` | `58a73b4004ce11c6dd0d0cc2bbef9bce4f180e08797388883753d50c7ba1be1f` |
+| `hashline/src/private_block/s25_tests.rs` (test) | `93e7590dada559d8a541f8c1763e47cfdc0962f260e6085b3b08775af81ea9df` | `a3cccb25a37118326d49351de02c29862554f45718d9b5211d085fb85afab17d` |
+| `block_capture_shaped.rs` (new) | — | `37312d49ccea469dbea25936d11e1a54943274328efdf8759e39a0eef640fd8f` |
+| `block_capture_shaped_tests.rs` (new) | — | `b676957eb88b07215b0ec0a0631e7324863dc4a058ad7aaab8c6dd2f5439ba50` |
+
+`run.rs` and `run_capture.rs` are byte-identical (the encoders were COPIED,
+so no run bundle's pin moves). **For the D22 re-pin and the run gate's pin
+tables:** `protocol.rs`, `argument.rs` and `private_block.rs` move, by
+`cfg(test)` lines only (class (ii): not compiled into a production build).
+
+#### Task 3 — the bundles
+
+`results/zk60_block_captures_20260923/` (README there). rung-G in git; the
+two 125M bundles in `/home/victor/zk60-artifacts/block-captures-20260923/`
+(each `arrays.bin` > 100 MB), their manifest, validation file and README
+copied into `m125/`.
+
+| bundle | files | `manifest.json` SHA-256 | proof (`receipt.bin`) SHA-256 | `source_commit` |
+|---|---:|---|---|---|
+| `rung-g/rung-g-dense` | 12,516,502 B | `d56975b0e68c26aa…62e312164` | `7fb81aff8c05fd4b…9f33f705` | `feae674` |
+| `rung-g/rung-g-zero` | 12,456,570 B | `5455070dd38be135…8ea8bdaf` | `6c173105b5972302…c36fe607` | `feae674` |
+| `m125-dense` | 276,686,082 B | `49b0336b131a67de…efe40587c` | `bddb04937ec8c0c6…5e386f0` | `19f06bf` |
+| `m125-zero` | 268,253,974 B | `f58eb60b15be2a37…ff647d35` | `8999067de00aea03…5b27e9` | `19f06bf` |
+
+(Full digests in the capture README.) Each was re-verified in a FRESH
+process (`reverify_a_shaped_block_bundle`): every manifest file and all 35
+pins checked against the tree, the public statement regenerated from the
+recipe tag, the saved receipt verified from bytes, the recapture
+byte-identical (`block.json`, `observations.json`, `arrays.bin`), and the
+bundle's values equal to the decoded receipt's — `validation.json` with
+`native_reverified`, `canonical_capture_reproduced`, `source_pins_match`,
+`values_match_the_decoded_receipt` all `true`.
+
+**125M, MEASURED, one run each, shared box (not quiesced), detached under the
+heavy lock with `MALLOC_MMAP_THRESHOLD_=131072`, no memory cap:**
+
+| | dense | zero |
+|---|---:|---:|
+| prove | **28.12 s** | **20.10 s** |
+| verify from bytes, no recorder | **1.85 s** | **1.20 s** |
+| verify + record | 2.94 s | 2.34 s |
+| frame | 40,783,352 B (the counted length) | 40,783,352 B |
+| peak RSS (`VmHWM`) | **10,088 MiB (9.85 GiB)** | **10,143 MiB (9.91 GiB)** |
+| `/usr/bin/time` max RSS | 10,330,220 kB | 10,386,736 kB |
+| writer wall | 39.68 s | 29.70 s |
+| `arrays.bin` | 230,479,888 B, 590 distinct arrays | 222,045,832 B, 588 |
+| fresh re-verify + recapture | 15.23 s, 774 MiB | 13.79 s, 758 MiB |
+
+rung-G: prove 0.44 / 0.45 s, verify 0.09 / 0.10 s, peak 73 / 72 MiB. The
+125M single-block bundle (277 MB) is close to the two-block run bundle's
+281 MB, as S27-F4 predicted: the shape-only public tables dominate both.
+
+#### Task 4 — the tests and the gate
+
+`block_capture_shaped_tests.rs`: (1) a dense rung-G block captured, written,
+read back against itself, then a fresh verifier accepts the saved receipt and
+the recapture reproduces the three capture files byte for byte, and the
+bundle's values are the decoded receipt's; (2) the same verdict, absorb order
+and refusal text with and without a recorder, the frame untouched, no bundle
+for a tampered frame, a forged header refused by the replay, nothing left
+attached; (3) every key on the allow-list and every block-only key emitted,
+no run framing key present; (4) every slot object, the `M` opening and the
+four roles carry a ONE-BLOCK rung-G run capture's key sequences exactly, the
+transcript sites differ only by `stage`, and the IO tables' reserved pairs
+equal the run's external endpoints' (617/4 and 619/4 at rung-G); (5) the
+source-pin partition (12 own + 4 run-only production modules named with a
+reason); (6) the E32-F1 label refusal. Plus the two `#[ignore]`d writers.
+
+| run | log | result |
+|---|---|---|
+| first build | `s45-build1.log` | compiled with no error, the same 16 warning lines as stage 44 |
+| `--lib block_capture_shaped` | `s45-tests1.log` | 5 passed / 1 failed — the test's own "no public-table values" pattern also matched an opened column's `"values":`; the pattern was narrowed to the public tables' (`","values":` after the digest) |
+| the same | `s45-tests2.log` | **6 passed / 0 failed / 2 ignored** |
+| focused: `s44_ s43_ s42_ s41_ s40_ census_shaped k8_ hash_tag s25_ s24_ s36_ block_capture_shaped run_capture` | `s45-focused.log` | **123 passed / 0 failed / 12 ignored**, 27.00 s |
+| **THE GATE** `--lib private_`, 6 threads, `/usr/bin/time -v` | `s45-gate-private.log` | **493 passed / 0 failed / 20 ignored**, 135.63 s, peak RSS 4.41 GB, the same 16 warning lines — against 487 / 0 / 18: +6 tests, +2 ignored writers, nothing lost |
+| `cargo build --release --lib` | `s45-release-lib.log` | builds, 108 warnings (stage 44's count) |
+
+The toy stays **2,816,472 B** and every pin in stage 44's list is in the
+pass list (`tests::honest_receipt_…`, `zero_witness_tests::…fixture_receipt_length`,
+`grow_tests::{…toy_exactly, …schedule_digest_is_frozen, …parameter_line…,
+…125m_receipt_is_reproduced_part_by_part}`, `review_tests::a_toy_receipt_…`,
+`run_tests::{…twelve_block_125m…, …ruling_r5}`, `slot_ir_tests::…pinned…`,
+`s24_tests::{…registered_profile…, …capture_writer_pins…}`,
+`s25_tests::every_hash_call_site…` (the new module classified: 7
+`sha256_hex(` sites, kind C1), `s33_tests::…printable_ascii…`, both
+`native_capture_roundtrip_and_refusals`).
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat 1ab1498 -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock hashline/src/private_block/run.rs
+hashline/src/private_block/run_capture.rs` prints NOTHING. The whole source
+diff: the two new files, `private_block.rs` +6, `argument.rs` +6,
+`protocol.rs` +23 (all `cfg(test)` hooks and comments), `s25_tests.rs`. The
+untracked `u31-c6-run1.*` files are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `d581247` | the skeleton |
+| `feae674` | the module, its tests, the hooks, s25's classification, the gate logs |
+| `19f06bf` | the two rung-G bundles with their fresh-process validation files |
+| this one | the 125M manifests / validations / READMEs, the capture README, the 125M logs and the launch script, this section |
+
+#### What stage 45 is NOT
+
+Not a privacy result and not gate evidence: the Python gate has not read a
+single-block bundle and must first learn the schema (the capture README's
+list). Not a statement about a twelve-block run. The 125M timings are one
+run each on a shared box. The hash layer for the standalone tagged block
+(obligation 3's last clause) and its residual column (obligation 10) are not
+written here.
