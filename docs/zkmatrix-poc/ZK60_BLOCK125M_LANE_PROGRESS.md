@@ -11944,3 +11944,42 @@ Not a count of absorbs (finding S36-F1). Not an in-situ measurement of the
 two endpoint generators (S36-F2) or of the segment offsets inside
 `prove_core` (S36-F3) — both are named above with the smallest thing that
 would close them.
+
+---
+
+## Stage 37 — TEST-ONLY: eight key-value groups (`lkv = 3`), "rung-K8" (2026-09-22, 19:4x–)
+
+**Status: `OPEN` (skeleton).** Opened 2026-09-22 19:46 PDT on the lane tip
+`a8e4939`, one writer. **Why:** the native run gate has never read a shape
+with `lkv > 2` (its open item R5.8 item 3: "eight or more key-value groups
+are still unread"). The repaired bilinear slots `SC_SCORE` / `SC_PV` (stage
+20, finding S19-F1: the group bits are sumcheck variables under a public
+`eq(r_g, .)`) have been proved at `lkv <= 2` only — rung-G 1, rung-K4 /
+rung-P2 / 125M 2. This stage produces the Rust-side evidence at `lkv = 3`.
+
+**THE WRITE SET**, and nothing else: one new test file
+`hashline/src/private_block/k8_tests.rs`, its one `#[cfg(test)] mod` line in
+`hashline/src/private_block.rs`, this ledger, evidence under
+`results/zk60_block125m_lane/` with the prefix `s37-`, and the two capture
+bundles under `results/zk60_run_captures_20260922_k8/`. **No production
+file moves** (`argument.rs`, `protocol.rs`, `layout.rs`, `wire.rs`,
+`witness.rs`, `run.rs`, `boundary.rs`, `run_capture.rs`, `shape.rs`, and
+everything under `zkp-core/`, `hashline/src/{zk,layer,pcs,wcache,
+native_capture}.rs`, `hashline/src/gpu/`, `private-block-kernel*/`,
+`zkvm-block/`): the shape is built in the test file through the existing
+`Shape::new` and `RunShape::new`. The toy receipt stays 2,816,472 B.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | the shape: the smallest `lkv = 3` geometry `Shape::new` accepts, or the refusal recorded | every dimension asserted; its own profile and key set |
+| 2 | one dense generic block proves and verifies from bytes | frame = the counted length |
+| 3 | a three-block dense run proves and verifies (streaming verifier) | segment lengths = the counted ones |
+| 4 | tampers in the LAST key-value group (index 7) of the planes `SC_SCORE` / `SC_PV` read | rejected by the VERIFIER |
+| 5 | the all-zero input proves and verifies | frame = the counted length |
+| 6 | receipt length = the Python layout model's prediction | to the byte |
+| 7 | two three-block capture bundles (dense generic + all-zero) | `source_commit` = HEAD at capture time |
+| 8 | the `--lib private_` filter once, against 416 / 0 / 17 | nothing lost |
+
+**No privacy claim.** Development grade (ruling P-7), like every rung.
