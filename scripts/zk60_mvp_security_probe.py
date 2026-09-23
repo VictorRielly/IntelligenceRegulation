@@ -50,7 +50,8 @@ def sha256(path):
 
 
 # ---------------------------------------------------------------------------
-# 1. Source pins: the analysis is about HEAD, and HEAD is the capture producer.
+# 1. Source pins: keep the historical producer intact and explicitly record
+#    each reviewed change before applying its diagnostic to current source.
 # ---------------------------------------------------------------------------
 EXTRA_SOURCES = [
     "hashline/src/zk_ffn_fresh_poc.rs",
@@ -60,6 +61,17 @@ EXTRA_SOURCES = [
     "zkp-core/src/field.rs",
 ]
 
+# These are reviewed current-source identities, never replacements for the
+# historical capture manifest. An unlisted change still refuses the probe.
+REVIEWED_SOURCE_UPDATES = {
+    "hashline/src/zk.rs": {
+        "producer_sha256": "c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310",
+        "current_sha256": "ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b",
+        "reviewed_commit": "4751b93",
+        "review": "docs/zkmatrix-poc/ZK60_SECURITY_PROBE_REPIN_20260922.md",
+    },
+}
+
 
 def check_source_pins():
     manifest = json.loads(MANIFEST.read_text())
@@ -67,11 +79,17 @@ def check_source_pins():
     rows, all_ok = [], True
     for rel, want in pinned.items():
         got = sha256(ROOT / rel)
-        rows.append(dict(path=rel, manifest=want, head=got, match=got == want))
-        all_ok &= got == want
+        review = REVIEWED_SOURCE_UPDATES.get(rel)
+        expected = review["current_sha256"] if review else want
+        origin_matches = not review or review["producer_sha256"] == want
+        matches = origin_matches and got == expected
+        rows.append(dict(path=rel, manifest=want, head=got, expected_current=expected,
+                         reviewed_update=review, producer_pin_matches=origin_matches, match=matches))
+        all_ok &= matches
     extra = {rel: sha256(ROOT / rel) for rel in EXTRA_SOURCES}
     return dict(manifest_source_commit=manifest["source_commit"], manifest_sha256=sha256(MANIFEST),
-                pinned=rows, all_pinned_match=all_ok, unpinned_head_sha256=extra)
+                pinned=rows, all_pinned_match=all_ok, unpinned_head_sha256=extra,
+                source_relationship="archived producer pins preserved; current changes require explicit review")
 
 
 # ---------------------------------------------------------------------------

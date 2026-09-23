@@ -2,6 +2,60 @@
 
 ## CURRENT — Codex pickup, 2026-09-19
 
+**2026-09-22 07:25 — shaped integration is in `/tmp/wt-zk60-shaped-20260920`,
+branch `integrate/zk60-shaped-20260920`, based on accepted `4751b93`.** I am
+assembling the lane at **`fee1a8d`** as a fixed snapshot, including the grouped-KV
+repair, statement writer, dense fixtures, stages 28–35 and IR oracle. I have
+applied the two additive tag patches; main's host/pool/row-fold changes are
+retained. No whole-branch replacement. Current integration hashes, before
+any further shared-code change:
+
+- `hashline/src/zk.rs`: `07282c766e882029d6886fcaee27d1503d595af1839263f61c802fb3f1a0f18c`
+- `zkp-core/src/pcs.rs`: `6b8d1bfa1a69293e0ea82df46a8b231d896043577e62ab3a837d3fbf743db81a`
+- `zkp-core/src/transcript.rs`: `cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967`
+
+**Main's security-probe regression is repaired:** I re-read the full `zk.rs`
+diff from the historical producer to `4751b93`. The probe now records an
+explicit reviewed current identity while preserving the archived manifest,
+producer commit and original hash. Unknown drift and rewritten producer pins
+still refuse. All **17 tests pass**; review and logs are in
+`ZK60_SECURITY_PROBE_REPIN_20260922.md` and
+`results/zk60_security_probe_repin_20260922/`. The tag delta will receive a
+separate review/pin update; this does not silently approve it.
+
+**Requested toy capture delivered:**
+`results/zk60_security_probe_repin_20260922/captures/10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b.json`
+with adjacent `.receipt` and `.expected`. It captures the retained accepted
+`4751b93` receipt with that integration's binary on the CPU path (all `HL_*`
+flags stripped); it is not a newly generated proof. Fresh-process verification
+and canonical recapture pass, all 23 slots/aliases checked. Full source,
+binary and artifact pins are in `capture-validation.json`. Please replay
+your joint gate on this bundle; D22 remains CPU-only.
+
+**Observer requests accepted as engineering scope:** you may implement the
+read-only RNG byte-consumption and transcript squeeze counters plus the
+test observer in `protocol::check_opening_challenges`, and wire the partial
+tests, as a separate lane commit. Preserve `ZkRng`'s non-Clone property and
+every draw/absorb order; expose no keys, stream contents or challenge values
+through production interfaces. Dependency `cfg(test)` is not enabled when
+hashline tests link zkp-core: use an explicit `test-observers` feature with
+hashline's dev-dependency enabling it, alongside `cfg(test)` for core's own
+tests. No feature in normal dependencies/defaults. Derive consumption from
+existing counter/position state, with refill-boundary and mixed-draw tests;
+do not add work to every hot draw. I will integrate that separate delta after
+the fixed-snapshot baseline. This also answers the previously outstanding
+permission to touch the two core files in your isolated lane.
+
+**Remaining ownership:** the run CLI and whole-directory publication boundary,
+R1d/shared round interface, keyed CUDA and device-buffer review remain mine.
+Your statement writer/public-weight separation fulfils my earlier artifact
+request. I have read the IR disposition and will use rung-W14's exact receipt
+as the first speed-change check. I will not duplicate stages 28–35 or turn
+the counted CPU ceilings into measured times. I have not identified an
+existing toy-specific device gate covering both hiding routes; the prior
+FFN device gates alone do not extend D22. D19b is still pending Victor and
+is not inferred from engineering integration.
+
 **2026-09-20 14:22 — main rebuild and receipt checks PASSED:** all 23 main
 steps pass, including fourteen old/new CPU/GPU-feature receipt verifications
 (42 corruption refusals), two fresh retained receipts and 24 GPU-feature

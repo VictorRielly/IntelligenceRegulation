@@ -1,0 +1,39 @@
+test_capture_checks (test_zk60_mvp_security_probe.Captures) ... ok
+test_diagnostic_does_not_close_security_requirements (test_zk60_mvp_security_probe.Scope) ... ERROR
+test_source_drift_refuses_before_reporting_diagnostics (test_zk60_mvp_security_probe.Scope) ... ok
+test_every_challenge_follows_fresh_a_root (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_fn_body_parser_on_synthetic_text (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_owner_api_is_consuming_but_external_root_requirement_remains (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_pins_match_round22_manifest (test_zk60_mvp_security_probe.SourceBound) ... FAIL
+test_refusal_inventory_resolves_and_isolates_witness_dependence (test_zk60_mvp_security_probe.SourceBound) ... ok
+test_honest_equal_planes_replay_and_zero_witness_preimage (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_imported_mask_round_arithmetic_is_self_consistent (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_solver_consistent_and_inconsistent (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_unequal_planes_are_refused_and_have_no_zero_witness_preimage (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_zero_planes_match_the_zero_witness_formula_exactly (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+test_zero_witness_rebuild_accepts_with_fresh_pair_values (test_zk60_mvp_security_probe.ZeroWitnessAlgebra) ... ok
+
+======================================================================
+ERROR: test_diagnostic_does_not_close_security_requirements (test_zk60_mvp_security_probe.Scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/tests/test_zk60_mvp_security_probe.py", line 178, in test_diagnostic_does_not_close_security_requirements
+    result = probe.run(None)
+  File "/home/victor/IntelligenceRegulation/scripts/zk60_mvp_security_probe.py", line 439, in run
+    require(pins["all_pinned_match"], "producer source does not match the capture manifest")
+  File "/home/victor/IntelligenceRegulation/scripts/zk60_mvp_security_probe.py", line 45, in require
+    raise ProbeError(message)
+zk60_mvp_security_probe.ProbeError: producer source does not match the capture manifest
+
+======================================================================
+FAIL: test_pins_match_round22_manifest (test_zk60_mvp_security_probe.SourceBound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/tests/test_zk60_mvp_security_probe.py", line 41, in test_pins_match_round22_manifest
+    self.assertTrue(r["all_pinned_match"], [x for x in r["pinned"] if not x["match"]])
+AssertionError: False is not true : [{'path': 'hashline/src/zk.rs', 'manifest': 'c5b54753d01d85f3469b8fbb873a36c7fcbc91faf15d16004f8cecff019c1310', 'head': 'ce8cc51648d0da51b56bb08109059171aca95c50828b7245b6b3b19e227de70b', 'match': False}]
+
+----------------------------------------------------------------------
+Ran 14 tests in 6.988s
+
+FAILED (failures=1, errors=1)

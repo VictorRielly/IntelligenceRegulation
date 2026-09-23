@@ -1,0 +1,7 @@
+
+running 1 test
+NATIVE_CAPTURE profile=hashline-zk-mr1/private-block-t32-poc/1 sha256=10b9d4be3c0af4a44c21789a30fddd716e0d8c63948e4056c6154d3d852ce64b slots=23 all_openings_replayed=true
+test private_block::capture::native_capture_saved_receipt ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 136 filtered out; finished in 0.08s
+

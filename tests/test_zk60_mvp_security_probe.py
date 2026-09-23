@@ -6,6 +6,7 @@ Evidence generation is explicit through the script CLI; tests never write
 archived result files.
 """
 import random
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -40,6 +41,34 @@ class SourceBound(unittest.TestCase):
         self.assertEqual(len(r["pinned"]), 10)
         self.assertTrue(r["all_pinned_match"], [x for x in r["pinned"] if not x["match"]])
         self.assertEqual(r["manifest_source_commit"], "1f0ff3680c4cda88f1744343e24eb93cdddfcba4")
+
+    def test_reviewed_source_keeps_the_archived_producer_identity(self):
+        rows = probe.check_source_pins()["pinned"]
+        moved = [r for r in rows if r["reviewed_update"]]
+        self.assertEqual([r["path"] for r in moved], ["hashline/src/zk.rs"])
+        row = moved[0]
+        self.assertNotEqual(row["manifest"], row["head"])
+        self.assertEqual(row["manifest"], row["reviewed_update"]["producer_sha256"])
+        self.assertEqual(row["head"], row["expected_current"])
+        self.assertTrue(row["match"])
+
+    def test_unknown_source_drift_still_refuses_with_a_reviewed_update(self):
+        original = probe.sha256
+        def changed(path):
+            return "ab" * 32 if Path(path) == ROOT / "hashline/src/zk.rs" else original(path)
+        with mock.patch.object(probe, "sha256", side_effect=changed):
+            self.assertFalse(probe.check_source_pins()["all_pinned_match"])
+            with self.assertRaises(probe.ProbeError):
+                probe.run(None)
+
+    def test_rewriting_the_capture_pin_cannot_masquerade_as_review(self):
+        manifest = json.loads(probe.MANIFEST.read_text())
+        manifest["source_sha256"]["hashline/src/zk.rs"] = probe.REVIEWED_SOURCE_UPDATES["hashline/src/zk.rs"]["current_sha256"]
+        with mock.patch.object(probe.json, "loads", return_value=manifest):
+            result = probe.check_source_pins()
+        self.assertFalse(result["all_pinned_match"])
+        row = next(r for r in result["pinned"] if r["path"] == "hashline/src/zk.rs")
+        self.assertFalse(row["producer_pin_matches"])
 
     def test_every_challenge_follows_fresh_a_root(self):
         r = probe.check_schedule_order()
