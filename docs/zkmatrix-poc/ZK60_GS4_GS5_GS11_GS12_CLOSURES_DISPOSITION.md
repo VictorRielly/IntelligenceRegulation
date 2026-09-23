@@ -65,3 +65,33 @@ activation family).
 Obligation 5 of the status page shrinks to: the LAW of the blinding for G-R4
 (NL-8) and the gate fixes GC-2. The generic-rank lemma at the shaped layouts
 has no named residual left but those.
+
+## 6. GC-2 done (2026-09-23 15:52)
+
+Gate round 9l (`zk60-native-jointview` at `7fb276e`, ledger §R9l):
+- **F-3, the exact u-term:** predicted from the committed records that no
+  value would move (241 u-term entries in 41 records, every zero-sum
+  indicator reachable, so the old term equals the exact one there); none
+  moved — 160 entries in 32 records carry both terms and agree, 125M
+  included (`H@0` 2 = 2, block joint 2 = sum 2). On the check's 12
+  constructed `U-adm` cases a brute force of the whole view reads
+  `n·k0 + u*`; the exact term matches through both code paths, the old term
+  reads `u* − 1`.
+- **F-4 / F-6, exclusivity:** 16 named clauses EX-1…EX-16, each with its Rust
+  source line (`scripts/zk60_native_rg_exclusivity.py`: pairs disjoint,
+  every reserved row used, even offset, pair basis, sum claim, group count,
+  endpoint shape, …); 24 controls on a run, 23 on a block; every record
+  exercises all 16; 764 controls fire and none on an honest view; all 272
+  honest commitments pass 16 of 16, incl. A, H and both endpoints at 125M.
+  The overlap control X10a is refused by the new check; the old check
+  accepted it and 6 of the other 22.
+- 30 records re-taken + two new cheap 125M block records, 0 unexpected
+  leaves; suite 660, toy 217, guard 42.
+
+**Open, small:** the TOY gate (D22's evidence) still has the old pair check.
+D22 does not rest on the gate's pair check — the verifier's own
+`audit_claims` enforces exclusivity on every accepted receipt, and the toy
+statement cites the argument, not this observation — but the toy gate
+should observe exclusivity with the same 16 clauses; it is hash-pinned by
+the record guard, so porting EX-1…EX-16 into it is a deliberate re-pin in a
+later round.
