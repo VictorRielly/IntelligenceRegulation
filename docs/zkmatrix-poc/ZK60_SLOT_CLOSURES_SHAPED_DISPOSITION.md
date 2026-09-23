@@ -103,6 +103,16 @@ is left there is enforcement (C-3, C-4, C-7). **At the 125M shape every figure
 is a count or a computation at that shape's parameters; nothing has been
 evaluated on a 125M receipt, and the present tools cannot.** Same limit, same
 wording, as for the per-commitment lemma.
+*[2026-09-23: false since 2026-09-21 — the run gate evaluates the 23-slot
+terminal identity on 125M receipts, **46 of 46** on two two-block captures
+(round 9, `ad16a77`; repeated in round 9c's full pass), after repairing a port
+defect only that shape could show (finding M-F1: three power-of-two domains
+draw no pad-zero challenge). The enforcement left at the development shapes
+is built too: C-3, C-4 and C-7 are lane stage 24 items 6–8 (`68e8769`). The
+per-commitment lemma's identical sentence was corrected on 2026-09-22 14:47 —
+evidence: `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md` §2b round 9; gate
+ledger `ZK60_NATIVE_RUN_GATE_PROGRESS.md` R9g.4 on `zk60-native-jointview`;
+lane ledger stage 24.]*
 
 ## 4. What I checked myself, and what was delegated
 

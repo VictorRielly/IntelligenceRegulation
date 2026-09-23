@@ -105,7 +105,17 @@ weights.
 - The linear half at the shaped layouts beyond the generic-rank lemma (G-R1,
   narrowed 2026-09-20), the joint law across commitments (G-R4, draw count
   machine-asserted since stage 36, the LAW still owed), the hash layer and
-  the sequential lift for runs (G-R5).
+  the sequential lift for runs (G-R5). *[2026-09-23: G-R5 was already
+  written when this was ruled — Lemma H^run and Route A^run, core accepted
+  with changes on 2026-09-21 01:12 (`ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md`
+  §1), and the hash layer is measured at 125M for what a receipt opens
+  (2,304 opened columns authenticated, 27,828 challenges re-derived, run gate
+  round 9). What stays open on that line is G-H1 (Route B, unruled), D19b
+  (pending Victor) and two bookkeeping items: the explicit L = 2 hybrid for
+  the position tags (run memo §7.3 item 2) and GS-7, the boundary claim's
+  ordering in the lift — evidence: the H disposition;
+  `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md` §2b round 9;
+  `ZK60_SHAPED_PRIVACY_PATH_STATUS.md` §3 #9.]*
 - N-11 (norm gains' provenance label) matters only for P3; leave it with
   NL-7.
 

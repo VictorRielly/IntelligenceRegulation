@@ -85,7 +85,8 @@ name if so; otherwise it records the fact.
 
 **Narrowed, not closed.** For the ten shapes as built with their own
 statements, every data-dependent refusal site is covered by the witness
-builder (census + check). Open: CS-1 and CS-2 until built (lane stage 40);
+builder (census + check). Open: CS-1 and CS-2 until built (lane stage 40)
+*[2026-09-23: both built in lane stage 40, `c735d77` — see §5 below]*;
 the 23 slot relations for every admissible witness are shown by the 37 edge
 proofs and the dense generic runs, not re-derived symbolically; the soundness
 premise (no field wrap, `layout.rs:639-648`) is out of this census's scope.

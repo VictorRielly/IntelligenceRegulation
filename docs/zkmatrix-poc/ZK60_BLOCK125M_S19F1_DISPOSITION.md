@@ -113,7 +113,11 @@ shared box, 12 GB ceiling]: **fully dense weights, generic hidden input — prov
 3. **A milestone report names the witness that was proved.**
 4. The layout memo's grouped-attention section and its disposition (rulings
    P-1 … P-8) are superseded **for the two bilinear slots** by §4 above; a note
-   is owed against them.
+   is owed against them. *[2026-09-23: done — the note was added on 2026-09-22
+   14:47 to both: §2 of `ZK60_PRIVATE_BLOCK_125M_LAYOUT_DISPOSITION.md`, just
+   before P-1, and the grouped-attention section of
+   `ZK60_PRIVATE_BLOCK_125M_LAYOUT.md` (line 452) — evidence: those two pages;
+   gate ledger R9g.11 items (3), (4) and the "sixth" on `zk60-native-jointview`.]*
 
 ## 8. Still to redo, in order
 
@@ -124,3 +128,17 @@ captures on a fully dense witness; the Python gate's ports of the two slots
 with them, for the first time, **the gate's disclosure and rank figures on a
 non-degenerate witness**, which is the measurement the privacy verdict above
 does not have.
+*[2026-09-23: every item of this list is done. F-1: the layout model derives
+the repaired schedule itself and agrees with the Rust everywhere (lane stage 21
+item 1, `71c6509`). R-5: interior scales refused unless the approved
+calibration's, header byte-identical (item 3, same commit). The dense
+twelve-block recipe (down band 1 at 125M, item 4, `0426ad2`) and the run on it:
+prove 397.71 s, verify 14.45 s, 484,107,456 B, 2026-09-20 21:01
+(`m125-run-l12-dense.log`). Dense run captures: `run-g-dense-s20` /
+`run-h-zero-s20` at the development shape (item 5), and dense and all-zero
+two-block captures at 125M (2026-09-21). The gate's ports of slots 08/09 and
+its disclosure and rank figures on a non-degenerate witness: run gate round 4
+(2026-09-20 21:35: no disclosure, rank, boundary or joint figure differs
+between a generic and the all-zero input; only sampled-column counts do)
+and round 9 at 125M — evidence: lane ledger stage 21;
+`ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md` §2b rounds 4 and 9.]*

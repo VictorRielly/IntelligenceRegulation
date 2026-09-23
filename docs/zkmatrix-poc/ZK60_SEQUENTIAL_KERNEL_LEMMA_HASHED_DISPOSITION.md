@@ -78,6 +78,16 @@ an absorb or the end of the run (now pinned by the lane's stage-24 test).
 path and on a run's path, its mode, key, input layout and length, and why it
 is disjoint from every other — is owed as a document with a test behind each
 row. Until it exists, the independence hypothesis is a hypothesis.**
+*[2026-09-23: the table exists. Lane stage 25 (`9c1c56b`, 2026-09-21) re-derived
+every hash input kind from the code for all eight profiles then registered —
+410 kinds — with a test asserting, per hash function, that no two different
+kinds have equal length unless a declared literal separates them; the
+document is `ZK60_HASH_FUNCTION_SEPARATION_TABLE.md` on lane
+`zk60-private-block-125m`, the pinning test named per row, and ruling J-8
+(2026-09-21 04:37) makes the code-derived table the record. It is not yet in
+an integrated tree, and no ruling has said whether it discharges the
+hypothesis for Route B (see the correction under §3) — evidence:
+`ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES_DISPOSITION.md` J-8; lane ledger stage 25.]*
 
 **K-R3 (B-3) — "O-4 is closed" is refused: it is REDUCED.** The
 fixed-challenge hypothesis the lemma needs is about the **joint** law of the
@@ -139,6 +149,18 @@ terms), and stays so.
 | What it rests on today | the random-oracle hybrid (Route A), accepted | the same hybrid, conditional on the run's open gaps |
 | What this lemma adds | a second, shorter route — **not yet usable**: owes K-R1's hop, K-R2's table, K-R3's joint sentence | the same |
 | Does any accepted sentence change | **no** | none exists |
+
+*[2026-09-23, correction to the middle row: the three items it says are owed
+all have closing records. K-R1's hop is written as "Hop 0" in the revised
+lemma (`ZK60_SEQUENTIAL_KERNEL_LEMMA_HASHED.md` §3.6); K-R2's table exists
+(J-8, lane stage 25); K-R3's joint sentence holds with changes
+(`ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES_DISPOSITION.md` §1, 2026-09-21 03:22).
+That page's own owed list (its §3) is closed too: the table, the draw-accounting
+test (lane stage 36, all seven assertions live) and the errata (03:29 on
+2026-09-21). **Whether Route B is now usable has not been ruled** — the row's
+"not yet usable" stands until a disposition says otherwise, and nothing
+accepted moves either way; a Route-A statement does not need it. Evidence:
+`ZK60_SHAPED_PRIVACY_PATH_STATUS.md` §3 #13, §4 row 14.]*
 
 ## 4. What I checked myself, and what was delegated
 

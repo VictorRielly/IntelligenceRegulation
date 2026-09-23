@@ -125,13 +125,21 @@ unchanged).
 
 | Shape | State after this page |
 |---|---|
-| Generalised rung (one group bit) | Lemma accepted with S-1's hypothesis. Left: a Rust test pinning the refusal replay order against the opening's challenge order (GS-2); the reduction not re-derived at pad count ≠ column count, though brute force there scores 0 (GS-5); the computed gate sees two challenge vectors per shape. |
-| Four-group rung (two group bits) | Covered by the checker's collision count and generic computation; real bytes exist since 23:03 (`run-i-dense-k4`) and are with the gate now. |
+| Generalised rung (one group bit) | Lemma accepted with S-1's hypothesis. Left: a Rust test pinning the refusal replay order against the opening's challenge order (GS-2); the reduction not re-derived at pad count ≠ column count, though brute force there scores 0 (GS-5); the computed gate sees two challenge vectors per shape. *[2026-09-23: the GS-2 test exists — lane stage 23 item 4 (`46baa40`) pins the refusal replay order on a real two-block fully dense rung-G capture (every group position tested in order and short-circuiting, the determinant reading exactly two rows, group before proximity) and `check_opening`'s audit → count → challenges order; stage 25 W-3 (`9c1c56b`) measures on a real rung-K4 boundary opening that the replay leaves the live transcript untouched and re-issues its next points; since stage 36 (`29cba9a`) a test-only observer inside `check_opening_challenges` counts the replay's draws in a live proof (1,027 per toy proof). GS-2 is narrowed, not closed: nothing of it has been run at 125M. GS-5 stands as written — evidence: lane ledger `ZK60_BLOCK125M_LANE_PROGRESS.md` stages 23, 25, 36]* |
+| Four-group rung (two group bits) | Covered by the checker's collision count and generic computation; real bytes exist since 23:03 (`run-i-dense-k4`) and are with the gate now. *[2026-09-23: gated — run gate round 5 (2026-09-20 23:57, `6667aba`) on `run-i-dense-k4` and `run-j-zero-k4`: nothing failed to scale, terminal identity 23 of 23 slots (69 of 69) with the group factor over two variables, `A` 0, `H` 2, all else 0; rounds 7 and 8 then carried both bundles through the preimage, masking and joint arms to the 28-channel table (10 / 5 / 4 / 9) — evidence: `ZK60_PRIVATE_RUN_MULTI_BLOCK_DISPOSITION.md` §2b rounds 5, 7, 8]* |
 | 125M | The argument and every count carry over; **nothing has been measured there** (GS-1), and nothing can be with the present tools — a 125M capture is out of the Python gate's reach. A privacy statement at this shape would rest on the argument, the counts, and measurements at the two development shapes that share its head geometry. That is a limit to state, not to hide. *(CORRECTED 2026-09-22 14:47: both halves false since 2026-09-21 — the gate reads a 281 MB 125M capture in 0.6 s and runs there in 179 s at 1.46 GB (46 of 46 slot checks), and the preimage construction, the masking layer and the joint preimage were all constructed at 125M with the whole channel table 28 at 10 / 5 / 4 / 9 — run disposition rounds 9 and 9c; GS-1 is closed on its measurement half.)* |
 
 Still open on the whole path: the joint law across commitments and its
 machine-asserted draw accounting (G-R4), the slot closures as a reading
 (G-R2), the sequential lift for a run (G-R5), the non-linear channel (GS-13).
+*[2026-09-23: three of the four have moved. G-R2 has been read and holds with
+changes (`ZK60_SLOT_CLOSURES_SHAPED_DISPOSITION.md`, 2026-09-21 01:22). G-R5 is
+written — Lemma H^run and Route A^run, core accepted with changes
+(`ZK60_HASH_LAYER_AND_FS_LIFT_RUN_DISPOSITION.md`, 2026-09-21 01:12); G-H1
+(Route B) and D19b stay open. GS-13 is closed on its algebraic half (NL-1,
+`ZK60_NONLINEAR_CHANNEL_SHAPED_DISPOSITION.md`, 2026-09-22 20:45). G-R4: the
+draw accounting is machine-asserted on single-block proofs at six shapes (lane
+stage 36), not at 125M and not at run scope; the LAW is still owed (NL-8).]*
 
 ## 4. What I checked myself, and what was delegated
 

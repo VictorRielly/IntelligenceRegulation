@@ -136,6 +136,15 @@ prover's messages depend on; for every non-refused challenge vector the joint
 law of all messages witness-free — and **exists only for field messages, on an
 older branch. Extending it to (field, hash) message pairs is the next paper
 task**, and it closes the toy's O-4 at the same time.
+*[2026-09-23: that paper task was done the same night. The lemma for (field,
+hash) messages was drafted, attacked and ruled proved with changes at 02:19
+(`ZK60_SEQUENTIAL_KERNEL_LEMMA_HASHED_DISPOSITION.md`), and the joint sentence
+it needs holds with changes at 03:22
+(`ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES_DISPOSITION.md`). O-4 / G-H1 is still
+not closed: whether Route B is usable after the owed items landed (the
+code-derived query table, lane stage 25; the draw-accounting test, lane stage
+36; the errata) has not been ruled. Evidence: those two dispositions;
+`ZK60_SHAPED_PRIVACY_PATH_STATUS.md` §3 #13.]*
 
 ## 4. What I checked myself, and what was delegated
 

@@ -116,4 +116,10 @@ a privacy property.**
    `zk60-native-jointview`.
 2. Errata pass on G.
 3. A Rust test that pins the refusal replay order against the opening's
-   challenge order (additive; on the 125M lane).
+   challenge order (additive; on the 125M lane). *[2026-09-23: done — lane
+   `zk60-private-block-125m` stage 23 item 4 (`46baa40`, 2026-09-20 23:54) on a
+   real two-block fully dense rung-G capture, through existing hooks; stage 25
+   W-3 measured the replay on a real rung-K4 boundary opening, and since stage
+   36 a test-only observer in `check_opening_challenges` counts the replay's
+   draws in a live proof. Not run at 125M (gap GS-2 of the shaped lemma stays
+   narrowed, not closed) — evidence: lane ledger stages 23, 25, 36.]*

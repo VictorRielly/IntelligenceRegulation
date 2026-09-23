@@ -749,3 +749,13 @@ by delegated Opus agents, the second instructed to assume the first was wrong.
    VERIFIER); then three; then twelve at the rung.
 3. One measured two-block run at the 125M shape — detached, heavy lock, memory
    ceiling, per-stage high-water marks — before twelve.
+
+*[2026-09-23: all three steps are done. (1) The errata pass on R landed at
+10:04 on 2026-09-20 (`26e03ff`: B1 … B4, C1 … C13, O1 … O11 and M-1 … M-8
+applied; `ZK60_PRIVATE_RUN_MULTI_BLOCK.md` line 3 records it). (2) The run was
+built test-first on the lane, stage 12 — the two-claim audit, the 37-row
+refusal, the headline negative test refused by the verifier, runs of 2, 3 and
+12 blocks at the rung (§2a). (3) The two-block 125M run was measured at 10:45
+with per-block high-water marks, then twelve blocks at 11:22 (§2a, §2b). The
+run gate has since reached the 125M shape on two-block captures (§2b rounds 9,
+9c) — evidence: this page §2a–§2b; the design memo's revision commit.]*
