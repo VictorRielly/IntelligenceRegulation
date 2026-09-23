@@ -163,6 +163,19 @@ static SEEDS: AtomicU64 = AtomicU64::new(0x3517_0000_0000_0001);
 /// how many (point, slot) comparisons have been made in this process
 static COMPARED: AtomicUsize = AtomicUsize::new(0);
 
+thread_local! {
+    /// **STAGE 39 (note S38-N1).** The same count, per THREAD. The arms call
+    /// [`Szc::check`] / [`Dzc::check`] synchronously inside `define`, on the
+    /// thread that called `define`, so a test that walks the registry on its
+    /// own thread reads exactly its own comparisons here. The process-global
+    /// [`COMPARED`] is also bumped by every concurrent proof's `define` (both
+    /// sides of every proof run the hook), so an exact count asserted on it
+    /// failed whenever another proving test overlapped the walk — three runs
+    /// in three at 6 test threads in stage 38, 244 against 72 in
+    /// `s39-n1-before.log` — and passed alone.
+    static COMPARED_HERE: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
 fn next_seed() -> u64 {
     SEEDS.fetch_add(0x9E37_79B9_7F4A_7C15, Ordering::Relaxed) | 1
 }
@@ -175,6 +188,7 @@ fn differ(tag: &str, n_tabs: usize, old: &dyn Fn(&[Fp2]) -> Fp2, new: &dyn Fn(&[
         assert_eq!(got, want, "{tag}: the stage-35 closure differs from the 89e393f closure at random point {j} of {n_tabs} tables");
     }
     COMPARED.fetch_add(POINTS, Ordering::Relaxed);
+    COMPARED_HERE.with(|c| c.set(c.get() + POINTS));
 }
 
 // ------------------------------------------------- slot 17, `SC_SZC`
@@ -373,10 +387,12 @@ fn walk_pairs(sh: &Shape, mut f: impl FnMut(usize, &SlotDef, &SlotIr)) {
 /// anywhere in the crate's tests. This test drives the registry once so that
 /// **every registered shape and both sides of the pad branch are covered by
 /// name**, and asserts that the comparison really ran — a hook that had been
-/// compiled out would leave the counter where it was.
+/// compiled out would leave the counter where it was. Since stage 39 (note
+/// S38-N1) the exact count is read on THIS thread's counter
+/// [`COMPARED_HERE`], so a concurrent proof in another test cannot move it.
 #[test]
 fn the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape() {
-    let before = COMPARED.load(Ordering::Relaxed);
+    let before = COMPARED_HERE.with(|c| c.get());
     let mut pad_on = 0usize;
     let mut pad_off = 0usize;
     for sh in every_shape() {
@@ -388,7 +404,7 @@ fn the_two_rewritten_closures_equal_the_parent_closure_at_every_registered_shape
         }
         walk_defs(&sh, |_, _| {});
     }
-    let made = COMPARED.load(Ordering::Relaxed) - before;
+    let made = COMPARED_HERE.with(|c| c.get()) - before;
     eprintln!("S35 differential: {made} (point, slot) comparisons on this walk alone, {} in the process so far", COMPARED.load(Ordering::Relaxed));
     eprintln!("S35 differential: slot 17's pad branch is taken at {pad_on} registered shapes and not taken at {pad_off}");
     assert!(pad_on > 0 && pad_off > 0, "the registry no longer covers both sides of the pad branch: on {pad_on}, off {pad_off}");

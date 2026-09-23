@@ -45,6 +45,9 @@ the shape** by the test, not typed in. Result:
   depends only on the public table, not on the private input, so it leaks
   nothing private; it is a gap in what the public statement is allowed to be.
   Not fixed here (production file); an `#[ignore]`d reproducer records it.
+  **FIXED at `7472a3c` (stage 39, 2026-09-22), by ruling S38-F1(a): the
+  statement constructor now refuses such a table by name at those shapes —
+  see §6.**
 
 ## 2. What was enumerated
 
@@ -118,13 +121,15 @@ FINDING: reachable and not covered.
 | 23 | U8 word at a padded position | `protocol.rs:396-417, 434-444` | every ZERO-rule plane is 0 on the pad, so a word is its lookup's constant, 0 or 127 | U |
 | 24 | exp pair not a table row | `protocol.rs:837-841` | the builder writes `A_E = exp[delta]` at every position, pads included | U |
 | 25 | activation pair not a row, true position | `protocol.rs:843-847` | the builder writes `a16 = act[g8 + 128]` | U |
-| 26 | **activation pair not a row, padded `Dom::F` position** | `protocol.rs:843-847`; the LogUp arm is never gated (`argument.rs:1567-1570`) | the pad carries `(g8, a16) = (0, 0)`, so the pair is `(128, 0)`, a row iff `act[128] == 0`; `FeedForwardPublic::new_shaped` admits any `act[128]` | **FINDING S38-F1 where `Dom::F` pads** (rung, rung-G, rung-K4, rung-K8); U elsewhere (no such position) |
+| 26 | **activation pair not a row, padded `Dom::F` position** | `protocol.rs:843-847`; the LogUp arm is never gated (`argument.rs:1567-1570`) | the pad carries `(g8, a16) = (0, 0)`, so the pair is `(128, 0)`, a row iff `act[128] == 0`; `FeedForwardPublic::new_shaped` admits any `act[128]` | **FINDING S38-F1 where `Dom::F` pads** (rung, rung-G, rung-K4, rung-K8); U elsewhere (no such position). **Since `7472a3c` (stage 39): COVERED-BY-THE-STATEMENT-REFUSAL where `Dom::F` pads** (§6) |
 | 27 | LogUp multiplicity wraps the field | `protocol.rs:835-853` | the largest count is the U8 looked-word total: 61,440 (toy) … 98,598,912 (125M) | U |
 | 28 | kernel checked-arithmetic overflow (every `Overflow` site) | `lib.rs:124-158` via `:508, 525, 555-565, 592-593, 623-637, 743, 768, 796, 816, 823` | the largest intermediate: 1.7e10 (toy) … 8.2e11 (125M), against `2^63 - 1` | U; the builder's unchecked `i64` works on the same bounds |
 
 U = UNREACHABLE, R-B = REACHABLE-BUILDER-REFUSES-FIRST. The test prints the
 34 rows (the three norm rows twice) with numbers at each of the ten shapes
-(`S38 CENSUS` lines of the log). COUNTED, per shape:
+(`S38 CENSUS` lines of the log). COUNTED, per shape (as at stage 38; since
+stage 39 the FINDING column is 0 everywhere and the rung, rung-G, rung-K4
+and rung-K8 carry one row COVERED-BY-THE-STATEMENT-REFUSAL instead — §6):
 
 | shape | width / hidden / head_dim | U | R-B | FINDING | AO image | Q image | FFN down image |
 |---|---|---:|---:|---:|---:|---:|---:|
@@ -247,6 +252,38 @@ as `A_E` is (S12-F3) — which changes the pad table, the gate and every shaped
 receipt's commitments. **What would justify (b) over (a):** an approved
 activation whose value at gate 0 is not 0.
 
+**FIXED at `7472a3c` (stage 39, 2026-09-22 21:4x PDT) — ruling S38-F1(a),
+security owner, 2026-09-22.** Option (a) was taken; option (b) was not (it
+would move every shaped receipt; revisit only if an approved activation with
+a nonzero value at gate 0 is ever proposed). `FeedForwardPublic::new_shaped`
+(`private_block.rs:584-586`) now returns
+`"private block: activation table act[128] must be 0 at a shape whose
+feed-forward domain pads (ruling S38-F1(a))"` when `sh.pads(Dom::F)` and
+`act[128] != 0` — the condition read off the `Shape`, exactly the census's,
+not a list of names. Where `Dom::F` does not pad nothing changes, and the
+statement digest (`absorb_into`) is untouched, so no receipt byte moves.
+MEASURED (`s39-census-after.log`, `--lib census_shaped` 11 passed / 0 failed
+/ 0 ignored):
+
+* `s39_new_shaped_refuses_a_nonzero_gate_zero_activation_by_name_exactly_where_the_feed_forward_domain_pads`
+  — at all ten census shapes, `act[128]` in `{1, -1, 32767, -32768}` is
+  refused by that name at the rung, rung-G, rung-K4, rung-K8 (3,584 of 8,192
+  `Dom::F` positions padded) and admitted at the toy, rung-P2, rung-C6,
+  rung-W14, rung-E32 and 125M (0 padded); the SiLU member and a table
+  differing off row 128 are admitted everywhere; the toy's `new` still admits
+  the toy census's constant-32767 table. Run FAILING before the fix
+  (`s39-new-test-before.log`: at the rung, the constructor returned `Ok`).
+* site 26 of the census is now **COVERED-BY-THE-STATEMENT-REFUSAL** at the
+  four padded shapes, the refusal MEASURED on the production constructor
+  inside the census; no row is a FINDING at any shape.
+* the reproducer is un-ignored and renamed
+  `s38_f1_reproducer_a_statement_with_a_nonzero_gate_zero_activation_is_refused_at_construction_at_rung_g`:
+  it asserts the named refusal, and keeps the stage-38 end-to-end run as a
+  control — forced past that one check, the honest proof is still rejected by
+  the verifier (`H: pcs zk: group 8`), so the refusal guards a real failure.
+  Before the fix, at the lane tip, the old form still failed exactly as at
+  stage 38 (`s39-before.log`, exit 101).
+
 ## 7. What this census does NOT cover
 
 * **Soundness.** The field-wrap premise (`layout.rs:639-648`: every integer
@@ -283,3 +320,10 @@ Source digests at this stage: `census_shaped_tests.rs` SHA-256
 `04d4d1bb...ae873e56`; `private_block.rs` moves from `7a9b31ac...ee00dc82` to
 `b6728273...652a3456` (the two `cfg(test)` lines only; full digests in the
 lane ledger, stage 38).
+
+**Stage 39 (the fix, `7472a3c`):** `s39-before.log` (the old reproducer at
+`a9d6d4c`, exit 101, verifier rejection), `s39-new-test-before.log` (the new
+test before the fix, exit 101), `s39-census-after.log` (after: 11 / 0 / 0).
+`private_block.rs` moves `b6728273...652a3456` -> `29ba0084...f3acc872`
+(the refusal only); full digests and the lane gate in the lane ledger,
+stage 39.

@@ -12343,3 +12343,85 @@ native_capture}.rs`, `hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`,
 | 6 | the `--lib private_` filter once, 8 GiB scope, `--test-threads=6` | against 437 / 0 / 19 (+1 skipped); `private_block.rs` SHA-256 `b6728273...` -> new |
 
 **No privacy claim.** A completeness fix of public-statement admissibility.
+
+### Stage 39 — S38-F1 fixed, S38-N1 fixed test-only (21:4x; the lane gate is next)
+
+All runs under `flock /tmp/zk-build.lock` and `systemd-run --user --scope -p
+MemoryMax=8G -p MemorySwapMax=0`, shared box (another lane's Python gate
+running beside it), not quiesced.
+
+**Task 1 — failing first.**
+
+| run | log | result |
+|---|---|---|
+| the stage-38 reproducer as it stood, `--ignored`, at `6ec32c2` (= `a9d6d4c` + the skeleton) | `s39-before.log` (`.done` = 101) | **FAILS as at stage 38**: `S38-F1 REPRODUCER rung-G: verifier rejected: H: pcs zk: group 8: <v, c> != combined claim` |
+| the NEW test `s39_new_shaped_refuses_a_nonzero_gate_zero_activation_by_name_exactly_where_the_feed_forward_domain_pads`, before the fix | `s39-new-test-before.log` (`.done` = 101) | **FAILS**: the toy line prints "admitted, unchanged", then at the rung (the first padded shape in census order) `left: None, right: Some("private block: activation table act[128] must be 0 ...")` — the constructor admitted `act[128] = 1` |
+
+**Task 2 — the fix, commit `7472a3c`.** `private_block.rs`, in
+`FeedForwardPublic::new_shaped` only, after the `[i16; 256]` conversion
+(`:584-586`, with a six-line comment above):
+
+```rust
+if sh.pads(layout::Dom::F) && act[128] != 0 {
+    return Err("private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))".into());
+}
+```
+
+The condition is `Shape::pads(Dom::F)` (`size != true_size`), the census's
+own, not a list of names; the new test cross-checks it against the padded
+cube vs `tokens * hidden` at all ten shapes. Nothing else in production
+changes: `absorb_into` (both of them), `BlockPublic::digest`, the builder, the
+prover and the verifier are untouched (`git diff a9d6d4c --
+hashline/src/private_block.rs` is the nine added lines and nothing else), so
+the refusal adds no absorbed byte. `FeedForwardPublic::new` (the toy entry)
+goes through `new_shaped` at `Shape::toy()`, whose `Dom::F` does not pad, so
+the toy census's constant-32767 table (`refusals.rs:204`) is still admitted —
+asserted by the new test.
+
+**Task 3 — the census and the reproducer.** `--lib census_shaped` at
+`7472a3c`: **11 passed / 0 failed / 0 ignored**, 9.36 s (`s39-census-after.log`,
+`.done` = 0; stage 38: 9 / 0 / 1 — plus the new test, plus the reproducer
+un-ignored). What changed in `census_shaped_tests.rs`:
+
+* a fourth class, `COVERED-BY-THE-STATEMENT-REFUSAL`, and a `statement_refuses`
+  field on every row (false on the 33 others); site 26's is MEASURED inside
+  the census on the production constructor (the member's 0 admitted; `act[128]`
+  in `{1, -1, 2, 32767, -32768}` refused by the ruling's name). Tallies now:
+  toy 22/12/0/0, rung / rung-G / K4 / K8 **21/12/0/1**, P2 22/12/0/0, C6 / W14 /
+  E32 / 125M 21/13/0/0 (U / R-B / FINDING / covered); the census asserts no
+  FINDING at any shape;
+* the stage-38 LogUp-level test now asserts the refusal at rung-G / K4 / K8
+  first and then shows the mechanism past it with a test-only bypass
+  (`Spec::statement_bypassing_the_s38_f1_refusal`: the production constructor
+  at `act[128] = 0`, the table's own `act[128]` written back after): still
+  exactly the 3,584 padded of 8,192 `Dom::F` positions miss; at P2 / C6 the
+  constructor admits and the statement is LogUp-clean;
+* the reproducer is un-ignored and renamed
+  `s38_f1_reproducer_a_statement_with_a_nonzero_gate_zero_activation_is_refused_at_construction_at_rung_g`
+  (history in its comment): it asserts the named refusal, and keeps the
+  stage-38 run as a control — forced past the refusal the verifier still
+  rejects (`H: pcs zk: group 8`), so the refusal guards a real failure;
+* the memo `ZK60_SHAPED_REFUSAL_CENSUS.md`: §1 and §3 row 26 annotated, §6
+  carries a dated "FIXED at `7472a3c`" block with the ruling, §8 the new logs.
+
+**Task 5 — S38-N1, FIXED TEST-ONLY** in `s35_tests.rs` (no `zkp-core` ask
+needed: the counter is the lane's own test code). The arms call
+`Szc::check` / `Dzc::check` synchronously inside `define`
+(`argument.rs:1542, 1777`), on the thread that called `define`, so a
+`thread_local!` `COMPARED_HERE` bumped beside the global `COMPARED` in
+`differ` counts exactly the walk's own comparisons; the test asserts its
+exact 72 on that delta (the global count is still printed). Evidence, the
+filter `--lib -- s35_tests census_shaped k8_tests` at the DEFAULT thread
+count (22) so that the census's and K8's proofs overlap the walk:
+
+| run | log | result |
+|---|---|---|
+| before (s35 unchanged, at `7472a3c`) | `s39-n1-before.log` (`.done` = 101) | 25 passed / **1 failed** / 1 ignored — the s35 test, "244 (point, slot) comparisons on this walk alone" against 72 |
+| after, five in a row | `s39-n1-after1..5.log` (every `.done` = 0) | **26 passed / 0 failed / 1 ignored, five times**; each prints "72 ... on this walk alone" while the process-global count reads 248, 268, 244, 248, 240 — the overlap is there every time and no longer moves the assertion |
+
+The one ignored test is `k8_tests::write_the_k8_gate_bundles` (as at stage
+37). The same runs are **task 4's re-run of the stage-37 K8 tests and the
+stage-38 census tests**: every `k8_tests` and `census_shaped_tests` test
+passed in all six runs (the before-run failed only on s35). No compiler
+warning in any changed file. `s35_tests.rs` SHA-256 ->
+`f88fca813d58fab9eb6d29a2aef9c1bdbd35168a41efb368c61c5cdf047d59a7`.
