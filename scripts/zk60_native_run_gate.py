@@ -20,7 +20,10 @@ Report: `docs/zkmatrix-poc/ZK60_NATIVE_RUN_GATE.md`.
   3 PER COMMITMENT        A, H, the masking commitment M, the external
                           endpoints and each internal boundary: the disclosed
                           dimension by exact rank, the certifying minor, the
-                          distinct opened columns against the pad count
+                          distinct opened columns against the pad count;
+                          **round 9l**: the exact u-row term, H-pair with
+                          the sixteen clauses of exclusivity, and one
+                          negative control per clause
   4 THE BOUNDARY          ruling M-8: (a) each boundary's figure RESTRICTED
                           to its reserved rows; (b) the three roles of one
                           boundary plane as one system; (c) the whole run as
@@ -90,6 +93,7 @@ from zk60_native_rg_block import (  # noqa: E402
 from zk60_native_rg_controls import controls  # noqa: E402
 from zk60_native_rg_joint import (  # noqa: E402
     RULING_R3,
+    RunJointSystem,
     boundary_reserved_figure,
     discover_shared_planes,
     mask_block,
@@ -120,7 +124,7 @@ from zk60_native_rg_terminals import (  # noqa: E402
     covered_at,
     verify_captured_public_tables,
 )
-from zk60_native_jv_joint import JointSystem  # noqa: E402
+from zk60_native_rg_exclusivity import exclusivity_controls  # noqa: E402
 
 TOOLS = [
     "zk60_native_run_gate.py",
@@ -136,6 +140,9 @@ TOOLS = [
     "zk60_native_rg_replay.py",
     "zk60_native_rg_runpins.py",
     "zk60_native_rg_pcs.py",
+    # [ROUND 9l] the exclusivity audit (H-pair) and its per-clause controls,
+    # called from `RunRoleView` on every record's path
+    "zk60_native_rg_exclusivity.py",
     "zk60_native_rg_joint.py",
     "zk60_native_rg_preimage.py",
     "zk60_native_rg_ahpreimage.py",
@@ -187,8 +194,13 @@ def expected_for(view):
 
 
 # --------------------------------------------------------------- stage 3
-def stage3(bundle, replay, pad_rank=True, terminal_note=None):
-    """Every commitment of every stage, at the run's own shape."""
+def stage3(bundle, replay, pad_rank=True, terminal_note=None, do_controls=True):
+    """Every commitment of every stage, at the run's own shape.
+
+    **[ROUND 9l, ruling GC-2]** each commitment's H-pair now includes the
+    sixteen clauses of `zk60_native_rg_exclusivity` (its `exclusivity`
+    facts), and the stage carries that module's per-clause negative
+    controls (`exclusivity_controls`), which the stage's verdict requires."""
     views, rows = {}, []
     for st in bundle.stages:
         for role in st.roles:
@@ -209,7 +221,7 @@ def stage3(bundle, replay, pad_rank=True, terminal_note=None):
     masks = []
     for st in bundle.stages:
         blk = mask_block(st)
-        d = JointSystem([blk]).disclosed(msg_width=bundle.shape.cols)
+        d = RunJointSystem([blk]).disclosed(msg_width=bundle.shape.cols)
         masks.append(
             {
                 "commitment": blk.name,
@@ -253,6 +265,9 @@ def stage3(bundle, replay, pad_rank=True, terminal_note=None):
         and r["distinct_opened_columns_within_pad_count"]
         for r in rows
     ) and all(m["meets_expectation"] for m in masks)
+    # [ROUND 9l] one negative control per clause of exclusivity
+    xc = (exclusivity_controls(bundle, views) if do_controls
+          else {"skipped": "controls not requested", "ok": True})
     return (
         {
             "per_commitment": rows,
@@ -260,7 +275,8 @@ def stage3(bundle, replay, pad_rank=True, terminal_note=None):
             "expected": EXPECTED_DISCLOSED,
             "pad_block_exact_rank_cross_check": pad,
             "per_slot_terminal_check": terminal_note or PER_SLOT_TERMINAL_OPEN,
-            "ok": ok and (pad is None or pad["full_rank"]),
+            "exclusivity_controls": xc,
+            "ok": ok and (pad is None or pad["full_rank"]) and xc["ok"],
         },
         views,
     )
@@ -1394,7 +1410,7 @@ def run_gate(bundle_dir, other_dir=None, pad_rank=True, run_wide=True,
         note = dict(s8["terminal_identity"])
         note["status"] = s8["channel_status"]
         s3, views = stage3(bundle, replay, pad_rank=pad_rank,
-                           terminal_note=note)
+                           terminal_note=note, do_controls=do_controls)
         record["stage3_per_commitment"] = s3
     if _skipped("stage4_the_boundary"):
         shared = None

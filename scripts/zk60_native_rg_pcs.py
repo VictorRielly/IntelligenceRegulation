@@ -22,6 +22,17 @@ proximity-pair determinant, the certifying minor, the kernel on the data rows
 -- is inherited unchanged, so the two gates compute the same things by the
 same code wherever they can.
 
+**[ROUND 9l, ruling GC-2]** Two more overrides, both on findings of
+`ZK60_GS4_GS5_GS11_GS12_CLOSURES_CHECK.md`:
+
+* the u-row term is the EXACT `u* = rank Γ_{D∪N'} − rank Γ_{N'} − k0`
+  (`exact_u_term`, finding F-3).  The inherited per-indicator solve is
+  still computed and reported beside it: it equals `u*` whenever every
+  zero-sum indicator is reachable, and under-counts otherwise;
+* H-pair is the inherited weight-level check AND the sixteen clauses of
+  `zk60_native_rg_exclusivity` (finding F-4: the inherited check accepted
+  OVERLAPPING pairs, odd offsets and unused pairs).
+
 NOTHING HERE ESTABLISHES A PRIVACY PROPERTY.  Every number is a number about
 this linear model at these captures' real challenges.
 """
@@ -43,8 +54,32 @@ from zk60_native_jv_field import (
     two_adic_root,
 )
 from zk60_native_jv_pcs import RoleView
+from zk60_native_rg_exclusivity import CLAUSE_NAME, Geometry, audit, summary
 
 COSET = 7  # pcs.rs::encode_row_zk, the coset generator
+
+EXACT_U_FORM = (
+    "u* = rank Γ_{D∪N'} − rank Γ_{N'} − k0, Γ the real and imaginary parts of "
+    "the group and proximity row-combinations, D the data rows, N' the non-data "
+    "rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's "
+    "§2.2.3 derives it)"
+)
+
+
+def exact_u_term(gens, data_idx, n_prime_idx, k0):
+    """**[ROUND 9l]** The EXACT u-row term, with the two ranks it is made of.
+
+    `rank Γ_{D∪N'} − rank Γ_{N'}` is the dimension of `WΓ_D`,
+    `W = {c : cΓ_{N'} = 0}` (the combinations whose non-data restriction lies
+    on the zero-sum rows); `k0` of it is the kernel on every non-data row, and
+    the rest is `u*`.  No hypothesis on which combinations of the zero-sum
+    indicators are reachable is needed.
+    """
+    dn = sorted(set(data_idx) | set(n_prime_idx))
+    np_ = sorted(n_prime_idx)
+    r_dn = rank([[g[i] for i in dn] for g in gens], len(dn))
+    r_n = rank([[g[i] for i in np_] for g in gens], len(np_))
+    return r_dn - r_n - k0, r_dn, r_n
 
 
 class ShapePcs:
@@ -168,6 +203,7 @@ class RunRoleView(RoleView):
     def __init__(self, stage, role, prox_rho, shape, checks_budget=6, perturb=None,
                  q_pad=None, name=None):
         self.sp = ShapePcs(shape)
+        self.shape = shape  # [round 9l] the exclusivity audit's group counts
         super().__init__(stage, role, prox_rho, checks_budget=checks_budget,
                          perturb=perturb, q_pad=role["q_pad"] if q_pad is None else q_pad)
         # the pad half's TRUE length, from the published vector: a control may
@@ -356,6 +392,25 @@ class RunRoleView(RoleView):
             )
         return ok
 
+    def _check_pair_schedule(self, data_rows, other_rows, prox_rows, u_rows):
+        """**[ROUND 9l, ruling GC-2 / finding F-4]** H-pair.
+
+        The inherited weight-level check runs first, unchanged (its facts --
+        `reserved_pairs_used`, `sum_claims_on_u_rows`,
+        `claims_evaluating_u_rows` -- and its findings are the ones every
+        earlier record carries).  It refuses two claims on the SAME pair but
+        accepts overlapping pairs, odd offsets and unused pairs, so H-pair is
+        now that check AND every clause of
+        `zk60_native_rg_exclusivity.audit`, each reported by name.
+        """
+        old_ok = super()._check_pair_schedule(data_rows, other_rows, prox_rows, u_rows)
+        res = audit(Geometry.of_view(self), self.role["claims"], self.rws,
+                    self._lambdas)
+        self.facts["exclusivity"] = summary(res)
+        for cid in res["failing"]:
+            self.fail(f"exclusivity {cid} ({CLAUSE_NAME[cid]}): {res['findings'][cid][0]}")
+        return old_ok and res["ok"]
+
     def pad_block_rank(self, limit=None):
         """Exact rank of the pad half of {E_j} over the distinct columns."""
         distinct = sorted({c["index"] for c in self.role["columns"]})
@@ -392,6 +447,10 @@ class RunRoleView(RoleView):
         return free + u_dim
 
     def _u_term(self, gens, data_rows, other_rows, u_rows):
+        """The u-row term.  **[ROUND 9l]** the figure is the EXACT `u*`
+        (`exact_u_term`); the per-indicator solve every earlier round
+        reported is computed as before and kept beside it, with whether the
+        two agree."""
         from zk60_native_jv_field import solve
 
         block = [[g[i] for i in other_rows] for g in gens]
@@ -409,7 +468,10 @@ class RunRoleView(RoleView):
                         xi[a] = (xi[a] + c * gens[kk][i]) % P
             xis.append(xi)
         kbasis = self._kernel_on_data(gens, other_rows, data_rows)
-        u_dim = rank(xis + kbasis, len(data_rows)) - rank(kbasis, len(data_rows))
+        per_indicator = rank(xis + kbasis, len(data_rows)) - rank(kbasis, len(data_rows))
+        u_set = set(u_rows)
+        n_prime = [r for r in other_rows if r not in u_set]
+        u_dim, r_dn, r_n = exact_u_term(gens, data_rows, n_prime, self.facts["k0"])
         logup = []
         for ci, rw in enumerate(self.rws):
             touched = [r for r in other_rows if rw[r] != F2_ZERO]
@@ -427,6 +489,12 @@ class RunRoleView(RoleView):
             "extra_dimension_beyond_k0": u_dim,
             "xi_row_weights_nonzero": [sum(1 for v in x if v) for x in xis],
             "equals_public_logup_identity": same,
+            # [round 9l] the exact term's two ranks, and the old figure beside it
+            "exact_form": EXACT_U_FORM,
+            "rank_gamma_on_data_and_n_prime": r_dn,
+            "rank_gamma_on_n_prime": r_n,
+            "per_indicator_term": per_indicator,
+            "per_indicator_equals_exact": per_indicator == u_dim,
         }
         return u_dim
 

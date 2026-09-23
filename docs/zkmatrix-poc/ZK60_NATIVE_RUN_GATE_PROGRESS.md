@@ -5262,9 +5262,9 @@ establishes a privacy property.
 | # | item | state |
 |---|---|---|
 | L0 | ledger skeleton, round 9l opened | done (`d378bf5`) |
-| L1 | the prediction, written and committed BEFORE the new code ran on any bundle | this commit -- R9l.2 |
-| L2 | the exact u-term (per commitment and joint), its constructed-case test | pending |
-| L3 | the exclusivity check, clause by clause, refusing overlap; one control per clause | pending |
+| L1 | the prediction, written and committed BEFORE the new code ran on any bundle | done (`a52f6cc`) -- R9l.2 |
+| L2 | the exact u-term (per commitment and joint), its constructed-case test | done -- this commit (tool bytes FROZEN here), R9l.3 |
+| L3 | the exclusivity check, clause by clause, refusing overlap; one control per clause | done -- this commit, R9l.3 |
 | L4 | records re-taken; strict leaf diff, 0 unexpected | pending |
 | L5 | the suites (toy subset, record guard, whole native suite) | pending |
 | L6 | results, limits, NEXT | pending |
@@ -5377,3 +5377,38 @@ each `u_row_term` (per commitment) and `u_row_detail` (joint) that has a u
 row -- the per-indicator figure, the two exact ranks, the form, the
 equality flag. Not one rank, disclosed dimension, part, joint, `k0`,
 u-term value, control figure, preimage, mask or channel figure moves.
+
+## R9l.3 What changed in the tools (frozen at the L2/L3 commit, 13:38 PDT)
+
+| file | change |
+|---|---|
+| `scripts/zk60_native_rg_exclusivity.py` | NEW: the sixteen clauses (`CLAUSES`, each with its source line), `Geometry.of_view` (the gate's reading of one opening: `row_roles`, the declared site / sum rows, the shape's `a_groups` / `h_groups`), `audit` (every clause on its own, no short-circuit), and `exclusivity_controls` (24 on a run, 23 on a block, each on an in-memory COPY) |
+| `scripts/zk60_native_rg_pcs.py` | `exact_u_term`; `RunRoleView._u_term` returns the exact `u*` and keeps the per-indicator figure beside it (`per_indicator_term`, `per_indicator_equals_exact`, the two ranks); `RunRoleView._check_pair_schedule` = the inherited check (its facts and findings unchanged) AND the audit, each failing clause a named finding; `self.shape` kept |
+| `scripts/zk60_native_rg_joint.py` | `RunJointSystem(JointSystem)`: the same ranks and facts, the exact u-term over the joint classes (`N'` = non-data classes holding no zero-sum row); every joint system of the module uses it |
+| `scripts/zk60_native_run_gate.py` | `TOOLS` gains `zk60_native_rg_exclusivity.py`; stage 3 carries `exclusivity_controls` (its verdict requires them) and takes `do_controls`; the masking commitments' part through `RunJointSystem` (no u row: identical facts) |
+| `tests/test_zk60_native_run_gate_gc2.py` | NEW, four arms (u-term on constructed cases with a whole-view brute force; the synthetic overlap; live on rung-G block and run-a; the re-taken records) |
+
+The toy modules (`zk60_native_jv_pcs.py`, `zk60_native_jv_joint.py`) are
+byte-identical: the toy gates' evidence and D22 do not move.
+
+**The first runs, AFTER the prediction commit** (scratch probes, not
+records): stage 3 on `rung-g-dense` (0.9 s) and on `run-a-tame` (2.0 s) --
+every commitment 16 of 16 (A 244 site rows used exactly once, 36 = 36
+groups; H 104, 9 = 9; boundaries 4, 2 = 2; endpoints 2, 1 = 1), `H`'s
+exact term 2 = per-indicator 2 (`rank Γ_{D∪N'}` 20, `rank Γ_{N'}` 18,
+`k0` 0), every control firing on its target clause, all sixteen clauses
+exercised. **One slip in the prediction, recorded as it is:** P-4 says "23
+controls on a run, 22 on a block", but the list P-4 enumerates has **24**
+items on a run (X01-X04, X05a-d, X06, X07, X08a/b, X09a/b, X10a/b/c, X11-X14,
+X15a/b, X16) and **23** on a block (no X10c). The controls that ran are
+exactly that list; the count was mis-added, not a control added. The
+constructed cases (`U-adm`, the grid `(n, Q, d)` = (4, 4, 3), (4, 6, 5),
+(8, 4, 4), (2, 3, 2), three seeds each): the whole-view brute force reads
+`n + 1` = `n·k0 + u*` with `k0 = 1`, `u* = 1`; both indicators
+inadmissible, the per-indicator term reads **0 = u* − 1**, through
+`RunRoleView._disclosed` and `RunJointSystem.disclosed` alike (12 of 12);
+the honest twin reads 2 = 2 by both terms (12 of 12). The whole native
+suite on the new bytes BEFORE any re-take (scratch): 660 tests, the only
+failures the twelve tool-byte assertions of the records not yet re-taken
+and this round's own recorded arm -- no logic assertion of any earlier
+round moved.

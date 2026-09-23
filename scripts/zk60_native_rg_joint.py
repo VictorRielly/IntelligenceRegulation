@@ -3,7 +3,9 @@
 `zk60_native_jv_joint` states the joint model in full and this module uses
 its `Block` / `JointSystem` unchanged -- they are shape-agnostic, taking the
 message width as an argument.  What is new here is a RUN's identifications
-and ruling M-8's restricted rank.
+and ruling M-8's restricted rank.  **[ROUND 9l]** every joint system here is
+a `RunJointSystem`: the same ranks, with the EXACT u-row term of ruling GC-2
+in place of the toy's per-indicator solve (which is kept beside it).
 
 THE THREE THINGS COMPUTED
 
@@ -51,6 +53,63 @@ from __future__ import annotations
 
 from zk60_native_jv_field import F2_ZERO, P, f2_from_list, rank, row_reduce, det_mod_p
 from zk60_native_jv_joint import Block, JointSystem
+from zk60_native_rg_pcs import EXACT_U_FORM, exact_u_term
+
+
+class RunJointSystem(JointSystem):
+    """**[ROUND 9l, ruling GC-2 / finding F-3]** `JointSystem` with the EXACT
+    u-row term.
+
+    `JointSystem` lives in the toy module, whose bytes are hashed into the
+    toy gates' evidence, so it is not edited; this subclass recomputes
+    `disclosed` with the same ranks and the same facts, and replaces only
+    the u-row figure by `u* = rank Γ_{D∪N'} − rank Γ_{N'} − k0` over the
+    joint coordinate classes (`N'` the non-data classes holding no zero-sum
+    row).  The toy's per-indicator solve is still computed and reported
+    beside it.  A system with no zero-sum row returns exactly the facts
+    `JointSystem.disclosed` returns.
+    """
+
+    def disclosed(self, msg_width=None):
+        if msg_width is None:
+            raise ValueError("RunJointSystem.disclosed needs the run's message width")
+        gens, owner = self.generators()
+        data_cols = self.columns("data")
+        other_cols = self.columns("non-data")
+        r_all = rank(gens, len(self.classes))
+        r_other = rank([[g[c] for c in other_cols] for g in gens], len(other_cols))
+        k0 = r_all - r_other
+        facts = {
+            "generators": len(gens),
+            "coordinate_classes": len(self.classes),
+            "data_classes": len(data_cols),
+            "non_data_classes": len(other_cols),
+            "rank_all": r_all,
+            "rank_on_non_data": r_other,
+            "k0": k0,
+            "free_fp": msg_width * k0,
+        }
+        u_dim, u_detail = JointSystem._u_term(self, gens, data_cols, other_cols)
+        if u_detail.get("u_classes"):
+            u_cls = {self.index[(b.name, r)] for b in self.blocks for r in b.u_rows
+                     if (b.name, r) not in self.removed}
+            n_prime = [c for c in other_cols if c not in u_cls]
+            exact, r_dn, r_n = exact_u_term(gens, data_cols, n_prime, k0)
+            u_detail = dict(u_detail)
+            u_detail.update({
+                "extra_dimension_beyond_k0": exact,
+                "exact_form": EXACT_U_FORM,
+                "rank_gamma_on_data_and_n_prime": r_dn,
+                "rank_gamma_on_n_prime": r_n,
+                "per_indicator_term_fp": u_dim,
+                "per_indicator_equals_exact": u_dim == exact,
+            })
+            u_dim = exact
+        facts["u_row_term_fp"] = u_dim
+        facts["u_row_detail"] = u_detail
+        facts["disclosed_fp"] = msg_width * k0 + u_dim
+        return facts
+
 
 IO_SITE_ROLES = ("Input", "Output")
 
@@ -321,7 +380,7 @@ def three_role_figure(bundle, views, shared, k, extra_identifications=(),
 
     parts, part_detail = {}, {}
     for blk in blocks:
-        f = JointSystem([blk]).disclosed(msg_width=msg_width)
+        f = RunJointSystem([blk]).disclosed(msg_width=msg_width)
         parts[blk.name] = f["disclosed_fp"]
         part_detail[blk.name] = {
             "k0": f["k0"],
@@ -331,9 +390,9 @@ def three_role_figure(bundle, views, shared, k, extra_identifications=(),
             "rows": blk.rows,
             "data_rows": len(blk.data_rows),
         }
-    js = JointSystem(blocks, identifications=ids)
+    js = RunJointSystem(blocks, identifications=ids)
     jf = js.disclosed(msg_width=msg_width)
-    unmerged = JointSystem(blocks).disclosed(msg_width=msg_width)
+    unmerged = RunJointSystem(blocks).disclosed(msg_width=msg_width)
     block_diagonal = not js.shared_non_data_classes and not js.mixed_classes
     total = sum(parts.values())
     findings = list(js.findings)
@@ -416,8 +475,8 @@ def run_wide_figure(bundle, views, shared, include_mask=True, subset=None,
 
     parts = {}
     for blk in blocks:
-        parts[blk.name] = JointSystem([blk]).disclosed(msg_width=msg_width)["disclosed_fp"]
-    js = JointSystem(blocks, identifications=ids)
+        parts[blk.name] = RunJointSystem([blk]).disclosed(msg_width=msg_width)["disclosed_fp"]
+    js = RunJointSystem(blocks, identifications=ids)
     jf = js.disclosed(msg_width=msg_width)
     total = sum(parts.values())
     block_diagonal = not js.shared_non_data_classes and not js.mixed_classes
