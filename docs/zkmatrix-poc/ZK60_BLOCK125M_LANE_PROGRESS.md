@@ -12173,3 +12173,60 @@ native_capture}.rs`, `hashline/src/gpu/`, `private-block-kernel/`,
 | 5 | the `--lib private_` filter once | against 429 / 0 / 18 |
 
 **No privacy claim.** A completeness census; development grade.
+
+### Stage 38 — the census landed (21:1x; the lane gate is the next step)
+
+**Headline.** At every registered shape (toy, rung, rung-G, rung-K4,
+rung-P2, rung-C6, rung-W14, rung-E32, 125M) and at stage 37's rung-K8, every
+data-dependent refusal site of the builder, the shaped kernel and the prover
+is classified from bounds COMPUTED FROM THE `Shape`: **12 sites
+REACHABLE-BUILDER-REFUSES-FIRST at every shape** (Q, K, V, QR, KR, score,
+residual 1, FFN gate, FFN up, FFN product, FFN down, residual 2), **`AO`
+joins them at width > 258** (rung-C6 48,768; rung-W14 / rung-E32 / 125M
+97,536 — N-9's figure, re-derived), everything else UNREACHABLE, and **ONE
+FINDING, S38-F1**. Memo: `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS.md`.
+
+**Finding S38-F1 (first rank, not fixed here).** At a shape whose `Dom::F`
+pads (rung, rung-G, rung-K4, rung-K8 — NOT 125M, not rung-P2 / C6 / W14 /
+E32, not the toy), the padded `(g8, a16) = (0, 0)` looks up the activation
+pair `(128, 0)` on the never-gated LogUp arm; it is a table row only when
+`act[128] == 0`, and `FeedForwardPublic::new_shaped` admits any `[i16; 256]`.
+With `act[128] = 1` the builder and the kernel admit the statement and the
+**VERIFIER rejects** every honest proof (`H: pcs zk: group 8: <v, c> !=
+combined claim`, `s38-f1-reproducer.log`, exit 101 — the `#[ignore]`d
+reproducer fails as it must). Exactly the 3,584 padded of 8,192 `Dom::F`
+positions miss the table at rung-G / K4 / K8; the same statement is clean at
+rung-P2 and rung-C6. Public-table-dependent only, so nothing private leaks.
+Fix options for the file owner (memo §6): refuse `act[128] != 0` at a
+padded-`Dom::F` shape, or write the pad's `A16` as `act[128]` and exempt it
+like `A_E`. Every SiLU member has `act[128] = 0`, which is why no proof ever
+met it.
+
+**MEASURED** (`s38-census.log`, `.done` = 0; shared box, not quiesced):
+`--lib census_shaped` **9 passed / 0 failed / 1 ignored**, 28.16 s, no
+compiler warning in the new file.
+
+| test | what it establishes |
+|---|---|
+| `the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape` | 34 rows x 10 shapes, bounds from the shape; tallies U / R-B / F: toy 22/12/0, rung 21/12/1, rung-G 21/12/1, rung-K4 21/12/1, rung-K8 21/12/1, rung-P2 22/12/0, rung-C6 21/13/0, rung-W14 21/13/0, rung-E32 21/13/0, 125M 21/13/0 (COUNTED) |
+| `the_builder_class_of_every_looked_plane_is_the_lookup_window_at_every_shape` | the ORDER check from `lookups_at` itself: every looked plane's admitted window equals the builder's class (p: window 2^10 looser than the builder's 2^9, the safe direction); all 60 (toy) / 62 looked planes accounted for |
+| `the_unreachable_sites_premises_hold_at_every_shape` | norm quotient over each `D_max` (int16 incl. -32768), softmax row sums, `O`, the kernel calibration copy, and broken exp / RoPE tables refused by the constructor |
+| `the_challenge_only_refusals_are_counted_per_shape` | per block: c_s 23, e 25, **nu 12**, zeta 0 / 8 / **5 at 125M** (GN-8's five), groups 44 / 45, proximity 4 |
+| `every_reachable_site_..._at_rung_g` / `_k4` / `_k8` | 12 sites x 3 shapes: inside EXACTLY on the edge (127, -128, 32767) proves and verifies (0.54–0.82 s each); one step past, the builder AND the kernel refuse with the same `fixed oracle range refusal: <site>` |
+| `the_output_projection_..._at_rung_c6` | `AO` at rung-C6: ao = 32767 proves and verifies (1.54 s); 32768 refused by name by both; the family cannot even be built at rung-G (width 96) |
+| `s38_f1_the_padded_feed_forward_positions_...` | S38-F1 in the ordinary filter, at the LogUp-word level |
+| `s38_f1_reproducer_...` (`#[ignore]`) | S38-F1 end to end: verifier rejection |
+
+**The pin that moves, for the gate owner:** `hashline/src/private_block.rs`
+SHA-256 `7a9b31ac7b9ff322e4b206a56fcd1a253f367df0c73b71920d4acc21ee00dc82`
+(at `bacc274`) -> `b67282735ce3072751e997bf43d64a05205df035880b66fe1ecfc1aa652a3456`;
+the only change is `#[cfg(test)]` / `mod census_shaped_tests;` after
+`mod k8_tests;`. New file `census_shaped_tests.rs` SHA-256
+`04d4d1bb47eb230e185c0f767d1111dc1d3ce184a60cc6468dcd2d09ae873e56`.
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat bacc274 -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block
+hashline/src/private_block/{argument,protocol,layout,wire,witness,run,
+boundary,run_capture,shape,refusals}.rs hashline/Cargo.toml
+hashline/Cargo.lock scripts` prints NOTHING.
