@@ -48,6 +48,10 @@ const F_P: u32 = 9;
 /// **Note C-6 (stage 40).** The largest exp-table scale `Shape::new` admits:
 /// the shaped reference kernel's own bound (it refuses `f_e >= 32`).
 const F_E_MAX: u32 = 31;
+/// **Ruling CS-5 (stage 41).** The widest model width `Shape::new` admits:
+/// up to it the norm window derived from the 32767 bound holds every int16
+/// input (the 32768 bound); from 16,385 it can be one bit short (S40-N1).
+const WIDTH_MAX: usize = 16_384;
 
 // the wire format's shape-independent counts (`wire.rs`)
 const WIRE_HEADER: usize = 8 + 32;
@@ -215,6 +219,26 @@ impl Shape {
                 "private block shape: note C-6 — f_e = {f_e} fractional bits of the exp table is above {F_E_MAX}, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier"
             ));
         }
+        // **RULING CS-5 (security owner, 2026-09-23; stage 40's finding
+        // S40-N1): a width above 16,384, as a named construction refusal.**
+        // The norm window below is `tn + 1 + bits(isqrt(1 + width 32767^2))`,
+        // derived from the int16 MAXIMUM; `-32768` is a legal input, so the
+        // bound the denominator must hold is 32768. The two windows agree at
+        // every width up to 2^14 = 16,384 (checked width by width,
+        // `s40_tests`); from 16,385 on the derived one is one bit short at 21
+        // widths up to 2^20 (first 16,385: 34 derived, 35 needed), where the
+        // norm remainder becomes reachable on inputs near `-32768` and the
+        // builder refuses them by name — an input-dependent refusal. No
+        // target is that wide (the widest registered shape is 768, the 8B
+        // width 4,096). The ruling is the simplest one: refuse such a width
+        // by name here; re-deriving the window from the 32768 bound is the
+        // alternative, worth doing only when a wider model is a target. No
+        // registered shape moves.
+        if width > WIDTH_MAX {
+            return Err(format!(
+                "private block shape: ruling CS-5 — width {width} is above {WIDTH_MAX}; beyond it the norm window derived from the 32767 bound can be one bit short of the 32768 input bound (finding S40-N1), so the norm remainder would be reachable on some private inputs; a wider model needs the window re-derived first"
+            ));
+        }
         let d_max = isqrt_i128(NORM_CEPS + width as i128 * INT16_MAX * INT16_MAX);
         // **RULING CS-2 (security owner, 2026-09-22; check finding C-2): an
         // undersized window OVERRIDE, as a named construction refusal.**
@@ -236,7 +260,8 @@ impl Shape {
         // registered shape: the widest is 768) that smallest window IS the
         // derivation `tn + 1 + bits(d_max)`; from width 16,385 on, the
         // derivation itself can be one bit short, which this ruling (about
-        // overrides) does not touch — see the stage-40 ledger (`s40_tests`).
+        // overrides) does not touch — see the stage-40 ledger (`s40_tests`);
+        // ruling CS-5 above refuses those widths.
         //
         // Overrides at or above those windows are kept; no registered shape
         // passes either override, so no registered shape moves.

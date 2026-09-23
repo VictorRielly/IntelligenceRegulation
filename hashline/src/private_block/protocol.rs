@@ -769,9 +769,11 @@ pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expect
     let mut phases: Vec<(&'static str, f64)> = Vec::new();
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
-    // RULING CS-1: before the endpoint owners are opened, the randomness is
-    // seeded or the transcript header is absorbed
-    blk.feed_forward().check_for_shape(sh)?;
+    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
+    // before the endpoint owners are opened, the randomness is seeded or the
+    // transcript header is absorbed
+    blk.check_for_shape(sh)?;
+    expected.spec.check_for_shape(sh)?;
     let [ein, eout] = check_endpoints(sh, expected, endpoints)?;
     // ONE OS stream per attempt; entropy failure aborts before anything public exists.
     //
@@ -883,10 +885,11 @@ pub(crate) fn prove_core(
     tick: &mut std::time::Instant,
 ) -> Result<CoreProof, String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
-    // RULING CS-1, in the body every proving path shares (the single block's
-    // entry and the run's entry have made the same check already): nothing
-    // has been drawn, absorbed or committed for this block yet
-    ff.check_for_shape(sh)?;
+    // RULINGS CS-1 and CS-4, in the body every proving path shares (the
+    // single block's entry and the run's entry have made the same check
+    // already): nothing has been drawn, absorbed or committed for this block
+    // yet
+    blk.check_for_shape(sh)?;
     let (ids, hids, n) = (lay.ids(), lay.hids(), lay.n());
     // every plane but the three derived histograms
     let committed: Vec<usize> = lay.a_planes().into_iter().filter(|p| !ids.is_multiplicity(*p)).collect();
@@ -1162,9 +1165,9 @@ pub(crate) struct CoreView<'a> {
 /// pending boundary claim into stage `k + 1` without trusting a segment.
 pub(crate) fn verify_core(sh: &Shape, lay: &Layout, blk: &BlockPublic, v: CoreView, ntt: &NttTables, tr: &mut Transcript, ph: &mut timing::Phases) -> Result<([Vec<ZClaim>; 2], Vec<String>), String> {
     let (public, ff) = (blk.attention(), blk.feed_forward());
-    // RULING CS-1, in the body every verifying path shares (the block's and
-    // the run's entries have made the same check already)
-    ff.check_for_shape(sh)?;
+    // RULINGS CS-1 and CS-4, in the body every verifying path shares (the
+    // block's and the run's entries have made the same check already)
+    blk.check_for_shape(sh)?;
     let params = pcs_params_at(sh);
     let zko = ZkOpts::standard(&params);
     // STAGE 17 (ruling T-7): the tag is the VERIFIER's, from the shape its
@@ -1287,8 +1290,10 @@ pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &Expected
     let mut ph = timing::Phases::start();
     fits_the_ntt_tables(sh)?;
     let lay = Layout::for_shape(sh)?;
-    // RULING CS-1: before the receipt is looked at or the header absorbed
-    blk.feed_forward().check_for_shape(sh)?;
+    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
+    // before the receipt is looked at or the header absorbed
+    blk.check_for_shape(sh)?;
+    expected.spec.check_for_shape(sh)?;
     // **STAGE 16, ruling T-4**, before the frame shape check so that the
     // refusal a caller sees names the commitment and the two path lengths
     // rather than being the generic "opening shape". The five commitments of

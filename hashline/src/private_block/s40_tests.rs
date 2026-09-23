@@ -880,21 +880,23 @@ fn s40_c6_an_unbounded_f_e_admits_no_failing_honest_proof() {
 
 // ------------------------------------------------------------------ open notes, MEASURED for the security owner
 
-/// **S40-N2 (OPEN, outside ruling CS-1 as ruled): the ATTENTION half is
+/// **S40-N2 — RULED (CS-4) AND BUILT AT STAGE 41: the ATTENTION half was
 /// keyed on its constructor's shape too.** `AttentionPublic::new_shaped`'s
-/// ruling-P-2 support check (and its length and table rules) runs against the
-/// shape it is asked about, and the statement does not carry it — the same
-/// structure check finding C-1 found in the feed-forward half, which ruling
-/// CS-1 names alone. MEASURED: the dense rung-G attention half (6 heads of 16
-/// over 2 key-value heads) has the same padded matrix lengths as rung-K4's (12
-/// heads of 8 over 4); asked about rung-K4 the constructor refuses it by P-2's
-/// name (a weight at a padded head slot), but built at rung-G and placed in a
-/// rung-K4 block with rung-K4's own dense feed-forward half, it is admitted by
-/// the builder and the honest proof is REJECTED BY THE VERIFIER. This test
-/// asserts that measured state; when the attention half gets the same
-/// re-check it fails, and must be rewritten to expect the refusal.
+/// ruling-P-2 support check (and its length and table rules) ran against the
+/// shape it was asked about, and the statement does not carry it — the same
+/// structure check finding C-1 found in the feed-forward half. MEASURED at
+/// stage 40: the dense rung-G attention half (6 heads of 16 over 2 key-value
+/// heads) has the same padded matrix lengths as rung-K4's (12 heads of 8 over
+/// 4); asked about rung-K4 the constructor refuses it by P-2's name (a weight
+/// at a padded head slot), but built at rung-G and placed in a rung-K4 block
+/// with rung-K4's own dense feed-forward half, it was admitted by the builder
+/// and the honest proof was REJECTED BY THE VERIFIER (slot 15, the Q
+/// zero-check; re-measured at stage 41's start, `s41-before-n2.log`). Since
+/// ruling CS-4 (stage 41) the builder refuses it by CS-4's name followed by
+/// P-2's, so no receipt exists; `s41_tests` has the same block refused at
+/// every other point it meets the shape.
 #[test]
-fn s40_n2_an_attention_half_built_at_another_shape_still_reaches_a_rejected_receipt() {
+fn s40_n2_an_attention_half_built_at_another_shape_is_refused_by_ruling_cs4_before_a_receipt_exists() {
     let (g, k4) = (Shape::rung_g(), Shape::rung_k4());
     let (att_g, _, _) = super::dense_tests::dense_case(&g);
     let (_, ff_k4, x_k4) = super::dense_tests::dense_case(&k4);
@@ -902,10 +904,13 @@ fn s40_n2_an_attention_half_built_at_another_shape_still_reaches_a_rejected_rece
     let own = AttentionPublic::new_shaped(&k4, &att_g.wq, &att_g.wk, &att_g.wv, &att_g.wo, &att_g.gamma_a, &att_g.rope_cos[..k4.tokens * k4.head_dim / 2], &att_g.rope_sin[..k4.tokens * k4.head_dim / 2], &att_g.exp);
     assert_eq!(own.err().as_deref(), Some("private block: a public weight is nonzero at a padded head slot"), "the constructor at rung-K4 no longer refuses rung-G's Wq by P-2's name");
     let blk = BlockPublic::new(att_g, ff_k4);
-    let w = witness::build_shaped(&k4, blk.attention(), blk.feed_forward(), &x_k4).unwrap_or_else(|e| panic!("the builder refused the cross-shape attention half: {e}"));
-    let o = outcome(&k4, &blk, w);
-    eprintln!("S40-N2 a rung-G-built dense attention half in a rung-K4 block: constructor at rung-K4 REFUSES by P-2's name; built at rung-G: builder ADMITS; the honest proof: {}", o.short());
-    assert!(matches!(o, Outcome::VerifierRejected(_)), "S40-N2's measured state changed: {}", o.short());
+    let r = witness::build_shaped(&k4, blk.attention(), blk.feed_forward(), &x_k4).map(|_| ());
+    eprintln!("S40-N2 a rung-G-built dense attention half in a rung-K4 block: constructor at rung-K4 REFUSES by P-2's name; built at rung-G, the builder (since ruling CS-4): {r:?}");
+    assert_eq!(
+        r.err().as_deref(),
+        Some("private block: ruling CS-4 — the attention statement does not fit the shape it is proved at: private block: a public weight is nonzero at a padded head slot"),
+        "S40-N2: the builder did not refuse the cross-shape attention half by ruling CS-4's name"
+    );
 }
 
 /// How far one window-override pair got at rung-G's geometry, on the dense
