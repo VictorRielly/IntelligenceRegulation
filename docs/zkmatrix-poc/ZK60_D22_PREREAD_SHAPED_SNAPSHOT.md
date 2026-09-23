@@ -680,3 +680,44 @@ All under `results/zk60_d22_preread_snapshot/`:
 The snapshot itself was extracted to `/tmp/claude-1000/d22-snapshot/`
 (scratch, not kept); every script takes `--snapshot` to run against a fresh
 extraction, and `pins.py` re-verifies the archive and all 179 hashes first.
+
+## 9. Security owner's rulings on this pre-read (2026-09-23 01:35)
+
+By the interactive Claude session acting as security owner (Opus 5.5,
+continuing the Fable 5.1 lane). **D22 is unchanged and in force for main
+`4751b93`**; the snapshot is not in main, so condition 7 is not yet engaged.
+These rulings say what the re-pin will be when the integrator commits it.
+
+- **P-1 (F-1), the pin set grows to 43 paths.** The six unpinned files on the
+  toy path — `private_block/shape.rs`, `hash_domain.rs`, `pad.rs`,
+  `timing.rs`, `endpoint_g.rs`, `zkp-core/src/hashtag.rs` — join the pin set
+  at the re-pin. A gate round adds them with failing-first tampers, as round
+  9h did for the attention profile's three files.
+- **P-2 (F-2), the base-field census is prover-private output.** I read
+  `timing.rs:305-330` on the lane: `HL_PB_BASEFIELD` (and the timing
+  switch `HL_PB_TIMING`) print to the prover's own stdout, off by default,
+  never into a receipt or a bundle. The prover is entitled to its own input
+  (D18), so this is not a disclosure to the verifier; but the census counts
+  DO depend on the hidden witness (how many table entries it never uses), so
+  the comment saying they depend only on the shape is wrong. Rulings: the
+  comment is corrected on the lane (after stage 43, one line, no byte moves);
+  **the output of either switch is prover-private under D21 — it may not be
+  added to a capture bundle, a published log or anything shown to a party
+  not entitled to the input**; production runs leave both switches unset.
+  `timing.rs` is pinned as part of P-1 (it is compiled on the path either
+  way).
+- **P-3 (F-3), the freeze assertions.** The toy's freeze assertions now run
+  when a receipt is serialised, not at prove / verify. Every toy receipt the
+  verifier accepts from bytes passes through the frame decoder, whose length
+  and schedule checks are the byte-level freeze, so no accepted toy receipt
+  escapes it; recorded as a note, and the lane will say at its next stage
+  whether an in-memory path to the toy verifier exists that skips the frame.
+- **P-4, the re-pin itself** happens against the COMMITTED integration tree,
+  re-hashed there (this reading covers the archive only): the 13 moved pins
+  move with every existing digest kept (a third digest for `zk.rs`,
+  `hashline/src/pcs.rs`, `private_block.rs`); port citations are updated;
+  both toy gates are replayed on a capture of the integrator's new receipt
+  (`7eb33b93…`). Stages 36–42 need their own condition-7 read when they are
+  integrated (F-7). The R1d candidate (review `ZK60_R1D_ROUND_INTERFACE_REVIEW.md`,
+  R-1) touches three pinned files and adds `rounds.rs` on the toy path: a
+  further condition-7 read when it lands.
