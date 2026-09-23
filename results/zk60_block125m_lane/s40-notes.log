@@ -1,0 +1,209 @@
+   Compiling hashline v0.1.0 (/home/victor/wt-zk60-block125m/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:707:13
+    |
+707 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 01s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555)
+
+running 12 tests
+S40 C-6 f_e = 0: wrho_s 5 / Layout::for_shape refuses: private block: this shape's A plane list is shorter than the pinned one
+S40 C-6 f_e = 1: wrho_s 6 / Layout::for_shape refuses: private block: this shape's A plane list is shorter than the pinned one
+C-1 REPRODUCER rung-K4 + rung-P2 feed-forward, act[128] = 1: refused before any receipt: private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at: private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))
+test private_block::s40_tests::c1_reproducer_an_admitted_cross_shape_statement_is_refused_before_a_receipt_exists ... ok
+C-1b REPRODUCER rung-K4 + rung-P2 feed-forward, Wg column 200: refused before any receipt: private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at: private block: a public weight is nonzero at a padded width index
+test private_block::s40_tests::c1b_reproducer_a_cross_shape_padded_weight_is_refused_before_a_receipt_exists ... ok
+S40 CS-2 norm: widths 1..=16384 — the 32767 derivation IS the 32768 bound's window; widths 16385..=2^20 — it is one bit short at 21 widths (first Some(16385), last Some(262160)); no registered shape is wider than 768
+S40 CS-2 norm (the milder case, a 30-bit window set past Shape::new): the full-scale input refused by the builder BY NAME (fixed oracle range refusal: norm quotient/remainder), the dense input admitted; at rung-G's own 31-bit window the full-scale input passes the norm (builder: Some("fixed oracle range refusal: residual 1"))
+S40 CS-2 norm_wrho: 30 refused by name at rung-G's geometry (derived 31), 31 and 32 kept; the derivation equals the 32768 bound's window at every registered shape and at every width 1..=16384 (16384 widths)
+test private_block::s40_tests::s40_cs2_a_norm_window_override_below_its_derivation_is_refused_by_name ... ok
+S40 CS-1 (P-2 sibling): a Wg entry at column 200 (true at rung-P2, padded at rung-K4) refused by ruling CS-1 + P-2's name at the builder, the prover and the verifier
+test private_block::s40_tests::s40_cs1_the_padded_weight_check_of_ruling_p2_is_re_run_against_the_shape_it_is_proved_at ... ok
+S40 C-6 f_e = 4: wrho_s 9 / lookup misses (0, 0, 0) / ACCEPTED
+C-2 REPRODUCER control rung-G (wrho_s = 17): ACCEPTED
+C-2 REPRODUCER wrho_s = 15: Shape::new refuses: private block shape: ruling CS-2 — the softmax window override wrho_s = 15 is below the window this shape derives, clog2(24) + f_e = 17 bits (tokens 2^f_e must fit in 2^wrho_s); on the last token row a rho_s above the window would be admitted by the builder and the honest proof rejected, depending on the private input
+test private_block::s40_tests::c2_reproducer_an_admitted_input_at_an_admitted_shape_proves ... ok
+S40 CS-2 wrho_s: 15 and 16 refused by name at rung-G's geometry, 17 = the derivation, 18 kept and the C-2 input PROVES there (accepted); grid: 48 geometries, the derivation admitted and one bit below refused at every one (48)
+test private_block::s40_tests::s40_cs2_a_softmax_window_override_below_its_derivation_is_refused_by_name ... ok
+S40 C-6 f_e = 9: wrho_s 14 / lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(17) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40-N2 a rung-G-built dense attention half in a rung-K4 block: constructor at rung-K4 REFUSES by P-2's name; built at rung-G: builder ADMITS; the honest proof: verifier rejected: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+test private_block::s40_tests::s40_n2_an_attention_half_built_at_another_shape_still_reaches_a_rejected_receipt ... ok
+S40 CS-3 a byte limb set to 256: misses (U8, exp, act) = (1, 0, 0); the prover and prove_core refuse by ruling CS-3's name, 0 bytes drawn, 0 squeezes, transcript unmoved; a cheating prover past it: verifier rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+S40 C-6 f_e = 12: wrho_s 17 / lookup misses (0, 0, 0) / ACCEPTED
+S40 CS-1 (C-1 case): the rung-P2-built feed-forward half in a rung-K4 block is refused by ruling CS-1's name at the builder, the prover's entry, prove_core (0 bytes drawn, 0 squeezes, transcript unmoved), the verifier's two entries, RunStatement::new, the run prover (0 segments sunk) and the run verifier
+test private_block::s40_tests::s40_cs1_a_cross_shape_feed_forward_statement_is_refused_by_name_wherever_it_meets_the_shape_it_is_proved_at ... ok
+S40-N3 wrho_s Some(18) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40 C-6 f_e = 16: wrho_s 21 / lookup misses (0, 0, 0) / ACCEPTED
+S40 CS-3 an exp value moved by one: misses (U8, exp, act) = (0, 1, 0); the prover and prove_core refuse by ruling CS-3's name, 0 bytes drawn, 0 squeezes, transcript unmoved; a cheating prover past it: verifier rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+S40-N3 wrho_s Some(23) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40 CS-3 an activation value moved by one: misses (U8, exp, act) = (0, 0, 1); the prover and prove_core refuse by ruling CS-3's name, 0 bytes drawn, 0 squeezes, transcript unmoved; a cheating prover past it: verifier rejected: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+test private_block::s40_tests::s40_cs3_a_lookup_miss_is_one_named_prover_refusal_before_anything_is_drawn_or_absorbed ... ok
+S40 C-6 f_e = 20: wrho_s 25 / lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(24) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40 C-6 width 72 (q_heads x head_dim = 96): ACCEPTED
+S40 C-6 width 90 (q_heads x head_dim = 96): ACCEPTED
+S40 C-6 width 96 (q_heads x head_dim = 96): ACCEPTED
+S40 C-6 width 100 (q_heads x head_dim = 96): ACCEPTED
+S40 C-6 width 120 (q_heads x head_dim = 96): ACCEPTED
+test private_block::s40_tests::s40_c6_a_width_other_than_q_heads_times_head_dim_admits_no_failing_honest_proof ... ok
+S40 C-6 f_e = 24: wrho_s 29 / lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(25) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40 C-6 f_e = 28: wrho_s 33 / lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(31) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40 C-6 f_e = 31: wrho_s 36 / lookup misses (0, 0, 0) / ACCEPTED
+S40 C-6 f_e = 32: Shape::new refuses: private block shape: note C-6 — f_e = 32 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 36: Shape::new refuses: private block shape: note C-6 — f_e = 36 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 40: Shape::new refuses: private block shape: note C-6 — f_e = 40 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 44: Shape::new refuses: private block shape: note C-6 — f_e = 44 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 48: Shape::new refuses: private block shape: note C-6 — f_e = 48 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 52: Shape::new refuses: private block shape: note C-6 — f_e = 52 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 53: Shape::new refuses: private block shape: note C-6 — f_e = 53 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 54: Shape::new refuses: private block shape: note C-6 — f_e = 54 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 56: Shape::new refuses: private block shape: note C-6 — f_e = 56 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 60: Shape::new refuses: private block shape: note C-6 — f_e = 60 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 62: Shape::new refuses: private block shape: note C-6 — f_e = 62 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 63: Shape::new refuses: private block shape: note C-6 — f_e = 63 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 64: Shape::new refuses: private block shape: note C-6 — f_e = 64 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 65: Shape::new refuses: private block shape: note C-6 — f_e = 65 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 80: Shape::new refuses: private block shape: note C-6 — f_e = 80 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 200: Shape::new refuses: private block shape: note C-6 — f_e = 200 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 4294967291: Shape::new refuses: private block shape: note C-6 — f_e = 4294967291 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+S40 C-6 f_e = 4294967295: Shape::new refuses: private block shape: note C-6 — f_e = 4294967295 fractional bits of the exp table is above 31, the reference kernel's bound; from f_e = 64 the statement's 2^f_e wraps and every honest proof is rejected by the verifier
+test private_block::s40_tests::s40_c6_an_unbounded_f_e_admits_no_failing_honest_proof ... ok
+S40-N3 wrho_s Some(32) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(40) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(48) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(56) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(62) / norm_wrho None: lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s Some(63) / norm_wrho None: the builder refuses: fixed oracle range refusal: softmax quotient/remainder
+S40-N3 wrho_s Some(64) / norm_wrho None: the builder refuses: fixed oracle range refusal: softmax quotient/remainder
+S40-N3 wrho_s Some(70) / norm_wrho None: the builder refuses: fixed oracle range refusal: softmax quotient/remainder
+S40-N3 wrho_s Some(200) / norm_wrho None: the builder refuses: fixed oracle range refusal: softmax quotient/remainder
+S40-N3 wrho_s None / norm_wrho Some(31): lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s None / norm_wrho Some(32): lookup misses (0, 0, 0) / ACCEPTED
+S40-N3 wrho_s None / norm_wrho Some(33): the builder refuses: private block: this shape's norm remainder needs a different number of byte limbs
+S40-N3 wrho_s None / norm_wrho Some(40): the builder refuses: private block: this shape's norm remainder needs a different number of byte limbs
+S40-N3 wrho_s None / norm_wrho Some(62): the builder refuses: private block: this shape's norm remainder needs a different number of byte limbs
+S40-N3 wrho_s None / norm_wrho Some(63): the builder refuses: private block: this shape's norm remainder needs a different number of byte limbs
+S40-N3 wrho_s None / norm_wrho Some(64): the builder refuses: private block: this shape's norm remainder needs a different number of byte limbs
+S40-N3 wrho_s None / norm_wrho Some(70): the builder refuses: private block: this shape's norm remainder needs a different number of byte limbs
+test private_block::s40_tests::s40_n3_every_window_override_at_or_above_its_derivation_proves_or_is_refused_by_name ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 525 filtered out; finished in 9.34s
+

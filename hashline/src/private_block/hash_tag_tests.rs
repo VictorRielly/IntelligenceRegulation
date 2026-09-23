@@ -131,12 +131,22 @@ fn the_test_hook_can_only_force_the_legacy_rule() {
 /// `zkp-core`.
 #[test]
 fn a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions() {
+    // STAGE 41 (ruling CS-4): an endpoint policy's spec carries the hash tag
+    // it was made under, and every verifier entry now refuses a spec whose
+    // tag is not its own shape's BY NAME, before anything is hashed. So that
+    // this test still reaches the hashing layer it exists to exercise, each
+    // verifier is handed the policy of ITS OWN rule over the same two roots
+    // (the absorbed policy bytes are identical: the tag is not in them), and
+    // the refusal is asserted not to be CS-4's.
+    let own_policy = |e: &ExpectedIo| ExpectedIo::from_roots(IoSpec::new_shaped(&Shape::rung_g(), ctx(), 0, 0).expect("the rung-G endpoint spec"), e.input_root(), e.output_root());
     // (1) proved TAGGED, verified under the LEGACY rule
     let (sh, blk, expected, receipt) = rung_g_proof();
     verify_inner_at(&sh, &blk, &expected, &receipt).expect("the tagged rung-G proof verifies under its own tag");
     let e1 = {
         let _g = ForcedLegacy::on();
-        verify_inner_at(&sh, &blk, &expected, &receipt).expect_err("a TAGGED rung-G proof verified under the LEGACY rule")
+        let legacy_policy = own_policy(&expected);
+        assert_eq!(legacy_policy.to_bytes(), expected.to_bytes(), "the policy bytes carry the hash rule");
+        verify_inner_at(&sh, &blk, &legacy_policy, &receipt).expect_err("a TAGGED rung-G proof verified under the LEGACY rule")
     };
     // (2) proved under the LEGACY rule, verified TAGGED
     let (sh2, blk2, expected2, receipt2) = {
@@ -145,9 +155,17 @@ fn a_rung_g_proof_is_refused_under_the_other_hash_rule_in_both_directions() {
         verify_inner_at(&made.0, &made.1, &made.2, &made.3).expect("the legacy-rule rung-G proof verifies under the legacy rule");
         made
     };
-    let e2 = verify_inner_at(&sh2, &blk2, &expected2, &receipt2).expect_err("a LEGACY-rule rung-G proof verified under the TAG");
+    let e2 = verify_inner_at(&sh2, &blk2, &own_policy(&expected2), &receipt2).expect_err("a LEGACY-rule rung-G proof verified under the TAG");
     eprintln!("STAGE 17 cross-rule refusals at rung-G:\n  tagged proof, legacy verifier: {e1}\n  legacy proof, tagged verifier: {e2}");
     assert!(!e1.is_empty() && !e2.is_empty());
+    assert!(!e1.contains("ruling CS-4") && !e2.contains("ruling CS-4"), "the cross-rule refusal stopped at the policy check, not the hashing layer");
+    // and the policy of the OTHER rule is refused by ruling CS-4's name,
+    // before anything is hashed
+    let e3 = {
+        let _g = ForcedLegacy::on();
+        verify_inner_at(&sh, &blk, &expected, &receipt).expect_err("a TAGGED policy verified under the LEGACY rule")
+    };
+    assert!(e3.starts_with("private block: ruling CS-4 — the endpoint policy does not fit the shape it is proved at: its hash tag"), "the tagged policy under the legacy rule: {e3}");
     // and the toy, which is never tagged, is untouched by either direction
     assert!(Shape::toy().hash_tag().is_legacy(), "the toy must never be tagged");
 }

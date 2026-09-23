@@ -72,17 +72,63 @@ pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
 /// One run's geometry: the per-block shape, how many blocks, and the run's own
 /// profile id. A run is a NEW profile under D17 — its own transcript, its own
 /// digests — so no byte of any single-block profile moves.
+///
+/// **RULING CS-8 (security owner, 2026-09-23; stage 42's note S42-N1).** The
+/// three fields are PRIVATE: [`RunShape::new`] (ruling CS-7, a run profile
+/// only over the block shape it is registered for — and, by that equality,
+/// only over a shape `Shape::new` builds) is the only way to make one, and
+/// [`RunShape::sh`], [`RunShape::l`] and [`RunShape::profile`] read them.
+/// Stage 43 measured, before this, a struct literal, a replaced `rs`, a
+/// written profile and a written block shape each prove and VERIFY.
 #[derive(Clone, Debug)]
 pub(crate) struct RunShape {
-    pub sh: Shape,
-    pub l: usize,
-    pub profile: &'static str,
+    sh: Shape,
+    l: usize,
+    profile: &'static str,
+}
+
+/// **RULING CS-7: THE RUN PROFILE REGISTRY** — every run profile this build
+/// registers, with the ONE block shape it names (the seven pairs stage 24's
+/// registry test checks, item 4). A TEST-ONLY shape's run profile is
+/// registered only in a test build: rung-K8 (stage 37) is built in
+/// `k8_tests.rs` through `Shape::new` and has no constructor in `shape.rs`,
+/// so its pair exists under `#[cfg(test)]` and a release build refuses its
+/// profile string as unregistered. No profile string is written here, so the
+/// source registry of stages 24 and 33 is unchanged.
+fn registered_block_shape(profile: &str) -> Option<Shape> {
+    match profile {
+        RUN_PROFILE_RUNG_G => Some(Shape::rung_g()),
+        RUN_PROFILE_RUNG_K4 => Some(Shape::rung_k4()),
+        RUN_PROFILE_RUNG_P2 => Some(Shape::rung_p2()),
+        RUN_PROFILE_RUNG_C6 => Some(Shape::rung_c6()),
+        RUN_PROFILE_RUNG_W14 => Some(Shape::rung_w14()),
+        RUN_PROFILE_RUNG_E32 => Some(Shape::rung_e32()),
+        RUN_PROFILE_M125 => Some(Shape::m125()),
+        #[cfg(test)]
+        super::k8_tests::K8_RUN_PROFILE => Some(super::k8_tests::rung_k8()),
+        _ => None,
+    }
 }
 
 impl RunShape {
+    /// **RULING CS-7 (finding S41-N1).** Privacy statements and hash keys
+    /// (D19a) are per PROFILE, so a run profile names exactly one block
+    /// shape: it is admitted only over the shape it is registered for
+    /// ([`registered_block_shape`]), compared field by field — a shape that
+    /// merely carries the registered block profile STRING at another
+    /// geometry is refused too — and a profile this build does not register
+    /// is refused. `L = 0` keeps its own refusal, first. A refusal and
+    /// nothing else: every registered pair constructs exactly as before.
     pub(crate) fn new(sh: Shape, l: usize, profile: &'static str) -> Result<RunShape, String> {
         if l == 0 {
             return Err("private run: a run has at least one block".into());
+        }
+        match registered_block_shape(profile) {
+            None => return Err(format!("private run: ruling CS-7 — {profile:?} is not a run profile this build registers, so it names no block shape ({:?} was given)", sh.name)),
+            Some(reg) if reg != sh => {
+                return Err(format!("private run: ruling CS-7 — the run profile {profile:?} is registered for the block shape {:?} ({}), not for {:?} ({})", reg.name, reg.profile, sh.name, sh.profile));
+            }
+            Some(_) => {}
         }
         Ok(RunShape { sh, l, profile })
     }
@@ -112,6 +158,18 @@ impl RunShape {
     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::m125(), l, RUN_PROFILE_M125)
     }
+    /// the per-block shape (ruling CS-8: read-only outside this module)
+    pub(crate) fn sh(&self) -> &Shape {
+        &self.sh
+    }
+    /// how many blocks (ruling CS-8: read-only outside this module)
+    pub(crate) fn l(&self) -> usize {
+        self.l
+    }
+    /// the run's own profile id (ruling CS-8: read-only outside this module)
+    pub(crate) fn profile(&self) -> &'static str {
+        self.profile
+    }
     /// how many rows of an IO commitment carry plane words — the same at an
     /// external endpoint and at an internal boundary, because both commit the
     /// same padded `Dom::D` cube at the same row width
@@ -129,8 +187,13 @@ impl RunShape {
 /// them before the run), one public digest per block, one scale per boundary
 /// and the calibration identity. The `L - 1` boundary ROOTS are deliberately
 /// NOT here — an internal boundary is a hidden intermediate, not an endpoint.
+///
+/// **RULING CS-8.** Every field is private, the run shape included (it was
+/// the one visible field until stage 43, and a write to it skipped
+/// [`RunStatement::new`] and ruling CS-7 alike): [`RunStatement::rs`] reads
+/// it.
 pub(crate) struct RunStatement {
-    pub rs: RunShape,
+    rs: RunShape,
     expected: ExpectedIo,
     block_digests: Vec<Digest>,
     context: Digest,
@@ -151,6 +214,11 @@ impl RunStatement {
         if blocks.len() != rs.l || block_scales.len() != rs.l {
             return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, blocks.len(), block_scales.len()));
         }
+        // RULINGS CS-1 and CS-4: every block's statement (both halves) and
+        // the endpoint policy against the run's shape, before any digest of
+        // either is taken
+        blocks_fit_the_shape(blocks, &rs.sh)?;
+        policy_fits_the_shape(&expected, &rs.sh)?;
         if context == [0; 32] {
             return Err("private run: a nonempty context is required".into());
         }
@@ -233,6 +301,24 @@ impl RunStatement {
     #[cfg(test)]
     pub(crate) fn with_calibration(mut self, d: Digest) -> RunStatement {
         self.calibration = d;
+        self
+    }
+
+    /// the run's geometry (ruling CS-8: read-only outside this module)
+    pub(crate) fn rs(&self) -> &RunShape {
+        &self.rs
+    }
+
+    /// **TEST ONLY (ruling CS-8).** This statement with its run shape
+    /// replaced, SKIPPING every check [`RunStatement::new`] makes — the way
+    /// `with_calibration` stands in for a statement no constructor builds —
+    /// so that a test can hand the run prover and verifier a statement whose
+    /// run shape moved and measure their own re-checks (rulings CS-1, CS-4,
+    /// CS-6). The run shape handed is still one [`RunShape::new`] made, so
+    /// ruling CS-7 is not reached around. A release build has no such method.
+    #[cfg(test)]
+    pub(crate) fn with_run_shape(mut self, rs: RunShape) -> RunStatement {
+        self.rs = rs;
         self
     }
 
@@ -516,6 +602,89 @@ fn words(v: &[i16]) -> Vec<Fp> {
     v.iter().map(|x| Fp::from_i64(i64::from(*x))).collect()
 }
 
+/// **RULINGS CS-1 and CS-4** at the run layer: every block's statement —
+/// the attention half, then the feed-forward half — re-checked against the
+/// run's shape, refused by name with the block index. A run statement holds
+/// DIGESTS of its blocks, and the run prover and verifier are handed the
+/// blocks separately, so each checks them itself — before the header is
+/// absorbed or anything is drawn.
+fn blocks_fit_the_shape(blocks: &[BlockPublic], sh: &Shape) -> Result<(), String> {
+    for (k, b) in blocks.iter().enumerate() {
+        b.check_for_shape(sh).map_err(|e| format!("private run: block {k}: {e}"))?;
+    }
+    Ok(())
+}
+
+/// **RULING CS-4** at the run layer: the run's external endpoint policy
+/// re-checked against the run's shape. The statement holds it; its run shape
+/// was a visible field until ruling CS-8 sealed it (stage 43), and the run
+/// prover and verifier still re-run this beside [`blocks_fit_the_shape`]
+/// rather than trusting construction.
+fn policy_fits_the_shape(expected: &ExpectedIo, sh: &Shape) -> Result<(), String> {
+    expected.spec.check_for_shape(sh).map_err(|e| format!("private run: {e}"))
+}
+
+/// the first eight bytes of a digest, as lower-case hex, for a refusal text
+fn hex8(d: &Digest) -> String {
+    d[..8].iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// **RULING CS-6, the count.** Exactly `L` blocks handed, and a statement
+/// holding exactly `L` block digests (its run shape was a visible field until
+/// ruling CS-8 sealed it, and the two are still not trusted to agree from
+/// construction).
+fn as_many_blocks_as_the_statement(st: &RunStatement, blocks: &[BlockPublic]) -> Result<(), String> {
+    let l = st.rs.l;
+    if blocks.len() != l {
+        return Err(format!("private run: ruling CS-6 — the run statement names {l} blocks and {} public statements were handed", blocks.len()));
+    }
+    if st.block_digests.len() != l {
+        return Err(format!("private run: ruling CS-6 — the run statement holds {} block digests and its run shape is for {l} blocks", st.block_digests.len()));
+    }
+    Ok(())
+}
+
+/// **RULING CS-6 (finding S41-N2, statement binding): a run is about the
+/// blocks its statement NAMES.** The run absorbs the STATEMENT's
+/// `block_digests[k]` (`pb-run-block`, in `prove_run` and in the verifier's
+/// `step`) while every slot of stage `k` is proved and checked against the
+/// `BlockPublic` the caller HANDS in; before this ruling nothing compared the
+/// two, and a statement naming block X, proved with block Y, was accepted by
+/// a verifier handed Y. So the run prover and the run verifier refuse, by
+/// name and before anything is absorbed, unless they are handed exactly `L`
+/// blocks and block `k`'s public digest is the statement's
+/// `block_digests[k]`. A refusal and nothing else: no absorb is added or
+/// moved, so no byte of any run moves.
+fn blocks_are_the_statements(st: &RunStatement, blocks: &[BlockPublic]) -> Result<(), String> {
+    as_many_blocks_as_the_statement(st, blocks)?;
+    for (k, (b, want)) in blocks.iter().zip(&st.block_digests).enumerate() {
+        let got = b.digest();
+        if got != *want {
+            return Err(format!(
+                "private run: ruling CS-6 — block {k} handed to the run is not the block the run statement names (its public digest begins {}, the statement's {}); refused before anything is absorbed",
+                hex8(&got),
+                hex8(want)
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// **RULING CS-6 at the run PROVER.** A CHEATING prover runs none of the
+/// honest prover's own checks, and the soundness tests play one: while a
+/// `protocol::CheatingProver` guard (ruling CS-3's `#[cfg(test)]` switch)
+/// lives on the calling thread, only the count is checked here, so a test
+/// can still make the receipt the attack produces and measure the
+/// VERIFIER's refusal on it. A release build has no switch; the verifier's
+/// check ([`RunVerifier::start`]) never consults it.
+fn the_run_prover_checks_blocks_are_the_statements(st: &RunStatement, blocks: &[BlockPublic]) -> Result<(), String> {
+    #[cfg(test)]
+    if protocol::cheating_prover_is_on() {
+        return as_many_blocks_as_the_statement(st, blocks);
+    }
+    blocks_are_the_statements(st, blocks)
+}
+
 /// **THE RUN PROVER.** One transcript, `L` stages, one OS randomness stream,
 /// one NTT table, one masking commitment and one LogUp challenge triple PER
 /// BLOCK. Each segment is handed to `sink` and DROPPED before the next stage
@@ -531,10 +700,17 @@ fn words(v: &[i16]) -> Vec<Fp> {
 pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
     use std::time::Instant;
     let (sh, l) = (&st.rs.sh, st.rs.l);
-    if blocks.len() != l {
-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-    }
+    as_many_blocks_as_the_statement(st, blocks)?;
     protocol::fits_the_ntt_tables(sh)?;
+    // RULINGS CS-1 and CS-4: all L blocks and the endpoint policy, before
+    // the endpoint owners are opened, the run's randomness is seeded or its
+    // header is absorbed
+    blocks_fit_the_shape(blocks, sh)?;
+    policy_fits_the_shape(&st.expected, sh)?;
+    // RULING CS-6: the blocks handed are the ones the statement names, at
+    // the same point — before the owners are opened, the stream exists or
+    // the header (which absorbs the statement's digests) is absorbed
+    the_run_prover_checks_blocks_are_the_statements(st, blocks)?;
     st.expected.spec.validate()?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
     let mut ein = Some(ein);
@@ -675,11 +851,17 @@ impl<'a> RunVerifier<'a> {
     /// The run header, absorbed before any segment is looked at. `L` is the
     /// statement's — never a frame's.
     fn start(st: &'a RunStatement, blocks: &'a [BlockPublic]) -> Result<RunVerifier<'a>, String> {
-        let (sh, l) = (&st.rs.sh, st.rs.l);
-        if blocks.len() != l {
-            return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-        }
+        let sh = &st.rs.sh;
+        as_many_blocks_as_the_statement(st, blocks)?;
         protocol::fits_the_ntt_tables(sh)?;
+        // RULINGS CS-1 and CS-4: all L blocks and the endpoint policy,
+        // before the run header is absorbed
+        blocks_fit_the_shape(blocks, sh)?;
+        policy_fits_the_shape(&st.expected, sh)?;
+        // RULING CS-6: every block handed is the one the statement names,
+        // before the header that absorbs the statement's digests exists. The
+        // verifier's check never consults the cheating-prover switch.
+        blocks_are_the_statements(st, blocks)?;
         st.expected.spec.validate()?;
         let ntt = NttTables::new(st.rs.ntt_log());
         let e_params = protocol::endpoint_pcs_params(sh);
@@ -871,9 +1053,8 @@ impl<'a> RunVerifier<'a> {
 /// time.
 pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[Vec<u8>]) -> Result<(), String> {
     let l = st.rs.l;
-    if blocks.len() != l {
-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-    }
+    // RULING CS-6's count; its digest comparison is `RunVerifier::start`'s
+    as_many_blocks_as_the_statement(st, blocks)?;
     if segments.len() != l {
         return Err(format!("private run: {} segments were offered, this run has {l}", segments.len()));
     }
@@ -897,9 +1078,9 @@ pub(crate) fn verify_run(st: &RunStatement, blocks: &[BlockPublic], segments: &[
 /// FILE is caught exactly as the same bytes in memory would be.
 pub(crate) fn verify_run_from_dir(st: &RunStatement, blocks: &[BlockPublic], dir: &std::path::Path) -> Result<(), String> {
     let l = st.rs.l;
-    if blocks.len() != l {
-        return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
-    }
+    // RULING CS-6's count; its digest comparison is `RunVerifier::start`'s,
+    // which runs before any segment file is read
+    as_many_blocks_as_the_statement(st, blocks)?;
     let paths = run_sink::segment_paths(dir, l)?;
     let mut v = RunVerifier::start(st, blocks)?;
     for (k, p) in paths.iter().enumerate() {

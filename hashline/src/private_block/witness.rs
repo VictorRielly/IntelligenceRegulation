@@ -437,6 +437,11 @@ fn norm_limbs_are_the_pinned_count(shape: &Shape) -> Result<(), String> {
 pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedForwardPublic, input: &[i16]) -> Result<Witness, String> {
     let ids = Ids::new(shape)?;
     norm_limbs_are_the_pinned_count(shape)?;
+    // RULINGS CS-4 and CS-1: the attention statement, then the feed-forward
+    // statement, re-checked against the shape this witness is built at
+    // (neither carries one) — the order of `BlockPublic::check_for_shape`
+    public.check_for_shape(shape)?;
+    ff.check_for_shape(shape)?;
     let ap = |toy_id: usize| ids.at(toy_id);
     let g = Geom::new(shape);
     if input.len() != g.t * g.d {

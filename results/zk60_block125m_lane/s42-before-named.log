@@ -1,0 +1,252 @@
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:722:13
+    |
+722 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:825:4
+    |
+825 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.01s
+     Running unittests src/lib.rs (/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555)
+
+running 7 tests
+
+thread 'private_block::s42_tests::s42_cs6_each_run_check_sits_before_the_runs_randomness_and_transcript_exist' (932941) panicked at src/private_block/s42_tests.rs:373:58:
+prove_run does not call the CS-6 check
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::s42_tests::s42_cs6_each_run_check_sits_before_the_runs_randomness_and_transcript_exist ... FAILED
+S42 CS-7 cross pairs: 0 refused by name, 72 admitted
+
+thread 'private_block::s42_tests::s42_cs7_run_shape_new_refuses_a_run_profile_over_a_block_shape_it_is_not_registered_for' (932946) panicked at src/private_block/s42_tests.rs:540:5:
+CS-7: 72 cross pairs of a registered run profile and another block shape were admitted:
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-rung-g-t24-dev/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-rung-k4-t24-dev/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-rung-p2-t32-dev/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-rung-c6-t32-dev/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-rung-w14-t64-dev/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-rung-e32-t32-dev/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-m125/1 over development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-m125/1 over development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-m125/1 over development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-m125/1 over development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+hashline-zk-mr1/private-run-m125/1 over development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-m125/1 over development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-m125/1 over development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)
+hashline-zk-mr1/private-run-m125/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-m125/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)
+hashline-zk-mr1/private-run-rung-k8-t24-dev/1 over development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)
+test private_block::s42_tests::s42_cs7_run_shape_new_refuses_a_run_profile_over_a_block_shape_it_is_not_registered_for ... FAILED
+
+thread 'private_block::s42_tests::s42_cs6_the_run_prover_refuses_blocks_its_statement_does_not_name_before_stage_0_begins' (932942) panicked at src/private_block/s42_tests.rs:321:5:
+assertion `left == right` failed: 1. the run prover did not refuse Y under a statement over X by ruling CS-6's name
+  left: None
+ right: Some("private run: ruling CS-6 — block 0 handed to the run is not the block the run statement names (its public digest begins 9f928aeeeded6df8, the statement's 6082a5385ecb3cd5); refused before anything is absorbed")
+test private_block::s42_tests::s42_cs6_the_run_prover_refuses_blocks_its_statement_does_not_name_before_stage_0_begins ... FAILED
+
+thread 'private_block::s42_tests::s42_cs6_the_streaming_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read' (932944) panicked at src/private_block/s42_tests.rs:433:5:
+assertion `left == right` failed: the streaming verifier handed Y did not refuse the forged run by ruling CS-6's name
+  left: None
+ right: Some("private run: ruling CS-6 — block 0 handed to the run is not the block the run statement names (its public digest begins 9f928aeeeded6df8, the statement's 6082a5385ecb3cd5); refused before anything is absorbed")
+test private_block::s42_tests::s42_cs6_the_streaming_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read ... FAILED
+S42 CS-7 statement file, the run profile changed to rung-K4's: run statement: the run binding: this statement gives 875016593e39f2eab7fdcd5da0e4c329085a2969bd7d025eed55494f69ac5d12, the file declares ac7583049a82c914a020e5c39827be87265c85d424f9a33ceedb021c88808dfe
+
+thread 'private_block::s42_tests::s42_cs7_a_statement_file_pairing_a_run_profile_with_another_block_shape_is_refused_by_name' (932945) panicked at src/private_block/s42_tests.rs:571:5:
+assertion `left == right` failed: the reader did not refuse the cross pairing by ruling CS-7's name
+  left: "run statement: the run binding: this statement gives 875016593e39f2eab7fdcd5da0e4c329085a2969bd7d025eed55494f69ac5d12, the file declares ac7583049a82c914a020e5c39827be87265c85d424f9a33ceedb021c88808dfe"
+ right: "private run: ruling CS-7 — the run profile \"hashline-zk-mr1/private-run-rung-k4-t24-dev/1\" is registered for the block shape \"development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)\" (hashline-zk-mr1/private-block-rung-k4-t24-dev/1), not for \"development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)\" (hashline-zk-mr1/private-block-rung-g-t24-dev/1)"
+test private_block::s42_tests::s42_cs7_a_statement_file_pairing_a_run_profile_with_another_block_shape_is_refused_by_name ... FAILED
+
+thread 'private_block::s42_tests::s42_cs6_the_run_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read' (932943) panicked at src/private_block/s42_tests.rs:407:5:
+assertion `left == right` failed: 1. the run verifier handed Y did not refuse the forged receipt by ruling CS-6's name
+  left: None
+ right: Some("private run: ruling CS-6 — block 0 handed to the run is not the block the run statement names (its public digest begins 9f928aeeeded6df8, the statement's 6082a5385ecb3cd5); refused before anything is absorbed")
+test private_block::s42_tests::s42_cs6_the_run_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read ... FAILED
+S42 CS-6 statement file, X's block digest replaced by Y's: run statement: the recipe's block 0 is not the block digest the file declares
+
+thread 'private_block::s42_tests::s42_cs6_a_statement_file_naming_other_blocks_is_refused_by_name_before_the_statement_is_built' (932940) panicked at src/private_block/s42_tests.rs:466:5:
+assertion `left == right` failed: the file naming Y's digest beside the tame recipe was not refused by ruling CS-6's name
+  left: "run statement: the recipe's block 0 is not the block digest the file declares"
+ right: "run statement: ruling CS-6 — block 0 regenerated from the named weights recipe is not the block the file's statement names (block digest 0 differs); refused before the statement is built"
+test private_block::s42_tests::s42_cs6_a_statement_file_naming_other_blocks_is_refused_by_name_before_the_statement_is_built ... FAILED
+
+failures:
+
+failures:
+    private_block::s42_tests::s42_cs6_a_statement_file_naming_other_blocks_is_refused_by_name_before_the_statement_is_built
+    private_block::s42_tests::s42_cs6_each_run_check_sits_before_the_runs_randomness_and_transcript_exist
+    private_block::s42_tests::s42_cs6_the_run_prover_refuses_blocks_its_statement_does_not_name_before_stage_0_begins
+    private_block::s42_tests::s42_cs6_the_run_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read
+    private_block::s42_tests::s42_cs6_the_streaming_verifier_refuses_blocks_its_statement_does_not_name_before_a_segment_is_read
+    private_block::s42_tests::s42_cs7_a_statement_file_pairing_a_run_profile_with_another_block_shape_is_refused_by_name
+    private_block::s42_tests::s42_cs7_run_shape_new_refuses_a_run_profile_over_a_block_shape_it_is_not_registered_for
+
+test result: FAILED. 0 passed; 7 failed; 0 ignored; 0 measured; 550 filtered out; finished in 0.76s
+
+error: test failed, to rerun pass `--lib`

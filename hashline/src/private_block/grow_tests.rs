@@ -744,7 +744,28 @@ fn the_125m_receipt_is_reproduced_part_by_part() {
 /// the rung geometry with a chosen softmax calibration and norm window,
 /// for exercising one window at a time
 fn window_shape(name: &'static str, profile: &'static str, f_e: u32, wrho_s: Option<u32>, norm_wrho: Option<u32>) -> Shape {
-    Shape::new(name, profile, 24, 96, 192, 6, 16, 2, 10, 4, f_e, 14, Some(8), Some(4), norm_wrho, wrho_s).expect("a window fixture shape is well formed")
+    match Shape::new(name, profile, 24, 96, 192, 6, 16, 2, 10, 4, f_e, 14, Some(8), Some(4), norm_wrho, wrho_s) {
+        Ok(s) => s,
+        // STAGE 40, ruling CS-2: `Shape::new` refuses, by name, a window
+        // override BELOW the window the shape derives. These fixtures build the
+        // toy's undersized windows at the rung geometry ON PURPOSE, to measure
+        // the BUILDER's own window refusals, so the override is set on the
+        // shape `Shape::new` derives — a test-side field edit that no
+        // production path can make, giving exactly the shape the constructor
+        // returned before the ruling (the override is stored as given and no
+        // other field depends on it).
+        Err(e) if e.starts_with("private block shape: ruling CS-2 — ") => {
+            let mut s = Shape::new(name, profile, 24, 96, 192, 6, 16, 2, 10, 4, f_e, 14, Some(8), Some(4), None, None).expect("a window fixture shape is well formed without its overrides");
+            if let Some(w) = wrho_s {
+                s.wrho_s = w;
+            }
+            if let Some(w) = norm_wrho {
+                s.norm_wrho = w;
+            }
+            s
+        }
+        Err(e) => panic!("a window fixture shape is well formed: {e:?}"),
+    }
 }
 
 // ====================================================================

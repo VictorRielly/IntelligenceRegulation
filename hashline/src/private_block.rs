@@ -303,6 +303,22 @@ mod k8_tests;
 mod census_shaped_tests;
 #[cfg(test)]
 mod census_check_tests;
+// STAGE 40: rulings CS-1, CS-2 and CS-3 of the shaped refusal census
+// disposition, on the adversarial check's findings C-1 and C-2.
+#[cfg(test)]
+mod s40_tests;
+// STAGE 41: rulings CS-4 and CS-5 of the shaped refusal census disposition,
+// on stage 40's findings S40-N2 and S40-N1.
+#[cfg(test)]
+mod s41_tests;
+// STAGE 42: rulings CS-6 and CS-7 of the shaped refusal census disposition,
+// on stage 41's findings S41-N2 and S41-N1.
+#[cfg(test)]
+mod s42_tests;
+// STAGE 43: ruling CS-8 of the shaped refusal census disposition — one sweep
+// of the constructor-established invariants (census memo §12).
+#[cfg(test)]
+mod s43_tests;
 // REVIEW BRANCH ONLY (`zk60-private-block-125m-review`, the D22 condition-7
 // pre-read of stage 36): the reviewer's own tests of the observer hook and of
 // the endpoint replica's fidelity. NOT part of the lane's delta and not to be
@@ -482,6 +498,39 @@ impl AttentionPublic {
         rope_sin: &[i64],
         exp: &[i64],
     ) -> Result<Self, String> {
+        Self::check_words(sh, wq, wk, wv, wo, gamma_a, rope_cos, rope_sin, exp)?;
+        Ok(Self {
+            wq: wq.to_vec(),
+            wk: wk.to_vec(),
+            wv: wv.to_vec(),
+            wo: wo.to_vec(),
+            gamma_a: gamma_a.to_vec(),
+            rope_cos: rope_cos.to_vec(),
+            rope_sin: rope_sin.to_vec(),
+            exp: exp.to_vec(),
+        })
+    }
+
+    /// **RULING CS-4 (security owner, 2026-09-23; stage 40's finding S40-N2):
+    /// THE ONE CHECK of an attention statement against a shape** — every rule
+    /// of this half that depends on the shape, in the constructor's own order
+    /// and with its own messages: the padded weight and gain lengths, ruling
+    /// P-2's entrywise support check on `Wq`, `Wk`, `Wv`, `Wo` and the first
+    /// norm gain `gamma_a`, the two rotary tables' and the exp table's
+    /// lengths, the rotary structure (position 0 the identity, every entry in
+    /// `[-2^F_RO, 2^F_RO]`) and the exp structure at the shape's `f_e`.
+    ///
+    /// The statement does not carry its shape, exactly as the feed-forward
+    /// half does not (ruling CS-1): stage 40 measured a dense rung-G attention
+    /// half — refused by P-2's name when asked about rung-K4 — built at rung-G
+    /// and proved in a rung-K4 block, and the verifier rejected the honest
+    /// proof (slot 15). So this runs in [`AttentionPublic::new_shaped`] and
+    /// AGAIN, through [`AttentionPublic::check_for_shape`], wherever a
+    /// statement meets the shape it is proved at, before anything is
+    /// absorbed, committed or drawn. It reads nothing but public words and the
+    /// shape, and moves no byte.
+    #[allow(clippy::too_many_arguments)]
+    fn check_words(sh: &shape::Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8], rope_cos: &[i64], rope_sin: &[i64], exp: &[i64]) -> Result<(), String> {
         let (d, kv, half) = (sh.d_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
         if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
             return Err("private block: public weight shape".into());
@@ -509,16 +558,18 @@ impl AttentionPublic {
         if exp[0] != one_e || exp.iter().any(|e| !(0..=one_e).contains(e)) || exp.windows(2).any(|w| w[0] < w[1]) {
             return Err("private block: exp table structure".into());
         }
-        Ok(Self {
-            wq: wq.to_vec(),
-            wk: wk.to_vec(),
-            wv: wv.to_vec(),
-            wo: wo.to_vec(),
-            gamma_a: gamma_a.to_vec(),
-            rope_cos: rope_cos.to_vec(),
-            rope_sin: rope_sin.to_vec(),
-            exp: exp.to_vec(),
-        })
+        Ok(())
+    }
+
+    /// **RULING CS-4: the re-check**, by name, of an attention statement that
+    /// already exists against the shape it is about to be proved or verified
+    /// at — [`AttentionPublic::check_words`] on this statement's own words,
+    /// its refusal prefixed with [`CS4_ATTENTION_REFUSAL`]. Called through
+    /// [`BlockPublic::check_for_shape`] (and by the witness builder, which is
+    /// handed the two halves apart) at every point stage 40 chose for ruling
+    /// CS-1.
+    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
+        Self::check_words(sh, &self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a, &self.rope_cos, &self.rope_sin, &self.exp).map_err(|e| format!("{CS4_ATTENTION_REFUSAL}: {e}"))
     }
 
     fn absorb_into(&self, h: &mut blake3::Hasher) {
@@ -545,6 +596,16 @@ impl AttentionPublic {
         (public, input)
     }
 }
+
+/// **RULING CS-1's name**, the prefix of every re-check's refusal (the
+/// constructor's own message follows it).
+const CS1_REFUSAL: &str = "private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at";
+
+/// **RULING CS-4's names** (security owner, 2026-09-23): ruling CS-1
+/// extended to every shape-keyed part of a block or run statement — the
+/// prefix of the attention half's re-check and of the endpoint policy's.
+const CS4_ATTENTION_REFUSAL: &str = "private block: ruling CS-4 — the attention statement does not fit the shape it is proved at";
+const CS4_POLICY_REFUSAL: &str = "private block: ruling CS-4 — the endpoint policy does not fit the shape it is proved at";
 
 /// The feed-forward half's PUBLIC words: the second norm gain `gamma_m`, the
 /// three `(input, output)` row-major matrices `Wg`, `Wu`, `Wd` exactly as the
@@ -579,6 +640,27 @@ impl FeedForwardPublic {
     /// axis's support must be zero. The feed-forward axis carries no head
     /// permutation — only `Dom::Q` does — so its support is a prefix.
     pub(crate) fn new_shaped(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<Self, String> {
+        Self::check_words(sh, gamma_m, wg_t, wu_t, wd_t, act)?;
+        let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+        Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
+    }
+
+    /// **RULING CS-1 (security owner, 2026-09-22): THE ONE CHECK of a
+    /// feed-forward statement against a shape** — every rule of this half
+    /// that depends on the shape, in the constructor's own order and with its
+    /// own messages: the padded lengths, ruling P-2's entrywise support check
+    /// on the four matrices, the table length, and ruling S38-F1(a).
+    ///
+    /// The statement does not carry its shape (it holds the words only, and
+    /// `absorb_into` digests the words only), so a check made once, at
+    /// construction, holds only for the shape the constructor was ASKED about:
+    /// check finding C-1 built the half at rung-P2 and proved it inside a
+    /// rung-K4 block, and the verifier rejected the honest proof. So this runs
+    /// in [`FeedForwardPublic::new_shaped`] and AGAIN, through
+    /// [`FeedForwardPublic::check_for_shape`], wherever a statement meets the
+    /// shape it is proved at, before anything is absorbed, committed or drawn.
+    /// It reads nothing but public words and the shape, and moves no byte.
+    fn check_words(sh: &shape::Shape, gamma_m: &[i8], wg_t: &[i8], wu_t: &[i8], wd_t: &[i8], act: &[i16]) -> Result<(), String> {
         let (d, f) = (sh.d_pad, sh.f_pad);
         if gamma_m.len() != d || [wg_t.len(), wu_t.len()] != [d * f; 2] || wd_t.len() != f * d {
             return Err("private block: feed-forward weight shape".into());
@@ -587,7 +669,9 @@ impl FeedForwardPublic {
         weights_vanish_off_support(sh, wg_t, Axis::D, Axis::F)?;
         weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;
         weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;
-        let act: [i16; 256] = act.try_into().map_err(|_| "private block: activation table shape".to_string())?;
+        if act.len() != 256 {
+            return Err("private block: activation table shape".into());
+        }
         // RULING S38-F1(a) (security owner, 2026-09-22): where `Dom::F` pads,
         // every padded position carries `(g8, a16) = (0, 0)` and the
         // never-gated activation LogUp arm looks up the pair `(128, 0)`, a
@@ -597,7 +681,17 @@ impl FeedForwardPublic {
         if sh.pads(layout::Dom::F) && act[128] != 0 {
             return Err("private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))".into());
         }
-        Ok(Self { gamma_m: gamma_m.to_vec(), wg_t: wg_t.to_vec(), wu_t: wu_t.to_vec(), wd_t: wd_t.to_vec(), act })
+        Ok(())
+    }
+
+    /// **RULING CS-1: the re-check**, by name, of a statement that already
+    /// exists against the shape it is about to be proved or verified at —
+    /// [`FeedForwardPublic::check_words`] on this statement's own words, its
+    /// refusal prefixed with [`CS1_REFUSAL`]. Called by the witness builder,
+    /// the prover's and the verifier's entries and shared bodies, and the
+    /// run's statement, prover and verifier.
+    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
+        Self::check_words(sh, &self.gamma_m, &self.wg_t, &self.wu_t, &self.wd_t, &self.act).map_err(|e| format!("{CS1_REFUSAL}: {e}"))
     }
 
     /// The feed-forward half of the PUBLIC SYNTHETIC fixture
@@ -647,6 +741,18 @@ impl BlockPublic {
     }
     pub(crate) fn feed_forward(&self) -> &FeedForwardPublic {
         &self.feed_forward
+    }
+
+    /// **RULINGS CS-1 and CS-4: the whole block statement against the shape
+    /// it is proved at** — the attention half's one check, then the
+    /// feed-forward half's, in block order, each refusing by its own ruling's
+    /// name. The statement carries no shape and `digest` digests the words
+    /// only, so this is re-run at every entry that meets a shape: the
+    /// prover's and the verifier's entries and shared bodies, and (block by
+    /// block) the run's statement, prover and verifier.
+    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
+        self.attention.check_for_shape(sh)?;
+        self.feed_forward.check_for_shape(sh)
     }
 
     pub fn digest(&self) -> Digest {
@@ -734,8 +840,74 @@ impl IoSpec {
             opened_cols: sh.opened_cols,
             hash_tag: sh.hash_tag(),
         };
+        // RULING CS-4: the constructor's own call of the one check (the
+        // fields were just derived from `sh`, so it holds here by
+        // construction; it guards that derivation against drifting from the
+        // check the entries re-run)
+        spec.check_for_shape(sh)?;
         spec.validate()?;
         Ok(spec)
+    }
+
+    /// **RULING CS-4 (security owner, 2026-09-23): THE ONE CHECK of an
+    /// endpoint spec against a shape.** Everything a spec holds besides the
+    /// context and the two pinned scales is DERIVED from the shape it was
+    /// made for — the padded endpoint plane, which endpoint construction
+    /// carries it, that construction's commitment parameters and the hash
+    /// tag the endpoint owner commits under — and none of it is absorbed
+    /// (`ExpectedIo::to_bytes` carries the context, the scales and the two
+    /// roots only). A spec made for one shape and proved at another is the
+    /// C-1 exposure again: MEASURED at stage 41, a rung-G spec (the same
+    /// plane, construction and parameters as rung-K4's, another profile's hash
+    /// tag) in a rung-K4 proof was admitted by the prover and the verifier
+    /// rejected the honest proof (`endpoint 0: pcs zk: Merkle path ...`).
+    /// So this is called by [`IoSpec::new_shaped`] and re-run, by name,
+    /// wherever a spec meets the shape it is proved at, before the endpoint
+    /// owners are opened, anything is absorbed or anything is drawn. It reads
+    /// public fields only and moves no byte.
+    pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
+        // RULING CS-8 first: the one invariant of a spec that no shape keys
+        self.scales_are_the_approved_ones()?;
+        let refuse = |what: String| -> Result<(), String> { Err(format!("{CS4_POLICY_REFUSAL}: {what}")) };
+        if (self.t_pad, self.d_pad) != (sh.t_pad, sh.d_pad) {
+            return refuse(format!("its padded endpoint plane is ({}, {}), this shape's is ({}, {})", self.t_pad, self.d_pad, sh.t_pad, sh.d_pad));
+        }
+        if self.general != sh.endpoint_general {
+            let kind = |g: bool| if g { "the generalised endpoint" } else { "the frozen seam" };
+            return refuse(format!("its endpoint construction is {}, this shape's is {}", kind(self.general), kind(sh.endpoint_general)));
+        }
+        let (mine, theirs) = ((self.endpoint_log_n, self.endpoint_inv_rate, self.endpoint_rows, self.opened_cols), (sh.endpoint_log_n, sh.endpoint_inv_rate, sh.endpoint_rows, sh.opened_cols));
+        if mine != theirs {
+            return refuse(format!("its endpoint commitment parameters (log_n, rate, rows, opened columns) are {mine:?}, this shape's are {theirs:?}"));
+        }
+        if self.hash_tag != sh.hash_tag() {
+            return refuse("its hash tag is not this shape's (the endpoints were committed under another profile's hashing rule)".into());
+        }
+        Ok(())
+    }
+
+    /// **RULING CS-8 (security owner, 2026-09-23): the pinned scales,
+    /// re-checked.** [`IoSpec::new`] refuses any pair but
+    /// [`ENDPOINT_SCALES`] (D12 item 5), and ruling CS-4's check covers only
+    /// the fields a SHAPE keys. The fields are private to this module, which
+    /// is every file of the lane: stage 43 measured a spec with both scales
+    /// written to 3 — the endpoint owner committed under it, the toy block
+    /// proved and the verifier ACCEPTED. The spec stays where it is (moving
+    /// it into a module of its own would touch every test that builds a
+    /// policy), and the pin is re-run, by name, in [`IoSpec::check_for_shape`]
+    /// (every prover, verifier and run-statement entry) and in
+    /// [`IoSpec::validate`] (the endpoint owner's step). The context needs
+    /// no second check: a zero context is refused by the endpoint statement
+    /// constructors `validate` and the prover's owner check already build. It
+    /// reads two public fields and moves no byte.
+    fn scales_are_the_approved_ones(&self) -> Result<(), String> {
+        if (self.input_scale, self.output_scale) != ENDPOINT_SCALES {
+            return Err(format!(
+                "private block: ruling CS-8 — the endpoint policy's scales ({}, {}) are not the approved calibration's {ENDPOINT_SCALES:?}, which IoSpec::new pins (D12 item 5)",
+                self.input_scale, self.output_scale
+            ));
+        }
+        Ok(())
     }
 
     /// **S11b.** Build whichever endpoint statements this spec carries, and
@@ -744,6 +916,9 @@ impl IoSpec {
     /// parameters give is refused here, at construction, instead of at the
     /// first proof.
     pub(crate) fn validate(&self) -> Result<(), String> {
+        // RULING CS-8: the endpoint owner's step (`prepare_endpoints`) and
+        // every other caller of this re-check the pinned scales first
+        self.scales_are_the_approved_ones()?;
         let rows = if self.general { self.endpoints_g()?[0].commitment_rows() } else { self.seams()?[0].len().div_ceil(1usize << self.endpoint_log_n) + endpoint_g::MASK_ROWS };
         if rows != self.endpoint_rows {
             return Err(format!("private block: this shape declares {} endpoint rows, its endpoint parameters give {rows}", self.endpoint_rows));
@@ -1010,6 +1185,13 @@ impl Receipt {
 pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
     #[cfg(test)]
     capture::begin();
+    // RULING CS-8: the shape the caller trusts is one `Shape::new` builds
+    sh.check_constructed()?;
+    // RULINGS CS-1 and CS-4: the block statement and the endpoint policy,
+    // before the frame is decoded against the statement's transcript header —
+    // the verifier's first use of either
+    public.check_for_shape(sh)?;
+    expected.spec.check_for_shape(sh)?;
     let receipt = Receipt::from_bytes_at(sh, public, expected, bytes)?;
     protocol::verify_inner_at(sh, public, expected, &receipt).map(|_| ())
 }
@@ -1017,6 +1199,11 @@ pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected:
 pub fn verify_bytes(public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
     #[cfg(test)]
     capture::begin();
+    // RULINGS CS-1 and CS-4, at the toy's own bytes entry (a toy statement
+    // and a toy policy always fit)
+    let toy = shape::Shape::toy();
+    public.check_for_shape(&toy)?;
+    expected.spec.check_for_shape(&toy)?;
     verify(public, expected, &Receipt::from_bytes(public, expected, bytes)?)
 }
 

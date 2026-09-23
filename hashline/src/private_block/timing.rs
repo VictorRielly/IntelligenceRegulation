@@ -329,12 +329,16 @@ pub(crate) fn census_on(slot: usize) -> bool {
 /// tables, their lengths (a function of the public shape), a per-table
 /// STRUCTURAL label built from the slot descriptor (which commitment, how many
 /// slices, how many fixed coordinates — all schedule facts, public) and
-/// COUNTS of how many words have a zero imaginary part. **Never a value**: no
-/// field element, no witness word, no challenge is printed or derived from,
-/// and the count is over a predicate (`c1 == 0`) whose answer for an honest
-/// witness is decided by the SHAPE of the table, not by the data — a private
-/// plane's cube is base-field because the plane is integer data, whatever the
-/// integers are.
+/// COUNTS of how many words have a zero imaginary part. No field element, no
+/// witness word and no challenge is printed. **But the counts DEPEND ON THE
+/// HIDDEN INPUT** (corrected 2026-09-23, D22 pre-read finding F-2, ruling
+/// P-2; the earlier text here said the SHAPE decides them, which is false): a
+/// private table with fixed coordinates or an extension coefficient holds
+/// `eq(z)·v` or `coef·v`, whose imaginary part is zero exactly where the
+/// hidden words are zero — e.g. slot 19's helper planes `inv·m` reveal how
+/// many table entries the witness never uses. So this output is
+/// PROVER-PRIVATE under D21: never retained in a capture bundle or a
+/// published log, and production runs leave `HL_PB_BASEFIELD` unset.
 ///
 /// It is write-only with respect to the protocol: it returns `()`, touches no
 /// transcript, no generator and no buffer, and is called only when
