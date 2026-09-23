@@ -499,6 +499,15 @@ pub(super) const LOOKUP_MISS_REFUSAL: &str = "private block: ruling CS-3 — the
 /// one: under `#[cfg(test)]` a thread-local switch ([`CheatingProver`]) makes
 /// it return `Ok`, so a tampered witness still reaches the verifier. A
 /// release build has no switch.
+///
+/// **ERRATA K-1 and K-2 (stage 44, the code review of stages 39–43).** The
+/// text says exactly what precedes the refusal (it used to say nothing of the
+/// block was drawn, absorbed or committed, which is false inside a run: the
+/// stage header is absorbed and the boundary `B_k` drawn, committed and
+/// absorbed first, `run.rs`, ruling M-9), and it names the CLASS of the miss
+/// only — which table family missed — never how many words did: the three
+/// counts are computed from the hidden witness. Text only; the counts are
+/// still what decides whether the refusal fires.
 fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String> {
     #[cfg(test)]
     if CHEATING_PROVER.with(|c| c.get()) {
@@ -507,8 +516,10 @@ fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String>
     if u8 + exp + act == 0 {
         return Ok(());
     }
+    let families: Vec<&str> = [(u8, "the byte table"), (exp, "the exp table"), (act, "the activation table")].iter().filter(|(n, _)| *n > 0).map(|(_, f)| *f).collect();
     Err(format!(
-        "{LOOKUP_MISS_REFUSAL} (refused before the A commitment; nothing of this block was drawn, absorbed or committed): {u8} U8 words outside the byte table, {exp} exp pairs and {act} activation pairs not rows of the statement's tables"
+        "{LOOKUP_MISS_REFUSAL}; the table family that missed: {} (the class of the miss only, never a count — ruling K-2). It is refused before this block's A mask rows are drawn, its A commitment is made or any challenge of it is drawn. What precedes the refusal: in a single block, the transcript header's absorbs; inside a run, the run header, every earlier stage, this stage's header absorbs and, below the last block, the boundary B_k to the next block, drawn from the run's stream, committed and absorbed (ruling M-9).",
+        families.join(", ")
     ))
 }
 
@@ -959,7 +970,9 @@ pub(crate) fn prove_core(
     // activation pair that is not a table row) are ONE named refusal HERE —
     // after the three histograms, from values this function already holds,
     // and BEFORE the first draw of the `A` mask rows, the `A` commitment and
-    // any absorb or challenge of this block. For a witness the builder admits
+    // any absorb or challenge of this block's body (inside a run the stage
+    // header and the boundary `B_k` come first — ruling M-9, erratum K-1;
+    // the refusal's text says so). For a witness the builder admits
     // it is unreachable (the census); it turns a future admissibility gap
     // into a refusal of the prover instead of a receipt the verifier rejects.
     refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;

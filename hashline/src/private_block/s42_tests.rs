@@ -548,8 +548,13 @@ fn s42_cs7_run_shape_new_refuses_a_run_profile_over_a_block_shape_it_is_not_regi
     let stray = "hashline-zk-mr1/s42-unregistered-run/1";
     assert_eq!(RunShape::new(Shape::rung_g(), 1, stray).err(), Some(cs7_unregistered(stray, &Shape::rung_g())), "CS-7: an unregistered run profile was not refused by name");
     // rung-G's block profile STRING at another geometry (width 100: note C-6
-    // admits it), under rung-G's run profile
-    let other = Shape::new("stage 42: rung-G's block profile string at width 100", Shape::rung_g().profile, 24, 100, 192, 6, 16, 2, 10, 4, 12, 9, None, None, None, None).expect("rung-G's head axis at width 100");
+    // admits it), under rung-G's run profile. STAGE 44: ruling CS-9 now
+    // refuses that shape at `Shape::new` itself, by name, so it is reached
+    // here by a test-side field write of rung-G (a value no constructor
+    // returns, which ruling CS-7's whole-shape comparison still refuses)
+    let refused = Shape::new("stage 42: rung-G's block profile string at width 100", Shape::rung_g().profile, 24, 100, 192, 6, 16, 2, 10, 4, 12, 9, None, None, None, None).err().unwrap_or_default();
+    assert!(refused.starts_with("private block shape: ruling CS-9 — "), "CS-9: rung-G's block profile string at width 100 was not refused at Shape::new by name: {refused:?}");
+    let other = Shape { name: "stage 42: rung-G's block profile string at width 100", width: 100, ..Shape::rung_g() };
     assert_eq!(RunShape::new(other.clone(), 1, run::RUN_PROFILE_RUNG_G).err(), Some(cs7_pair(run::RUN_PROFILE_RUNG_G, &Shape::rung_g(), &other)), "CS-7: rung-G's run profile over another geometry carrying rung-G's block profile string was admitted");
     // L = 0 keeps its own name, before CS-7's
     assert_eq!(RunShape::new(Shape::rung_k4(), 0, run::RUN_PROFILE_RUNG_G).err().as_deref(), Some("private run: a run has at least one block"), "L = 0 is no longer refused by its own name first");

@@ -151,7 +151,19 @@ const K8_RUN_BAND: i64 = 48;
 /// eight over EIGHT key-value heads, on the rungs' row geometry and the
 /// generalised endpoint. Built only here (see the module note).
 pub(super) fn rung_k8() -> Shape {
-    Shape::new(
+    rung_k8_built_by(Shape::new)
+}
+
+/// the constructor signature `Shape::new` and its private body share
+pub(super) type ShapeBuild = fn(&'static str, &'static str, usize, usize, usize, usize, usize, usize, usize, usize, u32, usize, Option<usize>, Option<usize>, Option<u32>, Option<u32>) -> Result<Shape, String>;
+
+/// **STAGE 44, ruling CS-9.** rung-K8's parameters, written once and built
+/// by `build`: `Shape::new` for every caller ([`rung_k8`]), and the private
+/// body past CS-9's own check for CS-9's `#[cfg(test)]` registry arm in
+/// `shape.rs`, which is the entry for this profile (building it through
+/// `Shape::new` there would consult the registry for the entry being built).
+pub(super) fn rung_k8_built_by(build: ShapeBuild) -> Shape {
+    build(
         "development rung, eight key-value heads (T24 / d128 / f192, 16 heads of 8 over 8 KV heads)",
         K8_BLOCK_PROFILE,
         24,

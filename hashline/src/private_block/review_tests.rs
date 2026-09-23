@@ -658,7 +658,14 @@ fn a_receipt_does_not_verify_under_another_shape_at_the_rung() {
     };
     let err = head_layout(5, 1).expect_err("a shape whose Dom::Kv is P-3 lifted must be refused at construction");
     assert_eq!(err, "private block shape: the bilinear attention slots cannot serve a shape whose Kv domain is lifted by P-3 (natural log 9, lifted to the row width 10)");
-    let other = head_layout(8, 2).expect("well formed");
+    // STAGE 44, ruling CS-9: `Shape::new` now refuses the rung's profile
+    // string at any shape but the rung's own, by name — this probe among
+    // them — so the same value is reached by a test-side field write of the
+    // rung (a value no constructor returns), and the verifier must still
+    // refuse the rung's receipt under it
+    let refused = head_layout(8, 2).expect_err("ruling CS-9 refuses the rung's profile string at another head layout");
+    assert!(refused.starts_with("private block shape: ruling CS-9 — "), "the rung's profile string at an 8-head / 2-KV layout was not refused by CS-9's name: {refused}");
+    let other = Shape { name: "the rung's padded geometry with a different head layout", q_heads: 8, kv_heads: 2, ..sh.clone() };
     assert_eq!((other.t_pad, other.d_pad, other.h_pad, other.f_pad), (sh.t_pad, sh.d_pad, sh.h_pad, sh.f_pad), "the two shapes must share every padded size");
     let r = verify_bytes_at(&other, &blk, &expected, &bytes);
     eprintln!("SHAPE: the rung frame under an 8-head / 2-KV verifier of the same padded sizes: {r:?}");
