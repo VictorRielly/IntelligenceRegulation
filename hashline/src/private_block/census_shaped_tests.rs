@@ -59,6 +59,14 @@
 //! with an `#[ignore]`d reproducer. Every SiLU member has `act[128] = 0`,
 //! which is why no rung proof ever met it.
 //!
+//! **STAGE 39: S38-F1 FIXED by ruling S38-F1(a)** (security owner,
+//! 2026-09-22): `FeedForwardPublic::new_shaped` now refuses `act[128] != 0`
+//! BY NAME at a shape whose `Dom::F` pads (`Shape::pads`, the census's own
+//! condition), and nothing changes where it does not pad. The census row is
+//! now `COVERED-BY-THE-STATEMENT-REFUSAL`, measured on the production
+//! constructor; the reproducer asserts the refusal (un-ignored, history in its
+//! comment) and keeps the verifier rejection past the refusal as a control.
+//!
 //! **WHAT A GREEN RUN HERE IS, AND IS NOT.** A completeness census of the
 //! builder, the kernel and the prover's lookups on the admissible class. It is
 //! NOT a privacy result, NOT a soundness statement (the field-wrap premise of
@@ -119,6 +127,10 @@ enum Class {
     Unreachable,
     BuilderRefusesFirst,
     Finding,
+    /// stage 39: the value is reachable over the TYPE, and the public
+    /// statement's constructor refuses it by name before any witness exists
+    /// (ruling S38-F1(a)) — a public-only refusal, the same for every input
+    StatementRefused,
 }
 
 impl Class {
@@ -127,6 +139,7 @@ impl Class {
             Class::Unreachable => "UNREACHABLE",
             Class::BuilderRefusesFirst => "REACHABLE-BUILDER-REFUSES-FIRST",
             Class::Finding => "FINDING",
+            Class::StatementRefused => "COVERED-BY-THE-STATEMENT-REFUSAL",
         }
     }
 }
@@ -146,6 +159,10 @@ struct Row {
     /// does the builder refuse AT THIS SITE, with THIS range, before the value
     /// reaches anything downstream?
     builder_guards: bool,
+    /// stage 39: does the PUBLIC statement's constructor refuse every value
+    /// outside the range, by name? MEASURED on the production constructor
+    /// where it is set, never assumed
+    statement_refuses: bool,
 }
 
 impl Row {
@@ -154,6 +171,8 @@ impl Row {
             Class::Unreachable
         } else if self.builder_guards {
             Class::BuilderRefusesFirst
+        } else if self.statement_refuses {
+            Class::StatementRefused
         } else {
             Class::Finding
         }
@@ -225,6 +244,7 @@ fn census(sh: &Shape) -> Vec<Row> {
             reach: (1, 2 * b.d_max),
             range: (1, isqrt_win - 1),
             builder_guards: true,
+            statement_refuses: false,
         });
         rows.push(Row {
             site: "norm quotient/remainder (quotient)",
@@ -233,6 +253,7 @@ fn census(sh: &Shape) -> Vec<Row> {
             reach: (-b.y_abs, b.y_abs),
             range: I8N,
             builder_guards: true,
+            statement_refuses: false,
         });
         rows.push(Row {
             site: "norm quotient/remainder (remainder window)",
@@ -241,6 +262,7 @@ fn census(sh: &Shape) -> Vec<Row> {
             reach: (0, den_max - 1),
             range: (0, norm_win - 1),
             builder_guards: true,
+            statement_refuses: false,
         });
     }
     let qkv = rq_sym(d * b.y_abs * W_ABS, SH_QKV);
@@ -249,12 +271,12 @@ fn census(sh: &Shape) -> Vec<Row> {
         ("K", "witness.rs:486 / kernel lib.rs:727 / sym(A_K8)"),
         ("V", "witness.rs:487 / kernel lib.rs:728 / sym(A_V8)"),
     ] {
-        rows.push(Row { site, at, exists: true, reach: qkv, range: I8N, builder_guards: true });
+        rows.push(Row { site, at, exists: true, reach: qkv, range: I8N, builder_guards: true, statement_refuses: false });
     }
     let rope = rq_sym(2 * RO_ONE * 127, SH_ROPE);
-    rows.push(Row { site: "QR", at: "witness.rs:490 / kernel lib.rs:732 / sym(A_QR8)", exists: true, reach: rope, range: I8N, builder_guards: true });
-    rows.push(Row { site: "KR", at: "witness.rs:492 / kernel lib.rs:733 / sym(A_KR8)", exists: true, reach: rope, range: I8N, builder_guards: true });
-    rows.push(Row { site: "score", at: "witness.rs:507 / kernel lib.rs:749 / sym(A_S8)", exists: true, reach: rq_sym(dh * 127 * 127, SH_S), range: I8N, builder_guards: true });
+    rows.push(Row { site: "QR", at: "witness.rs:490 / kernel lib.rs:732 / sym(A_QR8)", exists: true, reach: rope, range: I8N, builder_guards: true, statement_refuses: false });
+    rows.push(Row { site: "KR", at: "witness.rs:492 / kernel lib.rs:733 / sym(A_KR8)", exists: true, reach: rope, range: I8N, builder_guards: true, statement_refuses: false });
+    rows.push(Row { site: "score", at: "witness.rs:507 / kernel lib.rs:749 / sym(A_S8)", exists: true, reach: rq_sym(dh * 127 * 127, SH_S), range: I8N, builder_guards: true, statement_refuses: false });
     // MASK is the minimum of the score class and the max takes the FIRST
     // strict maximum, so position 0 (always supported) wins every tie
     rows.push(Row {
@@ -264,6 +286,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (MASK_SCORE as i128, MASK_SCORE as i128),
         range: (i128::MIN, I8N.0),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows.push(Row {
         site: "exp difference",
@@ -272,6 +295,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, I8N.1 - MASK_SCORE as i128),
         range: (0, 255),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows.push(Row {
         site: "exp difference (the A_E pad pass)",
@@ -281,6 +305,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, I8N.1 - MASK_SCORE as i128),
         range: (0, 255),
         builder_guards: true,
+        statement_refuses: false,
     });
     // `Sum` holds `exp[0] = 2^fE` at the selected position and at most
     // `tokens` entries of at most `2^fE` (the statement's own exp rules)
@@ -291,6 +316,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (one_e, t * one_e),
         range: (one_e, t * one_e),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows.push(Row {
         site: "softmax quotient/remainder (quotient)",
@@ -299,6 +325,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, one_p),
         range: (0, one_p),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows.push(Row {
         site: "softmax quotient/remainder (remainder window)",
@@ -307,10 +334,11 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, t * one_e - 1),
         range: (0, (1i128 << sh.wrho_s) - 1),
         builder_guards: true,
+        statement_refuses: false,
     });
     // the softmax weights of a row sum to at most 2^fP
-    rows.push(Row { site: "O", at: "witness.rs:590 / kernel lib.rs:783 / sym(A_O8)", exists: true, reach: rq_sym(one_p * 127, SH_O), range: I8N, builder_guards: true });
-    rows.push(Row { site: "AO", at: "witness.rs:594 / kernel lib.rs:793 / A_AL0, A_AL1 limbs of ao + 32768", exists: true, reach: ao, range: I16, builder_guards: true });
+    rows.push(Row { site: "O", at: "witness.rs:590 / kernel lib.rs:783 / sym(A_O8)", exists: true, reach: rq_sym(one_p * 127, SH_O), range: I8N, builder_guards: true, statement_refuses: false });
+    rows.push(Row { site: "AO", at: "witness.rs:594 / kernel lib.rs:793 / A_AL0, A_AL1 limbs of ao + 32768", exists: true, reach: ao, range: I16, builder_guards: true, statement_refuses: false });
     rows.push(Row {
         site: "residual 1",
         at: "witness.rs:599-601 / kernel lib.rs:796-798 / A_X1L0, A_X1L1 limbs",
@@ -318,8 +346,9 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (-X_ABS + ao_admitted.0, I16.1 + ao_admitted.1),
         range: I16,
         builder_guards: true,
+        statement_refuses: false,
     });
-    rows.push(Row { site: "FFN gate", at: "witness.rs:667 / kernel lib.rs:808 / the activation pair's index g8 + 128", exists: true, reach: rq_sym(d * b.y_abs * W_ABS, SH_G), range: I8, builder_guards: true });
+    rows.push(Row { site: "FFN gate", at: "witness.rs:667 / kernel lib.rs:808 / the activation pair's index g8 + 128", exists: true, reach: rq_sym(d * b.y_abs * W_ABS, SH_G), range: I8, builder_guards: true, statement_refuses: false });
     rows.push(Row {
         site: "FFN gate (activation index)",
         at: "witness.rs:678-679 / kernel lib.rs:812-813 / the activation pair lookup",
@@ -327,12 +356,13 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (I8.0 + 128, I8.1 + 128),
         range: (0, 255),
         builder_guards: true,
+        statement_refuses: false,
     });
-    rows.push(Row { site: "FFN up", at: "witness.rs:671-673 / kernel lib.rs:810 / A_UL0, A_UL1 limbs", exists: true, reach: (-(d * b.y_abs * W_ABS), d * b.y_abs * W_ABS), range: I16, builder_guards: true });
-    rows.push(Row { site: "FFN product", at: "witness.rs:683 / kernel lib.rs:818 / A_HL0, A_HL1 limbs", exists: true, reach: rq_sym(X_ABS * X_ABS, SH_H_PROD), range: I16, builder_guards: true });
-    rows.push(Row { site: "FFN down", at: "witness.rs:685 / kernel lib.rs:820 / A_ZL0, A_ZL1 limbs", exists: true, reach: rq_sym(f * X_ABS * W_ABS, SH_Z), range: I16, builder_guards: true });
-    rows.push(Row { site: "residual 2", at: "witness.rs:707-709 / kernel lib.rs:823-825 / A_X2L0, A_X2L1 limbs", exists: true, reach: (2 * I16.0, 2 * I16.1), range: I16, builder_guards: true });
-    rows.push(Row { site: "residual 2 (output conversion)", at: "witness.rs:58 / kernel lib.rs:828 / the output endpoint", exists: true, reach: I16, range: I16, builder_guards: true });
+    rows.push(Row { site: "FFN up", at: "witness.rs:671-673 / kernel lib.rs:810 / A_UL0, A_UL1 limbs", exists: true, reach: (-(d * b.y_abs * W_ABS), d * b.y_abs * W_ABS), range: I16, builder_guards: true, statement_refuses: false });
+    rows.push(Row { site: "FFN product", at: "witness.rs:683 / kernel lib.rs:818 / A_HL0, A_HL1 limbs", exists: true, reach: rq_sym(X_ABS * X_ABS, SH_H_PROD), range: I16, builder_guards: true, statement_refuses: false });
+    rows.push(Row { site: "FFN down", at: "witness.rs:685 / kernel lib.rs:820 / A_ZL0, A_ZL1 limbs", exists: true, reach: rq_sym(f * X_ABS * W_ABS, SH_Z), range: I16, builder_guards: true, statement_refuses: false });
+    rows.push(Row { site: "residual 2", at: "witness.rs:707-709 / kernel lib.rs:823-825 / A_X2L0, A_X2L1 limbs", exists: true, reach: (2 * I16.0, 2 * I16.1), range: I16, builder_guards: true, statement_refuses: false });
+    rows.push(Row { site: "residual 2 (output conversion)", at: "witness.rs:58 / kernel lib.rs:828 / the output endpoint", exists: true, reach: I16, range: I16, builder_guards: true, statement_refuses: false });
     // ---- the prover / verifier side, on an ADMITTED witness ----
     rows.push(Row {
         site: "U8 word at a padded position",
@@ -343,6 +373,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, 127),
         range: (0, 255),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows.push(Row {
         site: "exp pair not a table row",
@@ -351,6 +382,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, 0),
         range: (0, 0),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows.push(Row {
         site: "activation pair not a table row (true position)",
@@ -359,17 +391,31 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, 0),
         range: (0, 0),
         builder_guards: true,
+        statement_refuses: false,
     });
     // S38-F1: the padded Dom::F position carries (g8, a16) = (0, 0); the pair
-    // (128, 0) is a row iff act[128] == 0, and nothing requires that
+    // (128, 0) is a row iff act[128] == 0. At stage 38 nothing required that
+    // (a FINDING); since stage 39 the constructor refuses it by name (ruling
+    // S38-F1(a)), MEASURED here on the production constructor where the site
+    // exists: the member's 0 admitted, every sampled nonzero value refused
+    let s38_f1_refused = sh.pads(Dom::F) && {
+        let member = Spec::base(sh).act;
+        ff_with_act(sh, &member).is_ok()
+            && [1i16, -1, 2, 32767, -32768].into_iter().all(|v| {
+                let mut act = member.clone();
+                act[128] = v;
+                ff_with_act(sh, &act).err().as_deref() == Some(S38_F1_REFUSAL)
+            })
+    };
     rows.push(Row {
         site: "activation pair not a table row (padded Dom::F position)",
-        at: "protocol.rs:843-847 over the PADDED Dom::F cube (argument.rs:1567-1570: the LogUp arm is never gated) / FeedForwardPublic::new_shaped (private_block.rs:568-579) admits any act[128]",
+        at: "protocol.rs:843-847 over the PADDED Dom::F cube (argument.rs:1567-1570: the LogUp arm is never gated) / FeedForwardPublic::new_shaped (private_block.rs:584-586) refuses act[128] != 0 where Dom::F pads (ruling S38-F1(a), stage 39)",
         exists: sh.pads(Dom::F),
-        // what act[128] may be under the constructor, against the one value the pad pair needs
+        // what act[128] may be over the TYPE, against the one value the pad pair needs
         reach: I16,
         range: (0, 0),
         builder_guards: false,
+        statement_refuses: s38_f1_refused,
     });
     rows.push(Row {
         site: "LogUp multiplicity wraps the field",
@@ -378,6 +424,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (0, max_count),
         range: (0, P_FIELD - 1),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows.push(Row {
         site: "kernel checked-arithmetic overflow (every Overflow site)",
@@ -386,6 +433,7 @@ fn census(sh: &Shape) -> Vec<Row> {
         reach: (-kernel_max, kernel_max),
         range: (-(i64::MAX as i128), i64::MAX as i128),
         builder_guards: true,
+        statement_refuses: false,
     });
     rows
 }
@@ -427,8 +475,10 @@ const TOY_PROFILE_STR: &str = super::shape::TOY_PROFILE;
 /// **THE CENSUS, SHAPE BY SHAPE, WITH EVERY BOUND FROM THE SHAPE.** Counted,
 /// never proved: the 125M rows are arithmetic on `Shape::m125()` and no
 /// witness is built. The expectations are stated site by site; the one
-/// geometry-dependent reachable site is `AO` (width > 258), and the one
-/// FINDING is S38-F1 at the four shapes whose `Dom::F` pads.
+/// geometry-dependent reachable site is `AO` (width > 258). S38-F1's row, the
+/// one FINDING at stage 38 (the four shapes whose `Dom::F` pads), is COVERED
+/// BY THE STATEMENT REFUSAL since stage 39 (ruling S38-F1(a)), measured on
+/// the production constructor; no FINDING remains at any shape.
 #[test]
 fn the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape() {
     let always_unreachable = [
@@ -458,7 +508,7 @@ fn the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape
         let rows = census(&sh);
         // the site list is the same at every shape: 34 rows (the three norm rows twice)
         assert_eq!(rows.len(), 34, "{name}: the census lost or gained a row");
-        let mut counts = [0usize; 3];
+        let mut counts = [0usize; 4];
         for r in &rows {
             let c = r.class();
             counts[c as usize] += 1;
@@ -487,13 +537,19 @@ fn the_shaped_refusal_census_classifies_every_data_dependent_site_at_every_shape
             } else if r.site == "activation pair not a table row (padded Dom::F position)" {
                 let listed = ["rung", "rung-G", "rung-K4", "rung-K8"].contains(&name);
                 assert_eq!(sh.pads(Dom::F), listed, "{name}: Dom::F pads at a shape the S38-F1 list does not name, or the reverse");
-                let want = if listed { Class::Finding } else { Class::Unreachable };
+                // stage 38: FINDING where listed; stage 39 (ruling S38-F1(a)):
+                // covered by the constructor's named refusal
+                let want = if listed { Class::StatementRefused } else { Class::Unreachable };
                 assert_eq!(c, want, "{name}: S38-F1's row is {}", c.name());
             } else {
                 panic!("{name}: the census row `{}` has no stated expectation", r.site);
             }
         }
-        tally.push(format!("{name}: {} unreachable / {} reachable-builder-refuses-first / {} finding", counts[0], counts[1], counts[2]));
+        assert_eq!(counts[Class::Finding as usize], 0, "{name}: a census row is a FINDING");
+        tally.push(format!(
+            "{name}: {} unreachable / {} reachable-builder-refuses-first / {} finding / {} covered-by-the-statement-refusal",
+            counts[0], counts[1], counts[2], counts[3]
+        ));
     }
     for line in &tally {
         eprintln!("S38 CENSUS TALLY {line}");
@@ -783,6 +839,20 @@ impl Spec {
         let public = AttentionPublic::new_shaped(s, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &self.cos, &self.sin, &self.exp).expect("the family's attention statement");
         let ff = FeedForwardPublic::new_shaped(s, &fw[0], &fw[1], &fw[2], &fw[3], &self.act).expect("the family's feed-forward statement");
         BlockPublic::new(public, ff)
+    }
+    /// **TEST-ONLY BYPASS OF RULING S38-F1(a)** (stage 39): the same
+    /// statement, with the feed-forward half built by the production
+    /// constructor at `act[128] = 0` and the table's own `act[128]` written
+    /// back afterwards — every other constructor check still runs. It exists
+    /// only to show that a statement the constructor now refuses still fails
+    /// downstream, i.e. that the refusal guards a real failure.
+    fn statement_bypassing_the_s38_f1_refusal(&self, s: &Shape) -> BlockPublic {
+        let mut member = self.clone();
+        member.act[128] = 0;
+        let blk = member.statement(s);
+        let mut ff = blk.feed_forward().clone();
+        ff.act[128] = self.act[128];
+        BlockPublic::new(blk.attention().clone(), ff)
     }
     fn witness(&self, s: &Shape) -> Result<Witness, String> {
         let blk = self.statement(s);
@@ -1167,28 +1237,41 @@ fn the_output_projection_refuses_by_name_just_past_its_edge_and_proves_just_insi
 // ---------------------------------------------------------------- finding S38-F1
 
 /// the S38-F1 statement: the base family with `act[128] = 1` — a legal
-/// `[i16; 256]`, admitted by `FeedForwardPublic::new_shaped`
+/// `[i16; 256]`, admitted by `FeedForwardPublic::new_shaped` at stage 38 and
+/// refused by it, by name, where `Dom::F` pads since stage 39 (ruling
+/// S38-F1(a))
 fn s38_f1_case(s: &Shape) -> Spec {
     let mut sp = Spec::base(s);
     sp.act[128] = 1;
     sp
 }
 
-/// **S38-F1, IN THE ORDINARY FILTER: the census row, made concrete.** At every
-/// shape whose `Dom::F` pads, a statement with `act[128] != 0` is ADMITTED by
-/// the constructor, the witness builder admits the input, the reference
-/// kernel agrees on the output — and the prover's activation LogUp arm would
-/// look up, at EXACTLY the padded `Dom::F` positions, the pair `(128, 0)`,
-/// which is not a row of that table. At a shape whose `Dom::F` does not pad
-/// the same statement is LogUp-clean. (The end-to-end failure is the
-/// `#[ignore]`d reproducer below.)
+/// **S38-F1, IN THE ORDINARY FILTER: the census row, made concrete — and,
+/// since stage 39, the failure the constructor's refusal prevents.** At every
+/// shape whose `Dom::F` pads, a statement with `act[128] != 0` is now REFUSED
+/// by the constructor with [`S38_F1_REFUSAL`]. Forced past that one check
+/// ([`Spec::statement_bypassing_the_s38_f1_refusal`]), the witness builder
+/// admits the input, the reference kernel agrees on the output — and the
+/// prover's activation LogUp arm would look up, at EXACTLY the padded `Dom::F`
+/// positions, the pair `(128, 0)`, which is not a row of that table (stage
+/// 38's finding, unchanged below the constructor). At a shape whose `Dom::F`
+/// does not pad the same statement is admitted by the constructor and is
+/// LogUp-clean. (The end-to-end form is the reproducer below.)
 #[test]
 fn s38_f1_the_padded_feed_forward_positions_look_up_a_pair_that_is_not_a_row_when_act_128_is_nonzero() {
     for s in [Shape::rung_g(), Shape::rung_k4(), super::k8_tests::rung_k8(), Shape::rung_p2(), Shape::rung_c6()] {
         let name = short(&s);
         let sp = s38_f1_case(&s);
-        let blk = sp.statement(&s);
-        let w = sp.witness(&s).unwrap_or_else(|e| panic!("{name}: the builder refused the S38-F1 statement: {e}"));
+        let fw = super::grow_tests::pad_ff_weights(&s, &sp.w[5], &sp.w[6], &sp.w[7], &sp.w[8]);
+        let admitted = FeedForwardPublic::new_shaped(&s, &fw[0], &fw[1], &fw[2], &fw[3], &sp.act);
+        let blk = if s.pads(Dom::F) {
+            assert_eq!(admitted.err().as_deref(), Some(S38_F1_REFUSAL), "{name}: the constructor admitted act[128] = 1 where Dom::F pads");
+            sp.statement_bypassing_the_s38_f1_refusal(&s)
+        } else {
+            assert!(admitted.is_ok(), "{name}: the constructor refused act[128] = 1 where Dom::F does not pad: {:?}", admitted.err());
+            sp.statement(&s)
+        };
+        let w = witness::build_shaped(&s, blk.attention(), blk.feed_forward(), &sp.x).unwrap_or_else(|e| panic!("{name}: the builder refused the S38-F1 statement: {e}"));
         let kernel = sp.kernel(&s).unwrap_or_else(|e| panic!("{name}: the kernel refused the S38-F1 statement: {e}"));
         let out = w.output().expect("int16 output");
         let mine: Vec<i16> = (0..s.tokens).flat_map(|t| out[t * s.d_pad..t * s.d_pad + s.width].to_vec()).collect();
@@ -1202,7 +1285,7 @@ fn s38_f1_the_padded_feed_forward_positions_look_up_a_pair_that_is_not_a_row_whe
         };
         if s.pads(Dom::F) {
             assert_eq!(act_miss, pads, "{name}: the activation pairs that miss the table are not exactly the padded Dom::F positions");
-            eprintln!("S38-F1 {name}: act[128] = 1 admitted; {} of {} Dom::F positions (every PADDED one) look up (128, 0), not a row", act_miss.len(), s.size(Dom::F));
+            eprintln!("S38-F1 {name}: act[128] = 1 REFUSED by the constructor (ruling S38-F1(a)); forced past it, {} of {} Dom::F positions (every PADDED one) look up (128, 0), not a row", act_miss.len(), s.size(Dom::F));
         } else {
             assert!(act_miss.is_empty() && pads.is_empty(), "{name}: Dom::F does not pad, yet a pair misses");
             eprintln!("S38-F1 {name}: Dom::F does not pad; the same statement is LogUp-clean");
@@ -1210,23 +1293,104 @@ fn s38_f1_the_padded_feed_forward_positions_look_up_a_pair_that_is_not_a_row_whe
     }
 }
 
-/// **S38-F1 REPRODUCER (`#[ignore]`d: it FAILS today).** A legal public
-/// statement — every weight zero, the identity RoPE, the shape's exp member,
-/// and an activation table whose gate-0 row is 1 instead of 0 — and the
-/// all-ones input: the builder admits it, the reference kernel admits it, and
-/// the honest proof at rung-G is NOT accepted, for every private input. The
-/// fix belongs to the owner of `private_block.rs` / `witness.rs` (refuse
-/// `act[128] != 0` at a shape whose `Dom::F` pads, or write the pad's `A16`
-/// as `act[128]` and exempt it like `A_E`); it is not made here.
+// ---------------------------------------------------------------- stage 39: ruling S38-F1(a)
+
+/// The refusal ruling S38-F1(a) (security owner, 2026-09-22) puts into
+/// `FeedForwardPublic::new_shaped`, BY NAME. Held here as a literal, not
+/// imported, so a test written before the fix could state it.
+const S38_F1_REFUSAL: &str = "private block: activation table act[128] must be 0 at a shape whose feed-forward domain pads (ruling S38-F1(a))";
+
+/// the family's zero-weight feed-forward statement at `s` under the
+/// activation table `act`, through the production constructor
+fn ff_with_act(s: &Shape, act: &[i16]) -> Result<FeedForwardPublic, String> {
+    let sp = Spec::base(s);
+    let fw = super::grow_tests::pad_ff_weights(s, &sp.w[5], &sp.w[6], &sp.w[7], &sp.w[8]);
+    FeedForwardPublic::new_shaped(s, &fw[0], &fw[1], &fw[2], &fw[3], act)
+}
+
+/// **STAGE 39, RULING S38-F1(a): THE CONSTRUCTOR REFUSES `act[128] != 0`, BY
+/// NAME, EXACTLY WHERE `Dom::F` PADS.** At every census shape: the frozen
+/// SiLU member (`act[128] = 0`) is admitted; a table with `act[128]` in `{1,
+/// -1, 32767, -32768}` is refused with [`S38_F1_REFUSAL`] iff the shape's
+/// feed-forward domain has padded positions, and admitted otherwise; a
+/// table that differs from the member OFF row 128 only is admitted
+/// everywhere (the ruling is about the pad's pair `(128, 0)` and nothing
+/// else). The padded set is read off the shape two ways — `Shape::pads` and
+/// the padded cube against `tokens * hidden` — and must be the rung, rung-G,
+/// rung-K4 and rung-K8, and not the toy, rung-P2, rung-C6, rung-W14,
+/// rung-E32 or 125M. Written and run FAILING before the fix
+/// (`s39-new-test-before.log`).
 #[test]
-#[ignore = "S38-F1 (stage 38): a legal statement with act[128] != 0 makes every honest proof fail at a shape whose Dom::F pads; FAILS until the owner fixes the statement rule or the pad rule"]
-fn s38_f1_reproducer_an_honest_proof_with_a_nonzero_gate_zero_activation_is_accepted_at_rung_g() {
+fn s39_new_shaped_refuses_a_nonzero_gate_zero_activation_by_name_exactly_where_the_feed_forward_domain_pads() {
+    let (mut refused, mut admitted) = (Vec::new(), Vec::new());
+    for s in census_shapes() {
+        let name = short(&s);
+        let pads = s.pads(Dom::F);
+        assert_eq!(pads, s.size(Dom::F) > s.tokens * s.hidden, "{name}: Shape::pads(Dom::F) disagrees with the padded cube against tokens * hidden");
+        let member = Spec::base(&s).act;
+        assert!(ff_with_act(&s, &member).is_ok(), "{name}: the frozen SiLU member (act[128] = 0) is refused");
+        for v in [1i16, -1, 32767, -32768] {
+            let mut act = member.clone();
+            act[128] = v;
+            let r = ff_with_act(&s, &act);
+            if pads {
+                assert_eq!(r.err().as_deref(), Some(S38_F1_REFUSAL), "{name}: act[128] = {v} at a shape whose Dom::F pads is not refused by the ruling's name");
+            } else {
+                assert!(r.is_ok(), "{name}: act[128] = {v} at a shape whose Dom::F does NOT pad is refused: {:?}", r.err());
+            }
+        }
+        let mut off = member.clone();
+        off[127] = 5;
+        off[129] = -5;
+        off[0] = 32767;
+        off[255] = -32768;
+        assert!(ff_with_act(&s, &off).is_ok(), "{name}: a table that differs from the member only OFF row 128 is refused");
+        eprintln!("S39 S38-F1(a) {name:>8}: Dom::F {} ({} of {} positions padded); act[128] != 0 {}", if pads { "PADS" } else { "does not pad" }, s.size(Dom::F) - s.tokens * s.hidden, s.size(Dom::F), if pads { "REFUSED by name" } else { "admitted, unchanged" });
+        if pads {
+            refused.push(name);
+        } else {
+            admitted.push(name);
+        }
+    }
+    assert_eq!(refused, ["rung", "rung-G", "rung-K4", "rung-K8"], "the shapes where act[128] != 0 is refused");
+    assert_eq!(admitted, ["toy", "rung-P2", "rung-C6", "rung-W14", "rung-E32", "125M"], "the shapes where act[128] != 0 is admitted");
+    // the toy's public entry point is unchanged: the toy census's constant
+    // act = 32767 fixture (refusals.rs:204) is still a legal toy statement
+    let t = Shape::toy();
+    let sp = Spec::base(&t);
+    assert!(FeedForwardPublic::new(&sp.w[5], &sp.w[6], &sp.w[7], &sp.w[8], &[32767i16; 256]).is_ok(), "the toy's FeedForwardPublic::new refuses act[128] = 32767");
+}
+
+/// **S38-F1 REPRODUCER, RE-PURPOSED AT STAGE 39: the statement is REFUSED AT
+/// CONSTRUCTION.** A public statement — every weight zero, the identity RoPE,
+/// the shape's exp member, and an activation table whose gate-0 row is 1
+/// instead of 0 — at rung-G, whose `Dom::F` pads.
+///
+/// HISTORY. At stage 38 this test was `#[ignore]`d and named
+/// `s38_f1_reproducer_an_honest_proof_with_a_nonzero_gate_zero_activation_is_accepted_at_rung_g`:
+/// it asserted ACCEPTANCE and failed, because `FeedForwardPublic::new_shaped`
+/// admitted the statement, the builder and the kernel admitted the all-ones
+/// input, and the verifier rejected the honest proof (`H: pcs zk: group 8:
+/// <v, c> != combined claim`; `s38-f1-reproducer.log`, and again at the lane
+/// tip before the fix, `s39-before.log`). Ruling S38-F1(a) (security owner,
+/// 2026-09-22) closed it at the constructor, so the test now asserts the
+/// named refusal — and keeps the old end-to-end run as a control: forced past
+/// that one check, the same statement's honest proof is still rejected by the
+/// verifier, so the refusal guards a real failure. If the pad rule ever
+/// changes (option (b) of the memo), the control flips and says so.
+#[test]
+fn s38_f1_reproducer_a_statement_with_a_nonzero_gate_zero_activation_is_refused_at_construction_at_rung_g() {
     let s = Shape::rung_g();
+    assert!(s.pads(Dom::F), "rung-G's feed-forward domain no longer pads");
     let sp = s38_f1_case(&s);
-    let blk = sp.statement(&s);
-    let w = sp.witness(&s).expect("the builder admits the S38-F1 statement");
+    let fw = super::grow_tests::pad_ff_weights(&s, &sp.w[5], &sp.w[6], &sp.w[7], &sp.w[8]);
+    let r = FeedForwardPublic::new_shaped(&s, &fw[0], &fw[1], &fw[2], &fw[3], &sp.act);
+    assert_eq!(r.err().as_deref(), Some(S38_F1_REFUSAL), "S38-F1: the statement with act[128] = 1 at rung-G was not refused at construction by the ruling's name");
+    // the control: past the refusal, the stage-38 failure is still there
+    let blk = sp.statement_bypassing_the_s38_f1_refusal(&s);
+    let w = witness::build_shaped(&s, blk.attention(), blk.feed_forward(), &sp.x).expect("the builder admits the S38-F1 statement past the constructor");
     sp.kernel(&s).expect("the reference kernel admits the S38-F1 statement");
     let o = outcome(&s, &blk, w);
-    eprintln!("S38-F1 REPRODUCER rung-G: {}", o.short());
-    assert_eq!(o, Outcome::Accepted, "S38-F1: an honest proof of an admitted statement was not accepted: {}", o.short());
+    eprintln!("S38-F1 REPRODUCER rung-G: refused at construction by name; forced past the refusal: {}", o.short());
+    assert!(matches!(o, Outcome::VerifierRejected(_)), "S38-F1's control: forced past the constructor, the honest proof was not rejected by the verifier: {}", o.short());
 }
