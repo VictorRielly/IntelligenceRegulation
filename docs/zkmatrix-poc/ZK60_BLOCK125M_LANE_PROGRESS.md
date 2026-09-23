@@ -13407,3 +13407,57 @@ left alone.
 
 Not a privacy result. Not a soundness statement beyond statement and shape
 admissibility: the field-wrap premise is untouched.
+
+## Stage 44 — rulings K-1, K-2, K-3 and CS-9 (K-4) of the stage 39–43 code review (2026-09-23, 02:3x–)
+
+**Status: `OPEN`.** Opened 2026-09-23 02:30 PDT on the lane tip `f486e6f`,
+one writer (the delegated stage-44 agent). Rulings from §8 of
+`docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
+owner) on the independent adversarial code review of `a9d6d4c..f486e6f`
+(review branch `zk60-private-block-125m-review` at `dc12f44`,
+`docs/zkmatrix-poc/ZK60_LANE_S39_S43_CODE_REVIEW.md`, tests
+`hashline/src/private_block/s39_s43_review_tests.rs` — read only here):
+
+* **K-1 + K-2 (errata, text only)** — ruling CS-3's refusal text says
+  exactly what precedes it (in a single block the transcript header; inside
+  a run the stage header and the boundary `B_k`, drawn, committed and
+  absorbed, `run.rs:746-757`) and no longer prints the three counts computed
+  from the hidden witness: it names the class of miss only (which table
+  family missed, never how many). No code path, order or byte changes. The
+  pinned text (`s40_tests.rs:73`) moves with it; the review's `rv_k1_`
+  reproducer comes over as a passing test of the corrected text.
+* **K-3 (note)** — the review's stronger declaration guard (exactly one
+  `RunShape` literal, inside `RunShape::new`; exactly one `RunStatement`
+  literal, inside `RunStatement::new`; `with_run_shape` and
+  `with_calibration` directly under `#[cfg(test)]`; no `&mut` accessor to a
+  sealed field) goes into `s43_tests.rs` beside the narrow pin, shown to
+  fail on a second `pub(crate)` constructor that skips CS-7 and on
+  `with_run_shape` losing its `#[cfg(test)]` (in-test source mutations, the
+  review's approach; no mutation committed).
+* **CS-9 (from note K-4)** — a block-profile registry, as CS-7 is for runs:
+  the one place a block profile string meets a geometry refuses, by name, a
+  registered block profile string with any geometry other than its own, and
+  an unregistered profile string outside `#[cfg(test)]`; test-only shapes
+  (rung-K8) register only under `#[cfg(test)]`. Failing first: the review's
+  K-4 reproducer on this lane (`s44-before-*.log`), then a named-refusal
+  test failing before the fix. The refusal before any absorb, commitment or
+  draw (0 draws / 0 squeezes / transcript unmoved, measured as stages 40–43
+  did).
+
+**THE WRITE SET:** `hashline/src/private_block/protocol.rs` (CS-3's text
+only), `hashline/src/private_block/shape.rs` (CS-9), the `cfg(test)` mod
+line in `hashline/src/private_block.rs`; test files `s40_tests.rs`,
+`s43_tests.rs`, the new `s44_tests.rs`, and test files whose shapes CS-9
+now refuses; census memo §13; this ledger; logs
+`results/zk60_block125m_lane/s44-*`.
+**Forbidden:** `hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`,
+`hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`, `zkvm-block/`;
+the untracked `u31-c6-run1.*` files are left alone.
+
+**Byte identity to hold:** the toy 2,816,472 B; every frame / receipt /
+schedule / slot-IR / 125M / R-5 / registry / source-pin / hash-call-site
+pin unchanged; every registered shape unchanged. Small rungs only; no 125M
+prove. Gate: stages 37–43's focused filters plus `s44_`, then `--lib
+private_` once at `--test-threads=6`, recorded against 479 / 0 / 18.
+
+**No privacy claim.**
