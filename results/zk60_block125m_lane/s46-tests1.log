@@ -1,0 +1,61 @@
+
+running 4 tests
+test private_block::s36_tests::s46_a_standalone_125m_block_draws_the_counted_figures_on_each_of_its_three_generators ... ignored, HEAVY: one 125M standalone block proof (~30 s, ~10 GiB peak); run detached under /tmp/zk-heavy.lock with MALLOC_MMAP_THRESHOLD_=131072
+test private_block::s36_tests::s46_a_standalone_rung_g_block_draws_the_counted_figures_on_each_of_its_three_generators ... S46 rung-G standalone: witness + owners 0.04 s, proof + two verifications 0.70 s, peak RSS 72 MiB (shared box)
+S46 | rung-G | standalone block           | block (in situ)                | stream bytes               | measured    11385664 | counted    11385664 | EQUAL | MEASURED, ZkRng::consumed_bytes
+S46 | rung-G | standalone block           | block (in situ)                | field draws                | measured      687028 | counted      687028 | EQUAL | MEASURED bytes at the geometry's salts
+S46 | rung-G | standalone block           | block (in situ)                | salts                      | measured       12288 | counted       12288 | EQUAL | GEOMETRY (A, H columns; M domain)
+S46 | rung-G | standalone block           | block (in situ)                | refills                    | measured        1390 | counted        1390 | EQUAL | MEASURED vs its own bytes
+S46 | rung-G | standalone block           | block: A                       | field draws                | measured      411392 | counted      411392 | EQUAL | DERIVED closed form (S36-F3)
+S46 | rung-G | standalone block           | block: H                       | field draws                | measured      258046 | counted      258046 | EQUAL | DERIVED closed form (S36-F3)
+S46 | rung-G | standalone block           | block: M                       | field draws                | measured       17590 | counted       17590 | EQUAL | DERIVED closed form (S36-F3)
+S46 | rung-G | standalone block           | block: A+H+M                   | field draws                | measured      687028 | counted      687028 | EQUAL | DERIVED = MEASURED
+S46 | rung-G | standalone block           | endpoint in: REPLICA           | stream bytes               | measured      249856 | counted      249856 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | standalone block           | endpoint in: REPLICA           | field draws                | measured        7424 | counted        7424 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | standalone block           | endpoint in: REPLICA           | salts                      | measured        4096 | counted        4096 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | standalone block           | endpoint in: real owner        | mask words + pads          | measured        7424 | counted        7424 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | standalone block           | endpoint in: real owner        | salts                      | measured        4096 | counted        4096 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | standalone block           | endpoint out: REPLICA          | stream bytes               | measured      249856 | counted      249856 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | standalone block           | endpoint out: REPLICA          | field draws                | measured        7424 | counted        7424 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | standalone block           | endpoint out: REPLICA          | salts                      | measured        4096 | counted        4096 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | standalone block           | endpoint out: real owner       | mask words + pads          | measured        7424 | counted        7424 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | standalone block           | endpoint out: real owner       | salts                      | measured        4096 | counted        4096 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | standalone block           | all three                      | field draws per proof      | measured      701876 | counted      701876 | EQUAL | sum of the three above
+S46 | rung-G | standalone block           | all three                      | salts per proof            | measured       20480 | counted       20480 | EQUAL | sum of the three above
+S46 | rung-G | standalone block           | live transcript                | squeezes                   | measured        2356 | counted        2356 | EQUAL | MEASURED, Transcript::squeezes; counted = the GATE's
+S46 | rung-G | standalone block           | refusal replay                 | points                     | measured        1394 | counted        1394 | EQUAL | MEASURED, the stage-36 observer
+S46 | rung-G | standalone block           | receipt                        | frame bytes                | measured     4234984 | counted     4234984 | EQUAL | MEASURED, the verified frame
+ok
+test private_block::s36_tests::s46_a_two_block_rung_g_run_draws_the_counted_figures_on_its_one_generator ... S46 rung-G run L=2: chain + statement + measured run + verify 1.25 s, segments [4067160, 4257592] B, peak RSS 96 MiB (shared box)
+S46 | rung-G | run L=2                    | run (in situ)                  | stream bytes               | measured    23041664 | counted    23041664 | EQUAL | MEASURED; counted = L x block + (L-1) x boundary
+S46 | rung-G | run L=2                    | run (in situ)                  | field draws                | measured     1382760 | counted     1382760 | EQUAL | MEASURED bytes at the geometry's salts
+S46 | rung-G | run L=2                    | run (in situ)                  | salts                      | measured       28672 | counted       28672 | EQUAL | GEOMETRY
+S46 | rung-G | run L=2                    | run (in situ)                  | refills                    | measured        2813 | counted        2813 | EQUAL | MEASURED vs its own bytes
+S46 | rung-G | run L=2                    | run: boundary 0                | stream bytes               | measured      270336 | counted      270336 | EQUAL | MEASURED between two steps
+S46 | rung-G | run L=2                    | run: boundary 0                | field draws                | measured        8704 | counted        8704 | EQUAL | MEASURED bytes at the geometry's salts
+S46 | rung-G | run L=2                    | boundary 0 outside a run       | stream bytes               | measured      270336 | counted      270336 | EQUAL | MEASURED; = the in-run boundary
+S46 | rung-G | run L=2                    | run: stage 0 prove_core        | stream bytes               | measured    11385664 | counted    11385664 | EQUAL | MEASURED between two steps
+S46 | rung-G | run L=2                    | run: stage 0 prove_core        | field draws                | measured      687028 | counted      687028 | EQUAL | MEASURED bytes at the geometry's salts
+S46 | rung-G | run L=2                    | run: stage 1 prove_core        | stream bytes               | measured    11385664 | counted    11385664 | EQUAL | MEASURED between two steps
+S46 | rung-G | run L=2                    | run: stage 1 prove_core        | field draws                | measured      687028 | counted      687028 | EQUAL | MEASURED bytes at the geometry's salts
+S46 | rung-G | run L=2                    | endpoint in: real owner        | mask words + pads          | measured        7424 | counted        7424 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | run L=2                    | endpoint in: real owner        | salts                      | measured        4096 | counted        4096 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | run L=2                    | endpoint in: REPLICA           | field draws                | measured        7424 | counted        7424 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | run L=2                    | endpoint out: real owner       | mask words + pads          | measured        7424 | counted        7424 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | run L=2                    | endpoint out: real owner       | salts                      | measured        4096 | counted        4096 | EQUAL | READ in situ off the real commitment
+S46 | rung-G | run L=2                    | endpoint out: REPLICA          | field draws                | measured        7424 | counted        7424 | EQUAL | MEASURED on the replica (S36-F2)
+S46 | rung-G | run L=2                    | all three                      | field draws per run        | measured     1397608 | counted     1397608 | EQUAL | sum; counted = arithmetic on counted parts
+S46 | rung-G | run L=2                    | all three                      | salts per run              | measured       36864 | counted       36864 | EQUAL | sum; counted = arithmetic on counted parts
+S46 | rung-G | run L=3 (sum of parts)     | all three                      | field draws per run        | measured     2093340 | counted     2093340 | EQUAL | sum of MEASURED parts vs COUNTED (H-6)
+S46 | rung-G | run L=3 (sum of parts)     | all three                      | salts per run              | measured       53248 | counted       53248 | EQUAL | GEOMETRY vs COUNTED (F_L row)
+S46 | rung-G | run L=3 (model)            | live transcript                | squeezes                   | measured        6924 | counted        6924 | EQUAL | MODEL vs the run gate's MEASURED
+S46 | rung-G | run L=2                    | live transcript                | squeezes                   | measured        4640 | counted        4640 | EQUAL | MEASURED vs MODEL (DERIVED here)
+S46 | rung-G | run L=2                    | refusal replay                 | points                     | measured        2780 | counted        2780 | EQUAL | MEASURED vs MODEL (DERIVED here)
+S46 | rung-G | run L=2                    | segment 0                      | bytes                      | measured     4067160 | counted     4067160 | EQUAL | MEASURED vs run_tests' counted length
+S46 | rung-G | run L=2                    | segment 1                      | bytes                      | measured     4257592 | counted     4257592 | EQUAL | MEASURED vs run_tests' counted length
+ok
+test private_block::s36_tests::s46_the_replicas_draw_where_the_production_provers_draw ... S46 replica fidelity: `prove_run` draws only in `boundary::prepare` and `prove_core` on its one generator; `prove_inner_at` only in `prove_core`; `boundary::prepare` fills its mask rows then commits, on the caller's generator
+ok
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 580 filtered out; finished in 2.09s
+
