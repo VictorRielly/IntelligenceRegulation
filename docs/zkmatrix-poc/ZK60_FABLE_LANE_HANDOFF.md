@@ -6,6 +6,48 @@ the shared boards are the integrator's.
 
 ## 0. CURRENT — read this first; everything below is a dated log
 
+### 22:05 (2026-09-22) — three lane stages after your snapshot: lkv = 3 proves (37), a shaped refusal census (38) found one public-only completeness hole at the padded development rungs, fixed by a named refusal (39); GS-13 ruled
+
+- **Lane tip `27398d0` (pushed).** Your fixed snapshot is `fee1a8d` (+ stage
+  36 at `29cba9a`, pre-read at `a8e4939`). The delta after `a8e4939`
+  contains **ONE production change**, everything else test-only or docs:
+  `hashline/src/private_block.rs` `FeedForwardPublic::new_shaped` refuses,
+  by name, `act[128] != 0` at any shape whose `Dom::F` pads (`sh.pads(Dom::F)`;
+  9 lines, `7472a3c`, read by me). Nothing new is absorbed; the toy receipt
+  (2,816,472 B), every shaped length and schedule digest are unchanged.
+  `private_block.rs` digest moves (`b6728273…` at stage 38 → `29ba0084…`); the
+  gate re-pins per bundle source commit.
+- **Why (finding S38-F1, `ZK60_SHAPED_REFUSAL_CENSUS.md` §6 on the lane):**
+  where the feed-forward domain pads (frozen-seam rung, rung-G, rung-K4,
+  rung-K8 — NOT the toy, P2, C6, W14, E32 or 125M) every pad looks up the
+  activation pair (128, 0), which is a table row only when `act[128] == 0`;
+  the constructor admitted any table, and with `act[128] = 1` every honest
+  proof was refused at the verifier (`H: pcs zk: group 8`), reproduced
+  failing-first. Every SiLU member has `act[128] = 0`, so no run ever hit
+  it. Public-only: no leak. Ruling S38-F1(a); the alternative (pad =
+  `act[128]`, `A_A16` exempt) would move every shaped receipt and is not
+  taken. **If your integration carries the dev rungs, take `7472a3c`.**
+- **Stage 38's census** (34 data-dependent sites × 10 shapes, bounds derived
+  from the `Shape`): every reachable site is refused by the witness builder
+  first with the same bound; `AO` becomes reachable above width 258 (C6,
+  W14, E32, 125M) and is covered at `witness.rs:594`; 37 edge proofs pass,
+  one step past each edge is refused by name. **Stage 37:** rung-K8 (16
+  q-heads over 8 KV, lkv = 3) proves and verifies as a block and a 3-block
+  run on a dense generic witness, 4,780,216 B = the layout model; capture
+  bundles `results/zk60_run_captures_20260922_k8/` (gate round 9i reading
+  them now).
+- **Test hygiene you will meet (S38-N1, fixed test-only at `cfc48a3`):** a
+  stage-35 test counted a process-wide observer counter and failed under
+  parallel threads; it now reads a per-thread count. Also: the lane filter
+  OOMs at 22 threads under an 8 GiB cap — run it at `--test-threads=6`
+  (440/0/18, 137 s, peak 4.28 GB).
+- **GS-13 ruled** (`ZK60_NONLINEAR_CHANNEL_SHAPED_DISPOSITION.md`, main): the
+  non-linear channel lifts to the shaped layouts as an algebraic reading;
+  no code consequence. For P3: hidden weights remove the matmul slots' only
+  public factor (NL-7).
+- Awaited, unchanged: your snapshot's commit id; R1d, R2a, the interface,
+  the buffer-review list. D19b is Victor's.
+
 ### 19:50 (2026-09-22) — your committed toy bundle (`eaaac8f`) is the one replayed at 10:22; the gate passes on the committed directory as delivered
 
 - Your 19:36 commit carries the 07:25 note and the bundle that round 9d
