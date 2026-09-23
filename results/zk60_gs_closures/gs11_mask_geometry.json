@@ -1,0 +1,1505 @@
+{
+ "code_constants": {
+  "N_SLOTS": 23,
+  "N_FUNCTIONALS": 34,
+  "M_ROWS_rule": "2 * N_SLOTS + 4",
+  "MASK_LOG_MSG": 9,
+  "MASK_LOG_DOM": 12,
+  "MASK_Q": 256,
+  "CfsMask_len_rule": "n_vars * degree + 2",
+  "b_rows_pinned": true,
+  "u_rows_fresh_2m": true,
+  "prox_starts_from_u_coefficient_1": true,
+  "prox_rows_2S_plus_2": true,
+  "n_base_2S_plus_4": true,
+  "budget_assert_count": 2
+ },
+ "shapes": [
+  {
+   "shape": "toy (layout.rs SLOTS)",
+   "slots": 23,
+   "specs_rounds_degree": [
+    [
+     10,
+     3
+    ],
+    [
+     10,
+     3
+    ],
+    [
+     6,
+     3
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     12,
+     3
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     7,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     5,
+     2
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     9,
+     4
+    ],
+    [
+     12,
+     4
+    ],
+    [
+     10,
+     4
+    ],
+    [
+     9,
+     3
+    ],
+    [
+     9,
+     2
+    ],
+    [
+     10,
+     2
+    ],
+    [
+     10,
+     2
+    ]
+   ],
+   "L_s": [
+    32,
+    32,
+    20,
+    42,
+    38,
+    12,
+    12,
+    12,
+    12,
+    16,
+    12,
+    12,
+    12,
+    12,
+    42,
+    42,
+    38,
+    50,
+    42,
+    29,
+    20,
+    22,
+    22
+   ],
+   "sum_L": 583,
+   "max_L": 50,
+   "max_L_slot": 17,
+   "budget_headroom": 206,
+   "every_L_within_budget": true,
+   "coefficient_unknowns_fp": 1166,
+   "M_rows_by_rule": 50
+  },
+  {
+   "shape": "rung-G (block bundle)",
+   "slots": 23,
+   "specs_rounds_degree": [
+    [
+     13,
+     4
+    ],
+    [
+     13,
+     4
+    ],
+    [
+     6,
+     3
+    ],
+    [
+     11,
+     4
+    ],
+    [
+     14,
+     4
+    ],
+    [
+     8,
+     2
+    ],
+    [
+     8,
+     2
+    ],
+    [
+     8,
+     2
+    ],
+    [
+     7,
+     3
+    ],
+    [
+     8,
+     3
+    ],
+    [
+     8,
+     2
+    ],
+    [
+     8,
+     2
+    ],
+    [
+     8,
+     2
+    ],
+    [
+     9,
+     2
+    ],
+    [
+     13,
+     5
+    ],
+    [
+     13,
+     5
+    ],
+    [
+     11,
+     5
+    ],
+    [
+     14,
+     5
+    ],
+    [
+     14,
+     5
+    ],
+    [
+     11,
+     3
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     13,
+     2
+    ],
+    [
+     13,
+     2
+    ]
+   ],
+   "L_s": [
+    54,
+    54,
+    20,
+    46,
+    58,
+    18,
+    18,
+    18,
+    23,
+    26,
+    18,
+    18,
+    18,
+    20,
+    67,
+    67,
+    57,
+    72,
+    72,
+    35,
+    24,
+    28,
+    28
+   ],
+   "sum_L": 859,
+   "max_L": 72,
+   "max_L_slot": 17,
+   "budget_headroom": 184,
+   "every_L_within_budget": true,
+   "coefficient_unknowns_fp": 1718,
+   "M_rows_by_rule": 50,
+   "declared": {
+    "rows": 50,
+    "specs": [
+     [
+      13,
+      4
+     ],
+     [
+      13,
+      4
+     ],
+     [
+      6,
+      3
+     ],
+     [
+      11,
+      4
+     ],
+     [
+      14,
+      4
+     ],
+     [
+      8,
+      2
+     ],
+     [
+      8,
+      2
+     ],
+     [
+      8,
+      2
+     ],
+     [
+      7,
+      3
+     ],
+     [
+      8,
+      3
+     ],
+     [
+      8,
+      2
+     ],
+     [
+      8,
+      2
+     ],
+     [
+      8,
+      2
+     ],
+     [
+      9,
+      2
+     ],
+     [
+      13,
+      5
+     ],
+     [
+      13,
+      5
+     ],
+     [
+      11,
+      5
+     ],
+     [
+      14,
+      5
+     ],
+     [
+      14,
+      5
+     ],
+     [
+      11,
+      3
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      13,
+      2
+     ],
+     [
+      13,
+      2
+     ]
+    ],
+    "q_len": 1024,
+    "prox_len": 1024,
+    "proximity_rhos": 48,
+    "opened_columns": 256,
+    "column_heights": [
+     50
+    ],
+    "functionals": 34
+   },
+   "declared_equals_the_constants": true
+  },
+  {
+   "shape": "125M (two-block run, stage 0)",
+   "slots": 23,
+   "specs_rounds_degree": [
+    [
+     20,
+     4
+    ],
+    [
+     20,
+     4
+    ],
+    [
+     10,
+     3
+    ],
+    [
+     15,
+     4
+    ],
+    [
+     23,
+     4
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     10,
+     3
+    ],
+    [
+     13,
+     3
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     12,
+     2
+    ],
+    [
+     20,
+     5
+    ],
+    [
+     20,
+     5
+    ],
+    [
+     18,
+     4
+    ],
+    [
+     23,
+     5
+    ],
+    [
+     21,
+     4
+    ],
+    [
+     15,
+     3
+    ],
+    [
+     15,
+     2
+    ],
+    [
+     20,
+     2
+    ],
+    [
+     20,
+     2
+    ]
+   ],
+   "L_s": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ],
+   "sum_L": 1239,
+   "max_L": 117,
+   "max_L_slot": 17,
+   "budget_headroom": 139,
+   "every_L_within_budget": true,
+   "coefficient_unknowns_fp": 2478,
+   "M_rows_by_rule": 50,
+   "declared": {
+    "rows": 50,
+    "specs": [
+     [
+      20,
+      4
+     ],
+     [
+      20,
+      4
+     ],
+     [
+      10,
+      3
+     ],
+     [
+      15,
+      4
+     ],
+     [
+      23,
+      4
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      10,
+      3
+     ],
+     [
+      13,
+      3
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      12,
+      2
+     ],
+     [
+      20,
+      5
+     ],
+     [
+      20,
+      5
+     ],
+     [
+      18,
+      4
+     ],
+     [
+      23,
+      5
+     ],
+     [
+      21,
+      4
+     ],
+     [
+      15,
+      3
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      20,
+      2
+     ],
+     [
+      20,
+      2
+     ]
+    ],
+    "q_len": 1024,
+    "prox_len": 1024,
+    "proximity_rhos": 48,
+    "opened_columns": 256,
+    "column_heights": [
+     50
+    ],
+    "functionals": 34
+   },
+   "declared_equals_the_constants": true
+  },
+  {
+   "shape": "125M (two-block run, stage 1)",
+   "slots": 23,
+   "specs_rounds_degree": [
+    [
+     20,
+     4
+    ],
+    [
+     20,
+     4
+    ],
+    [
+     10,
+     3
+    ],
+    [
+     15,
+     4
+    ],
+    [
+     23,
+     4
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     10,
+     3
+    ],
+    [
+     13,
+     3
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     12,
+     2
+    ],
+    [
+     20,
+     5
+    ],
+    [
+     20,
+     5
+    ],
+    [
+     18,
+     4
+    ],
+    [
+     23,
+     5
+    ],
+    [
+     21,
+     4
+    ],
+    [
+     15,
+     3
+    ],
+    [
+     15,
+     2
+    ],
+    [
+     20,
+     2
+    ],
+    [
+     20,
+     2
+    ]
+   ],
+   "L_s": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ],
+   "sum_L": 1239,
+   "max_L": 117,
+   "max_L_slot": 17,
+   "budget_headroom": 139,
+   "every_L_within_budget": true,
+   "coefficient_unknowns_fp": 2478,
+   "M_rows_by_rule": 50,
+   "declared": {
+    "rows": 50,
+    "specs": [
+     [
+      20,
+      4
+     ],
+     [
+      20,
+      4
+     ],
+     [
+      10,
+      3
+     ],
+     [
+      15,
+      4
+     ],
+     [
+      23,
+      4
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      10,
+      3
+     ],
+     [
+      13,
+      3
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      12,
+      2
+     ],
+     [
+      20,
+      5
+     ],
+     [
+      20,
+      5
+     ],
+     [
+      18,
+      4
+     ],
+     [
+      23,
+      5
+     ],
+     [
+      21,
+      4
+     ],
+     [
+      15,
+      3
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      20,
+      2
+     ],
+     [
+      20,
+      2
+     ]
+    ],
+    "q_len": 1024,
+    "prox_len": 1024,
+    "proximity_rhos": 48,
+    "opened_columns": 256,
+    "column_heights": [
+     50
+    ],
+    "functionals": 34
+   },
+   "declared_equals_the_constants": true
+  },
+  {
+   "shape": "125M (standalone block)",
+   "slots": 23,
+   "specs_rounds_degree": [
+    [
+     20,
+     4
+    ],
+    [
+     20,
+     4
+    ],
+    [
+     10,
+     3
+    ],
+    [
+     15,
+     4
+    ],
+    [
+     23,
+     4
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     10,
+     3
+    ],
+    [
+     13,
+     3
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     11,
+     2
+    ],
+    [
+     12,
+     2
+    ],
+    [
+     20,
+     5
+    ],
+    [
+     20,
+     5
+    ],
+    [
+     18,
+     4
+    ],
+    [
+     23,
+     5
+    ],
+    [
+     21,
+     4
+    ],
+    [
+     15,
+     3
+    ],
+    [
+     15,
+     2
+    ],
+    [
+     20,
+     2
+    ],
+    [
+     20,
+     2
+    ]
+   ],
+   "L_s": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ],
+   "sum_L": 1239,
+   "max_L": 117,
+   "max_L_slot": 17,
+   "budget_headroom": 139,
+   "every_L_within_budget": true,
+   "coefficient_unknowns_fp": 2478,
+   "M_rows_by_rule": 50,
+   "declared": {
+    "rows": 50,
+    "specs": [
+     [
+      20,
+      4
+     ],
+     [
+      20,
+      4
+     ],
+     [
+      10,
+      3
+     ],
+     [
+      15,
+      4
+     ],
+     [
+      23,
+      4
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      10,
+      3
+     ],
+     [
+      13,
+      3
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      11,
+      2
+     ],
+     [
+      12,
+      2
+     ],
+     [
+      20,
+      5
+     ],
+     [
+      20,
+      5
+     ],
+     [
+      18,
+      4
+     ],
+     [
+      23,
+      5
+     ],
+     [
+      21,
+      4
+     ],
+     [
+      15,
+      3
+     ],
+     [
+      15,
+      2
+     ],
+     [
+      20,
+      2
+     ],
+     [
+      20,
+      2
+     ]
+    ],
+    "q_len": 1024,
+    "prox_len": 1024,
+    "proximity_rhos": 48,
+    "opened_columns": 256,
+    "column_heights": [
+     50
+    ],
+    "functionals": 34
+   },
+   "declared_equals_the_constants": true
+  }
+ ],
+ "gate_m_arm": [
+  {
+   "record": "zk60_native_run_gate_mask/run-g-dense-s20.json",
+   "mask_lengths": [
+    54,
+    54,
+    20,
+    46,
+    58,
+    18,
+    18,
+    18,
+    23,
+    26,
+    18,
+    18,
+    18,
+    20,
+    67,
+    67,
+    57,
+    72,
+    72,
+    35,
+    24,
+    28,
+    28
+   ],
+   "per_stage": [
+    {
+     "stage": 0,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 1718,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 1716,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    },
+    {
+     "stage": 1,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 1718,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 1716,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    },
+    {
+     "stage": 2,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 1718,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 1716,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    }
+   ]
+  },
+  {
+   "record": "zk60_native_run_gate_block/block-rung-g-dense.json",
+   "mask_lengths": [
+    54,
+    54,
+    20,
+    46,
+    58,
+    18,
+    18,
+    18,
+    23,
+    26,
+    18,
+    18,
+    18,
+    20,
+    67,
+    67,
+    57,
+    72,
+    72,
+    35,
+    24,
+    28,
+    28
+   ],
+   "per_stage": [
+    {
+     "stage": 0,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 1718,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 1716,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    }
+   ]
+  },
+  {
+   "record": "zk60_native_run_gate_m125/m125-dense-full.json",
+   "mask_lengths": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ],
+   "per_stage": [
+    {
+     "stage": 0,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 2478,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 2476,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    },
+    {
+     "stage": 1,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 2478,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 2476,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    }
+   ]
+  },
+  {
+   "record": "zk60_native_run_gate_m125/m125-zero-full.json",
+   "mask_lengths": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ],
+   "per_stage": [
+    {
+     "stage": 0,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 2478,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 2476,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    },
+    {
+     "stage": 1,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 2478,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 2476,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    }
+   ]
+  },
+  {
+   "record": "zk60_native_run_gate_block/block-m125-dense-everything.json",
+   "mask_lengths": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ],
+   "per_stage": [
+    {
+     "stage": 0,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 2478,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 2476,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    }
+   ]
+  },
+  {
+   "record": "zk60_native_run_gate_block/block-m125-zero-arms.json",
+   "mask_lengths": [
+    82,
+    82,
+    32,
+    62,
+    94,
+    24,
+    24,
+    24,
+    32,
+    41,
+    24,
+    24,
+    24,
+    26,
+    102,
+    102,
+    74,
+    117,
+    86,
+    47,
+    32,
+    42,
+    42
+   ],
+   "per_stage": [
+    {
+     "stage": 0,
+     "rows": 50,
+     "q_len": 1024,
+     "prox_len": 1024,
+     "proximity_rhos": 48,
+     "pads_per_a_row": 256,
+     "coefficients_plus_pads_fit": true,
+     "b_admissible": true,
+     "q_sum_identity_holds": true,
+     "q_mismatches": 0,
+     "prox_mismatches": 0,
+     "column_entries": 12800,
+     "column_mismatches": 0,
+     "disclosed": {
+      "coefficient_unknowns_fp": 2478,
+      "disclosed_fp_computed": 2,
+      "disclosed_fp_predicted": 2,
+      "fibre_dimension_fp": 2476,
+      "matches_prediction": true,
+      "published_functionals_fp2": 1
+     }
+    }
+   ]
+  }
+ ]
+}

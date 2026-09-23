@@ -1,0 +1,4 @@
+rung-G block, dense    Dom::F cube [32, 256] true [24, 192] padded  3584 act[128] 0 (rows 1024, padded rows repeat True) S38-F1(a) holds True
+rung-G block, zero     Dom::F cube [32, 256] true [24, 192] padded  3584 act[128] 0 (rows 1024, padded rows repeat True) S38-F1(a) holds True
+125M block, dense      Dom::F cube [512, 2048] true [512, 2048] padded     0 act[128] 0 (rows 16384, padded rows repeat True) S38-F1(a) holds True
+125M block, zero       Dom::F cube [512, 2048] true [512, 2048] padded     0 act[128] 0 (rows 16384, padded rows repeat True) S38-F1(a) holds True

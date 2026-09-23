@@ -1,0 +1,110 @@
+[
+ {
+  "bundle": "rung-G block, dense",
+  "profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+  "Dom_F_cube": [
+   32,
+   256
+  ],
+  "Dom_F_true": [
+   24,
+   192
+  ],
+  "Dom_F_padded_positions": 3584,
+  "Dom_F_pads": true,
+  "activation_table": {
+   "public_table_index_in_slot_19": 2,
+   "rows": 1024,
+   "act_128": 0,
+   "padded_rows_repeat_true_rows": true,
+   "act_127_128_129": [
+    -120,
+    0,
+    136
+   ],
+   "sha256": "bc7ed3df3a2e9347f9af937d7bb445a02d7d5bf76b1f35979be7eb53cbf26859"
+  },
+  "S38_F1a_condition_holds": true
+ },
+ {
+  "bundle": "rung-G block, zero",
+  "profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+  "Dom_F_cube": [
+   32,
+   256
+  ],
+  "Dom_F_true": [
+   24,
+   192
+  ],
+  "Dom_F_padded_positions": 3584,
+  "Dom_F_pads": true,
+  "activation_table": {
+   "public_table_index_in_slot_19": 2,
+   "rows": 1024,
+   "act_128": 0,
+   "padded_rows_repeat_true_rows": true,
+   "act_127_128_129": [
+    -120,
+    0,
+    136
+   ],
+   "sha256": "17c54613e4d7e388595cfeb393f0fe199d405ac96830966d5cc5b4eb8cb632b1"
+  },
+  "S38_F1a_condition_holds": true
+ },
+ {
+  "bundle": "125M block, dense",
+  "profile": "hashline-zk-mr1/private-block-m125/1",
+  "Dom_F_cube": [
+   512,
+   2048
+  ],
+  "Dom_F_true": [
+   512,
+   2048
+  ],
+  "Dom_F_padded_positions": 0,
+  "Dom_F_pads": false,
+  "activation_table": {
+   "public_table_index_in_slot_19": 2,
+   "rows": 16384,
+   "act_128": 0,
+   "padded_rows_repeat_true_rows": true,
+   "act_127_128_129": [
+    -120,
+    0,
+    136
+   ],
+   "sha256": "3b15050373a7cace7721cdadb7c19352dcf2cbeec18827169d2bc384bbf23434"
+  },
+  "S38_F1a_condition_holds": true
+ },
+ {
+  "bundle": "125M block, zero",
+  "profile": "hashline-zk-mr1/private-block-m125/1",
+  "Dom_F_cube": [
+   512,
+   2048
+  ],
+  "Dom_F_true": [
+   512,
+   2048
+  ],
+  "Dom_F_padded_positions": 0,
+  "Dom_F_pads": false,
+  "activation_table": {
+   "public_table_index_in_slot_19": 2,
+   "rows": 16384,
+   "act_128": 0,
+   "padded_rows_repeat_true_rows": true,
+   "act_127_128_129": [
+    -120,
+    0,
+    136
+   ],
+   "sha256": "ed73158debde5c150d358ca91ba2fb3b361e60ce8fe56a127a8368493ff6ea73"
+  },
+  "S38_F1a_condition_holds": true
+ }
+]
