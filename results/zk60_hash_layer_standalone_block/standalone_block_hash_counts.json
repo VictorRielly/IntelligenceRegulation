@@ -1,0 +1,725 @@
+{
+ "controls": {
+  "C1 toy fp() draws per proof": {
+   "got": 327052,
+   "want": 327052,
+   "ok": true
+  },
+  "C1 toy block-stream fp / salts (stage 36)": {
+   "got": [
+    320908,
+    8192
+   ],
+   "want": [
+    320908,
+    8192
+   ],
+   "ok": true
+  },
+  "C1 toy salts per proof": {
+   "got": 12288,
+   "want": 12288,
+   "ok": true
+  },
+  "C1 toy sampler log2": {
+   "got": -77.68,
+   "want": -77.68
+  },
+  "C2 rung-K4 block stream fp / salts (stage 36, MEASURED)": {
+   "got": [
+    750540,
+    12288
+   ],
+   "want": [
+    750540,
+    12288
+   ],
+   "ok": true
+  },
+  "C2 rung-K4 both endpoints fp (stage 36 replica, MEASURED)": {
+   "got": 14848,
+   "want": 14848,
+   "ok": true
+  },
+  "C3 run 125M L=12 draws / sampler": {
+   "got": [
+    109728784,
+    -69.2906
+   ],
+   "want": [
+    109728784,
+    -69.2906
+   ]
+  },
+  "C3 run rung-G L=3 draws / sampler": {
+   "got": [
+    2093340,
+    -75.0026
+   ],
+   "want": [
+    2093340,
+    -75.0026
+   ]
+  },
+  "C3 run 125M L=12 salts": {
+   "got": 2473984,
+   "want": 2473984
+  },
+  "C3 run absorbs rung-G L=3 / 125M L=12": {
+   "got": [
+    1129,
+    5932
+   ],
+   "want": [
+    1129,
+    5932
+   ]
+  },
+  "C3 run residual rows rung-G L=3 (salt, leaf coll., pre-query, absorb coll., B10, tag-key)": {
+   "got": [
+    -112.3,
+    -225.6,
+    -115.02,
+    -231.05,
+    -128.0,
+    -249.96
+   ],
+   "want": [
+    -112.3,
+    -225.6,
+    -115.02,
+    -231.05,
+    -128.0,
+    -249.96
+   ]
+  },
+  "C3 run residual rows 125M L=12 (same order)": {
+   "got": [
+    -106.76,
+    -214.52,
+    -110.52,
+    -222.04,
+    -128.0,
+    -249.96
+   ],
+   "want": [
+    -106.76,
+    -214.52,
+    -110.52,
+    -222.04,
+    -128.0,
+    -249.96
+   ]
+  },
+  "C4 rung_g: gate blinding unknowns vs this model": {
+   "gate": {
+    "A": 411392,
+    "H": 258046,
+    "E_in": 7424,
+    "E_out": 7424,
+    "M_coef": 1718,
+    "M_free_pads": 15870
+   },
+   "model": {
+    "A": 411392,
+    "H": 258046,
+    "E_in": 7424,
+    "E_out": 7424,
+    "M_coef": 1718,
+    "M_free_pads": 15870
+   },
+   "ok": true,
+   "note": "M_free_pads = 46*256 pads + 4*1024 (b,u) minus the two drawn-then-overwritten b[m] entries (zk.rs:505-506); the fp() DRAW count of M is 2*sum L_s + 46*256 + 4*1024"
+  },
+  "C4 m125: gate blinding unknowns vs this model": {
+   "gate": {
+    "A": 5484800,
+    "H": 3526654,
+    "E_in": 91392,
+    "E_out": 91392,
+    "M_coef": 2478,
+    "M_free_pads": 15870
+   },
+   "model": {
+    "A": 5484800,
+    "H": 3526654,
+    "E_in": 91392,
+    "E_out": 91392,
+    "M_coef": 2478,
+    "M_free_pads": 15870
+   },
+   "ok": true,
+   "note": "M_free_pads = 46*256 pads + 4*1024 (b,u) minus the two drawn-then-overwritten b[m] entries (zk.rs:505-506); the fp() DRAW count of M is 2*sum L_s + 46*256 + 4*1024"
+  },
+  "C5 block-rung-g-dense: final_counter == challenges + 64*5": {
+   "got": 2356,
+   "want": 2356,
+   "ok": true
+  },
+  "C5 block-rung-g-zero: final_counter == challenges + 64*5": {
+   "got": 2356,
+   "want": 2356,
+   "ok": true
+  },
+  "C5 block-m125-dense: final_counter == challenges + 64*5": {
+   "got": 14252,
+   "want": 14252,
+   "ok": true
+  },
+  "C5 block-m125-zero: final_counter == challenges + 64*5": {
+   "got": 14252,
+   "want": 14252,
+   "ok": true
+  },
+  "C5 dense == zero (transcript operation count does not move with the hidden input)": {
+   "rung_g": true,
+   "m125": true
+  },
+  "C6 S-4 per block log2": {
+   "got": -118.42,
+   "want": -118.42
+  },
+  "C7 fp() per-draw statistical distance (exact)": {
+   "r_equals_p_minus_2_32": true,
+   "log2": -96.0,
+   "at_most_2_96": true
+  },
+  "C8 rung_g: opened-column bytes": {
+   "got": 2594816,
+   "want": 2594816,
+   "ok": true
+  },
+  "C8 rung_g: expected distinct opened columns vs MEASURED": {
+   "expected": 1241.0,
+   "measured": [
+    1244,
+    1240
+   ]
+  },
+  "C8 m125: opened-column bytes": {
+   "got": 26470400,
+   "want": 26470400,
+   "ok": true
+  },
+  "C8 m125: expected distinct opened columns vs MEASURED": {
+   "expected": 1270.2,
+   "measured": [
+    1270,
+    1267
+   ]
+  }
+ },
+ "configurations": {
+  "rung_g_standalone_block": {
+   "profile": "hashline-zk-mr1/private-block-rung-g-t24-dev/1",
+   "commitments": [
+    "M",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "openings_in_order": [
+    "M",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "encoded_columns": {
+    "M": 4096,
+    "A": 4096,
+    "H": 4096,
+    "Input": 4096,
+    "Output": 4096
+   },
+   "N_leaf_salts_drawn": 20480,
+   "salt_slots_published": 1280,
+   "distinct_opened_expected": 1241.0,
+   "distinct_opened_measured": [
+    1244,
+    1240
+   ],
+   "unopened_leaves_expected": 19239.0,
+   "unopened_leaves_measured": [
+    19236,
+    19240
+   ],
+   "unopened_leaf_digests_published_expected": 1166.0,
+   "nodes_revealed_expected": 10680.9,
+   "path_digest_slots": 15360,
+   "trees": {
+    "M": {
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "A": {
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "H": {
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "Input": {
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "Output": {
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    }
+   },
+   "draws": {
+    "block_stream": {
+     "fp": 687028,
+     "salts": 12288,
+     "bytes": 11385664
+    },
+    "endpoint_stream_each": {
+     "fp": 7424,
+     "salts": 4096,
+     "bytes": 249856
+    },
+    "fp_total": 701876,
+    "salts_total": 20480,
+    "parts": {
+     "A": 411392,
+     "H": 258046,
+     "M": 17590,
+     "E_in": 7424,
+     "E_out": 7424
+    }
+   },
+   "sampler_log2": -76.5791,
+   "prover_queries": {
+    "F_C_column_digests": 20480,
+    "F_L_salted_leaves": 20480,
+    "F_N_inner_nodes": 20475,
+    "F_T_absorbs": 376,
+    "F_T_live_squeezes_MEASURED": 2356,
+    "F_T_constructor": 1,
+    "F_T_position_tag_squeezes": 0,
+    "F_T_total_A": 2733,
+    "challenges_checked_MEASURED": 2036,
+    "modelled_squeeze_channels": 2031,
+    "implied_slot_definition_draws": 325
+   },
+   "transcript_input_lengths": {
+    "squeeze (transcript.rs:101-111)": 47,
+    "constructor, BLOCK profile (protocol.rs:115)": 58,
+    "absorb `expected-IO` (112 B)": 171,
+    "absorb `public-statement` (32 B)": 96,
+    "absorb `calibration` (32 B)": 91,
+    "absorb `schedule` (32 B)": 88,
+    "absorb `A` (32 B)": 81,
+    "absorb `H` (32 B)": 81,
+    "absorb `M` (32 B)": 81,
+    "absorb `rows` (8 B)": 60,
+    "absorb `log-cols` (8 B)": 64,
+    "absorb `pb-slot` (8 B)": 63,
+    "absorb `pb-scalar` (16 B)": 73,
+    "absorb `parameters`, the block line": 210
+   },
+   "unkeyed_input_lengths": {
+    "calibration identity (private_block.rs:365-367)": 30,
+    "generalised-endpoint spec digest, x2 (endpoint_g.rs:197-206)": 142,
+    "block public-statement digest (private_block.rs:755-761), at least": 31,
+    "block schedule digest (layout.rs), at least": 41,
+    "generator refill key||counter (rng.rs:53-61)": 40
+   },
+   "bundle_cross_check": {
+    "available": true,
+    "path": "/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-dense/observations.json",
+    "opening_order": [
+     "M",
+     "A",
+     "H",
+     "Input",
+     "Output"
+    ],
+    "slots": 23,
+    "sumcheck_rounds": 242,
+    "roles": [
+     [
+      "A",
+      36,
+      122
+     ],
+     [
+      "H",
+      9,
+      53
+     ],
+     [
+      "Input",
+      1,
+      1
+     ],
+     [
+      "Output",
+      1,
+      1
+     ]
+    ],
+    "absorbs_from_the_capture": 376
+   },
+   "another_transcript_input_of_47_bytes": [],
+   "another_unkeyed_input_of_40_bytes": [],
+   "residuals q=2^128, m=28 (production registry at 544fbaf)": {
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -76.5791,
+     "LogUp refusal (S-4), one-sided: blocks x 768/|Fp2|": -118.415,
+     "salt guessing: q N_leaf 2^-256": -113.6781,
+     "leaf-input collision: C(N_leaf,2) 2^-256": -228.3562,
+     "challenge pre-query (B5): q A 2^-256": -116.5837,
+     "absorb-input collision (B6): C(A,2) 2^-256": -234.168,
+     "constructor-vs-absorb (B10): (A+q) 2^-256": -128.0,
+     "tag-key collision: C(m,2) 2^-256": -247.4378,
+     "tag key = a generator key: 3 x 4 x 2^-256": -252.415,
+     "generator, in-model alternative: 6q 2^-256": -125.415
+    },
+    "total_log2": -76.5791,
+    "total_minus_sampler_log2": -113.45,
+    "gap_sampler_to_largest_hash_term_bits": 37.1,
+    "largest_hash_term": "salt guessing: q N_leaf 2^-256"
+   },
+   "residuals q=2^128, m=32 (with the test-only rung-K8)": {
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -76.5791,
+     "LogUp refusal (S-4), one-sided: blocks x 768/|Fp2|": -118.415,
+     "salt guessing: q N_leaf 2^-256": -113.6781,
+     "leaf-input collision: C(N_leaf,2) 2^-256": -228.3562,
+     "challenge pre-query (B5): q A 2^-256": -116.5837,
+     "absorb-input collision (B6): C(A,2) 2^-256": -234.168,
+     "constructor-vs-absorb (B10): (A+q) 2^-256": -128.0,
+     "tag-key collision: C(m,2) 2^-256": -247.0458,
+     "tag key = a generator key: 3 x 4 x 2^-256": -252.415,
+     "generator, in-model alternative: 6q 2^-256": -125.415
+    },
+    "total_log2": -76.5791,
+    "total_minus_sampler_log2": -113.45,
+    "gap_sampler_to_largest_hash_term_bits": 37.1,
+    "largest_hash_term": "salt guessing: q N_leaf 2^-256"
+   },
+   "residuals q=2^80, m=32": {
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -76.5791,
+     "LogUp refusal (S-4), one-sided: blocks x 768/|Fp2|": -118.415,
+     "salt guessing: q N_leaf 2^-256": -161.6781,
+     "leaf-input collision: C(N_leaf,2) 2^-256": -228.3562,
+     "challenge pre-query (B5): q A 2^-256": -164.5837,
+     "absorb-input collision (B6): C(A,2) 2^-256": -234.168,
+     "constructor-vs-absorb (B10): (A+q) 2^-256": -176.0,
+     "tag-key collision: C(m,2) 2^-256": -247.0458,
+     "tag key = a generator key: 3 x 4 x 2^-256": -252.415,
+     "generator, in-model alternative: 6q 2^-256": -173.415
+    },
+    "total_log2": -76.5791,
+    "total_minus_sampler_log2": -118.415,
+    "gap_sampler_to_largest_hash_term_bits": 85.1,
+    "largest_hash_term": "salt guessing: q N_leaf 2^-256"
+   },
+   "two-world LogUp term (2 x 768/|Fp2|) log2": -117.415,
+   "liveness: 4 PCS-opening determinants / p, log2": -62.0,
+   "a million proofs (10^6, not 2^20)": {
+    "sampler": -56.65,
+    "refusal": -98.48,
+    "leaf_collision": -188.49,
+    "salt_guessing": -93.75,
+    "total": -56.65
+   }
+  },
+  "m125_standalone_block": {
+   "profile": "hashline-zk-mr1/private-block-m125/1",
+   "commitments": [
+    "M",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "openings_in_order": [
+    "M",
+    "A",
+    "H",
+    "Input",
+    "Output"
+   ],
+   "encoded_columns": {
+    "M": 4096,
+    "A": 65536,
+    "H": 65536,
+    "Input": 65536,
+    "Output": 65536
+   },
+   "N_leaf_salts_drawn": 266240,
+   "salt_slots_published": 1280,
+   "distinct_opened_expected": 1270.2,
+   "distinct_opened_measured": [
+    1270,
+    1267
+   ],
+   "unopened_leaves_expected": 264969.8,
+   "unopened_leaves_measured": [
+    264970,
+    264973
+   ],
+   "unopened_leaf_digests_published_expected": 1251.3,
+   "nodes_revealed_expected": 18755.1,
+   "path_digest_slots": 19456,
+   "trees": {
+    "M": {
+     "nn": 4096,
+     "depth": 12,
+     "distinct_opened": 248.19,
+     "leaf_digests_revealed": 481.4,
+     "of_them_never_opened": 233.21,
+     "internal_nodes_revealed": 1653.78,
+     "total_revealed": 2136.18,
+     "fraction_of_tree": 0.26
+    },
+    "A": {
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    },
+    "H": {
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    },
+    "Input": {
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    },
+    "Output": {
+     "nn": 65536,
+     "depth": 16,
+     "distinct_opened": 255.5,
+     "leaf_digests_revealed": 510.01,
+     "of_them_never_opened": 254.51,
+     "internal_nodes_revealed": 3643.72,
+     "total_revealed": 4154.73,
+     "fraction_of_tree": 0.03
+    }
+   },
+   "draws": {
+    "block_stream": {
+     "fp": 9029804,
+     "salts": 135168,
+     "bytes": 148802240
+    },
+    "endpoint_stream_each": {
+     "fp": 91392,
+     "salts": 65536,
+     "bytes": 3559424
+    },
+    "fp_total": 9212588,
+    "salts_total": 266240,
+    "parts": {
+     "A": 5484800,
+     "H": 3526654,
+     "M": 18350,
+     "E_in": 91392,
+     "E_out": 91392
+    }
+   },
+   "sampler_log2": -72.8648,
+   "prover_queries": {
+    "F_C_column_digests": 266240,
+    "F_L_salted_leaves": 266240,
+    "F_N_inner_nodes": 266235,
+    "F_T_absorbs": 495,
+    "F_T_live_squeezes_MEASURED": 14252,
+    "F_T_constructor": 1,
+    "F_T_position_tag_squeezes": 0,
+    "F_T_total_A": 14748,
+    "challenges_checked_MEASURED": 13932,
+    "modelled_squeeze_channels": 13806,
+    "implied_slot_definition_draws": 446
+   },
+   "transcript_input_lengths": {
+    "squeeze (transcript.rs:101-111)": 47,
+    "constructor, BLOCK profile (protocol.rs:115)": 48,
+    "absorb `expected-IO` (112 B)": 171,
+    "absorb `public-statement` (32 B)": 96,
+    "absorb `calibration` (32 B)": 91,
+    "absorb `schedule` (32 B)": 88,
+    "absorb `A` (32 B)": 81,
+    "absorb `H` (32 B)": 81,
+    "absorb `M` (32 B)": 81,
+    "absorb `rows` (8 B)": 60,
+    "absorb `log-cols` (8 B)": 64,
+    "absorb `pb-slot` (8 B)": 63,
+    "absorb `pb-scalar` (16 B)": 73,
+    "absorb `parameters`, the block line": 215
+   },
+   "unkeyed_input_lengths": {
+    "calibration identity (private_block.rs:365-367)": 30,
+    "generalised-endpoint spec digest, x2 (endpoint_g.rs:197-206)": 142,
+    "block public-statement digest (private_block.rs:755-761), at least": 31,
+    "block schedule digest (layout.rs), at least": 41,
+    "generator refill key||counter (rng.rs:53-61)": 40
+   },
+   "bundle_cross_check": {
+    "available": true,
+    "path": "/home/victor/zk60-artifacts/block-captures-20260923/m125-dense/observations.json",
+    "opening_order": [
+     "M",
+     "A",
+     "H",
+     "Input",
+     "Output"
+    ],
+    "slots": 23,
+    "sumcheck_rounds": 361,
+    "roles": [
+     [
+      "A",
+      36,
+      122
+     ],
+     [
+      "H",
+      9,
+      51
+     ],
+     [
+      "Input",
+      1,
+      1
+     ],
+     [
+      "Output",
+      1,
+      1
+     ]
+    ],
+    "absorbs_from_the_capture": 495
+   },
+   "another_transcript_input_of_47_bytes": [],
+   "another_unkeyed_input_of_40_bytes": [],
+   "residuals q=2^128, m=28 (production registry at 544fbaf)": {
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -72.8648,
+     "LogUp refusal (S-4), one-sided: blocks x 768/|Fp2|": -118.415,
+     "salt guessing: q N_leaf 2^-256": -109.9776,
+     "leaf-input collision: C(N_leaf,2) 2^-256": -220.9553,
+     "challenge pre-query (B5): q A 2^-256": -114.1518,
+     "absorb-input collision (B6): C(A,2) 2^-256": -229.3036,
+     "constructor-vs-absorb (B10): (A+q) 2^-256": -128.0,
+     "tag-key collision: C(m,2) 2^-256": -247.4378,
+     "tag key = a generator key: 3 x 4 x 2^-256": -252.415,
+     "generator, in-model alternative: 6q 2^-256": -125.415
+    },
+    "total_log2": -72.8648,
+    "total_minus_sampler_log2": -109.8959,
+    "gap_sampler_to_largest_hash_term_bits": 37.11,
+    "largest_hash_term": "salt guessing: q N_leaf 2^-256"
+   },
+   "residuals q=2^128, m=32 (with the test-only rung-K8)": {
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -72.8648,
+     "LogUp refusal (S-4), one-sided: blocks x 768/|Fp2|": -118.415,
+     "salt guessing: q N_leaf 2^-256": -109.9776,
+     "leaf-input collision: C(N_leaf,2) 2^-256": -220.9553,
+     "challenge pre-query (B5): q A 2^-256": -114.1518,
+     "absorb-input collision (B6): C(A,2) 2^-256": -229.3036,
+     "constructor-vs-absorb (B10): (A+q) 2^-256": -128.0,
+     "tag-key collision: C(m,2) 2^-256": -247.0458,
+     "tag key = a generator key: 3 x 4 x 2^-256": -252.415,
+     "generator, in-model alternative: 6q 2^-256": -125.415
+    },
+    "total_log2": -72.8648,
+    "total_minus_sampler_log2": -109.8959,
+    "gap_sampler_to_largest_hash_term_bits": 37.11,
+    "largest_hash_term": "salt guessing: q N_leaf 2^-256"
+   },
+   "residuals q=2^80, m=32": {
+    "terms": {
+     "sampler bias (D9): draws x 2^-96": -72.8648,
+     "LogUp refusal (S-4), one-sided: blocks x 768/|Fp2|": -118.415,
+     "salt guessing: q N_leaf 2^-256": -157.9776,
+     "leaf-input collision: C(N_leaf,2) 2^-256": -220.9553,
+     "challenge pre-query (B5): q A 2^-256": -162.1518,
+     "absorb-input collision (B6): C(A,2) 2^-256": -229.3036,
+     "constructor-vs-absorb (B10): (A+q) 2^-256": -176.0,
+     "tag-key collision: C(m,2) 2^-256": -247.0458,
+     "tag key = a generator key: 3 x 4 x 2^-256": -252.415,
+     "generator, in-model alternative: 6q 2^-256": -173.415
+    },
+    "total_log2": -72.8648,
+    "total_minus_sampler_log2": -118.415,
+    "gap_sampler_to_largest_hash_term_bits": 85.11,
+    "largest_hash_term": "salt guessing: q N_leaf 2^-256"
+   },
+   "two-world LogUp term (2 x 768/|Fp2|) log2": -117.415,
+   "liveness: 4 PCS-opening determinants / p, log2": -62.0,
+   "a million proofs (10^6, not 2^20)": {
+    "sampler": -52.93,
+    "refusal": -98.48,
+    "leaf_collision": -181.09,
+    "salt_guessing": -90.05,
+    "total": -52.93
+   }
+  }
+ },
+ "rung_k4_standalone_block_sampler": {
+  "fp_total": 765388,
+  "label": "block stream MEASURED (stage 36), endpoints MEASURED on the replica",
+  "sampler_log2": -76.4542
+ },
+ "tag_keys": {
+  "C(8,2) 2^-256 log2": -251.19,
+  "C(12,2) 2^-256 log2": -249.96,
+  "C(28,2) 2^-256 log2": -247.44,
+  "C(32,2) 2^-256 log2": -247.05
+ }
+}
