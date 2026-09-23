@@ -2,6 +2,32 @@
  "blocks": 2,
  "bundle": "m125-capture-dense-l2",
  "bundle_dir": "/home/victor/zk60-artifacts/m125-capture-dense-l2",
+ "dated_corrections": [
+  {
+   "channels": [
+    "the boundary scale tags and the one calibration identity",
+    "whether a proof attempt produced a receipt (refusal events)",
+    "the cross-block joint law beyond the linear rank"
+   ],
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 10,
+    "derived": 5,
+    "open": 8
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 10,
+    "derived": 5,
+    "open": 9
+   },
+   "date": "2026-09-23",
+   "every_original_byte_is_kept": true,
+   "round": "9j (ZK60_NATIVE_RUN_GATE_PROGRESS.md R9j)",
+   "source": "ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 rows 26-28",
+   "what_moved": "one grade (the scale channel OPEN -> ARGUED on D12b(3) / ruling R-5) and two reasons; no figure, no stage, no rank, no control"
+  }
+ ],
  "gate": "zk60-native-run-gate, staged at the 125M shape",
  "hash_rule": {
   "block_profile": "hashline-zk-mr1/private-block-m125/1",
@@ -9906,6 +9932,19 @@
    {
     "assumption": null,
     "channel": "the cross-block joint law beyond the linear rank",
+    "dated_correction_2026_09_23": {
+     "assumption_now": null,
+     "evidence_re_read_2026_09_23": [
+      "ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md section 1: 'Theorem B is not false ... Its proof is a correct reduction: the toy theorem per stage, plus one factorisation over stages'; section 2 R-3: 'It is to be machine-asserted'",
+      "ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 2.1 row 4: Theorem B accepted as a reduction conditional on G-R1, G-R2, G-R4",
+      "lane ledger ZK60_BLOCK125M_LANE_PROGRESS.md stage 36, 'The seven assertions': MEASURED on single-block proofs at six shapes; not at 125M, not at run scope"
+     ],
+     "ruling_R3_as_of_2026_09_23": "2026-09-23 (round 9j): the draw-accounting test ruling R-3 asked for EXISTS -- lane stage 36, the seven assertions of ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES.md section 3.1, MEASURED on single-block proofs at six shapes (toy, rung-K4, rung-P2, rung-C6, rung-W14, rung-E32).  Not at 125M, where the per-block draw total is a count, and not at run scope (J-5's widened assertion 2 over 11L + 3(L-1) segments is unmeasured).  `joint == sum` in this gate remains a consistency check of the model, as the ruling says",
+     "status_now": "open",
+     "text_now": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  The joint LAW of a run is Theorem B -- the toy theorem per stage plus one factorisation over stages, whose key hypothesis (no run-wide masking commitment; every slot of block k masked by block k's own M) is a fact of the code -- WRITTEN and ACCEPTED AS A REDUCTION (ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md, 2026-09-20 17:58, section 1), conditional on G-R1, G-R2 and G-R4.  The draw accounting ruling R-3 asked for is machine-asserted on single-block proofs (lane stage 36), not at run scope and not at 125M.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b)",
+     "what_was_stale": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 28): until this date the reason read 'a composition argument for a run, which is unwritten' and ended with ruling R-3's 'is to be machine-asserted elsewhere'; Theorem B was written and accepted as a reduction on 2026-09-20 and the draw accounting is asserted on single blocks since lane stage 36.  Grade unchanged: OPEN",
+     "why_the_record_is_not_re_taken": "the 125M records pin the tool bytes that produced them (round 9c, R9c.8); no figure of this record moves, and zk60_native_run_gate.py writes this text natively from round 9j (commit 1d7cfd2)"
+    },
     "preimage_exhibited": null,
     "reason": "obligation O-R3: what is computed here is a RANK of a linear model over the run's commitments.  That the three views of a boundary plane are jointly input-free needs per-commitment independent blinding (O-R2, verified in the code, not here) and a composition argument for a run, which is unwritten.  The check's OMITTED CONDITION 7 -- that the gate must rank the two A commitments that hold the same plane, not the boundary alone -- IS met by stage 4(b).  ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
     "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
@@ -9954,6 +9993,18 @@
      0
     ],
     "channel": "the boundary scale tags and the one calibration identity",
+    "dated_correction_2026_09_23": {
+     "assumption_now": "D12b(3) as built (ruling R-5) + ruling M-4",
+     "evidence_re_read_2026_09_23": [
+      "ZK60_DECISIONS.md D12b(3): 'Interior boundary scales are constants of the approved calibration: a run refuses any other, so they are bound through the calibration identity it absorbs' -- built at lane stage 21 item 3 (71c6509, 2026-09-20 20:16), the register's own 2026-09-23 status note",
+      "run.rs at f4697f9 (this record's capture commit), lines 143-169, READ 2026-09-23: '**RULING R-5 (register D12b item 3), STAGE 21.**' and `if *pair != super::ENDPOINT_SCALES` refusing by name in RunStatement::new",
+      "zk60_native_rg_runpins READINGS on run.rs 65d55d25 (round 6): R-5 is a refusal and nothing else, no absorb added, no proof byte moved; the record's own run.rs pin f24676c4 was read in round 9"
+     ],
+     "status_now": "argued",
+     "text_now": "a boundary's scale pair is a CONSTANT of the approved calibration and so carries nothing about the hidden input: RunStatement::new refuses any interior scale pair but ENDPOINT_SCALES (ruling R-5, register D12b item 3; built at lane stage 21 item 3, 71c6509, 2026-09-20; run.rs at every capture commit since 0426ad2 -- zk60_native_rg_runpins READINGS on 65d55d25 -- and at f4697f9 run.rs:143-169), and the scales are then bound through the ONE calibration identity the run header absorbs (ruling M-4).  The gate reads the declared scales as public constants and checks that the run declares one calibration identity; it does NOT re-run R-5's refusal, which is a code fact the run.rs pin covers",
+     "what_was_stale": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 26): until this date this channel was graded OPEN on check A7.5 -- 'nothing in the run's privacy section covers the boundary's scale/calibration binding, and D12 item 5 records that a tag equality check would pass on a factor-of-8 mismatch'.  D12b(3) closed that BY CONSTRUCTION at lane stage 21 (2026-09-20), so the grade was stale",
+     "why_the_record_is_not_re_taken": "the 125M records pin the tool bytes that produced them (round 9c, R9c.8); no figure of this record moves, and zk60_native_run_gate.py writes this text natively from round 9j (commit 1d7cfd2)"
+    },
     "one_calibration_identity": true,
     "preimage_exhibited": null,
     "reason": "check A7.5: nothing in the run's privacy section covers the boundary's scale/calibration binding, and D12 item 5 records that a tag equality check would pass on a factor-of-8 mismatch.  The gate reads the scales as public constants and checks that the run declares ONE calibration identity (ruling M-4); it does not check what the tag proves",
@@ -9963,6 +10014,19 @@
    {
     "assumption": null,
     "channel": "whether a proof attempt produced a receipt (refusal events)",
+    "dated_correction_2026_09_23": {
+     "assumption_now": null,
+     "evidence_re_read_2026_09_23": [
+      "ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md section 2, ruling R-2: 'one randomness generator per run is accepted as built ... one fail-closed entropy point before stage 1 instead of one that can fail six minutes in'",
+      "ZK60_JOINT_SENTENCE_AND_QUERY_CLASSES_DISPOSITION.md J-2: 'a run uses three (one for the whole run and the two external endpoints')'",
+      "ZK60_HASH_LAYER_AND_FS_LIFT_RUN.md section 6.3: 'three from_os calls, no seed'",
+      "READ 2026-09-23 at f4697f9: run.rs:523, the ONE ZkRng::from_os(run_seed_domain(profile)) in prove_run, before the transcript header and the stage loop; boundary.rs:396's from_os is inside `mod tests` (from :357); endpoint_g.rs:269, one per endpoint"
+     ],
+     "status_now": "open",
+     "text_now": "the refusal channel is inside the game (ruling C-2); a capture exists only when the run was accepted.  Its ENTROPY side is one fail-closed read per generator and THREE generators per run, accepted as built (ruling R-2 of ZK60_JOINT_LAW_COMPOSITION_RUN_DISPOSITION.md; J-2; run memo section 6.3): prove_run makes ONE ZkRng::from_os(run_seed_domain(profile)) before the run header is absorbed and before stage 0 (run.rs:523 at f4697f9), every boundary is drawn from that stream, and the two external endpoints read once each (endpoint_g.rs:269); boundary.rs's own from_os is in its test module.  A run's other refusals (a witness the builder refuses, a lookup miss under CS-3) can still fire inside stage k and name the stage: rule M-9 / D12b(1) governs who may see that reason",
+     "what_was_stale": "2026-09-23 (round 9j, ZK60_SHAPED_PRIVACY_PATH_STATUS.md section 4 row 27): until this date the reason read 'with 49 commitments a run makes 23 more ZkRng::from_os calls, and from_os fails closed -- now possibly in stage 12, minutes in (A7.2)', the design's one-generator-per-commitment recommendation, which ruling R-2 withdrew on 2026-09-20.  Grade unchanged: OPEN",
+     "why_the_record_is_not_re_taken": "the 125M records pin the tool bytes that produced them (round 9c, R9c.8); no figure of this record moves, and zk60_native_run_gate.py writes this text natively from round 9j (commit 1d7cfd2)"
+    },
     "preimage_exhibited": null,
     "reason": "the refusal channel is inside the game (ruling C-2); a capture exists only when the run was accepted.  For a RUN the check adds one more refusal class: with 49 commitments a run makes 23 more ZkRng::from_os calls, and from_os fails closed -- now possibly in stage 12, minutes in (A7.2)",
     "section": "run 2.2",

@@ -1,0 +1,133 @@
+{
+ "not_touched": {
+  "m125-dense-controls": "dirty in this worktree with another writer's uncommitted edits; not touched"
+ },
+ "records": [
+  {
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 10,
+    "derived": 5,
+    "open": 8
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 10,
+    "derived": 5,
+    "open": 9
+   },
+   "identical_leaves": 7776,
+   "leaves_added": 42,
+   "leaves_changed_or_removed": 0,
+   "record": "m125-dense-everything"
+  },
+  {
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 5,
+    "open": 17
+   },
+   "identical_leaves": 3874,
+   "leaves_added": 42,
+   "leaves_changed_or_removed": 0,
+   "record": "m125-dense"
+  },
+  {
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 5,
+    "open": 17
+   },
+   "identical_leaves": 3874,
+   "leaves_added": 42,
+   "leaves_changed_or_removed": 0,
+   "record": "m125-zero"
+  },
+  {
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 10,
+    "derived": 3,
+    "open": 10
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 10,
+    "derived": 3,
+    "open": 11
+   },
+   "identical_leaves": 6090,
+   "leaves_added": 42,
+   "leaves_changed_or_removed": 0,
+   "record": "m125-dense-full"
+  },
+  {
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 5,
+    "derived": 3,
+    "open": 15
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 5,
+    "derived": 3,
+    "open": 16
+   },
+   "identical_leaves": 5878,
+   "leaves_added": 42,
+   "leaves_changed_or_removed": 0,
+   "record": "m125-zero-full"
+  },
+  {
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 5,
+    "open": 17
+   },
+   "identical_leaves": 4067,
+   "leaves_added": 42,
+   "leaves_changed_or_removed": 0,
+   "record": "loader_equivalence_gate_four"
+  },
+  {
+   "counts_as_corrected": {
+    "argued": 5,
+    "constructed": 2,
+    "derived": 5,
+    "open": 16
+   },
+   "counts_of_record": {
+    "argued": 4,
+    "constructed": 2,
+    "derived": 5,
+    "open": 17
+   },
+   "identical_leaves": 4071,
+   "leaves_added": 42,
+   "leaves_changed_or_removed": 0,
+   "record": "loader_equivalence_gate_five"
+  }
+ ]
+}

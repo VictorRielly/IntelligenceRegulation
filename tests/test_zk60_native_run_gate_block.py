@@ -394,6 +394,56 @@ class TheRecordedFiguresAtRungG(unittest.TestCase):
                 self.assertEqual(len(hc["controls"]), 7)
 
 
+class TheStaleChannelTextsOfThe125MRecords(unittest.TestCase):
+    """Status page rows 26-28: the 125M records keep every byte they had and
+    carry, BESIDE each stale channel, the text and grade the round-9j tool
+    writes, with the evidence and the reason the record was not re-taken.
+    Nothing else guards these records' bytes (the toy record guard,
+    test_zk60_native_gate_record, covers the TOY gate's records only), so
+    this class is that guard for the corrections."""
+
+    RECORDS = ("m125-dense-everything", "m125-dense", "m125-zero",
+               "m125-dense-full", "m125-zero-full",
+               "loader_equivalence_gate_four", "loader_equivalence_gate_five")
+
+    def test_every_correction_is_beside_the_original_and_dated(self):
+        for n in self.RECORDS:
+            r = _record_at("zk60_native_run_gate_m125", n)
+            if r is None:
+                continue
+            with self.subTest(n):
+                dc = r["dated_corrections"][0]
+                self.assertEqual(dc["date"], "2026-09-23")
+                self.assertTrue(dc["every_original_byte_is_kept"])
+                self.assertEqual(dc["counts_of_record"], r["stage7_channels"]["counts"])
+                want = dict(dc["counts_of_record"])
+                want["open"] -= 1
+                want["argued"] += 1
+                self.assertEqual(dc["counts_as_corrected"], want)
+                ch = {c["channel"]: c for c in r["stage7_channels"]["channels"]}
+                sc = ch["the boundary scale tags and the one calibration identity"]
+                self.assertEqual(sc["status"], "open")        # the original, kept
+                self.assertEqual(sc["dated_correction_2026_09_23"]["status_now"], "argued")
+                self.assertIn("R-5", sc["dated_correction_2026_09_23"]["assumption_now"])
+                rf = ch["whether a proof attempt produced a receipt (refusal events)"]
+                self.assertIn("23 more", rf["reason"])            # kept
+                self.assertNotIn("23 more", rf["dated_correction_2026_09_23"]["text_now"])
+                jl = ch["the cross-block joint law beyond the linear rank"]
+                self.assertIn("Theorem B", jl["dated_correction_2026_09_23"]["text_now"])
+                for c in (sc, rf, jl):
+                    self.assertTrue(c["dated_correction_2026_09_23"]
+                                    ["evidence_re_read_2026_09_23"])
+
+    def test_the_dirty_sibling_is_named_and_not_touched(self):
+        r = _record_at("zk60_native_run_gate_block", "m125_records_corrected")
+        if r is None:
+            self.skipTest("the correction summary is not in the tree")
+        self.assertIn("m125-dense-controls", r["not_touched"])
+        self.assertEqual(sorted(x["record"] for x in r["records"]),
+                         sorted(self.RECORDS))
+        self.assertTrue(all(x["leaves_changed_or_removed"] == 0 for x in r["records"]))
+
+
 # =====================================================================
 #  the LIVE arm
 # =====================================================================
