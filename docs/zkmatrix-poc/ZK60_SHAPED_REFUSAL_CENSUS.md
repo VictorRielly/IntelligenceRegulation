@@ -624,3 +624,164 @@ the 125M counted receipts and the R-5 run-header literal pin are green; the
 diff adds no absorb, challenge, draw or commit line (only comments and
 refusal strings match); the forbidden files' diff against `c735d77` is
 empty.
+
+## 11. Stage 42 — rulings CS-6 and CS-7 as built (2026-09-23 00:51 – 01:1x PDT)
+
+The disposition's §6 ruled stage 41's two notes: **CS-6** (S41-N2, statement
+binding) — `prove_run`, `RunVerifier::start` and every reader of a run
+statement from bytes refuse, by name and before anything is absorbed, unless
+`blocks.len() == L` and `blocks[k].digest() == st.block_digests[k]`;
+**CS-7** (S41-N1) — `RunShape::new` refuses a run profile not registered for
+the block shape it is given. Built on the lane at `100f986`. Test file
+`hashline/src/private_block/s42_tests.rs` (10 tests: 2 reproducers, 7
+named-refusal tests, 1 measured note). **Not a privacy result.**
+
+**Every path that reads or rebuilds a run statement, enumerated from the
+code** (and `scripts/`, `tests/` searched for `block_digests`,
+`pb-run-block`, `run-statement.json`: no Python reader rebuilds a run
+statement or verifies a run):
+
+| path | what it is handed | the CS-6 check, and where |
+|---|---|---|
+| `run::prove_run` | a statement and `L` blocks | the count FIRST (it was an unnamed count); the digests after the CS-1/CS-4 shape checks and before `protocol::check_endpoints`, `ZkRng::from_os`, `st.transcript()` and the first absorb |
+| `run::RunVerifier::start` | the same | the count first; the digests after CS-1/CS-4 and before `st.transcript()`; never consults the cheating-prover switch |
+| `run::verify_run` | → `start` | the count (was unnamed) before the segment count; the digests in `start` |
+| `run::verify_run_from_dir` | → `start` | the count (was unnamed) before the directory is listed; the digests in `start`, before any segment file is read |
+| `run_statement_file::read` (→ `verify_from_disk`, the fresh verifier) | the JSON file: declared digests and a recipe that regenerates the blocks | its existing comparison of the file's declared digests with the recipe's blocks, which runs BEFORE `RunStatement::new` digests those blocks (after which they agree by construction) — now under CS-6's name, count and digest; then `start` again |
+| `run_statement_file::verify_then_write` (stage 18's only writer) | a statement, blocks and a recipe | through `verify_run_from_dir` → `start`; NOT covered before (finding S42-F1 below) |
+| `run_sink.rs` | segment files only, no statement | nothing to compare (`segment_paths` checks names) |
+| `run_capture.rs` | a recorder that writes the header from `st.capture_header()` and never rebuilds a statement | — |
+
+Names: `private run: ruling CS-6 — block <k> handed to the run is not the
+block the run statement names (its public digest begins <8 bytes>, the
+statement's <8 bytes>); refused before anything is absorbed`, `private run:
+ruling CS-6 — the run statement names <L> blocks and <n> public statements
+were handed` (and `… holds <d> block digests and its run shape is for <L>
+blocks`, since `rs` is a visible field); the reader's two are `run statement:
+ruling CS-6 — …`.
+
+**Failing first** (`s42-before-*.log`, at `7843f5d` = `17d10ac` + the
+skeleton, the test file and its `cfg(test)` mod line; no production line
+moved):
+
+| run | result before |
+|---|---|
+| the two stage-41 notes as they stood (`s42-before-notes.log`, `.done` = 0) | S41-N2: a run statement over X, proved with Y, **ACCEPTED** by the run verifier handed Y (handed X: `M: mask: the product polynomial's sum != the combined functional`); S41-N1: rung-G's run profile over rung-K4 admitted, the run verifies |
+| reproducers (`s42-before-reproducers.log`, `.done` = 101) | **2 of 2 FAIL**: the HONEST run prover proved Y under the statement over X and the verifier handed Y **ACCEPTED**; the statement WRITER **WROTE** a 5,476 B statement file (below) |
+| named (`s42-before-named.log`, `.done` = 101) | **7 of 7 FAIL**: the run prover, the run verifier and the streaming verifier returned `None` where CS-6's refusal was asked for; the placement pin found no CS-6 call; **72 of 72** CS-7 cross pairs admitted; the reader refused the three file mutations only under its old unnamed text, and a rung-K4 run profile over a rung-G file only later, at `the run binding` |
+
+**Finding S42-F1 (measured before, closed by CS-6): the D21 writer wrote a
+statement file that does not reproduce its own digests.** Handed a run
+whose statement names X, proved with Y (the cheating prover's forged
+receipt), and the dense RUN recipe (which regenerates Y), `verify_then_write`
+verified the run from its directory (S41-N2) and then checked the recipe
+against the blocks it was HANDED, not against the statement's digests — so
+it wrote `block_digests` = X beside a recipe that regenerates Y, which a
+fresh reader then refused (`the recipe's block 0 is not the block digest the
+file declares`). Stage 18's rule "a statement naming a recipe that does not
+reproduce its own blocks would be worse than no statement at all" was not
+held when a caller handed other blocks. Since CS-6 the writer's own
+streaming verification refuses first and nothing is written (no
+`statement/` directory). `render`'s comparison is unchanged: after CS-6 the
+blocks it compares are the statement's.
+
+**CS-6 — BUILT** (`run.rs`): `as_many_blocks_as_the_statement` (the count,
+both halves) and `blocks_are_the_statements` (the count, then block `k`'s
+digest against the statement's `block_digests[k]`). **Order, deliberate:**
+the CS-1/CS-4 shape checks run BEFORE the digest comparison. The s40/s41
+tests hand a cross-shape block against a statement over another block and
+assert the shape ruling's name; a block that fails its shape cannot be the
+statement's (the statement's blocks passed CS-4 when it was built), so both
+names are true and the shape one is the more specific. No stage-40/41 test
+moved.
+
+**The cheating RUN prover.** To measure the VERIFIER on the receipt the
+attack produces, a test must produce it, and the honest run prover now
+refuses to. A cheating prover runs none of the honest prover's own checks,
+and the soundness tests already play one with ruling CS-3's `#[cfg(test)]`
+switch `protocol::CheatingProver`. The run prover's copy of the check
+(`the_run_prover_checks_blocks_are_the_statements`) returns after the COUNT
+while that guard lives; `protocol.rs` gains one `#[cfg(test)]` accessor,
+`cheating_prover_is_on`. The switch's state, guard, accessor and both uses
+(CS-3's refusal, CS-6's prover copy) are all `#[cfg(test)]`; the verifier's
+check never consults it. A release build has none of it.
+
+**MEASURED after** (`s42-after-focused.log`): the run prover handed Y under
+a statement over X refuses by CS-6's name with **0 witnesses asked, 0
+boundary planes asked, 0 segments sunk**; the count is refused both ways
+(0 and 2 blocks for 1); block 1 of `[X, Y]` under `[X, X]` is named; the
+control (the statement's own block) asks for its witness, sinks one segment
+and verifies. **Draws, squeezes and absorbs:** a run's randomness stream
+and transcript are created INSIDE `prove_run` / `start`, so no caller holds
+an observer on them (stages 40–41's counters were on `prove_core` /
+`verify_core`, whose stream and transcript the caller hands in). What is
+pinned instead, read out of `run.rs` by
+`s42_cs6_each_run_check_sits_before_the_runs_randomness_and_transcript_exist`:
+in `prove_run` the check precedes `check_endpoints`, `ZkRng::from_os`,
+`st.transcript()` and every absorb; in `start` it precedes `st.transcript()`;
+both verifiers reach a segment only through `start`. So when it fires there
+is no stream to have drawn from and no transcript to have moved. On the
+FORGED receipt: the run verifier handed Y refuses by CS-6's name (ACCEPTED
+before); handed X, the block the statement names, it rejects by the
+arithmetic (`M: mask: …`); offered 64 zero bytes instead of the receipt the
+refusal is identical, so no segment is decoded before it; the streaming
+verifier likewise, and with its segment file overwritten by 64 zero bytes
+the refusal is identical, so no segment file is read before it. The reader
+refuses by CS-6's name X's digest replaced by Y's, the tame recipe replaced
+by the dense run recipe, and a second digest declared for one block; the
+honest file verifies afterwards. The writer refuses the forged run and
+leaves no `statement/` directory.
+
+**CS-7 — BUILT** (`run.rs`): `registered_block_shape(profile)` — the seven
+registered run profiles, each mapped to its block shape's constructor (the
+pairs of stage 24's registry test, item 4) — and `RunShape::new` refuses
+(after `L = 0`'s own refusal) an unregistered profile, `private run: ruling
+CS-7 — <profile> is not a run profile this build registers, so it names no
+block shape (<shape> was given)`, and a registered one over any shape not
+EQUAL to its registered shape (the derived `Shape` equality, every field),
+`private run: ruling CS-7 — the run profile <p> is registered for the block
+shape <name> (<block profile>), not for <name> (<block profile>)`.
+**Test-only shapes, the handling chosen:** rung-K8 (stage 37) is built in
+`k8_tests.rs` through `Shape::new` and has a run profile but no constructor
+in `shape.rs`; its pair is registered by one `#[cfg(test)]` match arm that
+names `k8_tests::K8_RUN_PROFILE` and `k8_tests::rung_k8()`, so a test build
+admits it and a release build refuses its profile string as unregistered.
+No profile LITERAL is written into `run.rs`, so the source registry stages
+24 and 33 read (`"hashline-zk-mr1/…"` literals in `shape.rs` and `run.rs`)
+is unchanged. MEASURED: the 8 registered pairs and every `RunShape::rung_*`
+at `L` = 1, 3, 12 construct; **72 of 72** cross pairs (8 run profiles × 9
+other shapes, the toy and the frozen-seam rung included) refused by CS-7's
+name, S41-N1's among them; an unregistered profile string refused; rung-G's
+run profile over a shape carrying rung-G's block profile STRING at width 100
+refused (a profile names one shape, not one string); `L = 0` keeps its own
+refusal first. The reader: a statement file whose `run_profile` is changed
+to rung-K4's is refused by CS-7's name when it builds the run shape (before:
+only later, at `the run binding`).
+
+**Note S42-N1 (measured, not built).** CS-7 sits in the one constructor, as
+ruled, and `RunShape`'s three fields are writable in the crate: a struct
+literal (or a write to a statement's visible `rs`, which `s41_tests`' policy
+test uses) never passes `RunShape::new`, so S41-N1's pairing still reaches
+`RunStatement::new`, the run prover and the run verifier that way and the
+one-block run VERIFIES
+(`s42_note_n1_a_run_shape_built_as_a_struct_literal_skips_cs7_and_its_run_verifies`).
+No honest proof fails and no non-test caller builds a `RunShape` any other
+way. Closing it would be re-running the check where the run meets its shape
+(`RunStatement::new`, `prove_run`, `RunVerifier::start`, as CS-4 did for the
+endpoint policy) or making the fields private behind accessors.
+
+**Test edits the rulings moved.** `s41_tests.rs`: the two note tests flipped
+to the refusals and renamed
+(`s41_note_n1_…_is_refused_by_ruling_cs7`, `s41_note_n2_…_is_refused_by_ruling_cs6`);
+nothing else moved.
+
+**Byte identity.** The lane filter `--lib private_` at 6 threads: **473 / 0
+/ 18** (stage 41's 463 + the 10 new tests), `s42-gate-private.log`, 133.81 s
+(4:17.88 wall with the build), peak RSS 4.39 GB, the same 16 warning lines.
+The toy 2,816,472 B, every shaped frame / receipt length and schedule-digest
+pin, the slot-IR digests, the 125M counted receipts, the R-5 run-header
+literal pin, the stage-24 profile registry and source-pin partition and the
+stage-25 hash-call-site census are green; the production diff adds no
+absorb, challenge, draw, commit or hash call (only comments, refusal
+strings and `b.digest()` reads); the forbidden files' diff against
+`17d10ac` is empty.

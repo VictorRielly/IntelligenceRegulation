@@ -12976,7 +12976,8 @@ against statement digests) are measured and open for a ruling, not fixed.
 
 ## Stage 42 — rulings CS-6 and CS-7 of the shaped refusal census disposition (2026-09-23, 00:5x–)
 
-**Status: `OPEN`.** Opened 2026-09-23 00:51 PDT on the lane tip `17d10ac`,
+**Status: `CLOSED` 2026-09-23 01:1x PDT** — see "Stage 42 — CLOSED" below.
+Opened 2026-09-23 00:51 PDT on the lane tip `17d10ac`,
 one writer (the delegated stage-42 agent). Rulings from §6 of
 `docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
 owner), on stage 41's two measured notes:
@@ -13012,3 +13013,174 @@ squeezes / transcript unmoved when a refusal fires. Small rungs only; no
 125M prove.
 
 **No privacy claim.** Statement binding and profile naming only.
+
+### Stage 42 — the rulings built (2026-09-23 00:51 – 01:08)
+
+All runs under `flock /tmp/zk-build.lock`, `--test-threads=6`; the
+failing-first chain and the gate detached with `.done` markers; shared box,
+not quiesced. Test file `hashline/src/private_block/s42_tests.rs` (10
+tests), wired by one `#[cfg(test)] mod s42_tests;` line in
+`private_block.rs`. Census memo §11 has the path table, the failing-first
+table and what was measured.
+
+**Failing first** (at `7843f5d` = `17d10ac` + the skeleton, the test file and
+its mod line; no production line moved):
+
+| run | log | result |
+|---|---|---|
+| stage 41's two notes, as they stood | `s42-before-notes.log` (`.done` = 0) | 2 / 0 / 0: S41-N2 — a statement over X proved with Y **ACCEPTED** handed Y (handed X: `M: mask: …`); S41-N1 — rung-G's run profile over rung-K4 admitted, the run verifies |
+| the two reproducers | `s42-before-reproducers.log` (`.done` = 101) | **2 of 2 FAIL**: the honest run prover proved Y under a statement over X and the run verifier handed Y **ACCEPTED**; the statement writer **WROTE** a 5,476 B statement file naming X's digest beside the dense run recipe that regenerates Y, which a fresh reader then refused (finding S42-F1) |
+| the seven named tests | `s42-before-named.log` (`.done` = 101) | **7 of 7 FAIL**: run prover, run verifier and streaming verifier `None` where CS-6 was asked for; the placement pin found no CS-6 call; **72 of 72** CS-7 cross pairs admitted; the reader refused under its old unnamed text, and the rung-K4 run profile over a rung-G file only at `the run binding` |
+
+**CS-6 — BUILT** (`run.rs`, `protocol.rs`, `run_statement_file.rs`).
+`as_many_blocks_as_the_statement` (exactly `L` blocks handed, exactly `L`
+digests held — `rs` is a visible field) and `blocks_are_the_statements`
+(the count, then `blocks[k].digest() == st.block_digests[k]`), refusing as
+`private run: ruling CS-6 — …`. `prove_run`: the count first (replacing the
+unnamed count), the digests after the CS-1/CS-4 checks and before
+`check_endpoints`, `ZkRng::from_os`, the header and every absorb, through
+`the_run_prover_checks_blocks_are_the_statements`, which under ruling CS-3's
+`#[cfg(test)]` `CheatingProver` switch checks only the count (so a test can
+still make the forged receipt; `protocol.rs` gains the `#[cfg(test)]`
+accessor `cheating_prover_is_on`). `RunVerifier::start`: the count first,
+the digests after CS-1/CS-4 and before the run transcript; it never consults
+the switch. `verify_run` and `verify_run_from_dir`: their unnamed count
+checks become CS-6's count (the digests are `start`'s, before any segment
+is decoded or any segment file read). `run_statement_file::read`: its
+existing comparison of the file's declared digests with the recipe's blocks
+(before the statement is built) now carries CS-6's name, count and digest;
+the writer `verify_then_write` is covered through `verify_run_from_dir`.
+`run_sink.rs` reads no statement; `run_capture.rs` rebuilds none; no Python
+reader exists. **Order:** the shape rulings before CS-6, so no stage-40/41
+assertion moved (a cross-shape block cannot be the statement's; the shape
+name is the more specific).
+
+**CS-7 — BUILT** (`run.rs`). `registered_block_shape(profile)` maps the
+seven `RUN_PROFILE_*` to their shapes' constructors (stage 24's pairs) plus,
+**under `#[cfg(test)]` only, rung-K8's** (`k8_tests::K8_RUN_PROFILE` →
+`k8_tests::rung_k8()`): a test-only shape's run profile exists in a test
+build and is refused as unregistered in a release build. No profile literal
+is added to `run.rs` (the stage-24/33 source registry is unchanged).
+`RunShape::new`, after `L = 0`, refuses an unregistered profile and a
+registered one over a shape not EQUAL (every field) to its registered shape,
+as `private run: ruling CS-7 — …`.
+
+**MEASURED after** (`s42-after-focused.log`, `.done` = 0): `--lib -- s42_
+s41_ s40_ census_shaped k8_ hash_tag --nocapture` **57 passed / 0 failed / 1
+ignored** (stage 41's 47 + the 10 s42 tests; the ignored one is
+`write_the_k8_gate_bundles`, as before), 18.22 s. Run prover: refused by
+name, 0 witnesses asked, 0 boundary planes asked, 0 segments sunk; the
+count both ways; block 1 named; the control proves and verifies. Placement
+pin: in `prove_run` before `check_endpoints` / `ZkRng::from_os` / the run
+transcript / every absorb, in `start` before the run transcript — the run's
+stream and transcript are created inside those functions, so when the
+refusal fires neither exists (0 draws, 0 squeezes, nothing absorbed by
+construction). Forged receipt: handed Y refused by name, handed X rejected
+by the arithmetic, 64 zero bytes (and a zeroed segment file) refused
+identically. Reader: three file mutations refused by name. Writer: refused,
+no `statement/` directory. CS-7: 8 registered pairs and every `rung_*` at
+`L` = 1, 3, 12 construct; 72 / 72 cross pairs, an unregistered profile and
+rung-G's block profile string at width 100 refused by name; the reader
+refuses a rung-K4 run profile over a rung-G file by CS-7's name.
+
+**Test files the rulings moved** (test-only): `s41_tests.rs` — the two
+note tests flipped to the refusals and renamed
+`s41_note_n1_a_registered_run_profile_over_another_block_shape_is_refused_by_ruling_cs7`
+and `s41_note_n2_a_run_statement_over_x_handed_block_y_is_refused_by_ruling_cs6`.
+
+**Findings for the security owner.**
+
+* **S42-F1 (measured before; closed by CS-6).** Stage 18's only writer,
+  `verify_then_write`, checked the named recipe against the blocks it was
+  HANDED rather than the statement's digests, so with S41-N2 open it wrote a
+  statement file that does not reproduce its own digests (5,476 B, refused
+  by the next fresh reader). Since CS-6 its own streaming verification
+  refuses first.
+* **S42-N1 (measured, not built).** CS-7 sits in `RunShape::new`, as ruled;
+  `RunShape`'s fields are writable in the crate, so a struct literal (or a
+  write to a statement's visible `rs`) skips it and S41-N1's pairing still
+  proves and VERIFIES that way. No honest proof fails; no non-test caller
+  builds a `RunShape` otherwise. One re-check at `RunStatement::new`,
+  `prove_run` and `RunVerifier::start` (as CS-4 did for the policy), or
+  private fields, would close it.
+
+### Stage 42 — CLOSED (2026-09-23 00:51 – 01:1x)
+
+**Status: `LANDED`.** CS-6 and CS-7 built; S42-F1 closed by CS-6; note
+S42-N1 measured. No 125M prove; no GPU.
+
+#### The gates
+
+| run | log | result |
+|---|---|---|
+| `--lib -- s42_ s41_ s40_ census_shaped k8_ hash_tag --nocapture` (stages 37–42 and the hash-tag tests) | `s42-after-focused.log` (`.done` = 0) | **57 passed / 0 failed / 1 ignored**, 18.22 s |
+| **THE GATE**: `--lib private_` at the final code, `--test-threads=6`, `/usr/bin/time -v` | `s42-gate-private.log` (`.done` = 0) | **473 passed / 0 failed / 18 ignored**, 133.81 s (4:17.88 wall with the build), peak RSS 4.39 GB, the same 16 `warning` lines as stage 41 (none in a stage-42 file; `run.rs`'s one is the pre-existing `unused mut`, moved to line 824) |
+
+**Accounting against stage 41's 463 / 0 / 18:** +10 = the ten `s42_tests`
+(2 reproducers, 7 named, 1 note); the two S41 note tests renamed, not
+added; nothing lost, nothing newly ignored.
+
+#### Byte identity
+
+* **The toy stays 2,816,472 B**: `tests::honest_receipt_verifies_in_typed_and_wire_form_...`,
+  `zero_witness_tests::the_zero_witness_receipt_length_equals_the_fixture_receipt_length`,
+  `grow_tests::the_shape_driven_layout_reproduces_the_toy_exactly`,
+  `the_toy_schedule_digest_is_frozen`, `the_toy_parameter_line_is_the_frozen_literal`,
+  `review_tests::a_toy_receipt_made_before_the_lane_still_verifies` — all in
+  the pass list.
+* **Every shaped frame and pin**: `grow_tests::the_125m_receipt_is_reproduced_part_by_part`,
+  `run_tests::the_twelve_block_125m_receipt_is_the_counted_figure`,
+  `run_tests::the_run_header_the_approved_scales_bind_is_byte_identical_under_ruling_r5`,
+  `slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape`,
+  the stage-18 statement-file tests, `s24_tests::every_registered_profile_is_covered_...`,
+  `s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on`,
+  `s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified`
+  — all pass.
+* **Nothing absorbed or drawn**: `absorb_into`, `BlockPublic::digest`,
+  `ExpectedIo::to_bytes`, the run header and every statement digest are
+  untouched; `git diff -U0 | grep -iE
+  "absorb|challenge|rng\.|squeeze|commit|digest|update\(|from_os|transcript"`
+  over the four production files matches only comments, refusal strings and
+  the `b.digest()` read of the comparison. Every registered shape and run
+  profile unchanged.
+
+#### The pins that move, for the gate owner (the privacy gates re-pin per bundle source commit)
+
+PRODUCTION files (old at `17d10ac` -> new):
+
+| file | old SHA-256 | new SHA-256 |
+|---|---|---|
+| `hashline/src/private_block.rs` | `1f93f9eb9a06927e99a945092fc34ec35c8c5949ece59c41a37879171b9adce3` | `236e986c57dbf2ae6c1052d09819cb5eeef551cf01d0fd5805208868ca163b91` |
+| `hashline/src/private_block/run.rs` | `a5700876bf4bf51c93360f89e2640b7c1d39ee40764101222a753e0a59d27d95` | `0ce4896ec3183a4480e0ed68d1fd8e65fd1b9a1cfecedec2e4b8d705a59729c6` |
+| `hashline/src/private_block/protocol.rs` (a `#[cfg(test)]` accessor and one doc line only) | `b63d6464e2547a599399c55ba75ca46c58038447ed619a8de81e3b3a546595d8` | `33a74702619deaaf94ebd2c377ef9189e61dc29c6f8fda795675f23c1b1c66f9` |
+
+`cfg(test)` module (not compiled into the library, but a statement reader):
+`hashline/src/private_block/run_statement_file.rs`
+`9eb2c16e1ade57de2f51a105eb5ac5548bfc619303e68886f6dbb2bf000c79e3` ->
+`5e634a06e180115ced8e855ddc60e055271e23d51df8280c898cf117a1031604`.
+
+Test files: `s41_tests.rs`
+`8f186937e27eb456663643650f3b4736a8ead18236ef6096c8752828ebb38cc4` ->
+`cca4ca70392d3bfc42a5a2b9c0ffb0aa1319978c533584ab8a92ebfb2e4538c8`;
+`s42_tests.rs` (new)
+`3601efaf1fb8b2023fe0ec346a9be0219a673cb39a88cc2bc25d7f9508319c22`.
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat 17d10ac -- zkp-core
+hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block hashline/Cargo.toml
+hashline/Cargo.lock` prints NOTHING. The untracked `u31-c6-run1.*` files are
+left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `7843f5d` | the skeleton |
+| `100f986` | CS-6, CS-7, `s42_tests.rs` (10 tests), the `s41_tests` note flips, the failing-first and focused logs |
+| this one | the gate log, the census memo §11, this ledger |
+
+#### What stage 42 is NOT
+
+Not a privacy result. Not a soundness statement beyond statement binding:
+the field-wrap premise is untouched. Note S42-N1 (CS-7 reached around by a
+struct literal) is measured and open for a ruling, not fixed.
