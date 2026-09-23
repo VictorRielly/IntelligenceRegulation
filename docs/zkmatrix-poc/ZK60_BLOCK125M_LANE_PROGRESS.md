@@ -13184,3 +13184,44 @@ left alone.
 Not a privacy result. Not a soundness statement beyond statement binding:
 the field-wrap premise is untouched. Note S42-N1 (CS-7 reached around by a
 struct literal) is measured and open for a ruling, not fixed.
+
+## Stage 43 — ruling CS-8 of the shaped refusal census disposition: ONE sweep of constructor-established invariants (2026-09-23, 01:2x–)
+
+**Status: `OPEN`** — opened 2026-09-23 01:20 PDT on the lane tip `6b68561`,
+one writer (the delegated stage-43 agent). Ruling from §7 of
+`docs/zkmatrix-poc/ZK60_SHAPED_REFUSAL_CENSUS_DISPOSITION.md` (security
+owner), on stage 42's note S42-N1:
+
+* **CS-8** — stages 38–42 found the same class five times (the feed-forward
+  half, the attention half, the endpoint policy, the run's block digests,
+  the run shape): an invariant established by a constructor and assumed
+  downstream, skippable by a struct literal or a field write. One sweep
+  instead of one finding at a time: every type in `private_block/` and
+  `private_block.rs` that a block statement, a shape, a run shape, a run
+  statement, an endpoint policy/spec, a boundary spec or a receipt is
+  assembled from, and whose invariant a constructor establishes, either has
+  PRIVATE FIELDS (the constructor the only way in; preferred where every
+  outside literal is test-only) or is RE-CHECKED at every entry where it
+  meets what it is proved against (the CS-1 pattern). S42-N1 (`RunShape`)
+  must be closed. The table goes into census memo §12.
+
+**THE WRITE SET:** the lane's own production files only where CS-8 requires
+it (visibility, constructors/accessors, entry re-checks): expected
+`hashline/src/private_block/run.rs`, `shape.rs`, `layout.rs`, `protocol.rs`,
+`hashline/src/private_block.rs`, and `run_statement_file.rs` (a `cfg(test)`
+reader); the new test file `hashline/src/private_block/s43_tests.rs`; test
+files whose field accesses the visibility change moves; census memo §12;
+this ledger; logs `results/zk60_block125m_lane/s43-*`.
+**Forbidden:** `hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`,
+`hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`, `zkvm-block/`;
+the untracked `u31-c6-run1.*` files are left alone.
+
+**Byte identity to hold:** the toy 2,816,472 B; every shaped frame length,
+receipt length, schedule digest, slot-IR, 125M and R-5 pin; no absorb,
+draw or hash call added or moved; `absorb_into`, `BlockPublic::digest` and
+every statement digest untouched. Small rungs only; no 125M prove. Gate:
+stages 37–42's focused filters plus `s43_`, then `--lib private_` once at
+`--test-threads=6`, recorded against 473 / 0 / 18.
+
+**No privacy claim.** Constructor invariants and statement admissibility
+only.
