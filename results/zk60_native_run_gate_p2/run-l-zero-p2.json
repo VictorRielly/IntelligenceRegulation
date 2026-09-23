@@ -368,7 +368,7 @@
   "stages_not_checked": {},
   "what": "the three RUN-LAYER files a bundle pins -- the capture writer, the run's own geometry and transcript, and the internal boundary -- against the digests this gate has READ (finding K4-F2, closed 2026-09-21)"
  },
- "seconds": 194.2,
+ "seconds": 193.4,
  "stage10_bilinear_group_factor": {
   "controls": {
    "controls": [
@@ -1047,14 +1047,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.59,
-    "msg_groups_seconds": 0.59,
+    "layout_seconds": 2.69,
+    "msg_groups_seconds": 0.62,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.66,
+    "pads_seconds": 3.73,
     "preimage_exhibited": true,
-    "seconds": 12.36,
+    "seconds": 12.56,
     "solve_findings": [],
-    "solve_seconds": 4.29,
+    "solve_seconds": 4.39,
     "solved": true,
     "steps": [
      {
@@ -1675,8 +1675,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 4.12,
-     "seconds_vectors_and_claims": 1.32
+     "seconds_opened_columns": 4.17,
+     "seconds_vectors_and_claims": 1.26
     }
    },
    {
@@ -1696,14 +1696,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.62,
+    "layout_seconds": 2.61,
     "msg_groups_seconds": 0.14,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.88,
+    "pads_seconds": 2.78,
     "preimage_exhibited": true,
-    "seconds": 9.55,
+    "seconds": 9.49,
     "solve_findings": [],
-    "solve_seconds": 3.04,
+    "solve_seconds": 2.94,
     "solved": true,
     "steps": [
      {
@@ -1926,8 +1926,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.5,
-     "seconds_vectors_and_claims": 0.35
+     "seconds_opened_columns": 3.53,
+     "seconds_vectors_and_claims": 0.37
     }
    },
    {
@@ -1947,14 +1947,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.47,
+    "layout_seconds": 2.59,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
     "pads_seconds": 0.08,
     "preimage_exhibited": true,
-    "seconds": 2.66,
+    "seconds": 2.76,
     "solve_findings": [],
-    "solve_seconds": 0.1,
+    "solve_seconds": 0.09,
     "solved": true,
     "steps": [
      {
@@ -2050,7 +2050,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.08,
+     "seconds_opened_columns": 0.07,
      "seconds_vectors_and_claims": 0.0
     }
    },
@@ -2071,14 +2071,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.52,
-    "msg_groups_seconds": 0.69,
+    "layout_seconds": 2.66,
+    "msg_groups_seconds": 0.6,
     "msg_proximity_seconds": 0.04,
-    "pads_seconds": 3.77,
+    "pads_seconds": 3.64,
     "preimage_exhibited": true,
-    "seconds": 12.61,
+    "seconds": 12.29,
     "solve_findings": [],
-    "solve_seconds": 4.5,
+    "solve_seconds": 4.28,
     "solved": true,
     "steps": [
      {
@@ -2699,7 +2699,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 4.35,
+     "seconds_opened_columns": 4.11,
      "seconds_vectors_and_claims": 1.2
     }
    },
@@ -2720,14 +2720,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.6,
-    "msg_groups_seconds": 0.14,
+    "layout_seconds": 2.49,
+    "msg_groups_seconds": 0.13,
     "msg_proximity_seconds": 0.02,
-    "pads_seconds": 2.76,
+    "pads_seconds": 2.71,
     "preimage_exhibited": true,
-    "seconds": 9.18,
+    "seconds": 9.13,
     "solve_findings": [],
-    "solve_seconds": 2.91,
+    "solve_seconds": 2.87,
     "solved": true,
     "steps": [
      {
@@ -2950,8 +2950,8 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 3.32,
-     "seconds_vectors_and_claims": 0.3
+     "seconds_opened_columns": 3.41,
+     "seconds_vectors_and_claims": 0.31
     }
    },
    {
@@ -2971,12 +2971,12 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.48,
+    "layout_seconds": 2.54,
     "msg_groups_seconds": 0.02,
     "msg_proximity_seconds": 0.01,
     "pads_seconds": 0.1,
     "preimage_exhibited": true,
-    "seconds": 2.7,
+    "seconds": 2.77,
     "solve_findings": [],
     "solve_seconds": 0.13,
     "solved": true,
@@ -3110,14 +3110,14 @@
     },
     "fixed_input": "all zero",
     "half": "message and pad",
-    "layout_seconds": 2.48,
+    "layout_seconds": 2.56,
     "msg_groups_seconds": 0.01,
     "msg_proximity_seconds": 0.01,
     "pads_seconds": 0.09,
     "preimage_exhibited": true,
-    "seconds": 2.67,
+    "seconds": 2.77,
     "solve_findings": [],
-    "solve_seconds": 0.1,
+    "solve_seconds": 0.11,
     "solved": true,
     "steps": [
      {
@@ -3213,7 +3213,7 @@
      },
      "proximity_entries": 1280,
      "proximity_mismatches": 0,
-     "seconds_opened_columns": 0.08,
+     "seconds_opened_columns": 0.09,
      "seconds_vectors_and_claims": 0.0
     }
    }
@@ -3759,7 +3759,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 5.81,
+    "seconds": 5.98,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -4863,7 +4863,7 @@
       "q_sum_identity_holds": true
      }
     },
-    "seconds": 5.91,
+    "seconds": 5.77,
     "shape": {
      "blinding_unknowns_fp": 15870,
      "coefficients_plus_pads_fit": true,
@@ -5654,7 +5654,7 @@
   "profile": "hashline-zk-mr1/private-run-rung-p2-t32-dev/1",
   "requested": true,
   "salted_leaves_authenticated": 512,
-  "seconds": 11.74,
+  "seconds": 11.77,
   "source_pins": {
    "accepted": [
     {
@@ -6228,7 +6228,7 @@
    "exact_rank_of_the_pad_block": 250,
    "full_rank": true,
    "pad_positions": 256,
-   "seconds": 3.5,
+   "seconds": 3.3,
    "what": "H-pad, computed rather than assumed: the pad block of the {E_j} over the distinct sampled columns has rank equal to their number, so no functional of the opened columns is supported on the message positions"
   },
   "per_commitment": [
@@ -9735,7 +9735,7 @@
   "zk60_native_rg_ahcontrols.py": "d108254992ac763337492d40b218667c92cfc9527bc915d1c2c5297a9418d9a7",
   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
   "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
-  "zk60_native_rg_block.py": "cc4911bfab9be4888be06a53d6858e9ed4ffa40b9c28587dee5fd06ce92a39d4",
+  "zk60_native_rg_block.py": "89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b",
   "zk60_native_rg_bundle.py": "cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc",
   "zk60_native_rg_controls.py": "591944dd6a43c91ee8bc2c1c57f1688c2402d416db8462304d5275249de160ad",
   "zk60_native_rg_gcontrols.py": "785f8a695912c9580c41da65d5f28883b47637147dcd9a5470bc191c582bfe85",

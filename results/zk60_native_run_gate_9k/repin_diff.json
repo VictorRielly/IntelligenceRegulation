@@ -1,0 +1,345 @@
+{
+ "changed_total": 1104,
+ "identical_leaves_total": 181042,
+ "no_figure_of_record_moved": true,
+ "only_in_the_new_record_total": 128,
+ "only_in_the_old_record_total": 0,
+ "per_record": [
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 4,
+   "identical_leaves": 2880,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate/run-a-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 4,
+   "identical_leaves": 2880,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate/run-b-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 4,
+   "identical_leaves": 3690,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_planeindex/run-c-tame"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 3,
+   "identical_leaves": 3691,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_planeindex/run-d-zero"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 3,
+   "identical_leaves": 4029,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_tagged/run-e-tame-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 4,
+   "identical_leaves": 4028,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_tagged/run-f-zero-tagged"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 2,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 3,
+   "identical_leaves": 4112,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_s20/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 4,
+   "identical_leaves": 4111,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_s20/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 1,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 2,
+   "identical_leaves": 4197,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k4/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 3,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 4,
+   "identical_leaves": 4195,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k4/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 60,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 61,
+   "identical_leaves": 6546,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 58,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 59,
+   "identical_leaves": 6548,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 57,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 58,
+   "identical_leaves": 6633,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 62,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 63,
+   "identical_leaves": 6628,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_preimage/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 65,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 66,
+   "identical_leaves": 8767,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-g-dense-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 66,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 67,
+   "identical_leaves": 8766,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-h-zero-s20"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 64,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 65,
+   "identical_leaves": 8852,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-i-dense-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 62,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 63,
+   "identical_leaves": 8854,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_mask/run-j-zero-k4"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 41,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 42,
+   "identical_leaves": 6721,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_p2/run-k-dense-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 41,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 42,
+   "identical_leaves": 6721,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_p2/run-l-zero-p2"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 46,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 47,
+   "identical_leaves": 6908,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-m-dense-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 44,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 45,
+   "identical_leaves": 6910,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-n-zero-c6"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 57,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 58,
+   "identical_leaves": 6706,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-o-dense-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 59,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 60,
+   "identical_leaves": 6704,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-p-zero-w14"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 47,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 48,
+   "identical_leaves": 7168,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-q-dense-e32"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 45,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 46,
+   "identical_leaves": 7170,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_9c/run-r-zero-e32"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 60,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 61,
+   "identical_leaves": 9123,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k8/run-s-dense-k8"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 62,
+    "E2 the one tool this round moved": 1
+   },
+   "changed": 63,
+   "identical_leaves": 9121,
+   "only_in_the_new_record": 0,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_k8/run-t-zero-k8"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 23,
+    "E2 the one tool this round moved": 1,
+    "E7 control C3c (new)": 64
+   },
+   "changed": 24,
+   "identical_leaves": 4195,
+   "only_in_the_new_record": 64,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_block/block-rung-g-dense"
+  },
+  {
+   "by_class": {
+    "E1 wall clock": 30,
+    "E2 the one tool this round moved": 1,
+    "E7 control C3c (new)": 64
+   },
+   "changed": 31,
+   "identical_leaves": 4188,
+   "only_in_the_new_record": 64,
+   "only_in_the_old_record": 0,
+   "record": "zk60_native_run_gate_block/block-rung-g-zero"
+  }
+ ],
+ "records": 30,
+ "unexpected": [],
+ "unexpected_count": 0,
+ "what": "ROUND 9k: what this round's one tool change moved in the records it\nre-took, leaf by leaf, with a STRICT list (round 9j's form)."
+}

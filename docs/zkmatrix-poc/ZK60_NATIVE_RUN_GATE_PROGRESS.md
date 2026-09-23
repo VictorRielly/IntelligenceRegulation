@@ -4989,7 +4989,7 @@ establishes a privacy property.
 | K2 | the control in `block_controls` (model-only, no captured byte altered), its tests | done (`5680693`, tool bytes frozen there) |
 | K3 | rung-G, both block bundles, the whole gate as round 9j ran it | done -- R9k.4: 13 of 13 stages on both, C3c as predicted |
 | K4 | 125M, both block bundles, the staged driver's cheap stages only (no everything pass) | done -- R9k.4: C3c as predicted on both |
-| K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | IN FLIGHT -- `refresh.done`, `repin_diff.done` |
+| K5 | the records whose tool bytes moved re-taken; strict leaf diff, 0 unexpected | done -- R9k.5: 30 records, 0 UNEXPECTED |
 | K6 | the suites (toy subset, record guard, whole native suite) | IN FLIGHT -- `suite.done`, then `queue.finished` |
 | K7 | results, limits, NEXT | open |
 
@@ -5141,3 +5141,27 @@ actually unmasks something.
 classes `repin_diff.py` applies to all thirty): dense 4,195 identical
 leaves, 64 new C3c leaves, 23 wall clocks, 1 tool hash; zero 4,188
 identical, 64 C3c, 30 clocks, 1 tool hash -- **0 unexpected**.
+
+## R9k.5 The records re-taken, and the suites
+
+**Why any record moved at all.** `zk60_native_rg_block.py` is in the gate's
+hashed `TOOLS` list (round 9j: `load_bundle` is on every record's path), and
+every recorded arm asserts `tool_sha256` equals the tools now in the tree.
+So the one-function edit that adds C3c moves ONE leaf of every record that
+pins the file, and the records were re-taken exactly as round 9j re-took
+them. Nothing else was edited: `zk60_native_run_gate.py`, the staged
+driver and every port are byte-identical to `b7fd6c8`.
+
+**The re-take** (`refresh.sh`, detached under the heavy lock, 09:44-11:36,
+`refresh.done` = 0; every one of the 28 gate runs printed every stage `ok`),
+then **the strict diff** (`repin_diff.py`, `repin_diff.done` = 0): **30
+records, 181,042 identical leaves, 1,104 changed, 128 new, 0 old-only -- 0
+UNEXPECTED.** Three admitted kinds and no fourth: **E1** wall clocks (1,074);
+**E2** `tool_sha256/zk60_native_rg_block.py` (one per record, 30); **E7**
+C3c's new leaves, in the two block records only (64 each: 63 under the
+control, one `controls/[5]`). Every run record moved in exactly E1 + E2 --
+not one rank, disclosed dimension, challenge count, slot check, control
+figure, preimage, mask or channel figure. The toy-equivalence record hashes
+no tool and was not re-taken; the four 125M block records of round 9j and
+its failing-first probe keep their bytes (no test guards their tool bytes;
+they pin round 9j's, as the 125M run records pin pre-9c bytes).

@@ -1,0 +1,31 @@
+zk60_native_run_gate/run-a-tame: identical 2880, {'E1 wall clock': 3, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate/run-b-zero: identical 2880, {'E1 wall clock': 3, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_planeindex/run-c-tame: identical 3690, {'E1 wall clock': 3, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_planeindex/run-d-zero: identical 3691, {'E1 wall clock': 2, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_tagged/run-e-tame-tagged: identical 4029, {'E1 wall clock': 2, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_tagged/run-f-zero-tagged: identical 4028, {'E1 wall clock': 3, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_s20/run-g-dense-s20: identical 4112, {'E1 wall clock': 2, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_s20/run-h-zero-s20: identical 4111, {'E1 wall clock': 3, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_k4/run-i-dense-k4: identical 4197, {'E1 wall clock': 1, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_k4/run-j-zero-k4: identical 4195, {'E1 wall clock': 3, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_preimage/run-g-dense-s20: identical 6546, {'E1 wall clock': 60, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_preimage/run-h-zero-s20: identical 6548, {'E1 wall clock': 58, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_preimage/run-i-dense-k4: identical 6633, {'E1 wall clock': 57, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_preimage/run-j-zero-k4: identical 6628, {'E1 wall clock': 62, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_mask/run-g-dense-s20: identical 8767, {'E1 wall clock': 65, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_mask/run-h-zero-s20: identical 8766, {'E1 wall clock': 66, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_mask/run-i-dense-k4: identical 8852, {'E1 wall clock': 64, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_mask/run-j-zero-k4: identical 8854, {'E1 wall clock': 62, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_p2/run-k-dense-p2: identical 6721, {'E1 wall clock': 41, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_p2/run-l-zero-p2: identical 6721, {'E1 wall clock': 41, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_9c/run-m-dense-c6: identical 6908, {'E1 wall clock': 46, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_9c/run-n-zero-c6: identical 6910, {'E1 wall clock': 44, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_9c/run-o-dense-w14: identical 6706, {'E1 wall clock': 57, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_9c/run-p-zero-w14: identical 6704, {'E1 wall clock': 59, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_9c/run-q-dense-e32: identical 7168, {'E1 wall clock': 47, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_9c/run-r-zero-e32: identical 7170, {'E1 wall clock': 45, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_k8/run-s-dense-k8: identical 9123, {'E1 wall clock': 60, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_k8/run-t-zero-k8: identical 9121, {'E1 wall clock': 62, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_block/block-rung-g-dense: identical 4195, {'E7 control C3c (new)': 64, 'E1 wall clock': 23, 'E2 the one tool this round moved': 1}
+zk60_native_run_gate_block/block-rung-g-zero: identical 4188, {'E7 control C3c (new)': 64, 'E1 wall clock': 30, 'E2 the one tool this round moved': 1}
+records 30, identical 181042, changed 1104, new 128, old-only 0, UNEXPECTED 0
