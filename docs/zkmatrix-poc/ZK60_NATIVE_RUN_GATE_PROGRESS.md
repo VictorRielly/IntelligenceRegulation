@@ -5224,3 +5224,47 @@ counts 6. No measured figure of any earlier round moved.
    unpinned `witness.rs` / `endpoint_g.rs` / `hash_domain.rs` /
    `run_sink.rs`; the joint LAW, HIDING, twelve blocks). Nothing here is a
    privacy acceptance.
+
+---
+
+# ROUND 9l (2026-09-23 13:17 PDT) — ruling GC-2: the exact u-term, an exclusivity check that refuses overlap, and one control per clause
+
+## R9l.0 Why there is a round 9l
+
+Ruling **GC-2** of `ZK60_GS4_GS5_GS11_GS12_CLOSURES_DISPOSITION.md` §3
+(main tree, 2026-09-23 13:05), on findings F-3, F-4 and F-6 of
+`ZK60_GS4_GS5_GS11_GS12_CLOSURES_CHECK.md` (the check's scripts,
+`results/zk60_gs_closures_check/` in the main tree, are read-only here):
+
+* **F-3** -- the gate's u-row term is a per-indicator solve; it under-counts
+  when only a non-axis combination of the zero-sum indicators is reachable
+  (36 of 36 constructed cases in the check). Replace it by the exact
+  `u* = rank Γ_{D∪N'} − rank Γ_{N'} − k0`.
+* **F-4** -- the gate's H-pair (`RoleView._check_pair_schedule`) accepts
+  OVERLAPPING pairs (and odd-offset and partial schedules), so it is not
+  the same observation as `protocol.rs::audit_claims`. Make it refuse, with
+  a control that overlaps two pairs.
+* **F-6** -- the controls exercise 7 kinds; every clause of exclusivity
+  must be exercised at least once, each control firing on its perturbation
+  and not on the honest view.
+
+Then every record whose bytes move is re-taken with 0 unexpected leaves in
+the strict diff, as rounds 9i-9k did. The toy gates' modules
+(`zk60_native_jv_pcs.py`, `zk60_native_jv_joint.py`) are hashed into D22's
+evidence and are NOT edited (this ledger's standing rule, §0): the run gate
+overrides, as `RunRoleView` already does.
+
+Nothing in this round is a privacy acceptance and no statement here
+establishes a privacy property.
+
+## R9l.1 Status
+
+| # | item | state |
+|---|---|---|
+| L0 | ledger skeleton, round 9l opened | this commit |
+| L1 | the prediction, written and committed BEFORE the new code ran on any bundle | pending |
+| L2 | the exact u-term (per commitment and joint), its constructed-case test | pending |
+| L3 | the exclusivity check, clause by clause, refusing overlap; one control per clause | pending |
+| L4 | records re-taken; strict leaf diff, 0 unexpected | pending |
+| L5 | the suites (toy subset, record guard, whole native suite) | pending |
+| L6 | results, limits, NEXT | pending |
