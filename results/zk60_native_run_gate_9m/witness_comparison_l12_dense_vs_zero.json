@@ -1,0 +1,4451 @@
+{
+  "what": "every measured figure of each record, side by side, so a DENSE witness can be read against a DEGENERATE one",
+  "labels": [
+    "m125 L=12 (dense)",
+    "m125 L=12 (zero)"
+  ],
+  "witnesses": [
+    "dense_run_case, down band 1 (the bundle's README)",
+    "the all-zero hidden input (the bundle's README)"
+  ],
+  "sources": [
+    "results/zk60_native_run_gate_9m/l12-dense-a.json",
+    "results/zk60_native_run_gate_9m/l12-zero-a.json"
+  ],
+  "the_witness_is_not_in_the_bundle": "no capture carries a witness, so the witness column is a claim about the Rust lane's test that made the bundle (its README), not something this tool measured",
+  "figures_compared": 498,
+  "figures_identical": 456,
+  "figures_that_differ": [
+    {
+      "figure": "distinct opened columns/0:A",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/0:A",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/0:Input",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/0:Input",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/1:A",
+      "values": [
+        256,
+        254
+      ]
+    },
+    {
+      "figure": "pad margin/1:A",
+      "values": [
+        0,
+        2
+      ]
+    },
+    {
+      "figure": "distinct opened columns/1:H",
+      "values": [
+        255,
+        254
+      ]
+    },
+    {
+      "figure": "pad margin/1:H",
+      "values": [
+        1,
+        2
+      ]
+    },
+    {
+      "figure": "distinct opened columns/1:Input",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/1:Input",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/2:H",
+      "values": [
+        256,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/2:H",
+      "values": [
+        0,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/2:Input",
+      "values": [
+        254,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/2:Input",
+      "values": [
+        2,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/3:Input",
+      "values": [
+        256,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/3:Input",
+      "values": [
+        0,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/4:A",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/4:A",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/4:Input",
+      "values": [
+        256,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/4:Input",
+      "values": [
+        0,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/5:Input",
+      "values": [
+        256,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/5:Input",
+      "values": [
+        0,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/7:A",
+      "values": [
+        256,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/7:A",
+      "values": [
+        0,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/8:H",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/8:H",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/8:Input",
+      "values": [
+        256,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/8:Input",
+      "values": [
+        0,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/9:A",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/9:A",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/9:Input",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/9:Input",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/10:H",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/10:H",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/10:Input",
+      "values": [
+        254,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/10:Input",
+      "values": [
+        2,
+        0
+      ]
+    },
+    {
+      "figure": "distinct opened columns/11:A",
+      "values": [
+        256,
+        255
+      ]
+    },
+    {
+      "figure": "pad margin/11:A",
+      "values": [
+        0,
+        1
+      ]
+    },
+    {
+      "figure": "distinct opened columns/11:Input",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad margin/11:Input",
+      "values": [
+        1,
+        0
+      ]
+    },
+    {
+      "figure": "pad block/distinct columns",
+      "values": [
+        255,
+        256
+      ]
+    },
+    {
+      "figure": "pad block/exact rank",
+      "values": [
+        255,
+        256
+      ]
+    }
+  ],
+  "all_identical": false,
+  "per_figure": [
+    {
+      "figure": "replay/run binding reproduced",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/transcript positions",
+      "values": [
+        1491,
+        1491
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/challenges re-derived",
+      "values": [
+        166788,
+        166788
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/final transcript counter",
+      "values": [
+        169924,
+        169924
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/segment position tags ok",
+      "values": [
+        12,
+        12
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/challenges NOT re-derived",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "replay/hash rule",
+      "values": [
+        "blake3-keyed/1",
+        "blake3-keyed/1"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "integrity/findings",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "integrity/segment byte lengths",
+      "values": [
+        [
+          40033896,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          41051720
+        ],
+        [
+          40033896,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          40302184,
+          41051720
+        ]
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/0:A",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:A",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/0:H",
+      "values": [
+        255,
+        255
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/0:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:H",
+      "values": [
+        1,
+        1
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/0:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/0:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/0:Input",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/0:Input",
+      "values": [
+        37,
+        37
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/0:Input",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/0:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/0:Input",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/0:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/1:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/1:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/1:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/1:A",
+      "values": [
+        256,
+        254
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/1:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/1:A",
+      "values": [
+        0,
+        2
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/1:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/1:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/1:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/1:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/1:H",
+      "values": [
+        255,
+        254
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/1:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/1:H",
+      "values": [
+        1,
+        2
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/1:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/1:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/1:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/1:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/1:Input",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/1:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/1:Input",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/1:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/2:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/2:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/2:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/2:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/2:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/2:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/2:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/2:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/2:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/2:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/2:H",
+      "values": [
+        256,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/2:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/2:H",
+      "values": [
+        0,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/2:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/2:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/2:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/2:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/2:Input",
+      "values": [
+        254,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/2:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/2:Input",
+      "values": [
+        2,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/2:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/3:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/3:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/3:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/3:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/3:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/3:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/3:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/3:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/3:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/3:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/3:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/3:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/3:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/3:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/3:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/3:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/3:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/3:Input",
+      "values": [
+        256,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/3:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/3:Input",
+      "values": [
+        0,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/3:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/4:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/4:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/4:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/4:A",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/4:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/4:A",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/4:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/4:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/4:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/4:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/4:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/4:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/4:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/4:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/4:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/4:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/4:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/4:Input",
+      "values": [
+        256,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/4:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/4:Input",
+      "values": [
+        0,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/4:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/5:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/5:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/5:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/5:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/5:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/5:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/5:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/5:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/5:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/5:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/5:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/5:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/5:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/5:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/5:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/5:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/5:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/5:Input",
+      "values": [
+        256,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/5:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/5:Input",
+      "values": [
+        0,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/5:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/6:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/6:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/6:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/6:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/6:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/6:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/6:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/6:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/6:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/6:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/6:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/6:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/6:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/6:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/6:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/6:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/6:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/6:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/6:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/6:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/6:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/7:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/7:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/7:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/7:A",
+      "values": [
+        256,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/7:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/7:A",
+      "values": [
+        0,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/7:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/7:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/7:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/7:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/7:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/7:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/7:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/7:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/7:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/7:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/7:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/7:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/7:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/7:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/7:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/8:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/8:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/8:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/8:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/8:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/8:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/8:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/8:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/8:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/8:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/8:H",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/8:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/8:H",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/8:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/8:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/8:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/8:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/8:Input",
+      "values": [
+        256,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/8:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/8:Input",
+      "values": [
+        0,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/8:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/9:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/9:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/9:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/9:A",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/9:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/9:A",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/9:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/9:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/9:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/9:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/9:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/9:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/9:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/9:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/9:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/9:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/9:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/9:Input",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/9:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/9:Input",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/9:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/10:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/10:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/10:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/10:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/10:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/10:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/10:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/10:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/10:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/10:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/10:H",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/10:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/10:H",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/10:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/10:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/10:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/10:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/10:Input",
+      "values": [
+        254,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/10:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/10:Input",
+      "values": [
+        2,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/10:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/11:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/11:A",
+      "values": [
+        74,
+        74
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/11:A",
+      "values": [
+        5681,
+        5681
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/11:A",
+      "values": [
+        256,
+        255
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/11:A",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/11:A",
+      "values": [
+        0,
+        1
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/11:A",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/11:H",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/11:H",
+      "values": [
+        20,
+        20
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/11:H",
+      "values": [
+        7120,
+        7120
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/11:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/11:H",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/11:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/11:H",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/11:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/11:Input",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/11:Input",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/11:Input",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad count/11:Input",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/11:Input",
+      "values": [
+        1,
+        0
+      ],
+      "identical": false
+    },
+    {
+      "figure": "k0/11:Input",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/11:Output",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rank_P1/11:Output",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/11:Output",
+      "values": [
+        37,
+        37
+      ],
+      "identical": true
+    },
+    {
+      "figure": "distinct opened columns/11:Output",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad count/11:Output",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad margin/11:Output",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "k0/11:Output",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@0",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@0",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@0",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@1",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@1",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@1",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@2",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@2",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@2",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@3",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@3",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@3",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@4",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@4",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@4",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@5",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@5",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@5",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@6",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@6",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@6",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@7",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@7",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@7",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@8",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@8",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@8",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@9",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@9",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@9",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@10",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@10",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@10",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "disclosed/M@11",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "rows/M@11",
+      "values": [
+        50,
+        50
+      ],
+      "identical": true
+    },
+    {
+      "figure": "opened columns/M@11",
+      "values": [
+        256,
+        256
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pad block/distinct columns",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad block/exact rank",
+      "values": [
+        255,
+        256
+      ],
+      "identical": false
+    },
+    {
+      "figure": "pad block/full rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role parts",
+      "values": [
+        {
+          "A@0": 0,
+          "A@1": 0,
+          "B0": 0
+        },
+        {
+          "A@0": 0,
+          "A@1": 0,
+          "B0": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 0/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/three-role parts",
+      "values": [
+        {
+          "A@1": 0,
+          "A@2": 0,
+          "B1": 0
+        },
+        {
+          "A@1": 0,
+          "A@2": 0,
+          "B1": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 1/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/three-role parts",
+      "values": [
+        {
+          "A@2": 0,
+          "A@3": 0,
+          "B2": 0
+        },
+        {
+          "A@2": 0,
+          "A@3": 0,
+          "B2": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 2/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/three-role parts",
+      "values": [
+        {
+          "A@3": 0,
+          "A@4": 0,
+          "B3": 0
+        },
+        {
+          "A@3": 0,
+          "A@4": 0,
+          "B3": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 3/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/three-role parts",
+      "values": [
+        {
+          "A@4": 0,
+          "A@5": 0,
+          "B4": 0
+        },
+        {
+          "A@4": 0,
+          "A@5": 0,
+          "B4": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 4/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/three-role parts",
+      "values": [
+        {
+          "A@5": 0,
+          "A@6": 0,
+          "B5": 0
+        },
+        {
+          "A@5": 0,
+          "A@6": 0,
+          "B5": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 5/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/three-role parts",
+      "values": [
+        {
+          "A@6": 0,
+          "A@7": 0,
+          "B6": 0
+        },
+        {
+          "A@6": 0,
+          "A@7": 0,
+          "B6": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 6/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/three-role parts",
+      "values": [
+        {
+          "A@7": 0,
+          "A@8": 0,
+          "B7": 0
+        },
+        {
+          "A@7": 0,
+          "A@8": 0,
+          "B7": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 7/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/three-role parts",
+      "values": [
+        {
+          "A@8": 0,
+          "A@9": 0,
+          "B8": 0
+        },
+        {
+          "A@8": 0,
+          "A@9": 0,
+          "B8": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 8/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/three-role parts",
+      "values": [
+        {
+          "A@10": 0,
+          "A@9": 0,
+          "B9": 0
+        },
+        {
+          "A@10": 0,
+          "A@9": 0,
+          "B9": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 9/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/reserved rows",
+      "values": [
+        38,
+        38
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/generators on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/rank on the reserved block",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/rank over all rows",
+      "values": [
+        6,
+        6
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/full row rank",
+      "values": [
+        true,
+        true
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/disclosed on the reserved block",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/three-role parts",
+      "values": [
+        {
+          "A@10": 0,
+          "A@11": 0,
+          "B10": 0
+        },
+        {
+          "A@10": 0,
+          "A@11": 0,
+          "B10": 0
+        }
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/three-role sum",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/three-role joint",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/three-role generators",
+      "values": [
+        154,
+        154
+      ],
+      "identical": true
+    },
+    {
+      "figure": "boundary 10/aliasing lost to the identification",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/generators x classes",
+      "values": [
+        "1226 x 153936",
+        "1226 x 153936"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/sum of parts",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/joint",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "whole run/identified rows",
+      "values": [
+        768,
+        768
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 0 and 1 with boundary 0/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 0 and 1 with boundary 0/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 1 and 2 with boundary 1/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 1 and 2 with boundary 1/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 2 and 3 with boundary 2/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 2 and 3 with boundary 2/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 3 and 4 with boundary 3/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 3 and 4 with boundary 3/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 4 and 5 with boundary 4/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 4 and 5 with boundary 4/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 5 and 6 with boundary 5/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 5 and 6 with boundary 5/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 6 and 7 with boundary 6/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 6 and 7 with boundary 6/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 7 and 8 with boundary 7/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 7 and 8 with boundary 7/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 8 and 9 with boundary 8/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 8 and 9 with boundary 8/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 9 and 10 with boundary 9/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 9 and 10 with boundary 9/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 10 and 11 with boundary 10/joint",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "pair/stages 10 and 11 with boundary 10/sum",
+      "values": [
+        4,
+        4
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/attempted",
+      "values": [
+        [
+          "B0",
+          "B1",
+          "B10",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "B8",
+          "B9",
+          "E-Input",
+          "E-Output"
+        ],
+        [
+          "B0",
+          "B1",
+          "B10",
+          "B2",
+          "B3",
+          "B4",
+          "B5",
+          "B6",
+          "B7",
+          "B8",
+          "B9",
+          "E-Input",
+          "E-Output"
+        ]
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/half",
+      "values": [
+        "message only",
+        "message only"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/commitments exhibited",
+      "values": [
+        13,
+        13
+      ],
+      "identical": true
+    },
+    {
+      "figure": "preimage/free field elements per position",
+      "values": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/slots covered",
+      "values": [
+        23,
+        23
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/checks equal",
+      "values": [
+        276,
+        276
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/checks expected",
+      "values": [
+        276,
+        276
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/matching the stored terminal_polynomial",
+      "values": [
+        276,
+        276
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/public tables rebuilt",
+      "values": [
+        13,
+        13
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/public tables taken from the capture",
+      "values": [
+        15,
+        15
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/public table structure checks",
+      "values": [
+        180,
+        180
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/derived group points used",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/controls that fire",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "terminals/controls total",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/carried",
+      "values": [
+        336,
+        336
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/length checked",
+      "values": [
+        336,
+        336
+      ],
+      "identical": true
+    },
+    {
+      "figure": "public tables/digest checked",
+      "values": [
+        336,
+        336
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/openings",
+      "values": [
+        49,
+        49
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/columns checked",
+      "values": [
+        12544,
+        12544
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/columns authenticated",
+      "values": [
+        12544,
+        12544
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/bytes hashed",
+      "values": [
+        316833792,
+        316833792
+      ],
+      "identical": true
+    },
+    {
+      "figure": "hash layer/controls that fire",
+      "values": [
+        0,
+        0
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/definition in force",
+      "values": [
+        "repaired",
+        "repaired"
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/lkv",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/coordinate_entries_compared",
+      "values": [
+        900,
+        900
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/coordinate_lists_rederived_and_compared",
+      "values": [
+        48,
+        48
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/definition_challenge_counts_compared",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/dimension_sets_derived_and_compared",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/fixed_coordinates_compared_with_a_rederived_challenge",
+      "values": [
+        444,
+        444
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/group_point_entries_compared",
+      "values": [
+        48,
+        48
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/group_points_derived_and_compared",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/slots_examined",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/slots with a derived point",
+      "values": [
+        24,
+        24
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/controls that fire",
+      "values": [
+        null,
+        null
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/controls total",
+      "values": [
+        null,
+        null
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/the repaired polynomial holds",
+      "values": [
+        null,
+        null
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/the pre-repair polynomial holds",
+      "values": [
+        null,
+        null
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/group factors equal to one",
+      "values": [
+        null,
+        null
+      ],
+      "identical": true
+    },
+    {
+      "figure": "group factor/terminal products that are zero",
+      "values": [
+        null,
+        null
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/total",
+      "values": [
+        28,
+        28
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/argued",
+      "values": [
+        5,
+        5
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/constructed",
+      "values": [
+        2,
+        2
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/derived",
+      "values": [
+        5,
+        5
+      ],
+      "identical": true
+    },
+    {
+      "figure": "channels/open",
+      "values": [
+        16,
+        16
+      ],
+      "identical": true
+    }
+  ],
+  "ruling_R3": "ruling R-3: `joint == sum of the parts` is a CONSISTENCY CHECK of this model's coordinate classes, NOT evidence that the commitments' blinding is independent.  The checker built the counterexample: two DISTINCT blinding rows whose VALUES coincide score exactly like an honest run (joint 0 = sum 0) while disclosing 1,024 field elements at this shape.  Independence across the 4L+1 commitments rests on the generator and the draw discipline (gap G-R4), is to be machine-asserted elsewhere, and is not established by anything in this figure",
+  "this_is_not_a_privacy_result": true
+}

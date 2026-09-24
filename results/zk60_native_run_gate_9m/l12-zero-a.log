@@ -1,0 +1,28 @@
+[2026-09-23 18:15:38] l12-zero-a: needs ~9000 MB available
+               total        used        free      shared  buff/cache   available
+Mem:           15762        1195       10193           2        4372       14259
+Swap:           4096         162        3933
++ A=/home/victor/zk60-artifacts
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m
++ pass=a
++ wit=zero
+++ '[' zero = dense ']'
+++ echo dense
++ other=dense
++ case $pass in
++ S=load,replay,hash,terminals,commitments,boundary,preimage,channels
++ X=
++ name=l12-zero-a
++ /usr/bin/time -v python3 -u /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/m125-capture-zero-l12 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m --name l12-zero-a --stages load,replay,hash,terminals,commitments,boundary,preimage,channels
+[load          ]      4.1 s   peak RSS    1539 MB   ok
+[replay        ]      5.7 s   peak RSS    1539 MB   ok
+[hash          ]      3.3 s   peak RSS    1539 MB   ok
+[terminals     ]    537.1 s   peak RSS    2036 MB   ok
+[commitments   ]    125.3 s   peak RSS    2036 MB   ok
+[boundary      ]    158.5 s   peak RSS    6819 MB   ok
+[preimage      ]      4.7 s   peak RSS    6819 MB   ok
+[channels      ]      0.0 s   peak RSS    6819 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m/l12-zero-a.json   total 838.7 s   peak RSS 6819 MB   ok=True

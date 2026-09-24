@@ -326,5 +326,176 @@ class TheValidationFileAndTheRunDirectory(unittest.TestCase):
         self.assertTrue(any("not JSON" in x for x in f), f)
 
 
+# =====================================================================
+#  the RECORD arm -- the twelve-block records, once committed
+# =====================================================================
+def _record(name):
+    p = os.path.join(EVIDENCE, f"{name}.json")
+    if not os.path.isfile(p):
+        return None
+    with open(p) as fh:
+        r = json.load(fh)
+    # the driver flushes a PARTIAL record after every stage; only a finished
+    # pass (it writes `stages_run` last) is a record
+    return r if "stages_run" in r else None
+
+
+A_RECORDS = {w: _record(f"l12-{w}-a") for w in ("dense", "zero")}
+
+
+@unittest.skipUnless(any(A_RECORDS.values()),
+                     "no twelve-block pass-A record is committed yet")
+class ThePassARecords(unittest.TestCase):
+    """Round 9m's prediction (R9m.3, `prediction_l12_by_hand.json`), figure
+    by figure, against the records pass A wrote.  The records are ~0.4 MB and
+    are NOT tool-byte guarded: a later tool change does not force a
+    fourteen-minute 7 GB re-take of each."""
+
+    def _each(self):
+        for w, r in A_RECORDS.items():
+            if r is not None:
+                yield w, r
+
+    def test_integrity_the_validation_file_and_the_segments(self):
+        for w, r in self._each():
+            with self.subTest(w):
+                s1 = r["stage1_integrity"]
+                self.assertTrue(s1["ok"])
+                self.assertEqual(s1["findings"], [])
+                self.assertEqual((s1["blocks"], s1["boundaries"]), (12, 11))
+                self.assertEqual(s1["manifest_files_checked"], 15)
+                self.assertEqual(s1["distinct_roots_opened"], 37)
+                self.assertFalse(s1["any_root_opened_twice"])
+                self.assertTrue(all(s1["validation_file"]["flags"].values()))
+                self.assertTrue(s1["validation_file"]["manifest_sha256_matches"])
+                rd = s1["run_directory"]
+                self.assertEqual(rd["segments_matching_their_stage_pins"], 12)
+                self.assertEqual(rd["segment_bytes_total"], 484107456)
+                self.assertTrue(rd["run_statement"]["matches_validation"])
+                self.assertTrue(r["run_layer_source_pins"]["ok"])
+
+    def test_the_replay_and_the_hash_layer(self):
+        for w, r in self._each():
+            with self.subTest(w):
+                s2 = r["stage2_transcript_replay"]
+                self.assertEqual((s2["positions_checked"], s2["challenges_checked"],
+                                  s2["stages"]), (1491, 166788, 12))
+                self.assertTrue(s2["run_binding_reproduced"])
+                # the one extrapolated figure that missed (R9m.6): the
+                # surplus of squeezes over counted challenges is 256 per
+                # stage plus 64 once, not L = 2's 576 / 2 per stage
+                self.assertEqual(s2["final_counter"], 166788 + 256 * 12 + 64)
+                s9 = r["stage9_hash_layer"]
+                self.assertEqual((s9["openings"], s9["columns_checked"],
+                                  s9["columns_authenticated"], s9["bytes_hashed"]),
+                                 (49, 12544, 12544, 316833792))
+
+    def test_the_terminal_identity_and_the_group_factor(self):
+        for w, r in self._each():
+            with self.subTest(w):
+                s8 = r["stage8_plane_index_and_terminals"]
+                t = s8["terminal_identity"]
+                self.assertTrue(s8["ok"])
+                self.assertEqual(s8["channel_status"], "derived")
+                for k in ("slot_checks_attempted", "slot_checks_equal",
+                          "slot_checks_expected",
+                          "slot_checks_matching_the_stored_terminal_polynomial"):
+                    self.assertEqual(t[k], 276, k)
+                self.assertEqual(t["open_slots"], [])
+                self.assertEqual((t["public_tables_rebuilt_and_digest_matched"],
+                                  t["public_tables_taken_from_the_capture"],
+                                  t["public_table_structure_checks"]), (13, 15, 180))
+                self.assertEqual(s8["carried_public_tables"]["digest_checked"], 336)
+                g = r["stage10_bilinear_group_factor"]["group_factor"]
+                self.assertEqual(g["definition_in_force"], "repaired")
+                self.assertEqual(g["counts"]["group_points_derived_and_compared"], 24)
+                self.assertEqual(g["counts"]["coordinate_entries_compared"], 900)
+                self.assertEqual(
+                    g["counts"]["fixed_coordinates_compared_with_a_rederived_challenge"], 444)
+
+    def test_every_commitment(self):
+        want = {"A": (12, 5681, 122, 36, 0, 74, 246, 244),
+                "H": (12, 7120, 51, 9, 2, 20, 104, 100),
+                "B": (11, 38, 2, 2, 0, 6, 6, 4),
+                "E": (2, 37, 1, 1, 0, 4, 5, 2)}
+        for w, r in self._each():
+            with self.subTest(w):
+                s3 = r["stage3_per_commitment"]
+                self.assertTrue(s3["ok"])
+                got = {}
+                for c in s3["per_commitment"]:
+                    k = c["role"][0]
+                    sig = (c["rows"], c["claims"], c["groups"],
+                           c["disclosed_dimension"], c["rank_P1"],
+                           c["non_data_rows"],
+                           c["exclusivity"]["site_rows_used_exactly_once"])
+                    got.setdefault(k, set()).add(sig)
+                    self.assertEqual(c["exclusivity"]["clauses_passed"], 16)
+                    self.assertEqual(c["k0"], 0)
+                    if k == "H":
+                        self.assertEqual(c["u_row_term"]["extra_dimension_beyond_k0"], 2)
+                        self.assertTrue(c["u_row_term"]["per_indicator_equals_exact"])
+                self.assertEqual(len(s3["per_commitment"]), 37)
+                for k, (n, *sig) in want.items():
+                    self.assertEqual(got[k], {tuple(sig)}, k)
+                    self.assertEqual(sum(1 for c in s3["per_commitment"]
+                                         if c["role"][0] == k), n, k)
+                self.assertEqual(len(s3["masking_commitments"]), 12)
+                self.assertTrue(all(m["disclosed_dimension"] == 0
+                                    for m in s3["masking_commitments"]))
+                xc = s3["exclusivity_controls"]
+                self.assertTrue(xc["all_fire"] and xc["every_clause_exercised"])
+                self.assertEqual(len(xc["controls"]), 24)
+                self.assertEqual(len(xc["the_old_check_accepted"]), 7)
+
+    def test_every_boundary_the_pairs_and_the_whole_run(self):
+        for w, r in self._each():
+            with self.subTest(w):
+                s4 = r["stage4_the_boundary"]
+                self.assertTrue(s4["ok"])
+                self.assertEqual(len(s4["per_boundary"]), 11)
+                for b in s4["per_boundary"]:
+                    res = b["restricted_to_the_reserved_rows"]
+                    self.assertEqual((res["rank_on_the_reserved_block"],
+                                      res["generators"],
+                                      res["disclosed_on_the_reserved_block_fp"]),
+                                     (6, 6, 0))
+                    self.assertTrue(res["determinant_nonzero"])
+                    t = b["three_roles_of_the_plane"]
+                    self.assertEqual((t["generators"], t["coordinate_classes"],
+                                      t["identified_rows"], t["joint_fp"],
+                                      t["sum_of_parts_fp"]), (154, 11336, 64, 0, 0))
+                pairs = [(p["matrix"], p["identified_rows"], p["joint_fp"],
+                          p["sum_of_parts_fp"]) for p in s4["adjacent_stage_pairs"]]
+                self.assertEqual(pairs, [("202 x 25681", 96, 4, 4)]
+                                 + [("198 x 25676", 64, 4, 4)] * 9
+                                 + [("202 x 25681", 96, 4, 4)])
+                wr = s4["whole_run"]
+                self.assertEqual(wr["matrix"], "1226 x 153936")
+                self.assertEqual((wr["rows_total"], wr["identified_rows"],
+                                  wr["classes_shared_between_roles_data"],
+                                  wr["classes_shared_between_roles_non_data"]),
+                                 (154704, 768, 416, 0))
+                self.assertEqual((wr["joint_fp"], wr["sum_of_parts_fp"]), (24, 24))
+                jd = wr["joint_detail"]
+                self.assertEqual(jd["k0"], 0)
+                self.assertEqual(jd["u_row_detail"]["extra_dimension_beyond_k0"], 24)
+                self.assertTrue(jd["u_row_detail"]["per_indicator_equals_exact"])
+
+    def test_the_singleton_preimages_and_the_channels(self):
+        for w, r in self._each():
+            with self.subTest(w):
+                s5 = r["stage5_zero_data_preimage"]
+                self.assertEqual(len(s5["per_commitment"]), 13)
+                self.assertTrue(all(p["preimage_exhibited"]
+                                    for p in s5["per_commitment"]))
+                self.assertEqual(r["stage7_channels"]["counts"],
+                                 {"constructed": 2, "derived": 5,
+                                  "argued": 5, "open": 16})
+                self.assertFalse(r["privacy_property_established"])
+                self.assertFalse(r["privacy_acceptance"])
+                self.assertIn("12-block run", r["what_it_does_not_show"][0])
+
+
 if __name__ == "__main__":
     unittest.main()
