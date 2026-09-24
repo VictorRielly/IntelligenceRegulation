@@ -359,14 +359,21 @@ class Driver:
         self.rec["total_seconds"] = round(
             sum(t["seconds"] for t in self.rec["timings"]), 1)
         block = getattr(self.bundle, "standalone", False)
+        # [ROUND 9m] the run sentence said "two-block" as a literal; a
+        # twelve-block run gets its own (a two-block record keeps its bytes)
+        two = ("linear channels of ONE captured two-block run at the 125M "
+               "shape, at that run's real challenges.  Two runs are not a "
+               "distribution and two blocks are not twelve")
+        many = (f"linear channels of ONE captured {self.bundle.blocks}-block "
+                "run at the 125M shape, at that run's real challenges.  One "
+                "run is not a distribution, and a dense and an all-zero run "
+                "are two witnesses, not the space of witnesses")
         self.rec["what_it_does_not_show"] = [
             ("linear channels of ONE captured STANDALONE block proof at its "
              "real challenges.  One proof is not a distribution, and a block "
              "is not a run: nothing here is about a boundary, a segment or "
              "twelve blocks" if block else
-             "linear channels of ONE captured two-block run at the 125M "
-             "shape, at that run's real challenges.  Two runs are not a "
-             "distribution and two blocks are not twelve"),
+             two if self.bundle.blocks == 2 else many),
             "the hash layer's HIDING is still ARGUED: every OPENED column is "
             "re-hashed and re-authenticated, which says nothing about what "
             "an unopened leaf hides (M-2, M-3)",

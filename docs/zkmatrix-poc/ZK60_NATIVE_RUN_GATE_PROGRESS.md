@@ -5656,7 +5656,7 @@ establishes a privacy property.
 |---|---|---|
 | M0 | ledger skeleton, round 9m opened | done (`5d3a57f`) |
 | M1 | the projection (time and peak memory per pass at `L = 12`) and the prediction, written and committed BEFORE the gate reads either bundle with its pins read | done -- this commit, R9m.2, R9m.3 |
-| M2 | the pins: read, every moved file re-pinned with a written reason; a third digest still refused | pending |
+| M2 | the pins: read, every moved file re-pinned with a written reason; a third digest still refused | done -- this commit, R9m.4, R9m.5; tool bytes FROZEN here |
 | M3 | the passes that fit, detached under the heavy lock, one at a time, `/usr/bin/time -v` | pending |
 | M4 | dense against zero | pending |
 | M5 | records (where they are), the records re-taken where a tool moved, the suites | pending |
@@ -5723,3 +5723,61 @@ L = 2's x 12 / 2; every per-boundary figure is the one L = 2 boundary's, x
 | P11 | run controls (F) | C1..C6 6 of 6; CH-1/2/4/5/7 fire (CH-7 12,544 / 0), CH-3 identity, CH-6 skipped -> stage 6 `ok` false (round 9c's bookkeeping); M9-1, M9-2 fire; M9-3 not in F | the same |
 | P12 | channels | pass A **28 at 2 / 5 / 5 / 16**; pass F **10 / 3 / 5 / 10**. The brief's "10 / 5 / 4 / 9" is the pre-R9j count; the whole table is 10 / 5 / 5 / 8 since the row-26 regrade and needs the everything pass (NOT RUN) | the same |
 | P13 | dense vs zero | identical but for distinct sampled-column counts, the pad margins, the pad-block rank on `B0`, the distinct salted leaves and the bundles' own bytes | the same classes |
+
+## R9m.4 The pins: failing first, read, then re-pinned (every old digest kept)
+
+**Failing first** (`probe_before_repin/probe-l12-dense-load.*`, 17:40, the
+UNEDITED tools, `load` only): the gate refused the dense bundle on exactly
+two counts, both by name, and computed nothing else --
+`src/private_block/run.rs: the bundle pins f5f4d571e04b, which is not one of
+the 9 digests this gate has read`, and `validation.json: on disk, not in the
+manifest`.
+
+The 38 source pins of both bundles are one set (checked: equal pin for pin),
+recomputed from the lane's blobs at `17830dc`. Against the gate's tables:
+
+| file | L = 2 (`f4697f9`) -> L = 12 (`17830dc`) | compared by | reading |
+|---|---|---|---|
+| `run.rs` | `f24676c4` -> **`f5f4d571`** (last read: rung-K8's `f39aec79` at `99a8de8`) | `rg_runpins` -- **REFUSED, now read and pinned** | `git --no-pager -C /home/victor/wt-zk60-block125m diff 99a8de8 17830dc -- hashline/src/private_block/run.rs`: **+198 / -17, 10 hunks**, stages 40-43, last touched at `601e97f`. Every hunk is a REFUSAL, a sealed field or a `#[cfg(test)]` helper: CS-8 (`RunShape`'s three fields and `RunStatement.rs` private, read accessors), CS-7 (`registered_block_shape` and its refusal in `RunShape::new`), CS-1 / CS-4 (`blocks_fit_the_shape`, `policy_fits_the_shape` before anything is absorbed), CS-6 (`as_many_blocks_as_the_statement` -- 12 of the 17 removed lines are the four three-line block-count checks it replaces -- and `blocks_are_the_statements`, with a `#[cfg(test)]` cheating-prover switch on the prover side only). Every line matching absorb / squeeze / position_tag / pb-run / run-shape / challenge / transcript / BOUNDARY_SITES / in_site / out_site / from_os is byte-identical AS A SEQUENCE (the ten new matches are comments and refusal strings), so all that `zk60_native_rg_replay` and `integrity` transcribe is untouched. The reading is in the tool beside the digest |
+| `run_capture.rs` | `d09f3853` unchanged | `rg_runpins` | byte-identical at `17830dc` (the lane's forbidden-files proof; stage 48's writer is a `cfg(test)` body in `run_capture_tests.rs`, which no bundle pins): the entry gains the commit and the two bundles |
+| `boundary.rs` | `5b1c85fe` unchanged | `rg_runpins` | `git diff --numstat 99a8de8 17830dc` does not list it: the entry gains the commit and the two bundles |
+| `protocol.rs`, `argument.rs`, `layout.rs`, `shape.rs` | moved since L = 2, but at `974892cc` / `2cee0a22` / `64c37a49` / `5acecd8e` -- the digests round 9j READ (R9j.6) | `rg_terminals`, `rg_gqa`, `rg_mask` | accepted as read; `git diff 19f06bf 17830dc` does not touch any of them |
+| `private_block.rs` | `a9cfeddc` -> `2764a7ec` | no run-gate table (report-only, `NEWLY_PINNED_OWN_FILES`: the module root) | `git diff 19f06bf 17830dc`: +3, one comment and one `#[cfg(test)] mod gr4_check_tests;` (stage 47) |
+| `witness.rs` | `b9b66c02` -> `6fd11eae` | none (a capture carries no witness) | round 9j's reading, unchanged since |
+| `rng.rs`, `transcript.rs` | at round 9i's accepted SECOND digests | `check_shared_pins` | as read in R9i |
+| the other 27 | unchanged since L = 2 | as before | -- |
+
+**A third digest is still refused**: `test_zk60_native_run_gate_l12`
+asserts `run.rs` at a digest one nibble off `f5f4d571` is refused by name
+("not one of the 10 digests this gate has read") and suspends every stage,
+while rung-K8's `f39aec79` is still accepted. The lane arm of
+`test_zk60_native_run_gate_runpins` recomputes every table digest from the
+committed blobs: 36 -> **40** checks (the new digest at `601e97f` and
+`17830dc`, the two unmoved files at `17830dc`), all equal.
+
+## R9m.5 What changed in the tools (frozen before the queue)
+
+| tool | in `TOOLS`? | what | why |
+|---|---|---|---|
+| `zk60_native_rg_runpins.py` | yes | `run.rs` `f5f4d571` (blob `9a219445`, 56,374 B, commits `601e97f`, `17830dc`) with its READING; `17830dc` and the two twelve-block bundles appended to `run_capture.rs`'s `d09f3853` and `boundary.rs`'s `5b1c85fe` | R9m.4 |
+| `zk60_native_rg_bundle.py` | yes | `validation_and_run_directory`: `validation.json` (lane stage 48's fresh-process re-verify, written AFTER the manifest) is READ and COMPARED -- kind, schema, profile, blocks, the manifest's own SHA-256, `run.json`'s source commit, six flags -- and never used for a figure; the receipt's segments under `run/` are each checked against the length and SHA-256 its stage file pins (`segment_bytes` / `segment_sha256`), and `run/statement/run-statement.json` against the validation's `run_statement_sha256`; a missing segment, a stray entry, a false flag or a mismatch is a named finding. `integrity` no longer calls `validation.json` "not in the manifest" -- it is the one unlisted file a bundle may carry, and only because it is read. The two new record keys (`validation_file`, `run_directory`) are present ONLY when a bundle carries them, so no older record gains a leaf | the failing-first probe's second refusal; the block reader (R9j) already reads its `validation.json` the same way |
+| `zk60_native_rg_m125.py` | no | the run sentence of `what_it_does_not_show` said "two-block" as a literal; an `L`-block run gets its own, a two-block record keeps its bytes | a record must not say "two blocks" about twelve |
+| `tests/test_zk60_native_run_gate_l12.py` | -- | NEW: the pin table (pure), the refusal of a third digest, the validation / `run/` reader on a synthetic directory (17 perturbations: each of the six flags, each of the six naming fields, a changed segment byte, a missing segment, a stray entry, a statement mismatch, a non-JSON file -- each a named finding; silence when both are absent) | -- |
+| `tests/test_zk60_native_run_gate_runpins.py` | -- | two exact counts moved DELIBERATELY with the reason beside each (16 -> 17 readings, 36 -> 40 lane checks); the twelve-block bundles in scope for the cross-reference, read as manifest + header only | -- |
+
+**On the real bytes, after the re-pin** (a probe, not a record): both
+bundles' `integrity` **ok, 0 findings**, run-layer pins ok -- `validation.json`
+all six flags true and naming this manifest and `17830dc` (the zero bundle
+was re-verified at `07fea2a`, reported, not required); **12 of 12 segments =
+their stage pins, 484,107,456 B**; the statement = the validation's; 15
+manifest files, 37 distinct roots, none twice; the array store 677,634,600 B
+/ 7,129 references / 6,919 distinct (zero 669,200,544 / 7,129 / 6,917) --
+**P1 as predicted**. 4.5 / 4.7 s, peak 1,747 MB.
+
+**The whole native suite on the edited bytes, BEFORE any re-take**
+(`suite_pre.sh`, detached under the heavy lock, 17:53-18:01, scratch):
+**675 tests** (660 + this round's 15), **12 failures, every one a
+tool-byte assertion of a record not yet re-taken** -- the same twelve
+round 9l saw -- and no logic assertion of any round moved. Peak RSS 6.66 GB.
+Tool bytes FROZEN at the next commit; the queue (`queue.sh`) runs every
+pass against them.

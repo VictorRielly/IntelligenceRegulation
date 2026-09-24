@@ -1,0 +1,189 @@
+Wed Sep 23 17:52:49 PDT 2026
+               total        used        free      shared  buff/cache   available
+Mem:              15           1          10           0           4          13
+Swap:              4           0           3
+.....s......./home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:116: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_gate_record_refresh/channel_counts_of_record.json' mode='r' encoding='UTF-8'>
+  cls.pin = json.load(open(PIN))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/tests/test_zk60_native_gate_record.py:119: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/wt-zk60-jointview/results/zk60_native_privacy_gate_channels/privacy_gate.json' mode='r' encoding='UTF-8'>
+  cls.records[name] = json.load(open(path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...................................................................................................................................................................F....................................F........................F.................F................F............../usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-dense/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+...............F..................................F.................................................................................../usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.................F.......................F..................F.....................................................................F................/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-m-dense-c6/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-o-dense-w14/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:411: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-q-dense-e32/arrays.bin'>
+  del b, export
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_slotir.py:412: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-dense-l2/arrays.bin'>
+  gc.collect()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......................................F..............................x....................................
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate.py", line 127, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : run-a-tame: the record was produced by different tool bytes; re-run the gate and refresh the evidence
+
+======================================================================
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_ahpreimage.TestTheRecord)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_ahpreimage.py", line 392, in test_the_evidence_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(got, want, f"{name}: {tool} moved since the run")
+AssertionError: '663a517748eb9438939b1dda622bd5264a33b472cc1358b09687f6f15d04f3fd' != 'cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc'
+- 663a517748eb9438939b1dda622bd5264a33b472cc1358b09687f6f15d04f3fd
++ cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc
+ : run-g-dense-s20: zk60_native_rg_bundle.py moved since the run
+
+======================================================================
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_block.TheRecordedFiguresAtRungG)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_block.py", line 326, in test_the_evidence_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(r["tool_sha256"], now, n)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : block-rung-g-dense
+
+======================================================================
+FAIL: test_the_records_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_c3c.TheRecordedC3cAtRungG)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_c3c.py", line 155, in test_the_records_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(r["tool_sha256"], now, n)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : block-rung-g-dense
+
+======================================================================
+FAIL: test_the_records_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_gc2.TheRecordsReTakenThisRound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_gc2.py", line 432, in test_the_records_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(r["tool_sha256"], now, n)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : zk60_native_run_gate/run-a-tame
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_k4.TheRecordedFigures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_k4.py", line 356, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(rec["tool_sha256"], want, name)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : run-i
+
+======================================================================
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_k8.TheRecordedFiguresAtRungK8)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_k8.py", line 354, in test_the_evidence_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(rec["tool_sha256"], want, name)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : run-s
+
+======================================================================
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_mask.TestTheRecord)
+The record's `tool_sha256` must name files that still exist as
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_mask.py", line 340, in test_the_evidence_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(got, want, f"{name}: {tool} moved since the run")
+AssertionError: '663a517748eb9438939b1dda622bd5264a33b472cc1358b09687f6f15d04f3fd' != 'cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc'
+- 663a517748eb9438939b1dda622bd5264a33b472cc1358b09687f6f15d04f3fd
++ cc6bf194dea0053cf3aa151fe2d7c6410e40ba067c9c497c80b02343317ffbdc
+ : run-g-dense-s20: zk60_native_rg_bundle.py moved since the run
+
+======================================================================
+FAIL: test_the_evidence_came_from_the_tool_bytes_now_in_the_tree (test_zk60_native_run_gate_p2.TheRecordedFiguresAtRungP2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_p2.py", line 182, in test_the_evidence_came_from_the_tool_bytes_now_in_the_tree
+    self.assertEqual(rec["tool_sha256"], now, rec["bundle"])
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : run-k-dense-p2
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_planeindex.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_planeindex.py", line 111, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : run-c-tame: the record was produced by different tool bytes; re-run the gate and refresh the evidence
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_s20.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_s20.py", line 224, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : run-g-dense-s20: the record was produced by different tool bytes; re-run the gate and refresh the evidence
+
+======================================================================
+FAIL: test_the_evidence_was_produced_by_the_tools_now_in_the_tree (test_zk60_native_run_gate_tagged.TestRecordedEvidence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/wt-zk60-jointview/tests/test_zk60_native_run_gate_tagged.py", line 215, in test_the_evidence_was_produced_by_the_tools_now_in_the_tree
+    self.assertEqual(rec["tool_sha256"], want, name)
+AssertionError: {'zk60_native_jv_field.py': 'ecd5ad199d31b55f88e0728368[2838 chars]5ae'} != {'zk60_native_run_gate.py': 'a9fd2112ab72cd62dcde734f2d[2838 chars]4f1'}
+Diff is 3187 characters long. Set self.maxDiff to None to see it. : run-e-tame-tagged
+
+----------------------------------------------------------------------
+Ran 675 tests in 484.842s
+
+FAILED (failures=12, skipped=1, expected failures=1)
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_block_captures_20260923/rung-g/rung-g-dense/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-dense-l2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-k-dense-p2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-l-zero-p2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-m-dense-c6/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-n-zero-c6/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-q-dense-e32/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920/run-r-zero-e32/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/m125-capture-zero-l2/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-o-dense-w14/arrays.bin'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/run-p-zero-w14/arrays.bin'>
+Command exited with non-zero status 1
+	Command being timed: "python3 -m unittest discover -s tests -p test_zk60_native*.py"
+	User time (seconds): 484.98
+	System time (seconds): 7.96
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 8:11.54
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 6659748
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 13
+	Minor (reclaiming a frame) page faults: 3407838
+	Voluntary context switches: 670
+	Involuntary context switches: 21725
+	Swaps: 0
+	File system inputs: 169664
+	File system outputs: 531824
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1
+suite exit=1
+Wed Sep 23 18:01:00 PDT 2026

@@ -93,6 +93,14 @@ K8_DIR = os.environ.get(
     "/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260922_k8")
 K8_IN_SCOPE = ("run-s-dense-k8", "run-t-zero-k8")
 HAVE_K8 = all(os.path.isdir(os.path.join(K8_DIR, b)) for b in K8_IN_SCOPE)
+# [ROUND 9m] the two TWELVE-block 125M bundles (lane stage 48, `17830dc`),
+# ~1.2 GB each on disk beside the other 125M captures.  In scope for the pin
+# tables like them; this arm reads only their manifest and run header
+# (`_Header` below), because their twelve stage files are 55 MB of JSON and
+# nothing here needs a stage.
+L12_IN_SCOPE = ("m125-capture-dense-l12", "m125-capture-zero-l12")
+HAVE_L12 = all(os.path.isfile(os.path.join(M125_DIR, b, "manifest.json"))
+               for b in L12_IN_SCOPE)
 HAVE_M125 = all(os.path.isdir(os.path.join(M125_DIR, b))
                 for b in M125_IN_SCOPE)
 HAVE_W14 = all(os.path.isdir(os.path.join(M125_DIR, b)) for b in W14_IN_SCOPE)
@@ -124,7 +132,24 @@ NEWLY_PINNED = (
 )
 
 
+class _Header:
+    """[ROUND 9m] a bundle's `manifest.json` and `run.json` only -- all the
+    pin checks and the cross-reference read (`check_run_layer_pins` and
+    `check_shared_pins` read `.manifest`; the commit test reads
+    `.run["source_commit"]`)."""
+
+    def __init__(self, directory):
+        import json
+        self.dir = directory
+        with open(os.path.join(directory, "manifest.json")) as fh:
+            self.manifest = json.load(fh)
+        with open(os.path.join(directory, "run.json")) as fh:
+            self.run = json.load(fh)
+
+
 def _bundle(name):
+    if name in L12_IN_SCOPE:
+        return _Header(os.path.join(M125_DIR, name))
     root = (M125_DIR if name in M125_IN_SCOPE or name in W14_IN_SCOPE
             else K8_DIR if name in K8_IN_SCOPE
             else BUNDLES)
@@ -195,7 +220,13 @@ class ThePinTableCoversExactlyTheEstablishedList(unittest.TestCase):
         # constructor to `run.rs` and nothing else, so `run.rs` gains
         # THREE digests and three readings, and `run_capture.rs` and
         # `boundary.rs` are byte-identical at all three commits.
-        self.assertEqual(len(pairs), 16)
+        # [ROUND 9m, DELIBERATE] sixteen became SEVENTEEN: the twelve-block
+        # 125M bundles (`17830dc`) pin `run.rs` at `f5f4d571`, stages
+        # 40-43's refusals and sealed fields, read whole against rung-K8's
+        # `99a8de8` and written down; `run_capture.rs` and `boundary.rs` are
+        # byte-identical there and their entries gained the commit and the
+        # two bundles.
+        self.assertEqual(len(pairs), 17)
         for (path, digest), text in READINGS.items():
             self.assertGreater(len(text), 200, (path, digest))
             self.assertEqual(len(digest), 64)
@@ -282,7 +313,8 @@ class EveryInScopeBundlePasses(unittest.TestCase):
     def setUpClass(cls):
         names = (list(IN_SCOPE) + (list(M125_IN_SCOPE) if HAVE_M125 else [])
                  + (list(W14_IN_SCOPE) if HAVE_W14 else [])
-                 + (list(K8_IN_SCOPE) if HAVE_K8 else []))
+                 + (list(K8_IN_SCOPE) if HAVE_K8 else [])
+                 + (list(L12_IN_SCOPE) if HAVE_L12 else []))
         cls.names = tuple(names)
         cls.bundles = {n: _bundle(n) for n in names}
 
@@ -311,14 +343,15 @@ class EveryInScopeBundlePasses(unittest.TestCase):
             # A box without them checks the ten it has and says so, rather
             # than asserting a narrower set and calling that a pass.
             # [ROUND 9i] and the rung-K8 pair, routed the same way.
+            # [ROUND 9m] and the two twelve-block 125M bundles.
             self.assertEqual(
                 claimed,
                 set(IN_SCOPE) | set(M125_IN_SCOPE) | set(W14_IN_SCOPE)
-                | set(K8_IN_SCOPE), path)
-        if not (HAVE_M125 and HAVE_W14 and HAVE_K8):
-            self.skipTest("the 125M, rung-W14 and/or rung-K8 bundles are not "
-                          "on this box, so the table's claim about them is "
-                          "unchecked")
+                | set(K8_IN_SCOPE) | set(L12_IN_SCOPE), path)
+        if not (HAVE_M125 and HAVE_W14 and HAVE_K8 and HAVE_L12):
+            self.skipTest("the 125M (two- or twelve-block), rung-W14 and/or "
+                          "rung-K8 bundles are not on this box, so the "
+                          "table's claim about them is unchecked")
 
     def test_the_source_commit_a_bundle_declares_is_one_the_table_lists(self):
         """A bundle names its own lane commit in `run.json`; the digest it
@@ -552,12 +585,20 @@ class TheDigestsAreTheCommittedBlobs(unittest.TestCase):
         # none of the three moved there (rung-K8 is built in a TEST file) --
         # so each is checked once more, at the new commit, against the
         # digest it already had.
-        self.assertEqual(checked, 36,
+        # [ROUND 9m, DELIBERATE] 36 became 40: `run.rs`'s new digest
+        # `f5f4d571` is checked at the two commits the table names for it
+        # (`601e97f`, where stage 43 last touched it, and `17830dc`, the
+        # twelve-block capture commit), and `run_capture.rs` and
+        # `boundary.rs` are checked at `17830dc` against the digests they
+        # already had -- the statement that they did not move.
+        self.assertEqual(checked, 40,
                          "three files at SEVEN capture commits each, plus "
                          "run.rs at the six commits round 9c's three new "
                          "shapes are written at, plus the two unmoved "
                          "files at three of them, plus all three at the "
-                         "rung-K8 capture commit")
+                         "rung-K8 capture commit, plus run.rs's stage-43 "
+                         "digest at two commits and the two unmoved files "
+                         "at the twelve-block capture commit")
 
     def test_one_flipped_byte_in_each_file_is_not_a_read_digest(self):
         """The refusal above is asserted on a made-up digest; this is the

@@ -92,6 +92,149 @@ CORE_LABELS = ("sc-round", "pcs-vec", "pcs-prox")
 
 ROLE_NAMES = ("A", "H", "Input", "Output")
 
+# [ROUND 9m] lane stage 48's layout for the TWELVE-block 125M bundles: beside
+# the `/5-run` capture files, `run/` holds the receipt's `L` segment files and
+# the public run statement (D21), and `validation.json` records a FRESH
+# process's re-verify.  The writer's README says why the manifest does not
+# pin either: `validation.json` is written AFTER the manifest, and every stage
+# file already pins its segment by `segment_bytes` / `segment_sha256`.  So
+# both are READ and COMPARED with what IS pinned -- never trusted for a
+# figure -- and a bundle that carries neither (every bundle before stage 48)
+# gains no leaf in its record.
+VALIDATION_FILE = "validation.json"
+VALIDATION_KIND = "zk60-run-capture-validation"
+VALIDATION_FLAGS = (
+    "source_pins_match",
+    "statement_rebuilt_from_its_file",
+    "native_reverified",
+    "segments_match_the_stage_pins",
+    "canonical_capture_reproduced",
+    "fresh_process",
+)
+RUN_DIR = "run"
+STATEMENT_DIR = "statement"
+STATEMENT_FILE = "run-statement.json"
+
+
+def _sha256_of_file(path: str) -> tuple[str, int]:
+    h = hashlib.sha256()
+    n = 0
+    with open(path, "rb") as fh:
+        while True:
+            chunk = fh.read(1 << 23)
+            if not chunk:
+                break
+            h.update(chunk)
+            n += len(chunk)
+    return h.hexdigest(), n
+
+
+def validation_and_run_directory(bundle) -> tuple:
+    """[ROUND 9m] `validation.json` and `run/`, when a bundle carries them.
+
+    Returns `(validation, run_directory, findings)`; each of the first two is
+    None when the bundle does not carry it.  Every comparison is against a
+    byte this gate already trusts: the manifest's own SHA-256, `run.json`'s
+    source commit / profile / block count, and each stage file's
+    `segment_bytes` / `segment_sha256`.  A flag the validation file reports
+    false, a segment that is not the one its stage pins, a missing segment,
+    or an entry of `run/` that is neither a segment nor the statement is a
+    named finding."""
+    f: list[str] = []
+    v, vout = None, None
+    vpath = os.path.join(bundle.dir, VALIDATION_FILE)
+    if os.path.isfile(vpath):
+        with open(vpath, "rb") as fh:
+            raw = fh.read()
+        vout = {
+            "present": True,
+            "bytes": len(raw),
+            "sha256": hashlib.sha256(raw).hexdigest(),
+            "what": "written by a FRESH process AFTER the manifest (lane stage "
+            "48), so the manifest does not pin it; read and compared with what "
+            "IS pinned, never used for a figure",
+        }
+        try:
+            v = json.loads(raw)
+        except ValueError as exc:
+            f.append(f"{VALIDATION_FILE}: not JSON ({exc})")
+        if isinstance(v, dict):
+            with open(os.path.join(bundle.dir, "manifest.json"), "rb") as fh:
+                man_sha = hashlib.sha256(fh.read()).hexdigest()
+            flags = {k: v.get(k) for k in VALIDATION_FLAGS}
+            names = {
+                "kind_matches": v.get("kind") == VALIDATION_KIND,
+                "schema_matches": v.get("schema") == bundle.schema,
+                "profile_matches": v.get("profile") == bundle.profile,
+                "blocks_match": v.get("blocks") == bundle.blocks,
+                "manifest_sha256_matches": v.get("manifest_sha256") == man_sha,
+                "source_commit_matches":
+                    v.get("source_commit") == bundle.run.get("source_commit"),
+            }
+            vout.update(names)
+            vout["flags"] = flags
+            vout["reverified_at_commit"] = v.get("reverified_at_commit")
+            vout["receipt_bytes_declared"] = v.get("receipt_bytes")
+            if not all(x is True for x in flags.values()):
+                f.append(f"{VALIDATION_FILE}: a flag is not true: {flags}")
+            if not all(names.values()):
+                f.append(f"{VALIDATION_FILE}: does not name this bundle "
+                         f"({[k for k, x in names.items() if not x]})")
+        elif v is not None:
+            f.append(f"{VALIDATION_FILE}: not a JSON object")
+    rout = None
+    rdir = os.path.join(bundle.dir, RUN_DIR)
+    if os.path.isdir(rdir):
+        want = {f"segment-{st.index:03d}.bin": st for st in bundle.stages}
+        per, total, matching = [], 0, 0
+        for fn, st in sorted(want.items()):
+            path = os.path.join(rdir, fn)
+            if not os.path.isfile(path):
+                f.append(f"{RUN_DIR}/{fn}: absent, though {st.name} pins a segment")
+                per.append({"file": fn, "present": False})
+                continue
+            digest, n = _sha256_of_file(path)
+            ok = (n == st.doc.get("segment_bytes")
+                  and digest == st.doc.get("segment_sha256"))
+            total += n
+            matching += ok
+            per.append({"file": fn, "bytes": n, "matches_its_stage_pin": ok})
+            if not ok:
+                f.append(f"{RUN_DIR}/{fn}: {n} bytes / sha256 {digest[:12]} is "
+                         f"not the segment {st.name} pins")
+        unexpected = sorted(set(os.listdir(rdir)) - set(want) - {STATEMENT_DIR})
+        for e in unexpected:
+            f.append(f"{RUN_DIR}/{e}: neither a segment nor the statement")
+        spath = os.path.join(rdir, STATEMENT_DIR, STATEMENT_FILE)
+        statement = None
+        if os.path.isdir(os.path.join(rdir, STATEMENT_DIR)):
+            extra = sorted(set(os.listdir(os.path.join(rdir, STATEMENT_DIR)))
+                           - {STATEMENT_FILE})
+            for e in extra:
+                f.append(f"{RUN_DIR}/{STATEMENT_DIR}/{e}: not the run statement")
+        if os.path.isfile(spath):
+            s_sha, s_n = _sha256_of_file(spath)
+            statement = {"bytes": s_n, "sha256": s_sha}
+            if isinstance(v, dict) and "run_statement_sha256" in v:
+                statement["matches_validation"] = s_sha == v["run_statement_sha256"]
+                if not statement["matches_validation"]:
+                    f.append(f"{RUN_DIR}/{STATEMENT_DIR}/{STATEMENT_FILE}: its "
+                             f"sha256 is not {VALIDATION_FILE}'s run_statement_sha256")
+        rout = {
+            "present": True,
+            "segments_expected": len(want),
+            "segments_matching_their_stage_pins": matching,
+            "segment_bytes_total": total,
+            "per_segment": per,
+            "unexpected_entries": unexpected,
+            "run_statement": statement,
+            "what": "the receipt's segments and the public run statement, "
+            "written beside the capture by lane stage 48; each segment is "
+            "checked against the length and SHA-256 its stage file pins, which "
+            "binds this verifier's view to the receipt bytes that were verified",
+        }
+    return vout, rout, f
+
 
 class Stage:
     """One `stage-NN.json`: the per-proof content of the single-block schema
@@ -349,8 +492,13 @@ def integrity(bundle: RunBundle) -> dict:
         for fn in os.listdir(bundle.dir)
         if os.path.isfile(os.path.join(bundle.dir, fn))
     }
-    for fn in sorted(on_disk - set(listed) - {"manifest.json"}):
+    # [ROUND 9m] `validation.json` is the one unlisted file a bundle may
+    # carry, and only because it is read and compared below
+    validation, run_directory, vf = validation_and_run_directory(bundle)
+    for fn in sorted(on_disk - set(listed) - {"manifest.json"}
+                     - ({VALIDATION_FILE} if validation is not None else set())):
         f.append(f"{fn}: on disk, not in the manifest (the manifest does not list itself)")
+    f.extend(vf)
     total = sum(e["bytes"] for e in listed.values())
     if man.get("total_bytes") not in (None, total):
         f.append(f"manifest.json: total_bytes {man.get('total_bytes')} != {total}")
@@ -542,6 +690,10 @@ def integrity(bundle: RunBundle) -> dict:
         "mask_domain": bundle.run["mask_domain"],
         "distinct_roots_opened": len(roots),
         "any_root_opened_twice": bool(twice),
+        # [ROUND 9m] present only when the bundle carries them, so that no
+        # record of a bundle without them gains a leaf
+        **({"validation_file": validation} if validation is not None else {}),
+        **({"run_directory": run_directory} if run_directory is not None else {}),
         "findings": f,
         "ok": not f,
     }

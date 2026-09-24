@@ -485,6 +485,11 @@ RUN_LAYER_PINS = {
         # bundles were written by `k8_tests::write_the_k8_gate_bundles`, a
         # TEST that calls this same writer; the test file itself is in no
         # bundle's `source_pins` (see R9i of the ledger).
+        # [ROUND 9m] byte-identical at `17830dc` (lane stage 48, the two
+        # TWELVE-block 125M bundles): `git show 17830dc:...run_capture.rs |
+        # sha256sum` is this digest and the lane's own forbidden-files proof
+        # lists the file unchanged; stage 48's writer is a `cfg(test)` body
+        # in `run_capture_tests.rs`, which no bundle pins.
         "d09f385315cac8e7b7fb16a65b0243219e4ba78c09af99b88a84782fe8082dd6": {
             "blob": "9608fa68dd93f61a71504167235d4c05eb41df07",
             "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
@@ -492,13 +497,15 @@ RUN_LAYER_PINS = {
                         "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
                         "11703c94df428c3e53dbc6c37eac835e348f5bf9",
                         "4505ddfa24fc99ff57fa086be8c73dae8117875c",
-                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8"),
+                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8",
+                        "17830dcc9f24b0d19e212b0344476e299cfd9be0"),
             "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
                         "run-k-dense-p2", "run-l-zero-p2",
                         "run-m-dense-c6", "run-n-zero-c6",
                         "run-o-dense-w14", "run-p-zero-w14",
                         "run-q-dense-e32", "run-r-zero-e32",
-                        "run-s-dense-k8", "run-t-zero-k8"),
+                        "run-s-dense-k8", "run-t-zero-k8",
+                        "m125-capture-dense-l12", "m125-capture-zero-l12"),
             "bytes": 85434,
         },
     },
@@ -580,6 +587,18 @@ RUN_LAYER_PINS = {
                         "run-s-dense-k8", "run-t-zero-k8"),
             "bytes": 46667,
         },
+        # [ROUND 9m] stages 40-43 (rulings CS-1, CS-4, CS-6, CS-7, CS-8):
+        # REFUSALS and sealed fields, read whole against `99a8de8` -- see
+        # READINGS.  Last touched at `601e97f` (stage 43); byte-identical
+        # from there to `17830dc`, the commit the two TWELVE-block 125M
+        # bundles name (lane stage 48).
+        "f5f4d571e04b8bd1b024478e9a477c75b3bbc93a9ef71b43b18510793b76367a": {
+            "blob": "9a2194457489e682e6a08fd5b58964a7e5984152",
+            "commits": ("601e97f41aa321c4de32873ee53e980a44b739e6",
+                        "17830dcc9f24b0d19e212b0344476e299cfd9be0"),
+            "bundles": ("m125-capture-dense-l12", "m125-capture-zero-l12"),
+            "bytes": 56374,
+        },
     },
     "src/private_block/boundary.rs": {
         "9860c35d4db93afa52ba4287ac949209dc3d93957da51a6aeee91b0951a215e6": {
@@ -610,6 +629,8 @@ RUN_LAYER_PINS = {
         # commits and six more bundles on a digest that did not
         # move, which IS the statement that it did not move.
         # [ROUND 9i] byte-identical at `99a8de8` (rung-K8).
+        # [ROUND 9m] byte-identical at `17830dc` (the twelve-block 125M
+        # bundles): `git diff --numstat 99a8de8 17830dc` does not list it.
         "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581": {
             "blob": "c2d57a37f4f442c65edc3ba9237f2d21118b09e9",
             "commits": ("f4697f9ccad82304c56dee8c53da3bf107d98b1e",
@@ -617,13 +638,15 @@ RUN_LAYER_PINS = {
                         "3e106e192bc32701378ca3ce34bb0a8be8d2b7d5",
                         "11703c94df428c3e53dbc6c37eac835e348f5bf9",
                         "4505ddfa24fc99ff57fa086be8c73dae8117875c",
-                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8"),
+                        "99a8de832a6322c94bf951f0f443b96e1dc63cb8",
+                        "17830dcc9f24b0d19e212b0344476e299cfd9be0"),
             "bundles": ("m125-capture-dense-l2", "m125-capture-zero-l2",
                         "run-k-dense-p2", "run-l-zero-p2",
                         "run-m-dense-c6", "run-n-zero-c6",
                         "run-o-dense-w14", "run-p-zero-w14",
                         "run-q-dense-e32", "run-r-zero-e32",
-                        "run-s-dense-k8", "run-t-zero-k8"),
+                        "run-s-dense-k8", "run-t-zero-k8",
+                        "m125-capture-dense-l12", "m125-capture-zero-l12"),
             "bytes": 36123,
         },
     },
@@ -874,6 +897,39 @@ READINGS = {
         "does NOT carry this blob** -- `4505ddf` is the commit before "
         "`Shape::rung_e32` exists.  The commits listed here are the ones "
         "that do carry it, and the mismatch is finding E32-F1",
+    ("src/private_block/run.rs",
+     "f5f4d571e04b8bd1b024478e9a477c75b3bbc93a9ef71b43b18510793b76367a"):
+        "[ROUND 9m] `git diff 99a8de8 17830dc -- run.rs` (the last digest "
+        "this gate read is rung-K8's): **198 added, 17 removed, 10 hunks**, "
+        "stages 40-43, and every hunk is a REFUSAL, a sealed field or a "
+        "`#[cfg(test)]` helper.  (1) Ruling CS-8: `RunShape`'s three fields "
+        "and `RunStatement.rs` made private (the 4 removed `pub` lines, "
+        "re-emitted without `pub`) with read accessors `sh()`, `l()`, "
+        "`profile()`, `rs()`; `with_run_shape` is `#[cfg(test)]`.  (2) "
+        "Ruling CS-7: `registered_block_shape` (the seven registered "
+        "profile/shape pairs plus rung-K8's under `#[cfg(test)]`) and a "
+        "refusal in `RunShape::new` of an unregistered profile or a shape "
+        "that is not the registered one.  (3) Rulings CS-1 / CS-4: "
+        "`blocks_fit_the_shape` and `policy_fits_the_shape`, called in "
+        "`RunStatement::new`, `prove_run` and `RunVerifier::start` before "
+        "anything is absorbed.  (4) Ruling CS-6: "
+        "`as_many_blocks_as_the_statement` (the 12 removed lines are the "
+        "four identical three-line block-count checks it replaces, in "
+        "`prove_run`, `start`, `verify_run`, `verify_run_from_dir`; the "
+        "17th is `start`'s `let (sh, l) = ...`, now `let sh = ...`) and "
+        "`blocks_are_the_statements` (block k's public digest must be the "
+        "statement's `block_digests[k]`), with a `#[cfg(test)]` "
+        "cheating-prover switch on the PROVER side only.  **Every line of "
+        "the file matching absorb / squeeze / position_tag / pb-run / "
+        "run-shape / challenge / transcript / BOUNDARY_SITES / in_site / "
+        "out_site / from_os is byte-identical as a sequence** (the ten new "
+        "matches are comments and refusal strings), so the header's six "
+        "absorbs and their order, the seven-word `run-shape`, "
+        "`position_tag`'s discarded clone, the stage loop's `pb-run-stage` / "
+        "`pb-run-block` / boundary order, `BOUNDARY_SITES`, `in_site` / "
+        "`out_site` and the opening order `M, A, H, Input(, Output)` -- the "
+        "whole of what `zk60_native_rg_replay` and `integrity` transcribe "
+        "-- are untouched.  Last touched at `601e97f` (stage 43)",
     ("src/private_block/boundary.rs",
      "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581"):
         "`git diff 3247a89 f4697f9`: **44 added, 6 removed, 9 hunks**, split "
