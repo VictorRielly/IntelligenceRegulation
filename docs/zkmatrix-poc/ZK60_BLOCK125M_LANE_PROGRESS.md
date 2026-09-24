@@ -14081,3 +14081,32 @@ that filter and pass. Production diff empty (checked by the security owner:
 is `private_block.rs` (the `mod gr4_check_tests;` line): 58a73b40… → 2764a7ec…
 (the four capture manifests pin the old value; only the `#[ignore]`d
 re-verify test reads it). **Ruling LW-2 is done.**
+
+## Stage 48 — TEST-ONLY: the TWELVE-BLOCK 125M run captured, dense and all-zero (2026-09-23, 17:0x–)
+
+**Status: `OPEN`** — skeleton. Opened 2026-09-23 17:01 PDT on the lane tip
+`32c11d9`, one writer (the delegated stage-48 agent). **Why:**
+`ZK60_SHAPED_PRIVACY_PATH_STATUS.md` (main tree) §0, table rows 1 and 3 and
+obligation 7: the privacy gate has only ever read TWO-block 125M runs
+(`m125-capture-{dense,zero}-l2`, schema `hashline-native-capture/5-run`,
+written by `run_capture.rs` at stage 27), and a twelve-block ALL-ZERO 125M
+run has never been proved at all.
+
+**THE TASKS**
+
+| # | task | acceptance |
+|---|---|---|
+| 1 | reuse the stage-27 writer (`run_capture.rs`) and conventions at `L = 12`, test-only: a stage-48 writer test that proves the run to a directory (segments on disk, as the 397.71 s run did), retains the public run statement (`run_statement_file.rs`, D21), verifies with the recorder attached and writes the bundle; the label must be the full HEAD with every pinned source committed (E32-F1) | refuses a stale label; a development-shape dress rehearsal of the same body runs in the ordinary filter |
+| 2 | two 12-block 125M bundles, dense generic (`dense_run_case`) and all-zero, each DETACHED under the heavy lock with `MALLOC_MMAP_THRESHOLD_=131072`, one at a time, `free -g` checked first | bundles in `/home/victor/zk60-artifacts/m125-capture-{dense,zero}-l12/`, outside git; manifests / validations copied to `results/zk60_run_captures_20260923_l12/` with a README |
+| 3 | a FRESH-PROCESS re-verify of each: the statement rebuilt from its file, the segments verified from disk, the bundle re-read against itself, the canonical recapture byte-identical | `validation.json` with `native_reverified`, `canonical_capture_reproduced` |
+| 4 | MEASURED: prove / verify seconds, peak RSS, bundle size, 12 segments, receipt bytes (484,107,456 counted) for both | one run each, shared box |
+| 5 | byte identity | no production change; toy 2,816,472 B and every pin unchanged; the test's compile, stage 45–47 focused filters, `--lib private_` once at 6 threads against 499 / 0 / 21 |
+| 6 | this section | — |
+
+**Forbidden:** any production change; `hashline/src/{zk,layer,pcs,wcache,native_capture}.rs`,
+`hashline/src/gpu/*`, `zkp-core/`, `private-block-kernel/`, `zkvm-block/`.
+The untracked `u31-c6-run1.*` files are left alone. No bundle is committed.
+Logs: `results/zk60_block125m_lane/s48-*`.
+
+**No privacy claim.** A capture is the INPUT to the gate; no gate has read a
+twelve-block bundle.
