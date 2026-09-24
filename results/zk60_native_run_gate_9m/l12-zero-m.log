@@ -1,0 +1,23 @@
+[2026-09-23 18:31:47] l12-zero-m: needs ~3000 MB available
+               total        used        free      shared  buff/cache   available
+Mem:           15762        1148       10236           2        4376       14306
+Swap:           4096         162        3933
++ A=/home/victor/zk60-artifacts
++ B=/home/victor/wt-zk60-block125m/results/zk60_run_captures_20260920
++ W=/home/victor/wt-zk60-jointview
++ D=/home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py
++ E=/home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m
++ pass=m
++ wit=zero
+++ '[' zero = dense ']'
+++ echo dense
++ other=dense
++ case $pass in
++ S=load,replay,mask
++ X=--controls
++ name=l12-zero-m
++ /usr/bin/time -v python3 -u /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/m125-capture-zero-l12 --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m --name l12-zero-m --stages load,replay,mask --controls
+[load          ]      4.1 s   peak RSS    1539 MB   ok
+[replay        ]      5.6 s   peak RSS    1539 MB   ok
+[mask          ]    120.3 s   peak RSS    1539 MB   ok
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m/l12-zero-m.json   total 130.0 s   peak RSS 1539 MB   ok=True

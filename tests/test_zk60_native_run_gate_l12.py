@@ -497,5 +497,38 @@ class ThePassARecords(unittest.TestCase):
                 self.assertIn("12-block run", r["what_it_does_not_show"][0])
 
 
+M_RECORDS = {w: _record(f"l12-{w}-m") for w in ("dense", "zero")}
+
+
+@unittest.skipUnless(any(M_RECORDS.values()),
+                     "no twelve-block pass-M record is committed yet")
+class ThePassMRecords(unittest.TestCase):
+    """The masking commitment and the CFS channel, every one of the twelve
+    stages (R9m.3 P8)."""
+
+    def test_every_stage_is_checked_with_its_controls(self):
+        for w, r in M_RECORDS.items():
+            if r is None:
+                continue
+            with self.subTest(w):
+                s = r["stage12_mask_and_cfs"]
+                self.assertTrue(s["ok"])
+                self.assertEqual(s["stages_checked"], 12)
+                self.assertEqual((s["mask_rows"], s["functional_count"]), (50, 34))
+                self.assertEqual(s["entries_recomputed"], 12 * 16459)
+                self.assertEqual(s["entries_differing"], 0)
+                self.assertEqual(s["salted_leaves_authenticated"], 12 * 256)
+                lens = s["mask_lengths"]
+                self.assertEqual((lens[8], lens[9], lens[16], max(lens),
+                                  lens.index(max(lens))), (32, 41, 74, 117, 17))
+                for p in s["per_stage"]:
+                    self.assertEqual(p["entries_recomputed"]["total"], 16459)
+                    self.assertEqual(p["entries_recomputed"]["differing"], 0)
+                c = s["controls"]
+                self.assertTrue(c["ok"] and c["all_fire"])
+                self.assertEqual(sum(1 for k in c if k.startswith("M")
+                                     and c[k].get("fires")), 6)
+
+
 if __name__ == "__main__":
     unittest.main()
