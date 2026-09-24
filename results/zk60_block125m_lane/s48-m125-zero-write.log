@@ -1,0 +1,48 @@
+
+running 1 test
+test private_block::run_capture_tests::s48_capture_a_twelve_block_125m_run ... S48 125M: L=12, witness=all-zero (degenerate), source_commit 17830dcc9f24b0d19e212b0344476e299cfd9be0, bundle /home/victor/zk60-artifacts/m125-capture-zero-l12; MALLOC_MMAP_THRESHOLD_ is pinned
+S48 125M: chain built (12 witnesses, each dropped) in 59.75 s, high-water mark so far 0.81 GiB
+S48 125M: block 0: stage 27.70 s, segment 40033896 B (the counted length), high-water mark 10.07 GiB
+S48 125M: block 1: stage 28.62 s, segment 40302184 B (the counted length), high-water mark 10.07 GiB
+S48 125M: block 2: stage 24.33 s, segment 40302184 B (the counted length), high-water mark 10.07 GiB
+S48 125M: block 3: stage 23.39 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 4: stage 23.70 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 5: stage 23.90 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 6: stage 25.39 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 7: stage 24.54 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 8: stage 24.53 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 9: stage 24.07 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 10: stage 24.74 s, segment 40302184 B (the counted length), high-water mark 10.12 GiB
+S48 125M: block 11: stage 25.32 s, segment 41051720 B (the counted length), high-water mark 10.12 GiB
+S48 125M: proved in 300.23 s, 12 segments, 484107456 B on disk in /home/victor/zk60-artifacts/m125-capture-zero-l12/run
+S48 125M: verified by streaming (no recorder) in 14.30 s; the public run statement is retained at /home/victor/zk60-artifacts/m125-capture-zero-l12/run/statement/run-statement.json (12145 B, sha256 6ffe8d94423536eb46f3a8743a3eb909f938c61ffcdc177d0fba12c5dc05ab56)
+S48 125M: verify + record 26.10 s; run.json 43917 B, stage files [4514175, 4527161, 4520384, 4523082, 4524781, 4524796, 4520189, 4522716, 4526349, 4524711, 4524563, 5389774] B; arrays.bin 669200544 B over 6917 distinct arrays (7129 references, 212 deduplicated), 6413 small arrays inline
+S48 125M: 724391988 B of capture files on disk (724.4 MB) + the manifest (SHA-256 c9e91d105659227b7e21a8dbce288fc7a4233c62140e2d813ae60ad7c506b013); self-consistent, every key on the allow-list, every array reference resolved, every stage pinned to its segment file; write + self-check 19.20 s
+S48 125M RESULT [all-zero (degenerate)]: L=12, 12 segments, receipt 484107456 B ([40033896, 40302184, 40302184, 40302184, 40302184, 40302184, 40302184, 40302184, 40302184, 40302184, 40302184, 41051720]), chain 59.75 s, prove 300.23 s ([27.6, 28.62, 24.33, 23.39, 23.7, 23.9, 25.39, 24.54, 24.53, 24.07, 24.74, 25.32] per block), high-water mark after each block [10.07, 10.07, 10.07, 10.12, 10.12, 10.12, 10.12, 10.12, 10.12, 10.12, 10.12, 10.12] GiB, peak RSS after proving 10366 MiB, verify by streaming (no recorder) 14.30 s, verify+record 26.10 s, write+self-check 19.20 s, capture files 724391988 B + manifest (SHA-256 c9e91d105659227b7e21a8dbce288fc7a4233c62140e2d813ae60ad7c506b013), run statement 12145 B (sha256 6ffe8d94423536eb46f3a8743a3eb909f938c61ffcdc177d0fba12c5dc05ab56), source_commit 17830dcc9f24b0d19e212b0344476e299cfd9be0, final peak RSS 10366 MiB (10.12 GiB), wall 420.55 s — a CAPTURE, not a privacy result; no gate has read it
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 590 filtered out; finished in 420.56s
+
+	Command being timed: "/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555 --ignored --exact --nocapture --test-threads=1 private_block::run_capture_tests::s48_capture_a_twelve_block_125m_run"
+	User time (seconds): 2402.76
+	System time (seconds): 440.67
+	Percent of CPU this job got: 676%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 7:00.56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 10614992
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 69655657
+	Voluntary context switches: 12502405
+	Involuntary context switches: 133727
+	Swaps: 0
+	File system inputs: 160
+	File system outputs: 2360592
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

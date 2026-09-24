@@ -1,0 +1,78 @@
+
+running 50 tests
+test private_block::block_capture_shaped_tests::reverify_a_shaped_block_bundle ... ignored, re-verifies a written block bundle in a fresh process; set HL_BLOCK_CAPTURE_BUNDLE
+test private_block::block_capture_shaped_tests::a_source_label_that_is_not_head_is_refused ... ok
+test private_block::block_capture_shaped_tests::write_a_shaped_block_bundle ... ignored, writes a standalone shaped block bundle; set HL_BLOCK_CAPTURE_SHAPE, HL_PB_INPUT, HL_BLOCK_CAPTURE_DIR and HL_TEST_SOURCE_COMMIT (=HEAD)
+test private_block::block_capture_shaped_tests::the_block_capture_pins_every_source_on_the_block_path ... ok
+test private_block::gr4_check_tests::gr4_replay_boundary_commits_exactly_the_predicted_stream ... ok
+test private_block::gr4_check_tests::gr4_replay_toy_block_commits_exactly_the_predicted_stream ... ok
+test private_block::block_capture_shaped_tests::every_key_of_a_block_bundle_is_on_the_allow_list_and_every_block_only_key_is_emitted ... ok
+test private_block::run_capture_tests::s48_a_run_capture_label_that_is_not_head_is_refused ... ok
+test private_block::run_capture_tests::s48_capture_a_twelve_block_125m_run ... ignored, captures a TWELVE-block 125M run (about 10 minutes, about 10.2 GiB); set HL_PB_CAPTURE_DIR (outside the repo, must not exist), HL_PB_INPUT, HL_RUN_CAPTURE_PUBLIC_TABLES=1 and HL_TEST_SOURCE_COMMIT (= HEAD)
+test private_block::run_capture_tests::s48_reverify_a_run_capture_bundle ... ignored, re-verifies a stage-48 run capture bundle in a fresh process; set HL_PB_CAPTURE_BUNDLE and HL_TEST_SOURCE_COMMIT (= the bundle's own label)
+test private_block::gr4_check_tests::gr4_replay_rung_g_block_commits_exactly_the_predicted_stream ... ok
+test private_block::s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name ... ok
+test private_block::block_capture_shaped_tests::the_block_objects_carry_the_run_captures_field_names_object_by_object ... ok
+test private_block::s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct ... ok
+test private_block::block_capture_shaped_tests::a_block_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::s24_tests::no_registered_profiles_constructor_input_has_the_squeeze_length ... ok
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... ok
+test private_block::s24_tests::every_slot_hosts_exactly_what_the_host_table_says_at_every_shape ... ok
+test private_block::s24_tests::the_mask_budget_holds_at_every_shape ... ok
+test private_block::s24_tests::the_closure_vanishes_on_every_extension_round_vector_at_every_shape ... ok
+test private_block::s24_tests::the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16 ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... ok
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... ok
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_no_longer_blocked_and_their_test_exists ... ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s24_tests::a_segments_end_tag_is_the_next_segments_start_tag_in_a_rung_k4_run ... ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
+test private_block::s36_tests::assertions_five_and_seven_are_asserted_and_are_where_this_module_says_they_are ... ok
+test private_block::s24_tests::an_inadmissible_chain_is_refused_before_the_run_directory_exists ... ok
+test private_block::s36_tests::s46_a_standalone_125m_block_draws_the_counted_figures_on_each_of_its_three_generators ... ignored, HEAVY: one 125M standalone block proof (~30 s, ~10 GiB peak); run detached under /tmp/zk-heavy.lock with MALLOC_MMAP_THRESHOLD_=131072
+test private_block::s36_tests::s46_a_standalone_rung_g_block_draws_the_counted_figures_on_each_of_its_three_generators ... ok
+test private_block::s36_tests::consumption_does_not_depend_on_the_witness_or_on_the_public_statement ... ok
+test private_block::s36_tests::s46_the_replicas_draw_where_the_production_provers_draw ... ok
+test private_block::s36_tests::the_endpoint_replica_is_the_endpoint_preparers_own_draw_sequence ... ok
+test private_block::s36_tests::the_only_relations_imposed_on_drawn_values_are_the_three_the_schedule_declares ... ok
+test private_block::s36_tests::the_three_generators_of_a_toy_proof_draw_the_statements_327052_field_elements ... ok
+test private_block::s36_tests::the_three_generators_of_one_proof_are_three_separate_streams ... ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
+test private_block::s36_tests::the_two_endpoint_generators_consume_the_counted_stream_at_every_shape ... ok
+test private_block::s36_tests::s46_a_two_block_rung_g_run_draws_the_counted_figures_on_its_one_generator ... ok
+test private_block::run_capture_tests::s48_the_twelve_block_capture_path_and_its_fresh_reverify_work_at_a_development_shape ... ok
+test private_block::block_capture_shaped_tests::a_rung_g_block_is_captured_and_its_bundle_round_trips_through_a_fresh_verifier ... ok
+test private_block::s36_tests::a_block_proof_consumes_exactly_the_counted_stream_at_every_shape ... ok
+
+test result: ok. 45 passed; 0 failed; 5 ignored; 0 measured; 541 filtered out; finished in 14.15s
+
+	Command being timed: "/home/victor/wt-zk60-block125m/hashline/target/release/deps/hashline-acaf18f42f87b555 --test-threads=6 s36_tests block_capture_shaped s25_ s24_ gr4_check_tests s48_"
+	User time (seconds): 82.67
+	System time (seconds): 39.01
+	Percent of CPU this job got: 859%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:14.15
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 977520
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 944282
+	Voluntary context switches: 1751941
+	Involuntary context switches: 355687
+	Swaps: 0
+	File system inputs: 16
+	File system outputs: 237288
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

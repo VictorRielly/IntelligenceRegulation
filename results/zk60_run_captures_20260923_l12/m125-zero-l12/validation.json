@@ -1,0 +1,23 @@
+{
+  "schema": "hashline-native-capture/5-run",
+  "kind": "zk60-run-capture-validation",
+  "profile": "hashline-zk-mr1/private-run-m125/1",
+  "blocks": 12,
+  "segments": 12,
+  "receipt_bytes": 484107456,
+  "public_tables_included": true,
+  "source_commit": "17830dcc9f24b0d19e212b0344476e299cfd9be0",
+  "reverified_at_commit": "07fea2adf1c35075c2ecac36de95f391199c70a5",
+  "manifest_sha256": "c9e91d105659227b7e21a8dbce288fc7a4233c62140e2d813ae60ad7c506b013",
+  "run_statement_sha256": "6ffe8d94423536eb46f3a8743a3eb909f938c61ffcdc177d0fba12c5dc05ab56",
+  "bundle_bytes_on_disk": 724398175,
+  "source_pins_match": true,
+  "statement_rebuilt_from_its_file": true,
+  "native_reverified": true,
+  "segments_match_the_stage_pins": true,
+  "canonical_capture_reproduced": true,
+  "fresh_process": true,
+  "privacy_review_complete": false,
+  "verifier_binary_sha256": "889e26da6ab917a6f8977fba10cd30a8b27f9ea55762f963a17f056a19936ed2",
+  "what_this_is": "a fresh process that did not prove this run rebuilt the verifier's statement from run/statement/run-statement.json (every segment file's length and SHA-256 checked against it), verified the 12 segment files from disk with no recorder, read the bundle back against itself and against the segments, recaptured the same files and found run.json, every stage file and arrays.bin byte-identical to the saved ones. NOT a privacy result."
+}

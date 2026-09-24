@@ -14084,7 +14084,8 @@ re-verify test reads it). **Ruling LW-2 is done.**
 
 ## Stage 48 — TEST-ONLY: the TWELVE-BLOCK 125M run captured, dense and all-zero (2026-09-23, 17:0x–)
 
-**Status: `OPEN`** — skeleton. Opened 2026-09-23 17:01 PDT on the lane tip
+**Status: `CLOSED` 2026-09-23 17:29 PDT** — see "Stage 48 — CLOSED" below.
+Opened 2026-09-23 17:01 PDT on the lane tip
 `32c11d9`, one writer (the delegated stage-48 agent). **Why:**
 `ZK60_SHAPED_PRIVACY_PATH_STATUS.md` (main tree) §0, table rows 1 and 3 and
 obligation 7: the privacy gate has only ever read TWO-block 125M runs
@@ -14110,3 +14111,151 @@ Logs: `results/zk60_block125m_lane/s48-*`.
 
 **No privacy claim.** A capture is the INPUT to the gate; no gate has read a
 twelve-block bundle.
+
+### Stage 48 — CLOSED (2026-09-23 17:01 – 17:29)
+
+**Status: `LANDED`.** Both twelve-block 125M runs proved, verified, captured
+and re-verified in a fresh process. **The all-zero bundle is the first
+twelve-block all-zero 125M run ever proved and verified** (status page table
+row 1 (b): "a twelve-block all-zero run has never been run" — now run).
+Test-only: one test file changed, no production line anywhere. Shared box,
+not quiesced; no GPU. **Not a privacy result: no gate has read a bundle.**
+
+#### Task 1 — what was reused, and what was added
+
+Read: stage 27 (the `/5-run` writer and `capture_a_125m_run`, which already
+takes `HL_PB_CAPTURE_BLOCKS`), stage 13/18/21 (`private_run_125m_twelve_blocks`:
+`DirSink`, `run_statement_file::verify_then_write`, the dense recipe), stage
+45 (the block writer's E32-F1 label check and its fresh re-verify).
+`run_capture.rs` is **not touched** (SHA-256 `d09f3853…2dd6`, the value the
+two-block bundles pin). No parameter for `L` was needed; the writer is
+`L`-driven. Added, all in `run_capture_tests.rs` (already `cfg(test)`, not
+pinned by any bundle, not scanned by stage 25's call-site guard), so
+`private_block.rs` keeps `2764a7ec…`:
+
+* `s48_capture_into` — the stage-27 body with three changes: the segments go
+  to `<dir>/run/` through `DirSink` as each is proved (the 397.71 s run's
+  memory rule, not 484 MB resident), each checked against
+  `run_tests::counted_segment_bytes` and a 11.5 GiB high-water stop; the run
+  is verified by streaming with NO recorder and only then is its public
+  statement retained (`run/statement/run-statement.json`, D21 — the timed
+  verify); then verified again from the same files with the recorder
+  attached, and only then is the bundle written and read back
+  (`check_bundle_on_disk`, stage 27's, unchanged). The recipe the statement
+  will name is checked against the run's blocks BEFORE proving.
+* `s48_source_label_is_head` — finding E32-F1 for the RUN writer: a full
+  40-hex id equal to `git rev-parse HEAD`, and the 38 pinned sources plus
+  five harness files (`run_capture_tests.rs`, `run_statement_file.rs`,
+  `run_tests.rs`, `dense_tests.rs`, `grow_tests.rs`) clean. Stage 27's
+  writer took any label; the heavy test now refuses a stale one before
+  proving.
+* `s48_reverify` / `s48_write_validation` — the fresh-process check: pins
+  equal, the statement rebuilt from its file (every segment file's length and
+  SHA-256 checked against it), a fresh verifier over the files with no
+  recorder, the bundle against itself and the segments, and a recapture that
+  must be `run.json`, all stage files and `arrays.bin` byte for byte;
+  `validation.json` with `create_new`.
+* Tests: `s48_a_run_capture_label_that_is_not_head_is_refused`;
+  `s48_the_twelve_block_capture_path_and_its_fresh_reverify_work_at_a_development_shape`
+  (rung-K4, `L = 3`, BOTH recipes, the exact directory layout, the
+  re-verify, a second `validation.json` refused, and one changed byte in
+  `run/segment-001.bin` refused by name); and the two `#[ignore]`d heavy
+  tests `s48_capture_a_twelve_block_125m_run` and
+  `s48_reverify_a_run_capture_bundle`.
+
+Bundle layout: the `/5-run` capture files at the top, `run/` (the twelve
+segments and the statement) beside them, `validation.json` last.
+
+#### Task 2 — the bundles (outside git; small files copied)
+
+`results/zk60_run_captures_20260923_l12/` (README there, with every digest).
+
+| bundle | files on disk | capture + manifest | `arrays.bin` | `manifest.json` SHA-256 | run statement SHA-256 | `source_commit` |
+|---|---:|---:|---:|---|---|---|
+| `/home/victor/zk60-artifacts/m125-capture-dense-l12` | 1,216,953,306 B | 732,831,662 B | 677,634,600 B | `c660d0f4…1b1080` | `378f0ddc…f9da5de` | `17830dc` |
+| `/home/victor/zk60-artifacts/m125-capture-zero-l12` | 1,208,519,158 B | 724,398,175 B | 669,200,544 B | `c9e91d10…c506b013` | `6ffe8d94…c05ab56` | `17830dc` |
+
+`source_commit` = `17830dcc9f24b0d19e212b0344476e299cfd9be0`, the HEAD at
+each capture (the stage-48 code commit), checked by the writer. The status
+page's model of "about 1.7 GB a bundle, about 2–3 h" [MODEL] was high: the
+capture is 0.73 GB (the shape-only public tables are stored once, as S27-F4
+said) and the receipt 0.48 GB, and each took about 7 minutes.
+
+#### Task 3 — the fresh-process validation
+
+| | dense | zero |
+|---|---|---|
+| `source_pins_match`, `statement_rebuilt_from_its_file`, `native_reverified`, `segments_match_the_stage_pins`, `canonical_capture_reproduced` | all `true` | all `true` |
+| native re-verify (from the files, no recorder) | 13.51 s | 13.06 s |
+| canonical recapture (run.json, 12 stage files, arrays.bin byte-identical) | 25.82 s | 25.68 s |
+| whole test / peak RSS | 58.43 s / 1,605 MiB | 58.03 s / 1,597 MiB |
+
+Logs `s48-m125-{dense,zero}-reverify.log`, `.done` = 0.
+
+#### Task 4 — MEASURED (one run each, shared box, heavy lock, `MALLOC_MMAP_THRESHOLD_=131072`, 13 GiB available at each launch)
+
+| | dense (generic) | all-zero |
+|---|---:|---:|
+| chain build | 62.97 s | 59.75 s |
+| **prove**, 12 stages | **309.66 s** | **300.23 s** |
+| **verify** by streaming, no recorder | **14.45 s** | **14.30 s** |
+| verify + record | 26.15 s | 26.10 s |
+| write + read-back | 18.78 s | 19.20 s |
+| whole test | 433.03 s | 420.55 s |
+| **peak RSS** `VmHWM` / `/usr/bin/time` | **10,373 MiB** / 10,621,488 kB | **10,366 MiB** / 10,614,992 kB |
+| segments | **12** | **12** |
+| **receipt** | **484,107,456 B** = counted | **484,107,456 B** = counted |
+
+Per stage (s): dense 28.17 / 31.65 / 24.39 / 24.77 / 24.41 / 24.84 / 25.25 /
+25.04 / 25.14 / 25.77 / 25.09 / 24.97; zero 27.60 / 28.62 / 24.33 / 23.39 /
+23.70 / 23.90 / 25.39 / 24.54 / 24.53 / 24.07 / 24.74 / 25.32. High-water
+mark flat at 10.05–10.13 GiB across the twelve stages (no rise). The dense
+prove is 309.66 s against stage 21's 397.71 s on the same recipe: the stage-28
+prover speed-ups (no byte moved — the receipt and every segment are the
+counted lengths). The verify, 14.45 s, is stage 21's 14.45 s.
+Logs `s48-m125-{dense,zero}-write.log`, `.done` = 0.
+
+#### Task 5 — byte identity and the gates
+
+| gate | log | result |
+|---|---|---|
+| build (`--lib --no-run`, build lock) | `s48-build1.log` | exit 0, 2 m 10 s, the same 16 warning lines as stage 46 |
+| `run_capture_tests::s48_`, 6 threads | `s48-tests1.log` | **2 passed / 0 failed / 2 ignored**, 7.68 s |
+| focused `s36_tests block_capture_shaped s25_ s24_ gr4_check_tests s48_`, 6 threads | `s48-focused.log` | **45 passed / 0 failed / 5 ignored**, 14.15 s (= stage 47's 43 / 0 / 3 + the two s48 tests and two ignored) |
+| **THE GATE** `private_`, 6 threads, build lock, `/usr/bin/time -v` | `s48-gate-private.log` (`.done` = 0) | **501 passed / 0 failed / 23 ignored**, 138.82 s, peak RSS 4,234,736 kB — against 499 / 0 / 21: +2 tests, +2 ignored heavy tests, nothing lost |
+
+The toy stays **2,816,472 B** and every pin of stages 44–47 is in the pass
+list (`tests::honest_receipt_…`, `zero_witness_tests::…fixture_receipt_length`,
+`grow_tests::{…toy_exactly, …schedule_digest_is_frozen, …parameter_line…,
+…125m_receipt_is_reproduced_part_by_part}`, `review_tests::a_toy_receipt_…`,
+`run_tests::{…twelve_block_125m…, …ruling_r5}`, `slot_ir_tests::…pinned…`,
+`s24_tests::{…registered_profile…, …capture_writer_pins…}`,
+`s25_tests::every_hash_call_site…`, `s33_tests::…printable_ascii…`, both
+`native_capture_roundtrip_and_refusals`).
+
+**FORBIDDEN-FILES PROOF:** `git --no-pager diff --stat 32c11d9 HEAD --
+zkp-core hashline/src/{zk,pcs,layer,wcache,native_capture}.rs hashline/src/gpu
+private-block-kernel private-block-kernel-shaped zkvm-block
+hashline/Cargo.toml hashline/Cargo.lock hashline/src/private_block.rs
+hashline/src/private_block/{run,run_capture,run_statement_file,run_sink,protocol}.rs`
+prints NOTHING. `git diff --stat 32c11d9 HEAD -- hashline` is one file,
+`hashline/src/private_block/run_capture_tests.rs` +568 (SHA-256 `51de864a…6cf29`
+→ `b2d7fb15…ba8150`), a `cfg(test)` module no bundle pins. No D22 pin moves.
+The untracked `u31-c6-run1.*` files are left alone.
+
+#### Commits
+
+| commit | what |
+|---|---|
+| `53629b6` | the skeleton |
+| `17830dc` | the stage-48 tests, the build and test logs (the bundles' `source_commit`) |
+| `07fea2a` | the dense bundle's logs and small files |
+| this one | the zero bundle's logs and small files, the capture README, the focused and gate logs, this section |
+
+#### What stage 48 is NOT
+
+Not a privacy result and not gate evidence: the Python gate has not read a
+twelve-block bundle (obligation 7's second half — the gate run with every arm
+at L = 12 — is the gate's). The timings are one run each on a shared box.
+Not a measured run-scope draw count at 125M (stage 46's twelve-block figure
+stays a sum of measured parts).
