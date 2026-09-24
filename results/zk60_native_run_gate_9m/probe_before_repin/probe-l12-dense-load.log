@@ -1,0 +1,26 @@
+[load          ]      4.4 s   peak RSS    1555 MB   FAIL
+record: /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m/probe_before_repin/probe-l12-dense-load.json   total 4.4 s   peak RSS 1555 MB   ok=False
+Command exited with non-zero status 1
+	Command being timed: "python3 /home/victor/wt-zk60-jointview/scripts/zk60_native_rg_m125.py --bundle /home/victor/zk60-artifacts/m125-capture-dense-l12 --stages load --evidence /home/victor/wt-zk60-jointview/results/zk60_native_run_gate_9m/probe_before_repin --name probe-l12-dense-load"
+	User time (seconds): 4.22
+	System time (seconds): 2.18
+	Percent of CPU this job got: 124%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:05.13
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1592072
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 33
+	Minor (reclaiming a frame) page faults: 228760
+	Voluntary context switches: 345
+	Involuntary context switches: 14
+	Swaps: 0
+	File system inputs: 1518080
+	File system outputs: 280
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

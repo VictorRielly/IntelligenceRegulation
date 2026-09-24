@@ -5654,10 +5654,72 @@ establishes a privacy property.
 
 | # | item | state |
 |---|---|---|
-| M0 | ledger skeleton, round 9m opened | this commit |
-| M1 | the projection (time and peak memory per pass at `L = 12`) and the prediction, written and committed BEFORE the gate reads either bundle with its pins read | pending |
+| M0 | ledger skeleton, round 9m opened | done (`5d3a57f`) |
+| M1 | the projection (time and peak memory per pass at `L = 12`) and the prediction, written and committed BEFORE the gate reads either bundle with its pins read | done -- this commit, R9m.2, R9m.3 |
 | M2 | the pins: read, every moved file re-pinned with a written reason; a third digest still refused | pending |
 | M3 | the passes that fit, detached under the heavy lock, one at a time, `/usr/bin/time -v` | pending |
 | M4 | dense against zero | pending |
 | M5 | records (where they are), the records re-taken where a tool moved, the suites | pending |
 | M6 | results, what was NOT computed and why, limits, NEXT | pending |
+
+## R9m.2 The projection (written 2026-09-23 17:45 PDT, BEFORE any pass ran at `L = 12`)
+
+`results/zk60_native_run_gate_9m/projection.py` -> `projection_l12.json`.
+Inputs are MEASURED: the L = 2 125M passes (round 9c's re-take of
+`m125-dense`, `dense-final`, `zero-full`, `dense-full`, `dense-controls3`,
+`dense-everything2`), the standalone 125M block (L = 1, rounds 9j / 9l) and
+one L = 12 figure -- **the failing-first `load` probe** (unedited tools,
+`probe_before_repin/`, 17:40): **4.4 s, peak RSS 1,555 MB**, refused by name
+on two counts and computed nothing the prediction names (R9m.4).
+
+**How each part scales.** Per-stage parts (replay, hash layer, terminal
+identity, the per-commitment views, mask/CFS, the full-preimage arm) are
+LINEAR in `L`: 12 / 2 = 6x the L = 2 figure, less the fixed parts (stage
+3's H-pad cross-check on `B0`, 47.2 s; the controls that perturb one stage).
+Per-boundary parts are 11x L = 2's one boundary. **The whole-run joint
+system grows in both dimensions**: 206 x 25,686 at L = 2, **1,226 x 153,936
+at L = 12** (35.7x the cells). `RunJointSystem.disclosed` holds it as dense
+Python lists -- 1.51 GB of pointers per copy, and at most three copies are
+alive at once (the generators, `exact_u_term`'s D-union-N' sub-matrix and
+`rank`'s working copy), plus the Fp objects of ~6.76 M nonzero entries: a
+**~5.1 GB increment over a ~1.3 GB base, peak ~6.4 GB** (range 5.5-8.5 GB).
+The rank eliminations are O(L^2) and the per-indicator u-term solves O(L^3):
+~3.5 min, where L = 2 took 5.5 s.
+
+| pass | stages | projected time | projected peak | rule | decision |
+|---|---|---|---|---|---|
+| **A** records of record, dense and zero | load, replay, hash, terminals, commitments, boundary, preimage, channels | **0.27 h** each (terminals 610 s, boundary 212 s, commitments 141 s) | **6.4 GB** (stage 4) | fits | **RUN**, both |
+| **M** mask/CFS per stage + M1..M6, dense and zero | load, replay, mask `--controls` | 0.04 h each | 1.8 GB | fits | **RUN**, both |
+| **F** every arm + every control whose cost is per stage / per boundary (X, P, M, C1..C6, CH, M9-1/2), dense | load, replay, hash, commitments, boundary, preimage, fullpreimage, mask, joint, runcontrols, channels `--controls` | **3.53 h** (arm 7,502 s = 12 x (314 + 258) + 11 x 50 + 2 x 44; P-1..P-6 4,420 s, fixed) | **6.8 GB** | fits (<= 11 GiB, <= 4 h) | **RUN**, dense |
+| **T** the terminal control families CT-1..CT-9, GQ, M9-3 | terminals `--controls` + runcontrols | **3.55 h** (each control re-checks all TWELVE stages' terminal identity: ~18 re-checks x 610 s, M9-3 4 x 610 s) | 6.4 GB | fits | **NOT RUN -- wall clock only**; the families fired at L = 1, 2 and 3 (R9c.4, R9j.7-8); the command is in `queue.sh`'s comment |
+| **EVERYTHING** | every stage, arm and control in one record | **6.98 h** | 6.8 GB | **fails the 4 h limit** | **NOT RUN** |
+
+So the whole 28-channel table (10 / 5 / 5 / 8) will be in NO single L = 12
+record: pass A carries stage 8 (the two DERIVED channels), pass F every arm.
+
+## R9m.3 The prediction (written 2026-09-23 17:45 PDT, BEFORE the gate reads either bundle with its pins read)
+
+The computed half is `zk60_native_rg_predict` on both bundles
+(`predict.sh` -> `prediction_l12_{dense,zero}.json`), **validated first, OK
+x4**: the two committed L = 2 125M records and rung-K4 / rung-K8. The hand
+half is `prediction_l12_by_hand.json`. The law: every per-stage figure is
+L = 2's x 12 / 2; every per-boundary figure is the one L = 2 boundary's, x
+11; the external endpoints once.
+
+| # | figure | predicted at L = 12 (dense = zero unless said) | L = 2 |
+|---|---|---|---|
+| P1 | integrity | 12 blocks, 11 boundaries, 15 manifest files, 37 distinct roots, none twice; `validation.json` read and compared (every flag true, names this manifest and `17830dc`); the 12 segments under `run/` = their stage files' `segment_bytes` / `segment_sha256` (484,107,456 B); 0 findings | 2 / 1 / 5 / 7 |
+| P2 | replay | **1,491** positions, **166,788** challenges, 24 position tags, `run_binding` reproduced; final counter ~170,244 (extrapolated) | 251 / 27,828 / 4 |
+| P3 | hash layer | 49 openings, **12,544 of 12,544** columns, 316,833,792 B | 9 / 2,304 / 52,867,072 |
+| P4 | terminals | **276 of 276** slot checks (23 x 12), all = the stored polynomial, 0 open; 336 tables carried; 13 rebuilt, 15 taken, 180 structure checks; group factor `repaired`, 24 slots / 24 points / 48 entries / 900 coordinate entries / 444 fixed | 46; 56; 13 / 15 / 30 |
+| P5 | per commitment | 37: `A@k` 0 (5,681 rows, 122 claims, 36 groups, `rank_P1` 74, 246 non-data); `H@k` **2** (exact u* 2 = per-indicator 2); `B_k` 0 (38 rows, 6 of 6); endpoints 0 (37 rows); `M@k` 0; exclusivity 16 of 16 on all 37; 24 X-controls fire, the old check accepts the same 7 | 7 |
+| P6 | boundaries | **11**, each reserved block rank **6 of 6, disclosed 0**; three-role (A@k, B_k, A@k+1) 154 x 11,336, joint **0 = sum 0** at each | 1 |
+| P6' | adjacent pairs | 11: k = 0 and k = 10 202 x 25,681 (with an endpoint), k = 1..9 198 x 25,676; joint 4 = sum 4 each | 206 x 25,686, 4 = 4 |
+| P6'' | whole run | **1,226 x 153,936**, 154,704 rows, 768 identified, 416 shared data classes, 0 shared non-data; **joint 24 = sum 24** (twelve H's 2 each), k0 0, exact u* 24 = per-indicator 24 | 206 x 25,686, 4 = 4 |
+| P7 | singleton preimage | both endpoints (1 free Fp) and B0..B10 (0 free) exhibited | 3 |
+| P8 | mask / CFS (pass M, F) | 12 stages, 16,459 entries each (197,508), 0 differing, 3,072 leaves; L_s 08/09/16 = 32/41/74, largest 117 at slot 17, C-4 headroom 139; M1..M6 fire | 2 stages |
+| P9 | full preimage (F) | 37 of 37, 0 differing, 9,472 salted leaves; fibres 2,817,876 per A, 1,376,172 per H, 32 per B, 0 per endpoint; P-1..P-6 6 of 6; entries not predicted to the unit | 7 / 1,792 |
+| P10 | joint preimage (F) | stage 11 + stage 12 entries, 12,544 leaves, four couplings, C1 **768** pairs all data rows | 2,304 / 128 |
+| P11 | run controls (F) | C1..C6 6 of 6; CH-1/2/4/5/7 fire (CH-7 12,544 / 0), CH-3 identity, CH-6 skipped -> stage 6 `ok` false (round 9c's bookkeeping); M9-1, M9-2 fire; M9-3 not in F | the same |
+| P12 | channels | pass A **28 at 2 / 5 / 5 / 16**; pass F **10 / 3 / 5 / 10**. The brief's "10 / 5 / 4 / 9" is the pre-R9j count; the whole table is 10 / 5 / 5 / 8 since the row-26 regrade and needs the everything pass (NOT RUN) | the same |
+| P13 | dense vs zero | identical but for distinct sampled-column counts, the pad margins, the pad-block rank on `B0`, the distinct salted leaves and the bundles' own bytes | the same classes |

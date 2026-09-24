@@ -1,0 +1,152 @@
+{
+ "inputs_measured_at_L1_block": {
+  "boundary": [
+   0.8,
+   407
+  ],
+  "commitments": [
+   49.5,
+   370
+  ],
+  "load": [
+   0.6,
+   323
+  ],
+  "terminals": [
+   44.4,
+   1402
+  ]
+ },
+ "inputs_measured_at_L2": {
+  "boundary": [
+   5.5,
+   1460
+  ],
+  "commitments": [
+   62.8,
+   1460
+  ],
+  "everything_total": [
+   7797.8,
+   5484
+  ],
+  "fullpreimage_arm_only": [
+   1293.8,
+   4020
+  ],
+  "fullpreimage_with_P_controls": [
+   5712.1,
+   5484
+  ],
+  "hash": [
+   0.8,
+   603
+  ],
+  "load": [
+   1.0,
+   603
+  ],
+  "mask_with_controls": [
+   42.8,
+   null
+  ],
+  "mask_without_controls": [
+   15.4,
+   null
+  ],
+  "preimage": [
+   1.0,
+   1460
+  ],
+  "replay": [
+   1.3,
+   603
+  ],
+  "runcontrols": [
+   256.3,
+   2105
+  ],
+  "terminals": [
+   101.6,
+   1460
+  ],
+  "terminals_with_controls": [
+   1664.5,
+   1531
+  ]
+ },
+ "measured_at_L12_before_this_file": {
+  "load": [
+   4.4,
+   1555
+  ]
+ },
+ "passes": {
+  "A (records of record): load,replay,hash,terminals,commitments,boundary,preimage,channels": {
+   "fits_11_gib": true,
+   "hours": 0.27,
+   "peak_gb": 6.4,
+   "seconds": 984,
+   "why_the_peak": "stage 4's whole-run joint system (dense Python lists)",
+   "within_4_h": true
+  },
+  "EVERYTHING (every stage, every arm, every control)": {
+   "fits_11_gib": true,
+   "hours": 6.98,
+   "peak_gb": 6.8,
+   "seconds": 25142,
+   "why_the_peak": "as F",
+   "within_4_h": false
+  },
+  "F (every arm + the per-stage / per-boundary controls, no terminals): load,replay,hash,commitments,boundary,preimage,fullpreimage,mask,joint,runcontrols,channels --controls": {
+   "fits_11_gib": true,
+   "hours": 3.53,
+   "peak_gb": 6.8,
+   "seconds": 12716,
+   "why_the_peak": "stage 4, then the arm's per-commitment solve with round 7's controls (5.5 GB above the L = 2 base, measured)",
+   "within_4_h": true
+  },
+  "M (mask and CFS per stage, M1-M6): load,replay,mask --controls": {
+   "fits_11_gib": true,
+   "hours": 0.04,
+   "peak_gb": 1.8,
+   "seconds": 132,
+   "why_the_peak": "the load (arrays.bin hashed once)",
+   "within_4_h": true
+  },
+  "T (the whole-run terminal control families CT, GQ and M9-3)": {
+   "fits_11_gib": true,
+   "hours": 3.55,
+   "peak_gb": 6.4,
+   "seconds": 12791,
+   "why_the_peak": "stage 4 (runcontrols needs the views and the shared planes)",
+   "within_4_h": true
+  }
+ },
+ "stage_seconds_L12": {
+  "arm": 7502.0,
+  "boundary": 212.3,
+  "commitments": 140.8,
+  "hash": 4.8,
+  "load": 4.4,
+  "m9_3": 2438.4,
+  "mask_controls": 119.8,
+  "preimage": 4.3,
+  "replay": 7.8,
+  "runcontrols_without_M9_3": 300.0,
+  "terminal_control_families": 9377.4,
+  "terminals": 609.6
+ },
+ "what": "ROUND 9m: the PROJECTION -- time and peak resident memory of every pass of\nthe staged 125M driver at L = 12, from what the L = 2 (and L = 1) 125M passes\nMEASURED and from how each part of the gate scales with L.  Written and\ncommitted BEFORE any pass is run at L = 12, and read against the stop rule:",
+ "whole_run_system": {
+  "L12": "1226 x 153936",
+  "L2": "206 x 25686",
+  "cells_ratio": 35.7,
+  "identified_rows_L12": 768,
+  "nonzero_generator_entries_L12": 6756332,
+  "one_dense_copy_gb": 1.51,
+  "rows_total_L12": 154704,
+  "stage4_increment_gb": 5.1,
+  "stage4_peak_gb": 6.4
+ }
+}
