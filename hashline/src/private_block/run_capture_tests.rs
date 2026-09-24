@@ -2082,3 +2082,571 @@ fn capture_a_125m_run() {
     assert!(total < 2_000_000_000, "the 125M bundle is {total} B, past the 2 GB runaway ceiling");
     eprintln!("CAPTURE 125M RESULT: {total} B ({:.1} MB) at {} — a CAPTURE, not a privacy result; no gate has read it", total as f64 / 1e6, dir.display());
 }
+
+// ======================================================================
+// STAGE 48 — TEST-ONLY: THE TWELVE-BLOCK 125M RUN, CAPTURED
+// ======================================================================
+//
+// Every 125M capture the privacy gate has read is a TWO-block run (stage 27's
+// `capture_a_125m_run` at `HL_PB_CAPTURE_BLOCKS=2`), and a twelve-block
+// ALL-ZERO 125M run had never been proved. This section takes the SAME writer
+// (`run_capture.rs`, not touched) and the same harness (`Chain`,
+// `statement_of_at`, `check_bundle_on_disk`) to `L = 12`, and adds three
+// things stage 27's test does not do:
+//
+// 1. the segments go to DISK as each is finished (`run_sink::DirSink`, as the
+//    measured 397.71 s twelve-block run did), not into memory: eleven resident
+//    125M segments would sit on top of a 10.15 GiB proving peak;
+// 2. the run's PUBLIC statement is retained beside them
+//    (`run_statement_file::verify_then_write`, ruling D21), so that a FRESH
+//    process can rebuild the verifier's statement and re-verify the receipt;
+// 3. the source label must be the full HEAD with every pinned source and
+//    every harness file committed as it stands (finding E32-F1, the stage-45
+//    block writer's rule, here for the run writer). A stale label is refused
+//    before anything is proved.
+//
+// The layout of a stage-48 bundle directory:
+//
+// | path | what | written by |
+// |---|---|---|
+// | `run.json`, `stage-00.json` … `stage-{L-1}.json`, `arrays.bin`, `README.md`, `manifest.json` | the capture, schema `/5-run` | `run_capture::write_bundle`, unchanged |
+// | `run/segment-000.bin` … | the receipt, pinned by every stage file's `segment_bytes` / `segment_sha256` | `run_sink::DirSink` |
+// | `run/statement/run-statement.json` | the public run statement (stage 18) | `run_statement_file::verify_then_write` |
+// | `validation.json` | the fresh-process re-verify's record, after the manifest and not pinned by it | `s48_write_validation` |
+//
+// A capture is not a gate: nothing here says anything about privacy.
+
+use super::run_sink::{self, DirSink, SegmentSink};
+use super::run_statement_file;
+use std::time::Instant;
+
+/// The run directory inside a stage-48 bundle directory.
+const S48_RUN_DIR: &str = "run";
+
+/// The counted twelve-block 125M receipt (post-S19-F1 repair; the stage-21
+/// dense run MEASURED it: 40,033,896 + 10 x 40,302,184 + 41,051,720).
+const S48_M125_L12_RECEIPT: usize = 484_107_456;
+
+/// The test-only files that decide WHICH run a stage-48 bundle is of — the
+/// harness, the two recipes, the counted lengths, the statement writer —
+/// checked clean beside the sources the manifest pins.
+const S48_HARNESS_FILES: [&str; 5] = [
+    "src/private_block/run_capture_tests.rs",
+    "src/private_block/run_statement_file.rs",
+    "src/private_block/run_tests.rs",
+    "src/private_block/dense_tests.rs",
+    "src/private_block/grow_tests.rs",
+];
+
+fn s48_git(args: &[&str]) -> Result<String, String> {
+    let out = std::process::Command::new("git").arg("--no-pager").arg("-C").arg(env!("CARGO_MANIFEST_DIR")).args(args).output().map_err(|e| format!("git: {e}"))?;
+    if !out.status.success() {
+        return Err(format!("git {args:?}: {}", String::from_utf8_lossy(&out.stderr)));
+    }
+    Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
+}
+
+/// **FINDING E32-F1, for the RUN writer.** The label a bundle records must be
+/// the full HEAD commit, and every source the manifest pins and every harness
+/// file must be committed as it stands (no modified or untracked one), so the
+/// label names the tree the bundle was written from.
+fn s48_source_label_is_head(label: &str) -> Result<(), String> {
+    if label.len() != 40 || !label.bytes().all(|b| b.is_ascii_hexdigit()) {
+        return Err(format!("the source label {label:?} is not a full commit id (finding E32-F1)"));
+    }
+    let head = s48_git(&["rev-parse", "HEAD"])?;
+    if head != label {
+        return Err(format!("the source label {label} is not HEAD ({head}) (finding E32-F1)"));
+    }
+    let pinned = run_capture::source_files();
+    let mut args = vec!["status", "--porcelain", "--"];
+    args.extend(pinned.iter().copied());
+    args.extend(S48_HARNESS_FILES.iter().copied());
+    let dirty = s48_git(&args)?;
+    if !dirty.is_empty() {
+        return Err(format!("a pinned source or a harness file is not committed as it stands (finding E32-F1):\n{dirty}"));
+    }
+    Ok(())
+}
+
+/// The label every writer of this run reads (`run.json`, the manifest, the
+/// run statement), with the writers' own default.
+fn s48_label() -> String {
+    std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())
+}
+
+/// A string member `"key":"value"` (the writer's JSON has no whitespace and
+/// Debug escaping, so a scan is exact for the ASCII values read here).
+fn s48_string_member(bytes: &[u8], key: &str) -> String {
+    let pat = format!("\"{key}\":\"");
+    let text = std::str::from_utf8(bytes).expect("a bundle's JSON is UTF-8");
+    let at = text.find(&pat).unwrap_or_else(|| panic!("no string member {key:?}")) + pat.len();
+    text[at..at + text[at..].find('"').expect("a closed string")].to_string()
+}
+
+/// Every `{"file":…,"sha256":…}` entry of a manifest's `source_pins`.
+fn s48_manifest_pins(manifest: &[u8]) -> Vec<(String, String)> {
+    let text = std::str::from_utf8(manifest).expect("the manifest is UTF-8");
+    let start = text.find("\"source_pins\":[").expect("a source_pins list");
+    let end = text.find("\"files\":[").expect("a files list");
+    let mut out = Vec::new();
+    let mut rest = &text[start..end];
+    while let Some(i) = rest.find("{\"file\":\"") {
+        let body = &rest[i..i + rest[i..].find('}').expect("a closed entry") + 1];
+        let name = body["{\"file\":\"".len()..].split('"').next().expect("a name").to_string();
+        let sha = body.split("\"sha256\":\"").nth(1).expect("sha256").split('"').next().expect("a digest").to_string();
+        out.push((name, sha));
+        rest = &rest[i + body.len()..];
+    }
+    out
+}
+
+/// The `L` segment files of a run directory, read into memory (after the
+/// proving: 484 MB at 125M, far under the proving peak).
+fn s48_read_segments(run_dir: &Path, l: usize) -> Vec<Vec<u8>> {
+    run_sink::segment_paths(run_dir, l)
+        .unwrap_or_else(|e| panic!("{e}"))
+        .iter()
+        .map(|p| std::fs::read(p).unwrap_or_else(|e| panic!("{}: {e}", p.display())))
+        .collect()
+}
+
+/// What one stage-48 capture measured, for the caller's report. Timings and
+/// memory go to the LOG, never into a bundle.
+struct S48Capture {
+    chain_s: f64,
+    prove_s: f64,
+    per_block_s: Vec<f64>,
+    hwm_mib: Vec<f64>,
+    peak_after_prove_mib: f64,
+    verify_s: f64,
+    record_s: f64,
+    write_s: f64,
+    segment_bytes: Vec<usize>,
+    receipt_bytes: usize,
+    statement: run_statement_file::Written,
+    capture_bytes: usize,
+    manifest_sha256: String,
+}
+
+/// **THE STAGE-48 CAPTURE BODY**, at any shape: build the chain, PROVE the
+/// run with the production prover into `<dir>/run/` one segment at a time
+/// (each checked against its counted length), VERIFY it by streaming with no
+/// recorder and only then retain its public statement (D21), VERIFY it again
+/// from the same files with the recorder attached, and only then WRITE the
+/// bundle and read it back against itself. `dir` must not exist.
+#[allow(clippy::too_many_arguments)]
+fn s48_capture_into(tag: &str, sh: &Shape, rs: RunShape, l: usize, dense: bool, dir: &Path, note: &str, command: &str, hwm_ceiling_mib: Option<f64>) -> S48Capture {
+    assert!(l >= 2, "a stage-48 run has at least one internal boundary; L = {l}");
+    assert!(
+        !run_capture::segments_wanted(),
+        "HL_RUN_CAPTURE_SEGMENTS=1 would write a second copy of the receipt into the bundle; a stage-48 bundle keeps it once, in {S48_RUN_DIR}/"
+    );
+    assert!(!dir.exists(), "{} exists; a bundle goes into a fresh directory", dir.display());
+    let recipe = if dense { run_statement_file::DENSE_RUN_FIXTURE } else { run_statement_file::TAME_FIXTURE };
+    let (public, ff, x0) = if dense {
+        super::dense_tests::dense_run_case(sh)
+    } else {
+        let (p, f, _) = super::grow_tests::tame_case(sh);
+        (p, f, vec![0i16; sh.tokens * sh.width])
+    };
+    let blocks = blocks_from(&public, &ff, l);
+    // FAIL FAST: the recipe the retained statement will name must regenerate
+    // these blocks, or `verify_then_write` would refuse only after the proving
+    let regenerated = run_statement_file::recipe_block(recipe.name, sh).unwrap_or_else(|e| panic!("{e}"));
+    assert_eq!(regenerated.digest(), blocks[0].digest(), "S48 {tag}: the recipe {:?} does not regenerate this run's public blocks", recipe.name);
+    drop(regenerated);
+    let t0 = Instant::now();
+    let mut c = Chain::from_parts(sh, l, public, ff, x0);
+    let chain_s = t0.elapsed().as_secs_f64();
+    eprintln!("S48 {tag}: chain built ({l} witnesses, each dropped) in {chain_s:.2} s, high-water mark so far {:.2} GiB", run::peak_rss_mib() / 1024.0);
+    let (st, owners) = statement_of_at(&c, l, &blocks, rs);
+    let binding = st.binding().expect("the run binding");
+    let rows = st.boundary_spec(0).expect("the run's first boundary").commitment_rows();
+    let want = super::run_tests::counted_segment_bytes(sh, l, rows);
+    if sh.profile == Shape::m125().profile && l == 12 {
+        assert_eq!(want.iter().sum::<usize>(), S48_M125_L12_RECEIPT, "the counted twelve-block 125M receipt moved");
+    }
+    let run_dir = dir.join(S48_RUN_DIR);
+    std::fs::create_dir_all(&run_dir).unwrap_or_else(|e| panic!("{}: {e}", run_dir.display()));
+    let mut disk = DirSink::create(&run_dir, l).unwrap_or_else(|e| panic!("S48 {tag}: {e}"));
+    let mut tick = Instant::now();
+    let t1 = Instant::now();
+    let stats = run::prove_run(&st, &blocks, &mut c, owners, &mut |k, bytes: Vec<u8>| {
+        let n = bytes.len();
+        if n != want[k] {
+            return Err(format!("STOP at block {k}: the segment is {n} B and the counted length is {} B", want[k]));
+        }
+        disk.accept(k, bytes)?;
+        let hwm = run::peak_rss_mib();
+        eprintln!("S48 {tag}: block {k}: stage {:.2} s, segment {n} B (the counted length), high-water mark {:.2} GiB", tick.elapsed().as_secs_f64(), hwm / 1024.0);
+        if let Some(cap) = hwm_ceiling_mib {
+            if hwm > cap {
+                return Err(format!("STOP at block {k}: the high-water mark {:.2} GiB passed the {:.2} GiB ceiling", hwm / 1024.0, cap / 1024.0));
+            }
+        }
+        tick = Instant::now();
+        Ok(())
+    })
+    .unwrap_or_else(|e| panic!("S48 {tag}: {e}"));
+    let prove_s = t1.elapsed().as_secs_f64();
+    let peak_after_prove_mib = run::peak_rss_mib();
+    drop(c);
+    let segment_bytes = disk.lengths().to_vec();
+    let receipt_bytes = disk.total_bytes();
+    assert_eq!(segment_bytes, want, "S48 {tag}: the segments on disk are not the counted lengths");
+    eprintln!("S48 {tag}: proved in {prove_s:.2} s, {l} segments, {receipt_bytes} B on disk in {}", run_dir.display());
+    // THE VERIFY, no recorder: the streaming verifier over the files, and only
+    // then is the public statement written (ruling D21)
+    let statement = run_statement_file::verify_then_write(&st, &blocks, &run_dir, &recipe)
+        .unwrap_or_else(|e| panic!("S48 {tag}: the run did not verify by streaming, or its public statement could not be retained: {e}"));
+    let verify_s = statement.verify_s;
+    eprintln!("S48 {tag}: verified by streaming (no recorder) in {verify_s:.2} s; the public run statement is retained at {} ({} B, sha256 {})", statement.path.display(), statement.bytes, statement.sha256);
+    // THE CAPTURE: the same verifier over the same files, recorder attached
+    let t2 = Instant::now();
+    let guard = run_capture::Recorder::attach();
+    run_capture::begin_run_with(st.capture_header().expect("the capture header"), binding, run_capture::CaptureOpts { arrays: true, public_tables: true });
+    run::verify_run_from_dir(&st, &blocks, &run_dir).unwrap_or_else(|e| panic!("S48 {tag}: the run did not verify with the recorder attached: {e}"));
+    let bundle = run_capture::take().unwrap_or_else(|e| panic!("S48 {tag}: no bundle for an accepted run: {e}"));
+    drop(guard);
+    let record_s = t2.elapsed().as_secs_f64();
+    let (distinct, stored, deduped, inline, blob) = bundle.arrays.stats();
+    eprintln!(
+        "S48 {tag}: verify + record {record_s:.2} s; run.json {} B, stage files {:?} B; arrays.bin {blob} B over {distinct} distinct arrays ({stored} references, {deduped} deduplicated), {inline} small arrays inline",
+        bundle.run_json.len(),
+        bundle.stages.iter().map(|s| s.len()).collect::<Vec<_>>()
+    );
+    // THE BUNDLE, written only now, beside the run directory, then read back
+    let t3 = Instant::now();
+    let segs = s48_read_segments(&run_dir, l);
+    run_capture::write_bundle(dir, &bundle, &segs, note, command).unwrap_or_else(|e| panic!("S48 {tag}: {e}"));
+    let capture_bytes = check_bundle_on_disk(dir, l, binding, &segs, true);
+    drop(segs);
+    let write_s = t3.elapsed().as_secs_f64();
+    let manifest_sha256 = crate::export_v3::sha256_hex(&std::fs::read(dir.join("manifest.json")).expect("the manifest"));
+    eprintln!("S48 {tag}: {capture_bytes} B of capture files on disk ({:.1} MB) + the manifest (SHA-256 {manifest_sha256}); self-consistent, every key on the allow-list, every array reference resolved, every stage pinned to its segment file; write + self-check {write_s:.2} s", capture_bytes as f64 / 1e6);
+    S48Capture {
+        chain_s,
+        prove_s,
+        per_block_s: stats.prove_s,
+        hwm_mib: stats.hwm_mib,
+        peak_after_prove_mib,
+        verify_s,
+        record_s,
+        write_s,
+        segment_bytes,
+        receipt_bytes,
+        statement,
+        capture_bytes,
+        manifest_sha256,
+    }
+}
+
+/// What a fresh-process re-verify established, for `validation.json`.
+struct S48Reverify {
+    l: usize,
+    profile: String,
+    label: String,
+    segments: usize,
+    receipt_bytes: usize,
+    bundle_bytes: usize,
+    statement_sha256: String,
+    manifest_sha256: String,
+    public_tables: bool,
+    verify_s: f64,
+    recapture_s: f64,
+}
+
+/// **THE FRESH-PROCESS RE-VERIFY AND CANONICAL RECAPTURE** of a stage-48
+/// bundle, from its files alone: the code that re-verifies must be the code
+/// that captured (every source pin equal), the verifier's statement is
+/// REBUILT from the retained file (which checks every segment file's length
+/// and SHA-256 against it), a fresh verifier accepts the receipt from the
+/// files with no recorder, the bundle is read back against itself and
+/// against the segments, and a recapture of the same files is `run.json`,
+/// every stage file and `arrays.bin` byte for byte.
+fn s48_reverify(dir: &Path) -> S48Reverify {
+    let run_dir = dir.join(S48_RUN_DIR);
+    let manifest = std::fs::read(dir.join("manifest.json")).expect("a manifest");
+    let label = s48_string_member(&manifest, "source_commit");
+    let profile = s48_string_member(&manifest, "profile");
+    assert_eq!(s48_label(), label, "the recapture renders its label from HL_TEST_SOURCE_COMMIT; set it to the bundle's own");
+    // THE CODE THAT RE-VERIFIES IS THE CODE THAT CAPTURED
+    let now = run_capture::source_pins().expect("the pins resolve");
+    assert_eq!(now, s48_manifest_pins(&manifest), "a pinned source moved since the bundle was written: this build is not the code that captured it");
+    // THE STATEMENT, rebuilt from its file alone
+    let (st, blocks) = run_statement_file::read(&run_dir).unwrap_or_else(|e| panic!("{e}"));
+    let l = st.rs().l();
+    assert!(contains(&manifest, &format!("\"blocks\":{l},")), "the manifest and the retained statement disagree on L");
+    let binding = st.binding().expect("the rebuilt run binding");
+    // (1) NATIVE: a fresh verifier, no recorder, one segment file at a time
+    let t0 = Instant::now();
+    run::verify_run_from_dir(&st, &blocks, &run_dir).unwrap_or_else(|e| panic!("a fresh verifier refuses the saved run: {e}"));
+    let verify_s = t0.elapsed().as_secs_f64();
+    // (2) THE BUNDLE, against itself and against the segment files
+    let segs = s48_read_segments(&run_dir, l);
+    let receipt_bytes = segs.iter().map(|s| s.len()).sum::<usize>();
+    let segments = segs.len();
+    let capture_bytes = check_bundle_on_disk(dir, l, binding, &segs, true);
+    drop(segs);
+    // (3) THE CANONICAL RECAPTURE
+    let run_json = std::fs::read(dir.join("run.json")).expect("run.json");
+    let public_tables = contains(&run_json, "\"public_tables_included\":true");
+    let t1 = Instant::now();
+    let guard = run_capture::Recorder::attach();
+    run_capture::begin_run_with(st.capture_header().expect("the rebuilt capture header"), binding, run_capture::CaptureOpts { arrays: true, public_tables });
+    run::verify_run_from_dir(&st, &blocks, &run_dir).unwrap_or_else(|e| panic!("the saved run does not verify with a recorder attached: {e}"));
+    let again = run_capture::take().unwrap_or_else(|e| panic!("the saved run does not recapture: {e}"));
+    drop(guard);
+    let recapture_s = t1.elapsed().as_secs_f64();
+    assert!(again.run_json == run_json, "the recapture's run.json is not the saved one");
+    assert_eq!(again.stages.len(), l, "the recapture closed {} stages of {l}", again.stages.len());
+    for (k, s) in again.stages.iter().enumerate() {
+        let saved = std::fs::read(dir.join(run_capture::stage_file(k))).expect("a stage file");
+        assert!(*s == saved, "the recapture's {} is not the saved one", run_capture::stage_file(k));
+    }
+    let blob = std::fs::read(dir.join(run_capture::ARRAYS_FILE)).expect("arrays.bin");
+    assert!(again.arrays.blob() == blob.as_slice(), "the recapture's arrays.bin is not the saved one");
+    let statement_sha256 = crate::export_v3::sha256_hex(&std::fs::read(run_statement_file::statement_path(&run_dir)).expect("the statement file"));
+    S48Reverify {
+        l,
+        profile,
+        label,
+        segments,
+        receipt_bytes,
+        bundle_bytes: capture_bytes + manifest.len(),
+        statement_sha256,
+        manifest_sha256: crate::export_v3::sha256_hex(&manifest),
+        public_tables,
+        verify_s,
+        recapture_s,
+    }
+}
+
+/// Write `validation.json` beside the manifest — never over one.
+fn s48_write_validation(dir: &Path, r: &S48Reverify) -> Result<String, String> {
+    let exe = std::env::current_exe().map_err(|e| format!("the test binary: {e}"))?;
+    let verifier_sha = crate::export_v3::sha256_hex(&std::fs::read(&exe).map_err(|e| format!("{}: {e}", exe.display()))?);
+    let head = s48_git(&["rev-parse", "HEAD"]).unwrap_or_else(|e| e);
+    let json = format!(
+        "{{\n  \"schema\": {:?},\n  \"kind\": \"zk60-run-capture-validation\",\n  \"profile\": {:?},\n  \"blocks\": {},\n  \"segments\": {},\n  \"receipt_bytes\": {},\n  \"public_tables_included\": {},\n  \"source_commit\": {:?},\n  \"reverified_at_commit\": {head:?},\n  \"manifest_sha256\": {:?},\n  \"run_statement_sha256\": {:?},\n  \"bundle_bytes_on_disk\": {},\n  \"source_pins_match\": true,\n  \"statement_rebuilt_from_its_file\": true,\n  \"native_reverified\": true,\n  \"segments_match_the_stage_pins\": true,\n  \"canonical_capture_reproduced\": true,\n  \"fresh_process\": true,\n  \"privacy_review_complete\": false,\n  \"verifier_binary_sha256\": {verifier_sha:?},\n  \"what_this_is\": \"a fresh process that did not prove this run rebuilt the verifier's statement from run/statement/run-statement.json (every segment file's length and SHA-256 checked against it), verified the {} segment files from disk with no recorder, read the bundle back against itself and against the segments, recaptured the same files and found run.json, every stage file and arrays.bin byte-identical to the saved ones. NOT a privacy result.\"\n}}\n",
+        run_capture::SCHEMA_V5,
+        r.profile,
+        r.l,
+        r.segments,
+        r.receipt_bytes,
+        r.public_tables,
+        r.label,
+        r.manifest_sha256,
+        r.statement_sha256,
+        r.bundle_bytes,
+        r.segments
+    );
+    let path = dir.join("validation.json");
+    let mut f = std::fs::OpenOptions::new().create_new(true).write(true).open(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    std::io::Write::write_all(&mut f, json.as_bytes()).map_err(|e| format!("{}: {e}", path.display()))?;
+    Ok(json)
+}
+
+/// **FINDING E32-F1 for the run writer**: a label that is not the full HEAD
+/// commit, and the writers' default label, are refused.
+#[test]
+fn s48_a_run_capture_label_that_is_not_head_is_refused() {
+    let wrong = s48_source_label_is_head("0000000000000000000000000000000000000000");
+    assert!(wrong.expect_err("a wrong label was accepted").contains("is not HEAD"));
+    let short = s48_source_label_is_head("32c11d9");
+    assert!(short.expect_err("a short label was accepted").contains("not a full commit id"));
+    assert!(s48_source_label_is_head("uncommitted-test").is_err(), "the default label was accepted");
+}
+
+/// **THE DRESS REHEARSAL: the stage-48 body and its fresh re-verify, at a
+/// development shape, on BOTH recipes.** `s48_capture_into` and
+/// `s48_reverify` are what the twelve-block 125M runs go through; here they
+/// run at `Shape::rung_k4` with three blocks into a scratch directory that
+/// is removed when the test ends — so the recipe/statement pairing of the
+/// all-zero run, the directory layout and the byte-identical recapture are
+/// established before seven minutes of 125M proving depend on them. Then one
+/// byte of one segment file is changed and the re-verify must refuse.
+#[test]
+fn s48_the_twelve_block_capture_path_and_its_fresh_reverify_work_at_a_development_shape() {
+    let sh = Shape::rung_k4();
+    let l = 3usize;
+    for dense in [true, false] {
+        let tmp = TempDir::new(if dense { "s48-rehearsal-dense" } else { "s48-rehearsal-zero" });
+        let dir = tmp.path().join("bundle");
+        let cap = s48_capture_into(
+            if dense { "rehearsal rung-K4 dense" } else { "rehearsal rung-K4 zero" },
+            &sh,
+            RunShape::rung_k4(l).expect("the rung-K4 run shape"),
+            l,
+            dense,
+            &dir,
+            "A dress rehearsal of the stage-48 capture path at the four-key-value-head development shape; deleted when the test ends.",
+            "cargo test --release --lib private_block::run_capture_tests::s48_the_twelve_block_capture_path_and_its_fresh_reverify_work_at_a_development_shape",
+            None,
+        );
+        assert_eq!(cap.segment_bytes.len(), l);
+        assert_eq!(cap.receipt_bytes, cap.segment_bytes.iter().sum::<usize>());
+        assert_eq!(cap.per_block_s.len(), l);
+        assert!(cap.capture_bytes > 1_000_000, "a three-block rung-K4 bundle is {} B; the writer is not writing", cap.capture_bytes);
+        // THE LAYOUT, exactly
+        let mut want: Vec<String> = vec!["README.md".into(), run_capture::ARRAYS_FILE.into(), "manifest.json".into(), S48_RUN_DIR.into(), "run.json".into()];
+        want.extend((0..l).map(run_capture::stage_file));
+        want.sort();
+        assert_eq!(run_sink::dir_entry_names(&dir).expect("the bundle lists"), want, "the bundle directory is not the stage-48 layout");
+        let mut run_want: Vec<String> = (0..l).map(run_sink::segment_file_name).collect();
+        run_want.push(run_sink::STATEMENT_DIR.into());
+        run_want.sort();
+        assert_eq!(run_sink::dir_entry_names(&dir.join(S48_RUN_DIR)).expect("the run directory lists"), run_want, "the run directory is not segments + statement");
+        // THE FRESH RE-VERIFY's body, and its record
+        let r = s48_reverify(&dir);
+        assert_eq!((r.l, r.segments, r.receipt_bytes), (l, l, cap.receipt_bytes));
+        assert_eq!(r.manifest_sha256, cap.manifest_sha256);
+        assert_eq!(r.statement_sha256, cap.statement.sha256);
+        assert!(r.public_tables, "the rehearsal's bundle does not carry the public tables' values");
+        let v = s48_write_validation(&dir, &r).expect("validation.json is written");
+        for k in ["\"native_reverified\": true", "\"canonical_capture_reproduced\": true", "\"source_pins_match\": true", "\"privacy_review_complete\": false"] {
+            assert!(v.contains(k), "validation.json lacks {k}");
+        }
+        assert!(s48_write_validation(&dir, &r).is_err(), "a second validation.json overwrote the first");
+        // ONE BYTE of one segment file changed: the re-verify refuses
+        let seg = dir.join(S48_RUN_DIR).join(run_sink::segment_file_name(1));
+        let mut bytes = std::fs::read(&seg).expect("a segment file");
+        let mid = bytes.len() / 2;
+        bytes[mid] ^= 1;
+        std::fs::write(&seg, &bytes).expect("the segment file is rewritten");
+        let hushed = std::panic::take_hook();
+        std::panic::set_hook(Box::new(|_| {}));
+        let refused = std::panic::catch_unwind(|| s48_reverify(&dir));
+        std::panic::set_hook(hushed);
+        let e = refused.err().expect("a re-verify accepted a bundle whose segment file was changed");
+        let m = e.downcast_ref::<String>().cloned().unwrap_or_default();
+        assert!(m.contains("segment 1"), "the refusal does not name the changed segment: {m}");
+        eprintln!(
+            "S48 REHEARSAL rung-K4 {}: L={l}, receipt {} B, capture {} B, prove {:.2} s, verify {:.2} s, verify+record {:.2} s, re-verify {:.2} s, recapture {:.2} s; a changed segment byte refused: {m}",
+            if dense { "dense" } else { "zero" },
+            cap.receipt_bytes,
+            cap.capture_bytes,
+            cap.prove_s,
+            cap.verify_s,
+            cap.record_s,
+            r.verify_s,
+            r.recapture_s
+        );
+    }
+}
+
+/// **STAGE 48: CAPTURE THE TWELVE-BLOCK 125M RUN.** `#[ignore]`d: about ten
+/// minutes at about 10.2 GiB, launched DETACHED under the heavy lock with
+/// `MALLOC_MMAP_THRESHOLD_=131072`, one at a time.
+///
+/// | variable | what |
+/// |---|---|
+/// | `HL_PB_CAPTURE_DIR` | the bundle directory: absolute, outside the repository, and must NOT exist |
+/// | `HL_PB_INPUT` | `dense` (the fully dense recipe, the GENERIC witness — the 397.71 s run's recipe) or `zero` (the all-zero hidden input on the tame fixture) |
+/// | `HL_PB_CAPTURE_BLOCKS` | `L`, default **12** |
+/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | must be `1`: the gate closes every slot's terminal identity from the public tables' values |
+/// | `HL_TEST_SOURCE_COMMIT` | the FULL HEAD commit, every pinned source and harness file committed (E32-F1); a stale label is refused before anything is proved |
+///
+/// It STOPS if a segment is not its counted length or the high-water mark
+/// passes 11.5 GiB, and at `L = 12` the receipt must be the counted
+/// 484,107,456 B.
+#[test]
+#[ignore = "captures a TWELVE-block 125M run (about 10 minutes, about 10.2 GiB); set HL_PB_CAPTURE_DIR (outside the repo, must not exist), HL_PB_INPUT, HL_RUN_CAPTURE_PUBLIC_TABLES=1 and HL_TEST_SOURCE_COMMIT (= HEAD)"]
+fn s48_capture_a_twelve_block_125m_run() {
+    let sh = Shape::m125();
+    let l = capture_blocks_from_env(12);
+    let dense = capture_dense_from_env();
+    let dir = capture_dir_from_env();
+    assert_eq!(
+        std::env::var("HL_RUN_CAPTURE_PUBLIC_TABLES").as_deref(),
+        Ok("1"),
+        "HL_RUN_CAPTURE_PUBLIC_TABLES=1 is not set: a stage-48 bundle carries the public tables' VALUES, which is what the run gate closes every slot's terminal identity from"
+    );
+    let label = std::env::var("HL_TEST_SOURCE_COMMIT").expect("HL_TEST_SOURCE_COMMIT is not set: the bundle must name the full HEAD commit it is taken at");
+    s48_source_label_is_head(&label).unwrap_or_else(|e| panic!("{e}"));
+    assert!(!sh.hashes_under_the_legacy_rule(), "the 125M profile is meant to be TAGGED and this shape is not");
+    let witness = if dense { "dense (generic)" } else { "all-zero (degenerate)" };
+    eprintln!(
+        "S48 125M: L={l}, witness={witness}, source_commit {label}, bundle {}; {}",
+        dir.display(),
+        if std::env::var("MALLOC_MMAP_THRESHOLD_").is_ok() { "MALLOC_MMAP_THRESHOLD_ is pinned" } else { "MALLOC_MMAP_THRESHOLD_ is NOT SET (expect the high-water mark to rise across blocks)" }
+    );
+    let note = format!(
+        "Bundle: one honest {l}-block private run at the **125M shape**\n(`Shape::m125`: 512 tokens, width 768, hidden 2048, 12 query heads of 64 over\n4 key-value heads, row width 2^14, rate 4, 256 opened columns, a generalised\nendpoint of 37 rows over the padded Dom::D cube), under the D19 separating\nhash tag, profile `hashline-zk-mr1/private-run-m125/1`. Lane stage 48.\n\nWHY IT EXISTS. Every 125M run capture before this one is a TWO-block run\n(`m125-capture-dense-l2`, `m125-capture-zero-l2`). This is the whole\ntwelve-block run: eleven internal boundaries and two external endpoints under\none transcript.{}\n\nHidden input and public weights: {}\n\nTHE RECEIPT AND THE PUBLIC RUN STATEMENT ARE IN `run/`: `run/segment-000.bin`\n... `run/segment-{:03}.bin` (the {l} segments that were verified, written as\neach was proved) and `run/statement/run-statement.json` (the run's PUBLIC\nstatement, `hashline-private-run-statement/1`, written only after the run\nverified; ruling D21). Every stage file pins its segment by `segment_bytes`\nand `segment_sha256`, and the statement lists every segment file's length and\nSHA-256, so a process that did not prove the run can rebuild the verifier's\nstatement and check this receipt. `validation.json`, when present, is the\nrecord of such a FRESH-PROCESS re-verify and canonical recapture, written\nafter the manifest and not pinned by it.\n\nTHE ENCODING (schema `hashline-native-capture/5-run`): every field-element\narray of at least 256 entries is written in the JSON as\n`{{\"array\":\"<sha256>\",\"elem\":\"fp\"|\"fp2\",\"len\":N,\"offset\":O,\"bytes\":B}}` and its\nvalues are the B bytes at offset O of `arrays.bin`, little-endian: eight bytes\nper `fp`, sixteen per `fp2` (`c0` then `c1`). Identical arrays are stored once.\nFormat note: `docs/zkmatrix-poc/ZK60_RUN_CAPTURE_FORMAT.md` §12.\n\nWHAT IS NOT HERE, as in every bundle: no witness value, no pad, no mask\ncoefficient, no unopened column, no unpublished salt, no unmasked sumcheck\nround, no prover log and no timing of a witness-dependent step. The verifier's\nview and nothing else.\n\nA capture is the INPUT to the privacy gate of ruling M-8 and is NOT a privacy\nresult. No gate has read this.",
+        if dense { "" } else { " With the all-zero input it is also the first twelve-block all-zero\n125M run ever proved and verified." },
+        if dense {
+            "the FULLY DENSE run recipe (`private_block::dense_tests::dense_run_case`) at 125M's measured chain band (down band 1): every entry of all nine public words nonzero, a non-constant hidden input from its own unpublished stream, the upper hidden half live, twelve of sixteen head slots live and all four key-value groups carrying different data. THE GENERIC WITNESS"
+        } else {
+            "the ALL-ZERO hidden plane on the lane's synthetic tame fixture - the fixed input the privacy case is stated at, and the named DEGENERATE partner of the dense run"
+        },
+        l - 1
+    );
+    let t_all = Instant::now();
+    let cap = s48_capture_into(
+        "125M",
+        &sh,
+        RunShape::m125(l).expect("the 125M run shape"),
+        l,
+        dense,
+        &dir,
+        &note,
+        "HL_PB_CAPTURE_DIR=<dir> HL_PB_INPUT=<dense|zero> HL_PB_CAPTURE_BLOCKS=12 HL_RUN_CAPTURE_PUBLIC_TABLES=1 HL_TEST_SOURCE_COMMIT=<HEAD> cargo test --release --lib private_block::run_capture_tests::s48_capture_a_twelve_block_125m_run -- --ignored --nocapture",
+        Some(11.5 * 1024.0),
+    );
+    if l == 12 {
+        assert_eq!(cap.receipt_bytes, S48_M125_L12_RECEIPT, "the twelve-block 125M receipt is not the counted figure");
+    }
+    assert!(cap.capture_bytes < 2_000_000_000, "the capture is {} B, past the 2 GB runaway ceiling", cap.capture_bytes);
+    eprintln!(
+        "S48 125M RESULT [{witness}]: L={l}, {} segments, receipt {} B ({:?}), chain {:.2} s, prove {:.2} s ({:?} per block), high-water mark after each block {:?} GiB, peak RSS after proving {:.0} MiB, verify by streaming (no recorder) {:.2} s, verify+record {:.2} s, write+self-check {:.2} s, capture files {} B + manifest (SHA-256 {}), run statement {} B (sha256 {}), source_commit {label}, final peak RSS {:.0} MiB ({:.2} GiB), wall {:.2} s — a CAPTURE, not a privacy result; no gate has read it",
+        cap.segment_bytes.len(),
+        cap.receipt_bytes,
+        cap.segment_bytes,
+        cap.chain_s,
+        cap.prove_s,
+        cap.per_block_s.iter().map(|s| (s * 100.0).round() / 100.0).collect::<Vec<f64>>(),
+        cap.hwm_mib.iter().map(|m| (m / 1024.0 * 100.0).round() / 100.0).collect::<Vec<f64>>(),
+        cap.peak_after_prove_mib,
+        cap.verify_s,
+        cap.record_s,
+        cap.write_s,
+        cap.capture_bytes,
+        cap.manifest_sha256,
+        cap.statement.bytes,
+        cap.statement.sha256,
+        run::peak_rss_mib(),
+        run::peak_rss_mib() / 1024.0,
+        t_all.elapsed().as_secs_f64()
+    );
+}
+
+/// **STAGE 48: THE FRESH-PROCESS RE-VERIFY** of a written bundle
+/// (`HL_PB_CAPTURE_BUNDLE=<dir>`), in a process that did not prove it, with
+/// `HL_TEST_SOURCE_COMMIT` set to the bundle's own label (the recapture
+/// renders it). Writes `validation.json` beside the manifest, never over one.
+#[test]
+#[ignore = "re-verifies a stage-48 run capture bundle in a fresh process; set HL_PB_CAPTURE_BUNDLE and HL_TEST_SOURCE_COMMIT (= the bundle's own label)"]
+fn s48_reverify_a_run_capture_bundle() {
+    let dir = PathBuf::from(std::env::var("HL_PB_CAPTURE_BUNDLE").expect("HL_PB_CAPTURE_BUNDLE is not set"));
+    assert!(dir.is_absolute(), "HL_PB_CAPTURE_BUNDLE must be absolute");
+    let t0 = Instant::now();
+    let r = s48_reverify(&dir);
+    let v = s48_write_validation(&dir, &r).unwrap_or_else(|e| panic!("{e}"));
+    eprintln!(
+        "S48 REVERIFY {}: L={}, receipt {} B in {} segment files, the statement rebuilt from its file, a fresh verifier accepted from the files (no recorder) in {:.2} s, the canonical capture reproduced (run.json, {} stage files, arrays.bin byte-identical) in {:.2} s; bundle {} B on disk (manifest SHA-256 {}), source_commit {}; wall {:.2} s, peak RSS {:.0} MiB; validation.json {} B",
+        dir.display(),
+        r.l,
+        r.receipt_bytes,
+        r.segments,
+        r.verify_s,
+        r.l,
+        r.recapture_s,
+        r.bundle_bytes,
+        r.manifest_sha256,
+        r.label,
+        t0.elapsed().as_secs_f64(),
+        run::peak_rss_mib(),
+        v.len()
+    );
+}
