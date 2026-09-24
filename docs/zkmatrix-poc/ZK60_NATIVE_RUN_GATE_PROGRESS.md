@@ -5629,3 +5629,35 @@ pass on the new bytes and the re-taken records as they stood.
    observation on the boundary commitment at 125M.
 4. R9k.7 item 2 and R9j.13 items 3-6 stand as written. Nothing here is a
    privacy acceptance.
+
+# ROUND 9m (2026-09-23 17:38 PDT) — the gate reads a TWELVE-block 125M run, under a memory stop rule
+
+## R9m.0 Why there is a round 9m
+
+Every 125M RUN the gate has read is a two-block run
+(`m125-capture-{dense,zero}-l2`, rounds 9-9c); rounds 9j-9l read standalone
+blocks. Lane stage 48 (`zk60-private-block-125m`, tip `17d5641`, ledger
+"Stage 48" of `ZK60_BLOCK125M_LANE_PROGRESS.md`, READ-ONLY here) wrote the
+two TWELVE-block 125M run bundles, `m125-capture-dense-l12` and
+`m125-capture-zero-l12` (schema `hashline-native-capture/5-run`, writer
+`run_capture.rs` unchanged at `d09f3853`, `source_commit` `17830dc`, the
+segments and the public run statement under `run/`). This round projects
+what each pass costs at `L = 12`, runs only the passes whose projected peak
+fits (the stop rule: nothing projected above ~11 GiB; no "everything" pass
+unless projected <= 11 GiB and <= 4 h), writes the prediction first, re-pins
+what moved, and reads the bundles.
+
+Nothing in this round is a privacy acceptance and no statement here
+establishes a privacy property.
+
+## R9m.1 Status
+
+| # | item | state |
+|---|---|---|
+| M0 | ledger skeleton, round 9m opened | this commit |
+| M1 | the projection (time and peak memory per pass at `L = 12`) and the prediction, written and committed BEFORE the gate reads either bundle with its pins read | pending |
+| M2 | the pins: read, every moved file re-pinned with a written reason; a third digest still refused | pending |
+| M3 | the passes that fit, detached under the heavy lock, one at a time, `/usr/bin/time -v` | pending |
+| M4 | dense against zero | pending |
+| M5 | records (where they are), the records re-taken where a tool moved, the suites | pending |
+| M6 | results, what was NOT computed and why, limits, NEXT | pending |
