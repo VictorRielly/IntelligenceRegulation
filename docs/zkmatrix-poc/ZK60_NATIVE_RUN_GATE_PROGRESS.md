@@ -5657,8 +5657,8 @@ establishes a privacy property.
 | M0 | ledger skeleton, round 9m opened | done (`5d3a57f`) |
 | M1 | the projection (time and peak memory per pass at `L = 12`) and the prediction, written and committed BEFORE the gate reads either bundle with its pins read | done -- this commit, R9m.2, R9m.3 |
 | M2 | the pins: read, every moved file re-pinned with a written reason; a third digest still refused | done -- this commit, R9m.4, R9m.5; tool bytes FROZEN here |
-| M3 | the passes that fit, detached under the heavy lock, one at a time, `/usr/bin/time -v` | pending |
-| M4 | dense against zero | pending |
+| M3 | the passes that fit, detached under the heavy lock, one at a time, `/usr/bin/time -v` | A and M done on both bundles (R9m.7); F (dense) queued behind the re-take |
+| M4 | dense against zero | done -- R9m.7: only the sampled-column class differs |
 | M5 | records (where they are), the records re-taken where a tool moved, the suites | pending |
 | M6 | results, what was NOT computed and why, limits, NEXT | pending |
 
@@ -5781,3 +5781,77 @@ tool-byte assertion of a record not yet re-taken** -- the same twelve
 round 9l saw -- and no logic assertion of any round moved. Peak RSS 6.66 GB.
 Tool bytes FROZEN at the next commit; the queue (`queue.sh`) runs every
 pass against them.
+
+## R9m.6 Commands and logs (round 9m)
+
+Evidence: `results/zk60_native_run_gate_9m/`. No systemd scope (no user bus
+on this box). `queue.sh` was launched DETACHED at 18:01:38 PDT with the tool
+bytes frozen at `250c70a`; each heavy step takes `/tmp/zk-heavy.lock` for
+itself, logs `free -m` first, and WAITS (up to two hours) if the available
+memory is below its projected peak plus a margin -- the stop rule applied at
+run time. Each pass runs under `/usr/bin/time -v` (`time-<name>.log`).
+
+| what | script | log / marker / record |
+|---|---|---|
+| the prediction's computed half | `predict.sh` | `predict.log`, `prediction_l12_{dense,zero}.json` |
+| the projection | `projection.py` | `projection_l12.json` |
+| failing first (unedited tools) | (one command, R9m.4) | `probe_before_repin/` |
+| the whole suite on the edited bytes, before any re-take | `suite_pre.sh` | `suite_pre.log` (its `.done` holds the wrapper's 0; the suite's own exit, 1, is in the log) |
+| the baselines of the 30 guarded records | `before.sh` | `before/`, `before.log` (30 equal to disk) |
+| pass A, dense then zero | `l12.sh a <w>` | `l12-<w>-a.{log,done,json}`, `time-l12-<w>-a.log` |
+| pass M, dense then zero | `l12.sh m <w>` | `l12-<w>-m.*` |
+| the 30 guarded records re-taken in place | `refresh.sh` | `refresh.log`, `.done` |
+| the strict leaf diff | `repin_diff.py` | `repin_diff.{json,log}`, `.done` |
+| the suites | `suite.sh` | `suite_{toy,guard,native_all}.log`, `.done` |
+| pass F, dense | `l12.sh f dense` | `l12-dense-f.*` |
+| dense against zero | `zk60_native_rg_witcmp.py` | `witness_comparison_l12_dense_vs_zero.json` |
+
+## R9m.7 Results -- pass A and pass M (MEASURED 2026-09-23 18:01-18:34 PDT, shared laptop, CPU only)
+
+**Projection against measurement:**
+
+| pass | projected | measured (dense / zero) |
+|---|---|---|
+| A | 0.27 h, 6.4 GB (terminals 610 s, commitments 141 s, boundary 212 s) | **839.5 / 838.7 s** (0.23 h), **peak RSS 6,827 / 6,819 MB** (`/usr/bin/time` 6,991,240 / 6,982,760 kB); terminals 536.0 / 537.1 s at 2,045 / 2,036 MB, commitments 126.8 / 125.3 s, **boundary 158.7 / 158.5 s -- the whole-run system alone 118.6 s -- and it is the peak**, as projected |
+| M | 0.04 h, 1.8 GB | **129.5 / 130.0 s, 1,555 / 1,539 MB** |
+
+The stage-4 model (three dense copies of a 1,226 x 153,936 list plus the Fp
+objects, over a ~1.3 GB base) projected 6.4 GB and measured 6.8: 7 % high
+of the central figure and inside the stated 5.5-8.5 GB range. The time
+model was pessimistic by ~20 % on the per-stage parts and ~25 % on stage 4.
+
+**Every figure the prediction named came out as written, on both bundles,
+but one extrapolated figure flagged as such** (`test_zk60_native_run_gate_l12`
+checks every one of them against both records):
+
+| # | figure | measured (dense = zero unless shown) | predicted |
+|---|---|---|---|
+| P1 | integrity | ok, 0 findings; 12 blocks, 11 boundaries, 15 manifest files, 37 distinct roots, none twice; `validation.json` six flags true, names this manifest and `17830dc` (zero re-verified at `07fea2a`); **12 of 12 segments = their stage pins, 484,107,456 B**; the run statement = the validation's; array store 677,634,600 B / 7,129 refs / 6,919 distinct (zero 669,200,544 / 7,129 / 6,917) | ✓ |
+| P2 | replay | **1,491** positions, **166,788** challenges, 12 stages, `run_binding` reproduced | ✓ |
+| P2' | final counter | **169,924** | **170,244 extrapolated -- MISSED**: the surplus of squeezes over counted challenges is **256 per stage + 64 once** (L = 1: 320, L = 2: 576, L = 12: 3,136), not L = 2's 576 / 2 per stage. The one law the prediction guessed rather than derived; the test now asserts the right one |
+| P3 | hash layer | 49 openings, **12,544 of 12,544** columns re-hashed and re-authenticated, 316,833,792 B; distinct salted leaves 12,422 / 12,433 (not predicted to the unit) | ✓ |
+| P4 | terminals | **276 of 276**, all = the stored polynomial, 0 open, channel DERIVED; 336 tables carried and digest-checked; 13 rebuilt, 15 taken, 180 structure checks, 0 failures; plane index 83 / 50 planes; group factor `repaired`, 24 slots / 24 points / 48 point entries / 48 lists / 900 coordinate entries / 444 fixed | ✓ |
+| P5 | per commitment | 37: 12 x `A` (5,681 / 122 / 36 / disclosed **0** / `rank_P1` 74 / 246 non-data / 244 site rows used once), 12 x `H` (7,120 / 51 / 9 / **2**, exact u* 2 = per-indicator 2 / 20 / 104 / 100), 11 x `B` (38 / 2 / 2 / **0** / 6 / 6 / 4), 2 endpoints (37 / 1 / 1 / **0** / 4 / 5 / 2); k0 0 everywhere; **16 of 16 exclusivity clauses on all 37**; 12 x `M` disclosed 0; **24 X-controls fire**, every clause exercised, the old check accepts the same seven (X01, X06, X09a, X10a, X11, X14, X16); H-pad on `B0` full rank (255 / 256 distinct columns) | ✓ |
+| P6 | boundaries | **11 of 11**: reserved block **rank 6 of 6, disclosed 0**, determinant nonzero, rank over all rows 6; three-role (A@k, B_k, A@k+1) **154 x 11,336, 64 identified, parts 0/0/0, joint 0 = sum 0**, non-data block block-diagonal | ✓ |
+| P6' | adjacent pairs | k = 0 and 10: **202 x 25,681**, 96 identified; k = 1..9: **198 x 25,676**, 64 identified; **joint 4 = sum 4** at each, k0 0 | ✓ |
+| P6'' | whole run | **1,226 x 153,936**, 154,704 rows, 768 identified, 416 shared data classes, 0 shared non-data, 4,876 non-data classes, rank 1,226 on all and on the non-data block, **k0 0, joint 24 = sum 24** (parts: 37 at 0, twelve `H` at 2), exact u* 24 (`rank Γ_{D∪N'}` 1,226, `rank Γ_{N'}` 1,202) = per-indicator 24, 24 of 24 indicators admissible | ✓ |
+| P7 | singleton preimage | 13 of 13 exhibited: B0..B10 0 free, both endpoints 1 free Fp per position (16,384) | ✓ |
+| P8 | mask / CFS | 12 stages, 16,459 entries each = **197,508**, 0 differing, **3,072** leaves; L_s 08/09/16 = 32/41/74, largest 117 at slot 17; CFS fibre 46 Fp over 2,478 unknowns per stage; **M1..M6 fire** | ✓ |
+| P12 | channels (pass A) | **28 at 2 / 5 / 5 / 16** | ✓ |
+
+**Dense against zero** (`witness_comparison_l12_dense_vs_zero.json`,
+`zk60_native_rg_witcmp` on the two pass-A records): **498 figures, 456
+identical; the 42 that differ are 20 distinct-opened-column counts, their 20
+pad margins (0-2), and the H-pad cross-check's distinct columns and exact
+rank on `B0` (255 / 256)** -- the sampled-column class and nothing else,
+exactly the classes rounds 4, 5, 9, 9c and 9j found. The distinct salted
+leaves (12,422 / 12,433) and the bundles' own bytes (manifest totals,
+`arrays.bin`, digests) differ for the same reason. The two pass-M records
+differ in the same class and in nothing else: `M`'s distinct sampled
+columns per stage (241-252) and the margins from them, the column a control
+first mismatches at, and the digests of the exhibited mask randomness (a
+different published view has a different preimage); every count, fibre and
+control verdict is identical (8,040 identical leaves, 85 changed). No rank, disclosed dimension, joint,
+challenge, slot check or control figure moves with the witness -- a
+statement about the verifier's view, not about S19-F1: a capture carries no
+witness.
