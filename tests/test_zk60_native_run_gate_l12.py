@@ -530,5 +530,83 @@ class ThePassMRecords(unittest.TestCase):
                                      and c[k].get("fires")), 6)
 
 
+F_RECORD = _record("l12-dense-f")
+# (message-block fibre, rows, generators) per kind, from the L = 2 records
+# of rounds 9 / 9c: the fibre of a commitment is its message block plus a
+# pad block of (256 - distinct opened columns) x (rows - generators) --
+# m125-zero-full's H@0 (255 columns: 7,100 = 7,120 - 20), E-Input (33 =
+# 37 - 4) and B0 (32 = 38 - 6) are the instances
+FIBRE = {"A": (2817876, 5681, 74), "H": (1376172, 7120, 20),
+         "B": (0, 38, 6), "E": (0, 37, 4)}
+
+
+@unittest.skipUnless(F_RECORD is not None,
+                     "the twelve-block pass-F record is not committed yet")
+class ThePassFRecord(unittest.TestCase):
+    """Every arm at L = 12 on the dense bundle, with every control whose
+    cost is per stage or per boundary (R9m.3 P9-P12)."""
+
+    r = F_RECORD
+
+    def test_the_full_preimage_of_all_37_commitments(self):
+        s = self.r["stage11_full_preimage"]
+        self.assertEqual(len(s["exhibited"]), 37)
+        self.assertEqual(s["not_exhibited"], [])
+        self.assertEqual(s["view_entries_differing"], 0)
+        self.assertEqual(s["salted_leaves_authenticated"], 37 * 256)
+        for p in s["per_commitment"]:
+            kind = p["commitment"][0]
+            msg, rows, gens = FIBRE[kind]
+            fb = p["fibre"]
+            with self.subTest(p["commitment"]):
+                self.assertTrue(p["preimage_exhibited"])
+                self.assertEqual(fb["msg_block_fp"], msg)
+                self.assertEqual(fb["pad_block_fp"],
+                                 (256 - fb["distinct_opened_columns"]) * (rows - gens))
+                self.assertEqual(fb["fibre_dimension_fp"],
+                                 fb["msg_block_fp"] + fb["pad_block_fp"])
+        c = s["controls"]
+        self.assertTrue(c["ok"])
+        self.assertEqual((c["controls_that_fire"], c["controls_total"]), (6, 6))
+
+    def test_the_mask_arm_and_the_joint_run_preimage(self):
+        m = self.r["stage12_mask_and_cfs"]
+        self.assertEqual((m["stages_checked"], m["entries_recomputed"],
+                          m["entries_differing"]), (12, 197508, 0))
+        self.assertTrue(m["controls"]["all_fire"])
+        j = self.r["stage13_joint_run_preimage"]
+        self.assertTrue(j["ok"])
+        self.assertTrue(j["all_four_couplings_respected"])
+        self.assertEqual(j["entries_compared"],
+                         self.r["stage11_full_preimage"]["view_entries_compared"]
+                         + m["entries_recomputed"])
+        self.assertEqual(j["entries_differing"], 0)
+        self.assertEqual(j["salted_leaves_authenticated"], 37 * 256 + 12 * 256)
+        c1 = j["couplings"]["C1_shared_planes"]
+        self.assertEqual((c1["identified_row_pairs"], c1["both_sides_are_data_rows"]),
+                         (768, 768))
+
+    def test_the_run_family_the_hash_rule_and_round_9s_controls(self):
+        s6 = self.r["stage6_negative_controls"]
+        self.assertTrue(s6["run_controls"]["all_fire"])
+        h = s6["hash_rule_controls"]
+        self.assertEqual(h["controls_that_did_not_fire"], ["CH-3"])
+        self.assertEqual([c["control"] for c in h["controls_skipped"]], ["CH-6"])
+        ch7 = next(c for c in h["controls"] if c["control"] == "CH-7")
+        self.assertEqual((ch7["a_under_its_own_keys"], ch7["a_under_bs_keys"]),
+                         (12544, 0))
+        m9 = s6["round_9_controls"]
+        self.assertTrue(m9["ok"])
+        self.assertEqual(sorted(c["control"] for c in m9["controls"]),
+                         ["M9-1", "M9-2"])
+        # stage 6 is not ok for round 9c's two bookkeeping causes and no other
+        self.assertFalse(s6["ok"])
+
+    def test_the_channels_of_a_pass_with_every_arm_and_no_stage_8(self):
+        self.assertEqual(self.r["stage7_channels"]["counts"],
+                         {"constructed": 10, "derived": 3, "argued": 5, "open": 10})
+        self.assertFalse(self.r["privacy_property_established"])
+
+
 if __name__ == "__main__":
     unittest.main()
