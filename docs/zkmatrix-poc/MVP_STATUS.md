@@ -1,5 +1,28 @@
 # Where the MVP stands, in plain words
 
+**2026-10-17 02:20 UTC — work resumed after a 17-day gap; no new proof yet.**
+Nothing native ran between 2026-09-30 01:38 UTC and today: the recovery session
+of 09-29 ended abruptly (cause unknown; one minute earlier the resource guard's
+memory cap had correctly killed an oversized test), and since then only the
+hourly researcher worked (cycles 41–51, CPU-only arithmetic studies; none
+changes the prover). The three answers are unchanged from the 09-30 block
+below: **(1) workable proof:** complete private proofs exist for the tiny
+block (two lines, privacy accepted only there) and for synthetic 125M-shape
+stacks; **no trained block has been proved yet**. **(2) speed:** best complete
+stack rate is 1.25 proved positions/s (synthetic 12-block 125M shape, laptop
+GPU-assisted), about 40x short of 50 even at that small size; for 8B the
+project's own projection is 0.6–1.2 tokens/s on a 5090 with today's code and
+5–13 with every sumcheck on the GPU (not built), so **50 needs a design change,
+not tuning**. **(3) what blocks the MVP:** a trained-model profile (norm
+constants, calibration, weight loading), then the 22-block TinyLlama stack,
+privacy re-checks at the new shape, and for 8B the RTX 5090 machine (Linux not
+yet installed). Today: all uncommitted work since 09-23 was pushed as branch
+`snapshot/20261017-uncommitted` (preservation only); the Llama-3-8B download
+resumed; two lanes started — the native TinyLlama profile (proposed ruling D24:
+lower the norm precision constant instead of adding a fifth limb) and the
+calibration fidelity ladder with exports for a bit-exact parity check.
+[Checkpoint and lanes](ZK60_1B_CHECKPOINT.md).
+
 **2026-09-30 01:27 UTC: the box froze on 2026-09-29 (17:40 PDT); heavy work now goes through one
 guard.** The machine died with five heavy jobs live, including the first
 production 12-block GPU stack run, which therefore has **no result** (its log

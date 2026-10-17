@@ -1,0 +1,19 @@
+{
+ "schema": "zk60-trained-block-run/1",
+ "scope": "ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement",
+ "block_profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1",
+ "run_profile": "hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1",
+ "export_variant": "a_export_T32",
+ "export_profile_sha256": "2b5ded29d292a9c369aa4d207af2bc7d274ac1c80bd6ea3b1b36cd2b07b09a92",
+ "calibration_tool_sha256": "12d3be9743c03f295281b8885a30e518afb31227fbd2b17a33f4a088cf648019",
+ "layer": 10,
+ "layer_manifest_sha256": "38348ba1b2fe1d664c4825bdf3f3c8e2488a38da8d9c00d846525b4461e1d5d5",
+ "block_digest": "47b2985133701ce84204af9d2c18a9104cceb24e88a9f43fb9933744a5cf3f24",
+ "trained_statement_identity": "4e0d8f8177368429a15faaea9172f898f27be14e74f069d7f4be50dd82ce6543",
+ "context_label": "zk60-trained-block",
+ "context": "442c31b906c5472b0beb0dd9cb963f705a58485ee743efdedc93dd7463c0ca89",
+ "expected_io": "48424c4b45585031442c31b906c5472b0beb0dd9cb963f705a58485ee743efdedc93dd7463c0ca8900000000000000003be39763795f9b1c88e0f5a3034b90df7732f73225d511e56fa774772ea6c9c6fbe4d98cebb3da35c1cf2a4edfa938637b7e6358d36872b6321bdbd18146d1d6",
+ "rope_tables": "native generator at theta 10000, equal to the export's tables",
+ "constants_source": "profile.json (uniform across the export's layers)",
+ "shape": {"tokens": 32, "width": 2048, "hidden": 5632, "q_heads": 32, "kv_heads": 4, "head_dim": 64, "log_cols": 12, "inv_rate": 4, "opened_cols": 256, "f_e": 9, "wrho_s": 14, "norm_wrho": 32, "norm_tn": 10, "norm_cn_a": 4511, "norm_cn_m": 2438, "norm_ceps": 259, "sh_ao": 7, "d_max": 1482910}
+}

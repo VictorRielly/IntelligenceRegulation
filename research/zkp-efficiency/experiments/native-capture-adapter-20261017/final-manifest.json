@@ -1,0 +1,872 @@
+{
+  "created_utc": "2026-10-17T07:35:35.261062+00:00",
+  "run_id": "20261017T072624Z-c38c878c",
+  "records": [
+    {
+      "path": "experiments/native-capture-adapter-20261017/README.md",
+      "sha256": "5b445b6c639e0fae4b04e696b586bde3a2ffd9a9fc309e9b2312d71a64351b93",
+      "bytes": 10738
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/adapter.py",
+      "sha256": "f507de29b61eb2670d7532c825076c4a7701495b04c39e7778132215376dfcba",
+      "bytes": 4320
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/audit.json",
+      "sha256": "23c6b7d556e356472e627f5ff8b976b372ecd3fe662160e0c911a4c717edafee",
+      "bytes": 386
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/audit.py",
+      "sha256": "971d199d7a33eff9f0edd8277c31793b634d16f55b9c05f0819a1ef17ad3f385",
+      "bytes": 4332
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/checkpoint-audit.json",
+      "sha256": "26bc0a74421b1959cfbadb76d558eb108badfbd54bc1f3cb7e17d3dc11e269fd",
+      "bytes": 361
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/checkpoint.py",
+      "sha256": "a88128eb40571a9ddefeba95699b055fdcb8365d5b7020d2903503c0424ffc63",
+      "bytes": 3923
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/command.json",
+      "sha256": "245c2ba81dcc846281f2a48098584712a73297680810a91595b5d96845fa19e3",
+      "bytes": 1230
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/copy-provenance.json",
+      "sha256": "8fbf6c69284b71375e734d6e519303f8ef029c51e7165bd13911ffbc65dc3330",
+      "bytes": 1421
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/execution.json",
+      "sha256": "ee08b01d055e0888aa4ba737092b516cc268e80281146da173ed635dc9f47d17",
+      "bytes": 115
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/experiment.py",
+      "sha256": "98dd5760baae5e80c88896714b2d3490587342027be2bd06b54933b4e50cf02e",
+      "bytes": 12147
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/field_support.py",
+      "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+      "bytes": 2104
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generate.py",
+      "sha256": "9fd7a8467f6b1ebc57300280b07a61c855a30973a278831f486b22c41041a52e",
+      "bytes": 8365
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc0-mask0-sched0.py",
+      "sha256": "bede6d075c5e38a7387ee7aa7512d5531d0aacea7d9bb62649702b0646c90706",
+      "bytes": 8135
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc0-mask0-sched1.py",
+      "sha256": "ac7d174c148974bf6b4c963cff75e3a99306fad180ac145e250c70afbabd3604",
+      "bytes": 8225
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc0-mask1-sched0.py",
+      "sha256": "6580ce6f43b390456a3f36a0958ac816e634e5e7caec2c45143b841abb4fefa2",
+      "bytes": 8873
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc0-mask1-sched1.py",
+      "sha256": "cd78a4ebb2de3579d1745f734dd9e94a43d8f66f7fbf8f13ff7230464a52ada4",
+      "bytes": 8884
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc1-mask0-sched0.py",
+      "sha256": "95c5bbb3e67968e711d2e79abf426cff9c5f1ee676de68fc7416ab92e31caadc",
+      "bytes": 8157
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc1-mask0-sched1.py",
+      "sha256": "0f5d3bdd48677e69a674319106a53a3531d44ba378d9b0f2ed5dfbffffffd633",
+      "bytes": 8247
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc1-mask1-sched0.py",
+      "sha256": "5bb58238d63bbb55b7ccf21b09c85de1a6b02a89a348711d06c1bd24e9623a68",
+      "bytes": 8903
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk13-reloc1-mask1-sched1.py",
+      "sha256": "baca5a2b1997eccd2ad23511635248dee7e105cd83971ac81f33ab78629a7ebe",
+      "bytes": 8914
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc0-mask0-sched0.py",
+      "sha256": "716b84df4d8bb5458311f3d8b235f84d8943a7bfe278a371dd2be594a9a7d4c9",
+      "bytes": 5882
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc0-mask0-sched1.py",
+      "sha256": "7deeb6aaece924bd96e11013136f7daff6f1236c4374e43a24653069b9e0c1f3",
+      "bytes": 5904
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc0-mask1-sched0.py",
+      "sha256": "1e2eaa1dc30a3c5d25a9f32328bb7f13186bd2922e92f5006bbd2bdb35cecd29",
+      "bytes": 6503
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc0-mask1-sched1.py",
+      "sha256": "935b661d04b7adfb201a267945af16fdd18d41284d261506a42367c2eba1f786",
+      "bytes": 6493
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc1-mask0-sched0.py",
+      "sha256": "a3561eddb98a52b21ff8be39bbc05f5eb9d185dd94430d6c3da8ca393b302ba4",
+      "bytes": 5896
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc1-mask0-sched1.py",
+      "sha256": "1853a6ff6ec55393adf27121b6bd42662e8c511d14f4469e327ef0a4ef992457",
+      "bytes": 5918
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc1-mask1-sched0.py",
+      "sha256": "ce5416035f804819fd1d35817b77fa59d284bfbfbe569d234f5b207ff7a77abd",
+      "bytes": 6523
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk7-reloc1-mask1-sched1.py",
+      "sha256": "6a8a4396710dcaf1dc3e5473666ec3757af19eb3d7503f49a956bb52ca8d2499",
+      "bytes": 6513
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc0-mask0-sched0.py",
+      "sha256": "a87da8af2f57285694b4c3112770c2203ed0c649afcab8d36cb5a606eb241af3",
+      "bytes": 6153
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc0-mask0-sched1.py",
+      "sha256": "74dd17236f961dcbe5bdc0b217e98933c6305c84f4409f760d06ff6ffb803c13",
+      "bytes": 6167
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc0-mask1-sched0.py",
+      "sha256": "5f2ae695d2479b5274b67e1443b8106143985c53ee391e4ace356c20ef6fb9f8",
+      "bytes": 6827
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc0-mask1-sched1.py",
+      "sha256": "a77dd7b9c551ebcdafeb252d97211740dc90ee133d3319686b49666a245b2a20",
+      "bytes": 6816
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc1-mask0-sched0.py",
+      "sha256": "4740dcb2d7502fd9d7b12d970a376812ce2c531669ab563efac2472ac260b022",
+      "bytes": 6181
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc1-mask0-sched1.py",
+      "sha256": "f67844a297b25f70eda1f2bbf873d3449738583c9ed207d949de5229e4e0b7c0",
+      "bytes": 6195
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc1-mask1-sched0.py",
+      "sha256": "7b5bf08411577c41214ea25311a3eb79f119a8e1a6998f554822b5cf7fe93adc",
+      "bytes": 6861
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp2-lk8-reloc1-mask1-sched1.py",
+      "sha256": "964a14e390f854e44da5a022e8a5ebb4e1acc43b984bbe6bd900d06b3d1c69e9",
+      "bytes": 6850
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc0-mask0-sched0.py",
+      "sha256": "fa878cae627a86d0b5dd061d8e3cb5929b21c1ae1dcfd4abdb8a74b4d1488d08",
+      "bytes": 8633
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc0-mask0-sched1.py",
+      "sha256": "7060c7dfdc476d78a91aabf2a858e11c79314e010ddf1cd768637c812e7b7f05",
+      "bytes": 8640
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc0-mask1-sched0.py",
+      "sha256": "67c5ce078a558ace9b317b68de1d27f13afaca4af9b747ba362ae9f79f8f5db4",
+      "bytes": 9264
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc0-mask1-sched1.py",
+      "sha256": "6c462e32b0d09cd58ef1eb418573cb05b390bdc14ea3129a0058859edb098c53",
+      "bytes": 9221
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc1-mask0-sched0.py",
+      "sha256": "de6484d15a07aef380870a7bc76e62c11925fe22783cb67e5dc26b72c0fa6cba",
+      "bytes": 8659
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc1-mask0-sched1.py",
+      "sha256": "aea982330d300a15de49117a2ddcb3f6c9fa0e05678d74e3a1bdd78420040554",
+      "bytes": 8666
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc1-mask1-sched0.py",
+      "sha256": "c9581827226286a7e6cf7b14d1cee6745258d120f0550c60690bb4a9def97d08",
+      "bytes": 9298
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk14-reloc1-mask1-sched1.py",
+      "sha256": "77a92ffde334cc618ad8d3fde36b32ff9fb532cd72b923d67fc6b136ca888926",
+      "bytes": 9255
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc0-mask0-sched0.py",
+      "sha256": "a2da42534cc202d7cffe992b5d65db8cb2945e31ab3a887587ac1191a50ca6f4",
+      "bytes": 5945
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc0-mask0-sched1.py",
+      "sha256": "119c050f719f0d630a1d1bbb5b860af0bde03837438fa12187d93a29610f5456",
+      "bytes": 5952
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc0-mask1-sched0.py",
+      "sha256": "5186c14370bea7ac9363611ae997c7625f6e91236c4e1de4650800c08b4ebbac",
+      "bytes": 6592
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc0-mask1-sched1.py",
+      "sha256": "19137ca55bd93d54162435103f9658ad5a5977b985999dcc55d8bd43b9f70b72",
+      "bytes": 6628
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc1-mask0-sched0.py",
+      "sha256": "8271ba015c418c3787e0316fa2631848518d7ca43e31cf6d12c9ab4cf4eb4afd",
+      "bytes": 5951
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc1-mask0-sched1.py",
+      "sha256": "15cc2ee99f6c05a857ed7cb0ba0f206feb898cdd3173e74218531fa709261ab2",
+      "bytes": 5958
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc1-mask1-sched0.py",
+      "sha256": "06f88f791030eee8a7b55c26c67de8cb1543579fd6bf64e083bd882d95952a82",
+      "bytes": 6600
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk7-reloc1-mask1-sched1.py",
+      "sha256": "fddaa403b74ba8be6f681cf69d12ead3f9d90b00468626b58889452c59d9e99c",
+      "bytes": 6636
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc0-mask0-sched0.py",
+      "sha256": "ac97aca260edbbd0528037d413a6c0ec972083f2306e29c32308696e3e2c3275",
+      "bytes": 6288
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc0-mask0-sched1.py",
+      "sha256": "1eeb3f896841add32ca5411692a0ec68cc02629abad31d5c6ffb770a6e8d886a",
+      "bytes": 6291
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc0-mask1-sched0.py",
+      "sha256": "28b2ed51fb58b384a6017dd38e131e3e8d0322e0089bf79f11dd2086dda548f1",
+      "bytes": 6923
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc0-mask1-sched1.py",
+      "sha256": "bb9b714418abb9129debc962d2e20a33d9ad1f964ec80e7e7f0c4482e0d17892",
+      "bytes": 6889
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc1-mask0-sched0.py",
+      "sha256": "707ae6c3988bb0443f5a7021b79c95b55e915b6b22ce963f375d1e95e48f776f",
+      "bytes": 6312
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc1-mask0-sched1.py",
+      "sha256": "cdff41e412860fd9c69e2bae97417759a9340fa820d8ef4a2b5d9be07073552b",
+      "bytes": 6315
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc1-mask1-sched0.py",
+      "sha256": "ff112ac49991aa546a9613156f30fcc47b606fb64da25e6c23145f99944bc2fb",
+      "bytes": 6953
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls2-lp3-lk8-reloc1-mask1-sched1.py",
+      "sha256": "b440fe9a06e8a792d922089459456a4ea7ff98f2069deaa8ac9a47d10b9fece8",
+      "bytes": 6919
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc0-mask0-sched0.py",
+      "sha256": "502de809dd9fc753fcdd5dfe93bbbc84f3b28e12582b6e3e1052f732a1df71c0",
+      "bytes": 9239
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc0-mask0-sched1.py",
+      "sha256": "c5ec7e6104f383e8c6a6079c331d4f96449bdaf9873a782d2ab3bbf7b3b3b09f",
+      "bytes": 9172
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc0-mask1-sched0.py",
+      "sha256": "d02a9a31a6d3238e928faa4a2d03ee6b43e15f031a121506f2a2b2532522224b",
+      "bytes": 9882
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc0-mask1-sched1.py",
+      "sha256": "69219a4bbc17c7fe0fe44a1ff2b43920297f02f344217b4c8b85f247bad8d2fa",
+      "bytes": 9801
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc1-mask0-sched0.py",
+      "sha256": "50f3eb6c8c90a273774352ffe0ba3339ba3601ca00b9bae0fb11765bbc9e0950",
+      "bytes": 9267
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc1-mask0-sched1.py",
+      "sha256": "1276615ff608f7689ea679f2a62be0de5cefdc78a3ff12e81409eaa78b3b3f8a",
+      "bytes": 9200
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc1-mask1-sched0.py",
+      "sha256": "3965134903ef3a61bfaa4da8446dcdf5698f653b5658cbace3bd2a31921904b7",
+      "bytes": 9918
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk15-reloc1-mask1-sched1.py",
+      "sha256": "3f7c7ee0c89488a791a8092f9d076951d421474d192fa32aa10c51ce168d418d",
+      "bytes": 9837
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc0-mask0-sched0.py",
+      "sha256": "02a96a3120a4873a1fe93be71eb09dc4274a49c227b5c91d52eedb064ed25928",
+      "bytes": 6110
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc0-mask0-sched1.py",
+      "sha256": "74262671c13dd89ecd7fc7bfde086825f6d457bb208a9a80535e091d59ec4221",
+      "bytes": 6060
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc0-mask1-sched0.py",
+      "sha256": "24168b43bf8a299b01daf3f1b6155090adf44e5490ba545b0eedc6ff371172f5",
+      "bytes": 6728
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc0-mask1-sched1.py",
+      "sha256": "8e0d8751e2f5cd7468d87c13f6a020c37b1ddac086909c9d83d09239effe1093",
+      "bytes": 6695
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc1-mask0-sched0.py",
+      "sha256": "05300976634f5cc00a6f4d10b318e0a825a7fabbaf509a3056c39b427776f0c6",
+      "bytes": 6126
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc1-mask0-sched1.py",
+      "sha256": "15df342011e818a31743e048697c211b9437988dbe9c29d99d6856f590f57946",
+      "bytes": 6076
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc1-mask1-sched0.py",
+      "sha256": "c16bdb44de4f27c61fed6e91a8ecc8d404a009afb9ae0f1cb3dbeb8dee1c8e24",
+      "bytes": 6752
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk7-reloc1-mask1-sched1.py",
+      "sha256": "d7bd6724bbd0ea6c8bbe3c976879a277082fae139a318ab1c73c778c8ec16131",
+      "bytes": 6719
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc0-mask0-sched0.py",
+      "sha256": "b694fd42b0c09f5bb8156ff2add82a678d0c4c8c8cb1b8b1882faf9e5b70b248",
+      "bytes": 6399
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc0-mask0-sched1.py",
+      "sha256": "7ccc12ae9415283653feac86a34e2795feaab52591699cb81e9ff445b757794d",
+      "bytes": 6369
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc0-mask1-sched0.py",
+      "sha256": "712bf3218d2f2b7ee6f526076e42eee138bd6e93382f3c1b760ce820d8fe3b01",
+      "bytes": 7046
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc0-mask1-sched1.py",
+      "sha256": "87fd5a924ed6e9653e8f45001290695e7a414f6109ef2ee86078c50492b0432c",
+      "bytes": 6979
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc1-mask0-sched0.py",
+      "sha256": "7b63b80f9ee38c1a35394151b919854af31d092d7304d92d360cfd367ca00c8f",
+      "bytes": 6425
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc1-mask0-sched1.py",
+      "sha256": "470695da0c01edd95dd76d85ca2aa64b80e0cb074237a0f6c89a75e304cca882",
+      "bytes": 6395
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc1-mask1-sched0.py",
+      "sha256": "b9b5c460efbce7f69d65d8b6009576a01caad2e21b1921bf7979dc2a0f1efe55",
+      "bytes": 7078
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp2-lk8-reloc1-mask1-sched1.py",
+      "sha256": "a7bc5b62e357e034123bfc616c70d9881cb89693fea0883e0356a8410b5dc30b",
+      "bytes": 7011
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc0-mask0-sched0.py",
+      "sha256": "0043cdd2b72f22df6ff5ad1c93016604cfdd438581e14a8155bad8b526e37fd0",
+      "bytes": 9648
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc0-mask0-sched1.py",
+      "sha256": "bc23fd88dc50a9f377312b42cbb6ac838a48e6dd101fddee2cbb0d7a87c56e06",
+      "bytes": 9455
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc0-mask1-sched0.py",
+      "sha256": "5b9f79cf38dc7f86a25596b4d0bee8cee794b931f559f6305b3e6fd54b9d763a",
+      "bytes": 10308
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc0-mask1-sched1.py",
+      "sha256": "57d53cf8aea8533d127d5cbb4ab23524a844286c996e7824770468b220731b75",
+      "bytes": 10210
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc1-mask0-sched0.py",
+      "sha256": "fe010ce01501ba5e1df3095b9d2ca51e92a89bfe444dc32e74a289117155d9e5",
+      "bytes": 9660
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc1-mask0-sched1.py",
+      "sha256": "9564ab2ead654e4138cb888aae692207e31a90a3cf20827aca9c94353c6e6617",
+      "bytes": 9467
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc1-mask1-sched0.py",
+      "sha256": "726999761107caba287ef53ec73da5e70b8906560f492129dd64aeaa346ef35c",
+      "bytes": 10324
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk16-reloc1-mask1-sched1.py",
+      "sha256": "d419c0c1db5cf9063663b5a0f0496ca433b6f2ce961e1727b6286bf3ad8b3fa0",
+      "bytes": 10226
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc0-mask0-sched0.py",
+      "sha256": "303ec21abc4f3310779b0de5b4a3123d41d5f110f55e79e1ea16fd844cf023c7",
+      "bytes": 6136
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc0-mask0-sched1.py",
+      "sha256": "6fb01011886e03d091e9698c7af3d4485617f70d8f1f287610807d4d0432ccb5",
+      "bytes": 6075
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc0-mask1-sched0.py",
+      "sha256": "2c7f8d49d247631e5659090aa984a1580dd81744644464c74905d6605f069182",
+      "bytes": 6807
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc0-mask1-sched1.py",
+      "sha256": "89e39f5aa92560dc779a47aadbfddc130a9623fe1d88730bd98511f940e8768b",
+      "bytes": 6836
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc1-mask0-sched0.py",
+      "sha256": "75fb4f1f6fedb2eae703a5e3ac3964765edbc930ed24a7e582177ce885e2db50",
+      "bytes": 6148
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc1-mask0-sched1.py",
+      "sha256": "ba763d6fef869f606a013e0e76e196ff4f3920b0cf22cf790dfba67cd29770a3",
+      "bytes": 6087
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc1-mask1-sched0.py",
+      "sha256": "a73365f3eb801fc69b9ead39cb52a86051754b86bf47517dc636d852ee87f2c4",
+      "bytes": 6823
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk7-reloc1-mask1-sched1.py",
+      "sha256": "d1399fdf337a12a301645ec8ccbc57a5c5c9a483f84e069edb9b8bc1ec4ddb40",
+      "bytes": 6852
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc0-mask0-sched0.py",
+      "sha256": "bc02996d86bc30ae221b2b72f6862994262d0ecf276c50c4d95904b75bc70a63",
+      "bytes": 6503
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc0-mask0-sched1.py",
+      "sha256": "dc2ebed6b086da98d25c491dfeadc8f2626885c335185425bfdd1ba6b9b4012d",
+      "bytes": 6403
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc0-mask1-sched0.py",
+      "sha256": "acebf0ee54e64aead28d00bd7c9dcbc13f94f031a5027adcd54a1621a32b2487",
+      "bytes": 7153
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc0-mask1-sched1.py",
+      "sha256": "6c9cb1ab3d691045c62ee9bfc672396ee334e9672f0f23bea9bd12f3f65cd357",
+      "bytes": 7091
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc1-mask0-sched0.py",
+      "sha256": "3ff5ac032294adf815db96cdf08b2e128af0b70fb8cb396ad77a7ba32900a7c9",
+      "bytes": 6515
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc1-mask0-sched1.py",
+      "sha256": "41abc5e254d6e209e0d7d90a4b2a36dd84c289d56e82b506bb5dfc9b535e033f",
+      "bytes": 6415
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc1-mask1-sched0.py",
+      "sha256": "de2e5fcb6f3bcd7ebe5171593314a8b42381ffa0649da5aa73fb27e8bddbda85",
+      "bytes": 7167
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/ls3-lp3-lk8-reloc1-mask1-sched1.py",
+      "sha256": "49ff14e1bf04b1d383c76adeee3fc81838ee4fba259f8ab0dcb65f04356a435f",
+      "bytes": 7105
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/generated/native-capture-round0.rs",
+      "sha256": "71569b870d633aa2bfed00e8ccf656f81b99469546d475568e09ca625b0e4f11",
+      "bytes": 15835
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-negative-control-refusal/adapter.py",
+      "sha256": "f507de29b61eb2670d7532c825076c4a7701495b04c39e7778132215376dfcba",
+      "bytes": 4320
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-negative-control-refusal/command.json",
+      "sha256": "5b89ac30454684ed381fdb458a7819d25f516e8c2cf830bd41c81606200821d5",
+      "bytes": 1146
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-negative-control-refusal/execution.json",
+      "sha256": "8e4fa12f6d82753094e7d0cac62a46d05dc54eee0cec9eb560881ae75ad28aad",
+      "bytes": 115
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-negative-control-refusal/experiment.py",
+      "sha256": "5bee5ae21c07d5a430cb3ecb5308276b645713b52f25ed9a1d47a5d6a1516957",
+      "bytes": 11694
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-negative-control-refusal/run.log",
+      "sha256": "e71a6eccb3450ea10ecf5cb2294e69c0fa3417a0cefadd47c4bec4d11ca5192e",
+      "bytes": 1087
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-within-pair-control-assumption/command.json",
+      "sha256": "95e3aaada229e8f219082b306d257ee622dfc68b699a39cb079632dce7dc4df1",
+      "bytes": 1146
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-within-pair-control-assumption/execution.json",
+      "sha256": "588087715265628b6192915d504331682280fd6e55b706b9be1fc86c861de99a",
+      "bytes": 115
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-within-pair-control-assumption/experiment.py",
+      "sha256": "3b27258e560b30a2d5b6f94e744238cf3385a9d1d42f904f70ee72606050f04f",
+      "bytes": 11827
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/initial-within-pair-control-assumption/run.log",
+      "sha256": "70ad7ba08404f902d49d7292c816a79955ff92e86aecd6231f9c935167e5f768",
+      "bytes": 474
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/argument.rs",
+      "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+      "bytes": 99535
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/b2-gpu.log",
+      "sha256": "86f72477b0cda84efa0742234321a9d9eb6987701bb8d401384c9a9e227163ca",
+      "bytes": 23189
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/field.rs",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "bytes": 11065
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/grouped.rs",
+      "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+      "bytes": 7903
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/layout.rs",
+      "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+      "bytes": 61217
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__argument.rs",
+      "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+      "bytes": 99535
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__layout.rs",
+      "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+      "bytes": 61217
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__pad.rs",
+      "sha256": "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0",
+      "bytes": 56533
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__protocol.rs",
+      "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+      "bytes": 61745
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__s35_tests.rs",
+      "sha256": "8cf1f7b43ba318d09630485045cf6e28244d5d2fc014b7a89d55e67d06ec7f15",
+      "bytes": 31888
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__shape.rs",
+      "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+      "bytes": 71241
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__field.rs",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "bytes": 11065
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__sumcheck__grouped.rs",
+      "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+      "bytes": 7903
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/pad.rs",
+      "sha256": "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0",
+      "bytes": 56533
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/protocol.rs",
+      "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+      "bytes": 61745
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/report.json",
+      "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+      "bytes": 21117
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+      "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+      "bytes": 1157
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/results__zk60_mvp_20260929__cli-stack-gpu__report.json",
+      "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+      "bytes": 21117
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__b2-gpu.log",
+      "sha256": "86f72477b0cda84efa0742234321a9d9eb6987701bb8d401384c9a9e227163ca",
+      "bytes": 23189
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__report.json",
+      "sha256": "43c6b416c2d4254d821ec304e0fc49c6b8fbfb974b9122f919fdf7663d347506",
+      "bytes": 29717
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/s35_tests.rs",
+      "sha256": "8cf1f7b43ba318d09630485045cf6e28244d5d2fc014b7a89d55e67d06ec7f15",
+      "bytes": 31888
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native/shape.rs",
+      "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+      "bytes": 71241
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native-pins.json",
+      "sha256": "f33cf86f603f3690b3eb8e137a5b4eec6a8e1ec6ccfb678515dd88eb5a1960da",
+      "bytes": 2806
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/native_fixture.py",
+      "sha256": "e290445f5c0d6b3006f2ea8fc076f9cc605f8134f8ac4fb5e09c017bc2be96ca",
+      "bytes": 3096
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/owner-memory-comparison.json",
+      "sha256": "3a9fb1709c36200aea044c9fbe4ae1a009ba45eda26f6889f58dc9eb7aaeb135",
+      "bytes": 751
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/prior-clause-stream-schedule-20261017.json",
+      "sha256": "8d922414d2fb4b518ab97d4c0214ac795e2ac7fbdf1f2e125a9977421cfb3b0e",
+      "bytes": 279194
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/prior-fixed-round0-factory-20261017.json",
+      "sha256": "19587d57dd911c96f96ef07112969e4838d6354ed84018cb382b332b1db428eb",
+      "bytes": 123577
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/prior-unpadded-cubic-factory-20261017.json",
+      "sha256": "e86d6a245efebfec24ca783bedbb34b87d899239988e0d9381d35c00b4af271a",
+      "bytes": 685951
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/reference.py",
+      "sha256": "61420908dd6841c2b2dc3a0c9920e0d4840c490a401572ed7d4674e762cb288b",
+      "bytes": 2736
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/report-components.json",
+      "sha256": "9335d0809f9aab7672f453215ce91a4a0c1d5dfad00f9feed82c06fbacb4772c",
+      "bytes": 4523
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/result.json",
+      "sha256": "5dc29e0adb4d08221e8d79b5c9ac7ff360ee41873164767bb3ea4a02a466ec08",
+      "bytes": 10423
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/run.log",
+      "sha256": "5dc29e0adb4d08221e8d79b5c9ac7ff360ee41873164767bb3ea4a02a466ec08",
+      "bytes": 10423
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/run.py",
+      "sha256": "70ac9c9eb2c723c15659f67b924f8d943dd32f5cb51d73a4672b2f03bbdb451e",
+      "bytes": 1064
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/scheduler.py",
+      "sha256": "103cad5c2bcdcf8b7b1d4792f342dcaf69b1084434a44ae6ee6083e8a7b4ac5f",
+      "bytes": 4314
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/search-queries.json",
+      "sha256": "fcdf716ad4534cac4b678777600da604c915973e8a1a19edbba3238273aa6da1",
+      "bytes": 1609
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/source_port.py",
+      "sha256": "2e31f19a567b9341ccdd313595f0ebbc34d7f4790b548bb91f06eed41e024d5e",
+      "bytes": 6423
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/sources-cycle57.json",
+      "sha256": "699534c86068bf9eff87974126851b4a0fbbf47ac61ec29a64ec029cab98aa09",
+      "bytes": 6439
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/AGENDA.md",
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "bytes": 5603
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/CLAUDE.md",
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "bytes": 14089
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/FINDINGS.md",
+      "sha256": "114dad02b3a7a822ef4ea91a458e5c2a826663d7f90125600e695ba315e3ba7e",
+      "bytes": 415937
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/MVP_STATUS.md",
+      "sha256": "f6441f8b890cb9d3b7122570282a51403061a4388cf05e40b78b1aa2c08efec0",
+      "bytes": 59346
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/PROGRESS.md",
+      "sha256": "23e7bfe219ced21fc14ced7ccb8567029650dec9d2af708b2ae7050da8b1336a",
+      "bytes": 2788
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/STATE.md",
+      "sha256": "878816f05877468291e50b8f7b9b81ec9f5d3a085e1a57fa2b1319a79b5af340",
+      "bytes": 5306
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "bytes": 64889
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/ZK60_DECISIONS.md",
+      "sha256": "e5d641fcc5ad64f2cb392a20aa834c91e028136c447457da901f34af250fcaad",
+      "bytes": 60435
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/ZK60_PRIVACY_REQUIREMENTS.md",
+      "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+      "bytes": 2264
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "bytes": 4941
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup/sources.jsonl",
+      "sha256": "8cc8ac45fcd075ecd8a04ca6a5471cbd6becaa3eefd10070bf4a34d23ff168f5",
+      "bytes": 356211
+    },
+    {
+      "path": "experiments/native-capture-adapter-20261017/startup-manifest.json",
+      "sha256": "24202a37464464c052fb6a0e490c50e824df203d238a41818961fd07dfa6627c",
+      "bytes": 2168
+    },
+    {
+      "path": "STATE.md",
+      "sha256": "673f1d030257e4111a91c61fe12620eaece6e8ad7cb70868f3b5b100e76fae1f",
+      "bytes": 5074
+    },
+    {
+      "path": "FINDINGS.md",
+      "sha256": "e57d4457d0ed2520970478334493aa0d782e699775b5f5e44066b7e9e3ae68bc",
+      "bytes": 425133
+    },
+    {
+      "path": "sources.jsonl",
+      "sha256": "c044bf09ead02309e578adcead6f171d9201f921bdbc1dbcf6452d0ff274b1a0",
+      "bytes": 362191
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "cabf455909d5e7696f4d2ad88d18ee57c4e6f1d303d7ab723131a2081d6e7df9",
+      "bytes": 2663
+    },
+    {
+      "path": "progress/20261017T072624Z-c38c878c.md",
+      "sha256": "cabf455909d5e7696f4d2ad88d18ee57c4e6f1d303d7ab723131a2081d6e7df9",
+      "bytes": 2663
+    },
+    {
+      "path": "handoffs/20261017-native-capture-adapter.md",
+      "sha256": "e9d24cf136f725e6ee0ebf8e9ff8fb1ba009f4be53d6664289bdd5cebfa92fff",
+      "bytes": 7028
+    }
+  ],
+  "excludes": "this manifest itself; runtime untouched"
+}

@@ -1,0 +1,1378 @@
+--- /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/optional-support-port-20261017/audit.py
++++ /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017/audit.py
+@@ -1,85 +1,70 @@
+-"""Evidence integrity/accounting audit, not a native proof or new benchmark."""
+-import datetime,hashlib,json
+-from collections import Counter
++"""Bounded evidence-integrity audit, no native program or network execution."""
++import ast,datetime,hashlib,json,os,resource,signal
+ from pathlib import Path
+-
+-HERE=Path(__file__).resolve().parent
+-ROOT=HERE.parents[1]
++HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
++signal.alarm(20);resource.setrlimit(resource.RLIMIT_CPU,(20,20));resource.setrlimit(resource.RLIMIT_AS,(256*1024**2,256*1024**2))
++os.sched_setaffinity(0,{min(os.sched_getaffinity(0))});os.nice(19)
+ checks=[]
+-def check(label,condition):
+-    assert condition,label
+-    checks.append(label)
+-def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+-
+-r=json.loads((HERE/'result.json').read_text())
+-cmd=json.loads((HERE/'command.json').read_text())
+-ex=json.loads((HERE/'execution.json').read_text())
+-check('result passed',r['status']=='passed')
+-check('actual exit zero',ex['exit_code']==0)
+-check('wall limit',r['wall_seconds']<59 and ex['wrapper_wall_seconds']<60)
+-check('resident memory limit',r['max_rss_kib']<512*1024)
+-check('one low priority CPU thread',r['hardware']['threads']==1 and r['hardware']['nice']==19)
+-check('one CPU affinity',len(r['hardware']['affinity'])==1)
+-check('seed retained',r['seed']==2026101753)
+-for name,sha in cmd['source_sha256'].items():
+-    check('executed source '+name,digest(HERE/name)==sha)
+-for pin in json.loads((HERE/'native-pins.json').read_text()):
+-    check('native snapshot '+pin['snapshot'],digest(HERE/pin['snapshot'])==pin['sha256'])
+-    check('native still current '+pin['snapshot'],digest(Path(pin['path']))==pin['sha256'])
+-    if not pin.get('new_pin'):check('prior pin preserved '+pin['snapshot'],pin['matches_cycle52'])
+-check('all four abstract combinations',len(r['presence_fixture_counts'])==4)
+-check('100 fixtures',sum(r['presence_fixture_counts'].values())==r['counts']['fixtures']==100)
+-check('six chunk/debug schedules per fixture',r['counts']['full_schedules']==600)
+-# Independent envelope arithmetic from the stated fixture products:
+-# n0..3 * two limb settings * three data modes; one unpad/three pad patterns.
+-# Four h/t/j shapes have n4; one unpad and three pad patterns.
+-samples=6*(sum(range(4))*2*3*(5+3*6)+4*(5+3*6))
+-check('original outer sample counts',r['counts']['independent_round_samples']==samples==5520)
+-check('extension equations',r['counts']['independent_extension_clause_values']==4*2*4*3*4)
+-check('nonzero and zero-factor recovery covered',r['recoveries']>0 and r['zero_factor_fallbacks']>0)
+-check('ported S-only refusal covered',r['counts']['native_construction_refusals']==8)
+-check('P3 S-only port refusal covered',r['counts']['P3_S_only_size_policy_refusals']==19)
+-check('no complete proofs credited',r['proof_accounting']['accepted_complete_private_8b_proofs']==0)
+-check('no tokens/passes credited',r['proof_accounting']['proved_tokens']==r['proof_accounting']['passes']==0)
+-for key,val in r['proof_accounting'].items():
+-    if key not in ('accepted_complete_private_8b_proofs','proved_tokens','passes'):
+-        check('unmeasured proof accounting '+key,val is None)
+-for i,p in enumerate(r['projections']):
+-    check('no native speedup claimed '+str(i),p['native_speedup_claim'] is False)
+-    for label,total in p['bracket_only_totals'].items():
+-        detail=p['details'][label];want=Counter()
+-        for j in range(p['cube_log']):
+-            for g,d in enumerate(detail['bracket_degrees']):
+-                calls=(1<<(p['cube_log']-j-1))*(d+1-int(j>0))
+-                for k,v in detail['scalar_per_group'][g].items():want[k]+=v*calls
+-        check('scalar census arithmetic '+str(i)+' '+label,dict(want)==total)
+-        check('support payload formula '+str(i)+' '+label,
+-              detail['support_table_payload_bytes']==sum(detail['supports'])*(1<<p['cube_log'])*16)
+-    actual=p['details']['correct_optional_port']
+-    if p['shape']['query_heads']==32:
+-        check('full domains omit supports '+str(i),actual['supports']==[False,False] and not actual['pad_on'])
+-        check('native unpad declared widths '+str(i),actual['bracket_degrees']==[3,1,1] and actual['group0_coefficient_width']==4)
+-        check('conditional factory inactive '+str(i),p['factory_metadata']['correct_optional_port']['selected_groups']==[])
+-        check('no unpad padding setup '+str(i),actual['literal_native_pad_weight_setup_mul']==0)
+-    else:
+-        check('padded census unchanged '+str(i),p['bracket_only_totals']['legacy_always_padded_formula']==p['bracket_only_totals']['correct_optional_port'])
+-        check('literal setup recurrence '+str(i),actual['literal_native_pad_weight_setup_mul']==actual['pad_weight_words']+2)
+-prefix=json.loads((HERE/'source-ledger-prefix.json').read_text())
+-ledger=(ROOT/'sources.jsonl').read_bytes()
+-check('all prior source bytes preserved',hashlib.sha256(ledger[:prefix['bytes']]).hexdigest()==prefix['sha256'])
+-records=[json.loads(x) for x in ledger.splitlines()]
+-new=json.loads((HERE/'sources-cycle53.json').read_text())
+-check('five source records appended',len(records)==269 and records[-5:]==new)
+-check('unique source IDs',len({x['id'] for x in records if 'id' in x})==sum('id' in x for x in records))
+-old=(HERE/'startup/FINDINGS.md').read_bytes()
+-check('all prior findings bytes preserved',(ROOT/'FINDINGS.md').read_bytes().startswith(old))
+-check('dated progress equals current report',(ROOT/'PROGRESS.md').read_bytes()==(ROOT/'progress'/ (r['run_id']+'.md')).read_bytes())
+-for directory in ('initial-before-P3-domain-ownership-correction','before-native-outer-degree-accounting'):
+-    for name in ('result.json','command.json','execution.json','run.log'):
+-        check('superseded evidence '+directory+'/'+name,(HERE/directory/name).is_file())
+-for name in ('README.md','source-diff.patch','copy-provenance.json','startup-manifest.json'):
+-    check('required artifact '+name,(HERE/name).is_file())
+-report=dict(status='passed',checks=len(checks),checked_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+-            labels=checks,limits='Integrity/accounting audit only; no additional experiment or native performance/security validation.')
+-(HERE/'checkpoint-audit.json').write_text(json.dumps(report,indent=2)+'\n')
+-print(json.dumps({k:v for k,v in report.items() if k!='labels'}))
++def ck(ok,label):
++ assert ok,label
++ checks.append(label)
++def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
++r=json.loads((HERE/'result.json').read_text());cmd=json.loads((HERE/'command.json').read_text());ex=json.loads((HERE/'execution.json').read_text())
++ck(ex['exit_code']==0,'final exit0');ck(r['status']=='passed','experiment passed')
++ck(r['run_id']=='20261017T042624Z-0f7bf604','run identity')
++ck(r['wall_seconds']<60 and r['max_rss_kib']<512*1024,'experiment wall/memory caps')
++ck(r['hardware']['threads']==1 and r['hardware']['nice']==19 and r['hardware']['device']=='CPU only','one low-priority CPU thread')
++for fn,h in cmd['source_sha256'].items():ck(sha(HERE/fn)==h,'executed source hash:'+fn)
++for p in HERE.glob('*.py'):ast.parse(p.read_text());ck(True,'parse:'+p.name)
++for item in json.loads((HERE/'startup-manifest.json').read_text()):ck(sha(ROOT/item['path'])==item['sha256'],'startup hash:'+item['path'])
++old=(HERE/'startup/FINDINGS.md').read_bytes();ck((ROOT/'FINDINGS.md').read_bytes().startswith(old),'historical findings preserved')
++old=(HERE/'startup/sources.jsonl').read_bytes();ck((ROOT/'sources.jsonl').read_bytes().startswith(old),'historical sources preserved')
++ss=[json.loads(x) for x in (ROOT/'sources.jsonl').read_text().splitlines() if x]
++ck(len(ss)==276,'276 total source records');new_ids=[s['id'] for s in ss[-7:]];ck(len(set(new_ids))==7 and not any(x in {s.get('id',s.get('source_id')) for s in ss[:-7]} for x in new_ids),'seven new unique source ids;historical schemas preserved')
++cs=json.loads((HERE/'sources-cycle54.json').read_text());ck(len(cs)==7 and ss[-7:]==cs,'source append exact')
++for s in cs:
++ ck(s['access_date']=='2026-10-17' and s['url'].startswith('https://'),'source access/url:'+s['id'])
++ ck('published' in s and 'updated' in s and 'implementation_license' in s and 'inspected_commit_id' in s,'source metadata:'+s['id'])
++ ck(not s['reproduced_performance'],'author performance unclaimed:'+s['id'])
++for q in json.loads((HERE/'native-pins.json').read_text()):
++ ck(sha(Path(q['path']))==q['sha256'],'current native/measurement pin:'+q['path'])
++ ck(sha(HERE/q['snapshot'])==q['sha256'],'native/measurement snapshot:'+q['snapshot'])
++seams=json.loads((HERE/'active-seam-comparison.json').read_text())
++for q in seams:ck(sha(Path(q['path']))==q['sha256'],'active seam:'+q['path'])
++ck(seams[0]['sha256']==seams[2]['sha256'] and seams[1]['sha256']==seams[3]['sha256'],'candidate=sonnet argument/grouped')
++ck(seams[-1]['sha256']!=seams[0]['sha256'],'root main distinct')
++want={'fixtures':63,'full_schedules':1890,'independent_round_samples':19650,'independent_final_values':43920,'independent_extension_checks':144,'value_independent_row_censuses':12,'executed_vs_allocation_free_censuses':20,'padded_factory_refusals':3}
++for k,v in want.items():ck(r['counts'][k]==v,'count:'+k)
++ck(r['recoveries']==732 and r['zero_factor_fallbacks']==708,'claim recovery/fallback coverage')
++for name in ['drop_cubic','reverse_coefficients','omit_suffix_weight','drop_part','drop_ragged']:ck(name+'-detected' in r['controls'],'negative control:'+name)
++ck(len(r['projections'])==6,'six no-allocation projections')
++for p in r['projections']:
++ nr=(1<<p['n'])-1;ck(p['total_rows']==nr,'geometric row count')
++ for mode,v in p['results'].items():
++  cc=v['all_field_ops'];ck(sum(cc.values())==v['sum_api_ops'],'API total:'+mode)
++  exp=v['literal_native_field_api_expansion'];ck(exp['fp_mul']==5*cc.get('mul',0)+2*cc.get('mul_base',0),'Fp mul expansion:'+mode)
++  ck(exp['fp_add']==2*cc.get('mul',0)+2*cc.get('add',0) and exp['fp_sub']==2*cc.get('sub',0),'Fp add/sub expansion:'+mode)
++  schedules=p['schedules'][mode];ck(sum(s['rows'] for s in schedules)==nr,'schedule rows:'+mode)
++  for k in ('mul','mul_base','add','sub'):
++   total=sum(s['round_field_ops'].get(k,0) for s in schedules)+v['preparation'].get(k,0)
++   ck(total==cc.get(k,0),'independent schedule total:'+mode+':'+k)
++  ck(v['coefficient_words'] in (0,4) and v['native_peak_scratch_bytes'] is None,'output-only scratch label:'+mode)
++  if mode=='cubic_round0':
++   ck(sum(s['coefficient_group0'] for s in schedules)==1 and schedules[0]['coefficient_group0'],'roundzero-only policy')
++   ck(all(v['delta_vs_prepared_scalar'][k]<0 for k in ('mul','mul_base','add','sub')),'roundzero all field categories lower')
++pa=r['proof_accounting'];ck(pa['accepted_complete_private_8b_proofs']==0 and pa['passes']==0 and pa['proved_tokens']==0,'no accepted full8B credit')
++for k,v in pa.items():
++ if k not in ('accepted_complete_private_8b_proofs','passes','proved_tokens'):ck(v is None,'unmeasured target field:'+k)
++ck(r['output_sha256']==json.loads((HERE/'before-self-contained-accounting-input/result.json').read_text())['output_sha256'],'self-contained accounting input unchanged outputs')
++report=ROOT/'progress/20261017T042624Z-0f7bf604.md';ck(report.read_bytes()==(ROOT/'PROGRESS.md').read_bytes(),'dated/current progress parity')
++for name in ['README.md','checkpoint.json','research-source-diff.patch','copy-provenance.json']:ck((HERE/name).exists(),'artifact:'+name)
++for p in [ROOT/'STATE.md',ROOT/'FINDINGS.md',ROOT/'PROGRESS.md',report,ROOT/'handoffs/20261017-unpadded-cubic-round0.md']:
++ ck('20261017T042624Z-0f7bf604' in p.read_text(),'report identity:'+str(p))
++# Check whether owner memory moved during this cycle. Read only; no claim of liveness.
++project=ROOT.parents[1];changes=[]
++for name,orig in [('CLAUDE.md','CLAUDE.md'),('MVP_STATUS.md','docs/zkmatrix-poc/MVP_STATUS.md'),('ZK60_DECISIONS.md','docs/zkmatrix-poc/ZK60_DECISIONS.md'),('ZK60_CODEX_FABLE_COORDINATION.md','docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md'),('ZK60_THROUGHPUT_TARGET.md','docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md')]:
++ if sha(HERE/'startup'/name)!=sha(project/orig):changes.append(orig)
++result=dict(status='passed',checks=len(checks),check_labels=checks,checkpoint_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),owner_memory_changed=changes,
++ audited_artifact_sha256={str(p.relative_to(ROOT)):sha(p) for p in [HERE/'result.json',HERE/'command.json',HERE/'execution.json',HERE/'README.md',ROOT/'STATE.md',ROOT/'FINDINGS.md',ROOT/'sources.jsonl',ROOT/'PROGRESS.md',report,ROOT/'handoffs/20261017-unpadded-cubic-round0.md']})
++(HERE/'audit.json').write_text(json.dumps(result,indent=2)+'\n')
++print(json.dumps({k:v for k,v in result.items() if k not in ('check_labels','audited_artifact_sha256')}))
+--- /dev/null
++++ /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017/checkpoint.py
+@@ -0,0 +1,424 @@
++"""Produce research reports from retained local evidence; no native mutations."""
++from pathlib import Path
++import datetime,difflib,hashlib,json
++HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[1]
++run='20261017T042624Z-0f7bf604';now=datetime.datetime.now(datetime.timezone.utc).isoformat()
++r=json.loads((HERE/'result.json').read_text());e=json.loads((HERE/'execution.json').read_text());assert e['exit_code']==0
++p=next(p for p in r['projections'] if p['limbs']==3 and p['shape']['head_pad']==32 and p['shape']['tokens']==512)
++b=p['results']['prepared_scalar'];c=p['results']['cubic_round0'];pct=100*(b['sum_api_ops']-c['sum_api_ops'])/b['sum_api_ops']
++rows=[]
++for m in ('literal','prepared_scalar','cubic_schoolbook','cubic_karatsuba','cubic_round0'):
++ q=p['results'][m];cc=q['all_field_ops'];rows.append('|'+m+'|'+ '|'.join(f"{cc.get(k,0):,}" for k in ('mul','mul_base','add','sub'))+f"|{q['sum_api_ops']:,}|" )
++table='|Mode|Fp2 mul|Fp2 mul_base|Fp2 add|Fp2 sub|API total|\n|---|---:|---:|---:|---:|---:|\n'+'\n'.join(rows)
++account='''Accepted independently verified complete private 8B proofs/passes/tokens: **0/0/0**.
++Proof context length is null. Current device: one Intel Core Ultra 9 185H CPU
++thread, nice19, affinity CPU0; no GPU job. Steady-state and total-workload rates,
++startup seconds/fraction, witness/proof/serialization/independent-verification
++clocks, proof latency/lag/drain are **unmeasured**. No long-context prefill,
++resident-model pass or decode proof ran. Synthetic cube tests use up to32 cells;
++T512/T1024 rows below are allocation-free arithmetic, not accepted profiles or
++proofs. Doubling context quadruples the modeled attention cube work. Larger
++workloads remain allowed; no mask reuse, privacy weakening or target change.
++'''
++queue='''|Rank|Hypothesis, baseline / eliminated work / added costs / falsifier|
++|---|---|
++|1 owner|Move dominant SC_SZC and both recurring witness paths to GPU. Baseline native synthetic measurements below; remove CPU recurrence, add CUDA transfers/device storage/dispatch. Require native exact/masked/final/RNG/PCS/refusal and fresh-verifier gates; reject mismatch,overflow,peak or enclosing-time regression. Full8B ceiling unknown.|
++|2 local, refined and tested|Use four coefficients only for unpadded group0 at round0; scalar evaluation after h1 recovery. Eliminates four repeated scalar brackets on that round; adds four-word construction/weighting,Horner,denominator setup and public dispatch/scratch. Counted scoped gain7.0153% versus prepared scalar at full-head T512,not time. Next: fixed straight-line factory to remove dynamic width dispatch. Reject native parity/refusal/RNG change or added costs erasing arithmetic savings.|
++|3 workload owner|Measure resident complete passes at fixed context with fresh masks and full coverage. Baseline startup/slope unmeasured. Eliminate only actually reusable model/public setup; add residency/cache validation,all per-proof masks,lag/drain and verifier costs. Recurring wall above20ms/new proved position rejects50/s for that schedule. Long prefill and decode require separate measurements and state binding.|
++|4 owner|Exact full-K split-int16 FFN-down witness. Remove slow scalar products; add packing,two products,i64 recombination,exact requant/refusal,transfer and scratch. Require integer/native receipt parity and lower enclosing time; affected fraction/8B ceiling unknown.|
++|5 conditional owner|Existing padded fixed-array/weighted/denominator chain; useful only where native supports exist. Charge added adds/subs/code/scratch. Require native masked/refusal/RNG/PCS/privacy/fresh-verifier gates and lower elapsed time. No padded gain transferred to full-domain8B.|
++|Demoted|Blanket unpadded cubic construction after recovery: on three-limb full-head axes it adds22 Fp2mul per row versus prepared scalar (33 on moving mask axes),while saving10/9 mul_base and adding other work. Keep negative. Prior native fold fusion was1.66% slower mean prove/10.38% slower softmax; prior CSE,twiddle,memory and arithmetic negatives remain. Dory/Fold-DCS/binary-field architectures need new relation/hiding/composition work.|
++'''
++baseline='''Historical measured baseline, not re-run: one synthetic125M block,T512,
++one pass,RTX4070Laptop; SC_SZC7.794s,proof16.864s,witness5.77s,encode0.028s,
++decode0.013s,in-process verification0.806s,enclosing test27.523873s,
++40,783,352B. Startup and both recurring witness clocks are not separated.
++Removing the entire SC_SZC phase would save at most28.317% of that enclosing
++measurement. This is not an8B estimate; a7.0153% API-count reduction does not
++imply that fraction of phase time. Complete8B ceiling remains
++`N/(T_complete - saved_recurring_scalar_time + added_factory_dispatch_scratch_time)`.
++Round0 recurs on **every proof**; it is not amortizable process startup.
++The historical synthetic12-block/T512/one-pass GPU-arm test is408.609226s
++whole,318.22s prove,12.15s in-process verify,484,107,456B (~1.253 complete
++synthetic positions/s over enclosing test);trained=false,privacy accepted=false,
++fresh-process verification=false. No accepted private8B token credit follows.
++'''
++source_summary='''LIVE search covered GPU NTT/commitments and memory overlap,coefficient
++sumcheck,lookup/softmax interfaces and composition. New older Dory paper
++(received2020-10-14,revised2021-11-18) and v0.4.2(Aug20,2026) release inspection
++add a PCS/state-binding filter; release commit5246da503c3e2c6baa40ec00d714987c73a3e6eb
++was inspected. EPFL's concrete coefficient source uses EvalsInfty and plain
++non-ZK sumcheck,so it cannot replace native samples/masking directly. Fold-DCS's
++PCS instantiation explicitly does not require hiding. NVIDIA's July15 clmad
++article concerns characteristic-two fields. ICICLE transfer overlap charges
++two device vectors. October16 Plonky3 BLAKE2s metadata is not keyed BLAKE3
++compatibility. New October FAEST discovery could not be primary-inspected:
++eprint2026/2489 and its PDF were not accessible; no claim adopted. Seven
++records retain exact URLs,verified versus unknown dates,failed license/commit/
++package/PDF fetches and unreproduced author claims. Actual Dory/EPFL license
++terms were unavailable; repository license labels are not a verified license.
++No foreign code was copied/executed,installed or benchmarked. Next rotation:
++lookup/softmax table traffic,public dependency-specialized kernels,composition.
++'''
++readme=f'''# Unpadded cubic round-zero factory — cycle0054
++
++Run `{run}`; checkpoint {now}.
++
++**Promising counted arithmetic; no native speed improvement established.**
++The broad factory passes algebra but loses useful cost properties after h1
++recovery. A public round-zero-only policy lowers all four counted field API
++categories versus prepared scalar evaluation on the full-head T512 shape.
++
++The final bounded run passes {r['counts']['full_schedules']:,} schedules over63 fixtures,
++{r['counts']['independent_round_samples']:,} independently computed round samples,
++{r['counts']['independent_final_values']:,} final values,144 arbitrary-extension clause
++checks,12 zero/random value-independent row censuses,20 concrete-versus-
++allocation-free counter checks and3 padded-factory refusals. Five mutation
++controls detect dropped cubic coefficients,reversed coefficients,missing suffix
++weights,dropped reduction parts and ragged tails. There are732 recovered
++samples and708 zero-factor fallbacks in baseline schedules; all five modes
++agree on per-group pending outputs,claims,finals and folding/equality work.
++Wall {r['wall_seconds']:.6f}s,RSS{r['max_rss_kib']:,}KiB;wrapper exit0. These are
++synthetic CPU correctness clocks,not proving clocks.
++
++Reproduce only the bounded local experiment:
++
++```bash
++python3 -B /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017/run.py
++```
++
++Seed2026101754. Standard library only;one thread,nice19,59s alarm/CPU cap,
++512MiB address-space limit;estimated experiment memory64MiB. No model-sized
++arrays. Fixtures cover cube logs0–4 plus a32-cell executed census,2/3 limbs,
++7/8/full lookup counts,zero/Boolean/full-extension data,causal public masks,
++chunk lengths1/3/7 and the source-policy chunk model,debug/release recovery.
++`prior-result.json` retains accounting only. Code/logs/input pins are local.
++
++## What changed and what stays to validate
++
++`cubic_factory.py` provides `CubicPlan` and `CubicRounds`. Only public
++`pad_on=false`,round index0 and row count>=2 select the factory. Mask slope
++width comes from public coordinate dependencies. There is no witness-dependent
++zero/degree pruning. Four bracket coefficients are suffix-weighted and reduced,
++then evaluated at the original0,1,2,3;the original five outer samples remain.
++Later rounds and the two hosted groups use prepared scalar brackets. Native
++masking,Fiat-Shamir,RNG,PCS,constructor and verifier were not executed.
++
++Baseline round0 computes4 expensive brackets per row;later rounds compute3
++when h1 recovery is valid. A blanket factory ignores that break-even change.
++For three limbs,constant-mask axes after round0,Karatsuba adds22 Fp2mul,
++saves10 mul_base,and adds31 add/13 sub per row versus prepared scalar.
++Round0 instead saves17 mul,20 mul_base,5 add and17 sub per row,then pays
++one final Horner evaluation. These are field API counts,including literal
++unit/zero operations;LLVM may already remove some of that work.
++
++## Allocation-free full-head census
++
++hp32/kv8/qh32/T512,no S lift,three limbs,cube log23. The scope is scalar or
++coefficient bracket construction + suffix-weighted accumulation + modeled
++part reduction + Horner + denominator preparation. It excludes common
++Eq/interpolation/recovery/folds,PCS/masks,witnesses,transfers and serialization.
++The source `small` threshold and1024-row chunk rule are modeled with port
++carrier count;8 part words are common to every mode. Native Rayon identity-fold
++adds are not fixed by part count and are uncounted. This is no native timing.
++
++{table}
++
++The round-zero policy removes **{pct:.4f}%** of that API total versus prepared
++scalar;the larger23.5578% drop versus literal includes denominator preparation
++benefits and must not be attributed to the cubic factory. Candidate-versus-
++prepared deltas are -71,303,168 Fp2mul,-83,886,071 mul_base,-20,971,511 add,
++-71,303,168 sub. Literal native `Fp2` API expansion gives -524,287,982 base mul,
++-184,549,358 base add,-142,606,336 base sub;this is an unoptimized source-call
++expansion,not machine instructions or cycle estimates. T1024 work is roughly4x,
++not an amortization win. Two-limb and hp16 variants are retained separately.
++
++Added costs:15 prepared denominator offsets (30 charged field ops and15 public
++classifications),four output coefficients/64 logical bytes per row,additional
++polynomial temporaries,public policy/dependency tests and dynamic width dispatch.
++The T512 round-zero path records159,383,552 public width tests and50,331,648
++2x2 Karatsuba products in the harness. Denominator dispatch is explicitly
++charged per scalar sample/coefficient carrier. The per-part8-word accumulator
++has the same128 logical bytes in each mode. Native registers,peak scratch,
++allocation,code size and affected/enclosing runtime remain unknown. The local
++Python interpreter's bounded RSS cannot establish native device memory.
++
++## Baseline, ceiling and hypotheses
++
++{baseline}
++
++{queue}
++
++{source_summary}
++
++## Reviewable seam and next action
++
++`ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs` SC_SZC1699,
++groups1783,bracket1788 and `zkp-core/src/sumcheck/grouped.rs` row/part93,
++samples107,reduction121,recovery132. These two candidate files hash-identically
++to the sonnet-hardening pinned copies;root main has a different older argument.
++All11 old source/measurement pins match. `active-seam-comparison.json`,
++`native-current-comparison.json`,`copy-provenance.json`,`command.json`,
++`execution.json`,`sources-cycle54.json` and `research-source-diff.patch`
++retain provenance. Initial successful broad-factory and later accounting
++refinements remain in named subdirectories;none is a native proof.
++
++Next LOCAL: generate a fixed straight-line unpadded round0 factory,selected
++only by public metadata,then audit liveness and eliminate dynamic width tests.
++Compare every output and actual API census against literal/prepared/fixed
++factories;do not transplant padded estimates. Next OWNER: native profile/privacy/
++refusal/masked/RNG/finals/PCS/fresh-verifier gates,then guarded three-arm timing
++(literal,prepared scalar,prepared+round0) with both witnesses,peak memory and
++resident complete workload clocks. No build/heavy/GPU job is queued here.
++
++{account}
++
++Only research artifacts changed. No production/runtime/Git/receipt/calibration/
++instruction/reviewer mutation,installation,external message or merge. Saved
++reports do not establish user delivery or job liveness.
++'''
++(HERE/'README.md').write_text(readme)
++handoff=f'''# Review handoff: unpadded SC_SZC round0 coefficients
++
++Run `{run}`,{now}. Research arithmetic candidate only;no native speed claim.
++
++The complete local validation and source census are in
++[the experiment](../experiments/unpadded-cubic-factory-20261017/README.md).
++All1,890 schedules,19,650 independent samples,43,920 finals,144 extension
++checks,12 value-independent censuses,20 counter cross-checks and five mutation
++controls pass. Final run {r['wall_seconds']:.6f}s,{r['max_rss_kib']:,}KiB RSS,one CPU thread.
++
++Actual candidate seam (read-only here):
++`ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs:1783/1788` and
++`ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs:93/107/121/132`.
++Hashes match sonnet-hardening snapshots in the experiment;root main differs.
++
++Proposed interface: definition-local prepared lookup offsets plus a
++`begin_row(round,cur,dif) -> Option<[Fp2;4]>` factory for group0. Derive
++public shape/dependency metadata inside the native constructor. Select only
++unpadded round0 with at least2 rows;scalar fallback everywhere else. Weight
++and reduce4 coefficients,then evaluate original bracket samples0..3,retain
++five outer outputs and existing hosted groups/claims/finals. No protocol,
++masking,challenge sampling or cross-proof private cache changes.
++
++Research patch: `experiments/unpadded-cubic-factory-20261017/cubic_factory.py`
++and `experiment.py`;`research-source-diff.patch` is research-only. Do not
++integrate the Python interpreter or dynamic polynomial allocations. Proposed
++next local work is fixed straight-line Rust-style generation/liveness;no
++native source was modified or native build launched.
++
++Counted hp32/kv8/qh32/T512/three-limb scope falls3,527,474,753 to3,280,010,835
++API ops ({pct:.4f}%) versus prepared scalar. Every API category drops in this
++round-zero policy. The23.5578% comparison versus literal additionally includes
++denominator preprocessing and is not cubic-only. Blanket all-round construction
++is demoted:after claim recovery it adds22 general multiplications per row on
++constant-mask axes. Round0 recurs each proof;it is not startup amortization.
++
++Charge15 offsets/30 field setup ops/15 classifications,4 coefficient words,
++unknown extra temporaries/native scratch/dispatch/code and retained public
++width tests159,383,552 in the T512 interpreter. Per-part8 words are unchanged.
++The census omits common Eq/interpolation/recovery/folds/PCS/masks/witness work,
++plus native Rayon identity-fold additions. Compiler optimizations may erase
++counted literal work. Counts and Python clocks establish no native rate.
++
++Owner gates before promotion: native scalar/constructor parity across profiles,
++zero-factor and malformed/refusal preservation;all five masked messages,
++transcript/challenges/RNG continuation/finals;fresh masks and all commitments;
++old/new receipts and independent verifier/tampering;new-shape privacy acceptance.
++Then guarded3-arm phase and enclosing measurements,including both witnesses,
++serialization,independent verification,peak memory and resident startup/slope.
++Falsify on any mismatch or if dispatch/setup/scratch erases saved arithmetic.
++
++End-to-end private8B ceiling unknown. Historical complete SC_SZC-removal ceiling
++is28.317% of one synthetic block's27.523873s enclosing test,not8B. Target remains
++>=50 proved tokens/s;accepted full private8B proofs/passes/tokens0/0/0. All
++required target clocks and rates unmeasured. No heavy job or merge requested.
++'''
++(ROOT/'handoffs/20261017-unpadded-cubic-round0.md').write_text(handoff)
++progress=f'''# ZKP efficiency progress
++
++Cycle0054 — `{run}`,checkpoint {now}.
++
++**No native improvement established.** A public round-zero-only cubic factory
++passed1,890 synthetic schedules,19,650 independent round samples,43,920 finals,
++144 extension checks and20 operation-census cross-checks. Five mutations were
++caught;zero-factor fallbacks and zero/random-value operation counts agree.
++CPU run:{r['wall_seconds']:.2f}s,{r['max_rss_kib']:,}KiB RSS,one low-priority thread.
++
++At full heads/T512,three-limb factory arithmetic counts fall **{pct:.2f}%**
++versus scalar evaluation with prepared lookup denominators. This measures a
++limited field-operation scope,not proving time. Applying coefficients to every
++round adds costly multiplications after claim recovery,so that policy is
++ demoted. Round0 is paid for every proof;it is not reusable startup.
++
++The candidate adds coefficient construction/Horner work,64 logical output
++bytes per row,public dispatch and unknown native temporary/register costs.
++Next local step:generate a fixed factory and audit lifetimes. Main/Claude:
++review native masked/refusal/RNG/PCS/independent-verifier gates,then guarded
++three-arm timings and complete resident workload clocks. Candidate seam:
++`argument.rs` SC_SZC and `grouped.rs` row/part/sample/recovery;candidate and
++sonnet-hardening source pins match. No native/GPU/build job ran.
++
++LIVE sources searched:Dory2020 with its August2026 release,EPFL concrete
++coefficient source,Fold-DCS,ICICLE,NVIDIA carryless arithmetic and October16
++Plonky3 hash metadata. October FAEST primary/PDF and several license/commit
++fetches failed;exact blockers retained. Seven source records appended,276 total.
++Author performance/security claims were not reproduced.
++
++[Experiment](experiments/unpadded-cubic-factory-20261017/README.md) and
++[review handoff](handoffs/20261017-unpadded-cubic-round0.md) retain commands,
++seed,source hashes,dimensions,controls,counts and limits.
++
++{account}
++
++No production/runtime/Git/heavy/GPU/install/external actions. Saved reports
++are not evidence that a message was delivered or a job is live.
++'''.replace('\n demoted','\ndemoted')
++(ROOT/'PROGRESS.md').write_text(progress);(ROOT/'progress'/f'{run}.md').write_text(progress)
++find=f'''\n## Cycle0054 — 2026-10-17 — only round0 repays unpadded cubic construction
++
++Run `{run}`;checkpoint {now}. **Promising arithmetic count;no native speed
++improvement.** Current agenda,target and durable/project memory were read/
++snapshotted;all269 starting source records parsed;whole historical findings
++indexed for negative/next evidence. Latest three experiment results read.
++Native status remains no new trained proof,D24 proposed.11 retained source/
++measurement pins match;current candidate argument/grouped files also match
++sonnet-hardening (root main differs). Native/profile/privacy lane stays owned.
++
++**Question refined from cycle53:** does a four-word unpadded factory repay
++construction when native h1 recovery removes a scalar sample? Baseline group0
++needs4 samples on round0 and3 after nonzero-factor recovery. Broad coefficient
++construction passes exact algebra but adds22 Fp2mul per later constant-mask row
++(33 when mask moves) versus prepared scalar. It saves10/9 mul_base while adding
++other work;the blanket policy is demoted. A public round-zero-only selection
++instead saves17 mul,20 mul_base,5 add,17 sub per row plus a final Horner charge.
++No private value or zero slope controls dispatch;round0 recurs every proof.
++
++Final experiment:63 fixtures,1,890 complete synthetic schedules,19,650
++independent round samples,43,920 final values,144 extension clause checks,
++12 value-independent row censuses,20 concrete-versus-allocation-free counters,
++3 padded-factory refusals. Five material mutations caught.732 recoveries and
++708 zero-factor fallbacks agree across five modes. Source-declared widths,
++per-group pending samples,claims,finals,fold and equality work agree with the
++separate original-cube tuple oracle. CPU{r['wall_seconds']:.6f}s,RSS{r['max_rss_kib']:,}KiB,
++one nice19 CoreUltra9 thread,exit0;59s/512MiB caps. No native constructor,
++transcript,RNG,PCS,verifier,receipt or GPU execution.
++
++hp32/kv8/qh32/T512,three limbs,no lift: scoped arithmetic follows.\n
++{table}
++
++Round0-only versus prepared scalar removes{pct:.4f}% of the stated API scope;
++versus literal removes23.5578%,which includes denominator preparation savings.
++Native field-source expansion gives524,287,982 fewer base multiplies,
++184,549,358 fewer adds,142,606,336 fewer subs versus prepared scalar;these are
++literal API expansions,not instructions or timings. The scope includes bracket
++construction/evaluation,weighted sums,modeled part reductions,Horner and
++preparation;omits common Eq/interpolation/recovery/folds,PCS/masks,witnesses,
++transfers and serialization. Model uses source1024/small chunk policy with
++port carrier count;Rayon identity-fold additions are not specified and are
++uncounted. Part width8 is unchanged. T1024 work is roughly4x,not automatic
++amortization. Two-limb/hp16 rows retained. No native speedup inferred.
++
++Added costs:15 denominator offsets (30 charged field ops),15 classifications,
++4 coefficient output words/64 logical bytes per row,unknown polynomial
++ temporaries/registers,policy/axis tests and159,383,552 dynamic width tests in
++T512 round0 replay. Denominator dispatch charged per actual scalar sample or
++coefficient carrier. Native scratch/code/allocation/affected and enclosing
++clocks unmeasured. Initial passing all-round attempt used512-row count chunks;
++retained with its superseded accounting. Later1024/small-policy,value-independence,
++dispatch and self-contained-input refinements all remain separately retained.
++
++{queue}
++
++{baseline}
++
++{source_summary}
++
++Concrete seam:candidate argument.rs1699/1783/1788 and grouped.rs93/107/121/132.
++Next LOCAL:fixed public straight-line unpadded round0 factory with independent
++sample/counter/lifetime checks. Next OWNER:native/profile/privacy/refusal/RNG/
++mask/PCS/independent-verifier gates,then guarded3-arm clocks (literal/prepared/
++prepared+round0),both witness paths,peak and complete resident startup/slope.
++[Experiment](experiments/unpadded-cubic-factory-20261017/README.md) and
++[handoff](handoffs/20261017-unpadded-cubic-round0.md) retain exact interface,
++research patch,pins,commands,seed,dimensions,hardware and risks.
++
++{account}
++
++No production/runtime/Git/build/GPU/install/external action or heavy job queued.
++Reports do not imply delivery or liveness. Prior findings and negatives retained.
++'''.replace('\n temporaries','\ntemporaries')
++with (ROOT/'FINDINGS.md').open('a') as out:out.write(find)
++state=f'''# ZKP efficiency explorer — durable state
++
++Cycle0054 COMPLETE:`{run}`;checkpoint {now}.
++Agenda/current target/durable and project memory snapshotted/read;269 starting
++sources parsed,7 LIVE dispositions appended,276 total. Historical findings
++negative/next index retained.11 old native/measurement pins match. Current
++candidate argument/grouped hashes match sonnet-hardening;root main differs.
++No native trained proof/privacy ruling changed. D24 remains proposed.
++
++Unpadded cubic factory passes1,890 schedules/63 fixtures,19,650 independent
++samples,43,920 finals,144 extension checks,12 value-independent censuses,
++20 executed/census comparisons,3 padded-factory refusals and5 mutations.
++732 recoveries/708 zero-factor fallbacks. Final CPU{r['wall_seconds']:.6f}s,
++RSS{r['max_rss_kib']:,}KiB,one nice19 CoreUltra9 thread,exit0. No native proof.
++
++Useful refinement:coefficients only on unpadded group0 round0 (>=2rows),
++then prepared scalar after h1 recovery. Broad factory adds22 Fp2mul/row on
++later constant-mask axes,33 when mask moves;demote it. Round0 saves17 mul,
++20 mul_base,5 add,17 sub per row,plus final Horner cost. Fixed original5
++outer samples,pending groups/claims/finals remain. Round0 recurs per proof,
++not startup. hp32/kv8/qh32/T512/3limbs scope3,527,474,753->3,280,010,835
++API ops versus prepared scalar ({pct:.4f}% counted drop),not native timing.
++Literal comparison23.5578% includes denominator optimization. T1024~4x work.
++Scope omits common Eq/fold/PCS/masks/witness/transfers/serialization and native
++Rayon identity-fold adds. No8B rate prediction. Candidate charges15 offsets,
++30 setup ops,15 classifications,4 output words64B per row,public dispatch;
++native scratch/register/code costs unknown. Dynamic width tests159,383,552
++must not be assumed free. All superseded local runs retained.
++
++Ranked queue:
++1 OWNER:dominant GPU SC_SZC and both recurring witnesses;native/privacy gates.
++2 LOCAL NEW/refined:fixed straight-line unpadded round0 factory;remove width
++  dispatch and audit lifetimes. Compare literal/prepared/fixed outputs and
++  counters;falsify mismatch/refusal/RNG change or added costs erasing savings.
++3 OWNER:resident complete-workload startup/slope with fresh masks,full clocks,
++  latency/lag/drain. Recurring>20ms/proved position rejects50/s for schedule.
++4 OWNER:exact full-K split-int16 down witness;all integer/refusal/receipt gates.
++5 CONDITIONAL OWNER:padded chain only when native supports exist;no padded
++  projection imported into full8B. Preserve fusion/CSE/NTT/memory negatives.
++
++Next LOCAL:generate fixed4-word factory from the exact unpadded expression;
++public immutable layout/axis metadata only. Independent extension/direct-cube
++oracle,actual API counts and liveness;no protocol/mask reuse changes.
++Next OWNER:native profile/privacy/refusal/masked/RNG/final/PCS/fresh-verifier,
++then guarded3-arm clocks and full resident workloads,both witness paths/peak.
++No heavy job queued. Handoff:handoffs/20261017-unpadded-cubic-round0.md.
++Experiment:experiments/unpadded-cubic-factory-20261017.
++
++LIVE:Dory older2020/2021 plus August2026 release/pinned commit;EPFL concrete
++coefficient source,Fold-DCS,NVIDIA binary-field and ICICLE transfer refreshes;
++Oct16 Plonky3 BLAKE2s metadata. New OctFAEST primary/PDF blocked. Actual
++Dory/EPFL license terms unavailable;labels only. All exact URLs,verified versus
++unknown dates,failed fetches and unreproduced claims in sources-cycle54.json.
++Next rotation:lookup/softmax table traffic,public specialization,composition.
++
++Accepted independently verified complete private8B proofs/passes/tokens0/0/0.
++Proof context null;CPU only. Steady/total rates,startup duration/fraction,
++witness/proof/serialization/independent verification,latency/lag/drain all
++unmeasured. No long-context prefill,resident-pass or decode proof. >=50/s
++unchanged/unachieved;larger workloads allowed with quadratic attention,fresh
++masks and complete coverage/privacy. No production/runtime/Git/build/GPU/
++install/external action. Reports do not establish delivery or liveness.
++Next cycle not before2026-10-17T05:26:24Z.
++'''
++(ROOT/'STATE.md').write_text(state)
++patch=[]
++for q in sorted(HERE.glob('*.py')):
++ prior=HERE.parent/'optional-support-port-20261017'/q.name
++ if prior.exists():patch.extend(difflib.unified_diff(prior.read_text().splitlines(True),q.read_text().splitlines(True),fromfile=str(prior),tofile=str(q)))
++ else:patch.extend(difflib.unified_diff([],q.read_text().splitlines(True),fromfile='/dev/null',tofile=str(q)))
++(HERE/'research-source-diff.patch').write_text(''.join(patch))
++(HERE/'checkpoint.json').write_text(json.dumps(dict(run_id=run,checkpoint_utc=now,cycle='0054',result_sha256=hashlib.sha256((HERE/'result.json').read_bytes()).hexdigest()),indent=2)+'\n')
++print('Checkpointed README,handoff,PROGRESS,dated progress,FINDINGS,STATE;scope count decrease',pct)
+--- /dev/null
++++ /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017/cubic_factory.py
+@@ -0,0 +1,50 @@
++"""Public-only unpadded cubic factory; no protocol, mask or challenge changes."""
++from axis_factory import AxisPlan, AxisRounds
++from collections import Counter
++from coefficients import Coeff
++from polynomial_clause import bracket
++import coefficients
++
++class CubicPlan(AxisPlan):
++    def __init__(self,*args,mode='cubic_schoolbook',mutation=None,**kwargs):
++        super().__init__(*args,**kwargs)
++        if self.cfg['padded'] or any(self.cfg['supports']):
++            raise ValueError('unpadded factory requires no supports')
++        if mode not in ('literal','prepared_scalar','cubic_schoolbook','cubic_karatsuba','cubic_round0'):
++            raise ValueError('factory mode')
++        self.mode=mode; self.control=mutation; self.extra=Counter()
++        self.coefficient_groups={0} if mode.startswith('cubic') else set()
++    def begin(self,values,differences):
++        prior=coefficients.ALGORITHM
++        coefficients.ALGORITHM='karatsuba' if self.mode in ('cubic_karatsuba','cubic_round0') else 'schoolbook'
++        coefficients.K_WORK.clear()
++        try:super().begin(values,differences)
++        finally:
++            self.extra.update(coefficients.K_WORK); coefficients.ALGORITHM=prior
++        if self.pending[0] is not None and self.control=='drop_cubic':
++            self.pending[0]=Coeff(self.pending[0].c[:3]+(type(values[0])(),))
++        if self.pending[0] is not None and self.control=='reverse_coefficients':
++            self.pending[0]=Coeff(reversed(self.pending[0].c))
++    def evaluate_scalar(self,g,values):
++        from source_port import bracket
++        den=self.plan.plan.evaluate if self.mode!='literal' else None
++        value,counts=bracket(g,values,self.cfg,self.const,den_eval=den)
++        self.eval_counts.update(counts)
++        return value
++
++class CubicTerms(list):
++    def __init__(self,terms,g,cfg,const,row):
++        from source_port import Terms
++        super().__init__(Terms(terms,g,cfg,const)); self.row=row; self.group=g
++    def evaluate(self,values):return self.row.evaluate_scalar(self.group,values)
++
++class CubicRounds(AxisRounds):
++    def __init__(self,*args,min_rows=2,**kwargs):
++        super().__init__(*args,policy='always',**kwargs); self.min_rows=min_rows
++    def round(self,j):
++        half=1<<(self.n-j-1)
++        self.row_plan.coefficient_groups={0} if self.row_plan.mode.startswith('cubic') and half>=self.min_rows and (self.row_plan.mode!='cubic_round0' or j==0) else set()
++        self.row_plan.extra['public_round_policy_tests']+=1
++        if getattr(self,'native_model_chunks',False):
++            self.chunk=half if half*len(self.slots)<=1<<16 else min(half,1024)
++        return super().round(j)
+--- /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/optional-support-port-20261017/experiment.py
++++ /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017/experiment.py
+@@ -1,242 +1,211 @@
+-"""Bounded optional-support conformance and bracket-only cost correction."""
+-import hashlib,itertools,json,os,random,resource,signal,time
++"""Bounded differential unpadded SC_SZC factory and complete seam census."""
++import datetime,hashlib,itertools,json,os,random,resource,signal,time
++from pathlib import Path
+ from collections import Counter
+-from pathlib import Path
+ from field_support import F,P
+-from fixtures import constants
+ from source_port import bracket as scalar
+ from polynomial_ir import expanded
+-from polynomial_clause import bracket as coefficient
++from prepared import Plan,generalize
++from fixtures import constants
++from prior_optional_experiment import fixture
++from support_model import config,construction_check,natural_tables
++from axis_factory import measured_dependencies,shape_dependencies
++from cubic_factory import CubicPlan,CubicTerms,CubicRounds
+ from coefficients import Coeff
+-from prepared import Plan,generalize
+-from candidate import CoefficientTerms
+-from axis_factory import AxisRounds,measured_dependencies,shape_dependencies
+-from static_plan import StaticRowPlan
+-from row_graph import CSERowPlan,compile_row
+-from support_model import config,policy,padding_setup,construction_check,natural_tables
+ import oracle as o
+ 
+ HERE=Path(__file__).resolve().parent
+-SEED=2026101753
+-
+-
+-def build(cfg,con,ir,tabs,n,chunk,debug,cse=False,mutation=None):
+-    deps={cfg['index'][name]:measured_dependencies(tabs[cfg['index'][name]]['words'],n)
+-          for name in ('mask','ght','gs') if name in cfg['index']}
+-    args=(cfg,con,Plan(generalize(cfg),con['alpha'],con['gu8']),deps)
+-    rp=CSERowPlan(*args,mutation=mutation) if cse else StaticRowPlan(*args)
+-    groups=[(g,CoefficientTerms(ts,g,cfg,con,rp)) for g,ts in enumerate(ir)]
+-    return AxisRounds(tabs,n,5 if cfg['padded'] else 4,groups,rp,chunk,debug),rp
+-
+-
+-def fixture(n,ls,present,mode,rng,lookup_count=None):
+-    draw=lambda:F(rng.randrange(P),rng.randrange(P)) if mode=='full' else (
+-        F(rng.randrange(2)) if mode=='boolean' else F())
+-    cfg=config(present,ls=ls,lookup_count=lookup_count);con=constants(cfg,draw)
+-    for key in ('nu0','nu1','zeta'):
+-        if con[key]==0:con[key]=F(1)
+-    tabs=[dict(kind='Eq',start=0,point=[draw() for _ in range(n-int(n>0 and g==1))]) for g in range(3)]
+-    for name in cfg['names'][3:]:
+-        words=[draw() for _ in range(1<<n)]
+-        if name in ('mx','sum','ght') and n:
+-            lead=[draw() for _ in range(1<<(n-1))]
+-            words=[lead[i//2] for i in range(1<<n)]
+-        if name=='ght':words=[F(int((i//2 if n else i)%3!=1)) for i in range(1<<n)]
+-        if name=='gs':words=[F(int(i%3!=1)) for i in range(1<<n)]
+-        if name=='mask':words=[F(int(i%2==0)) for i in range(1<<n)]
+-        tabs.append(dict(kind='Pub',words=words))
+-    return cfg,con,expanded(cfg,con),tabs,[draw() for _ in range(n)]
+-
+-
+-def ev(coeff,t):
+-    out=o.Z
+-    for c in reversed(coeff):out=o.add(o.mul(out,o.tup(t)),o.tup(c))
+-    return out
+-
+-
+-def census(shape,ls,rng):
+-    hp,kv,qh,tp,tokens=shape
+-    pol=policy(hp,qh,tp,tokens)
+-    cfg=config(pol['supports'],ls=ls);legacy=config((True,True),ls=ls)
+-    con=constants(cfg,lambda:F(rng.randrange(P),rng.randrange(P)))
+-    n=(hp*tp*tp).bit_length()-1
+-    totals={};schedules={};details={}
+-    # Count literal native-shaped brackets, not full proving. Each of three
+-    # groups retains its own declared degree and running-claim recovery.
+-    for label,cf in [('legacy_always_padded_formula',legacy),('correct_optional_port',cfg)]:
+-        total=Counter();schedule=[]
+-        vals=[F(rng.randrange(P),rng.randrange(P)) for _ in cf['names']]
+-        per=[scalar(g,vals,cf,con)[1] for g in range(3)]
+-        degrees=(4,2,2) if cf['padded'] else (3,1,1)
++SEED=2026101754
++MODES=('literal','prepared_scalar','cubic_schoolbook','cubic_karatsuba','cubic_round0')
++FIELD=('mul','mul_base','add','sub')
++
++def make(cfg,con,ir,tabs,n,chunk,debug,mode,mutation=None,min_rows=2,native_chunks=False):
++    deps={cfg['index']['mask']:measured_dependencies(tabs[cfg['index']['mask']]['words'],n)}
++    rp=CubicPlan(cfg,con,Plan(generalize(cfg),con['alpha'],con['gu8']),deps,mode=mode,mutation=mutation)
++    groups=[(g,CubicTerms(ts,g,cfg,con,rp)) for g,ts in enumerate(ir)]
++    rounds=CubicRounds(tabs,n,4,groups,rp,chunk,debug,min_rows=min_rows)
++    rounds.native_model_chunks=native_chunks
++    if mutation in ('omit_suffix_weight','drop_part','drop_ragged'):rounds.mutation=mutation
++    return rounds,rp
++
++def costs(rounds,rp):
++    work=rp.counts+rp.eval_counts+rounds.work
++    prep=Counter({k:v for k,v in rp.plan.plan.preparation.items() if k in FIELD}) if rp.mode!='literal' else Counter()
++    return dict(construction=dict(rp.counts),scalar=dict(rp.eval_counts),reduction_horner=dict(rounds.work),
++        preparation=dict(prep),all_field_ops=dict(work+prep),
++        extra=dict(rp.extra),axis=dict(rp.axis_work),denominator_dispatch=dict(rp.plan.plan.dispatch),
++        coefficient_words=rp.max_coefficient_words)
++
++def census(shape,ls,rng,return_costs=False):
++    cfg=config((False,False),ls=ls);con=constants(cfg,lambda:F(rng.randrange(P),rng.randrange(P)))
++    n=(shape[0]*shape[3]**2).bit_length()-1; rows_total=(1<<n)-1
++    vals=[F(2,3) for _ in cfg['names']]; dif=[F(5,7) for _ in vals]
++    results={};schedules={}
++    for mode in MODES:
++        rp=CubicPlan(cfg,con,Plan(generalize(cfg),con['alpha'],con['gu8']),shape_dependencies(cfg,*shape),mode=mode)
++        total=Counter();rows=[];extras=Counter()
+         for j in range(n):
+-            rows=1<<(n-j-1);counts=Counter()
+-            for g,degree in enumerate(degrees):
+-                # Release, nonzero-factor h(1) recovery after round zero.
+-                samples=degree+1-int(j>0)
+-                for k,v in per[g].items():counts[k]+=v*rows*samples
+-            total.update(counts)
+-            schedule.append(dict(round=j,rows=rows,bracket_calls=[rows*(d+1-int(j>0)) for d in degrees]))
+-        totals[label]=dict(total);schedules[label]=schedule
+-        groups,weights,setup=padding_setup(cf,con['zeta'])
+-        details[label]=dict(supports=cf['supports'],pad_on=cf['padded'],tables=len(cf['names']),
+-            bracket_degrees=degrees,group0_coefficient_width=degrees[0]+1,
+-            scalar_per_group=[dict(x) for x in per],pad_group_planes=[len(g) for _,g in groups],
+-            pad_weight_words=len(weights),literal_native_pad_weight_setup_mul=setup,
+-            support_table_payload_bytes=sum(cf['supports'])*(1<<n)*16,
+-            support_fold_cells=sum(cf['supports'])*((1<<n)-1))
+-    # Construction cost of the same conditional factory policy as cycles49-52.
+-    # Full domains have no selected coefficient group under that policy.
+-    fac={};factory_meta={}
+-    for label,cf in [('legacy_always_padded_formula',legacy),('correct_optional_port',cfg)]:
+-        deps=shape_dependencies(cf,*shape)
+-        rp=CSERowPlan(cf,con,Plan(generalize(cf),con['alpha'],con['gu8']),deps)
+-        vals=[F(2,3) for _ in cf['names']];ds=[F(5,7) for _ in vals]
+-        total=Counter()
+-        for j in range(n):
+-            rp.round_index=j;rp.counts.clear();rp.begin(vals,ds)
+-            for k,v in rp.counts.items():total[k]+=v*(1<<(n-j-1))
++            nr=1<<(n-j-1);selected=mode.startswith('cubic') and nr>=2 and (mode!='cubic_round0' or j==0)
++            rp.round_index=j;rp.coefficient_groups={0} if selected else set()
++            rp.counts.clear();rp.eval_counts.clear();rp.extra.clear();rp.axis_work.clear();rp.plan.plan.dispatch.clear()
++            rp.begin(vals,dif); row=Counter(rp.counts); per=[]
++            samples=[4-int(j>0),2-int(j>0),2-int(j>0)]
++            for g in range(3):
++                if g==0 and selected:
++                    # Four weighted coefficients, including sample1 later recovered.
++                    row.update(mul=4,add=4);per.append(None)
++                else:
++                    for _ in range(samples[g]):
++                        val,cc=scalar(g,vals,cfg,con,den_eval=rp.plan.plan.evaluate if mode!='literal' else None)
++                        row.update(cc)
++                    row.update(mul=samples[g],add=samples[g]);per.append(dict(cc))
++            scaled=Counter({k:v*nr for k,v in row.items()})
++            # Chunk-independent full sum: per-part global reductions use four
++            # words instead of 3 after recovery; expose chunk=1 pessimism too.
++            # Native source threshold/chunk policy is modeled with port carrier count.
++            # Rayon identity-fold additions are not determined by parts alone.
++            chunk=nr if nr*len(cfg['names'])<=1<<16 else min(nr,1024)
++            parts=(nr+chunk-1)//chunk
++            extra_reduce=Counter(add=(parts-1)*sum((4 if selected and g==0 else samples[g]) for g in range(3)))
++            # The implementation retains the recovered h1 scratch slot too.
++            # WeightedRounds sums all d+1 slots, including h1 placeholder.
++            actual_reduce=Counter(add=(parts-1)*8)
++            scaled.update(actual_reduce)
++            horner=Counter()
++            if selected:
++                for t in (0,1,2,3):
++                    if t==1 and j>0:continue
++                    Coeff([F()]*4).evaluate(t,horner)
++                scaled.update(horner)
++            total.update(scaled);extras.update({k:v*nr for k,v in rp.extra.items()});extras['public_round_policy_tests']+=1
++            extras.update({k:v*nr for k,v in rp.axis_work.items()})
++            extras.update({'denominator_'+k+'_dispatch':v*nr for k,v in rp.plan.plan.dispatch.items()})
++            rows.append(dict(round=j,rows=nr,coefficient_group0=selected,scalar_samples=samples,
++                row_field_ops=dict(row),round_field_ops=dict(scaled),horner=dict(horner),
++                modeled_part_reduction=dict(actual_reduce),modeled_chunk_rows=chunk,logical_active_part_reduction=dict(extra_reduce),
++                denominator_dispatch_per_row=dict(rp.plan.plan.dispatch)))
+             rp.end()
+-        fac[label]=dict(total)
+-        factory_meta[label]=dict(selected_groups=sorted(rp.coefficient_groups),
+-            graphs=[g.record() for g in rp.graphs.values()],
+-            max_coefficient_words=rp.max_coefficient_words)
+-    before=Counter(totals['legacy_always_padded_formula']);after=Counter(totals['correct_optional_port'])
+-    return dict(shape=dict(head_pad=hp,kv_heads=kv,query_heads=qh,token_pad=tp,tokens=tokens),
+-        limbs=ls,cube_log=n,policy=pol,bracket_only_totals=totals,details=details,schedules=schedules,
+-        corrected_api_fraction_below_legacy_formula=(sum(before.values())-sum(after.values()))/sum(before.values()),
+-        conditional_group0_factory_construction_only=fac,factory_metadata=factory_meta,
+-        native_speedup_claim=False,
+-        limits='No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery.')
+-
++        prep=Counter({k:v for k,v in rp.plan.plan.preparation.items() if k in FIELD}) if mode!='literal' else Counter()
++        total.update(prep)
++        results[mode]=dict(all_field_ops=dict(total),sum_api_ops=sum(total.values()),preparation=dict(prep),
++            extra=dict(extras),coefficient_words=rp.max_coefficient_words,coefficient_logical_bytes=16*rp.max_coefficient_words,preparation_classifications=0 if mode=='literal' else rp.plan.plan.preparation['tag_classifications'],native_peak_scratch_bytes=None,
++            native_array_allocation=False)
++        schedules[mode]=rows
++    for mode in MODES:
++        cc=results[mode]['all_field_ops']
++        results[mode]['literal_native_field_api_expansion']=dict(fp_mul=5*cc.get('mul',0)+2*cc.get('mul_base',0),fp_add=2*cc.get('mul',0)+2*cc.get('add',0),fp_sub=2*cc.get('sub',0))
++    for mode in MODES[1:]:
++        results[mode]['delta_vs_literal']={k:results[mode]['all_field_ops'].get(k,0)-results['literal']['all_field_ops'].get(k,0) for k in FIELD}
++        results[mode]['delta_vs_prepared_scalar']={k:results[mode]['all_field_ops'].get(k,0)-results['prepared_scalar']['all_field_ops'].get(k,0) for k in FIELD}
++    return dict(shape=dict(head_pad=shape[0],kv_heads=shape[1],query_heads=shape[2],token_pad=shape[3],tokens=shape[4]),
++        limbs=ls,n=n,total_rows=rows_total,results=results,schedules=schedules,
++        scope='SC_SZC bracket + weighted accumulation + modeled fixed8-word part reduction + final Horner + denominator preparation. Common Eq/interpolation/recovery/fold/PCS/mask/witness/transfer/serialization omitted, no native timing. Counts assume nonzero recovery after round0; coefficient factories only >=2 rows. Native Rayon identity-fold additions uncounted; common reduction widths unchanged. Source literal includes unit/zero API operations; compiler may remove them.')
+ 
+ def main():
+     start=time.perf_counter();signal.alarm(59)
+     resource.setrlimit(resource.RLIMIT_CPU,(59,59));resource.setrlimit(resource.RLIMIT_AS,(512*1024**2,512*1024**2))
+     os.sched_setaffinity(0,{min(os.sched_getaffinity(0))});os.nice(19)
+-    rng=random.Random(SEED);cc=Counter();controls=[];digest=hashlib.sha256();recoveries=fallbacks=0
+-    declared={};presence_counts=Counter()
+-    fixtures=[fixture(n,ls,present,mode,rng,lookup_count=(7 if n%2 else 8))
+-        for n,ls,present,mode in itertools.product((0,1,2,3),(2,3),((False,False),(True,False),(False,True),(True,True)),('full','zero','boolean'))]
+-    # Natural public h,t,j tables: full, token-padded, head-padded, both.
+-    shapes=[(4,1,4,2,2),(4,1,4,2,1),(4,1,3,2,2),(4,1,3,2,1)]
+-    for sh in shapes:
+-        hp,kv,qh,tp,tok=sh;n=(hp*tp*tp).bit_length()-1
+-        cfg,con,ir,tabs,rs=fixture(n,3,policy(hp,qh,tp,tok)['supports'],'full',rng)
+-        for name,words in natural_tables(*sh).items():
+-            if name in cfg['index']:tabs[cfg['index'][name]]=dict(kind='Pub',words=words)
+-        fixtures.append((cfg,con,ir,tabs,rs))
+-    for cfg,con,ir,tabs,rs in fixtures:
++    rng=random.Random(SEED);counts=Counter();controls=[];digest=hashlib.sha256();recoveries=fallbacks=0;summaries={}
++    cases=[fixture(n,ls,(False,False),mode,rng,lookup_count=lc)
++        for n,ls,mode,lc in itertools.product((0,1,2,3,4),(2,3),('full','zero','boolean'),(7,8))]
++    # Actual public causal mask on complete head domains; no private sparsity.
++    for sh in [(1,1,1,4,4),(4,1,4,2,2),(2,1,2,2,2)]:
++        n=(sh[0]*sh[3]**2).bit_length()-1
++        cfg,con,ir,tabs,rs=fixture(n,3,(False,False),'full',rng)
++        tabs[cfg['index']['mask']]['words']=natural_tables(*sh)['mask']
++        cases.append((cfg,con,ir,tabs,rs))
++    for cfg,con,ir,tabs,rs in cases:
+         n=len(rs);original=[o.table(t,n) for t in tabs];prefix=[];want=[]
+         for j,r in enumerate(rs):
+-            want.append([o.round_direct(original,list(enumerate(ir)),prefix,t,n)
+-                         for t in range(6 if cfg['padded'] else 5)])
++            want.append([o.round_direct(original,list(enumerate(ir)),prefix,t,n) for t in range(5)])
+             prefix.append(o.tup(r))
+         finals=[o.mle(t,prefix) for t in original]
+         for chunk,debug in itertools.product((1,3,7),(False,True)):
+-            base,bp=build(cfg,con,ir,tabs,n,chunk,debug)
+-            cand,cp=build(cfg,con,ir,tabs,n,chunk,debug,True)
++            engines={m:make(cfg,con,ir,tabs,n,chunk,debug,m) for m in MODES}
+             for j,r in enumerate(rs):
+-                a,b=cand.round(j),base.round(j)
+-                assert list(map(o.tup,a))==list(map(o.tup,b))==want[j]
+-                for group in cand.pending:
+-                    for x in group:digest.update(x.wire())
+-                cc['independent_round_samples']+=len(a);cand.fold(r);base.fold(r)
+-            assert list(map(o.tup,cand.finals()))==list(map(o.tup,base.finals()))==finals
+-            assert cand.work==base.work and cp.eval_counts==bp.eval_counts
+-            assert cand.recoveries==base.recoveries and cand.zero_fallbacks==base.zero_fallbacks
+-            assert cand.data_fold_ops==base.data_fold_ops
+-            cc['independent_final_values']+=len(finals);cc['full_schedules']+=1
+-            recoveries+=cand.recoveries;fallbacks+=cand.zero_fallbacks
+-        # Expanded zero values may cancel; Terms retains source-declared width.
+-        declared[str(cfg['supports'])]=(4,2,2) if cfg['padded'] else (3,1,1)
+-        presence_counts[str(cfg['supports'])]+=1;cc['fixtures']+=1
+-    # Arbitrary extension values for all support combinations, limb and lookup
+-    # boundaries, independent tuple expansion, scalar and polynomial paths.
+-    for present,ls,count in itertools.product(((False,False),(True,False),(False,True),(True,True)),(2,3),(1,2,7,8)):
+-        cfg=config(present,ls=ls,lookup_count=count)
++                ref_pending=None
++                for mode,(rr,rp) in engines.items():
++                    got=rr.round(j);assert list(map(o.tup,got))==want[j]
++                    pending=[list(map(o.tup,x)) for x in rr.pending]
++                    if ref_pending is None:ref_pending=pending
++                    else:assert pending==ref_pending
++                    for group in rr.pending:
++                        for x in group:digest.update(x.wire())
++                    counts['independent_round_samples']+=5;rr.fold(r)
++            ref=engines['literal'][0]
++            for mode,(rr,rp) in engines.items():
++                assert list(map(o.tup,rr.finals()))==finals
++                assert rr.claims==ref.claims and rr.data_fold_ops==ref.data_fold_ops and rr.eq_scalar_ops==ref.eq_scalar_ops
++                assert rr.recoveries==ref.recoveries and rr.zero_fallbacks==ref.zero_fallbacks
++                assert rp.max_coefficient_words<=4
++                counts['independent_final_values']+=len(finals);counts['full_schedules']+=1
++                summaries[mode]=costs(rr,rp)
++            recoveries+=ref.recoveries;fallbacks+=ref.zero_fallbacks
++        counts['fixtures']+=1
++    # Arbitrary extension coordinates, independent expanded equation, including
++    # zero slope and zero challenge data; cubic construction remains fixed4.
++    for ls,mask_active,mode in itertools.product((2,3),(False,True),('full','zero','boolean')):
++        cfg,con,ir,tabs,rs=fixture(3,ls,(False,False),mode,rng)
+         draw=lambda:F(rng.randrange(P),rng.randrange(P))
+-        con=constants(cfg,draw);ir=expanded(cfg,con)
+-        vals=[draw() for _ in cfg['names']];ds=[draw() for _ in vals]
+-        vv=[Coeff([a,b]) for a,b in zip(vals,ds)]
+-        groups,weights,setup=padding_setup(cfg,con['zeta'])
+-        assert len(groups)==sum(present)
+-        # Oracle powers start at zeta^0 across PRESENT groups only.
+-        power=o.O
+-        for w in weights:
+-            assert o.tup(w)==power;power=o.mul(power,o.tup(con['zeta']));cc['independent_padding_weights']+=1
+-        for g in range(3):
+-            poly,_=coefficient(g,vv,cfg,con,pad_weights=weights)
++        vals=[draw() for _ in cfg['names']];dif=[draw() for _ in vals]
++        for alg in MODES[2:]:
++            rp=CubicPlan(cfg,con,Plan(generalize(cfg),con['alpha'],con['gu8']),{cfg['index']['mask']:({0} if mask_active else set())},mode=alg)
++            rp.round_index=0;rp.begin(vals,dif);poly=rp.pending[0]
++            assert len(poly.c)==4
++            dd=list(dif)
++            if not mask_active:dd[cfg['index']['mask']]=F()
+             for t in (F(),F(1),F(P-1,P-1),draw()):
+-                point=[a+t*b for a,b in zip(vals,ds)]
+-                expected=o.bracket(ir[g],list(map(o.tup,point)))
+-                assert ev(poly.c,t)==o.tup(scalar(g,point,cfg,con)[0])==expected
+-                cc['independent_extension_clause_values']+=1
+-        for active in itertools.product((False,True),repeat=1+sum(present)):
+-            pattern={cfg['index'][name]:flag for name,flag in zip([x for x in ('mask','ght','gs') if x in cfg['index']],active)}
+-            entries=Plan(generalize(cfg),con['alpha'],con['gu8']).entries
+-            graph=compile_row(cfg,pattern,sorted(con),entries)
+-            zero=compile_row(cfg,pattern,sorted(con),Plan(generalize(cfg),F(),F()).entries)
+-            assert graph.record()['schema_sha256']==zero.record()['schema_sha256']
+-            assert graph.counts==zero.counts
+-            cc['value_independent_graph_schema_checks']+=1
+-        try:construction_check(cfg)
+-        except ValueError:
+-            assert present==(False,True);cc['native_construction_refusals']+=1
+-        else:assert present!=(False,True);cc['native_construction_admissions']+=1
+-    controls.append('S-only-native-construction-refusal-preserved-algebra-tested-separately')
+-    # Material negative controls: each must disagree with independent equations.
+-    cfg,con,ir,tabs,rs=fixture(3,3,(True,True),'full',rng)
+-    vals=[F(rng.randrange(P),rng.randrange(P)) for _ in cfg['names']]
+-    for mut in ('restart_zeta','ht_uses_s','gate_helpers'):
+-        # Explicitly give Ht and S different extension values.
+-        vals[cfg['index']['ght']]=F(2,3);vals[cfg['index']['gs']]=F(5,7)
+-        assert o.tup(scalar(0,vals,cfg,con,mut)[0])!=o.bracket(ir[0],list(map(o.tup,vals))) or (
+-            mut=='ht_uses_s' and o.tup(scalar(1,vals,cfg,con,mut)[0])!=o.bracket(ir[1],list(map(o.tup,vals))))
+-        controls.append(mut+'-independent-equation-detected')
+-    # Incorrect deletion of a PRESENT support changes equations/refusal domain.
+-    bad=config((False,False),ls=3)
+-    badvals=[vals[cfg['index'][name]] for name in bad['names']]
+-    assert o.tup(scalar(0,badvals,bad,con)[0])!=o.bracket(ir[0],list(map(o.tup,vals)))
+-    controls.append('drop-present-support-detected')
+-    try:config((True,))
+-    except ValueError:controls.append('invalid-presence-metadata-refused')
+-    else:raise AssertionError('metadata')
+-    try:
+-        from source_port import layout
+-        layout(padded=False,supports=(True,False))
+-    except ValueError:controls.append('support-without-pad-on-refused')
+-    else:raise AssertionError('metadata')
+-    # Allocation-free P3 presence oracle: independent products, exact true sizes.
+-    for hp,tp,qh,tok,lc,frozen in itertools.product((1,2,4,8),(1,2,4),(1,2,3,4),range(1,5),range(6),(False,True)):
+-        if qh>hp or tok>tp:continue
+-        pol=policy(hp,qh,tp,tok,lc,frozen)
+-        # Separate public logical-cell enumeration. Ht has no H plane and
+-        # keeps its natural size; S adds zero-support H-padding cells.
+-        ht_cells=[h<qh and t<tok for h in range(hp) for t in range(tp)]
+-        s_cells=[a and j<tok for a in ht_cells for j in range(tp)]
+-        s_cells += [False]*max(0,(1<<lc)-len(s_cells))
+-        ht,ss=not all(ht_cells),not all(s_cells)
+-        assert pol['supports']==((ht and not frozen),(ss and not frozen))
+-        assert pol['supports']!=(True,False), 'Ht-only has no size-policy geometry'
+-        if pol['supports']==(False,True):
+-            try:construction_check(config(pol['supports']))
+-            except ValueError:cc['P3_S_only_size_policy_refusals']+=1
+-            else:raise AssertionError('missing construction refusal')
+-        cc['allocation_free_shape_presence_checks']+=1
+-    controls.append('P3-lifts-S-not-Ht-S-only-size-policy-keeps-native-refusal-no-full-Shape-admission-claim')
+-    projections=[census(sh,ls,rng) for sh,ls in itertools.product([(16,4,12,512,512),(32,8,32,512,512),(32,8,24,1024,769)],(2,3))]
+-    prior=json.loads((HERE.parent/'public-row-cse-20261017/result.json').read_text())
+-    result=dict(status='passed',run_id='20261017T032624Z-1d6d29cb',cycle='0053',seed=SEED,
+-        counts=dict(cc),presence_fixture_counts=dict(presence_counts),declared_degrees=declared,controls=controls,
+-        recoveries=recoveries,zero_factor_fallbacks=fallbacks,output_sha256=digest.hexdigest(),projections=projections,
++                vv=[a+t*b for a,b in zip(vals,dd)];want=o.bracket(ir[0],list(map(o.tup,vv)))
++                acc=o.Z
++                for c in reversed(poly.c):acc=o.add(o.mul(acc,o.tup(t)),o.tup(c))
++                assert acc==want==o.tup(scalar(0,vv,cfg,con)[0]);counts['independent_extension_checks']+=1
++            rp.end()
++    # Same public-role structure, with zero/random private data, challenges
++    # and slopes: counters and declared widths must be identical.
++    for ls,active,alg in itertools.product((2,3),(False,True),MODES[2:]):
++        cfg=config((False,False),ls=ls)
++        records=[]
++        for zero in (False,True):
++            draw=lambda:F() if zero else F(rng.randrange(P),rng.randrange(P))
++            con=constants(cfg,draw);rp=CubicPlan(cfg,con,Plan(generalize(cfg),con['alpha'],con['gu8']),{cfg['index']['mask']:({0} if active else set())},mode=alg)
++            rp.round_index=0;rp.begin([draw() for _ in cfg['names']],[draw() for _ in cfg['names']])
++            records.append((dict(rp.counts),dict(rp.extra),len(rp.pending[0].c),dict(rp.plan.plan.dispatch)))
++            rp.end()
++        assert records[0]==records[1];counts['value_independent_row_censuses']+=1
++    # Independently execute the counted scope at small natural layouts.
++    # Different counter sources: concrete repeated rounds vs allocation-free
++    # multiplication by row count; all four field API categories must match.
++    for sh,ls in itertools.product([(2,1,2,4,4),(4,1,4,2,2)],(2,3)):
++        ce=census(sh,ls,rng);n=ce['n']
++        cfg,con,ir,tabs,rs=fixture(n,ls,(False,False),'full',rng)
++        tabs[cfg['index']['mask']]['words']=natural_tables(*sh)['mask']
++        for mode in MODES:
++            rr,rp=make(cfg,con,ir,tabs,n,3,False,mode,native_chunks=True)
++            for j,r in enumerate(rs):rr.round(j);rr.fold(r)
++            assert rr.zero_fallbacks==0
++            got=costs(rr,rp)['all_field_ops'];want=ce['results'][mode]['all_field_ops']
++            assert all(got.get(k,0)==want.get(k,0) for k in FIELD),(mode,ls,got,want)
++            counts['executed_vs_allocation_free_censuses']+=1
++    cfg,con,ir,tabs,rs=fixture(4,3,(False,False),'full',rng)
++    for mut in ('drop_cubic','reverse_coefficients','omit_suffix_weight','drop_part','drop_ragged'):
++        rr,rp=make(cfg,con,ir,tabs,4,3,False,'cubic_karatsuba',mutation=mut,min_rows=1)
++        original=[o.table(t,4) for t in tabs];want=[o.round_direct(original,list(enumerate(ir)),[],t,4) for t in range(5)]
++        assert list(map(o.tup,rr.round(0)))!=want;controls.append(mut+'-detected')
++    for supports in ((True,False),(False,True),(True,True)):
++        cf=config(supports);co=constants(cf,lambda:F(1))
++        try:CubicPlan(cf,co,Plan(generalize(cf),co['alpha'],co['gu8']),{cf['index']['mask']:set()})
++        except ValueError:counts['padded_factory_refusals']+=1
++        else:raise AssertionError('padded accepted')
++    controls+=['padded-factory-refusal','no-private-degree-pruning','four-word-zero-fixture-width','last-row-scalar-fallback']
++    projections=[census(sh,ls,rng) for sh,ls in itertools.product([(32,8,32,512,512),(32,8,32,1024,1024),(16,4,16,512,512)],(2,3))]
++    prior=json.loads((HERE/'prior-result.json').read_text())
++    result=dict(status='passed',run_id='20261017T042624Z-0f7bf604',cycle='0054',seed=SEED,counts=dict(counts),controls=controls,synthetic_dimensions=dict(cube_log_min=0,cube_log_max=5,max_cells=32,limbs=[2,3],lookup_counts=[7,8,'full'],chunks=[1,3,7,'source_policy_model'],modes=list(MODES)),
++        recoveries=recoveries,zero_factor_fallbacks=fallbacks,output_sha256=digest.hexdigest(),last_fixture_costs=summaries,projections=projections,
+         wall_seconds=time.perf_counter()-start,max_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+-        hardware=dict(device='CPU only',threads=1,affinity=sorted(os.sched_getaffinity(0)),nice=os.nice(0),
+-            cpu_model=next(x.split(':',1)[1].strip() for x in Path('/proc/cpuinfo').read_text().splitlines() if x.startswith('model name'))),
+-        limits=dict(wall_seconds=59,cpu_seconds=59,address_space_bytes=512*1024**2,estimated_bytes=64*1024**2),
+-        proof_accounting=prior['proof_accounting'])
++        hardware=dict(device='CPU only',threads=1,affinity=sorted(os.sched_getaffinity(0)),nice=os.nice(0),cpu_model=next(x.split(':',1)[1].strip() for x in Path('/proc/cpuinfo').read_text().splitlines() if x.startswith('model name'))),
++        limits=dict(wall_seconds=59,cpu_seconds=59,address_space_bytes=512*1024**2,estimated_bytes=64*1024**2),proof_accounting=prior['proof_accounting'])
+     (HERE/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+-    print(json.dumps({k:v for k,v in result.items() if k!='projections'},indent=2))
+-    for p in projections:print('CENSUS',json.dumps({k:v for k,v in p.items() if k not in ('schedules','factory_metadata')}))
+-
++    print(json.dumps({k:v for k,v in result.items() if k not in ('projections','last_fixture_costs')},indent=2))
++    for p in projections:print('CENSUS',json.dumps({k:v for k,v in p.items() if k!='schedules'}))
+ 
+ if __name__=='__main__':main()
+--- /dev/null
++++ /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017/prior_optional_experiment.py
+@@ -0,0 +1,242 @@
++"""Bounded optional-support conformance and bracket-only cost correction."""
++import hashlib,itertools,json,os,random,resource,signal,time
++from collections import Counter
++from pathlib import Path
++from field_support import F,P
++from fixtures import constants
++from source_port import bracket as scalar
++from polynomial_ir import expanded
++from polynomial_clause import bracket as coefficient
++from coefficients import Coeff
++from prepared import Plan,generalize
++from candidate import CoefficientTerms
++from axis_factory import AxisRounds,measured_dependencies,shape_dependencies
++from static_plan import StaticRowPlan
++from row_graph import CSERowPlan,compile_row
++from support_model import config,policy,padding_setup,construction_check,natural_tables
++import oracle as o
++
++HERE=Path(__file__).resolve().parent
++SEED=2026101753
++
++
++def build(cfg,con,ir,tabs,n,chunk,debug,cse=False,mutation=None):
++    deps={cfg['index'][name]:measured_dependencies(tabs[cfg['index'][name]]['words'],n)
++          for name in ('mask','ght','gs') if name in cfg['index']}
++    args=(cfg,con,Plan(generalize(cfg),con['alpha'],con['gu8']),deps)
++    rp=CSERowPlan(*args,mutation=mutation) if cse else StaticRowPlan(*args)
++    groups=[(g,CoefficientTerms(ts,g,cfg,con,rp)) for g,ts in enumerate(ir)]
++    return AxisRounds(tabs,n,5 if cfg['padded'] else 4,groups,rp,chunk,debug),rp
++
++
++def fixture(n,ls,present,mode,rng,lookup_count=None):
++    draw=lambda:F(rng.randrange(P),rng.randrange(P)) if mode=='full' else (
++        F(rng.randrange(2)) if mode=='boolean' else F())
++    cfg=config(present,ls=ls,lookup_count=lookup_count);con=constants(cfg,draw)
++    for key in ('nu0','nu1','zeta'):
++        if con[key]==0:con[key]=F(1)
++    tabs=[dict(kind='Eq',start=0,point=[draw() for _ in range(n-int(n>0 and g==1))]) for g in range(3)]
++    for name in cfg['names'][3:]:
++        words=[draw() for _ in range(1<<n)]
++        if name in ('mx','sum','ght') and n:
++            lead=[draw() for _ in range(1<<(n-1))]
++            words=[lead[i//2] for i in range(1<<n)]
++        if name=='ght':words=[F(int((i//2 if n else i)%3!=1)) for i in range(1<<n)]
++        if name=='gs':words=[F(int(i%3!=1)) for i in range(1<<n)]
++        if name=='mask':words=[F(int(i%2==0)) for i in range(1<<n)]
++        tabs.append(dict(kind='Pub',words=words))
++    return cfg,con,expanded(cfg,con),tabs,[draw() for _ in range(n)]
++
++
++def ev(coeff,t):
++    out=o.Z
++    for c in reversed(coeff):out=o.add(o.mul(out,o.tup(t)),o.tup(c))
++    return out
++
++
++def census(shape,ls,rng):
++    hp,kv,qh,tp,tokens=shape
++    pol=policy(hp,qh,tp,tokens)
++    cfg=config(pol['supports'],ls=ls);legacy=config((True,True),ls=ls)
++    con=constants(cfg,lambda:F(rng.randrange(P),rng.randrange(P)))
++    n=(hp*tp*tp).bit_length()-1
++    totals={};schedules={};details={}
++    # Count literal native-shaped brackets, not full proving. Each of three
++    # groups retains its own declared degree and running-claim recovery.
++    for label,cf in [('legacy_always_padded_formula',legacy),('correct_optional_port',cfg)]:
++        total=Counter();schedule=[]
++        vals=[F(rng.randrange(P),rng.randrange(P)) for _ in cf['names']]
++        per=[scalar(g,vals,cf,con)[1] for g in range(3)]
++        degrees=(4,2,2) if cf['padded'] else (3,1,1)
++        for j in range(n):
++            rows=1<<(n-j-1);counts=Counter()
++            for g,degree in enumerate(degrees):
++                # Release, nonzero-factor h(1) recovery after round zero.
++                samples=degree+1-int(j>0)
++                for k,v in per[g].items():counts[k]+=v*rows*samples
++            total.update(counts)
++            schedule.append(dict(round=j,rows=rows,bracket_calls=[rows*(d+1-int(j>0)) for d in degrees]))
++        totals[label]=dict(total);schedules[label]=schedule
++        groups,weights,setup=padding_setup(cf,con['zeta'])
++        details[label]=dict(supports=cf['supports'],pad_on=cf['padded'],tables=len(cf['names']),
++            bracket_degrees=degrees,group0_coefficient_width=degrees[0]+1,
++            scalar_per_group=[dict(x) for x in per],pad_group_planes=[len(g) for _,g in groups],
++            pad_weight_words=len(weights),literal_native_pad_weight_setup_mul=setup,
++            support_table_payload_bytes=sum(cf['supports'])*(1<<n)*16,
++            support_fold_cells=sum(cf['supports'])*((1<<n)-1))
++    # Construction cost of the same conditional factory policy as cycles49-52.
++    # Full domains have no selected coefficient group under that policy.
++    fac={};factory_meta={}
++    for label,cf in [('legacy_always_padded_formula',legacy),('correct_optional_port',cfg)]:
++        deps=shape_dependencies(cf,*shape)
++        rp=CSERowPlan(cf,con,Plan(generalize(cf),con['alpha'],con['gu8']),deps)
++        vals=[F(2,3) for _ in cf['names']];ds=[F(5,7) for _ in vals]
++        total=Counter()
++        for j in range(n):
++            rp.round_index=j;rp.counts.clear();rp.begin(vals,ds)
++            for k,v in rp.counts.items():total[k]+=v*(1<<(n-j-1))
++            rp.end()
++        fac[label]=dict(total)
++        factory_meta[label]=dict(selected_groups=sorted(rp.coefficient_groups),
++            graphs=[g.record() for g in rp.graphs.values()],
++            max_coefficient_words=rp.max_coefficient_words)
++    before=Counter(totals['legacy_always_padded_formula']);after=Counter(totals['correct_optional_port'])
++    return dict(shape=dict(head_pad=hp,kv_heads=kv,query_heads=qh,token_pad=tp,tokens=tokens),
++        limbs=ls,cube_log=n,policy=pol,bracket_only_totals=totals,details=details,schedules=schedules,
++        corrected_api_fraction_below_legacy_formula=(sum(before.values())-sum(after.values()))/sum(before.values()),
++        conditional_group0_factory_construction_only=fac,factory_metadata=factory_meta,
++        native_speedup_claim=False,
++        limits='No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery.')
++
++
++def main():
++    start=time.perf_counter();signal.alarm(59)
++    resource.setrlimit(resource.RLIMIT_CPU,(59,59));resource.setrlimit(resource.RLIMIT_AS,(512*1024**2,512*1024**2))
++    os.sched_setaffinity(0,{min(os.sched_getaffinity(0))});os.nice(19)
++    rng=random.Random(SEED);cc=Counter();controls=[];digest=hashlib.sha256();recoveries=fallbacks=0
++    declared={};presence_counts=Counter()
++    fixtures=[fixture(n,ls,present,mode,rng,lookup_count=(7 if n%2 else 8))
++        for n,ls,present,mode in itertools.product((0,1,2,3),(2,3),((False,False),(True,False),(False,True),(True,True)),('full','zero','boolean'))]
++    # Natural public h,t,j tables: full, token-padded, head-padded, both.
++    shapes=[(4,1,4,2,2),(4,1,4,2,1),(4,1,3,2,2),(4,1,3,2,1)]
++    for sh in shapes:
++        hp,kv,qh,tp,tok=sh;n=(hp*tp*tp).bit_length()-1
++        cfg,con,ir,tabs,rs=fixture(n,3,policy(hp,qh,tp,tok)['supports'],'full',rng)
++        for name,words in natural_tables(*sh).items():
++            if name in cfg['index']:tabs[cfg['index'][name]]=dict(kind='Pub',words=words)
++        fixtures.append((cfg,con,ir,tabs,rs))
++    for cfg,con,ir,tabs,rs in fixtures:
++        n=len(rs);original=[o.table(t,n) for t in tabs];prefix=[];want=[]
++        for j,r in enumerate(rs):
++            want.append([o.round_direct(original,list(enumerate(ir)),prefix,t,n)
++                         for t in range(6 if cfg['padded'] else 5)])
++            prefix.append(o.tup(r))
++        finals=[o.mle(t,prefix) for t in original]
++        for chunk,debug in itertools.product((1,3,7),(False,True)):
++            base,bp=build(cfg,con,ir,tabs,n,chunk,debug)
++            cand,cp=build(cfg,con,ir,tabs,n,chunk,debug,True)
++            for j,r in enumerate(rs):
++                a,b=cand.round(j),base.round(j)
++                assert list(map(o.tup,a))==list(map(o.tup,b))==want[j]
++                for group in cand.pending:
++                    for x in group:digest.update(x.wire())
++                cc['independent_round_samples']+=len(a);cand.fold(r);base.fold(r)
++            assert list(map(o.tup,cand.finals()))==list(map(o.tup,base.finals()))==finals
++            assert cand.work==base.work and cp.eval_counts==bp.eval_counts
++            assert cand.recoveries==base.recoveries and cand.zero_fallbacks==base.zero_fallbacks
++            assert cand.data_fold_ops==base.data_fold_ops
++            cc['independent_final_values']+=len(finals);cc['full_schedules']+=1
++            recoveries+=cand.recoveries;fallbacks+=cand.zero_fallbacks
++        # Expanded zero values may cancel; Terms retains source-declared width.
++        declared[str(cfg['supports'])]=(4,2,2) if cfg['padded'] else (3,1,1)
++        presence_counts[str(cfg['supports'])]+=1;cc['fixtures']+=1
++    # Arbitrary extension values for all support combinations, limb and lookup
++    # boundaries, independent tuple expansion, scalar and polynomial paths.
++    for present,ls,count in itertools.product(((False,False),(True,False),(False,True),(True,True)),(2,3),(1,2,7,8)):
++        cfg=config(present,ls=ls,lookup_count=count)
++        draw=lambda:F(rng.randrange(P),rng.randrange(P))
++        con=constants(cfg,draw);ir=expanded(cfg,con)
++        vals=[draw() for _ in cfg['names']];ds=[draw() for _ in vals]
++        vv=[Coeff([a,b]) for a,b in zip(vals,ds)]
++        groups,weights,setup=padding_setup(cfg,con['zeta'])
++        assert len(groups)==sum(present)
++        # Oracle powers start at zeta^0 across PRESENT groups only.
++        power=o.O
++        for w in weights:
++            assert o.tup(w)==power;power=o.mul(power,o.tup(con['zeta']));cc['independent_padding_weights']+=1
++        for g in range(3):
++            poly,_=coefficient(g,vv,cfg,con,pad_weights=weights)
++            for t in (F(),F(1),F(P-1,P-1),draw()):
++                point=[a+t*b for a,b in zip(vals,ds)]
++                expected=o.bracket(ir[g],list(map(o.tup,point)))
++                assert ev(poly.c,t)==o.tup(scalar(g,point,cfg,con)[0])==expected
++                cc['independent_extension_clause_values']+=1
++        for active in itertools.product((False,True),repeat=1+sum(present)):
++            pattern={cfg['index'][name]:flag for name,flag in zip([x for x in ('mask','ght','gs') if x in cfg['index']],active)}
++            entries=Plan(generalize(cfg),con['alpha'],con['gu8']).entries
++            graph=compile_row(cfg,pattern,sorted(con),entries)
++            zero=compile_row(cfg,pattern,sorted(con),Plan(generalize(cfg),F(),F()).entries)
++            assert graph.record()['schema_sha256']==zero.record()['schema_sha256']
++            assert graph.counts==zero.counts
++            cc['value_independent_graph_schema_checks']+=1
++        try:construction_check(cfg)
++        except ValueError:
++            assert present==(False,True);cc['native_construction_refusals']+=1
++        else:assert present!=(False,True);cc['native_construction_admissions']+=1
++    controls.append('S-only-native-construction-refusal-preserved-algebra-tested-separately')
++    # Material negative controls: each must disagree with independent equations.
++    cfg,con,ir,tabs,rs=fixture(3,3,(True,True),'full',rng)
++    vals=[F(rng.randrange(P),rng.randrange(P)) for _ in cfg['names']]
++    for mut in ('restart_zeta','ht_uses_s','gate_helpers'):
++        # Explicitly give Ht and S different extension values.
++        vals[cfg['index']['ght']]=F(2,3);vals[cfg['index']['gs']]=F(5,7)
++        assert o.tup(scalar(0,vals,cfg,con,mut)[0])!=o.bracket(ir[0],list(map(o.tup,vals))) or (
++            mut=='ht_uses_s' and o.tup(scalar(1,vals,cfg,con,mut)[0])!=o.bracket(ir[1],list(map(o.tup,vals))))
++        controls.append(mut+'-independent-equation-detected')
++    # Incorrect deletion of a PRESENT support changes equations/refusal domain.
++    bad=config((False,False),ls=3)
++    badvals=[vals[cfg['index'][name]] for name in bad['names']]
++    assert o.tup(scalar(0,badvals,bad,con)[0])!=o.bracket(ir[0],list(map(o.tup,vals)))
++    controls.append('drop-present-support-detected')
++    try:config((True,))
++    except ValueError:controls.append('invalid-presence-metadata-refused')
++    else:raise AssertionError('metadata')
++    try:
++        from source_port import layout
++        layout(padded=False,supports=(True,False))
++    except ValueError:controls.append('support-without-pad-on-refused')
++    else:raise AssertionError('metadata')
++    # Allocation-free P3 presence oracle: independent products, exact true sizes.
++    for hp,tp,qh,tok,lc,frozen in itertools.product((1,2,4,8),(1,2,4),(1,2,3,4),range(1,5),range(6),(False,True)):
++        if qh>hp or tok>tp:continue
++        pol=policy(hp,qh,tp,tok,lc,frozen)
++        # Separate public logical-cell enumeration. Ht has no H plane and
++        # keeps its natural size; S adds zero-support H-padding cells.
++        ht_cells=[h<qh and t<tok for h in range(hp) for t in range(tp)]
++        s_cells=[a and j<tok for a in ht_cells for j in range(tp)]
++        s_cells += [False]*max(0,(1<<lc)-len(s_cells))
++        ht,ss=not all(ht_cells),not all(s_cells)
++        assert pol['supports']==((ht and not frozen),(ss and not frozen))
++        assert pol['supports']!=(True,False), 'Ht-only has no size-policy geometry'
++        if pol['supports']==(False,True):
++            try:construction_check(config(pol['supports']))
++            except ValueError:cc['P3_S_only_size_policy_refusals']+=1
++            else:raise AssertionError('missing construction refusal')
++        cc['allocation_free_shape_presence_checks']+=1
++    controls.append('P3-lifts-S-not-Ht-S-only-size-policy-keeps-native-refusal-no-full-Shape-admission-claim')
++    projections=[census(sh,ls,rng) for sh,ls in itertools.product([(16,4,12,512,512),(32,8,32,512,512),(32,8,24,1024,769)],(2,3))]
++    prior=json.loads((HERE.parent/'public-row-cse-20261017/result.json').read_text())
++    result=dict(status='passed',run_id='20261017T032624Z-1d6d29cb',cycle='0053',seed=SEED,
++        counts=dict(cc),presence_fixture_counts=dict(presence_counts),declared_degrees=declared,controls=controls,
++        recoveries=recoveries,zero_factor_fallbacks=fallbacks,output_sha256=digest.hexdigest(),projections=projections,
++        wall_seconds=time.perf_counter()-start,max_rss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
++        hardware=dict(device='CPU only',threads=1,affinity=sorted(os.sched_getaffinity(0)),nice=os.nice(0),
++            cpu_model=next(x.split(':',1)[1].strip() for x in Path('/proc/cpuinfo').read_text().splitlines() if x.startswith('model name'))),
++        limits=dict(wall_seconds=59,cpu_seconds=59,address_space_bytes=512*1024**2,estimated_bytes=64*1024**2),
++        proof_accounting=prior['proof_accounting'])
++    (HERE/'result.json').write_text(json.dumps(result,indent=2)+'\n')
++    print(json.dumps({k:v for k,v in result.items() if k!='projections'},indent=2))
++    for p in projections:print('CENSUS',json.dumps({k:v for k,v in p.items() if k not in ('schedules','factory_metadata')}))
++
++
++if __name__=='__main__':main()
+--- /dev/null
++++ /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017/record_sources.py
+@@ -0,0 +1,65 @@
++"""Write manually inspected LIVE primary-source dispositions; no network calls."""
++import datetime,json
++from pathlib import Path
++HERE=Path(__file__).resolve().parent
++now=datetime.datetime.now(datetime.timezone.utc).isoformat()
++base=dict(access_date='2026-10-17',access_timezone='UTC',recorded_at_utc=now,run_id='20261017T042624Z-0f7bf604',cycle='0054',
++ evidence_kind='Native LIVE web search and primary inspection. Source text treated as untrusted data; no foreign code copied or executed.',reproduced_performance=False)
++records=[
++ dict(id='cycle54-new-older-dory-and-release-point-binding',title='Dory 2020 PCS and August2026 implementation release: caching does not replace point binding',
++ url='https://eprint.iacr.org/2020/1274',published='2020-10-14',updated='2021-11-18',implementation_release_date='2026-08-20',
++ inspected_urls=['https://github.com/a16z/dory','https://github.com/a16z/dory/releases','https://github.com/a16z/dory/commit/5246da503c3e2c6baa40ec00d714987c73a3e6eb','https://github.com/a16z/dory/blob/main/CHANGELOG.md'],
++ inspected_commit_id='5246da503c3e2c6baa40ec00d714987c73a3e6eb',
++ implementation_license='Repository/README label MIT OR Apache2.0; actual license text unavailable (main GitHub page returned navigation only; raw and pinned URLs failed). No terms/version compatibility asserted.',
++ date_evidence='Primary paper history: received2020-10-14,revised2021-11-18. Inspected release commit changes CHANGELOG to [0.4.2]-2026-08-20 and Cargo version0.4.2.',
++ author_claim='Original paper gives logarithmic verification with pairings and batched evaluation checks. Release0.4.2 prepares cached public points outside a global write lock. Release0.4.0 describes a wrong-point ZK verification defect and repair.',
++ assessment='NEW older paper and specific implementation absent from starting ledger; prior incidental Dory mentions were in Jolt architecture records. Pairing PCS/BN254 differs from native Goldilocks2/NTT PCS; migration needs field embedding,point/identity binding,hiding,composition,verifier and end-to-end costs. Prepared public points are distinct from per-proof masks. Security repair and author tests not independently reproduced. No native optimization adopted.',
++ access_issues=['https://eprint.iacr.org/2020/1274.pdf:403Forbidden','https://github.com/a16z/dory/blob/main/LICENSE-MIT:page has no license text','https://raw.githubusercontent.com/a16z/dory/main/LICENSE-MIT:InternalError','https://raw.githubusercontent.com/a16z/dory/main/LICENSE-APACHE:Cache miss','https://github.com/a16z/dory/blob/5246da503c3e2c6baa40ec00d714987c73a3e6eb/LICENSE-MIT:Cache miss']),
++ dict(id='cycle54-epfl-concrete-coefficient-wire-and-oracle-refresh',title='EPFL concrete MSB coefficient factory and EvalsInfty boundary',
++ url='https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/coefficient.rs',published=None,updated='2026-06-24',
++ inspected_urls=['https://github.com/compsec-epfl/efficient-sumcheck','https://github.com/compsec-epfl/efficient-sumcheck/commits/main/','https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md','https://github.com/compsec-epfl/efficient-sumcheck/blob/main/SECURITY.md'],
++ inspected_commit_id=None,exposed_uninspected_commits=['9e55dc3'],
++ implementation_license='Repository labels Apache2.0/MIT. LICENSE,LICENSE-MIT raw/GitHub,and LICENSE-APACHE fetches fail; no actual text or pinned terms inspected this cycle.',
++ date_evidence='Primary commit history latest displayed entry June24,2026,9e55dc3. Commit-detail fetch fails. This does not independently pin raw/main source to that hash or date.',
++ author_claim='Per-pair coefficient accumulation reduces before Horner evaluation; MSB half-split folding. Concrete source emits EvalsInfty coordinates and code claims SIMD/streaming support.',
++ assessment='Refresh with concrete source inspection. Its EvalsInfty wire cannot replace our five original samples/masking transcript unchanged. SECURITY explicitly says plain non-ZK and caller must authenticate terminal oracle. Comparing two prover-supplied final values is not our independent full-stack gate. Local cubic factory is independently written from already local native port and preserves original samples. Author performance,correctness/security tests unexecuted.',
++ access_issues=['https://github.com/compsec-epfl/efficient-sumcheck/commit/9e55dc3:Cache miss','https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE:Cache miss','https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/LICENSE-MIT:InternalError','https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-MIT:Cache miss','https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-APACHE:Cache miss']),
++ dict(id='cycle54-folddcs-older-commitment-and-hiding-filter',title='Fold-DCS refresh: fewer rounds still charge multivariate commitments and hiding',
++ url='https://arxiv.org/abs/2504.00693',published='2025-04-01',updated=None,
++ inspected_urls=['https://arxiv.org/html/2504.00693v1'],inspected_commit_id=None,implementation_license=None,
++ date_evidence='Primary arXiv submission history shows v1April1,2025 12:04:40UTC; no later revision shown.',
++ author_claim='Divide-and-conquer reduces rounds to logarithmic at expense of multivariate messages and PCS queries; adapted Zeromorph batches evaluation checks.',
++ assessment='Older source previously assessed cycle33,now full text PCS section inspected. Section4.2.1 explicitly says its instantiation does not require hiding. Fewer rounds alone do not establish private native speed; additional commitments,degree proofs,field and transcript migration need full accounting. Prefer current exact evaluator seam. No theorem audit or runtime reproduction.'),
++ dict(id='cycle54-nvidia-binary-field-boundary-refresh',title='CUDA13.3 carryless multiplication remains a binary-field primitive',
++ url='https://developer.nvidia.com/blog/?p=119649',published='2026-07-15',updated=None,
++ inspected_commit_id=None,implementation_license=None,date_evidence='Primary NVIDIA article displays July15,2026.',
++ author_claim='GF(2^128) sumcheck improves about3-4x on RTX5090 and up to13x on B200 relative to bitsliced binary-field baseline.',
++ assessment='Refresh. Characteristic-two arithmetic does not implement native odd-prime Goldilocks2 multiplication. No direct kernel speed factor or full8B/private proof claim follows; protocol migration exceeds this lane. No compiler/toolkit installed or GPU code run.'),
++ dict(id='cycle54-icicle-release-refresh-memory-overlap-charge',title='ICICLE release and concurrent NTT transfer scratch tradeoff refresh',
++ url='https://github.com/ingonyama-zk/icicle/releases',published=None,updated=None,inspected_commit_id=None,
++ exposed_uninspected_commits=['6c77775'],implementation_license=None,
++ inspected_urls=['https://github.com/ingonyama-zk/icicle/blob/main/examples/c%2B%2B/best-practice-ntt/README.md'],
++ date_evidence='Current release page still marks v4.0.0 latest and displays July11,05:36 without year. No new publication/HEAD date verified.',
++ author_claim='Concurrent upload,compute,download can overlap multiple NTTs; example needs two device vectors,halving maximum NTT size.',
++ assessment='Refresh only. Compare enclosing transfers,waits and increased residency with already chunked native commitments; no duplicate pipeline assumed free. No author/native runtime reproduced or code adopted.'),
++ dict(id='cycle54-plonky3-oct16-batched-hash-metadata',title='October16 Plonky3 BLAKE2s package metadata and hash-contract filter',
++ url='https://docs.rs/crate/p3-blake2s/0.9.0-rc.2',published='2026-10-16',updated=None,
++ inspected_commit_id=None,implementation_license=None,
++ date_evidence='Native LIVE search returns primary docs.rs version history:0.9.0-rc.2(2026-10-16),rc.1(2026-10-11). Direct package/source/release-tag fetches fail; metadata-only date evidence.',
++ author_claim='Package description includes batched BLAKE2s hashing.',
++ assessment='NEW specific package metadata; broader rc.2 release already tracked. Native shaped profile uses keyed BLAKE3/domain separation. A different hash cannot be substituted as an exact speed patch; no hash benchmark,implementation or security property verified.',
++ access_issues=['https://docs.rs/crate/p3-blake2s/0.9.0-rc.2:Cache miss','https://docs.rs/crate/p3-blake2s/0.9.0-rc.2/source/Cargo.toml:not accessible','https://github.com/Plonky3/Plonky3/releases/tag/p3-blake2s-v0.9.0-rc.2:InternalError']),
++ dict(id='cycle54-faest-october-search-blocked',title='FAEST GPU field multiplication October discovery: primary fetch blocked',
++ url='https://eprint.iacr.org/2026/2489',published=None,updated=None,inspected_commit_id=None,implementation_license=None,
++ date_evidence='Search mirror labels last updated2026-10-15; not primary-verified and not recorded as established publication/update date.',
++ author_claim='Unverified mirror abstract describes clmad/Karatsuba binary-field GPU improvements; no primary body inspected.',
++ assessment='Exact access blocker retained. Not used to rank a native speedup or transfer performance/security claims. Independent local experiment continued; no access-control bypass or foreign-code execution.',
++ access_issues=['https://eprint.iacr.org/2026/2489:not accessible via this tool','https://eprint.iacr.org/2026/2489.pdf:not accessible via this tool'])
++]
++records=[dict(base,**r) for r in records]
++(HERE/'sources-cycle54.json').write_text(json.dumps(records,indent=2)+'\n')
++ledger=HERE.parents[1]/'sources.jsonl';old=[json.loads(x) for x in ledger.read_text().splitlines() if x]
++assert not any(r['id'] in {s.get('id') for s in old} for r in records)
++with ledger.open('a') as out:
++ for r in records:out.write(json.dumps(r,sort_keys=True)+'\n')
++print('Appended',len(records),'source dispositions;',len(old)+len(records),'total')

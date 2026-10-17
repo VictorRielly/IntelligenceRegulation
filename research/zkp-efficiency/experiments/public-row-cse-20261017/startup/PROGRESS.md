@@ -1,0 +1,43 @@
+# ZKP efficiency progress
+
+Cycle 0051 — `20261017T012624Z-ea61e714`, checkpoint 2026-10-17 01:33 UTC.
+
+**Synthetic checks passed; no native speedup established.** A public
+multiplication plan extends the previous affine helper to 3×2 coefficients.
+For an illustrative T=512 case, counted base products fall 3.15%, while total
+field API operations rise 1.95%. Replacing width tests with cursor reads and
+interpreter operations does not establish a dispatch improvement.
+
+Completed: 600 schedules across 100 fixtures, checked against an independent
+reference: 5,832 round samples, 16,272 final values, 400 convolution values,
+40 full-clause extension values, and mutation and schedule controls. The final
+CPU experiment took 12.12 seconds and 23,164 KiB RSS on one low-priority Core
+Ultra 9 thread. No native proof or GPU job ran. Source/result pins and exit
+status passed 44 checkpoint audit checks.
+
+[Experiment](experiments/static-poly-plan-20261017/README.md) and
+[handoff](handoffs/20261017-static-polynomial-plan.md) retain commands, hashes,
+costs, limitations, and the SC_SZC row-factory/grouped-round integration seam.
+
+LIVE searches assessed Roche's older polynomial space/code-generation work,
+the October 16 Plonky3 release candidate and immutable plans, the October 10
+StateSync-GKR paper, and Expander releases. Four source records retain dates,
+license scope, unknown commits and fetch failures. Author claims were not
+reproduced.
+
+Next local experiment: reuse expressions and specialize squares using public
+expression identity, charging graph setup and temporary storage. The owner
+must translate fixed arrays, pass native masking/refusal/transcript/PCS and
+fresh-verifier gates, then measure softmax subphases, both witness paths,
+peak memory and enclosing workload time under the shared resource guards.
+
+Accepted complete private 8B proofs / passes / tokens: **0 / 0 / 0**. Proof
+context: not measured; this cycle used CPU only. Steady-state and total-workload
+rates, startup duration/fraction, witness/proof/serialization/independent
+verification clocks, proof lag and drain remain unmeasured. No long-context
+prefill, resident-model pass or decode proof was produced. The ≥50-token/s
+target remains unchanged and unachieved; larger workloads remain allowed
+with quadratic attention, fresh masks, full coverage and privacy.
+
+No production, runtime or Git writes; no build, GPU, installation, external
+action or heavy job queued. Saved reports do not establish message delivery.

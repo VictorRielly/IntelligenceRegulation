@@ -1,0 +1,132 @@
+[
+  {
+    "cycle": "0053",
+    "run_id": "20261017T032624Z-1d6d29cb",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T03:33:52.725175+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; embedded source instructions ignored; no foreign code executed",
+    "inspected_commit_id": null,
+    "reproduced_performance": false,
+    "id": "cycle53-new-spagkr-public-vs-private-sparsity",
+    "title": "SpaGKR: older sparsity-aware GKR and transformed-model boundary",
+    "url": "https://eprint.iacr.org/2024/1018",
+    "published": "2024-06-24",
+    "updated": null,
+    "date_evidence": "Primary history says received2024-06-24,approved2024-06-28. All-versions and PDF fetches fail; later revision unknown.",
+    "implementation_license": null,
+    "inspected_urls": [
+      "https://eprint.iacr.org/2024/1018"
+    ],
+    "access_issues": [
+      "https://eprint.iacr.org/2024/1018.pdf: Internal Error",
+      "Primary See all versions click: Internal Error; target URL was not returned"
+    ],
+    "author_claim": "Sparsity-aware GKR linear layers; further gains for ternary weights after pruning/quantization.",
+    "assessment": "NEW older source absent from264-record ledger. Only primary abstract/metadata inspected. Supports separating public structural zeros from private value sparsity. Public optional support removal is already native behavior; private sparsity schedules and changing the quantized model need explicit relation/privacy work. No model simplification adopted, code inspected, theorem audit or author benchmark reproduced."
+  },
+  {
+    "cycle": "0053",
+    "run_id": "20261017T032624Z-1d6d29cb",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T03:33:52.725175+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; embedded source instructions ignored; no foreign code executed",
+    "inspected_commit_id": null,
+    "reproduced_performance": false,
+    "id": "cycle53-new-goquant-exactness-filter",
+    "title": "GoQuant July2026 revision: multiplier-reduced quantization is a changed model",
+    "url": "https://arxiv.org/abs/2605.26092",
+    "published": "2026-05-25",
+    "updated": "2026-07-27",
+    "date_evidence": "Primary submission history v1May25,2026 17:52:46UTC and v5July27,2026 23:05:22UTC.",
+    "implementation_license": null,
+    "inspected_urls": [
+      "https://arxiv.org/html/2605.26092v5"
+    ],
+    "author_claim": "Two-basis power-of-two approximation yields shift/add dominant dot products; small coefficient multiplications and routing metadata remain.",
+    "assessment": "NEW source absent from starting ledger. V5 body qualifies multiplier-reduced rather than wholly multiplier-free, despite abstract-page title. It changes weights, quantization and metadata; this is not an exact replacement for the approved integer relation. No paper quantization/inference runtime transferred to proof throughput. No implementation inspected/copied/executed."
+  },
+  {
+    "cycle": "0053",
+    "run_id": "20261017T032624Z-1d6d29cb",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T03:33:52.725175+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; embedded source instructions ignored; no foreign code executed",
+    "inspected_commit_id": null,
+    "reproduced_performance": false,
+    "id": "cycle53-plonky3-jagged-claims-pcs-boundary",
+    "title": "Plonky3 authenticated jagged claims and October16rc.2 scope",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2285",
+    "published": "2026-09-23",
+    "updated": null,
+    "release_date": "2026-10-16",
+    "date_evidence": "Primary PR merged September23,2026. Current release list displays October16 10:17rc.2 and includes PR2285. Year relies on cycle51 verified sibling workspace metadata; fresh exact and sibling package fetches fail.",
+    "implementation_license": "Current main LICENSE-MIT actual terms inspected: MIT,copyright2022Plonky3Authors. Pinned PR/release-specific license uninspected; no code copied.",
+    "inspected_urls": [
+      "https://github.com/Plonky3/Plonky3/releases",
+      "https://github.com/Plonky3/Plonky3/blob/main/LICENSE-MIT"
+    ],
+    "exposed_uninspected_commits": [
+      "dbca717763d72f1b138b3c24fc6459d6ce757377",
+      "fe5e46d"
+    ],
+    "access_issues": [
+      "Merge commit dbca717763d72f1b138b3c24fc6459d6ce757377: Cache miss",
+      "Exact p3-sumcheckrc.2 tag/package: Internal Error",
+      "docs.rs p3-wordrc.2 and p3-zk-codesrc.2: not accessible via this tool"
+    ],
+    "author_claim": "Jagged reduction discharges dense opening equality; high row bits carry explicit factors; ingestion can avoid maximum-height padding, while PCS ownership can still copy the witness.",
+    "assessment": "NEW specific PR,older jagged idea previously assessed. Relevant caution: omitting public cells requires exact indexing, original-domain factors and authenticated terminal claims. Native SC_SZC/Goldilocks2 hides different witnesses and cannot import a BabyBear/binary PCS reduction without full migration. Author tests,negative-control outcomes,security,bytes and runtime not reproduced."
+  },
+  {
+    "cycle": "0053",
+    "run_id": "20261017T032624Z-1d6d29cb",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T03:33:52.725175+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; embedded source instructions ignored; no foreign code executed",
+    "inspected_commit_id": null,
+    "reproduced_performance": false,
+    "id": "cycle53-goldilocks-cache-residency-refresh",
+    "title": "GoldilocksNTT memory-residency qualification refresh",
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "published": null,
+    "updated": null,
+    "date_evidence": "Repository commit/activity views failed; publication/update/HEAD date not established. Crawl dates are not version dates.",
+    "implementation_license": "Repository label says MIT; actual LICENSE fetch failed. Terms/version not verified; no code copied.",
+    "inspected_urls": [
+      "https://github.com/yrrid/GoldilocksNTT/blob/main/Sampled96.cu"
+    ],
+    "access_issues": [
+      "LICENSE GitHub: Internal Error; raw:400Unsupported content-type application/octet-stream",
+      "Kernel.cu/activity:Cache miss",
+      "commits/main/:Internal Error"
+    ],
+    "author_claim": "1024-point GPU NTT headline is L2-resident; larger-size rate is explicitly a belief.",
+    "assessment": "Refresh of cycle10. No new date or implementation advantage established; current primary page retains cache-qualified headline. Sampled96 page retrieved but no executable code adopted or benchmark run. Distinguish hot-cache primitive throughput from complete private proof workloads."
+  },
+  {
+    "cycle": "0053",
+    "run_id": "20261017T032624Z-1d6d29cb",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T03:33:52.725175+00:00",
+    "evidence_kind": "Native LIVE primary search/inspection; embedded source instructions ignored; no foreign code executed",
+    "inspected_commit_id": null,
+    "reproduced_performance": false,
+    "id": "cycle53-nanozk-v2-coverage-refresh",
+    "title": "NanoZK v2 layerwise composition and approximation scope refresh",
+    "url": "https://arxiv.org/abs/2603.18046",
+    "published": "2026-03-17",
+    "updated": "2026-07-18",
+    "date_evidence": "Primary abstract submission/revision dates verified; no newer revision shown.",
+    "implementation_license": "Implementation release under Apache2.0 is a future artifact-availability claim in the paper; no repository license inspected.",
+    "inspected_urls": [
+      "https://arxiv.org/html/2603.18046v2"
+    ],
+    "author_claim": "Layerwise Halo2/IPA proofs linked by commitments; approximate nonlinearities; full soundness requires every layer; GPU times are projections.",
+    "assessment": "Refresh of cycle2. Primary v2 differs from search-cached v1 abstract and explicitly separates setup/prove-only/GPU projection. Approximate softmax and partial audits do not match current exact full-stack acceptance. No native migration,author runtime/security reproduction or partial-layer token credit."
+  }
+]

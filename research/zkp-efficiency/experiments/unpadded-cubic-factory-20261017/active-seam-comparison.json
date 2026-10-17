@@ -1,0 +1,27 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/argument.rs",
+    "bytes": 99535,
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/zkp-core/src/sumcheck/grouped.rs",
+    "bytes": 7903,
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs",
+    "bytes": 99535,
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/sumcheck/grouped.rs",
+    "bytes": 7903,
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/argument.rs",
+    "bytes": 41455,
+    "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab"
+  }
+]

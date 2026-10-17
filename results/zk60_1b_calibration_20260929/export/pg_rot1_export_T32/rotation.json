@@ -1,0 +1,17 @@
+{
+ "kind": "randomized Sylvester Hadamard",
+ "n": 2048,
+ "seed": 1,
+ "definition": "R = H diag(sign) / sqrt(2048), H the Sylvester Hadamard matrix (H_1 = [1], H_2n = [[H, H], [H, -H]]); sign = numpy.random.default_rng(seed).integers(0, 2, 2048) mapped 1 -> +1, 0 -> -1",
+ "residual_basis": "x' = x R^T (row vectors): layer-0 input x_in_L00 = round(embedding[token] R^T / s_x); the final residual maps back as x = x' R before the float final norm + LM head",
+ "weights": "consumers W' = W diag(gamma) R^T (q, k, v, gate, up), writers W' = R W (o, down), norm gammas 1 (the int8 gain vectors carry the per-channel gains of the rotated norms)",
+ "file": {
+  "name": "rotation_sign.bin",
+  "dtype": "float64 little-endian",
+  "shape": [
+   2048
+  ],
+  "sha256": "db7b32c2445beded0a2cc56c5739f8cc84aa6f50fd0e9e18aebbe6ef7ab873a1"
+ },
+ "scope": "public-weight preparation; not part of any proved relation"
+}

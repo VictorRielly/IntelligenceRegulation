@@ -1,0 +1,117 @@
+[
+  {
+    "source": "experiments/fixed-round0-factory-20261017/polynomial_ir.py",
+    "target": "polynomial_ir.py",
+    "sha256": "edadefc4020521fce8e41c3b66dbd0f3c7fb30929a7decb609b9874cb5a1f2e0"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/prior_experiment.py",
+    "target": "prior_experiment.py",
+    "sha256": "a15c7f94f93bad21f747a3677bac0847bd7b4e18074a0bb34280874767f32d76"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/field_support.py",
+    "target": "field_support.py",
+    "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/weighted_rounds.py",
+    "target": "weighted_rounds.py",
+    "sha256": "b7e17c8e69acf9bb68b406b09f739e50503c240b7400ae3344a1318d31097760"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/fixed_factory.py",
+    "target": "fixed_factory.py",
+    "sha256": "440413be8e1af553fbb83f76abc71c4e398edbb1d887e23daf53b5940631780c"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/coefficients.py",
+    "target": "coefficients.py",
+    "sha256": "daa1bb262b874c3f960f0c50ab1d9a4229bed82d8507d15d96e244ab1632aecd"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/oracle.py",
+    "target": "oracle.py",
+    "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/prior_optional_experiment.py",
+    "target": "prior_optional_experiment.py",
+    "sha256": "bc3a6aa758852fdd8a8dac36eb5785e91693e6c2678a92f2ebbffb0a14fc481a"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/row_rounds.py",
+    "target": "row_rounds.py",
+    "sha256": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/run.py",
+    "target": "run.py",
+    "sha256": "6149e7e0c28f14d34daed2e7bff43a3a513d147e0c983082afcc336d78dfd5a0"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/audit.py",
+    "target": "audit.py",
+    "sha256": "d64a9371381975dbf30663600b8277c8e2d408c820ff786ac63de62b0e8c5253"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/static_plan.py",
+    "target": "static_plan.py",
+    "sha256": "bd3ca9c732692dbc6f2efb756687b95d5207a75d97ef016267373bfd9c10f085"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/cubic_factory.py",
+    "target": "cubic_factory.py",
+    "sha256": "6239fa685896b87affb76c048138b6bfec7ecca21f5358551209b44a13978049"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/source_port.py",
+    "target": "source_port.py",
+    "sha256": "2e31f19a567b9341ccdd313595f0ebbc34d7f4790b548bb91f06eed41e024d5e"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/candidate.py",
+    "target": "candidate.py",
+    "sha256": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/fixtures.py",
+    "target": "fixtures.py",
+    "sha256": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/row_graph.py",
+    "target": "row_graph.py",
+    "sha256": "93188def30d7026439c446ca2b13a7796b011624a8719255f24197786974dc4e"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/polynomial_clause.py",
+    "target": "polynomial_clause.py",
+    "sha256": "b8895c6c7f098010c20493ca9320ec305801bcd0e119780fe3ee99ff28d0016f"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/experiment.py",
+    "target": "experiment.py",
+    "sha256": "003327a0a9b86dc53d5eb65ee448d05d3d5026bcd1e6e79d8f22531b876887ab"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/support_model.py",
+    "target": "support_model.py",
+    "sha256": "7b43078583a3ca9b45351e753b80b1a35c4c764ce637042fb469d59bbc973c88"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/axis_factory.py",
+    "target": "axis_factory.py",
+    "sha256": "593852dfd9ecffd0b2297b69ce266a969f16487decaf902a73a107dba8502963"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/generate.py",
+    "target": "generate.py",
+    "sha256": "aef3138e386462d9b44216239febd3317be1bbff7be0f581130e2d10e8d2dc70"
+  },
+  {
+    "source": "experiments/fixed-round0-factory-20261017/prepared.py",
+    "target": "prepared.py",
+    "sha256": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c"
+  }
+]

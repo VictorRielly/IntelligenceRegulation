@@ -86,14 +86,25 @@ variation. No GPU latency or 50-token/s forecast follows from layout counts.
 
 ## Active isolated work
 
-- Model/config/header and memory ladder: `sol_model_readiness`,
-  `results/zk60_1b_model_20260927/`.
-- Strict layer-streaming checkpoint importer: `sol_native_fusion`,
-  `results/zk60_1b_import_20260927/`.
-- Actual native softmax masked-transcript/device-boundary oracle:
-  `sol_gpu_commit`, `results/zk60_softmax_boundary_20260927/`.
-- Main: checkpoint acquisition, integration review, calibration gap and
-  measured-work accounting. Frozen CUDA source remains unchanged.
+**Updated 2026-10-17 (Claude).** The 2026-09-27 Sol lanes and the 2026-09-30
+B2/C2 lanes stopped when the box went down on 2026-09-29 18:38 PDT; nothing
+native ran between then and 2026-10-17. Current lanes:
+
+- **Native trained profile (Claude agent):** TinyLlama profile with per-profile
+  norm constants (proposed D24: `NORM_TN` 10 instead of a fifth limb), trained
+  block loader, then one trained block at T32. Durable copy
+  `ops/zkp-mvp/trained-1b/` (candidate + recovered lane-C patch); evidence
+  `results/zk60_1b_native_20261017/`.
+- **Calibration (Claude agent, lane B3):** fidelity ladder of native
+  restrictions (profile-uniform constants, per-layer norm constants, per-layer
+  residual rescale, per-layer shifts) and calibrated block exports with
+  bit-exact reference inputs/outputs; `results/zk60_1b_calibration_20260929/`.
+- **Main (Claude):** coordination, the Llama-3-8B shard download
+  (`results/zk60_mvp_20260929/llama3-8b/resume-20261017.*`), status documents.
+- Earlier, stopped (results retained, not resumed): model/memory ladder
+  `results/zk60_1b_model_20260927/`, streaming importer
+  `results/zk60_1b_import_20260927/`, softmax device-boundary oracle
+  `results/zk60_softmax_boundary_20260927/`. Frozen CUDA source unchanged.
 
 The hourly researcher must read these assignments before choosing its next
 experiment. It should study complementary questions rather than duplicate

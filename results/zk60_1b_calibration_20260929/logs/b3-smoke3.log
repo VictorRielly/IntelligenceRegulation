@@ -1,0 +1,16 @@
+[02:40:56Z] B3 variant b_smoke_T32_L2smoke: {'variant': 'b', 'tag': 'smoke', 'T': 32, 'calib_per': 6, 'heldout_per': 4, 'margin': 0.5, 'rotate': None, 'floors': 'auto', 'layers': 2, 'chunk': 6, 'site_seqs': 6, 'probe': False, 'export': False, 'export_seqs': 1}; Variant(name='b', norm_cn='layer', tables='layer', residual='global', shifts='native', rotate=None, margin=0.5, margin_ch=3.0, tn=10, cn_max=65536, shapes=('range', 'smooth', 'gamma'))
+[02:40:56Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}; native table pins True
+[02:40:59Z] tokenizer ok=True; calib (54, 32) held-out (36, 32) (disjoint sources)
+[02:41:00Z] pass 1: stats from cache b3_stats2_T32_c6_rNone.pkl
+[02:41:00Z] pass 1 done (4s)
+[02:41:02Z] prepass-1 L00 cn 2222/2650 shape smooth/range e_s 2 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (2s)
+[02:41:04Z] prepass-1 L01 cn 4853/3031 shape range/gamma e_s 1 silu [-4, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (4s)
+[02:41:05Z] prepass-2 L00 e_s 2 range in/out 1.57e-05/2.59e-05 floors ao 0.00165 z 5.42e-05 (6s)
+[02:41:07Z] prepass-2 L01 e_s 1 range in/out 2.59e-05/4.22e-05 floors ao 0.00246 z 3.7e-05 (7s)
+[02:41:07Z] profile decisions: cn None/None e_s None silu None s_in ['4.22e-05', '4.22e-05']
+[02:41:07Z] embedding at s_x 4.224e-05: cos mean 1.00000 min 1.0000, zero fraction 0.003
+[02:41:21Z] L00 cn 2222/2650 ceps 11477126 e_s 2 silu (-5, -13) sh qkv7 s6 ao7 g7 h14 z6 r20 | iso cos 0.91035 dcos 0.8066 | chain cos 0.91035 dcos 0.8066 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {'wo': 237089, 'wg': 153, 'wd': 1} (14s)
+[02:41:21Z]     site rel err: norm_a 0.892 q 0.135 k 0.082 v 0.255 qr 0.156 kr 0.095 score 0.193 prob 0.114 o 0.290 ao 0.845 norm_m 0.515 gate 0.825 act 0.842 up 0.684 h 0.838 z 0.824 x2 0.441 update 0.617
+[02:41:35Z] L01 cn 4853/3031 ceps 11477126 e_s 1 silu (-4, -13) sh qkv7 s6 ao7 g7 h14 z6 r20 | iso cos 0.96401 dcos 0.8533 | chain cos 0.86440 dcos 0.6745 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {'wo': 1322495} (14s)
+[02:41:35Z]     site rel err: norm_a 0.036 q 0.096 k 0.053 v 0.087 qr 0.106 kr 0.058 score 0.111 prob 0.112 o 0.216 ao 0.621 norm_m 0.349 gate 0.520 act 0.530 up 0.400 h 0.583 z 0.550 x2 0.299 update 0.567
+[02:41:36Z] smoke done (40s), no head metrics for a partial stack

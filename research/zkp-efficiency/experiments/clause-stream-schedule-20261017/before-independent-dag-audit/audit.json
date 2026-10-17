@@ -1,0 +1,182 @@
+{
+  "status": "passed",
+  "checks": 26019,
+  "generated_bodies": [
+    {
+      "tag": "ls2-lk7-mask0",
+      "kind": "ssa",
+      "checks": 751,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls2-lk7-mask0",
+      "kind": "recycled",
+      "checks": 982,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls2-lk7-mask1",
+      "kind": "ssa",
+      "checks": 829,
+      "peak_live_logical_temporaries": 19
+    },
+    {
+      "tag": "ls2-lk7-mask1",
+      "kind": "recycled",
+      "checks": 1085,
+      "peak_live_logical_temporaries": 19
+    },
+    {
+      "tag": "ls2-lk8-mask0",
+      "kind": "ssa",
+      "checks": 793,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls2-lk8-mask0",
+      "kind": "recycled",
+      "checks": 1038,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls2-lk8-mask1",
+      "kind": "ssa",
+      "checks": 871,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk8-mask1",
+      "kind": "recycled",
+      "checks": 1140,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk13-mask0",
+      "kind": "ssa",
+      "checks": 1060,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls2-lk13-mask0",
+      "kind": "recycled",
+      "checks": 1394,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls2-lk13-mask1",
+      "kind": "ssa",
+      "checks": 1138,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk13-mask1",
+      "kind": "recycled",
+      "checks": 1496,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk7-mask0",
+      "kind": "ssa",
+      "checks": 775,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls3-lk7-mask0",
+      "kind": "recycled",
+      "checks": 1014,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls3-lk7-mask1",
+      "kind": "ssa",
+      "checks": 853,
+      "peak_live_logical_temporaries": 19
+    },
+    {
+      "tag": "ls3-lk7-mask1",
+      "kind": "recycled",
+      "checks": 1117,
+      "peak_live_logical_temporaries": 19
+    },
+    {
+      "tag": "ls3-lk8-mask0",
+      "kind": "ssa",
+      "checks": 817,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls3-lk8-mask0",
+      "kind": "recycled",
+      "checks": 1070,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls3-lk8-mask1",
+      "kind": "ssa",
+      "checks": 895,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk8-mask1",
+      "kind": "recycled",
+      "checks": 1172,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk15-mask0",
+      "kind": "ssa",
+      "checks": 1183,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls3-lk15-mask0",
+      "kind": "recycled",
+      "checks": 1558,
+      "peak_live_logical_temporaries": 18
+    },
+    {
+      "tag": "ls3-lk15-mask1",
+      "kind": "ssa",
+      "checks": 1261,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk15-mask1",
+      "kind": "recycled",
+      "checks": 1660,
+      "peak_live_logical_temporaries": 20
+    }
+  ],
+  "owner_memory": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md",
+      "unchanged": true
+    }
+  ],
+  "negative_control": "corrupt generated RHS rejected",
+  "completed_at_utc": "2026-10-17T06:28:54.788774+00:00"
+}

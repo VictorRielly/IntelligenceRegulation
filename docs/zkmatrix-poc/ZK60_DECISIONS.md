@@ -50,6 +50,7 @@ proposal is accepted by this performance direction. No speed result is claimed.
 | D21 | Rejected receipts are never transmitted, and retained capture bundles count as publishing: nothing computed from a hidden input may be added to them; a refusal reason is never shown to anyone not entitled to the input | **ACCEPTED** | 2026-09-20 13:45 | Victor (console); same one-pager |
 | D22 | **Privacy accepted for ONE artifact: the toy private-block profile `hashline-zk-mr1/private-block-t32-poc/1`** (one block, 32 tokens, width 16, public synthetic weights, the prover sealing its own endpoints per D18): in the random-oracle model (D19), under the named generator assumption, an accepted receipt's view is within about 2^-77.7 per proof of one that does not depend on the hidden input, output or activations; refusal is challenge-only up to 2^-112; timing, memory and power out of scope (D20); operating rules of D21. **It is an argument each of whose steps survived one independent attack, not a proof re-derived by the security owner; it lapses for any code that changes one of its seven conditions. It covers NOTHING else: not the development rung, not the 125M block, not any multi-block run, not real weights, not sealing in advance (D8 and D11 untouched), not soundness**. *Scope said more exactly on 2026-09-21 03:23: it covers the profile on the **CPU path** — at this untagged profile a GPU-feature build with the accelerator enabled hashes columns with two hand-written CUDA kernels and moves blinding material to device memory, and that configuration is not covered until it has been read; and "the generator" means the proof's three generators jointly, separate operating-system entropy reads being assumed independent. On 2026-09-20 22:06 it was re-read against the integrator's merged code (`4751b93`) and its source pins extended to all 29 files on its path. On 2026-09-21 10:44 the refusal clause was sharpened, number unchanged (statement §9 item 10; ruling V-3 of `ZK60_BLOCK125M_S28_DISPOSITION.md`): for every admitted witness, WHETHER an attempt is refused for a zero lookup denominator is a function of the public challenges and the three public tables alone, because the prover inverts each whole table on every attempt; only which of two lines returns first depends on the hidden input, with the identical message and no absorb or draw between them — so "up to 2^-112" is an over-estimate kept as it is; the unqualified form of that sentence (for ANY witness) is false and is not claimed. On 2026-09-22 10:20 the gates were replayed on a capture of a receipt produced by the merged tree's own binary at `4751b93` (delivered by the integrator): 132 of 132 source pins equal, no figure of record moved, all ten controls fire — the statement now rests on the merged tree's proofs as well as the old tree's; scope unchanged* | **accepted by the security owner, within the model Victor accepted the same day** | 2026-09-20 13:46 | Security owner (Fable); statement `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` |
 | D23 | **An accepted receipt's endpoint roots are never registered, republished or referred to by a later artifact — proposed, for Victor.** The privacy case's hypothesis O-2 / ask R-9 (`ZK60_PRIVACY_CASE_FIRST_MVP.md` §1.2 item 1, §5.2, l.1633, l.1801): the moment a later artifact refers to an accepted receipt's two endpoint roots (e.g. chains its output root into another proof, or records it in a registry), the D8/D11 question applies and D22 no longer covers that receipt. It was never put to Victor nor listed in D22's statement; found 2026-09-23 by `ZK60_BLINDING_LAW_GR4_TOY_READING.md`. The security owner carries it as a stated hypothesis of the toy statement (§6) from 2026-09-23 16:52; the argument and its figures are unchanged. Constrains operations, so it is Victor's | **PROPOSED — pending Victor; recommendation: accept** | 2026-09-23 16:52 | Security owner (Opus 5.5 session continuing the Fable lane); one-pager `ZK60_RULINGS_FOR_VICTOR_PRIVACY.md` |
+| D24 | **Norm precision per profile instead of a fifth remainder limb — proposed 2026-10-17.** New trained profiles lower `NORM_TN` (10 at width 2048, 9 at width 4096) and scale the norm multiplier with it, so the exact remainder window stays at most 32 bits (four byte limbs, D16 rule 4); `D_max` for new profiles counts int16 -32768 and the profile's epsilon; old profiles stay byte-frozen | **proposed; implementation in lane trained-1b; independent review pending** | 2026-10-17 | Claude (security-owner lane) |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -696,3 +697,34 @@ it costs in bits of soundness or in extra queries to keep them, what it does
 to proof bytes, what must be re-frozen, how many weeks, and what could make
 it fail. **Building it remains a separate ruling.** Pages:
 `ZK60_RULINGS_FOR_VICTOR.md` §4.
+
+## D24 — Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)
+
+**In plain words.** The private block's RMS norm computes
+`y = round(g * Cn * x / (2^tn * D))` and proves the rounding with a remainder
+that must fit an exact window of `tn + 1 + bits(D_max)` bits. At the toy
+precision `tn = 11` that is 33 bits at TinyLlama's width 2048 and 34 bits at
+the 8B width 4096 (contract review of 2026-09-30, which also corrected `D_max`
+to count the int16 value -32768). Four byte limbs hold 32 bits, and D16 rule 3
+forbids more than four limbs on the norm's other witnesses. Two routes were
+recorded: a fifth remainder limb (a proof-layout change: new plane ids, a
+top-limb range tightening to 33/34 bits) or a restricted 32-bit window with
+a bound on every row's norm (which refuses honest inputs).
+
+**Proposal.** Neither: a new profile lowers `tn` by one bit per extra bit of
+`D_max` (10 at width 2048, 9 at width 4096) and its multiplier `Cn` falls by
+the same factor. `y` is unchanged in meaning; only the multiplier's
+resolution coarsens (about one part in a thousand for the calibrated values
+measured on TinyLlama), which is negligible next to an int8 output. The
+window stays exact and at most 32 bits, `D` keeps three byte limbs, so D16's
+rules 1–4 hold as written. `tn`, both norms' `Cn` and `Ceps` become profile
+fields bound into the statement; every existing profile and the D22 toy keep
+their constants, geometry and bytes.
+
+**Obligations before any trained receipt is called sound:** D16 rules 5 and
+6 at the new profile (non-unit-coefficient range audit, wraparound premise,
+alias tamper tests rejecting); the field no-wrap bounds re-derived for the
+declared ranges of `Cn` and `Ceps` (calibration needs `Ceps` up to about
+1.3e8); and an independent adversarial review of the implementation. Not a
+privacy acceptance at any new shape. Revisit the five-limb route only if a
+profile would need `tn` below about 8.

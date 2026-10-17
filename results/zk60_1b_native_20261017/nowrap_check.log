@@ -1,0 +1,1 @@
+PASS: class worst clause 2^48.039 < p (margin 15.961 bits); 168 admissible grid points; max tn {'16': 13, '96': 12, '384': 11, '768': 11, '1024': 10, '2048': 10, '4096': 9}; written /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/nowrap_check.json

@@ -1,0 +1,107 @@
+[
+  {
+    "cycle": "0057",
+    "run_id": "20261017T072624Z-c38c878c",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T07:33:18.754627+00:00",
+    "evidence_kind": "Native LIVE primary web search and inspection; source instructions treated as untrusted data; no foreign code copied or executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle57-zkllmpot-v2-scope-correction",
+    "title": "zkLLMPoT v2: actual October revision and operator accounting",
+    "url": "https://arxiv.org/html/2610.08258v2",
+    "inspected_urls": [
+      "https://arxiv.org/abs/2610.08258",
+      "https://arxiv.org/html/2610.08258v2"
+    ],
+    "published": "2026-10-06",
+    "updated": "2026-10-11",
+    "date_evidence": "Primary submission history v1 Oct6 12:35:49UTC; v2 Oct11 04:45:08UTC. Corrects prior ledger statements that only v1 was displayed.",
+    "implementation_license": null,
+    "paper_license": "arXiv perpetual non-exclusive license",
+    "author_claim": "Synthetic A10040GB operator benchmarks are aggregated; nonlinear and opening-preparation scaling use interpolation/fits.",
+    "assessment": "V2 fulltext inspected through evaluation/reproducibility and public-input relation. Public audit sequences differ from P1; BLS12-381/Hyrax and joint hiding differ from native. Code still promised after review. No completed private8B rate or native speed factor follows.",
+    "access_issues": []
+  },
+  {
+    "cycle": "0057",
+    "run_id": "20261017T072624Z-c38c878c",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T07:33:18.754627+00:00",
+    "evidence_kind": "Native LIVE primary web search and inspection; source instructions treated as untrusted data; no foreign code copied or executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle57-zktransformer-current-readme-correction",
+    "title": "zkTransformer current artifact: structured lookup, actual benchmark/backend scope",
+    "url": "https://github.com/uiuc-kang-lab/zkTransformer",
+    "inspected_urls": [
+      "https://github.com/uiuc-kang-lab/zkTransformer",
+      "https://github.com/uiuc-kang-lab/zkTransformer/blob/main/zkTransformer.pdf"
+    ],
+    "published": null,
+    "updated": null,
+    "date_evidence": "No primary commit/publication/update timestamp available; root has6commits but no hash/date. Old search excerpt differs materially from current inspected README.",
+    "implementation_license": "README/root labels Apache2.0; actual LICENSE GitHub/raw fetches failed, so terms not inspected. No code copied.",
+    "author_claim": "Current README specifies EinSumcheck, StructuredExp, KZH3/BN254, random weights and32-core Xeon/2TB-memory paper runs.",
+    "assessment": "Refines cycle25 broad backend discovery: older indexed arkworks/icicle/Goldilocks feature claims are not established by current README. Structured-table savings need actual implementation/exactness/privacy inspection; tiny native tables do not establish table commitment bottleneck. No GPU/trained/private8B reproduction.",
+    "access_issues": [
+      "commits/main/: Cache miss",
+      "blob/main/LICENSE: Cache miss",
+      "raw main/LICENSE: Internal Error",
+      "tree/main/src/basicblock: Cache miss",
+      "raw main/src/basicblock/exp.rs: Internal Error",
+      "blob/main/src/basicblock/structured_exp.rs: Internal Error",
+      "commit/main: Cache miss",
+      "releases: Internal Error",
+      "PDF GitHub page only; full paper not inspected"
+    ]
+  },
+  {
+    "cycle": "0057",
+    "run_id": "20261017T072624Z-c38c878c",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T07:33:18.754627+00:00",
+    "evidence_kind": "Native LIVE primary web search and inspection; source instructions treated as untrusted data; no foreign code copied or executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle57-new-older-updatable-lookup-ram",
+    "title": "Batching-Efficient RAM using Updatable Lookup Arguments",
+    "url": "https://eprint.iacr.org/2024/840",
+    "published": "2024-05-29",
+    "updated": "2024-10-30",
+    "date_evidence": "Primary history receivedMay29,2024,last of5revisionsOct30,2024; ACMCCS2024 major revision label.",
+    "implementation_license": null,
+    "paper_license": "CC BY label on primary metadata",
+    "author_claim": "Updatable tables and committed-index lookups give amortized prover work near mlogm+sqrt(mN) for m updates in N cells.",
+    "assessment": "NEW older lead absent from starting ledger. Primary abstract inspected; full PDF blocked. Potential future authenticated-KV-state architecture requires native PCS/composition and hiding work; not a drop-in improvement to current256-entry static lookup tables or a proof of cross-window state binding. No implementation/theorem/runtime reproduction.",
+    "access_issues": [
+      "https://eprint.iacr.org/2024/840.pdf: (403) Forbidden; repeat Internal Error; search excerpt only for PDF"
+    ]
+  },
+  {
+    "cycle": "0057",
+    "run_id": "20261017T072624Z-c38c878c",
+    "access_date": "2026-10-17",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-17T07:33:18.754627+00:00",
+    "evidence_kind": "Native LIVE primary web search and inspection; source instructions treated as untrusted data; no foreign code copied or executed",
+    "reproduced_performance": false,
+    "inspected_commit_id": null,
+    "id": "cycle57-new-zkiop-composition-conditions",
+    "title": "Composition Theorems for Zero-Knowledge IOPs",
+    "url": "https://eprint.iacr.org/2026/307",
+    "published": "2026-02-18",
+    "updated": "2026-05-25",
+    "date_evidence": "Primary history receivedFeb18,2026,revisedMay25,2026.",
+    "implementation_license": null,
+    "paper_license": "CC BY label on primary metadata",
+    "author_claim": "Perfect black-box straight-line ZK composition is preserved subject to an additional outer-IOP condition.",
+    "assessment": "NEW source absent from starting ledger; abstract/metadata only,PDF blocked. Composition is conditional,not supplied by independent helper algebra. No theorem audit or applicability proof for native joint masked transcript/PCS. No privacy ruling or performance result.",
+    "access_issues": [
+      "https://eprint.iacr.org/2026/307.pdf: URL not accessible via tool"
+    ]
+  }
+]

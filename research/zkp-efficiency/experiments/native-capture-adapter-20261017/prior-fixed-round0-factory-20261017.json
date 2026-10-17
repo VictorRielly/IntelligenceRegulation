@@ -1,0 +1,4934 @@
+{
+  "status": "passed",
+  "cycle": "0055",
+  "run_id": "20261017T052624Z-c8881557",
+  "seed": 2026101755,
+  "counts": {
+    "independent_final_values": 67770,
+    "full_schedules": 2790,
+    "schedule_field_counter_parity": 1116,
+    "fixtures": 93,
+    "independent_round_samples": 28650,
+    "branchless_generated_bodies": 24,
+    "dynamic_row_and_counter_parity": 48,
+    "independent_extension_values": 192,
+    "executed_operation_censuses": 48,
+    "value_independent_operation_censuses": 24,
+    "padded_factory_refusals": 3
+  },
+  "controls": [
+    "drop_cubic-detected",
+    "reverse_coefficients-detected",
+    "wrong_cross_sign-detected",
+    "incorrect-public-mask-metadata-detected",
+    "premature-live-slot-overwrite-detected"
+  ],
+  "recoveries": 996,
+  "zero_factor_fallbacks": 1092,
+  "output_sha256": "c6dedb543f9b057438e59b33d063d29164f227b9d2bc57d5a2fe741e5b509a11",
+  "generated_shapes": [
+    {
+      "ls": 2,
+      "lookup_count": 7,
+      "mask_active": false,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 12,
+            "add": 91,
+            "mul": 83,
+            "sub": 63
+          },
+          "instructions": 249,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 12,
+            "add": 91,
+            "mul": 83,
+            "sub": 63
+          },
+          "instructions": 249,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": 20,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 2,
+      "lookup_count": 7,
+      "mask_active": true,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 13,
+            "add": 102,
+            "mul": 94,
+            "sub": 66
+          },
+          "instructions": 275,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 13,
+            "add": 102,
+            "mul": 94,
+            "sub": 66
+          },
+          "instructions": 275,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": 23,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 2,
+      "lookup_count": 8,
+      "mask_active": false,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 12,
+            "add": 95,
+            "mul": 90,
+            "sub": 66
+          },
+          "instructions": 263,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 12,
+            "add": 95,
+            "mul": 90,
+            "sub": 66
+          },
+          "instructions": 263,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": 20,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 2,
+      "lookup_count": 8,
+      "mask_active": true,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 13,
+            "add": 106,
+            "mul": 101,
+            "sub": 69
+          },
+          "instructions": 289,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 13,
+            "add": 106,
+            "mul": 101,
+            "sub": 69
+          },
+          "instructions": 289,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": 23,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 2,
+      "lookup_count": 13,
+      "mask_active": false,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 16,
+            "add": 121,
+            "mul": 122,
+            "sub": 93
+          },
+          "instructions": 352,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 16,
+            "add": 121,
+            "mul": 122,
+            "sub": 93
+          },
+          "instructions": 352,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": 20,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 2,
+      "lookup_count": 13,
+      "mask_active": true,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 17,
+            "add": 132,
+            "mul": 133,
+            "sub": 96
+          },
+          "instructions": 378,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 17,
+            "add": 132,
+            "mul": 133,
+            "sub": 96
+          },
+          "instructions": 378,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": 23,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 3,
+      "lookup_count": 7,
+      "mask_active": false,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 16,
+            "add": 95,
+            "mul": 83,
+            "sub": 63
+          },
+          "instructions": 257,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 16,
+            "add": 95,
+            "mul": 83,
+            "sub": 63
+          },
+          "instructions": 257,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": 20,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 3,
+      "lookup_count": 7,
+      "mask_active": true,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 17,
+            "add": 106,
+            "mul": 94,
+            "sub": 66
+          },
+          "instructions": 283,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 17,
+            "add": 106,
+            "mul": 94,
+            "sub": 66
+          },
+          "instructions": 283,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": 23,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 3,
+      "lookup_count": 8,
+      "mask_active": false,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 16,
+            "add": 99,
+            "mul": 90,
+            "sub": 66
+          },
+          "instructions": 271,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 16,
+            "add": 99,
+            "mul": 90,
+            "sub": 66
+          },
+          "instructions": 271,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": 20,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 3,
+      "lookup_count": 8,
+      "mask_active": true,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 17,
+            "add": 110,
+            "mul": 101,
+            "sub": 69
+          },
+          "instructions": 297,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 17,
+            "add": 110,
+            "mul": 101,
+            "sub": 69
+          },
+          "instructions": 297,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": 23,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 3,
+      "lookup_count": 15,
+      "mask_active": false,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 20,
+            "add": 135,
+            "mul": 135,
+            "sub": 103
+          },
+          "instructions": 393,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 20,
+            "add": 135,
+            "mul": 135,
+            "sub": 103
+          },
+          "instructions": 393,
+          "peak_live_logical_temporaries": 20,
+          "allocated_reusable_slots": 20,
+          "temporary_logical_bytes": 320,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    },
+    {
+      "ls": 3,
+      "lookup_count": 15,
+      "mask_active": true,
+      "generated": {
+        "ssa": {
+          "field_ops": {
+            "mul_base": 21,
+            "add": 146,
+            "mul": 146,
+            "sub": 106
+          },
+          "instructions": 419,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": null,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        },
+        "recycled": {
+          "field_ops": {
+            "mul_base": 21,
+            "add": 146,
+            "mul": 146,
+            "sub": 106
+          },
+          "instructions": 419,
+          "peak_live_logical_temporaries": 23,
+          "allocated_reusable_slots": 23,
+          "temporary_logical_bytes": 368,
+          "output_words": 4,
+          "output_logical_bytes": 64,
+          "runtime_width_tests": 0,
+          "runtime_shape_tests": 0,
+          "runtime_denominator_tag_tests": 0,
+          "excluded": "Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured."
+        }
+      }
+    }
+  ],
+  "unchanged_scoped_field_census": {
+    "shape": {
+      "head_pad": 32,
+      "kv_heads": 8,
+      "query_heads": 32,
+      "token_pad": 512,
+      "tokens": 512
+    },
+    "limbs": 3,
+    "n": 23,
+    "total_rows": 8388607,
+    "results": {
+      "literal": {
+        "all_field_ops": {
+          "mul_base": 629145536,
+          "add": 1518403310,
+          "mul": 1220542341,
+          "sub": 922746786
+        },
+        "sum_api_ops": 4290837973,
+        "preparation": {},
+        "extra": {
+          "public_round_policy_tests": 23,
+          "public_axis_tests": 8388607,
+          "removed_public_slope_carriers": 8126464
+        },
+        "coefficient_words": 0,
+        "coefficient_logical_bytes": 0,
+        "preparation_classifications": 0,
+        "native_peak_scratch_bytes": null,
+        "native_array_allocation": false,
+        "literal_native_field_api_expansion": {
+          "fp_mul": 7361002777,
+          "fp_add": 5477891302,
+          "fp_sub": 1845493572
+        }
+      },
+      "prepared_scalar": {
+        "all_field_ops": {
+          "mul_base": 306184161,
+          "add": 1107361575,
+          "mul": 1220542341,
+          "sub": 893386676
+        },
+        "sum_api_ops": 3527474753,
+        "preparation": {
+          "add": 15,
+          "sub": 15
+        },
+        "extra": {
+          "public_round_policy_tests": 23,
+          "public_axis_tests": 8388607,
+          "removed_public_slope_carriers": 8126464,
+          "denominator_Unit_dispatch": 293601250,
+          "denominator_Neg_dispatch": 29360125,
+          "denominator_Scale_dispatch": 117440500
+        },
+        "coefficient_words": 0,
+        "coefficient_logical_bytes": 0,
+        "preparation_classifications": 15,
+        "native_peak_scratch_bytes": null,
+        "native_array_allocation": false,
+        "literal_native_field_api_expansion": {
+          "fp_mul": 6715080027,
+          "fp_add": 4655807832,
+          "fp_sub": 1786773352
+        },
+        "delta_vs_literal": {
+          "mul": 0,
+          "mul_base": -322961375,
+          "add": -411041735,
+          "sub": -29360110
+        },
+        "delta_vs_prepared_scalar": {
+          "mul": 0,
+          "mul_base": 0,
+          "add": 0,
+          "sub": 0
+        }
+      },
+      "cubic_schoolbook": {
+        "all_field_ops": {
+          "mul_base": 180617338,
+          "add": 1118633842,
+          "mul": 1345060651,
+          "sub": 676069316
+        },
+        "sum_api_ops": 3320381147,
+        "preparation": {
+          "add": 15,
+          "sub": 15
+        },
+        "extra": {
+          "public_round_policy_tests": 23,
+          "public_axis_tests": 8388607,
+          "removed_public_slope_carriers": 8126464,
+          "zero_output_assignments": 0,
+          "denominator_Unit_dispatch": 167772150,
+          "denominator_Neg_dispatch": 16777215,
+          "denominator_Scale_dispatch": 67108860
+        },
+        "coefficient_words": 4,
+        "coefficient_logical_bytes": 64,
+        "preparation_classifications": 15,
+        "native_peak_scratch_bytes": null,
+        "native_array_allocation": false,
+        "literal_native_field_api_expansion": {
+          "fp_mul": 7086537931,
+          "fp_add": 4927388986,
+          "fp_sub": 1352138632
+        },
+        "delta_vs_literal": {
+          "mul": 124518310,
+          "mul_base": -448528198,
+          "add": -399769468,
+          "sub": -246677470
+        },
+        "delta_vs_prepared_scalar": {
+          "mul": 124518310,
+          "mul_base": -125566823,
+          "add": 11272267,
+          "sub": -217317360
+        }
+      },
+      "cubic_karatsuba": {
+        "all_field_ops": {
+          "mul_base": 180617338,
+          "add": 1219297114,
+          "mul": 1244397379,
+          "sub": 877395860
+        },
+        "sum_api_ops": 3521707691,
+        "preparation": {
+          "add": 15,
+          "sub": 15
+        },
+        "extra": {
+          "public_width_tests": 318767028,
+          "affine_products": 100663272,
+          "public_round_policy_tests": 23,
+          "public_axis_tests": 8388607,
+          "removed_public_slope_carriers": 8126464,
+          "zero_output_assignments": 0,
+          "denominator_Unit_dispatch": 167772150,
+          "denominator_Neg_dispatch": 16777215,
+          "denominator_Scale_dispatch": 67108860
+        },
+        "coefficient_words": 4,
+        "coefficient_logical_bytes": 64,
+        "preparation_classifications": 15,
+        "native_peak_scratch_bytes": null,
+        "native_array_allocation": false,
+        "literal_native_field_api_expansion": {
+          "fp_mul": 6583221571,
+          "fp_add": 4927388986,
+          "fp_sub": 1754791720
+        },
+        "delta_vs_literal": {
+          "mul": 23855038,
+          "mul_base": -448528198,
+          "add": -299106196,
+          "sub": -45350926
+        },
+        "delta_vs_prepared_scalar": {
+          "mul": 23855038,
+          "mul_base": -125566823,
+          "add": 111935539,
+          "sub": -15990816
+        }
+      },
+      "cubic_round0": {
+        "all_field_ops": {
+          "mul_base": 222298090,
+          "add": 1086390064,
+          "mul": 1149239173,
+          "sub": 822083508
+        },
+        "sum_api_ops": 3280010835,
+        "preparation": {
+          "add": 15,
+          "sub": 15
+        },
+        "extra": {
+          "public_width_tests": 159383552,
+          "affine_products": 50331648,
+          "public_round_policy_tests": 23,
+          "public_axis_tests": 8388607,
+          "removed_public_slope_carriers": 8126464,
+          "zero_output_assignments": 0,
+          "denominator_Unit_dispatch": 209715170,
+          "denominator_Neg_dispatch": 20971517,
+          "denominator_Scale_dispatch": 83886068
+        },
+        "coefficient_words": 4,
+        "coefficient_logical_bytes": 64,
+        "preparation_classifications": 15,
+        "native_peak_scratch_bytes": null,
+        "native_array_allocation": false,
+        "literal_native_field_api_expansion": {
+          "fp_mul": 6190792045,
+          "fp_add": 4471258474,
+          "fp_sub": 1644167016
+        },
+        "delta_vs_literal": {
+          "mul": -71303168,
+          "mul_base": -406847446,
+          "add": -432013246,
+          "sub": -100663278
+        },
+        "delta_vs_prepared_scalar": {
+          "mul": -71303168,
+          "mul_base": -83886071,
+          "add": -20971511,
+          "sub": -71303168
+        }
+      }
+    },
+    "schedules": {
+      "literal": [
+        {
+          "round": 0,
+          "rows": 4194304,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            4,
+            2,
+            2
+          ],
+          "row_field_ops": {
+            "mul_base": 86,
+            "add": 208,
+            "mul": 168,
+            "sub": 126
+          },
+          "round_field_ops": {
+            "mul_base": 360710144,
+            "add": 872447992,
+            "mul": 704643072,
+            "sub": 528482304
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 32760
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 32760
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 1,
+          "rows": 2097152,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 134217728,
+            "add": 322977784,
+            "mul": 257949696,
+            "sub": 197132288
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 16376
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 10235
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 2,
+          "rows": 1048576,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 67108864,
+            "add": 161488888,
+            "mul": 128974848,
+            "sub": 98566144
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 8184
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 5115
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 3,
+          "rows": 524288,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 33554432,
+            "add": 80744440,
+            "mul": 64487424,
+            "sub": 49283072
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 4088
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 2555
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 4,
+          "rows": 262144,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 16777216,
+            "add": 40372216,
+            "mul": 32243712,
+            "sub": 24641536
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 2040
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 1275
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 5,
+          "rows": 131072,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 8388608,
+            "add": 20186104,
+            "mul": 16121856,
+            "sub": 12320768
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 1016
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 635
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 6,
+          "rows": 65536,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 4194304,
+            "add": 10093048,
+            "mul": 8060928,
+            "sub": 6160384
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 504
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 315
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 7,
+          "rows": 32768,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 2097152,
+            "add": 5046520,
+            "mul": 4030464,
+            "sub": 3080192
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 248
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 155
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 8,
+          "rows": 16384,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 1048576,
+            "add": 2523256,
+            "mul": 2015232,
+            "sub": 1540096
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 120
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 75
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 9,
+          "rows": 8192,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 524288,
+            "add": 1261624,
+            "mul": 1007616,
+            "sub": 770048
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 56
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 35
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 10,
+          "rows": 4096,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 262144,
+            "add": 630808,
+            "mul": 503808,
+            "sub": 385024
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 24
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 15
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 11,
+          "rows": 2048,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 131072,
+            "add": 315392,
+            "mul": 251904,
+            "sub": 192512
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2048,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 12,
+          "rows": 1024,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 65536,
+            "add": 157696,
+            "mul": 125952,
+            "sub": 96256
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 13,
+          "rows": 512,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 32768,
+            "add": 78848,
+            "mul": 62976,
+            "sub": 48128
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 512,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 14,
+          "rows": 256,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 16384,
+            "add": 39424,
+            "mul": 31488,
+            "sub": 24064
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 256,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 15,
+          "rows": 128,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 8192,
+            "add": 19712,
+            "mul": 15744,
+            "sub": 12032
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 128,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 16,
+          "rows": 64,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 4096,
+            "add": 9856,
+            "mul": 7872,
+            "sub": 6016
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 64,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 17,
+          "rows": 32,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 2048,
+            "add": 4928,
+            "mul": 3936,
+            "sub": 3008
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 32,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 18,
+          "rows": 16,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 1024,
+            "add": 2464,
+            "mul": 1968,
+            "sub": 1504
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 16,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 19,
+          "rows": 8,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 512,
+            "add": 1232,
+            "mul": 984,
+            "sub": 752
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 8,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 20,
+          "rows": 4,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 256,
+            "add": 616,
+            "mul": 492,
+            "sub": 376
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 4,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 21,
+          "rows": 2,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 128,
+            "add": 308,
+            "mul": 246,
+            "sub": 188
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        },
+        {
+          "round": 22,
+          "rows": 1,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "round_field_ops": {
+            "mul_base": 64,
+            "add": 154,
+            "mul": 123,
+            "sub": 94
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {}
+        }
+      ],
+      "prepared_scalar": [
+        {
+          "round": 0,
+          "rows": 4194304,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            4,
+            2,
+            2
+          ],
+          "row_field_ops": {
+            "mul_base": 42,
+            "add": 152,
+            "mul": 168,
+            "sub": 122
+          },
+          "round_field_ops": {
+            "mul_base": 176160768,
+            "add": 637566968,
+            "mul": 704643072,
+            "sub": 511705088
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 32760
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 32760
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 40,
+            "Neg": 4,
+            "Scale": 16
+          }
+        },
+        {
+          "round": 1,
+          "rows": 2097152,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 65011712,
+            "add": 234897400,
+            "mul": 257949696,
+            "sub": 190840832
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 16376
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 10235
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 2,
+          "rows": 1048576,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 32505856,
+            "add": 117448696,
+            "mul": 128974848,
+            "sub": 95420416
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 8184
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 5115
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 3,
+          "rows": 524288,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 16252928,
+            "add": 58724344,
+            "mul": 64487424,
+            "sub": 47710208
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 4088
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 2555
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 4,
+          "rows": 262144,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 8126464,
+            "add": 29362168,
+            "mul": 32243712,
+            "sub": 23855104
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 2040
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 1275
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 5,
+          "rows": 131072,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 4063232,
+            "add": 14681080,
+            "mul": 16121856,
+            "sub": 11927552
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 1016
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 635
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 6,
+          "rows": 65536,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 2031616,
+            "add": 7340536,
+            "mul": 8060928,
+            "sub": 5963776
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 504
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 315
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 7,
+          "rows": 32768,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 1015808,
+            "add": 3670264,
+            "mul": 4030464,
+            "sub": 2981888
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 248
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 155
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 8,
+          "rows": 16384,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 507904,
+            "add": 1835128,
+            "mul": 2015232,
+            "sub": 1490944
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 120
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 75
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 9,
+          "rows": 8192,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 253952,
+            "add": 917560,
+            "mul": 1007616,
+            "sub": 745472
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 56
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 35
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 10,
+          "rows": 4096,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 126976,
+            "add": 458776,
+            "mul": 503808,
+            "sub": 372736
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 24
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 15
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 11,
+          "rows": 2048,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 63488,
+            "add": 229376,
+            "mul": 251904,
+            "sub": 186368
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2048,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 12,
+          "rows": 1024,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 31744,
+            "add": 114688,
+            "mul": 125952,
+            "sub": 93184
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 13,
+          "rows": 512,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 15872,
+            "add": 57344,
+            "mul": 62976,
+            "sub": 46592
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 512,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 14,
+          "rows": 256,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 7936,
+            "add": 28672,
+            "mul": 31488,
+            "sub": 23296
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 256,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 15,
+          "rows": 128,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 3968,
+            "add": 14336,
+            "mul": 15744,
+            "sub": 11648
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 128,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 16,
+          "rows": 64,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 1984,
+            "add": 7168,
+            "mul": 7872,
+            "sub": 5824
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 64,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 17,
+          "rows": 32,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 992,
+            "add": 3584,
+            "mul": 3936,
+            "sub": 2912
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 32,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 18,
+          "rows": 16,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 496,
+            "add": 1792,
+            "mul": 1968,
+            "sub": 1456
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 16,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 19,
+          "rows": 8,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 248,
+            "add": 896,
+            "mul": 984,
+            "sub": 728
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 8,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 20,
+          "rows": 4,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 124,
+            "add": 448,
+            "mul": 492,
+            "sub": 364
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 4,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 21,
+          "rows": 2,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 62,
+            "add": 224,
+            "mul": 246,
+            "sub": 182
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 22,
+          "rows": 1,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        }
+      ],
+      "cubic_schoolbook": [
+        {
+          "round": 0,
+          "rows": 4194304,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            4,
+            2,
+            2
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 135,
+            "mul": 163,
+            "sub": 81
+          },
+          "round_field_ops": {
+            "mul_base": 92274697,
+            "add": 566263809,
+            "mul": 683671552,
+            "sub": 339738624
+          },
+          "horner": {
+            "mul_base": 9,
+            "add": 9
+          },
+          "modeled_part_reduction": {
+            "add": 32760
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 32760
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 1,
+          "rows": 2097152,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 131,
+            "mul": 157,
+            "sub": 80
+          },
+          "round_field_ops": {
+            "mul_base": 44040198,
+            "add": 274743294,
+            "mul": 329252864,
+            "sub": 167772160
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 16376
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 12282
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 2,
+          "rows": 1048576,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 131,
+            "mul": 157,
+            "sub": 80
+          },
+          "round_field_ops": {
+            "mul_base": 22020102,
+            "add": 137371646,
+            "mul": 164626432,
+            "sub": 83886080
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 8184
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 6138
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 3,
+          "rows": 524288,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 131,
+            "mul": 157,
+            "sub": 80
+          },
+          "round_field_ops": {
+            "mul_base": 11010054,
+            "add": 68685822,
+            "mul": 82313216,
+            "sub": 41943040
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 4088
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 3066
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 4,
+          "rows": 262144,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 131,
+            "mul": 157,
+            "sub": 80
+          },
+          "round_field_ops": {
+            "mul_base": 5505030,
+            "add": 34342910,
+            "mul": 41156608,
+            "sub": 20971520
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 2040
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 1530
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 5,
+          "rows": 131072,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 2883590,
+            "add": 18613246,
+            "mul": 22020096,
+            "sub": 10878976
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 1016
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 762
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 6,
+          "rows": 65536,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 1441798,
+            "add": 9306622,
+            "mul": 11010048,
+            "sub": 5439488
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 504
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 378
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 7,
+          "rows": 32768,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 720902,
+            "add": 4653310,
+            "mul": 5505024,
+            "sub": 2719744
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 248
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 186
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 8,
+          "rows": 16384,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 360454,
+            "add": 2326654,
+            "mul": 2752512,
+            "sub": 1359872
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 120
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 90
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 9,
+          "rows": 8192,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 180230,
+            "add": 1163326,
+            "mul": 1376256,
+            "sub": 679936
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 56
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 42
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 10,
+          "rows": 4096,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 90118,
+            "add": 581662,
+            "mul": 688128,
+            "sub": 339968
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 24
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 18
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 11,
+          "rows": 2048,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 45062,
+            "add": 290822,
+            "mul": 344064,
+            "sub": 169984
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2048,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 12,
+          "rows": 1024,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 22534,
+            "add": 145414,
+            "mul": 172032,
+            "sub": 84992
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 13,
+          "rows": 512,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 11270,
+            "add": 72710,
+            "mul": 86016,
+            "sub": 42496
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 512,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 14,
+          "rows": 256,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 5638,
+            "add": 36358,
+            "mul": 43008,
+            "sub": 21248
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 256,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 15,
+          "rows": 128,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 2822,
+            "add": 18182,
+            "mul": 21504,
+            "sub": 10624
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 128,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 16,
+          "rows": 64,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 1414,
+            "add": 9094,
+            "mul": 10752,
+            "sub": 5312
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 64,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 17,
+          "rows": 32,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 710,
+            "add": 4550,
+            "mul": 5376,
+            "sub": 2656
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 32,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 18,
+          "rows": 16,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 358,
+            "add": 2278,
+            "mul": 2688,
+            "sub": 1328
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 16,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 19,
+          "rows": 8,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 182,
+            "add": 1142,
+            "mul": 1344,
+            "sub": 664
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 8,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 20,
+          "rows": 4,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 94,
+            "add": 574,
+            "mul": 672,
+            "sub": 332
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 4,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 21,
+          "rows": 2,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 142,
+            "mul": 168,
+            "sub": 83
+          },
+          "round_field_ops": {
+            "mul_base": 50,
+            "add": 290,
+            "mul": 336,
+            "sub": 166
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 22,
+          "rows": 1,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        }
+      ],
+      "cubic_karatsuba": [
+        {
+          "round": 0,
+          "rows": 4194304,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            4,
+            2,
+            2
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 147,
+            "mul": 151,
+            "sub": 105
+          },
+          "round_field_ops": {
+            "mul_base": 92274697,
+            "add": 616595457,
+            "mul": 633339904,
+            "sub": 440401920
+          },
+          "horner": {
+            "mul_base": 9,
+            "add": 9
+          },
+          "modeled_part_reduction": {
+            "add": 32760
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 32760
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 1,
+          "rows": 2097152,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 143,
+            "mul": 145,
+            "sub": 104
+          },
+          "round_field_ops": {
+            "mul_base": 44040198,
+            "add": 299909118,
+            "mul": 304087040,
+            "sub": 218103808
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 16376
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 12282
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 2,
+          "rows": 1048576,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 143,
+            "mul": 145,
+            "sub": 104
+          },
+          "round_field_ops": {
+            "mul_base": 22020102,
+            "add": 149954558,
+            "mul": 152043520,
+            "sub": 109051904
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 8184
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 6138
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 3,
+          "rows": 524288,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 143,
+            "mul": 145,
+            "sub": 104
+          },
+          "round_field_ops": {
+            "mul_base": 11010054,
+            "add": 74977278,
+            "mul": 76021760,
+            "sub": 54525952
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 4088
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 3066
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 4,
+          "rows": 262144,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 21,
+            "add": 143,
+            "mul": 145,
+            "sub": 104
+          },
+          "round_field_ops": {
+            "mul_base": 5505030,
+            "add": 37488638,
+            "mul": 38010880,
+            "sub": 27262976
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 2040
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 1530
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 5,
+          "rows": 131072,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 2883590,
+            "add": 20186110,
+            "mul": 20447232,
+            "sub": 14024704
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 1016
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 762
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 6,
+          "rows": 65536,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 1441798,
+            "add": 10093054,
+            "mul": 10223616,
+            "sub": 7012352
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 504
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 378
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 7,
+          "rows": 32768,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 720902,
+            "add": 5046526,
+            "mul": 5111808,
+            "sub": 3506176
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 248
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 186
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 8,
+          "rows": 16384,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 360454,
+            "add": 2523262,
+            "mul": 2555904,
+            "sub": 1753088
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 120
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 90
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 9,
+          "rows": 8192,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 180230,
+            "add": 1261630,
+            "mul": 1277952,
+            "sub": 876544
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 56
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 42
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 10,
+          "rows": 4096,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 90118,
+            "add": 630814,
+            "mul": 638976,
+            "sub": 438272
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 24
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 18
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 11,
+          "rows": 2048,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 45062,
+            "add": 315398,
+            "mul": 319488,
+            "sub": 219136
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2048,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 12,
+          "rows": 1024,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 22534,
+            "add": 157702,
+            "mul": 159744,
+            "sub": 109568
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 13,
+          "rows": 512,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 11270,
+            "add": 78854,
+            "mul": 79872,
+            "sub": 54784
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 512,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 14,
+          "rows": 256,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 5638,
+            "add": 39430,
+            "mul": 39936,
+            "sub": 27392
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 256,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 15,
+          "rows": 128,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 2822,
+            "add": 19718,
+            "mul": 19968,
+            "sub": 13696
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 128,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 16,
+          "rows": 64,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 1414,
+            "add": 9862,
+            "mul": 9984,
+            "sub": 6848
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 64,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 17,
+          "rows": 32,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 710,
+            "add": 4934,
+            "mul": 4992,
+            "sub": 3424
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 32,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 18,
+          "rows": 16,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 358,
+            "add": 2470,
+            "mul": 2496,
+            "sub": 1712
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 16,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 19,
+          "rows": 8,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 182,
+            "add": 1238,
+            "mul": 1248,
+            "sub": 856
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 8,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 20,
+          "rows": 4,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 94,
+            "add": 622,
+            "mul": 624,
+            "sub": 428
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 4,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 21,
+          "rows": 2,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 154,
+            "mul": 156,
+            "sub": 107
+          },
+          "round_field_ops": {
+            "mul_base": 50,
+            "add": 314,
+            "mul": 312,
+            "sub": 214
+          },
+          "horner": {
+            "mul_base": 6,
+            "add": 6
+          },
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 22,
+          "rows": 1,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        }
+      ],
+      "cubic_round0": [
+        {
+          "round": 0,
+          "rows": 4194304,
+          "coefficient_group0": true,
+          "scalar_samples": [
+            4,
+            2,
+            2
+          ],
+          "row_field_ops": {
+            "mul_base": 22,
+            "add": 147,
+            "mul": 151,
+            "sub": 105
+          },
+          "round_field_ops": {
+            "mul_base": 92274697,
+            "add": 616595457,
+            "mul": 633339904,
+            "sub": 440401920
+          },
+          "horner": {
+            "mul_base": 9,
+            "add": 9
+          },
+          "modeled_part_reduction": {
+            "add": 32760
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 32760
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 20,
+            "Neg": 2,
+            "Scale": 8
+          }
+        },
+        {
+          "round": 1,
+          "rows": 2097152,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 65011712,
+            "add": 234897400,
+            "mul": 257949696,
+            "sub": 190840832
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 16376
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 10235
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 2,
+          "rows": 1048576,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 32505856,
+            "add": 117448696,
+            "mul": 128974848,
+            "sub": 95420416
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 8184
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 5115
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 3,
+          "rows": 524288,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 16252928,
+            "add": 58724344,
+            "mul": 64487424,
+            "sub": 47710208
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 4088
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 2555
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 4,
+          "rows": 262144,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 8126464,
+            "add": 29362168,
+            "mul": 32243712,
+            "sub": 23855104
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 2040
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 1275
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 5,
+          "rows": 131072,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 4063232,
+            "add": 14681080,
+            "mul": 16121856,
+            "sub": 11927552
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 1016
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 635
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 6,
+          "rows": 65536,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 2031616,
+            "add": 7340536,
+            "mul": 8060928,
+            "sub": 5963776
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 504
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 315
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 7,
+          "rows": 32768,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 1015808,
+            "add": 3670264,
+            "mul": 4030464,
+            "sub": 2981888
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 248
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 155
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 8,
+          "rows": 16384,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 507904,
+            "add": 1835128,
+            "mul": 2015232,
+            "sub": 1490944
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 120
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 75
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 9,
+          "rows": 8192,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 253952,
+            "add": 917560,
+            "mul": 1007616,
+            "sub": 745472
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 56
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 35
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 10,
+          "rows": 4096,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 126976,
+            "add": 458776,
+            "mul": 503808,
+            "sub": 372736
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 24
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 15
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 11,
+          "rows": 2048,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 63488,
+            "add": 229376,
+            "mul": 251904,
+            "sub": 186368
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2048,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 12,
+          "rows": 1024,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 31744,
+            "add": 114688,
+            "mul": 125952,
+            "sub": 93184
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1024,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 13,
+          "rows": 512,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 15872,
+            "add": 57344,
+            "mul": 62976,
+            "sub": 46592
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 512,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 14,
+          "rows": 256,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 7936,
+            "add": 28672,
+            "mul": 31488,
+            "sub": 23296
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 256,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 15,
+          "rows": 128,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 3968,
+            "add": 14336,
+            "mul": 15744,
+            "sub": 11648
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 128,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 16,
+          "rows": 64,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 1984,
+            "add": 7168,
+            "mul": 7872,
+            "sub": 5824
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 64,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 17,
+          "rows": 32,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 992,
+            "add": 3584,
+            "mul": 3936,
+            "sub": 2912
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 32,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 18,
+          "rows": 16,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 496,
+            "add": 1792,
+            "mul": 1968,
+            "sub": 1456
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 16,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 19,
+          "rows": 8,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 248,
+            "add": 896,
+            "mul": 984,
+            "sub": 728
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 8,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 20,
+          "rows": 4,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 124,
+            "add": 448,
+            "mul": 492,
+            "sub": 364
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 4,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 21,
+          "rows": 2,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 62,
+            "add": 224,
+            "mul": 246,
+            "sub": 182
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 2,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        },
+        {
+          "round": 22,
+          "rows": 1,
+          "coefficient_group0": false,
+          "scalar_samples": [
+            3,
+            1,
+            1
+          ],
+          "row_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "round_field_ops": {
+            "mul_base": 31,
+            "add": 112,
+            "mul": 123,
+            "sub": 91
+          },
+          "horner": {},
+          "modeled_part_reduction": {
+            "add": 0
+          },
+          "modeled_chunk_rows": 1,
+          "logical_active_part_reduction": {
+            "add": 0
+          },
+          "denominator_dispatch_per_row": {
+            "Unit": 30,
+            "Neg": 3,
+            "Scale": 12
+          }
+        }
+      ]
+    },
+    "scope": "SC_SZC bracket + weighted accumulation + modeled fixed8-word part reduction + final Horner + denominator preparation. Common Eq/interpolation/recovery/fold/PCS/mask/witness/transfer/serialization omitted, no native timing. Counts assume nonzero recovery after round0; coefficient factories only >=2 rows. Native Rayon identity-fold additions uncounted; common reduction widths unchanged. Source literal includes unit/zero API operations; compiler may remove them."
+  },
+  "eliminated_public_width_tests": 159383552,
+  "scope": "Synthetic CPU round/fold/final and row arithmetic; no native constructor, transcript, RNG, PCS, verifier, GPU or proof.",
+  "synthetic_dimensions": {
+    "cube_log_min": 0,
+    "cube_log_max": 4,
+    "max_cells": 16,
+    "limbs": [
+      2,
+      3
+    ],
+    "lookup_counts": [
+      7,
+      8,
+      "full"
+    ],
+    "chunks": [
+      1,
+      3,
+      7
+    ],
+    "modes": [
+      "literal",
+      "prepared_scalar",
+      "cubic_round0",
+      "fixed_ssa",
+      "fixed_recycled"
+    ],
+    "natural_causal_shapes": [
+      [
+        1,
+        1,
+        1,
+        4,
+        4
+      ],
+      [
+        4,
+        1,
+        4,
+        2,
+        2
+      ],
+      [
+        2,
+        1,
+        2,
+        2,
+        2
+      ]
+    ]
+  },
+  "wall_seconds": 13.144796408001639,
+  "max_rss_kib": 26948,
+  "hardware": {
+    "device": "CPU only",
+    "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+    "threads": 1,
+    "nice": 19,
+    "affinity": [
+      0
+    ]
+  },
+  "limits": {
+    "cpu_seconds": 59,
+    "wall_seconds": 59,
+    "address_space_bytes": 536870912,
+    "estimated_memory_bytes": 67108864
+  },
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}

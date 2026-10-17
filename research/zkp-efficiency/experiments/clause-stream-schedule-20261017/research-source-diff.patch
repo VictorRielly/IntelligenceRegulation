@@ -1,0 +1,223 @@
+--- cycle55/generate.py
++++ cycle56/generate.py
+@@ -51,7 +51,7 @@
+         return tuple(self.op('mul_base', z, str(x)) for z in a)
+ 
+ 
+-def build(cfg, mask_active):
++def build_original(cfg, mask_active):
+     if cfg['padded'] or any(cfg['supports']):
+         raise ValueError('fixed factory: unpadded only')
+     g = Graph()
+@@ -140,6 +140,7 @@
+                        allocated_reusable_slots=slots if recycled else None,
+                        temporary_logical_bytes=16*peak,output_words=4,output_logical_bytes=64,
+                        runtime_width_tests=0,runtime_shape_tests=0,runtime_denominator_tag_tests=0,
++                       public_schedule=getattr(g,"schedule_record",None),
+                        excluded='Read-only inputs, offsets/constants, caller cur/dif, equality and accumulators; native registers, stack, occupancy and compiler spills unmeasured.'),schedule
+ 
+ 
+@@ -180,3 +181,11 @@
+         (directory/(tag+'-'+suffix+'-liveness.json')).write_text(json.dumps(schedule,indent=2)+'\n')
+     (directory/(tag+'.rs')).write_text(rust_source(g,out,'sc_szc_round0'))
+     return g,out,record
++
++
++def build(cfg, mask_active):
++    from scheduler import schedule
++    graph,out=build_original(cfg,mask_active)
++    new,result,record=schedule(graph,out)
++    new.schedule_record=record
++    return new,result
+--- cycle55/experiment.py
++++ cycle56/experiment.py
+@@ -16,7 +16,7 @@
+ import oracle as o
+ 
+ HERE=Path(__file__).resolve().parent
+-SEED=2026101755
++SEED=2026101756
+ 
+ 
+ class CountF:
+@@ -168,7 +168,7 @@
+         else:raise AssertionError('padded accepted')
+     prior_result=json.loads((HERE/'prior-result.json').read_text())
+     projection=next(x for x in prior_result['projections'] if x['limbs']==3 and x['shape']['head_pad']==32 and x['shape']['token_pad']==512)
+-    result=dict(status='passed',cycle='0055',run_id='20261017T052624Z-c8881557',seed=SEED,counts=dict(counts),
++    result=dict(status='passed',cycle='0056',run_id='20261017T062624Z-e471348a',seed=SEED,counts=dict(counts),
+                 controls=controls,recoveries=recoveries,zero_factor_fallbacks=fallbacks,output_sha256=digest.hexdigest(),
+                 generated_shapes=stats,unchanged_scoped_field_census=projection,
+                 eliminated_public_width_tests=projection['results']['cubic_round0']['extra']['public_width_tests'],
+@@ -180,7 +180,7 @@
+                 proof_accounting=prior_result['proof_accounting'])
+     (HERE/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+     print(json.dumps({k:v for k,v in result.items() if k not in ('generated_shapes','unchanged_scoped_field_census')},indent=2))
+-    print('GENERATED',json.dumps(stats))
++    print('SCHEDULE_PEAKS',json.dumps([{k:v for k,v in x.items() if k!='generated'} | {'baseline':x['generated']['ssa']['public_schedule']['baseline_peak'],'scheduled':x['generated']['ssa']['peak_live_logical_temporaries']} for x in stats]))
+ 
+ 
+ if __name__=='__main__':main()
+--- cycle55/audit.py
++++ cycle56/audit.py
+@@ -2,7 +2,8 @@
+ import ast,datetime,hashlib,json,os,resource,signal
+ from collections import Counter
+ from pathlib import Path
+-from generate import build
++from generate import build,build_original
++from scheduler import reorder
+ from support_model import config
+ 
+ HERE=Path(__file__).resolve().parent
+@@ -52,6 +53,22 @@
+     for item in result['generated_shapes']:
+         cfg=config((False,False),ls=item['ls'],lookup_count=item['lookup_count'])
+         graph,out=build(cfg,item['mask_active'])
++        original,original_out=build_original(cfg,item['mask_active'])
++        order=graph.schedule_record['order']
++        assert sorted(order)==list(range(len(original.nodes)));checks+=1
++        # Independent comparison against the pre-scheduling DAG. Relabel each
++        # original operand from the recorded permutation; preserve operand
++        # order even for commutative operations, outputs and dead operations.
++        mapping={old:new for new,old in enumerate(order)}
++        def cv(x):
++            if x.startswith('v') and x[1:].isdigit():return 'v'+str(mapping[int(x[1:])])
++            return x
++        for new,old in enumerate(order):
++            op,a,b=original.nodes[old]
++            assert graph.nodes[new]==(op,cv(a),cv(b));checks+=1
++            for x in graph.nodes[new][1:]:
++                if x.startswith('v') and x[1:].isdigit():assert int(x[1:])<new;checks+=1
++        assert out==tuple(cv(x) for x in original_out);checks+=1
+         tag=f'ls{item["ls"]}-lk{item["lookup_count"]}-mask{int(item["mask_active"])}'
+         for suffix in ('ssa','recycled'):
+             source=(HERE/'generated'/(tag+'-'+suffix+'.py')).read_text()
+@@ -65,6 +82,12 @@
+     try:audit_body(graph,out,'\n'.join(src)+'\n')
+     except AssertionError:checks+=1
+     else:raise AssertionError('corrupt AST escaped audit')
++    original,original_out=build_original(config((False,False),ls=3),True)
++    order=list(range(len(original.nodes)))
++    for label,bad in [('drop',order[:-1]),('duplicate',order+[0]),('dependency',list(reversed(order)))]:
++        try:reorder(original,original_out,bad)
++        except ValueError:checks+=1
++        else:raise AssertionError(label+' schedule admitted')
+     command=json.loads((HERE/'command.json').read_text())
+     for name,digest in command['source_sha256'].items():
+         assert hashlib.sha256((HERE/name).read_bytes()).hexdigest()==digest,name
+@@ -83,7 +106,9 @@
+               for p in sorted(HERE.rglob('*')) if p.is_file() and p.name not in ('audit.json','final-manifest.json')}
+     (HERE/'final-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+     output=dict(status='passed',checks=checks,generated_bodies=records,owner_memory=owner,
+-                negative_control='corrupt generated RHS rejected',
++                negative_control='corrupt generated RHS rejected; dropped/duplicated/use-before-definition schedules refused',
++                dag_equivalence='Exact operation/operand/output correspondence under public permutation; no elimination or recomputation.',
++                target_16_met=False,optimality_claim=False,
+                 completed_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat())
+     (HERE/'audit.json').write_text(json.dumps(output,indent=2)+'\n')
+     print(json.dumps({k:v for k,v in output.items() if k not in ('generated_bodies','owner_memory')}))
+--- /dev/null
++++ cycle56/scheduler.py
+@@ -0,0 +1,101 @@
++"""Public DAG scheduling only: no operation elimination, recomputation or CSE.
++
++All candidate choices depend on expression indices/dependencies and liveness,
++never on field/witness values. Standalone standard-library research code.
++"""
++import itertools
++from collections import Counter
++
++
++def ref(x):
++    return int(x[1:]) if x.startswith('v') and x[1:].isdigit() else None
++
++
++def peak(graph, outputs, order):
++    remaining=Counter(x for _,a,b in graph.nodes for x in (a,b))
++    remaining.update(outputs)
++    live=set(); high=0
++    for i in order:
++        _,a,b=graph.nodes[i]
++        for x in (a,b):
++            remaining[x]-=1
++            if remaining[x]==0:live.discard(x)
++        name='v'+str(i)
++        if remaining[name]:live.add(name)
++        high=max(high,len(live))
++    return high
++
++
++def candidates(graph, outputs):
++    n=len(graph.nodes)
++    deps=[tuple(dict.fromkeys(ref(x) for x in (a,b) if ref(x) is not None))
++          for _,a,b in graph.nodes]
++    heights=[];weights=[]
++    for ds in deps:
++        heights.append(1+max((heights[d] for d in ds),default=0))
++        weights.append(1+sum(weights[d] for d in ds))
++    # Depth-first orders group work along output/clause dependencies; the
++    # existing global graph is retained so shared values are never recomputed.
++    roots=[ref(x) for x in outputs if ref(x) is not None]
++    for roots_order in itertools.permutations(roots):
++        for policy in ('forward','reverse','height','weight'):
++            seen=set();order=[]
++            def visit(i):
++                if i in seen:return
++                ds=list(deps[i])
++                if policy=='reverse':ds.reverse()
++                if policy=='height':ds.sort(key=lambda d:(-heights[d],d))
++                if policy=='weight':ds.sort(key=lambda d:(-weights[d],d))
++                for d in ds:visit(d)
++                seen.add(i);order.append(i)
++            for i in roots_order:visit(i)
++            for i in range(n):visit(i) # preserve even dead pure operations
++            yield 'dfs-'+policy+'-'+','.join(map(str,roots_order)),order
++    # Ready-list schedules favor consuming last users; tie breakers avoid
++    # assuming depth-first output order alone is best for a multi-output DAG.
++    users=[[] for _ in range(n)]
++    for i,ds in enumerate(deps):
++        for d in ds:users[d].append(i)
++    for tie in ('early','late','deep','shallow','weight'):
++        remaining=Counter(x for _,a,b in graph.nodes for x in (a,b));remaining.update(outputs)
++        pending=list(map(len,deps));ready={i for i,x in enumerate(pending) if x==0}
++        order=[]
++        while ready:
++            def score(i):
++                uses=Counter(graph.nodes[i][1:])
++                deaths=sum(ref(x) is not None and remaining[x]==v for x,v in uses.items())
++                second={'early':i,'late':-i,'deep':-heights[i],
++                        'shallow':heights[i],'weight':-weights[i]}[tie]
++                return (-deaths,second,i)
++            i=min(ready,key=score);ready.remove(i);order.append(i)
++            for x in graph.nodes[i][1:]:remaining[x]-=1
++            for u in users[i]:
++                pending[u]-=1
++                if pending[u]==0:ready.add(u)
++        yield 'ready-'+tie,order
++
++
++def reorder(graph, outputs, order):
++    if sorted(order)!=list(range(len(graph.nodes))):
++        raise ValueError('schedule must contain each operation once')
++    new=type(graph)();mapping={}
++    def cv(x):
++        if ref(x) is None:return x
++        if x not in mapping:raise ValueError('use before definition')
++        return mapping[x]
++    for i in order:
++        op,a,b=graph.nodes[i]
++        mapping['v'+str(i)]=new.op(op,cv(a),cv(b))
++    return new,tuple(cv(x) for x in outputs)
++
++
++def schedule(graph, outputs):
++    baseline=list(range(len(graph.nodes)))
++    records=[('original',baseline,peak(graph,outputs,baseline))]
++    records.extend((name,order,peak(graph,outputs,order)) for name,order in candidates(graph,outputs))
++    name,order,best=min(records,key=lambda x:x[2])
++    new,out=reorder(graph,outputs,order)
++    assert new.counts==graph.counts and len(new.nodes)==len(graph.nodes)
++    return new,out,dict(policy=name,baseline_peak=records[0][2],scheduled_peak=best,
++                        candidate_count=len(records),order=order,
++                        frontier_histogram=dict(Counter(x[2] for x in records)))

@@ -1,0 +1,26 @@
+{
+  "access_date": "2026-10-17",
+  "queries": [
+    "sumcheck GPU common subexpression elimination polynomial squaring 2026 github",
+    "sumcheck softmax lookup attention proof October 2026 github",
+    "Bernstein 2005 multivariate Horner common subexpression elimination polynomial evaluation",
+    "site.arxiv.org sumcheck softmax lookup October 2026 zero knowledge",
+    "site.github.com Plonky3 sumcheck square 2026",
+    "site.arxiv.org Haggies Code Generator",
+    "site.github.com deep-prove releases 2026 lookup softmax"
+  ],
+  "new_older_assessed": "haggies 2009, independently written local test",
+  "other_assessed_primary": "Horner MCTS arXiv1207.7079 July30,2012 abstract: no algorithm port or runtime reproduction; not a new sumcheck protocol",
+  "recent_paper_search": "Oct6 zkLLMPoT surfaced again; prior cycle48 fulltext assessment retained, no new result inferred",
+  "rotation": [
+    "sumcheck/GKR",
+    "lookup/softmax",
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "next_rotation": [
+    "quantization/arithmetic",
+    "GPU NTT/commitments",
+    "proof composition"
+  ]
+}

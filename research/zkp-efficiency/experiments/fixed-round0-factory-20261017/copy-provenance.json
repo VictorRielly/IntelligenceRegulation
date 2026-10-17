@@ -1,0 +1,25 @@
+{
+  "origin": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/unpadded-cubic-factory-20261017",
+  "files": [
+    "axis_factory.py",
+    "coefficients.py",
+    "cubic_factory.py",
+    "candidate.py",
+    "field_support.py",
+    "fixtures.py",
+    "oracle.py",
+    "polynomial_clause.py",
+    "polynomial_ir.py",
+    "prepared.py",
+    "prior_optional_experiment.py",
+    "row_rounds.py",
+    "source_port.py",
+    "support_model.py",
+    "weighted_rounds.py",
+    "experiment.py"
+  ],
+  "additional_support_files": [
+    "static_plan.py",
+    "row_graph.py"
+  ]
+}

@@ -1,0 +1,11 @@
+seq_ho00 row0 x_in absmax 23 | float z top ch [ 624 1661  758] [-4.0602593  -2.9839144   0.61003584] int z [-4.30688616 -3.14117937  0.65849086]
+   float h top [5475 4999 3950] [4.756039   0.23903714 0.1892363 ] gate [2.8070588  0.9381507  0.60038924] up [1.7966207  0.35451078 0.48810163]
+   int g8 [6 2 1] a16 [2926  749  319] u16 [1331  529  181] h16 [238  24   4]
+   int nm row0 absmax 4 float xm row0 absmax 11.685342
+   row0 identical to other seq? seq_ho00
+seq_ho01 row0 x_in absmax 23 | float z top ch [ 624 1661  758] [-4.0602593  -2.9839144   0.61003584] int z [-4.30688616 -3.14117937  0.65849086]
+   float h top [5475 4999 3950] [4.756039   0.23903714 0.1892363 ] gate [2.8070588  0.9381507  0.60038924] up [1.7966207  0.35451078 0.48810163]
+   int g8 [6 2 1] a16 [2926  749  319] u16 [1331  529  181] h16 [238  24   4]
+   int nm row0 absmax 4 float xm row0 absmax 11.685342
+   row0 identical to other seq? seq_ho01
+BOS row x_in_L02 equal across sequences: True

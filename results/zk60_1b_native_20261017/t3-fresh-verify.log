@@ -1,0 +1,12 @@
+
+running 1 test
+test private_block::trained_calib_tests::native_t3_verify_the_saved_receipt_in_a_fresh_process ... NATIVE T3 fresh-process verify: 0.38 s, 11627208 B, peak RSS 163 MiB
+NATIVE control at hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1: verifier with tn - 1 refuses: private block wire: frame length
+NATIVE control at hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1: verifier with cn_a + 1 refuses: private block wire: expected statement mismatch
+NATIVE control at hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1: verifier with cn_m + 1 refuses: private block wire: expected statement mismatch
+NATIVE control at hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1: verifier with ceps + 1 refuses: private block wire: expected statement mismatch
+NATIVE control at hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1: verifier with sh_ao + 1 refuses: private block wire: expected statement mismatch
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 536 filtered out; finished in 2.42s
+

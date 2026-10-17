@@ -1,0 +1,21 @@
+L0 norm range r6 K 7.410 y_fill 0.36 gmax 127 ones 0
+  worst pair (2, 23) Lq 0.23873116047463785 Lk 0.46805419639855106 LqLk*64 7.15130377416001 raw 107.146805
+  q range part 0.0718945672235141 k range 0.13491606247001164
+  median Lq*Lk*64 0.03842032719528894 frac pairs w-bound q 0.5625
+   shape range: noise 0.0023 r6 e_s need 2.84
+   shape smooth: noise 0.0245 r0 e_s need -0.17
+   shape gamma: noise 0.0435 r0 e_s need -0.17
+L8 norm smooth r0 K 10.948 y_fill 1.00 gmax 127 ones 1
+  worst pair (1, 31) Lq 0.10517007110534614 Lk 0.2223183903106244 LqLk*64 1.4963994186876457 raw 337.47852
+  q range part 0.10517007110534614 k range 0.2223183903106244
+  median Lq*Lk*64 0.11230631918808509 frac pairs w-bound q 0.0
+   shape range: noise 0.0035 r8 e_s need 0.96
+   shape smooth: noise 0.0034 r0 e_s need 0.58
+   shape gamma: noise 0.0179 r0 e_s need 0.58
+L15 norm smooth r0 K 7.775 y_fill 0.99 gmax 127 ones 0
+  worst pair (2, 31) Lq 0.0962354887107335 Lk 0.1704805747299855 LqLk*64 1.0500020111889201 raw 219.43034
+  q range part 0.0962354887107335 k range 0.1704805747299855
+  median Lq*Lk*64 0.12893362760609123 frac pairs w-bound q 0.0
+   shape range: noise 0.0032 r8 e_s need 0.45
+   shape smooth: noise 0.0031 r0 e_s need 0.07
+   shape gamma: noise 0.0055 r0 e_s need 0.07

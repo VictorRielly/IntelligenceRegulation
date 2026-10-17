@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "checks": 86,
+  "checked_utc": "2026-10-17T07:35:17.456359+00:00",
+  "wall_seconds": 0.011583012998016784,
+  "max_rss_kib": 16832,
+  "native_and_measurement_pins": 12,
+  "owner_memory_files": 6,
+  "historical_source_count": 288,
+  "new_source_count": 4,
+  "historical_prefixes_preserved": true,
+  "complete_private_8b_token_credit": 0
+}

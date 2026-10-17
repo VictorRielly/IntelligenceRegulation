@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/clause-stream-schedule-20261017/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "start_utc": "2026-10-17T06:28:28.634023+00:00",
+  "timeout_seconds": 60,
+  "source_sha256": {
+    "audit.py": "d64a9371381975dbf30663600b8277c8e2d408c820ff786ac63de62b0e8c5253",
+    "axis_factory.py": "593852dfd9ecffd0b2297b69ce266a969f16487decaf902a73a107dba8502963",
+    "candidate.py": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5",
+    "coefficients.py": "daa1bb262b874c3f960f0c50ab1d9a4229bed82d8507d15d96e244ab1632aecd",
+    "cubic_factory.py": "6239fa685896b87affb76c048138b6bfec7ecca21f5358551209b44a13978049",
+    "experiment.py": "1d8a74d6b4652931ae04b5acf406de3e4f667b91f2e29b6b29d3beb426683f35",
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "fixed_factory.py": "440413be8e1af553fbb83f76abc71c4e398edbb1d887e23daf53b5940631780c",
+    "fixtures.py": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a",
+    "generate.py": "9fd7a8467f6b1ebc57300280b07a61c855a30973a278831f486b22c41041a52e",
+    "oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "polynomial_clause.py": "b8895c6c7f098010c20493ca9320ec305801bcd0e119780fe3ee99ff28d0016f",
+    "polynomial_ir.py": "edadefc4020521fce8e41c3b66dbd0f3c7fb30929a7decb609b9874cb5a1f2e0",
+    "prepared.py": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c",
+    "prior_experiment.py": "a15c7f94f93bad21f747a3677bac0847bd7b4e18074a0bb34280874767f32d76",
+    "prior_optional_experiment.py": "bc3a6aa758852fdd8a8dac36eb5785e91693e6c2678a92f2ebbffb0a14fc481a",
+    "row_graph.py": "93188def30d7026439c446ca2b13a7796b011624a8719255f24197786974dc4e",
+    "row_rounds.py": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875",
+    "run.py": "6149e7e0c28f14d34daed2e7bff43a3a513d147e0c983082afcc336d78dfd5a0",
+    "scheduler.py": "103cad5c2bcdcf8b7b1d4792f342dcaf69b1084434a44ae6ee6083e8a7b4ac5f",
+    "source_port.py": "2e31f19a567b9341ccdd313595f0ebbc34d7f4790b548bb91f06eed41e024d5e",
+    "static_plan.py": "bd3ca9c732692dbc6f2efb756687b95d5207a75d97ef016267373bfd9c10f085",
+    "support_model.py": "7b43078583a3ca9b45351e753b80b1a35c4c764ce637042fb469d59bbc973c88",
+    "weighted_rounds.py": "b7e17c8e69acf9bb68b406b09f739e50503c240b7400ae3344a1318d31097760"
+  }
+}

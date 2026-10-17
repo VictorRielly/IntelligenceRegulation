@@ -1,0 +1,320 @@
+{
+  "status": "passed",
+  "checked_at_utc": "2026-10-17T02:35:19.101701+00:00",
+  "checks": [
+    {
+      "name": "actual experiment exit0",
+      "passed": true
+    },
+    {
+      "name": "result passed matching run",
+      "passed": true
+    },
+    {
+      "name": "measured source hash axis_factory.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash baseline.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash candidate.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash coefficients.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash experiment.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash field_support.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash fixtures.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash karatsuba_factory.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash oracle.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash polynomial_clause.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash polynomial_ir.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash prepared.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash prior_axis_experiment.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash prior_experiment.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash prior_experiment50.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash row_graph.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash row_rounds.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash run.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash source_port.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash static_plan.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash weighted_experiment.py",
+      "passed": true
+    },
+    {
+      "name": "measured source hash weighted_rounds.py",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash grouped.rs",
+      "passed": true
+    },
+    {
+      "name": "current native hash grouped.rs",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash field.rs",
+      "passed": true
+    },
+    {
+      "name": "current native hash field.rs",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash argument.rs",
+      "passed": true
+    },
+    {
+      "name": "current native hash argument.rs",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash protocol.rs",
+      "passed": true
+    },
+    {
+      "name": "current native hash protocol.rs",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash report.json",
+      "passed": true
+    },
+    {
+      "name": "current native hash report.json",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash b2-gpu.log",
+      "passed": true
+    },
+    {
+      "name": "current native hash b2-gpu.log",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash report.json",
+      "passed": true
+    },
+    {
+      "name": "current native hash report.json",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash report.json",
+      "passed": true
+    },
+    {
+      "name": "current native hash report.json",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash pad.rs",
+      "passed": true
+    },
+    {
+      "name": "current native hash pad.rs",
+      "passed": true
+    },
+    {
+      "name": "native snapshot hash shape.rs",
+      "passed": true
+    },
+    {
+      "name": "current native hash shape.rs",
+      "passed": true
+    },
+    {
+      "name": "single thread and bounded elapsed",
+      "passed": true
+    },
+    {
+      "name": "bounded observed RSS",
+      "passed": true
+    },
+    {
+      "name": "600 schedules and independent samples",
+      "passed": true
+    },
+    {
+      "name": "final and extension oracles",
+      "passed": true
+    },
+    {
+      "name": "value independent schedule checks",
+      "passed": true
+    },
+    {
+      "name": "no multiplication gain 0",
+      "passed": true
+    },
+    {
+      "name": "baseline raw counter parity 0",
+      "passed": true
+    },
+    {
+      "name": "projected api reduction 0",
+      "passed": true
+    },
+    {
+      "name": "no multiplication gain 1",
+      "passed": true
+    },
+    {
+      "name": "baseline raw counter parity 1",
+      "passed": true
+    },
+    {
+      "name": "projected api reduction 1",
+      "passed": true
+    },
+    {
+      "name": "no multiplication gain 2",
+      "passed": true
+    },
+    {
+      "name": "baseline raw counter parity 2",
+      "passed": true
+    },
+    {
+      "name": "projected api reduction 2",
+      "passed": true
+    },
+    {
+      "name": "no multiplication gain 3",
+      "passed": true
+    },
+    {
+      "name": "baseline raw counter parity 3",
+      "passed": true
+    },
+    {
+      "name": "projected api reduction 3",
+      "passed": true
+    },
+    {
+      "name": "no multiplication gain 4",
+      "passed": true
+    },
+    {
+      "name": "baseline raw counter parity 4",
+      "passed": true
+    },
+    {
+      "name": "projected api reduction 4",
+      "passed": true
+    },
+    {
+      "name": "no multiplication gain 5",
+      "passed": true
+    },
+    {
+      "name": "baseline raw counter parity 5",
+      "passed": true
+    },
+    {
+      "name": "projected api reduction 5",
+      "passed": true
+    },
+    {
+      "name": "zero accepted proof accounting",
+      "passed": true
+    },
+    {
+      "name": "prior findings preserved",
+      "passed": true
+    },
+    {
+      "name": "prior source bytes preserved",
+      "passed": true
+    },
+    {
+      "name": "sources264",
+      "passed": true
+    },
+    {
+      "name": "three appended sources",
+      "passed": true
+    },
+    {
+      "name": "dated report equals progress",
+      "passed": true
+    },
+    {
+      "name": "state checkpoints actual run",
+      "passed": true
+    },
+    {
+      "name": "scope warning documented",
+      "passed": true
+    },
+    {
+      "name": "python sources parse",
+      "passed": true
+    }
+  ],
+  "count": 76,
+  "report_sha256": {
+    "STATE.md": "a83fc7acb42f5768e924ed1b798e89376c05ba080defd152fb12ded6b73869eb",
+    "PROGRESS.md": "a38915a1f57883b9a39f30140531dcb094c4888d52f028b1c3cd18db38cca80b",
+    "FINDINGS.md": "88d45b0c70110d7b012cf2e92b280e0fb7014edf06ec042bc48d6c70a9abde6e",
+    "sources.jsonl": "01cd1a20712cf41a0a210a0409c9acb38d30c54d5f5a87d253c75b541b62214b",
+    "progress/20261017T022624Z-f3bec81b.md": "a38915a1f57883b9a39f30140531dcb094c4888d52f028b1c3cd18db38cca80b",
+    "handoffs/20261017-public-row-cse.md": "ebacf42cb336f9b3856b78c964068b15120201da130e7371237273b62dbd0f2a"
+  },
+  "finalized_at_utc": "2026-10-17T02:35:50.184071+00:00"
+}

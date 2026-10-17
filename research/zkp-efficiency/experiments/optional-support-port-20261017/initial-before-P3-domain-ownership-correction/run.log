@@ -1,0 +1,102 @@
+{
+  "status": "passed",
+  "run_id": "20261017T032624Z-1d6d29cb",
+  "cycle": "0053",
+  "seed": 2026101753,
+  "counts": {
+    "independent_final_values": 14532,
+    "full_schedules": 600,
+    "fixtures": 100,
+    "independent_round_samples": 5760,
+    "independent_extension_clause_values": 384,
+    "value_independent_graph_schema_checks": 144,
+    "native_construction_admissions": 24,
+    "independent_padding_weights": 208,
+    "native_construction_refusals": 8,
+    "allocation_free_shape_presence_checks": 924
+  },
+  "presence_fixture_counts": {
+    "(False, False)": 25,
+    "(True, False)": 24,
+    "(False, True)": 24,
+    "(True, True)": 27
+  },
+  "declared_degrees": {
+    "(False, False)": [
+      3,
+      1,
+      1
+    ],
+    "(True, False)": [
+      4,
+      2,
+      2
+    ],
+    "(False, True)": [
+      4,
+      2,
+      2
+    ],
+    "(True, True)": [
+      4,
+      2,
+      2
+    ]
+  },
+  "controls": [
+    "S-only-native-construction-refusal-preserved-algebra-tested-separately",
+    "restart_zeta-independent-equation-detected",
+    "ht_uses_s-independent-equation-detected",
+    "gate_helpers-independent-equation-detected",
+    "drop-present-support-detected",
+    "invalid-presence-metadata-refused",
+    "support-without-pad-on-refused",
+    "P3-lift-can-create-Ht-only-support-full-native-tables-not-ported"
+  ],
+  "recoveries": 876,
+  "zero_factor_fallbacks": 636,
+  "output_sha256": "0dadfb7db4ceb8e44a8f7aaeefd191fec235ec5e9cbccc6daf9a9a5ee1f8e543",
+  "wall_seconds": 12.987381451999681,
+  "max_rss_kib": 25456,
+  "hardware": {
+    "device": "CPU only",
+    "threads": 1,
+    "affinity": [
+      0
+    ],
+    "nice": 19,
+    "cpu_model": "Intel(R) Core(TM) Ultra 9 185H"
+  },
+  "limits": {
+    "wall_seconds": 59,
+    "cpu_seconds": 59,
+    "address_space_bytes": 536870912,
+    "estimated_bytes": 67108864
+  },
+  "proof_accounting": {
+    "accepted_complete_private_8b_proofs": 0,
+    "proved_tokens": 0,
+    "passes": 0,
+    "context_length": null,
+    "steady_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "independent_verification_seconds": null,
+    "proof_latency_seconds": null,
+    "proof_lag_seconds": null,
+    "pipeline_drain_seconds": null,
+    "prefill": null,
+    "resident_passes": null,
+    "decode": null
+  }
+}
+CENSUS {"shape": {"head_pad": 16, "kv_heads": 4, "query_heads": 12, "token_pad": 512, "tokens": 512}, "limbs": 2, "cube_log": 22, "policy": {"supports": [true, true], "pad_on": true, "domain_sizes": [8192, 4194304], "true_sizes": [6144, 3145728], "frozen": false}, "bracket_only_totals": {"legacy_always_padded_formula": {"mul_base": 331349946, "add": 1096810264, "mul": 966786868, "sub": 576716678}, "correct_optional_port": {"mul_base": 331349946, "add": 1096810264, "mul": 966786868, "sub": 576716678}}, "details": {"legacy_always_padded_formula": {"supports": [true, true], "pad_on": true, "tables": 27, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 17, "add": 57, "mul": 49, "sub": 30}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 10], "pad_weight_words": 12, "literal_native_pad_weight_setup_mul": 14, "support_table_payload_bytes": 134217728, "support_fold_cells": 8388606}, "correct_optional_port": {"supports": [true, true], "pad_on": true, "tables": 27, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 17, "add": 57, "mul": 49, "sub": 30}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 10], "pad_weight_words": 12, "literal_native_pad_weight_setup_mul": 14, "support_table_payload_bytes": 134217728, "support_fold_cells": 8388606}}, "corrected_api_fraction_below_legacy_formula": 0.0, "conditional_group0_factory_construction_only": {"legacy_always_padded_formula": {"mul_base": 67370991, "add": 651951963, "mul": 614465382, "sub": 448528272}, "correct_optional_port": {"mul_base": 67370991, "add": 651951963, "mul": 614465382, "sub": 448528272}}, "native_speedup_claim": false, "limits": "No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery."}
+CENSUS {"shape": {"head_pad": 16, "kv_heads": 4, "query_heads": 12, "token_pad": 512, "tokens": 512}, "limbs": 3, "cube_log": 22, "policy": {"supports": [true, true], "pad_on": true, "domain_sizes": [8192, 4194304], "true_sizes": [6144, 3145728], "frozen": false}, "bracket_only_totals": {"legacy_always_padded_formula": {"mul_base": 406847402, "add": 1247805176, "mul": 1061158688, "sub": 633339770}, "correct_optional_port": {"mul_base": 406847402, "add": 1247805176, "mul": 1061158688, "sub": 633339770}}, "details": {"legacy_always_padded_formula": {"supports": [true, true], "pad_on": true, "tables": 30, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 21, "add": 65, "mul": 54, "sub": 33}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 12], "pad_weight_words": 14, "literal_native_pad_weight_setup_mul": 16, "support_table_payload_bytes": 134217728, "support_fold_cells": 8388606}, "correct_optional_port": {"supports": [true, true], "pad_on": true, "tables": 30, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 21, "add": 65, "mul": 54, "sub": 33}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 12], "pad_weight_words": 14, "literal_native_pad_weight_setup_mul": 16, "support_table_payload_bytes": 134217728, "support_fold_cells": 8388606}}, "corrected_api_fraction_below_legacy_formula": 0.0, "conditional_group0_factory_construction_only": {"legacy_always_padded_formula": {"mul_base": 84148203, "add": 731643720, "mul": 681574230, "sub": 498859908}, "correct_optional_port": {"mul_base": 84148203, "add": 731643720, "mul": 681574230, "sub": 498859908}}, "native_speedup_claim": false, "limits": "No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 32, "token_pad": 512, "tokens": 512}, "limbs": 2, "cube_log": 23, "policy": {"supports": [false, false], "pad_on": false, "domain_sizes": [16384, 8388608], "true_sizes": [16384, 8388608], "frozen": false}, "bracket_only_totals": {"legacy_always_padded_formula": {"mul_base": 662699962, "add": 2193620760, "mul": 1933573940, "sub": 1153433478}, "correct_optional_port": {"mul_base": 511705036, "add": 1287651197, "mul": 1077936019, "sub": 834666411}}, "details": {"legacy_always_padded_formula": {"supports": [true, true], "pad_on": true, "tables": 27, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 17, "add": 57, "mul": 49, "sub": 30}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 10], "pad_weight_words": 12, "literal_native_pad_weight_setup_mul": 14, "support_table_payload_bytes": 268435456, "support_fold_cells": 16777214}, "correct_optional_port": {"supports": [false, false], "pad_on": false, "tables": 25, "bracket_degrees": [3, 1, 1], "group0_coefficient_width": 4, "scalar_per_group": [{"mul_base": 17, "add": 43, "mul": 35, "sub": 28}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [], "pad_weight_words": 0, "literal_native_pad_weight_setup_mul": 0, "support_table_payload_bytes": 0, "support_fold_cells": 0}}, "corrected_api_fraction_below_legacy_formula": 0.37544107012741856, "conditional_group0_factory_construction_only": {"legacy_always_padded_formula": {"mul_base": 134479855, "add": 1286602587, "mul": 1218707302, "sub": 882638736}, "correct_optional_port": {}}, "native_speedup_claim": false, "limits": "No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 32, "token_pad": 512, "tokens": 512}, "limbs": 3, "cube_log": 23, "policy": {"supports": [false, false], "pad_on": false, "domain_sizes": [16384, 8388608], "true_sizes": [16384, 8388608], "frozen": false}, "bracket_only_totals": {"legacy_always_padded_formula": {"mul_base": 813694890, "add": 2495610616, "mul": 2122317600, "sub": 1266679674}, "correct_optional_port": {"mul_base": 629145536, "add": 1463811947, "mul": 1166016394, "sub": 922746786}}, "details": {"legacy_always_padded_formula": {"supports": [true, true], "pad_on": true, "tables": 30, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 21, "add": 65, "mul": 54, "sub": 33}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 12], "pad_weight_words": 14, "literal_native_pad_weight_setup_mul": 16, "support_table_payload_bytes": 268435456, "support_fold_cells": 16777214}, "correct_optional_port": {"supports": [false, false], "pad_on": false, "tables": 28, "bracket_degrees": [3, 1, 1], "group0_coefficient_width": 4, "scalar_per_group": [{"mul_base": 21, "add": 49, "mul": 38, "sub": 31}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [], "pad_weight_words": 0, "literal_native_pad_weight_setup_mul": 0, "support_table_payload_bytes": 0, "support_fold_cells": 0}}, "corrected_api_fraction_below_legacy_formula": 0.37570444329779906, "conditional_group0_factory_construction_only": {"legacy_always_padded_formula": {"mul_base": 168034283, "add": 1445986120, "mul": 1352925014, "sub": 983302020}, "correct_optional_port": {}}, "native_speedup_claim": false, "limits": "No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 24, "token_pad": 1024, "tokens": 769}, "limbs": 2, "cube_log": 25, "policy": {"supports": [true, true], "pad_on": true, "domain_sizes": [32768, 33554432], "true_sizes": [18456, 14192664], "frozen": false}, "bracket_only_totals": {"legacy_always_padded_formula": {"mul_base": 2650800058, "add": 8774483736, "mul": 7734296372, "sub": 4613734278}, "correct_optional_port": {"mul_base": 2650800058, "add": 8774483736, "mul": 7734296372, "sub": 4613734278}}, "details": {"legacy_always_padded_formula": {"supports": [true, true], "pad_on": true, "tables": 27, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 17, "add": 57, "mul": 49, "sub": 30}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 10], "pad_weight_words": 12, "literal_native_pad_weight_setup_mul": 14, "support_table_payload_bytes": 1073741824, "support_fold_cells": 67108862}, "correct_optional_port": {"supports": [true, true], "pad_on": true, "tables": 27, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 17, "add": 57, "mul": 49, "sub": 30}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 10], "pad_weight_words": 12, "literal_native_pad_weight_setup_mul": 14, "support_table_payload_bytes": 1073741824, "support_fold_cells": 67108862}}, "corrected_api_fraction_below_legacy_formula": 0.0, "conditional_group0_factory_construction_only": {"legacy_always_padded_formula": {"mul_base": 537919471, "add": 5185205076, "mul": 4897897312, "sub": 3562009485}, "correct_optional_port": {"mul_base": 537919471, "add": 5185205076, "mul": 4897897312, "sub": 3562009485}}, "native_speedup_claim": false, "limits": "No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery."}
+CENSUS {"shape": {"head_pad": 32, "kv_heads": 8, "query_heads": 24, "token_pad": 1024, "tokens": 769}, "limbs": 3, "cube_log": 25, "policy": {"supports": [true, true], "pad_on": true, "domain_sizes": [32768, 33554432], "true_sizes": [18456, 14192664], "frozen": false}, "bracket_only_totals": {"legacy_always_padded_formula": {"mul_base": 3254779818, "add": 9982443256, "mul": 8489271072, "sub": 5066719098}, "correct_optional_port": {"mul_base": 3254779818, "add": 9982443256, "mul": 8489271072, "sub": 5066719098}}, "details": {"legacy_always_padded_formula": {"supports": [true, true], "pad_on": true, "tables": 30, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 21, "add": 65, "mul": 54, "sub": 33}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 12], "pad_weight_words": 14, "literal_native_pad_weight_setup_mul": 16, "support_table_payload_bytes": 1073741824, "support_fold_cells": 67108862}, "correct_optional_port": {"supports": [true, true], "pad_on": true, "tables": 30, "bracket_degrees": [4, 2, 2], "group0_coefficient_width": 5, "scalar_per_group": [{"mul_base": 21, "add": 65, "mul": 54, "sub": 33}, {"mul": 2, "add": 1}, {"mul_base": 1, "add": 1, "sub": 1, "mul": 2}], "pad_group_planes": [2, 12], "pad_weight_words": 14, "literal_native_pad_weight_setup_mul": 16, "support_table_payload_bytes": 1073741824, "support_fold_cells": 67108862}}, "corrected_api_fraction_below_legacy_formula": 0.0, "conditional_group0_factory_construction_only": {"legacy_always_padded_formula": {"mul_base": 672137195, "add": 5822739265, "mul": 5434768208, "sub": 3964662657}, "correct_optional_port": {"mul_base": 672137195, "add": 5822739265, "mul": 5434768208, "sub": 3964662657}}, "native_speedup_claim": false, "limits": "No lift in these shapes. Source-derived scalar seam and arithmetic counts only; not exact full native slot layouts, proof clocks or a new native saving. Counts include literal unit/zero operations and assume release nonzero recovery."}

@@ -1,0 +1,7 @@
+{"event":"loaded","variant":"tiny-v1","layer":0,"block_digest":"731a722a776216a17173effbdd2767a432b44d8c19b2708d4142075295062879","rope":"native generator at theta 10000, equal to the export's tables","seconds":0.018,"scope":"SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance"}
+{"event":"parity","result":"bit-exact","words":12288,"seconds":0.056}
+{"event":"proved","segment_bytes":7591416,"segment_sha256":"624077aa17d5f6ed68dcb2b737d16bcc739a2914f43012ddec2d767abf0b610c","prove_seconds":1.406,"in_process_verify_seconds":0.220,"peak_rss_mib_after_prove":156,"total_seconds":1.777,"statement_identity":"a2df849b3e4d77ea7d486db0cc549f6583b864c89910140c77c3807e13c0ebe5","out":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/t5/tiny-v1-L0-s0/artifact"}
+{"event":"control-refused","control":"one norm_a output word moved by one","error":"slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"control-refused","control":"one query activation moved by one","error":"slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"control-refused","control":"a witness honest under norm_cn_m + 7","error":"slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"inconsistent-witness-controls","refused":3}

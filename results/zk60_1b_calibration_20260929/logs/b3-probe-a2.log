@@ -1,0 +1,73 @@
+[02:18:36Z] B3 variant a_T32: {'variant': 'a', 'tag': '', 'T': 32, 'calib_per': 3, 'heldout_per': 3, 'margin': 0.25, 'rotate': None, 'floors': 'strict', 'chunk': 6, 'probe': True, 'export': False, 'export_seqs': 1}; Variant(name='a', norm_cn='profile', tables='profile', residual='global', shifts='native', rotate=None, margin=0.25, tn=10, cn_max=65536, shapes=('range', 'smooth', 'gamma'))
+[02:18:36Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}; native table pins True
+[02:18:39Z] tokenizer ok=True; calib (27, 32) held-out (27, 32) (disjoint sources)
+[02:19:07Z] pass 1 L21: 1 calibration sequence(s) with |gate| > 63.5 (no frozen SiLU member can carry it; max 105.6) excluded from this layer's statistics on
+[02:19:07Z] pass 1 done (31s)
+[02:19:09Z] prepass-1 L00 cn 12509/4625 shape range/smooth e_s 1 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (2s)
+[02:19:11Z] prepass-1 L01 cn 5437/4207 shape range/gamma e_s 1 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (4s)
+[02:19:13Z] prepass-1 L02 cn 4553/897 shape smooth/gamma e_s 1 silu [-2, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (6s)
+[02:19:15Z] prepass-1 L03 cn 3047/2138 shape smooth/gamma e_s 0 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (8s)
+[02:19:17Z] prepass-1 L04 cn 2741/1477 shape smooth/gamma e_s 1 silu [-4, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (10s)
+[02:19:19Z] prepass-1 L05 cn 2394/2011 shape smooth/gamma e_s 1 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (12s)
+[02:19:21Z] prepass-1 L06 cn 2949/2867 shape smooth/smooth e_s 1 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (14s)
+[02:19:23Z] prepass-1 L07 cn 2916/884 shape smooth/gamma e_s 1 silu [-2, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (16s)
+[02:19:25Z] prepass-1 L08 cn 2517/1838 shape smooth/gamma e_s 2 silu [-4, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (18s)
+[02:19:27Z] prepass-1 L09 cn 2638/2157 shape smooth/gamma e_s 1 silu [-4, -12] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (20s)
+[02:19:29Z] prepass-1 L10 cn 2463/2086 shape smooth/gamma e_s 1 silu [-4, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (22s)
+[02:19:30Z] prepass-1 L11 cn 2516/2786 shape smooth/range e_s 1 silu [-4, -12] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (23s)
+[02:19:32Z] prepass-1 L12 cn 3192/2619 shape smooth/gamma e_s 1 silu [-4, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (25s)
+[02:19:34Z] prepass-1 L13 cn 2447/2555 shape smooth/gamma e_s 1 silu [-4, -12] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (27s)
+[02:19:36Z] prepass-1 L14 cn 2596/2343 shape smooth/gamma e_s 1 silu [-4, -12] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (29s)
+[02:19:38Z] prepass-1 L15 cn 2980/2415 shape smooth/gamma e_s 2 silu [-4, -12] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (31s)
+[02:19:40Z] prepass-1 L16 cn 2484/2419 shape smooth/smooth e_s 1 silu [-3, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (33s)
+[02:19:42Z] prepass-1 L17 cn 2839/1678 shape smooth/gamma e_s 1 silu [-3, -12] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (35s)
+[02:19:44Z] prepass-1 L18 cn 3295/2415 shape smooth/smooth e_s 1 silu [-3, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (37s)
+[02:19:46Z] prepass-1 L19 cn 3863/2689 shape smooth/smooth e_s 1 silu [-3, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (39s)
+[02:19:48Z] prepass-1 L20 cn 4004/2753 shape smooth/smooth e_s 1 silu [-3, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (41s)
+[02:19:50Z] prepass-1 L21 cn 4154/1195 shape smooth/gamma e_s 1 silu [-1, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (43s)
+[02:19:51Z] e_s selection L00: running totals {2: 0.0843, 3: 0.1902, 4: 0.5227}
+[02:19:52Z] e_s selection L01: running totals {2: 0.1166, 3: 0.2559, 4: 0.6757}
+[02:19:53Z] e_s selection L02: running totals {2: 0.1572, 3: 0.34, 4: 0.8898}
+[02:19:55Z] e_s selection L03: running totals {2: 0.1846, 3: 0.3882, 4: 0.9833}
+[02:19:56Z] e_s selection L04: running totals {2: 0.2086, 3: 0.4297, 4: 1.0623}
+[02:19:58Z] e_s selection L05: running totals {2: 0.2363, 3: 0.4779, 4: 1.1551}
+[02:20:00Z] e_s selection L06: running totals {2: 0.256, 3: 0.5126, 4: 1.2238}
+[02:20:01Z] e_s selection L07: running totals {2: 0.2867, 3: 0.5683, 4: 1.341}
+[02:20:02Z] e_s selection L08: running totals {2: 0.3103, 3: 0.6081, 4: 1.413}
+[02:20:04Z] e_s selection L09: running totals {2: 0.3286, 3: 0.6405, 4: 1.4787}
+[02:20:05Z] e_s selection L10: running totals {2: 0.3533, 3: 0.6842, 4: 1.5663}
+[02:20:07Z] e_s selection L11: running totals {2: 0.3966, 3: 0.7616, 4: 1.7177}
+[02:20:08Z] e_s selection L12: running totals {2: 0.4198, 3: 0.8039, 4: 1.8089}
+[02:20:10Z] e_s selection L13: running totals {2: 0.4487, 3: 0.856, 4: 1.9156}
+[02:20:11Z] e_s selection L14: running totals {2: 0.4738, 3: 0.9008, 4: 2.0061}
+[02:20:13Z] e_s selection L15: running totals {2: 0.4953, 3: 0.9375, 4: 2.0756}
+[02:20:14Z] e_s selection L16: running totals {2: 0.5245, 3: 0.9887, 4: 2.1746}
+[02:20:16Z] e_s selection L17: running totals {2: 0.5608, 3: 1.0512, 4: 2.2924}
+[02:20:17Z] e_s selection L18: running totals {2: 0.5882, 3: 1.0989, 4: 2.3851}
+[02:20:19Z] e_s selection L19: running totals {2: 0.6138, 3: 1.1424, 4: 2.468}
+[02:20:20Z] e_s selection L20: running totals {2: 0.6357, 3: 1.1796, 4: 2.5393}
+[02:20:21Z] e_s selection L21: running totals {2: 0.6628, 3: 1.2277, 4: 2.6375}
+[02:20:23Z] prepass-2 L00 e_s 2 range in/out 1.31e-05/2.16e-05 floors ao 0.000794 z 0.000607 (76s)
+[02:20:25Z] prepass-2 L01 e_s 2 range in/out 2.16e-05/3.52e-05 floors ao 0.00131 z 0.000922 (78s)
+[02:20:27Z] prepass-2 L02 e_s 2 range in/out 3.52e-05/0.00537 floors ao 0.00193 z 0.00319 (80s)
+[02:20:28Z] prepass-2 L03 e_s 2 range in/out 0.00537/0.00537 floors ao 0.00215 z 0.00124 (81s)
+[02:20:30Z] prepass-2 L04 e_s 2 range in/out 0.00537/0.00537 floors ao 0.00296 z 0.000837 (83s)
+[02:20:32Z] prepass-2 L05 e_s 2 range in/out 0.00537/0.00537 floors ao 0.00673 z 0.00161 (85s)
+[02:20:34Z] prepass-2 L06 e_s 2 range in/out 0.00537/0.00537 floors ao 0.00396 z 0.00119 (87s)
+[02:20:36Z] prepass-2 L07 e_s 2 range in/out 0.00537/0.00711 floors ao 0.00325 z 0.00355 (89s)
+[02:20:37Z] prepass-2 L08 e_s 2 range in/out 0.00711/0.00711 floors ao 0.00706 z 0.00131 (90s)
+[02:20:39Z] prepass-2 L09 e_s 2 range in/out 0.00711/0.00711 floors ao 0.00231 z 0.000572 (92s)
+[02:20:41Z] prepass-2 L10 e_s 2 range in/out 0.00711/0.00711 floors ao 0.00409 z 0.000818 (94s)
+[02:20:43Z] prepass-2 L11 e_s 2 range in/out 0.00711/0.0071 floors ao 0.007 z 0.000787 (96s)
+[02:20:45Z] prepass-2 L12 e_s 2 range in/out 0.0071/0.0071 floors ao 0.0032 z 0.00135 (97s)
+[02:20:46Z] prepass-2 L13 e_s 2 range in/out 0.0071/0.0071 floors ao 0.00406 z 0.00175 (99s)
+[02:20:48Z] prepass-2 L14 e_s 2 range in/out 0.0071/0.00709 floors ao 0.00336 z 0.00189 (101s)
+[02:20:50Z] prepass-2 L15 e_s 2 range in/out 0.00709/0.00708 floors ao 0.00339 z 0.00225 (103s)
+[02:20:51Z] prepass-2 L16 e_s 2 range in/out 0.00708/0.00708 floors ao 0.00406 z 0.00115 (104s)
+[02:20:54Z] prepass-2 L17 e_s 2 range in/out 0.00708/0.00706 floors ao 0.00494 z 0.00143 (107s)
+[02:20:56Z] prepass-2 L18 e_s 2 range in/out 0.00706/0.00705 floors ao 0.00701 z 0.000991 (109s)
+[02:20:58Z] prepass-2 L19 e_s 2 range in/out 0.00705/0.007 floors ao 0.014 z 0.002 (111s)
+[02:20:59Z] prepass-2 L20 e_s 2 range in/out 0.007/0.00693 floors ao 0.0125 z 0.00139 (112s)
+[02:21:01Z] prepass-2 L21 e_s 2 range in/out 0.00693/0.00668 floors ao 0.0113 z 0.00675 (114s)
+[02:21:01Z] profile decisions: cn 12509/4625 e_s 2 silu (-1, -10) s_in ['0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014', '0.014']
+[02:21:01Z] probe done (145s)

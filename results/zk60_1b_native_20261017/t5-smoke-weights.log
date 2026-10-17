@@ -1,0 +1,146 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:748:13
+    |
+748 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `tinyllama_t32_dev` is never used
+   --> src/private_block/run.rs:131:19
+    |
+ 97 | impl RunShape {
+    | ------------- associated function in this implementation
+...
+131 |     pub(crate) fn tinyllama_t32_dev(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^^^^^^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 16 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 17s
+     Running unittests src/lib.rs (ops/zkp-mvp/trained-1b/hashline/target/release/deps/hashline-a876d33e95d2a941)
+
+running 1 test
+test private_block::trained_block_tests::native_t5_a_real_exports_layers_load_and_its_trained_weights_prove ... NATIVE T5-pre: a_smoke_T32_L3smoke layers [0, 1, 2], per-layer constants [], tool bad36bc7ead2b178d76f0195635b17c52aecb6c5b4eea07e5359be56f7c4eb34
+NATIVE T5-pre layer 0: loaded in 0.61 s; calibration tn=10 cn_a=12509 cn_m=4625 ceps=711 ao=7 f_e 9 silu (-2, -11) e_s 1 window 32 D_max 1482910; rope: native generator at theta 10000, equal to the export's tables; block digest 98bed5e9aec49e27d2455b423710ccd31c5a9b7fe85c5c229a2683ec498a98bb
+NATIVE T5-pre layer 1: loaded in 0.62 s; calibration tn=10 cn_a=12509 cn_m=4625 ceps=711 ao=7 f_e 9 silu (-2, -11) e_s 1 window 32 D_max 1482910; rope: native generator at theta 10000, equal to the export's tables; block digest 078d231c941e9f075451bcb1ca42d487b816c64ef2691f9317f3e8718f2fc03e
+NATIVE T5-pre layer 2: loaded in 0.56 s; calibration tn=10 cn_a=12509 cn_m=4625 ceps=711 ao=7 f_e 9 silu (-2, -11) e_s 1 window 32 D_max 1482910; rope: native generator at theta 10000, equal to the export's tables; block digest 63f913d20eafed198590edc38717a087ab3bb8a8c32de7d2770937f7a69216d1
+NATIVE T5-pre trained weights, synthetic input |x| <= 64: ADMISSIBLE; max|y_a| 58 |q8| 30 |s8| 7 |g8| 3 |u16| 789 |z16| 17 |x2| 73
+NATIVE T5-pre PROVED layer 0 with TRAINED weights on a SYNTHETIC input (|x| <= 64): prove 3.44 s, verify 0.31 s, receipt 11627208 B, VmHWM 839 MiB
+NATIVE T5-pre trained weights, synthetic input |x| <= 512: ADMISSIBLE; max|y_a| 59 |q8| 20 |s8| 5 |g8| 4 |u16| 948 |z16| 16 |x2| 516
+NATIVE T5-pre trained weights, synthetic input |x| <= 2048: ADMISSIBLE; max|y_a| 60 |q8| 23 |s8| 5 |g8| 4 |u16| 850 |z16| 17 |x2| 2050
+NATIVE T5-pre trained weights, synthetic input |x| <= 8192: ADMISSIBLE; max|y_a| 58 |q8| 21 |s8| 5 |g8| 4 |u16| 866 |z16| 16 |x2| 8194
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 541 filtered out; finished in 48.57s
+

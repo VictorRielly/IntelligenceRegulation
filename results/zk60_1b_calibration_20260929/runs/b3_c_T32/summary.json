@@ -1,0 +1,676 @@
+{
+ "args": {
+  "T": 32,
+  "calib_per": 6,
+  "chunk": 6,
+  "export": false,
+  "export_seqs": 1,
+  "floors": "auto",
+  "heldout_per": 4,
+  "layers": null,
+  "margin": 0.5,
+  "probe": false,
+  "rotate": null,
+  "site_seqs": 6,
+  "tag": "",
+  "variant": "c"
+ },
+ "calib_refused": 20,
+ "calib_sequences": [
+  {
+   "offset": 0,
+   "sha256": "f22696b3001bc048",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "offset": 1446,
+   "sha256": "b02a695c19ef1994",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "offset": 2892,
+   "sha256": "4757135a87061050",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "offset": 4338,
+   "sha256": "277ccd98f30be9a9",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "offset": 5784,
+   "sha256": "f943e5bcdf89e302",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "offset": 7230,
+   "sha256": "32b7936cbc9f32a9",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "offset": 0,
+   "sha256": "70ec8ca069313c88",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "offset": 937,
+   "sha256": "42e44eb23b7904cb",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "offset": 1874,
+   "sha256": "6ef22abd6248166f",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "offset": 2811,
+   "sha256": "ec2de6b95cb1e84c",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "offset": 3748,
+   "sha256": "2430316870dd7bbe",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "offset": 4685,
+   "sha256": "929e3638626109ee",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "offset": 0,
+   "sha256": "ec0990d764da5e1b",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "offset": 692,
+   "sha256": "dc852fe5f976867c",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "offset": 1384,
+   "sha256": "b06571c0651c6396",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "offset": 2076,
+   "sha256": "c99add826b1745ee",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "offset": 2768,
+   "sha256": "163dc55754310588",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "offset": 3460,
+   "sha256": "3d6c8c4e1b2642ba",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "offset": 0,
+   "sha256": "a8ee08894e6df453",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "offset": 305,
+   "sha256": "363f43a653d5bc01",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "offset": 610,
+   "sha256": "b4df8f2cbed1ce53",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "offset": 915,
+   "sha256": "1745802106c6c935",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "offset": 1220,
+   "sha256": "30afc8ddef96cec7",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "offset": 1525,
+   "sha256": "1a7567ecfde37819",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "offset": 0,
+   "sha256": "ca046fb3c7b5373e",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "offset": 275,
+   "sha256": "6fc081d37bf3c9e0",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "offset": 550,
+   "sha256": "db5e4badb4f10a3b",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "offset": 825,
+   "sha256": "6b46381f8bd56319",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "offset": 1100,
+   "sha256": "53300891232d37b6",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "offset": 1375,
+   "sha256": "603a0ee6feb7c44e",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "offset": 0,
+   "sha256": "49d1adab037fca9d",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "offset": 269,
+   "sha256": "4b2fd1d63e5c2709",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "offset": 538,
+   "sha256": "292a45828e349852",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "offset": 807,
+   "sha256": "14a160ce3a6541c2",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "offset": 1076,
+   "sha256": "69f208ca04aac05a",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "offset": 1345,
+   "sha256": "2d933303a167b88c",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "offset": 0,
+   "sha256": "b8f64d510572c03f",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "offset": 674,
+   "sha256": "8c373d62e4d4e42a",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "offset": 1348,
+   "sha256": "95b180c24629c48f",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "offset": 2022,
+   "sha256": "05a303a636f57fb8",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "offset": 2696,
+   "sha256": "60f5c9fef332b9c9",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "offset": 3370,
+   "sha256": "ab51f5cba7c86f50",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "offset": 0,
+   "sha256": "e8ddb6288edf931c",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "offset": 407,
+   "sha256": "9bd82c42b7a1a360",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "offset": 814,
+   "sha256": "e4f3463fbed24d46",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "offset": 1221,
+   "sha256": "50623c914fa628a8",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "offset": 1628,
+   "sha256": "355a2a6156571217",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "offset": 2035,
+   "sha256": "8e754a0fef2aadb9",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "offset": 0,
+   "sha256": "08012b32ed86dcea",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "offset": 1038,
+   "sha256": "052b8c6d520f66dc",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "offset": 2076,
+   "sha256": "6199e7edc034e855",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "offset": 3114,
+   "sha256": "09283300fc8ed7eb",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "offset": 4152,
+   "sha256": "7dc5896eddfe6436",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "offset": 5190,
+   "sha256": "01757c43f09846d2",
+   "source": "python3.10 stdlib docstrings: typing"
+  }
+ ],
+ "checkpoint_identity": {
+  "config_sha256": "486bedda3a6988332e60d9638a09ca4b260d34ebcf1b19e22cf3b140b63d8fe9",
+  "schema": "zk60-llama-layer-inventory/1",
+  "shard_sha256": {
+   "model.safetensors": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+  },
+  "tensor_count": 201
+ },
+ "diagnostic_clamping": "values outside a class were clamped to continue; the native kernel refuses such a sequence",
+ "embedding_cos": {
+  "mean": 0.9976884096210953,
+  "min": 0.9781423959008377,
+  "p01": 0.9781423959008377
+ },
+ "floors_policy": "strict",
+ "head_accepted": {
+  "kl_float_to_int_mean": 1.5650556222575511,
+  "positions": 589,
+  "ppl_float": 33.062481282550806,
+  "ppl_int": 90.14882692654689,
+  "sequences": 19,
+  "top1_agreement": 0.4465195246179966
+ },
+ "head_all_diagnostic": {
+  "kl_float_to_int_mean": 1.5027310296079355,
+  "positions": 1116,
+  "ppl_float": 29.302904904272133,
+  "ppl_int": 79.60485179901463,
+  "sequences": 36,
+  "top1_agreement": 0.4543010752688172
+ },
+ "heldout_first_refusal": [
+  null,
+  null,
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  null,
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  null,
+  null,
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null,
+  {
+   "layer": 21,
+   "site": "FFN gate"
+  },
+  null
+ ],
+ "heldout_refused": 17,
+ "heldout_sequences": [
+  {
+   "offset": 0,
+   "sha256": "46bb73165bb3c091",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "offset": 671,
+   "sha256": "0a06169234af7196",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "offset": 1342,
+   "sha256": "6742962c6f098922",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "offset": 2013,
+   "sha256": "4ee0d5350c52149a",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "offset": 0,
+   "sha256": "3aa3dd7e3fbbde3d",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "offset": 1616,
+   "sha256": "af5c4c6294f1ac58",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "offset": 3232,
+   "sha256": "af342f3485fa71cd",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "offset": 4848,
+   "sha256": "94df0ae622d86a1e",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "offset": 0,
+   "sha256": "9b05ebc4895bc38b",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "offset": 364,
+   "sha256": "e3bd1e6e5da6da0d",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "offset": 728,
+   "sha256": "b8862443cede2b4e",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "offset": 1092,
+   "sha256": "9f121af4b7f4713e",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "offset": 0,
+   "sha256": "708536d10c6aec03",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "offset": 674,
+   "sha256": "599afbe9825e764f",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "offset": 1348,
+   "sha256": "cb59e6c69e01f412",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "offset": 2022,
+   "sha256": "1be96afece8c40dd",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "offset": 0,
+   "sha256": "f01501ccfce4c53b",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "offset": 138,
+   "sha256": "85542cabc3b0027a",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "offset": 276,
+   "sha256": "02dc943afd85919a",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "offset": 414,
+   "sha256": "e2a4adbde9290edf",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "offset": 0,
+   "sha256": "3028edc5392c0111",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "offset": 241,
+   "sha256": "fca2d1e5a95efd5a",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "offset": 482,
+   "sha256": "0b6fd596926323d7",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "offset": 723,
+   "sha256": "2217038d18c96b06",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "offset": 0,
+   "sha256": "a92d9b1d9d6abb19",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "offset": 229,
+   "sha256": "ada2025c8d3fd8f9",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "offset": 458,
+   "sha256": "7950b54020d06520",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "offset": 687,
+   "sha256": "546d079aef1a8951",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "offset": 0,
+   "sha256": "08b7196e44b1e1a7",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "offset": 584,
+   "sha256": "c1b4a4ce22d018d2",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "offset": 1168,
+   "sha256": "189fa4d4ad0778c6",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "offset": 1752,
+   "sha256": "02d0be6f17f8f749",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "offset": 0,
+   "sha256": "1bfa53933f64ceba",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "offset": 564,
+   "sha256": "cfd6c49ee03b7ce9",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "offset": 1128,
+   "sha256": "9213b673494c55b0",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "offset": 1692,
+   "sha256": "b262e5ef8f81c485",
+   "source": "python3.10 stdlib docstrings: shutil"
+  }
+ ],
+ "model": {
+  "file": "model.safetensors",
+  "repo": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+  "sha256": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+ },
+ "profile": {
+  "cn_a": null,
+  "cn_m": null,
+  "e_s": null,
+  "floors_policy": "strict",
+  "s_in": [
+   0.0016516917726298655,
+   0.003303383545259731,
+   0.003303383545259731,
+   0.006606767090519462,
+   0.006606767090519462,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.02642706836207785,
+   0.0528541367241557,
+   0.0528541367241557,
+   0.0528541367241557
+  ],
+  "s_out": [
+   0.003303383545259731,
+   0.003303383545259731,
+   0.006606767090519462,
+   0.006606767090519462,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.013213534181038924,
+   0.02642706836207785,
+   0.0528541367241557,
+   0.0528541367241557,
+   0.0528541367241557,
+   0.0528541367241557
+  ],
+  "shifts": null,
+  "silu": null
+ },
+ "seconds": 480.8292706012726,
+ "variant": "c_T32",
+ "variant_options": {
+  "cn_max": 65536,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "c",
+  "norm_cn": "layer",
+  "residual": "layer",
+  "rotate": null,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "native",
+  "tables": "layer",
+  "tn": 10
+ }
+}

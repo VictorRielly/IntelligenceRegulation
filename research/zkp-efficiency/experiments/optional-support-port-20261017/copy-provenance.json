@@ -1,0 +1,77 @@
+[
+  {
+    "source": "experiments/public-row-cse-20261017/source_port.py",
+    "destination": "source_port.py",
+    "starting_sha256": "7d56350bcf89aca4c6a5215a52c6dd93ab809216a493a7c4411f7d78807a914d"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/field_support.py",
+    "destination": "field_support.py",
+    "starting_sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/polynomial_ir.py",
+    "destination": "polynomial_ir.py",
+    "starting_sha256": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/polynomial_clause.py",
+    "destination": "polynomial_clause.py",
+    "starting_sha256": "147376df772af6fa22bc3eb57c887a6ea0ce07036d67060c0d21bfc52f3db84e"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/coefficients.py",
+    "destination": "coefficients.py",
+    "starting_sha256": "daa1bb262b874c3f960f0c50ab1d9a4229bed82d8507d15d96e244ab1632aecd"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/prepared.py",
+    "destination": "prepared.py",
+    "starting_sha256": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/candidate.py",
+    "destination": "candidate.py",
+    "starting_sha256": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/axis_factory.py",
+    "destination": "axis_factory.py",
+    "starting_sha256": "593852dfd9ecffd0b2297b69ce266a969f16487decaf902a73a107dba8502963"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/row_rounds.py",
+    "destination": "row_rounds.py",
+    "starting_sha256": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/weighted_rounds.py",
+    "destination": "weighted_rounds.py",
+    "starting_sha256": "b7e17c8e69acf9bb68b406b09f739e50503c240b7400ae3344a1318d31097760"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/static_plan.py",
+    "destination": "static_plan.py",
+    "starting_sha256": "bd3ca9c732692dbc6f2efb756687b95d5207a75d97ef016267373bfd9c10f085"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/row_graph.py",
+    "destination": "row_graph.py",
+    "starting_sha256": "270bd9dab1cc812e4fbfe00f144dd448550ac399d6d1d785e85ff551948f3d79"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/fixtures.py",
+    "destination": "fixtures.py",
+    "starting_sha256": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/oracle.py",
+    "destination": "oracle.py",
+    "starting_sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58"
+  },
+  {
+    "source": "experiments/public-row-cse-20261017/run.py",
+    "destination": "run.py",
+    "starting_sha256": "6149e7e0c28f14d34daed2e7bff43a3a513d147e0c983082afcc336d78dfd5a0"
+  }
+]

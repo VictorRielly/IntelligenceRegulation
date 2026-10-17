@@ -1,0 +1,22 @@
+[
+  {
+    "from": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/clause-stream-schedule-20261017/field_support.py",
+    "to": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-capture-adapter-20261017/field_support.py",
+    "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4"
+  },
+  {
+    "from": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/clause-stream-schedule-20261017/source_port.py",
+    "to": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-capture-adapter-20261017/source_port.py",
+    "sha256": "2e31f19a567b9341ccdd313595f0ebbc34d7f4790b548bb91f06eed41e024d5e"
+  },
+  {
+    "from": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/clause-stream-schedule-20261017/generate.py",
+    "to": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-capture-adapter-20261017/generate.py",
+    "sha256": "9fd7a8467f6b1ebc57300280b07a61c855a30973a278831f486b22c41041a52e"
+  },
+  {
+    "from": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/clause-stream-schedule-20261017/scheduler.py",
+    "to": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-capture-adapter-20261017/scheduler.py",
+    "sha256": "103cad5c2bcdcf8b7b1d4792f342dcaf69b1084434a44ae6ee6083e8a7b4ac5f"
+  }
+]

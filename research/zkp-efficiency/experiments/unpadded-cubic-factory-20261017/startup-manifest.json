@@ -1,0 +1,67 @@
+[
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_PRIVACY_REQUIREMENTS.md",
+    "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+    "bytes": 2264
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/FINDINGS.md",
+    "sha256": "7b5afcfda3f5a3f813f1f67879f94b447b529eebff99335652034a36dbdbed5a",
+    "bytes": 385109
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/sources.jsonl",
+    "sha256": "2888641d3cd258d67503419a6cb0a37aedb6b06557ca2cbe897982359d367329",
+    "bytes": 324618
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_TRAINED_STACK_READINESS_20261017.md",
+    "sha256": "a77439ac7e986364b314c4b540ba89bb2be96e06df9d0ec4de2f98a8c150f385",
+    "bytes": 6909
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_DECISIONS.md",
+    "sha256": "e5d641fcc5ad64f2cb392a20aa834c91e028136c447457da901f34af250fcaad",
+    "bytes": 60435
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/STATE.md",
+    "sha256": "cc6b2ae03f5b2f2bca27f76ceb4676b72b7ea356c7e338ded225d4299c49befe",
+    "bytes": 4350
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/MVP_STATUS.md",
+    "sha256": "f6441f8b890cb9d3b7122570282a51403061a4388cf05e40b78b1aa2c08efec0",
+    "bytes": 59346
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/PROGRESS.md",
+    "sha256": "433ded66cb5b41d35a58ee3d74bd605b2d27e32e47673a917e2d43f3bdb3c163",
+    "bytes": 2326
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  }
+]

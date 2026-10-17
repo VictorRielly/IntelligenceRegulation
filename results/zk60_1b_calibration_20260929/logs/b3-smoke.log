@@ -1,0 +1,20 @@
+[02:21:47Z] B3 variant a_smoke_T32_L3smoke: {'variant': 'a', 'tag': 'smoke', 'T': 32, 'calib_per': 3, 'heldout_per': 3, 'margin': 0.25, 'rotate': None, 'floors': 'auto', 'layers': 3, 'chunk': 6, 'probe': False, 'export': True, 'export_seqs': 1}; Variant(name='a', norm_cn='profile', tables='profile', residual='global', shifts='native', rotate=None, margin=0.25, tn=10, cn_max=65536, shapes=('range', 'smooth', 'gamma'))
+[02:21:47Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}; native table pins True
+[02:21:50Z] tokenizer ok=True; calib (27, 32) held-out (27, 32) (disjoint sources)
+[02:21:50Z] pass 1: stats from cache b3_stats2_T32_c3_rNone.pkl
+[02:21:50Z] pass 1 done (3s)
+[02:21:53Z] prepass-1 L00 cn 12509/4625 shape range/smooth e_s 1 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (2s)
+[02:21:55Z] prepass-1 L01 cn 5437/4207 shape range/gamma e_s 1 silu [-5, -13] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (5s)
+[02:21:57Z] prepass-1 L02 cn 4553/897 shape smooth/gamma e_s 1 silu [-2, -11] shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} (7s)
+[02:21:58Z] e_s selection L00: running totals {1: 0.0468, 2: 0.0843, 3: 0.1902}
+[02:21:59Z] e_s selection L01: running totals {1: 0.066, 2: 0.1166, 3: 0.2559}
+[02:22:00Z] e_s selection L02: running totals {1: 0.0896, 2: 0.1572, 3: 0.34}
+[02:22:02Z] prepass-2 L00 e_s 1 range in/out 1.31e-05/2.16e-05 floors ao 0.000794 z 0.000226 (11s)
+[02:22:03Z] prepass-2 L01 e_s 1 range in/out 2.16e-05/3.52e-05 floors ao 0.00131 z 0.000307 (13s)
+[02:22:05Z] prepass-2 L02 e_s 1 range in/out 3.52e-05/0.00537 floors ao 0.00168 z 0.00267 (15s)
+[02:22:05Z] profile decisions: cn 12509/4625 e_s 1 silu (-2, -11) s_in ['0.00537', '0.00537', '0.00537']
+[02:22:05Z] embedding at s_x 0.005366: cos mean 0.97837 min 0.8084, zero fraction 0.333
+[02:22:12Z] L00 cn 12509/4625 ceps 711 e_s 1 silu (-2, -11) sh qkv7 s6 ao7 g7 h14 z6 r20 | iso cos 0.94403 dcos 0.9018 | chain cos 0.94403 dcos 0.9018 | viol iso 1 chain 1 cal 0 | refused h/c 1/0 | clip {} (7s)
+[02:22:19Z] L01 cn 12509/4625 ceps 711 e_s 1 silu (-2, -11) sh qkv7 s6 ao7 g7 h14 z6 r20 | iso cos 0.95775 dcos 0.8373 | chain cos 0.90398 dcos 0.7385 | viol iso 0 chain 0 cal 0 | refused h/c 1/0 | clip {} (7s)
+[02:22:26Z] L02 cn 12509/4625 ceps 711 e_s 1 silu (-2, -11) sh qkv7 s6 ao7 g7 h14 z6 r20 | iso cos 0.95595 dcos 0.8639 | chain cos 0.84387 dcos 0.7071 | viol iso 0 chain 0 cal 0 | refused h/c 1/0 | clip {} (7s)
+[02:22:26Z] smoke done (39s), no head metrics for a partial stack

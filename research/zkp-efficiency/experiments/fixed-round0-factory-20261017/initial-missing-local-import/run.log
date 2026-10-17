@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fixed-round0-factory-20261017/experiment.py", line 7, in <module>
+    from prior_optional_experiment import fixture
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fixed-round0-factory-20261017/prior_optional_experiment.py", line 14, in <module>
+    from static_plan import StaticRowPlan
+ModuleNotFoundError: No module named 'static_plan'

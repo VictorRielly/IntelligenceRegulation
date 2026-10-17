@@ -1,0 +1,445 @@
+{
+  "time_utc": "2026-10-17T04:39:50.402260+00:00",
+  "files": [
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/README.md",
+      "sha256": "b6fbcfc9b76188e1b543c92607fd362c0dafd97ec651b4f22f0cfb549b785ca5",
+      "bytes": 12471
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/active-seam-comparison.json",
+      "sha256": "6fc6740bfbbecca0167ea45b77f0c7c7668d20321ef5873306b0e981ef428e36",
+      "bytes": 1091
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/audit.json",
+      "sha256": "6430d3da786e32674f2b0cf7e192173c3f3ce36a2b4df11088dd324668cd7e12",
+      "bytes": 24105
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/audit.py",
+      "sha256": "67b8d33820056dd301ad866cfb27f1df8e94aaa0a3c6d84e6b697b57b4100b6d",
+      "bytes": 6803
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/axis_factory.py",
+      "sha256": "593852dfd9ecffd0b2297b69ce266a969f16487decaf902a73a107dba8502963",
+      "bytes": 3927
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-dispatch-accounting-refinement/command.json",
+      "sha256": "dd8c6ce67733def21d7a24100c9374bd8d8f7be2dbb4e88ecfcd1d0d84838ca9",
+      "bytes": 2070
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-dispatch-accounting-refinement/cubic_factory.py",
+      "sha256": "6239fa685896b87affb76c048138b6bfec7ecca21f5358551209b44a13978049",
+      "bytes": 2644
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-dispatch-accounting-refinement/execution.json",
+      "sha256": "7d753f164065c1e3913aef233dbb75e6d05ad5e7122622c237e250455a98c92e",
+      "bytes": 115
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-dispatch-accounting-refinement/experiment.py",
+      "sha256": "76afdf32fa060fb0f14b7d8f9f1110aa2541a682c6f144fac185c6ba3794750b",
+      "bytes": 14722
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-dispatch-accounting-refinement/result.json",
+      "sha256": "32285f4614e18f306dd383718efb08e55b5c9b676ced213de4b0d33e97d22a92",
+      "bytes": 679127
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-dispatch-accounting-refinement/run.log",
+      "sha256": "fd82e8c57637aef2345ec561deaf508d5e720d65772d14995ecbf1055f64b660",
+      "bytes": 26876
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-self-contained-accounting-input/command.json",
+      "sha256": "bc122dbd98174a47c6609f4a11f77722e708a91015370f75282d3bfd5859fdb2",
+      "bytes": 2070
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-self-contained-accounting-input/cubic_factory.py",
+      "sha256": "6239fa685896b87affb76c048138b6bfec7ecca21f5358551209b44a13978049",
+      "bytes": 2644
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-self-contained-accounting-input/execution.json",
+      "sha256": "9ca75f4e200bc0de3edfd2c2080609a8f9fdbed72631bb2a1527e0785f9aabc3",
+      "bytes": 114
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-self-contained-accounting-input/experiment.py",
+      "sha256": "93760ba5bacbfc914e4bcb4eee27c1dca2e7e485cdd17169c851463c5830c52c",
+      "bytes": 14987
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-self-contained-accounting-input/result.json",
+      "sha256": "4b38fda4240fe10b3c6733dc637b885828cec02cfd7f8773437a073380843e01",
+      "bytes": 685950
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-self-contained-accounting-input/run.log",
+      "sha256": "f864c99183c7db42dd84825fe27b3bf575f81837a429c8652c770f7d2830aa9a",
+      "bytes": 31806
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-value-independent-census-controls/command.json",
+      "sha256": "ec30310e0e7decb5259b9be4b1a0f7e0089a91d07b7b5bbc0ead4ccc94225597",
+      "bytes": 2070
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-value-independent-census-controls/cubic_factory.py",
+      "sha256": "6239fa685896b87affb76c048138b6bfec7ecca21f5358551209b44a13978049",
+      "bytes": 2644
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-value-independent-census-controls/execution.json",
+      "sha256": "49165160938c9392ac1dbaa6069d97b8242129848d4ca313e25eb8c91dd4266a",
+      "bytes": 115
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-value-independent-census-controls/experiment.py",
+      "sha256": "b6f4582241600ec8cf5f870c2a29dfec02934ea6b0ff45bb13683863eee28391",
+      "bytes": 13694
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-value-independent-census-controls/result.json",
+      "sha256": "f0ca51b1799cf520032686af3311ded4c1c0c17fb2e33af0caf2cbfb98ac5dd7",
+      "bytes": 678671
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/before-value-independent-census-controls/run.log",
+      "sha256": "cf439b728dea47dc9bd0430e7d712ecacf157a7e42baae1857f8a71935ee0a2e",
+      "bytes": 26420
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/candidate.py",
+      "sha256": "c4bbfec8e5cf8a81e0708c8e2ff8163b3940f31323bb9873582933fdb3e1b7a5",
+      "bytes": 2529
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/checkpoint.json",
+      "sha256": "e8befd9f4486e56bae958ba2c0bcc4e0a4e84aef4be2c8625043259b36812c2c",
+      "bytes": 206
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/checkpoint.py",
+      "sha256": "e7a86baf98e79fc2679482ad187c1dd239cd496de00e25d4cb4de1c9ff9ea1ee",
+      "bytes": 27837
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/coefficients.py",
+      "sha256": "daa1bb262b874c3f960f0c50ab1d9a4229bed82d8507d15d96e244ab1632aecd",
+      "bytes": 3659
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/command.json",
+      "sha256": "773f16f7f99031b50312d97c7ec78037be18f14df32be9617c8cfaf023277e05",
+      "bytes": 2163
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/copy-provenance.json",
+      "sha256": "03d55f6bd9e763c631ae886a3138b97b19cc2fcbc03ae98e2fc57d046f946db1",
+      "bytes": 3442
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/cubic_factory.py",
+      "sha256": "6239fa685896b87affb76c048138b6bfec7ecca21f5358551209b44a13978049",
+      "bytes": 2644
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/execution.json",
+      "sha256": "524820604b0216a1f421edc5b2309fc814b463ba89838fde4553e7c50970dd45",
+      "bytes": 116
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/experiment.py",
+      "sha256": "a15c7f94f93bad21f747a3677bac0847bd7b4e18074a0bb34280874767f32d76",
+      "bytes": 14955
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/field_support.py",
+      "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+      "bytes": 2104
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/fixtures.py",
+      "sha256": "bd7d7170c7660c8b8688ddac4f25f85fe29fa953316615ca25fa11b4c6f4b45a",
+      "bytes": 1658
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-all-round-factory/command.json",
+      "sha256": "e23edd2aad8895e3d7daff3580b635ff940f2b216351d60911ba841378b4df3f",
+      "bytes": 2070
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-all-round-factory/cubic_factory.py",
+      "sha256": "a3442e64a59c9afd14d94da914f5cc130c5eb5bdf5f4cb567316acbded0f5414",
+      "bytes": 2428
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-all-round-factory/execution.json",
+      "sha256": "28632c7cef476849910244a15c8c832b93c9e2b88c5dc4f0d09f594e64bc3653",
+      "bytes": 115
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-all-round-factory/experiment.py",
+      "sha256": "fef94d77216401d88abc784a6e872cac7e60e89ff513e7b82c9ed388ab9f1f7f",
+      "bytes": 12127
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-all-round-factory/result.json",
+      "sha256": "e5cf1cf967a0a119af44ff2dd0092d6fed6faab623d54108c75ff8310e80ac89",
+      "bytes": 517129
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-all-round-factory/run.log",
+      "sha256": "1c614b74cbf25db2e5b7b6d348cd8fb652e313c445191b48a3afc8e8a2a9bcd3",
+      "bytes": 18528
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-audit-source-id-assumption/audit.py",
+      "sha256": "874d06c1da98700e031614f20e8701bf7286688904956610bf01c6baa69ff508",
+      "bytes": 6663
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/initial-audit-source-id-assumption/failure.json",
+      "sha256": "308f2a9cb871644acd4d08c02749e5d8910d901a8c71d3a0d755ec7c9495f0b9",
+      "bytes": 236
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__argument.rs",
+      "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+      "bytes": 99535
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__layout.rs",
+      "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+      "bytes": 61217
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__pad.rs",
+      "sha256": "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0",
+      "bytes": 56533
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__protocol.rs",
+      "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+      "bytes": 61745
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__shape.rs",
+      "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+      "bytes": 71241
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__field.rs",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "bytes": 11065
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__sumcheck__grouped.rs",
+      "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+      "bytes": 7903
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+      "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+      "bytes": 1157
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/results__zk60_mvp_20260929__cli-stack-gpu__report.json",
+      "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+      "bytes": 21117
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__b2-gpu.log",
+      "sha256": "86f72477b0cda84efa0742234321a9d9eb6987701bb8d401384c9a9e227163ca",
+      "bytes": 23189
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__report.json",
+      "sha256": "43c6b416c2d4254d821ec304e0fc49c6b8fbfb974b9122f919fdf7663d347506",
+      "bytes": 29717
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native-current-comparison.json",
+      "sha256": "34fe84a23253239b7eacd34b04af8e4acf2f698a381479113ccdcb551f7bcfd3",
+      "bytes": 3688
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/native-pins.json",
+      "sha256": "f945eb85d301eacba34a089fa1f4571963a74c2393ce5260d739273d53a27253",
+      "bytes": 4666
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/oracle.py",
+      "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+      "bytes": 2382
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/polynomial_clause.py",
+      "sha256": "b8895c6c7f098010c20493ca9320ec305801bcd0e119780fe3ee99ff28d0016f",
+      "bytes": 5913
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/polynomial_ir.py",
+      "sha256": "edadefc4020521fce8e41c3b66dbd0f3c7fb30929a7decb609b9874cb5a1f2e0",
+      "bytes": 3533
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/prepared.py",
+      "sha256": "8a264e5abb8db95064759731cc0c8798de630db939657f097eb38dae3fc79d7c",
+      "bytes": 2540
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/prior-findings-index.json",
+      "sha256": "a924a348ab505c07653afe698ba377ccb735044d7396ec675758de3303538a4a",
+      "bytes": 99807
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/prior-result.json",
+      "sha256": "813b99b2b80d430c124ef4186ed67e801f0704ddfeb964a0c776ddeaa6bf56de",
+      "bytes": 97852
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/prior_optional_experiment.py",
+      "sha256": "bc3a6aa758852fdd8a8dac36eb5785e91693e6c2678a92f2ebbffb0a14fc481a",
+      "bytes": 14863
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/record_sources.py",
+      "sha256": "2ce6d66260d6007febf2d04f0f2315d7e584aee93dd211ea4d1bc98eb261876c",
+      "bytes": 9839
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/research-source-diff.patch",
+      "sha256": "a2f8e926b02364cd1ec3cd9bf8d25adf81f79e4ad904275251218d9d97441940",
+      "bytes": 99073
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/result.json",
+      "sha256": "e86d6a245efebfec24ca783bedbb34b87d899239988e0d9381d35c00b4af271a",
+      "bytes": 685951
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/row_graph.py",
+      "sha256": "93188def30d7026439c446ca2b13a7796b011624a8719255f24197786974dc4e",
+      "bytes": 7485
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/row_rounds.py",
+      "sha256": "dfe567c90baf03888ff0cd86307c2356e9d198f2fb0969ceb503e6ef3cad8875",
+      "bytes": 7745
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/run.log",
+      "sha256": "61df40240ec532c2223f0cbdd9a3faf125f6398d5dc6cbef2ac7d6461892342e",
+      "bytes": 31807
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/run.py",
+      "sha256": "6149e7e0c28f14d34daed2e7bff43a3a513d147e0c983082afcc336d78dfd5a0",
+      "bytes": 1091
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/source_port.py",
+      "sha256": "2e31f19a567b9341ccdd313595f0ebbc34d7f4790b548bb91f06eed41e024d5e",
+      "bytes": 6423
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/sources-cycle54.json",
+      "sha256": "a58705ded9b5c571170cc6f0cab81c22f05593f782377854d2a40c66f7e60ef3",
+      "bytes": 12224
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/AGENDA.md",
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "bytes": 5603
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/CLAUDE.md",
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "bytes": 14089
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/FINDINGS.md",
+      "sha256": "7b5afcfda3f5a3f813f1f67879f94b447b529eebff99335652034a36dbdbed5a",
+      "bytes": 385109
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/MVP_STATUS.md",
+      "sha256": "f6441f8b890cb9d3b7122570282a51403061a4388cf05e40b78b1aa2c08efec0",
+      "bytes": 59346
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/PROGRESS.md",
+      "sha256": "433ded66cb5b41d35a58ee3d74bd605b2d27e32e47673a917e2d43f3bdb3c163",
+      "bytes": 2326
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/START_HERE.md",
+      "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+      "bytes": 42025
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/STATE.md",
+      "sha256": "cc6b2ae03f5b2f2bca27f76ceb4676b72b7ea356c7e338ded225d4299c49befe",
+      "bytes": 4350
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "bytes": 64889
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_DECISIONS.md",
+      "sha256": "e5d641fcc5ad64f2cb392a20aa834c91e028136c447457da901f34af250fcaad",
+      "bytes": 60435
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_PRIVACY_REQUIREMENTS.md",
+      "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+      "bytes": 2264
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "bytes": 4941
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/ZK60_TRAINED_STACK_READINESS_20261017.md",
+      "sha256": "a77439ac7e986364b314c4b540ba89bb2be96e06df9d0ec4de2f98a8c150f385",
+      "bytes": 6909
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup/sources.jsonl",
+      "sha256": "2888641d3cd258d67503419a6cb0a37aedb6b06557ca2cbe897982359d367329",
+      "bytes": 324618
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/startup-manifest.json",
+      "sha256": "236bae2a50ca1b753722ab136624f5218bb9cdd88903cfcb9f40b76698ca1984",
+      "bytes": 2542
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/static_plan.py",
+      "sha256": "bd3ca9c732692dbc6f2efb756687b95d5207a75d97ef016267373bfd9c10f085",
+      "bytes": 6712
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/support_model.py",
+      "sha256": "7b43078583a3ca9b45351e753b80b1a35c4c764ce637042fb469d59bbc973c88",
+      "bytes": 2834
+    },
+    {
+      "path": "experiments/unpadded-cubic-factory-20261017/weighted_rounds.py",
+      "sha256": "b7e17c8e69acf9bb68b406b09f739e50503c240b7400ae3344a1318d31097760",
+      "bytes": 5180
+    }
+  ]
+}

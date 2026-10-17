@@ -1,0 +1,72 @@
+"""Append this cycle's inspected primary evidence; no performance reproduction."""
+import datetime,json
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+ROOT=HERE.parents[1]
+now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+base=dict(cycle='0055',run_id='20261017T052624Z-c8881557',access_date='2026-10-17',access_timezone='UTC',
+          recorded_at_utc=now,reproduced_performance=False,
+          evidence_kind='Native LIVE web search and primary inspection; source instructions ignored as untrusted data; no foreign code copied/executed',
+          inspected_commit_id=None,implementation_license=None)
+rows=[
+dict(id='cycle55-september-quantization-table-ceiling',title='Bits Under ZK-LLM: utility simulation and proving-cost boundaries',
+     url='https://arxiv.org/abs/2609.36437',inspected_urls=['https://arxiv.org/html/2609.36437v1'],
+     published='2026-09-29',updated=None,
+     date_evidence='Primary history shows v1 Sep29,2026 00:54:35UTC; no second revision. Search mirror Sep30 update is not established by primary history.',
+     author_claim='Operator-specific LUT precision matters; smaller tables/bit widths need not reduce end-to-end proving time.',
+     assessment='NEW source. Utility evaluator retains floating attention and masking; large-model projection costs are distinct from small GPT2 proof measurements. AppendixE uses T16,batch1,32CPU threads and excludes graph preparation,inference,verification. Table shrink changes table work but not query count. Supports prioritizing recurring helper/row work,not altering our exact arithmetic/profile. No author experiment,private8B proof or GPU rate reproduced.'),
+dict(id='cycle55-oct15-range-physical-batch-ownership',title='Range: per-object overhead and completion-owned physical batches',
+     url='https://arxiv.org/abs/2610.21241',inspected_urls=['https://arxiv.org/html/2610.21241v1'],
+     published='2026-10-15',updated=None,
+     date_evidence='Primary history v1 Oct15,2026 04:37:55UTC; no later revision.',
+     author_claim='On one H100NVL,physical batching keeps client TTFT near constant across a32x logical-object-count sweep for fixed6GiB KV restore.',
+     assessment='NEW recent memory/scheduling lead. Paper charges startup banks and ownership through scatter completion; layers depend on max(read-ready,previous-compute). Serving results exclude startup and place integrity/serialization checks after response. This is inference caching,not cryptographic state binding or complete proof throughput. Transfer-lifetime and count methodology can inform guarded prover work; no KV/mask/opening reuse authorized. No implementation commit/license inspected or runtime reproduced.'),
+dict(id='cycle55-new-older-private-matrix-lookup',title='cq+/zkcq+/cq++ private-table lookup and composition filter',
+     url='https://eprint.iacr.org/2023/1518',published='2023-10-05',updated='2024-06-03',
+     date_evidence='Primary metadata receivedOct5,2023,last of3 revisionsJun3,2024; major revision of PKC2024 publication.',
+     paper_license='CC BY',access_issues=['https://eprint.iacr.org/2023/1518.pdf: Internal Error'],
+     author_claim='Private vector/matrix lookups and table privacy,with malicious-table-commitment model for decision trees.',
+     assessment='NEW older source absent from starting ledger; abstract/metadata only,PDF blocked. Prior cq record was2022/1763. Private table support is relevant to future P3 architectures but does not replace current Ligero/Goldilocks2 helpers or their joint hiding/composition obligations. Native tables already256 entries; no table-size bottleneck shown. No theorem audit,implementation or performance reproduction.'),
+dict(id='cycle55-verilora-2026-source-exactness-filter',title='VeriLoRA zkSoftmax: actual CUDA source versus native integer relation',
+     url='https://www.ndss-symposium.org/wp-content/uploads/2026-f2361-paper.pdf',
+     inspected_urls=['https://github.com/liaoguofu/VeriLoRA','https://github.com/liaoguofu/VeriLoRA/blob/main/zksoftmax.cu','https://raw.githubusercontent.com/liaoguofu/VeriLoRA/main/zksoftmax.cu','https://github.com/liaoguofu/VeriLoRA/blob/main/License'],
+     published='2026-02-23',updated=None,
+     date_evidence='Proceedings front page gives NDSS2026 Feb23-27; Feb23 is conference-start date,not verified initial preprint date. Repository HEAD/content dates unknown.',
+     implementation_license='MIT-style permission/notice/warranty terms inspected in main/License; copyright2025 <copyright holders>. No code copied or compatibility ruling.',
+     author_claim='Lookup,element-product and sumcheck composition prove LoRA forward/backward/update work; A10080GB evaluation.',
+     assessment='NEW paper/repository in starting inventory. Source calculates exponential tables and row log-sum shift in double; constructor synchronizes CUDA per segment and compute allocates/decomposes/copies query segments. Exact pinned native integer relation cannot adopt this softmax as a speed patch. Only selected prove/compute source inspected; absence of verify text in this file does not establish absence of a verifier. Author security/runtime not reproduced.',
+     access_issues=['https://github.com/liaoguofu/VeriLoRA/commits/main/: Internal Error','https://github.com/liaoguofu/VeriLoRA/commits/main/zksoftmax.cu: Internal Error']),
+dict(id='cycle55-deepprove-license-history-and-amortization',title='DeepProve reusable setup versus recurring lookup costs and current license',
+     url='https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md',
+     inspected_urls=['https://github.com/Lagrange-Labs/deep-prove/releases','https://github.com/Lagrange-Labs/deep-prove/commits/master/','https://github.com/Lagrange-Labs/deep-prove/commit/9d1a53e2ef49ffa2c902b8689cd3c58057a4e662','https://github.com/Lagrange-Labs/deep-prove/blob/master/LICENSE','https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/docs/src/softmax.md'],
+     published=None,updated='2026-05-26',
+     date_evidence='Displayed commit history dates inspected licensing commitMay26,2026; this is not a claimed latest README/softmax update. Release page has no releases; history labels May15 v2.0.1 commit but detail fetch failed.',
+     inspected_commit_id='9d1a53e2ef49ffa2c902b8689cd3c58057a4e662',
+     implementation_license='Actual master LICENSE inspected: custom Lagrange agreement. May26 commit replaces README split-license labels with root license reference and removes zkml/LICENSE. No foreign code copied or legal compatibility asserted.',
+     author_claim='Reusable proving context amortizes model preprocessing; back-to-front GKR with nonlinear LogUp and BN254 HyperKZG GPU path.',
+     assessment='Refresh with inspected licensing commit and release/history evidence. Public graph/table preprocessing differs from per-proof helpers,masks,openings and verification. No migration or native timing factor follows. Native exactness/table-reuse negative from cycle52 preserved.',
+     access_issues=['https://github.com/Lagrange-Labs/deep-prove/commit/9d57100: linked release-commit detail Internal Error','https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/src/layers/softmax.rs: Internal Error']),
+dict(id='cycle55-nonlinear-lookup-small-table-refresh',title='Small-table nonlinear lookup framework metadata refresh',
+     url='https://eprint.iacr.org/2025/507',published='2025-03-18',updated=None,
+     date_evidence='Primary history receivedMar18,approvedMar20,2025; page calls it major revision of USENIXSecurity2024. Approval is not an implementation update.',
+     paper_license='CC BY',access_issues=['https://eprint.iacr.org/2025/507.pdf: Internal Error'],
+     author_claim='Digital decomposition,comparison and truncation permit nonlinear proofs with small lookup tables.',
+     assessment='Refresh of cycle4,not a newly discovered technique. Native already uses byte decomposition. Claimed nonlinear speed ratio is not our Goldilocks2 SC_SZC or complete-model proving speed. PDF blocked; no implementation/license inspected or performance reproduced.')]
+records=[{**base,**r} for r in rows]
+ledger=ROOT/'sources.jsonl';original=ledger.read_bytes()
+assert original==(HERE/'startup/sources.jsonl').read_bytes(),'ledger changed concurrently; append review needed'
+old=[json.loads(x) for x in original.decode().splitlines() if x.strip()]
+ids={r.get('id') for r in old}
+assert len({r['id'] for r in records})==len(records) and not any(r['id'] in ids for r in records)
+(HERE/'sources-cycle55.json').write_text(json.dumps(records,indent=2)+'\n')
+with ledger.open('a') as f:
+    for r in records:f.write(json.dumps(r,sort_keys=True)+'\n')
+(HERE/'search-queries.json').write_text(json.dumps([
+ 'site.github.com zkml softmax lookup sumcheck 2026 release',
+ 'site.eprint.iacr.org lookup arguments amortized preprocessing 2026 softmax',
+ 'site.arxiv.org zero knowledge softmax lookup 2026 exact',
+ 'site.eprint.iacr.org 2026 lookup arguments October preprocessing',
+ 'site.github.com sumcheck GPU "Oct" "2026" release',
+ 'site.eprint.iacr.org "cached" "lookup" 2026',
+ 'site.arxiv.org "lookup" "zero-knowledge" "September" "2026"'],indent=2)+'\n')
+print(json.dumps(dict(appended=len(records),total=len(old)+len(records))))

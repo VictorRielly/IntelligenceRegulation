@@ -1,0 +1,13 @@
+{
+  "status": "pass",
+  "checks": 13047,
+  "seed": 2026101757001,
+  "controls": {
+    "wrong_remap": "detected",
+    "pad_rule_without_optional_supports": "scalar fallback",
+    "later_round": "scalar fallback"
+  },
+  "wall_seconds": 0.3845294000020658,
+  "max_rss_kib": 19008,
+  "scope": "CPU/source audit only; no native capture export, Rust compile, transcript, proof or verifier"
+}

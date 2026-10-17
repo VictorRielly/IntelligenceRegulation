@@ -1,0 +1,100 @@
+[03:13:32Z] B3 variant dg_rot1_T32: {'variant': 'dg', 'tag': '', 'T': 32, 'calib_per': 6, 'heldout_per': 4, 'margin': 0.5, 'rotate': 1, 'floors': 'auto', 'layers': None, 'chunk': 6, 'site_seqs': 6, 'probe': False, 'export': False, 'export_seqs': 1}; Variant(name='dg', norm_cn='layer', tables='layer', residual='global', shifts='free', rotate=1, margin=0.5, margin_ch=3.0, margin_pow2=0.25, tn=10, cn_max=65536, shapes=('range', 'smooth', 'gamma'))
+[03:13:32Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}; native table pins True
+[03:13:36Z] tokenizer ok=True; calib (54, 32) held-out (36, 32) (disjoint sources)
+[03:13:37Z] pass 1: stats from cache b3_stats4_T32_c6_r1.pkl
+[03:13:37Z] pass 1 done (4s)
+[03:13:46Z] prepass-1 L00 cn 1191/1085 shape gamma/gamma noise 0.036/0.015 e_s 1 silu [-5, -13] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (9s)
+[03:13:54Z] prepass-1 L01 cn 2203/2101 shape gamma/range noise 0.062/0.024 e_s 1 silu [-5, -13] shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (17s)
+[03:14:03Z] prepass-1 L02 cn 2439/817 shape gamma/gamma noise 0.053/0.000 e_s 1 silu [-2, -11] shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 16, 'z': 6} (26s)
+[03:14:12Z] prepass-1 L03 cn 3999/2364 shape range/range noise 0.331/0.025 e_s 1 silu [-5, -13] shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 5, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (35s)
+[03:14:21Z] prepass-1 L04 cn 2803/2233 shape gamma/range noise 0.441/0.040 e_s 1 silu [-4, -13] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 8, 'u': 0, 'h': 15, 'z': 8} (44s)
+[03:14:30Z] prepass-1 L05 cn 2629/2134 shape gamma/gamma noise 0.308/0.018 e_s 1 silu [-5, -13] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 8, 'u': 0, 'h': 15, 'z': 8} (54s)
+[03:14:40Z] prepass-1 L06 cn 3650/1554 shape range/gamma noise 0.123/0.036 e_s 1 silu [-4, -13] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (63s)
+[03:14:50Z] prepass-1 L07 cn 2897/641 shape gamma/gamma noise 0.169/0.001 e_s 1 silu [-1, -10] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 16, 'z': 5} (73s)
+[03:15:00Z] prepass-1 L08 cn 2645/1566 shape gamma/gamma noise 0.201/0.030 e_s 2 silu [-4, -13] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (83s)
+[03:15:09Z] prepass-1 L09 cn 2555/2621 shape gamma/range noise 0.108/0.023 e_s 1 silu [-4, -12] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (93s)
+[03:15:19Z] prepass-1 L10 cn 2663/1834 shape gamma/gamma noise 0.110/0.029 e_s 1 silu [-4, -13] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (102s)
+[03:15:29Z] prepass-1 L11 cn 2626/1811 shape gamma/gamma noise 0.122/0.024 e_s 1 silu [-4, -12] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (112s)
+[03:15:38Z] prepass-1 L12 cn 2648/1617 shape gamma/gamma noise 0.111/0.025 e_s 1 silu [-4, -12] shifts {'qkv': 8, 'rope': 7, 's': 5, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 13, 'z': 8} (122s)
+[03:15:48Z] prepass-1 L13 cn 2866/2083 shape gamma/gamma noise 0.071/0.022 e_s 1 silu [-4, -12] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 5, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (131s)
+[03:15:58Z] prepass-1 L14 cn 2685/1895 shape gamma/gamma noise 0.064/0.020 e_s 1 silu [-4, -12] shifts {'qkv': 8, 'rope': 7, 's': 5, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (141s)
+[03:16:07Z] prepass-1 L15 cn 2647/1553 shape gamma/gamma noise 0.100/0.035 e_s 2 silu [-3, -11] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 13, 'z': 8} (151s)
+[03:16:17Z] prepass-1 L16 cn 3807/1746 shape range/gamma noise 0.068/0.024 e_s 1 silu [-3, -11] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (160s)
+[03:16:26Z] prepass-1 L17 cn 2814/2370 shape gamma/gamma noise 0.169/0.014 e_s 1 silu [-4, -12] shifts {'qkv': 8, 'rope': 7, 's': 5, 'o': 9, 'ao': 4, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (169s)
+[03:16:35Z] prepass-1 L18 cn 2601/1817 shape gamma/gamma noise 0.140/0.022 e_s 1 silu [-3, -11] shifts {'qkv': 8, 'rope': 7, 's': 5, 'o': 9, 'ao': 3, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (178s)
+[03:16:44Z] prepass-1 L19 cn 2952/2693 shape gamma/range noise 0.184/0.021 e_s 1 silu [-3, -11] shifts {'qkv': 8, 'rope': 7, 's': 5, 'o': 9, 'ao': 3, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (188s)
+[03:16:53Z] prepass-1 L20 cn 2989/2151 shape gamma/gamma noise 0.091/0.016 e_s 1 silu [-3, -11] shifts {'qkv': 8, 'rope': 7, 's': 5, 'o': 9, 'ao': 3, 'g': 8, 'u': 0, 'h': 14, 'z': 7} (197s)
+[03:17:02Z] prepass-1 L21 cn 3732/3122 shape range/smooth noise 0.032/0.018 e_s 1 silu [-1, -11] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 3, 'g': 8, 'u': 0, 'h': 16, 'z': 5} (206s)
+[03:17:07Z] prepass-2 L00 e_s 1 range in/out 3.53e-06/4.28e-06 floors ao 4.16e-06 z 1.45e-07 (211s)
+[03:17:13Z] prepass-2 L01 e_s 1 range in/out 4.76e-06/6.13e-06 floors ao 8.88e-06 z 1.5e-07 (216s)
+[03:17:18Z] prepass-2 L02 e_s 1 range in/out 7.59e-06/0.000315 floors ao 8.61e-06 z 1.29e-05 (221s)
+[03:17:23Z] prepass-2 L03 e_s 1 range in/out 0.000315/0.000314 floors ao 1.77e-05 z 1.96e-07 (226s)
+[03:17:28Z] prepass-2 L04 e_s 1 range in/out 0.000314/0.000314 floors ao 2.43e-05 z 5.93e-07 (231s)
+[03:17:33Z] prepass-2 L05 e_s 1 range in/out 0.000314/0.000314 floors ao 2.69e-05 z 4.41e-07 (236s)
+[03:17:38Z] prepass-2 L06 e_s 1 range in/out 0.000314/0.000314 floors ao 1.66e-05 z 2.47e-07 (241s)
+[03:17:43Z] prepass-2 L07 e_s 1 range in/out 0.000315/0.000474 floors ao 3.57e-05 z 2.01e-05 (247s)
+[03:17:48Z] prepass-2 L08 e_s 2 range in/out 0.000474/0.000472 floors ao 3.53e-05 z 3.33e-07 (252s)
+[03:17:54Z] prepass-2 L09 e_s 1 range in/out 0.000473/0.000473 floors ao 2.74e-05 z 6.03e-07 (257s)
+[03:17:59Z] prepass-2 L10 e_s 1 range in/out 0.000473/0.000473 floors ao 2.22e-05 z 3.17e-07 (262s)
+[03:18:04Z] prepass-2 L11 e_s 1 range in/out 0.000473/0.000472 floors ao 3.81e-05 z 7.78e-07 (267s)
+[03:18:09Z] prepass-2 L12 e_s 1 range in/out 0.000472/0.000471 floors ao 3.2e-05 z 3.54e-07 (272s)
+[03:18:14Z] prepass-2 L13 e_s 1 range in/out 0.000471/0.00047 floors ao 2.69e-05 z 9.21e-07 (277s)
+[03:18:19Z] prepass-2 L14 e_s 1 range in/out 0.00047/0.000468 floors ao 3.24e-05 z 8.84e-07 (282s)
+[03:18:24Z] prepass-2 L15 e_s 2 range in/out 0.000468/0.000465 floors ao 4.43e-05 z 9.97e-07 (287s)
+[03:18:29Z] prepass-2 L16 e_s 1 range in/out 0.000465/0.000464 floors ao 4.89e-05 z 2.12e-06 (292s)
+[03:18:34Z] prepass-2 L17 e_s 1 range in/out 0.000464/0.000465 floors ao 5.3e-05 z 1.19e-06 (297s)
+[03:18:39Z] prepass-2 L18 e_s 1 range in/out 0.000465/0.000465 floors ao 7.08e-05 z 2.51e-06 (302s)
+[03:18:44Z] prepass-2 L19 e_s 1 range in/out 0.000465/0.000467 floors ao 0.000101 z 2.53e-06 (307s)
+[03:18:49Z] prepass-2 L20 e_s 1 range in/out 0.000467/0.000467 floors ao 8.22e-05 z 3.78e-06 (312s)
+[03:18:54Z] prepass-2 L21 e_s 1 range in/out 0.000468/0.000424 floors ao 7.8e-05 z 2.66e-05 (317s)
+[03:18:54Z] profile decisions: cn None/None e_s None silu None s_in ['0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474', '0.000474']
+[03:18:54Z] embedding at s_x 0.0004737: cos mean 0.99981 min 0.9981, zero fraction 0.023
+[03:19:14Z] L00 cn 1191/1085 ceps 91255 e_s 1 silu (-5, -13) sh qkv8 s6 ao7 g8 h14 z8 r20 | iso cos 0.99737 dcos 0.9950 | chain cos 0.99737 dcos 0.9950 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:19:14Z]     site rel err: norm_a 0.095 q 0.113 k 0.069 v 0.061 qr 0.128 kr 0.077 score 0.136 prob 0.078 o 0.122 ao 0.071 norm_m 0.111 gate 0.199 act 0.197 up 0.183 h 0.176 z 0.145 x2 0.075 update 0.105
+[03:19:34Z] L01 cn 2203/2101 ceps 91255 e_s 1 silu (-5, -13) sh qkv8 s7 ao6 g8 h14 z8 r20 | iso cos 0.99690 dcos 0.9857 | chain cos 0.99445 dcos 0.9809 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:19:34Z]     site rel err: norm_a 0.049 q 0.062 k 0.031 v 0.061 qr 0.070 kr 0.036 score 0.063 prob 0.065 o 0.154 ao 0.145 norm_m 0.093 gate 0.155 act 0.154 up 0.155 h 0.160 z 0.152 x2 0.079 update 0.150
+[03:19:54Z] L02 cn 2439/817 ceps 91255 e_s 1 silu (-2, -11) sh qkv8 s7 ao6 g8 h16 z6 r20 | iso cos 0.97319 dcos 0.9090 | chain cos 0.96742 dcos 0.9008 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:19:54Z]     site rel err: norm_a 0.044 q 0.061 k 0.037 v 0.060 qr 0.068 kr 0.042 score 0.086 prob 0.069 o 0.160 ao 0.136 norm_m 0.142 gate 0.521 act 0.459 up 0.181 h 0.061 z 0.059 x2 0.059 update 0.059
+[03:20:14Z] L03 cn 3999/2364 ceps 91255 e_s 1 silu (-5, -13) sh qkv8 s7 ao5 g8 h14 z8 r20 | iso cos 0.99180 dcos 0.9688 | chain cos 0.96235 dcos 0.9146 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:20:14Z]     site rel err: norm_a 0.038 q 0.050 k 0.041 v 0.056 qr 0.055 kr 0.045 score 0.042 prob 0.032 o 0.512 ao 0.348 norm_m 0.128 gate 0.163 act 0.165 up 0.175 h 0.199 z 0.200 x2 0.006 update 0.232
+[03:20:34Z] L04 cn 2803/2233 ceps 91255 e_s 1 silu (-4, -13) sh qkv8 s6 ao5 g8 h15 z8 r20 | iso cos 0.99010 dcos 0.9530 | chain cos 0.95731 dcos 0.8949 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:20:34Z]     site rel err: norm_a 0.038 q 0.062 k 0.054 v 0.056 qr 0.068 kr 0.060 score 0.050 prob 0.029 o 0.578 ao 0.418 norm_m 0.139 gate 0.216 act 0.222 up 0.175 h 0.242 z 0.244 x2 0.008 update 0.280
+[03:20:54Z] L05 cn 2629/2134 ceps 91255 e_s 1 silu (-5, -13) sh qkv8 s6 ao5 g8 h15 z8 r20 | iso cos 0.99246 dcos 0.9658 | chain cos 0.95460 dcos 0.8991 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:20:54Z]     site rel err: norm_a 0.040 q 0.058 k 0.052 v 0.056 qr 0.064 kr 0.058 score 0.054 prob 0.043 o 0.561 ao 0.438 norm_m 0.126 gate 0.152 act 0.156 up 0.155 h 0.201 z 0.204 x2 0.009 update 0.259
+[03:21:13Z] L06 cn 3650/1554 ceps 91255 e_s 1 silu (-4, -13) sh qkv8 s6 ao5 g8 h14 z8 r20 | iso cos 0.99338 dcos 0.9712 | chain cos 0.95340 dcos 0.9014 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (19s)
+[03:21:13Z]     site rel err: norm_a 0.039 q 0.063 k 0.044 v 0.050 qr 0.069 kr 0.049 score 0.054 prob 0.050 o 0.372 ao 0.326 norm_m 0.116 gate 0.161 act 0.165 up 0.146 h 0.203 z 0.212 x2 0.010 update 0.235
+[03:21:33Z] L07 cn 2897/641 ceps 91255 e_s 1 silu (-1, -10) sh qkv8 s6 ao4 g8 h16 z5 r20 | iso cos 0.96879 dcos 0.8877 | chain cos 0.92979 dcos 0.8251 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:21:33Z]     site rel err: norm_a 0.036 q 0.077 k 0.050 v 0.059 qr 0.084 kr 0.055 score 0.076 prob 0.055 o 0.360 ao 0.308 norm_m 0.189 gate 0.565 act 0.549 up 0.193 h 0.043 z 0.031 x2 0.023 update 0.031
+[03:21:53Z] L08 cn 2645/1566 ceps 91255 e_s 2 silu (-4, -13) sh qkv8 s6 ao4 g8 h14 z8 r20 | iso cos 0.99371 dcos 0.9706 | chain cos 0.92520 dcos 0.8512 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:21:53Z]     site rel err: norm_a 0.040 q 0.089 k 0.055 v 0.054 qr 0.098 kr 0.061 score 0.061 prob 0.087 o 0.441 ao 0.379 norm_m 0.114 gate 0.146 act 0.153 up 0.142 h 0.195 z 0.200 x2 0.008 update 0.236
+[03:22:13Z] L09 cn 2555/2621 ceps 91255 e_s 1 silu (-4, -12) sh qkv8 s6 ao5 g8 h14 z8 r20 | iso cos 0.99636 dcos 0.9807 | chain cos 0.93060 dcos 0.8641 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:22:13Z]     site rel err: norm_a 0.041 q 0.061 k 0.045 v 0.059 qr 0.068 kr 0.050 score 0.057 prob 0.070 o 0.291 ao 0.261 norm_m 0.090 gate 0.122 act 0.130 up 0.112 h 0.157 z 0.165 x2 0.008 update 0.187
+[03:22:33Z] L10 cn 2663/1834 ceps 91255 e_s 1 silu (-4, -13) sh qkv8 s6 ao5 g8 h14 z8 r20 | iso cos 0.99637 dcos 0.9781 | chain cos 0.93218 dcos 0.8681 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (20s)
+[03:22:33Z]     site rel err: norm_a 0.040 q 0.058 k 0.048 v 0.057 qr 0.064 kr 0.053 score 0.062 prob 0.077 o 0.295 ao 0.276 norm_m 0.088 gate 0.119 act 0.126 up 0.118 h 0.162 z 0.174 x2 0.009 update 0.198
+[03:22:51Z] L11 cn 2626/1811 ceps 91255 e_s 1 silu (-4, -12) sh qkv8 s6 ao4 g8 h14 z8 r20 | iso cos 0.99687 dcos 0.9804 | chain cos 0.93222 dcos 0.8703 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (18s)
+[03:22:51Z]     site rel err: norm_a 0.040 q 0.070 k 0.045 v 0.056 qr 0.078 kr 0.050 score 0.058 prob 0.065 o 0.296 ao 0.309 norm_m 0.089 gate 0.113 act 0.121 up 0.109 h 0.156 z 0.168 x2 0.009 update 0.196
+[03:23:07Z] L12 cn 2648/1617 ceps 91255 e_s 1 silu (-4, -12) sh qkv8 s5 ao4 g8 h13 z8 r20 | iso cos 0.99625 dcos 0.9782 | chain cos 0.93616 dcos 0.8740 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (16s)
+[03:23:07Z]     site rel err: norm_a 0.040 q 0.096 k 0.065 v 0.061 qr 0.106 kr 0.071 score 0.097 prob 0.096 o 0.308 ao 0.309 norm_m 0.099 gate 0.115 act 0.122 up 0.126 h 0.165 z 0.176 x2 0.011 update 0.201
+[03:23:25Z] L13 cn 2866/2083 ceps 91255 e_s 1 silu (-4, -12) sh qkv8 s6 ao5 g8 h14 z8 r20 | iso cos 0.99768 dcos 0.9859 | chain cos 0.94086 dcos 0.8916 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (19s)
+[03:23:25Z]     site rel err: norm_a 0.037 q 0.069 k 0.049 v 0.057 qr 0.075 kr 0.053 score 0.065 prob 0.075 o 0.235 ao 0.238 norm_m 0.075 gate 0.100 act 0.108 up 0.094 h 0.132 z 0.142 x2 0.009 update 0.158
+[03:23:44Z] L14 cn 2685/1895 ceps 91255 e_s 1 silu (-4, -12) sh qkv8 s5 ao4 g8 h14 z8 r20 | iso cos 0.99697 dcos 0.9825 | chain cos 0.94644 dcos 0.9018 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (19s)
+[03:23:44Z]     site rel err: norm_a 0.039 q 0.085 k 0.064 v 0.056 qr 0.093 kr 0.071 score 0.082 prob 0.100 o 0.252 ao 0.247 norm_m 0.086 gate 0.106 act 0.115 up 0.100 h 0.144 z 0.163 x2 0.013 update 0.184
+[03:24:02Z] L15 cn 2647/1553 ceps 91255 e_s 2 silu (-3, -11) sh qkv8 s6 ao4 g8 h13 z8 r20 | iso cos 0.99612 dcos 0.9763 | chain cos 0.94845 dcos 0.9007 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (18s)
+[03:24:02Z]     site rel err: norm_a 0.040 q 0.099 k 0.059 v 0.058 qr 0.108 kr 0.065 score 0.071 prob 0.109 o 0.316 ao 0.346 norm_m 0.101 gate 0.146 act 0.151 up 0.106 h 0.169 z 0.173 x2 0.017 update 0.209
+[03:24:20Z] L16 cn 3807/1746 ceps 91255 e_s 1 silu (-3, -11) sh qkv8 s6 ao4 g8 h14 z8 r20 | iso cos 0.99771 dcos 0.9856 | chain cos 0.95258 dcos 0.9161 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (18s)
+[03:24:20Z]     site rel err: norm_a 0.039 q 0.065 k 0.045 v 0.060 qr 0.072 kr 0.050 score 0.054 prob 0.072 o 0.270 ao 0.278 norm_m 0.082 gate 0.126 act 0.135 up 0.088 h 0.143 z 0.143 x2 0.016 update 0.160
+[03:24:42Z] L17 cn 2814/2370 ceps 91255 e_s 1 silu (-4, -12) sh qkv8 s5 ao4 g8 h14 z8 r20 | iso cos 0.99775 dcos 0.9823 | chain cos 0.95190 dcos 0.9091 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (22s)
+[03:24:42Z]     site rel err: norm_a 0.037 q 0.091 k 0.068 v 0.062 qr 0.100 kr 0.074 score 0.076 prob 0.089 o 0.386 ao 0.372 norm_m 0.078 gate 0.093 act 0.098 up 0.090 h 0.123 z 0.128 x2 0.018 update 0.169
+[03:25:00Z] L18 cn 2601/1817 ceps 91255 e_s 1 silu (-3, -11) sh qkv8 s5 ao3 g8 h14 z8 r20 | iso cos 0.99759 dcos 0.9834 | chain cos 0.94966 dcos 0.9091 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (18s)
+[03:25:00Z]     site rel err: norm_a 0.041 q 0.097 k 0.061 v 0.064 qr 0.107 kr 0.067 score 0.075 prob 0.076 o 0.401 ao 0.379 norm_m 0.084 gate 0.123 act 0.130 up 0.090 h 0.144 z 0.143 x2 0.023 update 0.174
+[03:25:19Z] L19 cn 2952/2693 ceps 91255 e_s 1 silu (-3, -11) sh qkv8 s5 ao3 g8 h14 z8 r20 | iso cos 0.99752 dcos 0.9850 | chain cos 0.94696 dcos 0.9095 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (19s)
+[03:25:19Z]     site rel err: norm_a 0.036 q 0.098 k 0.066 v 0.063 qr 0.107 kr 0.071 score 0.076 prob 0.087 o 0.456 ao 0.437 norm_m 0.085 gate 0.122 act 0.128 up 0.088 h 0.143 z 0.141 x2 0.028 update 0.179
+[03:25:38Z] L20 cn 2989/2151 ceps 91255 e_s 1 silu (-3, -11) sh qkv8 s5 ao3 g8 h14 z7 r20 | iso cos 0.99794 dcos 0.9893 | chain cos 0.94411 dcos 0.9178 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (19s)
+[03:25:38Z]     site rel err: norm_a 0.035 q 0.092 k 0.066 v 0.062 qr 0.100 kr 0.072 score 0.082 prob 0.098 o 0.336 ao 0.314 norm_m 0.074 gate 0.115 act 0.115 up 0.080 h 0.132 z 0.127 x2 0.031 update 0.154
+/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/tlcalib.py:184: RuntimeWarning: overflow encountered in exp
+  act = gt / (1.0 + np.exp(-gt))
+[03:25:57Z] L21 cn 3732/3122 ceps 91255 e_s 1 silu (-1, -11) sh qkv8 s6 ao3 g8 h16 z5 r20 | iso cos 0.98801 dcos 0.9828 | chain cos 0.92030 dcos 0.9319 | viol iso 2 chain 1 cal 1 | refused h/c 1/1 | clip {} (19s)
+[03:25:57Z]     site rel err: norm_a 0.039 q 0.061 k 0.050 v 0.061 qr 0.066 kr 0.055 score 0.069 prob 0.080 o 0.190 ao 0.142 norm_m 0.082 gate 0.228 act 0.249 up 0.051 h 0.140 z 0.078 x2 0.138 update 0.081
+[03:26:10Z] head (all 36 held-out, refusals clamped = diagnostic): {'sequences': 36, 'positions': 1116, 'top1_agreement': 0.757168458781362, 'ppl_float': 29.302895106781172, 'ppl_int': 31.806667361670428, 'kl_float_to_int_mean': 0.2533449597258894}
+[03:26:10Z] head (accepted 35 held-out): {'sequences': 35, 'positions': 1085, 'top1_agreement': 0.7539170506912443, 'ppl_float': 30.062369634565165, 'ppl_int': 32.621782064382174, 'kl_float_to_int_mean': 0.25384625114543896}
+[03:26:10Z] done (758s) -> /home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/runs/b3_dg_rot1_T32

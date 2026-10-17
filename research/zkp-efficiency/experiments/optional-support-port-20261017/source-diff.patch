@@ -1,0 +1,137 @@
+--- experiments/public-row-cse-20261017/source_port.py
++++ experiments/optional-support-port-20261017/source_port.py
+@@ -24,7 +24,7 @@
+     def sub(self, rhs): return self.op('sub', rhs)
+ 
+ 
+-def layout(ls=3, lp=2, padded=True, lookup_count=None):
++def layout(ls=3, lp=2, padded=True, lookup_count=None, supports=None):
+     names = ['eq0', 'eq1', 'eq2', 'mask', 's8', 'rsl', 'zsel', 'e', 'p']
+     names += [f'pl{i}' for i in range(lp)]
+     names += [f'sr{i}' for i in range(ls)] + [f'sg{i}' for i in range(ls)]
+@@ -38,9 +38,13 @@
+     if lookup_count is not None: lk = lk[:lookup_count]
+     nh = (len(lk)+1)//2
+     names += [f'h{i}' for i in range(nh)] + ['hx']
+-    if padded: names += ['ght', 'gs']
++    supports = (padded, padded) if supports is None else tuple(supports)
++    if len(supports) != 2 or any(type(x) is not bool for x in supports):
++        raise ValueError('two public support-presence flags required')
++    if not padded and any(supports): raise ValueError('support without pad_on')
++    names += [name for name, present in zip(('ght','gs'), supports) if present]
+     index = {name: i for i, name in enumerate(names)}
+-    return dict(names=names, index=index, ls=ls, lp=lp, padded=padded,
++    return dict(names=names, index=index, ls=ls, lp=lp, padded=padded, supports=supports,
+                 lookups=[(index[n], coef, cst) for n, coef, cst in lk], helpers=nh,
+                 # pad.rs a_rule exempts A_E; preserve numeric A-plane order.
+                 splanes=[index[n] for n in names if n in ('s8','rsl','zsel','p')
+@@ -52,8 +56,8 @@
+     k = lambda x: V(F(x),cc)
+     c = lambda name: V(const[name],cc)
+     at = lambda name: v[ix[name]]
+-    gs = at('gs') if cfg['padded'] else k(1)
+-    ght = at('ght') if cfg['padded'] else k(1)
++    gs = at('gs') if cfg['supports'][1] else k(1)
++    ght = at('ght') if cfg['supports'][0] else k(1)
+     if mutation == 'ht_uses_s': ght = gs
+     if group == 1: return c('nu0').mul(ght).mul(at('sum').add(c('lam'))).value, cc
+     if group == 2:
+@@ -96,6 +100,7 @@
+         # Powers continue across Ht then S groups, as PadTerm::add specifies.
+         exponent = 0
+         for support, planes in [('ght',[ix['mx'],ix['sum']]),('gs',cfg['splanes'])]:
++            if support not in ix: continue
+             if mutation == 'restart_zeta': exponent = 0
+             inner = k(0)
+             for i in planes:
+--- experiments/public-row-cse-20261017/polynomial_ir.py
++++ experiments/optional-support-port-20261017/polynomial_ir.py
+@@ -37,8 +37,8 @@
+ def expanded(cfg, const):
+     ix=cfg['index']; x=lambda name: Poly.var(ix[name])
+     c=lambda name: Poly.scalar(o.tup(const[name]))
+-    gate_s=x('gs') if cfg['padded'] else Poly.scalar(1)
+-    gate_ht=x('ght') if cfg['padded'] else Poly.scalar(1)
++    gate_s=x('gs') if cfg['supports'][1] else Poly.scalar(1)
++    gate_ht=x('ght') if cfg['supports'][0] else Poly.scalar(1)
+     limb=lambda name,count: sum((256**j*x(name+str(j)) for j in range(count)),Poly.scalar(0))
+     sr,sg,pl=limb('sr',cfg['ls']),limb('sg',cfg['ls']),limb('pl',cfg['lp'])
+     # Expand delta/c1/cx rather than using the literal port's intermediate.
+@@ -57,7 +57,10 @@
+         helper += c('mu'+str(5+j))*rel
+     padding=Poly.scalar(0)
+     if cfg['padded']:
+-        planes=[(gate_ht,[ix['mx'],ix['sum']]),(gate_s,cfg['splanes'])]
++        # Separate tuple-ring equation builder: keep only present groups.
++        planes=[]
++        if cfg['supports'][0]: planes.append((gate_ht,[ix['mx'],ix['sum']]))
++        if cfg['supports'][1]: planes.append((gate_s,cfg['splanes']))
+         weight=o.O
+         for support, indices in planes:
+             inside=Poly.scalar(0)
+--- experiments/public-row-cse-20261017/polynomial_clause.py
++++ experiments/optional-support-port-20261017/polynomial_clause.py
+@@ -10,7 +10,7 @@
+ from coefficients import PolynomialValue as V
+ 
+ 
+-def layout(ls=3, lp=2, padded=True, lookup_count=None):
++def layout(ls=3, lp=2, padded=True, lookup_count=None, supports=None):
+     names = ['eq0', 'eq1', 'eq2', 'mask', 's8', 'rsl', 'zsel', 'e', 'p']
+     names += [f'pl{i}' for i in range(lp)]
+     names += [f'sr{i}' for i in range(ls)] + [f'sg{i}' for i in range(ls)]
+@@ -24,9 +24,13 @@
+     if lookup_count is not None: lk = lk[:lookup_count]
+     nh = (len(lk)+1)//2
+     names += [f'h{i}' for i in range(nh)] + ['hx']
+-    if padded: names += ['ght', 'gs']
++    supports = (padded, padded) if supports is None else tuple(supports)
++    if len(supports) != 2 or any(type(x) is not bool for x in supports):
++        raise ValueError('two public support-presence flags required')
++    if not padded and any(supports): raise ValueError('support without pad_on')
++    names += [name for name, present in zip(('ght','gs'), supports) if present]
+     index = {name: i for i, name in enumerate(names)}
+-    return dict(names=names, index=index, ls=ls, lp=lp, padded=padded,
++    return dict(names=names, index=index, ls=ls, lp=lp, padded=padded, supports=supports,
+                 lookups=[(index[n], coef, cst) for n, coef, cst in lk], helpers=nh,
+                 # pad.rs a_rule exempts A_E; preserve numeric A-plane order.
+                 splanes=[index[n] for n in names if n in ('s8','rsl','zsel','p')
+@@ -38,8 +42,8 @@
+     k = lambda x: V(F(x),cc)
+     c = lambda name: V(const[name],cc)
+     at = lambda name: v[ix[name]]
+-    gs = at('gs') if cfg['padded'] else k(1)
+-    ght = at('ght') if cfg['padded'] else k(1)
++    gs = at('gs') if cfg['supports'][1] else k(1)
++    ght = at('ght') if cfg['supports'][0] else k(1)
+     if mutation == 'ht_uses_s': ght = gs
+     if group == 1: return c('nu0').mul(ght).mul(at('sum').add(c('lam'))).value, cc
+     if group == 2:
+@@ -82,6 +86,7 @@
+         # Powers continue across Ht then S groups, as PadTerm::add specifies.
+         exponent = 0
+         for support, planes in [('ght',[ix['mx'],ix['sum']]),('gs',cfg['splanes'])]:
++            if support not in ix: continue
+             if mutation == 'restart_zeta': exponent = 0
+             inner = k(0)
+             for i in planes:
+--- experiments/public-row-cse-20261017/row_graph.py
++++ experiments/optional-support-port-20261017/row_graph.py
+@@ -107,7 +107,7 @@
+     con={k:g.input(('c',k)) for k in const_names}
+     offsets=[(g.input(('offset',j)),ops) for j,(_,ops) in enumerate(entries)]
+     plan=LiftedPlan(SimpleNamespace(entries=offsets,dispatch=Counter()))
+-    weights=[g.input(('pad',j)) for j in range(2+len(cfg['splanes']))]
++    weights=[g.input(('pad',j)) for j in range((2 if cfg['supports'][0] else 0)+(len(cfg['splanes']) if cfg['supports'][1] else 0))]
+     original=Coeff.multiply
+     Coeff.multiply=lambda self,other,counts:g.multiply(self,other,counts)
+     try:poly,counts=bracket(0,vv,cfg,con,den_eval=plan.evaluate,pad_weights=weights)
+@@ -139,7 +139,7 @@
+         # Cache proof-local weights in this same definition, charge separately.
+         if not hasattr(self,'weights'):
+             self.weights=[]
+-            for _ in range(2+len(self.cfg['splanes'])):
++            for _ in range((2 if self.cfg['supports'][0] else 0)+(len(self.cfg['splanes']) if self.cfg['supports'][1] else 0)):
+                 self.weights.append(weight);weight=weight*self.const['zeta'];self.setup['pad_weight_mul']+=1
+         inputs.update({('pad',j):x for j,x in enumerate(self.weights)})
+         poly,counts=g.run(inputs,self.mutation)

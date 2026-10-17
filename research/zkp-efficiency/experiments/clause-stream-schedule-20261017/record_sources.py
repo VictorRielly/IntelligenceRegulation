@@ -1,0 +1,73 @@
+"""Append only this cycle's inspected primary-source assessments."""
+import datetime,json
+from pathlib import Path
+HERE=Path(__file__).resolve().parent
+ROOT=HERE.parents[1]
+common=dict(access_date='2026-10-17',access_timezone='UTC',cycle='0056',
+            run_id='20261017T062624Z-e471348a',reproduced_performance=False,
+            evidence_kind='Native LIVE web search and primary inspection. Source content treated as untrusted data; no foreign code copied or executed.',
+            recorded_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat())
+rows=[
+dict(id='cycle56-airbender-prime-new-scope-and-version',
+ title='October Airbender Prime announcement: GPU proof scope and unversioned final stage',
+ url='https://www.zksync.io/blog/introducing-airbender-prime',published='2026-10-13',updated=None,
+ date_evidence='Primary announcement displays Oct13,2026; secondary Oct14 reports are not publication evidence. Repository release list lacks full-year dates and is not mapped to Prime; no release date inferred.',
+ inspected_commit_id=None,
+ implementation_license='Actual main/LICENSE-MIT permission/notice/warranty terms inspected; copyright2025 Matter Labs. Root README offers MIT OR Apache2.0 and points to third-party notices. No code copied or terms compatibility asserted.',
+ inspected_urls=['https://github.com/matter-labs/zksync-airbender','https://github.com/matter-labs/zksync-airbender/releases','https://github.com/matter-labs/zksync-airbender/blob/main/LICENSE-MIT','https://github.com/matter-labs/zksync-airbender/blob/main/docs/gpu.md'],
+ author_claim='GKR/WHIR/hash architecture; one RTX PRO6000 Blackwell proves99% of7200 Ethereum blocks below10s including witness preparation.',
+ assessment='NEW recent architecture lead in starting ledger. Unversioned main/docs/gpu.md says final proofs still CPU/150GB RAM; its relationship to Prime is unresolved, so neither description is substituted for the other. Ethereum relation, privacy, statement/field/PCS/composition and exact transformer costs differ. No native migration or private8B rate follows. Author benchmarks/security untested.',
+ access_issues=['https://github.com/matter-labs/zksync-airbender/blob/main/docs/gpu_prover.md: Internal Error; actual linked docs/gpu.md inspected instead']),
+dict(id='cycle56-icicle-overlap-storage-and-release-pin',
+ title='ICICLE transfer overlap requires additional device vectors; release target inspected',
+ url='https://github.com/ingonyama-zk/icicle/blob/main/examples/c%2B%2B/best-practice-ntt/README.md',
+ published=None,updated=None,
+ date_evidence='README/history update unknown. Release v4.0.0 displays Jul11 05:36 without year; retain date unknown rather than labeling it2026. Concrete release commit diff inspected, but does not pin main example.',
+ inspected_commit_id='6c77775961b0e4dc2be359feec1ac11536c18043',
+ implementation_license='Repository labels frontend MIT and separate backend terms; main/pinned LICENSE-MIT and raw license fetches failed. Actual ICICLE license text not inspected this cycle; no implementation reuse.',
+ inspected_urls=['https://github.com/ingonyama-zk/icicle/releases','https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0','https://github.com/ingonyama-zk/icicle/commit/6c77775961b0e4dc2be359feec1ac11536c18043','https://github.com/ingonyama-zk/icicle/tree/main/examples/c%2B%2B/best-practice-ntt'],
+ author_claim='Concurrent NTT upload/compute/download across three streams; example requires two on-device vectors, reducing largest fitting transform.',
+ assessment='Material source refresh of earlier ICICLE discovery. Release diff bumps Rust workspace3.9.2->4.0.0 and its message includes icicle-goldilocks; this corrects any inference from the previously incomplete advertised field list that Goldilocks is absent. It does not establish native Fp2,challenge,mask or backend compatibility. New example assessment explicitly charges extra storage and buffer completion ownership; no measured bandwidth or native speed factor.',
+ access_issues=['example.cpp GitHub/raw: Internal Error','README path history: Internal Error','LICENSE-MIT main/raw/pinned: Internal Error']),
+dict(id='cycle56-sumcats-register-spill-specific-refresh',
+ title='SumCATS shared accumulators and small-shape setup regressions',
+ url='https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf',published=None,updated=None,
+ date_evidence='DATE2026 identification retained from prior author metadata; exact publication/update day not established. PDF itself exposes no2026 string in parsed text. Repository history fetch failed.',
+ inspected_commit_id=None,implementation_license='No actual standalone license inspected; prior nested README MIT label does not establish all additions.',
+ inspected_urls=['https://github.com/SPIRE-GMU/sum_cats'],
+ author_claim='Section4B2 moves local accumulation to shared storage after describing register overflow into cache/global memory. Benchmark tables include both gains and regressions.',
+ assessment='Refresh, not new technique. Concrete spill discussion supports measuring generated register/spill costs, but binary-field XOR/shared reduction is not native Goldilocks2 arithmetic. Local schedule only permutes existing pure operations; no foreign kernel or claimed ratio adopted. Author runtime/security untested.',
+ access_issues=['https://github.com/SPIRE-GMU/sum_cats/commits/main/: Internal Error']),
+dict(id='cycle56-product-time-space-memory-is-not-free',
+ title='Product-sumcheck streaming trades recomputation for table capacity',
+ url='https://eprint.iacr.org/2025/1473',published='2025-08-13',updated='2026-02-25',
+ date_evidence='Primary ePrint received/revised dates verified. Related multilinear-only note2024/524 receivedApr3,2024,revisedSep11,2024. Conference day unverified.',
+ inspected_commit_id=None,implementation_license=None,paper_license='CC BY label on primary metadata',
+ inspected_urls=['https://eprint.iacr.org/2024/524'],
+ author_claim='Streaming bounds for products as well as one multilinear polynomial; interactive algorithms and a new PIOP have different bounds.',
+ assessment='Refresh of cycles29/43. Full PDFs unavailable. Generic table-capacity/recomputation tradeoff is different from permuting the same local arithmetic DAG with no recomputation. No memory/time ratio transferred to native SC_SZC. Hiding,transcript and PCS work remain unchanged.',
+ access_issues=['https://eprint.iacr.org/2025/1473.pdf: Internal Error','https://eprint.iacr.org/2024/524.pdf: Internal Error']),
+dict(id='cycle56-new-older-sethi-register-allocation',
+ title='Complete Register Allocation Problems: general DAG scheduling is not an optimal tree schedule',
+ url='https://epubs.siam.org/doi/10.1137/0204020',published='1975-09',updated=None,
+ date_evidence='Publisher gives volume4 issue3 Sep1975,pages226-248; submittedFeb1,1973. Published-onlineJul13,2006 is digitization metadata, not a new technical revision. Day in1975 unknown.',
+ inspected_commit_id=None,implementation_license=None,
+ author_claim='Abstract studies straight-line assignment programs without memory stores and characterizes deciding a register bound as polynomial-complete.',
+ assessment='NEW older primary source in starting ledger. Abstract/metadata only; full article requires access. Supports restricting this study to bounded public heuristics and explicit lifetime audit, with no optimality or<=16 impossibility claim for our shared multi-output DAG. The separate1970 arithmetic-tree paper was discovered but its primary DOI fetch failed; no theorem from that inaccessible article adopted.',
+ access_issues=['https://epubs.siam.org/doi/pdf/10.1137/0204020: Internal Error','https://dl.acm.org/doi/10.1145/321607.321620: Internal Error','https://doi.org/10.1145/321607.321620: Internal Error']),
+dict(id='cycle56-hardware-locality-scope-refresh',
+ title='NTT/sumcheck locality and PIM architecture scope refresh',
+ url='https://arxiv.org/abs/2606.16146',published='2026-06-15',updated=None,
+ date_evidence='Primary arXiv v1Jun15,2026 history retained. Related lab SumcheckPIM page specifies Jul2026 only; precise day unknown.',
+ inspected_commit_id=None,implementation_license=None,
+ inspected_urls=['https://csarch.korea.ac.kr/publication/pim_sumcheck_ics26/'],
+ author_claim='Locality,polynomial count and SRAM capacity change NTT-versus-sumcheck tradeoffs; related SumcheckPIM proposes bank-level arithmetic and folding locality.',
+ assessment='Refresh of already assessed architectures. Prior fulltext simulation/synthesized255-bit scope remains; PIM architecture is not an available5090 kernel. Neither a logical temporary reduction nor memory-bound label establishes actual occupancy or end-to-end timing. No author experiments reproduced.')
+]
+rows=[common|r for r in rows]
+prefix=(HERE/'startup/sources.jsonl').read_bytes(); current=(ROOT/'sources.jsonl').read_bytes()
+encoded=''.join(json.dumps(r,sort_keys=True)+'\n' for r in rows).encode()
+if current==prefix:(ROOT/'sources.jsonl').write_bytes(prefix+encoded)
+else:assert current==prefix+encoded,'unexpected source ledger edits'
+(HERE/'sources-cycle56.json').write_text(json.dumps(rows,indent=2)+'\n')
+print(json.dumps(dict(starting=len(prefix.splitlines()),appended=len(rows),total=len((prefix+encoded).splitlines()))))

@@ -1,0 +1,109 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__sumcheck__grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs",
+    "snapshot": "native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs",
+    "snapshot": "native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__argument.rs",
+    "sha256": "b3b02383a14a64a12194a465873b76f78406e5d3115b0c8157fde2882d22c865",
+    "bytes": 99535,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/protocol.rs",
+    "snapshot": "native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__protocol.rs",
+    "sha256": "ac4122375397a155d392df27a7e08f818ee78f80b38d41207565b325f5290413",
+    "bytes": 61745,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json",
+    "snapshot": "native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__report.json",
+    "sha256": "43c6b416c2d4254d821ec304e0fc49c6b8fbfb974b9122f919fdf7663d347506",
+    "bytes": 29717,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log",
+    "snapshot": "native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__b2-gpu.log",
+    "sha256": "86f72477b0cda84efa0742234321a9d9eb6987701bb8d401384c9a9e227163ca",
+    "bytes": 23189,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+    "snapshot": "native/results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+    "sha256": "ae971925a0c2ffb0c7d04a4722dc39903308639fd449708df722e14f4a69687e",
+    "bytes": 1157,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+    "snapshot": "native/results__zk60_mvp_20260929__cli-stack-gpu__report.json",
+    "sha256": "6e9bf57d050216be3110c71b67095bd6b7a7e77934196592c8cd6d0c6fd62781",
+    "bytes": 21117,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/pad.rs",
+    "snapshot": "native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__pad.rs",
+    "sha256": "f8b1f6c26d18eadf01eb5e8527f3a2e9620fad533b8ab332cd57a6014bf96df0",
+    "bytes": 56533,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/shape.rs",
+    "snapshot": "native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__shape.rs",
+    "sha256": "dbf4e2bc36e9f74c432d6e529b229e3a593e794271fd8593d1412b8312403911",
+    "bytes": 71241,
+    "matches_previous": true,
+    "matches_cycle50": true,
+    "matches_cycle51": true,
+    "matches_cycle52": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/layout.rs",
+    "snapshot": "native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__layout.rs",
+    "sha256": "14758039fbe9daa61affa1316c6e4159437b98d888d72a926f6e70e788592b30",
+    "bytes": 61217,
+    "new_pin": true
+  }
+]

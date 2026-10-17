@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "error": "KeyError: 'id'",
+  "reason": "Historical source records do not all have an id field. Preserve their original schema; validate uniqueness and noncollision of only the six new IDs against historical optional IDs."
+}

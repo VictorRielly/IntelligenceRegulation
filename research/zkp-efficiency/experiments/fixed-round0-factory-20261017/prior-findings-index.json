@@ -1,0 +1,740 @@
+[
+  {
+    "section": "Cycle 0001 \u2014 2026-09-22",
+    "retained_evidence_lines": [
+      "| Priority | Lead and primary evidence | Fit / next gate |",
+      "| 1 | The [March 2026 extended sumcheck paper](https://eprint.iacr.org/2026/587) studies equality-factor structure, small values and high-degree/streaming algorithms; an [author's September explanation](https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/) highlights round batching. The authors report benefits inside Jolt. | Equality factoring fits the existing evaluator seam. The local PoC tests one factor, not the entire softmax host. Next: exact multi-group SC_SZC oracle. |",
+      "### Negative findings / limits that change the next action"
+    ]
+  },
+  {
+    "section": "Cycle 0002 \u2014 2026-09-24 \u2014 SC_SZC groups and GPU-memory triage",
+    "retained_evidence_lines": [
+      "| 2, next rotation | Goldilocks NTT layouts and memory traffic. [Qingming's benchmark contract](https://github.com/uulong950/qingming-g64-ntt/blob/main/docs/BENCHMARK_CONTRACT.md) reports a fast device-resident forward transform, with layout/transfer costs separate. Encoding is a measured commitment bottleneck locally. | Same prime helps, but HIP-to-CUDA, 2^27 single transform to many 2^16 rows, natural-order outputs, inverse NTT, coset and hiding-pad semantics impose substantial port work. MIT inspected; abbreviated docs commit `764f98e`, July 1. No timing transferred. |",
+      "| 4, algorithm lead | [SumCATS (DATE 2026)](https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf): fewer global reads and GPU reduction/layout changes. | Binary towers and initial binary tables differ from our extension-valued helpers. Paper reports small A100 cases slower than baseline. Nested repository README states MIT; licensing of additions and commit not pinned. No blanket or model-speed claim. |",
+      "points, five detected negative controls, four zero-factor fallback rounds,",
+      "produces a valid next subgroup claim without relying on an asserted host",
+      "### Source/access corrections and next action",
+      "  and sumcheck/GKR. Next local test: a small Goldilocks radix/layout oracle"
+    ]
+  },
+  {
+    "section": "Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap",
+    "retained_evidence_lines": [
+      "| 2 | Pair-table caching for exponential/activation lookup helpers: next small experiment; source still batch-inverts their full witness-length arrays. | Moderate Rust helper work. Existing byte-table cache already exists and is not a new idea. Cache only exact public pairs, preserve fallback for arbitrary invalid pairs, all table-denominator refusals, order and transcript. No changed numerical relation. |",
+      "### Reproduced result and negative findings",
+      "Nine negative controls detect wrong order, inverse map, missing coset,",
+      "The data branch alone subtracts pads, dropping the negative contribution in",
+      "Next rotation: lookup/softmax, then memory traffic, batching/amortization,",
+      "The next local experiment is exact pair-table inverse caching at"
+    ]
+  },
+  {
+    "section": "Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache",
+    "retained_evidence_lines": [
+      "| 1, next rotation | Fused fold/next-round evaluation targets the much larger softmax slot and avoids a table reread. Plonky3's [v0.8.0 release notes](https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0) list bind/measure fusion in ordinary and hiding drivers. | Moderate evaluator work behind the existing `SumcheckRounds::fold/round` seam. Preserve MSB pairing, group claims, zero factors, masked challenge schedule and final table order. Exact source/PR fetches blocked; implementation and gain not reproduced. |",
+      "### Experiment and negative findings",
+      "stage/refusal models and 11 negative controls pass**, seed 2026092604.",
+      "inversions vs one reference inversion. These negatives rule out a universal",
+      "Controls detect index-only caching, negative/modulo index aliasing, stale",
+      "### Access and next experiment",
+      "Next **memory traffic** experiment: for four synthetic tables, compare",
+      "`fold(r)` followed by next-round evaluation against a tiled four-quarter load",
+      "that forms both next-round endpoints and accumulates the same polynomial",
+      "and a wrong-quarter negative control. Then restore the SC_SZC groups only"
+    ]
+  },
+  {
+    "section": "Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling",
+    "retained_evidence_lines": [
+      "Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling",
+      "next-round table reread; no native or end-to-end speed gain is measured.**",
+      "only its reread and cannot claim that ceiling as a saving. Fold/read/cache",
+      "| Rank by expected usable end-to-end value | Hypothesis, prerequisites and cost | Exactness / privacy / falsification |",
+      "| 1, tested arithmetic | Fuse folds with next-round accumulation; moderate evaluator work, no protocol change. Removes a measured-code reread, but phase saving unknown. | Preserve MSB order, actual unmasked claims, all tables/finals and driver schedule. Native masked/RNG/extension/receipt gates still owed; cache hits or parallel/reg-pressure regressions could eliminate the benefit. |",
+      "| 4, owner follow-up | Prior NTT pad-overlap correction and mapped-layout oracle. | Device parity remains owed; no existing restore-copy saving exists. Retain negative findings. |",
+      "At old length 4q, fold quarters (0,2) and (1,3) into the two next-round",
+      "### Primary-source assessment and next action",
+      "Next rotation: **batching/amortization**. Test fresh-challenge batched"
+    ]
+  },
+  {
+    "section": "Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "retained_evidence_lines": [
+      "Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+      "timings demote this candidate: its three enclosing slots account for less",
+      "attribution is absent, but is no longer needed to reject this as a major lever",
+      "| 1, next bounded research test | Exact Fp2 Karatsuba and specialized squaring at `zkp-core/src/field.rs`. Current multiplication uses four variable base products plus multiplication by seven; square calls the same routine. Larger sumchecks use this arithmetic. | Small arithmetic seam, broad validation scope. Compare canonical bytes to independent polynomial reduction; count extra additions and reductions. No assumed runtime win: carry handling, compiler output and instruction dependency may dominate. Keep field/modulus/transcript unchanged. |",
+      "| 2, owner continuation | Group-aware fold/next-round fusion and GPU commitment memory work target materially larger phases. Existing fusion/pad-overlap oracles remain available. | Moderate native/device integration; preserve equality-group savings and pad semantics. Source-specific native/RNG/receipt/device gates remain owed. Tagged CPU fallback is not a measured GPU path. |",
+      "| 4, tested and demoted | B public int8 weight contractions with independently supplied challenges. | Arithmetic exact; small kernel but substantial proof rendezvous/lifetime work. Current complete-slot ceiling <0.1% and whole-process RSS make scheduling work unattractive. Revisit only if larger-model phase attribution reverses this. |",
+      "### Experiment and decisive negatives",
+      "### Primary sources and next action",
+      "Next rotation **quantization/arithmetic**: test exact Goldilocks Fp2 schoolbook"
+    ]
+  },
+  {
+    "section": "Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "retained_evidence_lines": [
+      "### Bottleneck, ranking and falsification",
+      "| Rank by expected usable end-to-end relevance | Hypothesis and costs | Exactness, privacy and next gate |",
+      "| 3, next research rotation | Fractional-LogUp/GKR could reduce the H helper commitment, a much bigger target than computing its inverses. Need to count displaced H rows AND new fraction-tree/binding/masking work. | High construction/composition cost. Preserve every table-denominator refusal, multiplicity/padding relation and private helper sum. A tiny rational-tree oracle is the next feasibility test, not a new accepted proof protocol. |",
+      "| Deferred | Public-weight batching remains below 0.1% of known readiness; pair-inverse caching remains a tiny-phase optimization. | Previous positive arithmetic and negative cost evidence preserved. Do not reopen scheduling/preprocessing work without larger-shape measurements. |",
+      "a global Fp2 ceiling. The base-field commitment encoder is not sped up merely",
+      "demote it if added instructions or dependencies erase the useful saving.",
+      "### Reproduced experiment and negative controls",
+      "### Sources and concrete next action",
+      "Next **proof composition**: compare a tiny fractional LogUp tree to direct"
+    ]
+  },
+  {
+    "section": "Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "retained_evidence_lines": [
+      "ceiling, never this candidate's saving. U8 helper preparation is 1.046/1.134 s,",
+      "| 1, owner continuation / next research test | Group-aware fold/next-round fusion and hiding GPU commitments still target large phases. Refine fusion to retain all three actual SC_SZC group claims. | Moderate evaluator/device cost; use the existing interface and preserve field samples, zero-factor behavior, table finals and mask/RNG/receipt schedule. No duplicate owner job. |",
+      "| Deferred | Public-weight batching, pair-inverse caching and binary-specific GKR. | Preserve prior negative ceilings; binary preprocessing is not valid for challenge-valued Fp2 helpers. Revisit only with changed bottleneck/provenance evidence. |",
+      "### Experiment and falsification",
+      "15 negative controls**, seed 2026092608, one CPU and under one second with",
+      "The meaningful negatives are:",
+      "   exactly. Publishing a one-value helper sum also reveals it. This rejects",
+      "### Primary sources and next experiment",
+      "Next rotation **sumcheck/GKR**: combine the prior generic fusion oracle with",
+      "the three source-pinned SC_SZC groups. Test fused folds plus next bracket",
+      "falsify promotion. Remaining rotation: GPU NTT/commitments -> lookup/softmax"
+    ]
+  },
+  {
+    "section": "Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "retained_evidence_lines": [
+      "Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+      "| Rank | Hypothesis and expected complete-proof relevance | Prerequisites, integration cost and falsification |",
+      "| 1, tested for owner | Fuse folds with next-round accumulation while preserving grouped equality. Targets a large slot; deleting that entire slot is only a 21.3%/20.0% readiness ceiling. | Moderate evaluator/parallel ownership work. Preserve actual per-group claims, masks/RNG, exact samples and table finals. No saving forecast without native slot/readiness timing; lost parallelism/cache locality falsifies it. |",
+      "| 2, refined next research question | Fuse hiding pad/coset coefficient production into `k_ntt_p1`'s bit-reversed load, removing the existing `coef2` write/read pass and scratch lifetime. Baseline must use compact `pw=n+q`, not pretend the earlier pad-skip optimization is new. | Moderate CUDA load/ownership work. More scattered pad/power loads may erase savings; q>n overlap, inverse normalization, coset, chunk/gather order and tag-path availability all require exact tests. Current tagged shaped commitments still need an authorized keyed device path. |",
+      "| 4, architectural queue | Masked fractional-GKR with streamed lifetimes could reduce H helper commitment costs. | High construction/PCS/composition cost. Preserve prior root-disclosure and tree-residency negatives; no net saving without new masks and original leaf links. |",
+      "Public-weight batching's <0.1% readiness ceiling and tiny-phase pair caching",
+      "remain demoted. Neither fusion nor Fp2 work affects base-field commitment",
+      "### Reproduced experiment and meaningful negative",
+      "path is rejected and preserved in `initial/`. The final serial path accumulates",
+      "### Source findings and next action",
+      "Next rotation **GPU NTT/commitments**: use the prior exact small hiding-row",
+      "negative control. Remaining rotation: lookup/softmax -> memory traffic ->"
+    ]
+  },
+  {
+    "section": "Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "retained_evidence_lines": [
+      "counts more sector requests, so direct load fusion is demoted.** Read durable",
+      "| Rank | Hypothesis and end-to-end relevance | Prerequisites, integration cost, exactness and falsification |",
+      "| 3, next lookup rotation | Write already cached U8 helper inverses directly into the two H limbs, eliminating the temporary Fp2 Vec and copy at helper_*_u8_at -> write_h. | Small/moderate Rust output-slice work, safe disjoint lifetimes and partial private writes on refusal. Current enclosing helper phase 1.046/1.134 s gives only a 2.6\u20132.9% readiness ceiling; retained work makes actual saving smaller or zero. Target memory as well as time; preserve invalid fallback and every full-table refusal. |",
+      "| 4, tested and demoted | Synthesize pad/coset values at k_ntt_p1's bit-reversed load. Removes compact coef2 materialization and one launch. | Exact scalar tests pass, but source-address sector requests rise at relevant large rows. Cache/SASS/occupancy and whole-encode timing required before native promotion. No whole-proof privacy or byte gate performed. |",
+      "disclosure/tree-residency negatives. Public-weight batching's <0.1% ceiling",
+      "and tiny-phase pair caching remain demoted; none is rediscovered as new work.",
+      "This falsifies a claim of uniformly improved coalescing, not a measured runtime",
+      "The previous **q>n pad-overlap bug remains a negative control**. Successful",
+      "### Sources and next action",
+      "Next rotation **lookup/softmax**: a tiny direct-H writer versus current cached"
+    ]
+  },
+  {
+    "section": "Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "retained_evidence_lines": [
+      "Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+      "passes correctness but is slower in the complete synthetic 125M CPU A/B:",
+      "The fusion sketch is demoted. The keyed GPU commitment attempt 2 passes",
+      "### Tested hypothesis and falsification",
+      "negative controls in **2.097 s**, **16,500 KiB** RSS, Intel Core Ultra 9 185H.",
+      "and preserves no-partial-write behavior. This partial-buffer negative is",
+      "sums; the candidate retains most work. Its falsification gate is native exact",
+      "with no lost parallelism or extra memory peak. A no-gain result demotes it.",
+      "| Rank | Question / expected complete-proof impact | Prerequisites, cost and falsifier |",
+      "| 2, **refined** | At T512 with a resident model, can independent passes amortize setup without T\u00b2 context growth or proof backlog? Compare fixed-context passes with long prefill and later decode separately. | First register actual full 8B profile and measure setup, per-pass witness/prove/serialize/verify, peak memory and drain. The current GPU chunk path removes a false codeword floor, but the 9.86-GiB host construction floor remains. A measured complete-proof drain slope slower than 20 ms per position on the proposed schedule, or memory overflow, falsifies its >=50 benefit. Never reuse masks/private openings. |",
+      "| 3, next research | Produce compact pad/coset terms at inverse-NTT final store rather than scattered first NTT load; it may reduce encoder traffic while preserving forward locality. | Exact q<n/q=n/q>n, normalization, in-place p2 hazards and source address sector model first; another full buffer or scatter may erase gain. No whole-phase estimate until GPU attribution. |",
+      "| 4, tested | Direct U8 H helper writer removes one-helper Vec/copy and 64-MiB largest modeled payload. | Small current end-to-end ceiling, source-level synthetic pass only. Native receipt/refusal/parallel gates and A/B required; may be valuable for host peak but insufficient alone for >=50 tokens/s. |",
+      "general reuse; no code was copied. Next rotation **memory traffic**, then",
+      "fractional-GKR privacy/memory negatives visible."
+    ]
+  },
+  {
+    "section": "Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "retained_evidence_lines": [
+      "writes to inverse blocks. The next forward p1 still has its current compact",
+      "to the CPU polynomial: it drops the negative overlap term; that shape is a",
+      "improvement at about 40%; this narrower candidate's GPU/full-stack ceiling",
+      "falsification gates. It remains a lower-priority handoff, not a 50-token/s",
+      "lag, decode throughput and full-stack end-to-end ceiling remain unknown.",
+      "   Native phase A/B and whole-proof clock falsify the gain; no numerical 8B",
+      "   ceiling without phase attribution.",
+      "   above 20 ms per new position or memory overflow falsifies >=50 on that",
+      "   partial-private-write refusal negative and guarded preflight.",
+      "No external code was copied or executed. Next local test: a bounded exact"
+    ]
+  },
+  {
+    "section": "Cycle 0013 \u2014 2026-09-27 \u2014 attention SC_SZC device-round boundary",
+    "retained_evidence_lines": [
+      "Run `20260927T045233Z-e6183046`. **No complete private 8B proof or measured throughput improvement.** The leading recurring cost is still attention softmax in the keyed GPU-assisted 125M one-block diagnostic: about half of 17.130 s GPU proving, with 30.055 s mean whole process, 8.215 s witness, 0.815 s same-process verification, and 3.895 s combined serialization/other/startup residual on RTX 4070 Laptop. Two non-warm samples, fresh process each, shared host. Zero complete-model passes/countable positions; no 5090 or trained 8B timing. Prior results and negative findings remain above and in earlier handoffs.",
+      "[One-thread experiment](experiments/sc-szc-device-round-20260927/README.md): seed 2026092713; four synthetic SC_SZC-shaped profiles with 8\u2013128 rows, 13/26 Fp2 tables, degree four and tiles of 3/7/16 pairs. In 0.510 s/17,140 KiB RSS on Intel Core Ultra 9 185H, 110 round samples match an independently reconstructed original Boolean-cube MLE oracle; 91 finals, masked claim chain and eight negative controls pass. At 128 rows/26 tables, tiles 16 and 3 have identical complete masked-message digests. The source CFS formula is transcribed; the polynomial is a simplified three-group stand-in, and the challenge hash is a test SHA-256, **not** Rust BLAKE3. No native/GPU receipt parity or speed result. Source/script SHA-256, command, dimensions and limits are in `result.json`.",
+      "At synthetic N=128/k=26/d=4, once-only upload is 53,248 B; source-counted table round/fold reads 211,328 B and writes 52,832 B in **both** CPU-style and device-resident schedules. Reduced vectors total 560 B D2H, seven challenges 112 B H2D, finals 416 B. At least seven sequential challenge exchanges survive; a separate device reduction adds seven launches. Sending tile partials instead costs 880/3,680 B at tile 16/3. These are logical counts, not DRAM/time. The device route is useful only if measured GPU execution beats CPU work after transfers/synchronization. As a generous ceiling, deleting the entire *approximate* 8.565 s softmax slot at zero cost from the 30.055 s one-block wall leaves ~21.49 s, a ~28.5% wall reduction. This candidate can remove less. The complete private 8B ceiling and >=50 tokens/s feasibility are unknown. Falsify on byte/terminal/refusal mismatch, VRAM overflow, or no quiesced enclosing proof gain. [Handoff](handoffs/20260927-sc-szc-device-round.md) names the patch seam and validation.",
+      "1. **GPU attention SC_SZC, with a measured transcript boundary** \u2014 highest observed recurring proving cost, high integration and privacy review cost. The new gate is an actual-slot/native CPU byte oracle and owner-run per-round transfer/sync/launch clock. A later on-device BLAKE3/mask route might remove host exchanges but would need exact transcript/keyed-domain parity, fresh mask handling and larger-profile security review; it is a separate hypothesis, not inferred from this toy. End-to-end ceiling limited by the measured softmax fraction, then by witness/PCS/startup; 8B ceiling unknown.",
+      "2. **Resident fixed-context complete-pass amortization** \u2014 potentially higher total-workload effect if setup dominates, but no registered 8B setup/pass/drain clocks or VRAM peak. Need distinguish independent passes, long-context T-squared prefill, and decode with authenticated KV growth. More than 20 ms of complete proof drain per newly proved position falsifies a >=50 steady slope for that schedule, regardless of startup; total workload additionally needs measured startup fraction.",
+      "3. **Inverse-final-store pad/coset fusion** \u2014 previous exact synthetic and lower counted interface traffic, moderate integration, but q>n correction, receipt/peak/phase A/B absent. Falsify if native q<=n parity or enclosing readiness fails. The previous first-forward-load sector regression and slower native softmax fusion remain negatives; do not repeat them.",
+      "**Next bounded experiment:** pin the actual SC_SZC closure (all lookup/helper terms, padding and hosted claims) in a CPU-only differential oracle and compare per-round unmasked/masked vectors, BLAKE3 challenges, extension round and finals at ragged shapes. Then ask the owner for a locked native phase A/B only if byte parity and memory accounting pass. There is no authorized heavy/GPU run in this lane."
+    ]
+  },
+  {
+    "section": "Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "retained_evidence_lines": [
+      "All prior negative findings and handoffs are retained.",
+      "chunk crossing and ragged tails are included. Eight negative-control",
+      "it is a rejected alternative. Final run **0.098 s / 37,096 KiB RSS**, seed",
+      "phase. This negative prevents promoting a hypothetical tiled baseline as a",
+      "zero work. No numerical trained 8B ceiling or >=50-token/s estimate follows.",
+      "### Ranked hypotheses and next experiment",
+      "| Rank | End-to-end question and expected scope | Prerequisites, integration cost, exactness/privacy and falsification |",
+      "| 1, owner | Device actual SC_SZC and then device witness: highest measured recurring CPU proving/witness costs. | Native masked/transcript parity, source-pinned phase/transfer/peak A/B; high Rust/CUDA cost. Fresh masks and accepted relation unchanged. Falsify mismatch, memory overflow or no whole-proof gain. 8B ceiling unknown. |",
+      "| 2, **new/refined next research** | Can bounded private replay of sealing-pass witnesses remove their second dense forward computation without storing the full model live? | `StackSource::prepass` / `restart` / `advance` discards then rebuilds L witnesses. Count actual typed-plane bytes, write/read/copy costs, peak and held state before considering a cache. Moderate/high caller integration and private storage review; no new commitment opening or randomness reuse. Falsify refusal/chain mismatch, overflow, or replay traffic >= avoided measured witness time. No speed estimate until both sealing/recurring clocks exist. |",
+      "| 3 | Fixed-context resident complete-pass amortization, with reusable public model setup. | Measure actual setup, per-pass witness/proof/serialization, verifier, drain and peak. High workload-interface cost; masks/openings fresh per run. More than 20 ms complete-proof drain per new position falsifies 50/s steady regardless of pass count; long-context/decode differ. |",
+      "| 4, tested conditional | Grouped full-validation raw tensor reads for a memory-bounded multi-tile caller. | Exact synthetic byte/refusal gates pass. Low additive Python integration; calibrated Rust consumer absent. Existing `read_bytes` may already remove all repeats. Whole-phase ceiling is import's measured fraction; startup-only benefit tends to zero in steady state. |",
+      "| 5, retained | Inverse-store pad/coset fusion and later proof composition. | Native NTT receipt/peak/phase parity absent; q>n repair separate. Sharing independently opened boundaries is prohibited by current D12/D11. Do not repeat slower native softmax fusion or the sector-regressing NTT load sketch. |",
+      "author claims. No code adopted. Next rotation: witness replay memory/traffic,"
+    ]
+  },
+  {
+    "section": "Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "retained_evidence_lines": [
+      "[dated report](progress/20261003T220146Z-cf20886e.md). Prior findings/negative results preserved.",
+      "rejected and retained separately. Final overflow skips/evicts and recomputes.",
+      "| Rank | Expected end-to-end scope | Prerequisites/cost/obligations and falsification |",
+      "| 1, owner | Actual GPU SC_SZC then witness, highest measured recurring costs. | High native CUDA/transcript integration; fresh masks and exact generic slot. Native parity, transfers/peak and whole-proof clocks needed. Do not duplicate owner lane; mismatch/overflow/no enclosing gain falsifies. |",
+      "| 2, tested | Same-attempt suffix replay removes cached layers' second witness builds only. | Moderate caller/types work, retained private RAM/copies/checksums. No new refusals/public cache facts; native full-plane and proof-byte/RNG gates. Wc-P-U ceiling unknown; full memory cache demoted for long context. |",
+      "| 3, new follow-up | Keep active witness typed through Fp/lookup/helper readers to avoid i64 reexpansion and reduce current per-layer peak. | Moderate/high protocol consumer refactor; exact negative values/empty planes/nonzero exp pad and final helper reads. Memory benefit is counted, no time benefit unless enclosing allocation/transfer/streaming costs improve. Falsify any reader mismatch or no actual peak reduction. |",
+      "| 4 | Resident fixed-context independent complete passes with reusable public setup. | Fresh private masks/openings and complete independent verification; setup/pass/drain/peak clocks. >20ms per newly completed position falsifies50/s steady for schedule. Long prefill/decode separate. |",
+      "| 5 | Inverse-store pad/coset NTT fusion and later composition. | Native q<=n parity/phase/peak gates absent; q>n separate. No sharing completed-proof boundary openings under current D12/D11. Retain prior slower softmax and NTT sector regression negatives. |",
+      "**Next local test:** exact typed planes feeding `protocol.rs` lines798\u2013802"
+    ]
+  },
+  {
+    "section": "Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "retained_evidence_lines": [
+      "fixtures,65816 independent helper limbs,20 zero-denominator refusals,99 negative",
+      "could erase gain. Timing ceilingN/(T-M+C), removed measured preparationM,",
+      "| Rank | Expected end-to-end scope | Prerequisites/cost/exactness/privacy/falsification |",
+      "| 1, owner | Actual GPU SC_SZC then witness, highest measured recurring costs. | High CUDA/transcript work; native byte/RNG/refusal, transfer/peak and enclosing proof gates. No duplicate lane. Mismatch/overflow/no gain falsifies;8B ceiling unknown. |",
+      "| 4, retained | Bounded suffix replay removes cached second witness builds only. | Wc-P-U ceiling unknown;1GiB retains2/0/0of32 atT512/1024/2048. Full long-context caching demoted; native privacy/byte/RNG gates owed. |",
+      "| 5 | Resident fixed-context complete independent passes. | Registered model/setup/pass/drain/peak clocks and fresh masks/openings/independent verification. >20ms/new completed position falsifies50/s steady for schedule; startup separately included for total. |",
+      "**Next:** public-layout-derived per-plane last-read oracle: drop A-only planes"
+    ]
+  },
+  {
+    "section": "Cycle0018 \u2014 public last-read witness release (2026-10-04)",
+    "retained_evidence_lines": [
+      "Completed 2026-10-04T00:20:58.279502+00:00; 2026-10-04 UTC. Investigated whether public last-read release can improve the lazy witness-reader path. Twelve synthetic fixtures passed an independent named-catalog oracle:91,076 A/H field words,110,444 reads,356 lookup specs and ten negative controls. Final CPU run 3.309s, 27164KiB RSS, one thread on Intel(R) Core(TM) Ultra 9 185H. The initial refusal-fixture failure and intermediate pass remain saved.",
+      "Ranked hypotheses: (1) actual GPU SC_SZC/witness recurrence remains owner-held top impact; no duplicate native jobs. (2) tested public lifetime release has modest integration cost and capacity potential, no timing evidence; requires native ownership/RNG/refusal/proof-byte and actual peak validation. (3) new next experiment: reduce overlapping downloaded u64 gather and returned Fp column buffers at cuda.rs::columns_chunked_zk while preserving duplicate-query columns and exact order; no query/opening reuse. (4) resident fixed-context fresh-proof passes amortize measured startup only; clocks missing. (5) authenticated private state composition requires independent soundness/privacy work, Nova is not a drop-in KV proof.",
+      "Leading tested baseline: lazy readers keep source planes through H_ACT. Eliminate plane storage only after public last read; add metadata/ownership and optional typed pack/lazy load costs. End-to-end ceiling N/(T-M+C), unknown M/C. Falsify any value/read/refusal/proof-byte divergence, value-dependent schedule or no actual peak benefit. [Handoff](../handoffs/20261004-public-witness-lifetimes.md) is for owner review, no integration or merge performed. Prior negative fusion/cache/table/memory results preserved.",
+      "Next: CPU-light differential gather-materialization oracle using pinned CUDA opening implementation, independent row/column reference, duplicate/empty/out-of-range controls; count temporary/output overlap, preserving canonical Fp words and per-query receipt ownership. Native owner must measure opening share before expecting end-to-end impact."
+    ]
+  },
+  {
+    "section": "Cycle0019 \u2014 chunk-local opening gather ownership (2026-10-04)",
+    "retained_evidence_lines": [
+      "**Decisive speed limit:** source-pinned synthetic12-blockT512 diagnostic logs sum A-open8.051s/H-open3.565s=11.616s,2.8428% of408.609s enclosing wall (3.6503% of318.22s run-prover). Deleting both ENTIRE phases at zero cost leaves396.993s, arithmetic1.2897positions/s. This is a parent-phase optimistic bound for an independently-unverified synthetic diagnostic, never candidate saving or counted private8B tokens. Chunk reencoding/copy costs are unmeasured separately and memory tier may differ. Demote this idea as a speed priority; retain exactness/capacity handoff. Trained8B ceilingN/(T-M+C_added), all phase terms unknown. Falsify mismatch/refusal/RNG/byte divergence, scheduling from hidden values, unchanged actual peak, or transfer-sync overhead >= avoided cost.",
+      "Read-derived negative: run.rs::prove_run already flushes/drops each owned serialized segment, DirSink retains metadata. There is no full484MB run buffer to eliminate in that path. Same retained log attributes86.691s to A allocation+witness-plane fill,4.231s to lookup+byte histogram,0.587s exp/act preparation. A-fill21.22% of enclosing wall is a large parent to inspect, not a proposed21.22% saving. Zero initialization may be optimized/calloc-backed already.",
+      "3. NEW next bounded test: public A-row coverage plan for zero-then-scatter versus write-once construction at protocol.rs A buffer/layout.rs offsets. Eliminate only overwritten initialization bytes; add checked coverage/schedule and fill costs. Include required domain padding, histogram and reserved mask/proximity writes. Native actual traffic/time must establish benefit; parent ceiling86.691s only for this diagnostic. Falsify missing/duplicate writes, native proof/RNG/refusal mismatch or no actual eliminated work.",
+      "4. Tested chunk-local opening stage: capacity candidate; moderate GPU plumbing,15 synthetic controls, added transfers and full native gates pending; speed ceiling above.",
+      "Full-stack accounting: this cycle deviceCPU only, accepted complete private8B passes0/tokens0/contextnull; steady-state and total-workload rates, startup fraction, witness/proof/serialization/independent-verification clocks, lag/drain null. No prefill/resident/decode run. Prior single cold synthetic12-blockT512 RTX4070Laptop8188MiB diagnostic has318.22s prover includingwitness/serialization,12.15s in-process verify,484107456B, independent verification false; no current process inference or relaunch. >=50verified positions/s unachieved. Larger workloads allowed, fixed512 latency ceiling not adopted. Reports saved locally; saved reports do not prove delivery.",
+      "Next: source-pinned public-layout A-write-coverage CPU oracle, differential padding/histogram/mask schedule and missing/duplicate writes; count redundant zero stores, added costs and allocator caveat. Main/Claude reviews any native adoption, researcher does not merge. All prior findings preserved."
+    ]
+  },
+  {
+    "section": "Cycle 0020 \u2014 public A-row write coverage (2026-10-04)",
+    "retained_evidence_lines": [
+      "**End-to-end ceiling:** the retained cold, synthetic twelve-block T512 RTX4070Laptop diagnostic has408.609226s wall,318.22s prover including witness/serialization,12.15s in-process verification,484107456B and independent verification false. A allocation+witness-fill sums86.691s (21.216% wall). Entire parent deletion at zero cost leaves321.918226s, arithmetic1.590466 positions/s. It is not candidate savings or countable private8B throughput. Table/mask overwrites fall in later timers, so this parent bounds the allocation/plane component rather than every zero store. Candidate ceiling N/(T-M+C) is unknown. Falsify native value/padding/refusal/RNG/transcript/proof-byte divergence, hidden schedule, already-eliminated zero traffic, unchanged phase time or added cost >= removed cost. No improvement measured.",
+      "1. Owner-held GPU SC_SZC/witness recurrence remains highest measured impact; high CUDA/masked-transcript integration and full-proof gates. No duplicate lane; slower fusion retained.",
+      "2. Tested A assembly plus NEW conversion refinement: moderate assembly change, logical traffic potential but no capacity gain. Split native zero allocation from conversion/copy first. Next CPU question: can magnitude modulo be removed from signed-i64 conversion because abs(i64)<=2^63<P? Preserve i64MIN/MAX and every negative; compiler may already remove it. Actual end-to-end gain unknown.",
+      "4. Resident fixed-context fresh complete passes: measure setup, recurring clocks, verification, lag/drain and peaks with a registered trained model. No masking/opening reuse; >20ms/new verified position falsifies50/s steady state for that schedule. Long prefill T\u00b2 and authenticated decode differ.",
+      "Next: exact signed-i64 conversion oracle and negative controls; owner split allocation/conversion and native full-proof A/B before promoting assembly. Rotate sumcheck/GKR, batching/amortization, quantization/arithmetic, composition, GPU NTT/commitments."
+    ]
+  },
+  {
+    "section": "Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+    "retained_evidence_lines": [
+      "Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+      "**Baseline/eliminated work/new costs:** `zkp-core/src/field.rs::Fp::from_i64`, called per A witness coordinate at shaped `protocol.rs:801`, uses magnitude modulo and canonical constructor. Since abs(i64)<=2^63<p, candidate uses rawu64 minus signMask&(2^32-1). This preserves every i64, includingMIN/MAX, and exact bytes. No new narrowing/refusal, RNG draw, masks, memory reads/writes, capacity, transfers, commitments or proof work removed. Candidate signed-mask arithmetic/compiler behavior and broad shared-field regression costs remain. m125 A-row count88,918,016 supplied conversions/block is public geometry only, not timed work or negative-value statistics.",
+      "**Useful negative:** the apparent A conversion loop of the current ELF already has **no integer division**: a compare/cmov remains among9 arithmetic instructions after its witness load. Both decoded constant choices are tested; only the ordinary p correction can affect negative i64. Source `%` is not evidence of an expensive native division. Candidate instruction count/vectorization/runtime unmeasured. Current allocation has malloc+memset at0x525703..0x525770, narrowing the previous zero-store question for this build, not measuring physical traffic/execution.",
+      "**A-only end-to-end ceiling:** prior onecold synthetic12-block125M T512 RTX4070Laptop8188MiB diagnostic408.609226s wall,318.22s runprover including witness/segment serialization,12.15s in-process verify,484107456B,independentfalse. Allocation+plane-fill86.691s is21.216%wall. Deleting ENTIRE parent at zero cost leaves321.918226s, arithmetic1.590466positions/s, not conversion savings or counted private8B throughput. Global shared-field change needs separate attribution outsideA. Trained8B ceiling N/(T-C_old+C_new), all terms unknown. Falsify canonical/byte/native refusal/RNG/transcript/proof mismatch, compiler already short, more expensive vectorization, or no enclosing gain. No improvement measured.",
+      "Ranked queue after current measured negative:",
+      "| Rank | Hypothesis and expected end-to-end scope | Prerequisites, costs, exactness/privacy and falsification |",
+      "|1, owner|Actual GPU SC_SZC and witness recurrence, largest retained recurring scope.|High native CUDA/masked-transcript work; no duplicate jobs. Byte/RNG/refusal/transfer/peak/full-proof clocks owed. Retain prior slowerfusion. Fails on mismatch/overflow/no enclosing gain.|",
+      "|2, NEW next local|Exact signed-byte decomposition of int16 FFN-down witness GEMM removes CPU dot work if GPU schedule pays.|Actual `witness.rs::matmul_in_out` at312/685, two int8 partials+i64 recombination and128sumW; publicK<=16384 givespartial<=2^28/full<=2^36. CPU oracle pending; pack,extraGEMM,transfers,recombine cost; high CUDA integration. Preserve all padding/weight orientations/requant/first refusal, no precision change. Fails on parity/overflow or GPU+copies>=CPU cost. Ceiling N/(T-W+added costs), W unknown for accepted8B.|",
+      "|5|Resident fixed-context complete fresh passes amortize actual public/model setup.|NTT already once per complete run, not per layer. Measure repeated-pass startup/slope/lag/drain/independent verification/peaks; fresh masks/openings, P3 review. >20ms/new verified position falsifies50/s for measured schedule.|",
+      "LIVE primary search records: new [packed sumcheck](https://eprint.iacr.org/2025/719), receivedApr22 2025/revisedSep14 2026; new older [combined small-value/equality paper](https://eprint.iacr.org/2025/1117), Jun13/revisedJun17 2025; refreshed [EPFL](https://github.com/compsec-epfl/efficient-sumcheck) representation/final-oracle docs; [Plonky3 release](https://github.com/Plonky3/Plonky3/releases) datedSep23 2026 in inspected version/changelog commit a21e3ed42905040ad49c519e402f018381c12d0c. Four records appended. Packed paper changes scalar messages/challenges and PCS; EPFL is plainnonZK with caller final-oracle binding and Montgomery SIMD assumptions; Plonky3 titles do not undo our slowerfusion finding. EPFLcommit429/licenseCachemiss, PlonkyPRInternalError/releaseCachemiss recorded; no bypass. No author performance reproduced.",
+      "Next: bounded exact int16 split-dot/requant oracle using both native orientations; preserve signed endpoints/support and public overflow bounds. Owner action separately: matched-build A zero-allocation versus conversion/copy clocks, then guarded native proof-byte/refusal/A-B gates. Rotate batching/amortization ->quantization/arithmetic ->composition ->GPU NTT/commitments ->lookup/softmax ->sumcheck/GKR."
+    ]
+  },
+  {
+    "section": "Cycle 0022 \u2014 exact int16 FFN-down and corrected run clock attribution (2026-10-04)",
+    "retained_evidence_lines": [
+      "Count-only public Llama3-8B config at T512/Kpad16384/N4096 gives16MiB packed slices +16MiB i32 partials =32MiB extra scratch before BLAS workspace,16KiB column sums,64MiB padded weights, while64MiB existing i64 input and16MiB output remain. The geometry is not an admitted trained profile. No transfer/peak saving measured. End-to-end ceiling P/(T-C_down_all_builds+C_pack+C_upload+C_byte_GEMM+C_i64+C_download+C_sync), all accepted8B terms unknown. Falsify any byte/accumulator/remainder/support/refusal/RNG/transcript/receipt mismatch, integer/float epilogue error or added enclosing cost >= CPU cost removed.",
+      "| Rank | Hypothesis / end-to-end scope | Prerequisites, costs and falsification |",
+      "|1 owner|Actual GPU SC_SZC and witness recurrence remain highest measured recurring scope.|Native CUDA and full masked-transcript/receipt clocks; no duplicate jobs. Preserve slower fusion finding; mismatches or enclosing regression reject.|",
+      "|3 NEW next local|Tile K/output reconstruction and existing requant to avoid full partial-output buffers, retain stacked scheduling.|Moderate scheduling/ownership change; K tile bounds and i64 combination before rounding. Could save counted scratch; repeated launches/W reads can regress. Fails on bytes/padding/refusal or no peak/enclosing gain.|",
+      "|6|Resident fixed-context fresh complete passes amortize public model setup.|NTT already once/run, not/layer. Measure setup/slope/lag/drain/independent verify/peaks; preserve fresh randomness/P3 review. >20ms/new verified position falsifies50/s for tested schedule.|",
+      "0 accepted private8B passes/0 countable tokens, CPU only, context null. All target throughput/startup/witness/proof/serialization/independent verification/latency/lag/drain clocks unmeasured. No prefill/resident/decode proof. Prior onecold synthetic12-block125M/T512/RTX4070Laptop8188MiB diagnostic unchanged:408.609226s total,318.22s runprover inclwitness/serialization,12.15s in-processverify,484107456B,independentfalse. Larger workloads permitted, context attentionT\u00b2 and state binding remain. Target50/s unachieved. Handoff: handoffs/20261004-exact-int16-witness.md. Next: local tile/reconstruction/requant streaming oracle; owner isolates both witness passes and down cost before GPU/native A/B under shared guard."
+    ]
+  },
+  {
+    "section": "Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)",
+    "retained_evidence_lines": [
+      "**Lifetime-aware counts, not memory/speed measurements:** unadmitted public Llama3-8B metadata T512/Kpad16384/N4096 has local materialized split48MiB peak versus64-row/full-N/full-K36MiB with8 conceptual stacked GEMMs. Narrow64\u00d7128/full-K34.0625MiB with256; splitK1024 32.25MiB with4096 and512MiB packing. Untiled fused preallocation64MiB is16MiB worse. Final z16/RDL32MiB remains. Coarse64-row route naively reads512MiB logical weights versus64MiB once; actual cache/DRAM unknown. Counts omit workspace, mirrors, transfer/status/pools, input/weights/other planes and preallocated destination placeholders. Fine N/K tiling is demoted as a speed priority: little extra local payload benefit for many calls. K16384 full byte partials fit i32 already. Full builder/native peak is unknown.",
+      "End-to-end ceiling P/(T-C_down_all_builds+C_pack+C_upload+C_byte_GEMM+C_reconstruct+C_download+C_sync); accepted8B terms absent. Historical73.36s initial-chain and86.691s first-mark are combined parents, not down/alloc/startup clocks. Even zero-cost deletion of both leaves248.558226s of408.609226s, arithmetic2.05988positions/s only; not candidate saving or counted8B rate. Falsify raw/remainder/support/pad/first-refusal/native RNG/transcript/receipt divergence, new domain/refusal/privacy leakage, no native peak benefit or added enclosing costs>=removed down cost.",
+      "| Rank | Expected complete-proof scope | Prerequisites, added costs and falsification |",
+      "|1 owner|Actual GPU SC_SZC and witness recurrence, highest measured recurring scope.|High CUDA/transcript integration; full native byte/RNG/refusal, actual clocks/peak and complete proofs; no duplicate owned boundary lane. Preserve slower fusion. Mismatch/enclosing regression rejects.|",
+      "|2 refined/tested|Exact split-int16 down with coarse row-tiled finalization.|Arithmetic prerequisite passes; moderate/high native device work. Packing, twice byte products, W reads/launch/workspace/transfer costs; down time absent. No byte/refusal/peak/enclosing gain rejects.|",
+      "|3 NEW next local|Group/stride public row-tile scheduling to reuse packed slices and bound outstanding partials.|Moderate batch/pool/ownership work; exact independent address/status/completion checks, output ownership and CUDA lifetime gates. Fails on wrong bytes/order/stale sums or if grouping restores full scratch/call overhead.|",
+      "|6|Resident fixed-context fresh independent complete passes.|Public setup/model reuse only; NTT already once/run. Record startup/slope/proof lag/drain/independentverify/memory. >20ms/new verified position rejects50/s for that schedule.|",
+      "|7 new literature filter|Certified lower-MAC integer fast matmul/composition.|High kernel or protocol integration; full -128/int16 domain, exact fixed relation/privacy review. Authors' reported slow kernel and our call/traffic counts demote MAC-count-only arguments; no target inference.|",
+      "[Handoff](handoffs/20261004-tiled-down-requant.md) includes actual Rust/CUDA seams and uncompiled/unapplied tile interface. Owner first isolates both witness passes/down, then guarded coarse-row native/device parity/A/B. Next local: grouped/strided batch address-and-ownership oracle with fixed public schedule, output order/status/packing reuse, ragged/duplicate/nonoverlap and staggered completion controls. Rotate memory/batching ->composition ->GPU NTT/commitments ->lookup/softmax ->sumcheck/GKR ->quantization/arithmetic. Prior findings preserved."
+    ]
+  },
+  {
+    "section": "Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)",
+    "retained_evidence_lines": [
+      "Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)",
+      "Question: can public row/K-first batches reuse packed slices and reduce output-tile calls without restoring full scratch or changing private status? Baseline prior coarse row64/fullK8 calls/36MiB; N128256 calls/34.0625MiB, splitK1024 4096 calls/512MiB packing. Baseline fullK already packs once. Added pointer/descriptor/pool/synchronization and full row i64 splitK reduction costs must be counted; two byte MACs and final32MiB planes remain. Isolated native down/both witness-build clocks absent. Complete-proof ceiling P/(T\u2212Cdown_all_builds+Cpack+Cupload+CGEMM+Cfinalize+Cdownload+Csync); no accepted8B terms measured.",
+      "**Bounded negative:** at counted unadmitted T512/K16384/N4096, q32 grouped N128 tiles has36MiB/8 conceptual calls, identical payload/calls to coarse fullN but256 versus8 problems. No reason from these counts to prefer it. q4 gives34.25MiB/64calls versus34.0625MiB/256. Coarser row128/256 gives40/48MiB and4/2calls; row51264MiB is16MiB worse than materialized split48MiB. K-first1024/q4 reduces packed traffic512->16MiB but adds2MiB full-width reduction:34.375MiB/1024calls vsprior32.25MiB/4096. FullK partials safe already. Logical row64 W reads512MiB, actual cache/DRAMunknown. APIcalls are not measured launches; payload excludes workspace/mirrors/descriptors/status/transfers/pools/input/weights/other planes/preallocated outputs. No memory/speed improvement measured.",
+      "Seven LIVE source records appended with dates/URL/license/revision limits: officialAPI, older2017/2024 blogs, CUTLASS persistent scheduler/header (BSD3 fullterms inspected), September4.8 release/full versiondiff commit098de2a652cf8f00fd70b2df54051c7eccbb855a, August12/revised14 B300 audit (explicitly no performance/5090 result). Main header/date unpinned; versionSep17 differs from release displaySep22 lacking year. Tagged scheduler/history `Internal Error` exact URLs retained; local experiment continued, no bypass/foreign execution. Source lists support scheduling/API rejection, not a literature-only result.",
+      "|Rank|Expected end-to-end scope|Prerequisites/costs/falsification|",
+      "|1 owner|Actual GPU SC_SZC and repeated witness work remain dominant measured recurring scope.|Existing owned native boundary lane; high CUDA/privacy/transcript cost, source-pinned full bytes/RNG/receipt clocks; preserve slower fusion. Mismatch or enclosing regression rejects.|",
+      "|2 refined/tested|Exact split-int16 down with coarse public row finalization.|Current scheduling/ownership prerequisite passes; moderate/high new integer adapter/transfer/workspace cost; down cost unknown. No supported integer path/actual peak/enclosing gain rejects.|",
+      "|3 NEW next local|Identity-bound TN transposed-weight/column-sum cache to avoid a generic NN path.|Public setup cache/tiled storage, actual integer algorithm/IMMA and device review;64MiB/layer if full duplicate, packing/startup/host-device costs. Any cache/dot/pad/model-identity mismatch or enclosing regression rejects; P3 stays private.|",
+      "|5|Resident fixed-context fresh independent complete passes.|Measure startup/slope/lag/drain and independent verification; NTT once/run already, model/P3 setup only reviewed reuse. >20ms/new verified position rejects50/s for tested schedule.|",
+      "|6|Composition/commitment/lookup architecture.|High soundness/privacy/PCS integration; no replacement accepted. Revisit with measured full-stack phase ceiling; preserve incompatible/small-parent negatives.|",
+      "Nextlocal: independent TN transpose/cache/sum address-and-identity oracle plus local lifetime counts; cache stale/orientation/padding mutation controls. Owner isolates both witness/down clocks then guarded coarse64/128/256 device/native parity/complete-proof A/B. Rotation retains memory/batching ->composition ->GPU NTT/commitments ->lookup/softmax ->sumcheck/GKR ->quantization/arithmetic. Saved reports are not message-delivery evidence."
+    ]
+  },
+  {
+    "section": "Cycle 0025 \u2014 TN weight preprocessing and separated-scan residency (2026-10-04)",
+    "retained_evidence_lines": [
+      "**Useful negative:** actual CLI StackSource seals layers0..L-1, restarts, then rebuilds0..L-1; boundary_plane/witness shares one cached witness, not a third build. Distinct32layer K16384/N4096 one-layerLRU still has64preparations/pass; it cannot halve preprocessing across those scans. All32down caches retain2048.5MiB extra plus original2GiB down weights;32preparationsonce vs64P atPpasses.128column cache2.000488MiB bounds capacity but tile-first64 vsrow-first8rowtiles512full-weight equivalent preps/pass. At4passes256 vs2048preps. Counts only, no large allocations; packX/residency/transfers/workspace omitted. Tile-first does not reuse across whole scans without retaining all tiles or changing source scheduling. Synthetic identical recipe weights can deduplicate differently; not assumed for trained distinct layers.",
+      "1. Owner actual GPU SC_SZC and witness recurrence: highest measured recurring scope, high CUDA/transcript/privacy/native gate cost; do not duplicate owned boundary work, preserve slower fusion.",
+      "3. NEW refined canonical TN public-weight owner with orientation-aware proof fold/digest reader: remove duplicate64MiB/layer only if all original consumers preserve canonical model bytes/support. Moderate/high ownership and verifier helper changes; independent Fp2/MSB fold and digest oracle next. Any coordinate/digest/refusal/byte divergence rejects. Current duplication remains.",
+      "Next: independent orientation-aware fold_cols_i8 and canonical statement digest oracle at argument.rs1426/1433, private_block.rs575; pin actual consumers/loader/support, include stale/transposed/ragged controls. Owner first isolates both witness/down/preprocessing clocks then guarded supported integer native/device parity/full-stack A/B; no job launched. Rotation composition ->GPU NTT/commitments ->lookup/softmax ->sumcheck/GKR ->batching/amortization ->quantization/arithmetic. Preserve all prior negatives."
+    ]
+  },
+  {
+    "section": "Cycle 0026 \u2014 canonical TN readers and bounded digest transpose (2026-10-04)",
+    "retained_evidence_lines": [
+      "Baseline conditional original+packed cache; eliminate duplicate retention/full cast temporary/repacking only with valid residency. Add import/canonical identity, migration/leases, transpose/scratch/scatter/fresh fold/transfer/workspace/sync. Complete ceiling N/(Tbaseline-Cremoved+Cadded) unknown; isolated down/prep/digest clocks/actual peak absent. Falsify logical value/support/refusal/framing/model identity or native bytes/RNG mismatch, weakened privacy/domain or no enclosing/peak gain. P3 metadata/storage stay private and require reviewed binding; no blinding/opening reuse. Previous separated-scan LRU, slower fusion, small-parent and arithmetic negatives preserved.",
+      "|Rank|Hypothesis and expected enclosing impact|Prerequisites / cost / falsification|",
+      "|1|Owner GPU SC_SZC and witness recurrence; highest measured recurring scope.|High CUDA/masked-transcript/privacy integration; exact native polynomial/bytes/RNG and enclosing independently verified workload clocks. Preserve slower fusion; no duplicate job.|",
+      "|2|Exact coarse full-K split-int16 down; native down share unknown.|Moderate/high integer algorithm/packing/transfers/workspace; both witness scans and actual peak required. Any value/range/refusal/native receipt mismatch or enclosing regression rejects.|",
+      "|3 refined/tested|Canonical TN owner plus bounded canonical digest, enabling cache residency without duplicate W.|324-case prerequisite passes; moderate/high constructor/loader/witness/verifier/ownership migration. Conditional2GiB duplicate capacity, not current native saving. Native BLAKE3/RNG/byte/peak gates; canonical support/framing mismatch rejects.|",
+      "|4 NEW local|Admitted immutable public digest memoization / full public preimage streaming: remove repeat model scans and cast allocations.|Moderate callgraph/clone/identity work; digest calls found at BlockPublic614, RunStatement202, model_root289, protocol117. No challenge-dependent folds cached. Unknown phase share; stale tables/model/domain/calibration/shape or no enclosing benefit rejects.|",
+      "Five LIVE primary records appended: [cuda-zkp-ntt release](https://github.com/Artemarius/cuda-zkp-ntt/releases) declares its full hierarchical transform incorrect; release day omits year, MIT main terms inspected, exposed commit fetchfailed (not inspected). New older [small-characteristic sumcheck](https://eprint.iacr.org/2024/1046), receivedJun27 2024, reports Algorithms3/4 slower in its BabyBear degree4 implementation; no Goldilocks2 transfer. Associated repository implementation license/history/source fetches failed. [Batch polynomial evaluation](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITC.2026.3) publicationAug12 2026/ePrintMar4-5 history verified; univariate extra-round/polynomial/O(dm) prover and unresolved multilinear efficiency retain high integration cost. Packed-mask repository only scoped as its distinct first-round construction, no native flaw/reproduction inferred. Exact URLs/date/license/exposed-vs-inspected commit/fetch limits saved; no bypass/foreign code execution or author performance reproduction.",
+      "Next local: exact full public preimage and immutable-digest call/clone/identity audit, include attention tables/domain/calibration/shape mutations and resident-pass versus startup scan counts. Owner prioritizes isolated both-witness/down/prep/digest/peak clocks then guarded native/device parity and independently verified complete-stack A/B. Rotation NTT/commitments->lookup/softmax->sumcheck/GKR->memory->batching->arithmetic->composition. Reports saved locally; no notification-delivery claim."
+    ]
+  },
+  {
+    "section": "Cycle 0027 \u2014 complete public digest cache and scan attribution (2026-10-04)",
+    "retained_evidence_lines": [
+      "NEW attribution negative: `run.rs`571/717 already reads stored block_digests during stages. There is NO full-model digest scan removed inside a proof stage. CLI model root and statement construction scan twice before proving; fresh verifier likewise. Repeated cold processes have2P->P scans, resident model/root with fresh statements P+1->1 conditionally, fixed existing statement has setup-only scans and does not establish distinct newly proved positions. Synthetic DenseRun clones before initialization, so cold Clone is not a shared warm cache. No resident driver/result or private randomness reuse.",
+      "Ranked: 1 owner GPU SC_SZC + witness recurrence (highest observed recurring scope; high native/device cost); 2 exact coarse fullK split-int16 FFN-down (packing/transfers/twice byte products/i64/requant/refusal; isolated clocks unknown); 3 tested full public digest/cache (moderate local integration, native ownership/byte gates pending, stage benefit absent); 4 TN canonical weight owner/migration (all consumers before dropping duplicate); 5 NEW context-change incremental hasher prefix cache before first T-dependent table (unchanged digest framing; FFN after table still scans, bound before integration); 6 resident fresh complete-pass startup/slope/lag/drain/verify sweep; 7 lookup/composition/PCS (high protocol/field/privacy cost). Preserve all earlier slower fusion, small-parent, compiler division, separated-scan LRU and scheduling negatives.",
+      "Five LIVE primary records appended: new September30 GlueLUT revision (section7 excludes PCS/full SNARK, different composite ring); older newly assessed cq preprocessing (2022-12-25/2024-07-05, homomorphic/pairing large-table regime); official OnceLock source/Clone semantics; DeepProve public context cache/history pin and license-fetch limits; BLAKE3 latest version commit/licensing/date limits. Author gains not reproduced. Exact URLs/dates/commit/license qualifications/fetch errors in experiment records. Next rotation sumcheck/GKR then memory traffic/batching/arithmetic/composition/NTT.",
+      "[Owner handoff](handoffs/20261004-full-public-digest-cache.md), [experiment](experiments/full-public-digest-cache-20261004/README.md). Owner first isolates digest call/byte/cast clocks in setup/statement/fresh verification and actual peaks alongside witness/down/SC_SZC; then shared-lock native frozen bytes/refusals/RNG, device parity and independently verified complete-stack A/B. No heavy job queued. Next LOCAL: prefix-hasher copy across T changes, compare exact whole preimages and prove remaining-tail scan bound."
+    ]
+  },
+  {
+    "section": "Cycle 0028 \u2014 public hash prefix reuse has a large remaining suffix (2026-10-04)",
+    "retained_evidence_lines": [
+      "NEW counted negative: dynamic RoPE length frames precede the entire FFN. Before the first frame, the ordinary checkpoint can reuse the domain/five attention tensors, but every suffix frame and FFN word still hashes. Unadmitted public32layerLlama/D4096/F16384/KV8/dh128/T512 prefix1,342,310,624B vs full7,801,753,824B(17.205%); suffix6,459,443,200B(82.795%). Four distinct contexts512/1024/2048/4096 remove4,026,931,872Bof31,391,564,672B(12.828%) including cold prefix. Same-context finished digest cache dominates after the first call. These are allocation-free logical hash bytes, not runtime/DRAM/peak gains or admitted profiles. No universal bound on other hashing algorithms claimed.",
+      "NEW ownership/cost negative: source constructors still support-scan and copy1,342,308,352prefix bytes per new32layervariant. Current Vec ownership does not provide cross-context shared weight identity; shared immutable owner/support-shape certificate would be added integration work, and all table/refusal/provenance checks remain. No validation/copy saving priced. Cached state is local, never imported/caller asserted; actual verifier content is independently hashed. Controls detect stale internal mutation, wrong owner/domain/order/framing, concatenated/finalized digest substitutions, obsolete context frame and omitted FFN. Public P1 cache provides no P3/private opening or mask reuse authority.",
+      "Native seam private_block.rs494/614, candidate/sonnet bothSHA9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d. No Rust patch for the demoted candidate; tested oracle/interface in [handoff](handoffs/20261004-public-prefix-checkpoint.md) and [experiment](experiments/public-prefix-checkpoint-20261004/README.md). Removed only conditional prefixhash; added firsthash/statecopy/owner checks/stream/context validation/suffix/import/freshauth. Complete ceiling N/(T-Dprefix+Cstate+Cowner+Cstream) unmeasured. Falsify any native byte/hash/refusal/binding/RNG/transcript/receipt/privacy mismatch, staleowner/coldcache trust or enclosing regression.",
+      "Ranked:1owner GPU SC_SZC+witness recurrence;2exact full-K split-int16 down;3NEW memory-bounded exact SC_SZC reconstruction windows;4finished-public-digest stream/cache and TNowner;5residentfresh complete-pass startup/slope/drain/verify;6prefix checkpoint demoted. All earlier negatives preserved. Next local test reconstructs MSB-folded SC_SZC tables from immutable synthetic inputs/challenges with independent per-round/final cube checks; count rereads/field work/live payload including parent retained codewords. Exactseams zkp-core/sumcheck/rounds.rs19/grouped.rs22 and private_block/argument.rs495/553 pinned. Native uses MSBhalf-split; do not blindly transplant earlier Pythonpair-split conventions. Native masked-boundary owner work is not duplicated. Main/Claude reviews/integrates under shared locks; no heavy job queued.",
+      "Six LIVE qualified records appended: current sumcheck/Septemberauthor explanation, older newly assessed modularVE(2023-09-08/latest2024-04-18;PCS/privacy/compiler filters), EPFLstreamingdesign/security/history, ICICLErelease/versiondiff/MIT scope, BLAKE3 ordinaryClone/existingdependency/packagedate. BLAKE3 1.8.7 publication now verified2026-08-20, superseding cycle27unknownyear. EPFLlicenses/detailInternalError and explicitBLAKE3sourceCachemiss saved; no bypass, author gain reproduced or code adopted. Rotation nextmemorytraffic/batching/arithmetic/composition/NTT/lookup/sumcheck."
+    ]
+  },
+  {
+    "section": "Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)",
+    "retained_evidence_lines": [
+      "NEW negative: simple per-round bounded reconstruction at illustrative n23/K23/B4096 reduces table buffer3,489,660,928->3,014,656B, excluding source/scratch owners. It adds11 source scans and1,929,379,840 reconstruction multiplies versus192,937,961 baseline data-fold multiplies; residual folds/prefix generation add more. A separate fullFp2source copy adds3,087,007,744B. No native memory/time gain follows; this is not staged Blendy/RW streaming and does not falsify those stronger methods. Existing A/H/codeword tier lifetimes remain; no duplicate-source capacity excluded silently.",
+      "Seams: SumcheckRounds at rounds.rs19; grouped.rs22/167/172; argument.rs195/311/495/553/1699; zk.rs1091. Source SHA256/snapshots pinned; [experiment](experiments/sc-szc-reconstruction-windows-20261004/README.md) and [handoff](handoffs/20261004-sc-szc-symbolic-equality.md). Baseline/eliminated/new costs and end-to-end formula documented; accepted8B and isolated phase clocks absent. Any sample/final/refusal/index/binding/RNG/transcript/receipt/privacy mismatch or no actual peak/enclosing benefit falsifies. Main/Claude reviews and integrates; no heavy job queued.",
+      "| Rank | Hypothesis and enclosing impact | Prerequisites, cost and falsification |",
+      "| 1 | Owner GPU SC_SZC and recurring witness work; highest measured recurring scope. | High CUDA/representation/masked-boundary integration. Isolate both witness builds, down and SC_SZC clocks; exact native samples/finals/RNG/receipts and independently verified workloads. Existing slower fusion stays demoted; no duplicate owner job. |",
+      "| 2 | Exact coarse full-K split-int16 FFN-down. | Moderate/high packing, twice byte products, i64 accumulation, requantization, workspace and transfers. Actual down share unknown. Any value/range/refusal/native-byte mismatch or enclosing regression rejects. |",
+      "| 3 NEW, prerequisite tested | Symbolic equality storage in grouped SC_SZC, while retaining ordinary data-table folds. | Moderate role-aware evaluator/constructor work. Removes three full allocations and their folds, no repeated source scan. Preserve original table indices/final order/short p_ht and native masking/extensions/PCS. Native capacity and phase clocks absent; any mismatch or no actual peak/enclosing benefit rejects. |",
+      "| 6, tested and demoted | Per-round source reconstruction plus bounded pair windows. | High native source-reader/retention integration; repeated weighted field arithmetic and source reads. Could enable capacity only if no duplicate sources/actual blocking peak is removed. Round/final/refusal/order/binding/mask mismatch or enclosing regression rejects. |",
+      "Seven LIVE records: newly assessed product sumcheck2025/1473 revisedFeb25 2026; older Blendy section4/7 refinement beyond cycle13; newly assessed Scribe2024/1970 revisedJul29/Aug2026proceedings and RW/symbolicEq scheduling; EPFL design/license refinement (MIT terms now inspected via old URL redirect, canonical failure retained); hardware study refresh; Jolt displayedOctober1release/date-year limitation and benchmark-only commit pin5101ad2143039de6f279613810414c3d071d1f8f; official Rust capacity contract. Paper/repository performance not reproduced. PDF/license/history failures retained without workaround. Rotation memory traffic -> batching/amortization -> arithmetic -> composition -> NTT/commitments -> lookup/softmax -> sumcheck/GKR. Preserve slower fusion, small-parent, separated-scan LRU, compiler conversion and all prior negatives.",
+      "Next LOCAL: index-preserving tagged Eq/Pub/Priv reader/final oracle, arbitrary point starts/empty equality/N1 and source-derived Rho/Flip/Fixed/broadcast maps. OWNER: table length/capacity/allocation/fold and both-witness/down/SC_SZC clocks, then guarded native/device/fresh independently verified full-stack A/B. Reports are local artifacts, not external notification-delivery evidence."
+    ]
+  },
+  {
+    "section": "Cycle0030 \u2014 tagged equality storage and cubic contraction filter (2026-10-04)",
+    "retained_evidence_lines": [
+      "NEW negative: naive cubic contraction f*MLE(g*h) matches original triple product at Boolean endpoints but fails t2/t3 (t2:1320vs1192). Four deterministic tuple-oracle checks retained in highdegree-control.json. This is a transfer filter, **not a TensorZKP paper defect assertion**. Their August2026 proceedings use H10080GB/BabyBeardegree8, report52.9GBat2^25 and pipeline overhead; different field/PCS/highdegree mechanisms cannot provide nativeGoldilocks/Fp2degree4/5 rates. Source/history/license qualifications retained.",
+      "| Rank | Hypothesis / enclosing impact | Prerequisites, costs, exactness and falsification |",
+      "| 1, owner | GPU SC_SZC plus recurring witness work; largest measured recurring scope. | High CUDA/representation integration. Isolate both witness builds, down and SC_SZC before scheduling. Native masked samples/finals/RNG/receipt and independent complete workload verification required; any mismatch or enclosing regression rejects. No duplicate owner work launched. |",
+      "| 2, owner | Exact coarse full-K split-int16 FFN-down. | Moderate/high packing, two byte products, i64 accumulation, requant/refusal, transfer/workspace costs. Down share still unmeasured; any exact arithmetic/range/native-byte mismatch or enclosing regression rejects. |",
+      "| 3, materially refined/tested | Tagged symbolic Eq storage before SC_SZC allocation, preserving original table indices and final order. | Moderate role-aware build/evaluator/census/test adapter. Eliminate three full Eq tables and folds; retain all data folds and common scan. Add compact descriptors/validation/scalar finals. Native closure/IR, masking/extensions and receipt/peak clocks remain; any parity/privacy/peak or enclosing regression rejects. |",
+      "| 5 | Fresh resident-model complete-pass amortization. | Measure fixed context/pass count, startup boundary, recurrence slope, lag/drain/verification and all memory tiers. Distinct contexts give aggregate throughput; decode requires authenticated growing KV state. Mask reuse or omitted proof work rejects. |",
+      "| 6, NEW next local question | Two-layer split-equality weighted accumulation instead of multiplying both split weights per pair. | First exact grouped-loop oracle and counted field operations for empty/delayed/short points, zero factors and arbitrary Fp2; preserve native common data scan and subgroup recovery. Additional accumulator/scratch and locality costs must be included. Any sample/final mismatch or no counted/owner enclosing benefit rejects. |",
+      "| 7, demoted | Simple per-round source reconstruction / hash prefix reuse. | Reconstruction adds many scans/multiplies; prefix hash leaves most FFN suffix and constructor scans. Prior negative results stand. Staged/RW architecture remains a separate high-cost privacy/storage/PCS question. |",
+      "Complete ceilingN/(T-Ceq+Croles) unknown: accepted8BT and isolatedEqphase clocks absent. Falsify any original sample/final/index/support/refusal/RNG/transcript/extension/receipt/privacy mismatch, lost coverage, actual peak failure or enclosing regression. Owner reviews/integrates [handoff](handoffs/20261004-sc-szc-tagged-equality.md); [prototype/results](experiments/sc-szc-tagged-equality-20261004/README.md). Native seams argument.rs195/284/311/495/553/570/1699,grouped.rs22/86/149/172,rounds.rs19,zk.rs1091. No Rust patch or heavy job queued.",
+      "SixLIVEqualifiedrecords appended: originalGruen2024/108 andDaoThaler2024/1210 (newly assessed original scopes), combinedMarch2026/587date correction approvedvsrevision, JoltEqdocs/source/MITterms plusPR953verified2025-09-19merge (latestOct1releaseyearstillunknown), TensorZKPAug2026proceedings memory/degree scope. Remotecommit/history/diffCachemiss/InternalError preserved; no inspectedremotecommit claimed. No author gains reproduced. Rotation nextbatching/amortization->arithmetic->composition->NTT/commitments->lookup/softmax->sumcheck/GKR. All earlier fusion/compiler/small-parent/LRU/privacy/reconstruction negatives preserved.",
+      "NextLOCAL: exact two-layer split-equality weighted accumulation with operation/scratch accounting and allcurrent span/zero/order controls. OWNER: isolate Eq/data allocations/build/fold/interpolation and both-witness/down/SC_SZC clocks, then guarded native/device/fresh independent complete-stack A/B. Reports are local artifacts, not delivery evidence."
+    ]
+  },
+  {
+    "section": "Cycle 0031 \u2014 adaptive two-layer equality accumulation (2026-10-04)",
+    "retained_evidence_lines": [
+      "NEW negative and refinement: n8/j0/S5/chunk1:1,280multiplies vs768baseline,1,280adds vs640. Unconditional tiny chunk1024 arm saves only96multiplies vsunit-aware whileadding1,537adds. Adaptive per-group/per-chunk guard preserves exact output and never increases counted equality multiplications versusunit-aware in tested rounds; chunk1024tiny3,614->3,434mul,5,053->5,305add. Integer/branch/locality/runtime costs remain. Keep debug explicit sample1 when adapting native S. Initial unmatched-parenthesis syntax failure and first successful unguarded experiment retained separately.",
+      "Ranking:1ownerGPU SC_SZC+recurringwitness;2exact full-K split-int16down;3materiallyrefined symbolicEqstorage plus independentlyreviewable adaptiveweighting;4publicdigest/TNowner;5fresh residentfixedcontext complete-pass startup/slope/drain/verify;6NEWmatrix-packed basefield/groupedopening architecture filter;7source reconstruction/hashprefix/unconditional tinysplitdemoted. README records prerequisites/integration/addcost/exactness/privacy/soundness/falsification for each. Preserve all prior fusion/compiler/smallphase/LRU/hashprefix/reconstruction/privacy negatives.",
+      "Seven LIVE qualified sources appended: oldDao/Thaler two-layer refinement, March2026 combinedsumcheck, Jolt actual nested-fold helper/oldPR965/970Sep29**2025** and currentrepoOct3**2026** scopes, ICICLEbatchAPI/versiondiff/MIT, Joltfinalopening architecture, newlyassessed oldpacked2025/719 revisedSep14**2026**, newFlock revisedSep19**2026**. No authorperformance reproduced. Packedmatrixchallenge/MW-MLE changes PIOP/PCS/state/masks; Flockhash-circuit proving is different from computing PCShashes; ICICLEbatch headerdescribeshashchunks, notresidentmodelpasses. Remote runtimehistory/fullSHA/rawsource and PDFs errors retained. Inspected6c77775 is an abbreviated version-onlydiff, notpinnedGPUkernel; Joltcurrentmain source/documentation revisionsunverified. Rotation nextarithmetic->composition->NTT/commitments->lookup/softmax->memorytraffic->batching->sumcheck.",
+      "Historical n1coldsynthetic12-block125M/T512RTX4070Laptop unchanged408.609226swall/318.22combinedrunprover/12.15inprocessverify/484107456B/independentfalse. LaterCLI still lacks terminalresult after recordedreboot; no liveness inferred. NextLOCAL: source-derived completeSC_SZC bracket/fold operationcensus byarithmetic type plusadaptive oracle with all support/helper clauses. OWNER: isolate nativephases/capacities then shared-lockdebug/release/masked/frozen/fresh independent verifier/device/full-stackA/B. Reports are local artifacts, not externalnotificationdelivery records."
+    ]
+  },
+  {
+    "section": "Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+    "retained_evidence_lines": [
+      "Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+      "64 source-derived clause fixtures passed 576 independent original-cube samples against 1,728 candidate samples, 5,280 direct-MLE final values, 192 arbitrary-input clause values, 36 even-lookup values, 128 native declaration checks, 192 independent arithmetic-formula checks, 576 repeated counter checks and 288 adaptive guards. Ten negative controls fired. Final run: 6.607152 s / 17,664 KiB RSS; seed 2026100432, one pinned nice19 Core Ultra 9 185H CPU thread; 59 s wall/CPU and 512 MiB address-space caps. No native proof or proving speed measured.",
+      "Illustrative n23/short-Ht14/ls3/padded/release nonzero-recovery case has 30 native-style tables, 15 lookups and eight helpers. The complete zero-check bracket takes 54 Fp2 mul, 21 mul_base, 65 add and 33 sub API calls per evaluation; host groups each take two mul. Equality accumulation removes 25,079,832 mul from 2,478,829,294 counted scan+table-fold mul (1.012%), adds 83,904 Fp2 additions and 176 B logical scratch per part plus metadata. Including source-lowered base multiplications (5 per Fp2 mul, 2 per mul_base) makes the removed fraction 0.894%. Literal API count reduction is 0.281%; none of these fractions is a time ceiling or native speedup. Table construction, Eq setup, inversions, group interpolation/recovery/reduction, masks/extensions, transcript, witness, PCS, transfers, serialization and verification are excluded and remain. Data/table folds are unchanged; symbolic Eq storage is a separate candidate.",
+      "Two preserved mistakes matter: the initial all-zero IR lost its source-declared degree (fixed with zero metadata sentinels); the first passing port incorrectly batched the exempt A_E plane and used the wrong S-plane order. An independent pad.rs/layout.rs declaration audit corrected both, and added explicit exempt-E and wrong-order controls. The before-pad-plane-audit result is not native-relation evidence. The tuple-field expanded oracle is algebraically independent, but both evaluators consume a descriptor; that descriptor needs its own source-derived gate. Preserve all earlier slower fusion, compiler/small-phase, LRU, hash-prefix, reconstruction, privacy and tiny-chunk negatives.",
+      "| Rank | Hypothesis / end-to-end scope | Prerequisites, added costs and falsification |",
+      "| 1, owner | GPU SC_SZC plus recurring witness work; greatest measured remaining scope in prior single-block GPU diagnostics. | High CUDA/representation/masking integration; isolate both witness builds and native slot phases. Full degree/samples, fresh randomness, native transcript/finals/receipt and independent complete-workload verification; mismatch or enclosing regression rejects. No duplicate job. |",
+      "| 3, NEW refined local | Compile lookup denominators once per proof definition: precompute alpha-cst, tag Unit/Neg/Scale rather than general mul_base for +/-1. Actual ls3 S lookup list has ten +1 and one -1 coefficient. | Moderate typed local helper/definition seam; setup/tag/dispatch costs, constant binding and term order. Potentially remove 11 mul_base and 15 accumulation adds per bracket call, subject to exact negative-coefficient rewrite. No tested/runtime gain yet. Native helper range/layout/odd-pair/mask/refusal/bytes must remain. Lost parity or enclosing regression rejects. |",
+      "| 4, tested/reranked | Symbolic Eq storage and adaptive weight accumulation. Memory storage remains useful; weighting alone is about 1% of counted padded scan/fold mul. | Moderate role-aware builder/storage/part scratch/reset work. Both pads, all clauses/helpers, explicit debug sample1, zero fallback, extension/RNG/finals/native receipt/peak gates. Any mismatch or no actual peak/enclosing benefit rejects. Keep these independent adaptations. |",
+      "| 6 | Fresh resident-model complete-pass amortization. | Startup/slope, fixed context/pass count, pipeline lag/drain/independent verification and peaks required. Every recurring mask/commitment stays. Independent contexts are aggregate throughput; decode needs growing KV-state binding. Sustained recurring cost >20 ms/newly proved position falsifies >=50/s for that schedule. |",
+      "Baseline keeps data/brackets/folds/commitments; added weighting accumulators/branches/reset scratch. Complete ceilingN/(T-Cweight+Cnew) remains unmeasured; exact arithmetic, full checked relation, masks/RNG/transcript/refusal/extension/receipt/privacy/peak/enclosing gates required.",
+      "Next LOCAL: exact compiled-denominator Unit/Neg/Scale prototype at argument.rs helper_sum/definition, using this complete-clause cube oracle; include paired/odd multi-term lookups, nonzero tags, arbitrary Fp2 and zero challenges, preparation counts and branch costs. Owner first measures native Eq-weight/helper/bracket/interpolation/fold/reset phases and both witness builds/down, then shared-lock native masked/frozen/fresh independently verified complete-stack A/B. No heavy job queued."
+    ]
+  },
+  {
+    "section": "Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)",
+    "retained_evidence_lines": [
+      "128 complete-clause fixtures passed 1,152 independent original-cube samples against 1,152 compiled samples, 3,456 direct-MLE finals, 384 arbitrary-input full-clause values, 160 general helper cases, 720 direct denominator values, 256 native declaration checks, 128 independent clause-counter checks, 320 general counter checks, 384 per-call counter checks, 160 preparation and 160 dispatch checks, and 36 prior loop-census checks. Eleven negative controls fired. Final run: 2.179922 s / 17,984 KiB RSS; seed2026100433, one pinned nice19 Core Ultra9 185H CPU thread, 59s wall/CPU and512MiB AS caps. These are synthetic algebra/accounting results, not native proofs or proving clocks.",
+      "Baseline: helper_sum evaluates alpha minus an affine lookup expression on every bracket sample. The candidate precomputes alpha-(cst+tag) from the CURRENT proof definition, then subtracts Unit, adds Neg and subtracts Scale products in original term order. Empty/multiple terms, aliases,0/non-unit/field-negative coefficients, arbitrary Fp2 constants/challenges, odd/even helper lists and zero denominators match an independent tuple-field expanded oracle. Full fixture n0..3,ls2/3,with/without both pads,full/base/zero/Boolean values; native A_E exemption and plane order retained. Partial support configurations, honest native witnesses, private source maps, native extensions/masks/RNG/transcript/PCS/refusals remain unexecuted. Stale alpha/tag plans fail controls: these plans are definition-local and cannot be cached between proofs. No private mask/opening reuse is authorized.",
+      "Illustrative n23/short-Ht14/ls3/padded/release nonzero-recovery census:30 tables,15 lookups,8 helpers; bracket54mul/21mul_base/65add/33sub becomes54mul/10mul_base/51add/32sub. Eleven general coefficient products,14 additions and1 subtraction are removed per call. Fp2 multiplication count is unchanged. Across37,748,732 zero-check calls,415,236,052 mul_base are removed; counting5 base mul per Fp2 mul and2 per mul_base yields830,472,104 fewer of14,021,556,775 counted base multiplications (**5.923%**). Literal API total falls11.033%, including15 extra setup subtractions. None of these fractions is a runtime ceiling or speedup. Unchanged folds, other brackets and all per-sample equality products are counted. Setup/Eq construction, inversions, interpolation/recovery/reduction, masks, witness, PCS, transfers, serialization and verification are excluded.15 tag classifications,15 new setup subtractions and566,230,980 recurring coefficient dispatches remain. The existing15 cst+tag additions are shared setup, not additional work. Native enum size, allocations and compiler elimination are unmeasured.",
+      "The first passing algebra run omitted weight*bracket products from the projection denominator. Its exact source/hash/result/log/command is preserved in initial-missing-weight-count/. Final corrected loop totals independently match36 previous literal census entries; the retained initial6.096% fraction is not the final5.923% fraction. Earlier pad-order/A_E, slower fusion, compiler/small-phase, LRU, hash-prefix, reconstruction and privacy negatives remain intact. The specialization still leaves54 full-extension multiplications per zero-check bracket and adds tag dispatch; algebraic success need not improve runtime.",
+      "Expected complete ceiling remains `N/(T-Cden_removed+Cplan+Cdispatch+Calloc)` with all recurring witness/proof/serialization/drain included. T and isolated denominator time for an accepted8B workload do not exist, so no numerical end-to-end ceiling can be justified. Falsify any native sample/final/helper/index/support/pad/RNG/transcript/extension/receipt/refusal/privacy mismatch, actual peak failure or enclosing slowdown. Phase clocks and native release/compiler behavior must precede a claimed benefit.",
+      "| Rank | Hypothesis / expected complete-proof impact | Prerequisites, costs, exactness/privacy and falsification |",
+      "|1 owner|GPU SC_SZC plus recurring witness work; greatest measured remaining scope in prior single-block GPU diagnostics.|High CUDA/memory/masking integration; isolate both witness builds and all SC phases; exact samples/finals/native RNG/transcript/receipt and independent complete-stack verification. Mismatch, peak failure or enclosing regression rejects.|",
+      "|3 tested local|Compiled Unit/Neg/Scale lookup denominators; removes5.923% of counted illustrated scan/fold base mul, not time.|Low/moderate helper/definition change, per-proof preparation/enum dispatch/alloc costs. Current prototype passes; native frozen bytes/masks/extensions/refusal/privacy/RNG gate and isolated/enclosing clocks pending. Compiler already eliminating work or no enclosing gain demotes.|",
+      "|4 NEW refined local next|Can row-local denominator origin/delta be stepped through integer samples0..4, rather than rebuilding15 affine forms on every call?|Moderate grouped part/GroupPoly adapter, about480B logical origin/delta payload for15 lookups per part, stepping/reset/extra memory and setup arithmetic. Must preserve skipped sample1/debug explicit1/zero-factor fallback, ragged chunks and all paired/odd/multi-term clauses. Any sample/final mismatch or costs exceeding removed scalar work rejects.|",
+      "|6|Immutable public digest/TN owner.|Moderate/high admission/all-consumer/clone/lease and transpose/scatter/hash costs; digest is setup-only in current stages. P3 review required; no private opening reuse. Stale identity, byte mismatch or no enclosing benefit rejects.|",
+      "|7|Fresh fixed-context resident complete-pass workload.|Measure startup/slope, pass count/context, proof lag/drain, serialization and independent verification/peaks with fresh masks. Complete recurring cost>20ms/newly proved position falsifies50/s for that schedule. PrefillT\u00b2 and growing-context authenticated decode stay separate.|",
+      "|8 architecture|Newly assessed Fold-DCS/SWIRL domain/round composition.|High PIOP/PCS/transcript/mask/privacy/whole-proof soundness migration cost; fewer rounds/helpers alone supplies no speed ceiling. Deferred until costed relation-preserving comparison; no implementation permission inferred.|",
+      "Next LOCAL: row-local affine denominator stepping against the same complete-clause original-cube oracle, comparing cold row setup, skipped/debug sample1, zero-factor fallback and ragged/reset costs to the tested plan. OWNER: native helper/bracket/fold/weight/interpolation and both witness/down phase clocks, then shared-lock masked/frozen/fresh independent-verifier complete-stack A/B. No heavy job is queued.",
+      "[Experiment](experiments/compiled-lookup-denominators-20261004/README.md) \u00b7 [Owner handoff](handoffs/20261004-compiled-lookup-denominators.md). Rotation next:memory traffic/batching -> arithmetic -> composition -> GPU NTT/commitments -> lookup/softmax -> sumcheck/GKR. Preserve all prior findings; reports are local artifacts, not delivery records."
+    ]
+  },
+  {
+    "section": "Cycle0034 \u2014 row-local denominators pass algebra but worsen API count (2026-10-04)",
+    "retained_evidence_lines": [
+      "128 source-derived complete SC_SZC fixtures/768 release/debug chunk schedules pass1,152 independent original-cube samples against6,912 candidate samples,20,736 direct-MLE finals,5,376 row-counter checks,48 previous-baseline census entries,160 general lookup rows and3,798 direct denominators. Eleven algebra/lifecycle negative controls fire.1,098 group recoveries and630 zero-factor fallbacks occurred. Final11.575187s/17,332KiB RSS, seed2026100434, pinned nice19 Core Ultra9 185H thread;59s wall/CPU/512MiB AS caps. n0..3,ls2/3,padded/unpadded,odd/even helpers,full/base/zero/Boolean values,chunks1/3/7,explicit-debug/release sample1; general empty/multiple/alias/zero/negative/non-unit terms. Zero denominators checked only algebraically. Native honest witnesses, extensions, mask/RNG/transcript/PCS/refusal/privacy parity unexecuted.",
+      "NEW negative: illustrative n23/ls3/padded/release removes83,886,072 mul_base but adds482,344,902 Fp2 adds, removes293,601,252 subs and leaves2,478,833,399 full multiplies unchanged. Lowered base-mul count falls1.271860%; total API operations INCREASE1.324854%. Debug explicitly sampling1 still increasesAPI0.292969%; unpadded n20/ls2 release increases2.425874%. Setup is two affine dispatch passes per row/round,480B logical origin/slope per part,566,230,980 logical reads/754,974,630 writes in the illustrated release census. Accesses may be registers/cache, not measured DRAM. Native allocation/compiler/occupancy/spill/phase costs unknown. Row stepping demoted; reduced multiplication count alone does not support integration.",
+      "Expected complete ceilingN/(T-Cold_den+Crow_setup+Cstep+Cscratch+Cdispatch) unmeasured because accepted8B T/denominator clocks are missing. Tables/interpolation/native Eq/data folds and weight products are charged unchanged; setupEqs/inverses/recovery/reduction/masks/witness/PCS/transfers/serialization/verification excluded. Falsify any complete original/native sample/final/helper/order/support/pad/refusal/RNG/transcript/extension/receipt/privacy mismatch, memory failure or enclosing regression. No runtime ceiling follows from1.27% counted arithmetic.",
+      "Ranked queue:1 owner GPU SC_SZC+recurring witness (largest measured remaining single-block scope; high CUDA/memory/native privacy integration);2 owner exact full-K split-int16 down (packing/i64/requant/workspace and isolated share unknown);3 compiled denominators pending native compiler/phase gates (low/moderate plan/dispatch costs);4 NEW exact delayed modular reduction in terminal Fp2 weighted sums (prove >u128 accumulation bounds and charge wider carries/flush/reduction/scratch before any speed claim);5 symbolic Eq/public causal-mask descriptors (memory benefit with full index/support/terminal gates, causal predicate includes padded heads);6 fresh fixed-context resident complete-pass startup/slope/lag/drain/verify sweep (20ms recurring/new position falsifies50/s for that schedule);7 row stepping demoted on API/scratch tradeoff;8 Vega/binary-field/SWIRL/Fold-DCS architecture filter (high PCS/PIOP/state/privacy/whole-proof soundness migration). Detailed prerequisites/costs/exactness/falsification in experiment README. Previous fusion/compiler/small-phase/LRU/hash-prefix/reconstruction/privacy negatives preserved.",
+      "Historical synthetic12block125M/T512 RTX4070Laptop diagnostic remains408.609226swall/318.22combinedrunprover/12.15inprocessverify/484107456B/fresh independentfalse. LaterCLI lacks terminal result after recordedreboot; stale state is not liveness. No new model-scale/GPU clock. Next LOCAL: chunked wide Fp2 dot-product accumulation against independent integer-mod-p reference; prove maximum-value batch bounds and test carry/overflow/zero/ragged/flush failures, charging carry/reduction/scratch costs. OWNER: isolate native denominator/helper/bracket/weight/fold/recovery and both witness/down clocks, then shared-lock masked/frozen/fresh independent-verifier complete-stack A/B. No heavy job is queued.",
+      "Rotation next:arithmetic/reduction -> proof composition -> GPU NTT/commitments -> lookup/softmax -> sumcheck/GKR -> memory traffic/batching. Reports saved locally do not establish delivery."
+    ]
+  },
+  {
+    "section": "Cycle0035 \u2014 recovered exact wide-accumulation result (reported 2026-10-12)",
+    "retained_evidence_lines": [
+      "speed result. Wide accumulation demoted pending enclosing cost evidence."
+    ]
+  },
+  {
+    "section": "Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "retained_evidence_lines": [
+      "6,912 direct-MLE finals;368 recoveries,208 zero-factor fallbacks.19 negative",
+      "Complete ceiling N/(T-Caffected+Cnew),ideal upper boundN/(T-Caffected),cannot",
+      "Prior row-stepping API inflation,slower native fusion,compiler/small-phase,",
+      "LRU/hash-prefix/reconstruction/padding/privacy negatives all remain intact.",
+      "| Rank | Hypothesis / expected end-to-end scope | Prerequisites, added costs and falsification |",
+      "|1 owner|GPU SC_SZC plus recurring witness;largest measured remaining scope.|High CUDA/memory/masking cost;separate both witness builds and SC phases;native samples/terminal/extension/transcript/refusal/receipt/privacy parity and independent complete verification. Enclosing regression or peak failure rejects.|",
+      "|3 NEW refined/tested|Canonical residue+raw-product fusion acrossFP2mul;four reductions without wide persistent sums.|Low/moderate implementation,wide shared-field review. Four-reduction model passes;LLVM constant folding/carries/dependency/register effects and native masks/bytes unknown. No native enclosing gain demotes. Weighted-only0.6% reduction scope is secondary.|",
+      "|4 tested|Compiled Unit/Neg/Scale denominators.|Per-proof preparation/tag dispatch/allocation;prior5.923%counted multiplication saving,not time. Native compiler/phase/receipt/privacy gates needed;stale plan or no enclosing gain rejects.|",
+      "|5 local next|Symbolic public padded causal-mask descriptor,charging its folded MLE cost.|Moderate typed builder/part-index seam;remove explicit plane/folds,addpredicate/evaluation scratch. Preserve every pad/head/future-score constraint and native final index. Any boundary/MLE/sample mismatch or extra-cost dominance rejects.|",
+      "|6 owner|Fresh fixed-context resident complete-pass startup/slope/drain sweep.|Measure context,passes,concurrency,proof lag/bytes/serialization/independentverify andpeak with fresh masks. Recurring>20ms/newposition rejects50/sfor that schedule;prefillT\u00b2/decodeprivate state stay separate.|",
+      "|7 architecture refinement|Shared operator composition with explicitly bounded terminal openings and fresh masks.|New2017/October2026 sources prompt query/degree/history accounting. High PCS/PIOP/Fiat-Shamir/privacy migration;public sequences/open evaluations and reusedweightroots are not P1 permission. Missing joint privacy or complete-cost gain rejects.|",
+      "|8 demoted|Wide accumulation and row stepping.|Retain carry/scratch/API cost negatives;lower reduction count alone is insufficient.|",
+      "NextLOCAL:source-derived paddedcausal-mask descriptor andexactfoldedMLE against"
+    ]
+  },
+  {
+    "section": "Cycle 0037 \u2014 public causal-mask descriptor (2026-10-12)",
+    "retained_evidence_lines": [
+      "**A compact public-mask candidate passed synthetic differential checks; no native proving speed gain was measured.** Final 0.960794 s / 19,804 KiB RSS, seed2026101237, one pinned nice19 Core Ultra 9 185H thread; 59-second wall/CPU, 512-MiB address-space caps and 32-MiB estimated memory. Thirty-six fixtures cover leading axes0..3 and token bits0..4 with full/base/Boolean/zero Fp2. Results:13,920 endpoints,48,720 degree0..6 sample values,188 folded states,1,316 mask-sensitive point evaluations,224 complete tail sums of those contributions,7,952 independent original-cube MLEs,36 terminals,72 arbitrary off-domain comparator checks,144 public zero-extension terminals and19 negative/refusal controls. Two intermediate passes and all matching reconstructed code pins retained; later runs add coverage and correctly lift supp_Ht over j. This is not complete native SC_SZC, an honest witness, grouped-head/P3 support validation, masked-transcript/receipt evidence or a privacy proof.",
+      "The complete ceiling is `Npositions/(Ttotal-Cmask_build_fold+Cnew)`, with ideal upper bound `Npositions/(Ttotal-Cmask_build_fold)`. No numeric accepted8B ceiling exists because total and isolated affected clocks are absent. The historical shared synthetic125M one-block/T512 RTX4070Laptop b2 profile records SC_RS0.600 s and SC_SZC7.794 s within16.864 s proving,5.77 s external witness,0.028 s serialization,0.82 s in-process byte verification and27.523873 s whole-test wall. Removing both ENTIRE prover slots bounds savings at8.394 s on that diagnostic; the mask-only saving is a subset, not an8B rate. Verifier slots0.191/0.274 s are reported separately. Startup is not isolated. The historical synthetic12-block diagnostic remains408.609226 s wall/318.22 s combined run-prover/12.15 s in-process verification/484,107,456 B, without fresh independent verification. The interrupted CLI has no terminal result; state=running is not liveness.",
+      "|Rank|Hypothesis and end-to-end scope|Prerequisites, added costs and falsification|",
+      "|1 owner|GPU SC_SZC plus recurring witness; largest measured remaining block scope.|High CUDA/memory/privacy integration; isolate both witness andSC phases. Require native samples/refusals/masked transcript/bytes and independently verified complete A/B. Enclosing or peak regression rejects.|",
+      "|3 tested|Four-reduction canonical Fp2.|Prior18.79% counted reduction scope is not time. Canonical callers,LLVM constant folding,carry/register/occupancy and native masked/frozen bytes remain open; no enclosing gain demotes.|",
+      "|4 NEW refined/tested|Two-state public causal-mask descriptor.|Moderate typed reader/total/terminal seam; O(T) state versus O(H*T\u00b2) plane, with integer predicates and allocation/dispatch. Any MLE/index/pad/future/selector/refusal/privacy/byte mismatch or peak/enclosing regression rejects.|",
+      "|5 tested|Compiled denominators.|Setup/tag/constant binding and native compiler/phase gates; prior5.923% counted multiply saving is not runtime. Stale plan or enclosing regression rejects.|",
+      "|6 owner|Fresh fixed-context resident complete-pass sweep.|Measure startup/slope/context/passes/concurrency/lag/drain/bytes/peak/independent verification with fresh masks. Recurring>20ms/new position rejects50/s for that schedule; prefill anddecode remain separate.|",
+      "Next LOCAL: symbolic supp_Ht/supp_S descriptors with exact grouped-head/P3 mapping against original-cube MLE. Include negative products of separately interpolated predicates, terminal/extension values and predicate/scratch costs. OWNER: verifier descriptor frozen/terminal/refusal byte gates, then Closure/Grouped/total/census adapters, isolated mask clocks and shared-lock complete-slot/block A/B. No heavy job queued. Rotation: GPU NTT/commitments -> lookup/softmax -> sumcheck/GKR -> memory traffic/batching -> arithmetic -> proof composition. Prior slower fusion,row-step/API,compiler/small-parent,hash-prefix/reconstruction/padding/privacy negatives preserved. Saved reports do not establish external delivery."
+    ]
+  },
+  {
+    "section": "Cycle 0038 \u2014 compact public support descriptors (2026-10-12)",
+    "retained_evidence_lines": [
+      "The two-state threshold recurrence replaces `[x<limit]` tables while preserving their exact MLE. With a limit bit1 bind lo=hi+r*(lo-hi), else hi=lo+(1-r)*(hi-lo); at axis end take lo. Completed factors are absorbed into the next hi, so Boolean endpoint readers use integer predicates and scalar selection with no per-read field MAC. Only disjoint coordinate factors compose this way. Native pad.rs already constructs some closed forms but materializes vectors; this changes representation, not the relation. Low head-slot bits encode each KV group's true prefix. Ht is tiled on LEADING coordinates and constant over all padded j. S cannot replace Ht for host/pad-zero groups. Lifted byte table VALUES repeat but SUPPORT zeros the extra leading positions. Native Q/Kv/S row-lift refusals are retained; ruling P-3 row lift is distinct from P3 private-weight scope. Frozen profile/table/challenge/degree/extension gates remain owner obligations.",
+      "The first run failed a negative control: the same challenge on every coordinate gave equal evaluations for two different grouped/flat head tables because changed cells had equal bit weight. No candidate mismatch was found. Its complete matching source/log/command/completion is retained under initial-negative-point-collision; distinct coordinate challenges correct the test and final pass. Other controls catch wrong head prefix, trailing coarse tiling, substituting S for Ht, row-lift repetition, stale/mutated values, lost extension limbs, overlap/index/shape/tile/native-lift refusals. Merging causal/support Boolean tables changes offdomain native multiplication: at t2/j3 the separate product is8 versus2 for the merged MLE. Causal/support remain separate; no whole-row, LogUp, private-table or future-score skipping is authorized.",
+      "Complete ceiling positions/(Ttotal-Csupport_build_fold_eval+Cnew), ideal upper bound positions/(Ttotal-Csupport_build_fold_eval). No numeric accepted8B ceiling exists: total and isolated affected clocks absent. Raw b2 log hash verified. Historical shared synthetic one-blockT512 RTX4070Laptop/two-thread profile remains externalwitness5.77s/prove16.864s/serialization0.028s/in-process byteverify0.82s/enclosingtest27.523873s;SC_RS0.600s/SC_SZC7.794s. Deleting BOTH WHOLE slots bounds savings at8.394s on that diagnostic; support is only a subset, not an8B rate. Verifier slots0.191/0.274s separate. Startup not isolated; recurring native witness/commit preparation also remains. Historical synthetic12block408.609226s wall/318.22combinedrun-prover/12.15in-processverify/484,107,456B lacks fresh independentverification. Reboot-interrupted CLI has no terminal result; state=running is not liveness.",
+      "|Rank|Hypothesis / end-to-end scope|Prerequisites, added cost and falsification|",
+      "|1 owner|GPU SC_SZC plus recurring witness; largest measured remaining block share.|High CUDA/memory/mask integration. Isolate both witness clocks, brackets/folds/transfers. Native samples/transcript/refusals/bytes/privacy and independent complete A/B required; enclosing/peak regression rejects.|",
+      "|3 tested|Global four-reduction canonical Fp2.|Prior18.79% counted reduction scope is not time. Canonical callers, compiler/carry/register behavior and native masked/frozen bytes open; no enclosing gain demotes.|",
+      "|4 NEW refined/tested|Public support descriptors alongside separate causal descriptor.|Remove quadratic public S/Ht vectors and dense folds; constant field state plus integer predicates. Moderate typed driver/total/terminal/extension integration. Any MLE/map/profile/pad/host/future/extension/refusal/byte/privacy mismatch, peak regression or added-cost dominance rejects.|",
+      "|5 tested|Compiled Unit/Neg/Scale denominators.|Preparation/tag binding/native compiler costs; prior5.923% counted multiply saving is not time. Stale plan or enclosing regression rejects.|",
+      "|6 owner|Fresh fixed-context resident complete-pass startup/slope/lag/drain sweep.|Measure workload/context/passes/bytes/peak/independent verification, fresh masks. Recurring>20ms/new position rejects50/s for that schedule; long prefill T\u00b2 and authenticated decode remain separate.|",
+      "|7 architecture, refined filter|Structured PCS/GPU NTT/composition; projective basis demoted pending native affected shares.|Field/layout/query/hiding/state/soundness migration and extra sumchecks. New enclosing-WHIR negative prevents adopting binding-only claims; original-cube final oracle required.|",
+      "Six LIVE primary records appended;209total. New [projective-WHIR author negative](https://github.com/Plonky3/Plonky3/pull/1949) reports faster binding with enclosing loss/parity;[issue1890](https://github.com/Plonky3/Plonky3/issues/1890) closesSep4. This is author evidence, not reproduced here; native64bit/Fp2 affected shares differ. Newly assessed older [JaggedPCS](https://eprint.iacr.org/2025/917) receivedMay21 2025/revisedApr13 2026 gives a structured public-indexing architecture lead with extra reduction/PCS/privacy obligations; metadata/abstract inspected, PDF403 prevents a full audit. [Oct8 resettable-NIZK revision](https://eprint.iacr.org/2026/1036) is a fresh-randomness filter for resident proving, not an adopted compiler. [Plonky3v0.8.0](https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0) Sep23 is pinned by inspected version/CHANGELOG diff commit a21e3ed42905040ad49c519e402f018381c12d0c; no arithmetic diff. Jolt MLE traits refreshed with undated doc qualification; JoltMIT terms and Plonky3Apache terms plus MIT-or-Apache manifest inspected. April17 projective paper refreshed alongside the negative. No author performance reproduced. Commit InternalError/Cachemiss andPDF403 blockers retained; exactURLs/date/license/commit scopes in source-records.json, no source-page text retained.",
+      "Actual seams: private_block/argument.rs Tab68/B::supp810/tile_rep835/build338/run447/verify613, pad.rs48/132/335,shape.rs257/883,witness.rs211 and grouped.rs99/149/175. [Evidence and uncompiled unapplied Rust sketch](experiments/support-descriptor-20261012/README.md) \u00b7 [Owner handoff](handoffs/20261012-support-descriptor.md). Typed readers require explicit original cube size/table order, BOTH closure/grouped rounds, generic private total, diagnostics/finals and public extensions. Descriptor is immutable during part scans, bound once after reduction. Empty dense placeholders are invalid. No production patch/merge or native-gate claim. Preserve slower native fusion, row-step/API inflation, small-phase/compiler/hash-prefix/LRU/reconstruction/padding/privacy negatives.",
+      "Next LOCAL: heterogeneous public/dense-table driver with explicit cube size; keep separate causal/support MLEs through generic total, all samples, final order and public extensions; independent original-cube oracle and deliberately inconsistent synthetic planes. Complement, do not duplicate owned native masked-transcript tests. OWNER: admitted-shape verifier descriptor/terminal/refusal/frozen-byte gate, then both drivers; isolate constructor/reader/fold/final clocks before guarded complete-slot/block A/B and fresh independent verification. No heavy job queued. Rotation: sumcheck/GKR -> memorytraffic/batching -> arithmetic -> proofcomposition -> GPU NTT/commitments -> lookup/softmax. Reports saved locally are not message delivery evidence."
+    ]
+  },
+  {
+    "section": "Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "retained_evidence_lines": [
+      "retained separately and produced no result. All prior scientific negatives stand.",
+      "Complete ceiling: `Nproved/(Ttotal-Cpublic_build_fold+Cnew)`; ideal upper bound",
+      "`Nproved/(Ttotal-Cpublic_build_fold)`. No numeric accepted 8B ceiling without",
+      "| Rank | Hypothesis / end-to-end scope | Prerequisites, added cost and falsification |",
+      "| 1 owner | GPU SC_SZC plus recurring witness; largest measured remaining scope. | CUDA/memory/privacy integration; measure both witness builds and SC shares. Native masked/frozen/refusal parity and independently verified complete A/B. Enclosing/peak regression rejects. |",
+      "| 3 tested | Four-reduction canonical Fp2. | Prior 18.79% counted reduction scope is not time. Canonical callers, constant folding, carry/register/occupancy and native masked/receipt gates open. No enclosing gain demotes. |",
+      "| 4 NEW refined/tested | Heterogeneous public/dense driver, separate causal/support descriptors. | Moderate total/Closure/Grouped/census/verifier/extension work; dispatch and predicates cost. Synthetic full algebra passes; optimized native grouped and masked proofs untested. Any semantic/privacy mismatch or extra-cost dominance rejects. |",
+      "| 5 tested | Compiled denominators. | Per-proof plan/tag allocation; prior 5.923% counted multiplication saving is not time. Native compiler/phase/byte gates; stale plan or enclosing regression rejects. |",
+      "| 6 owner | Fresh fixed-context resident complete-pass startup/slope/lag/drain sweep. | Context, passes, concurrency, recurring costs, bytes, peaks and independent verification with fresh masks. Recurring >20 ms/new proved position rejects 50/s for that schedule. Prefill T\u00b2 and decode state remain separate. |",
+      "| 7 NEW architecture filter | Older Sparrow data-parallel low-space GKR/sumcheck. | Actual transformer topology, recomputation/commitment costs, field/transcript/query and joint privacy derivation. High migration cost; unsupported topology or no full-cost gain rejects. |",
+      "| 8 retained | Structured PCS/GPU NTT/composition. | Retain Jagged indexing and projective enclosing-negative filters; author/kernel rates never imply model rate. No transcript/PCS/ruling migration authorized. |",
+      "Next LOCAL: heterogeneous GroupedEqRounds, per-group actual recovery, zero",
+      "Next OWNER: admitted-shape descriptor/verifier/terminal/refusal/frozen bytes,"
+    ]
+  },
+  {
+    "section": "Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "retained_evidence_lines": [
+      "failed. Prior scientific negatives, including slower native fusion, tiny phase",
+      "ceilings, compiler/cache/residency tradeoffs and privacy gaps, remain.",
+      "Complete ceiling:`Nproved/(Ttotal-Cpublic_build_fold+Cnew)`; ideal upper bound",
+      "removes only affected work. No accepted private8B numeric ceiling. Historical",
+      "| Rank | Hypothesis / scope | Prerequisites, added costs and falsification |",
+      "|1 owner|GPU SC_SZC plus recurring witness, largest measured remaining scope.|Exact CUDA/memory/native privacy work; duplicate witness phases need clocks. Complete masked/frozen/refusal A/B with independent verification; enclosing/peak regression rejects.|",
+      "|3 tested prior|Four-reduction canonical Fp2.|Counts not time; canonical provenance,carries/register/compiler/masked gates. No enclosing gain demotes.|",
+      "|4 NEW refined/tested|Mixed public descriptors preserve GroupedEqRounds.|Moderate reader/total/census/extension/verifier/parallel work; overhead unknown. Synthetic original-cube checks pass; native wire/privacy mismatch or no enclosing gain rejects.|",
+      "|5 owner|Fresh fixed-context resident complete-pass startup/slope/lag/drain.|Record context,passes,concurrency,all recurring clocks/bytes/peaks and independent verification with fresh masks. Recurring>20ms/new proved position rejects50/s for that schedule.|",
+      "|6 NEW local question|Per-proof cached split-Eq suffix levels.|Native rebuilds each round; cached hierarchy may save construction at extra retained/free traffic. Price whole affected phase; short/offset/zero supports and keyed public state must match original cube. Stale key/no net gain rejects.|",
+      "|7 NEW older architecture filter|deVirgo same-shape independent-copy batching.|Independent contexts may fit; attention positions within a context are coupled. One-GPU arithmetic persists; copy-index/PCS/verifier and full joint hiding derivation added. High migration; topology mismatch or extra-cost dominance rejects.|",
+      "|8 retained|Compiled denominators, structured PCS, GPU NTT/composition.|No new basis/PCS/ruling authorized; preserve prior enclosing negatives. Author/kernel speeds do not imply full-model rate.|",
+      "Next LOCAL: per-proof split-Eq suffix-cache construction/retention/traffic and",
+      "original-cube checks for short/offset/zero domains. Next OWNER: native"
+    ]
+  },
+  {
+    "section": "Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "retained_evidence_lines": [
+      "pins still match; new mle.rs source pin. Prior findings and negatives retained.",
+      "Complete ceiling:`Nproved/(Ttotal-Ceq_preparation+Ccache_build_read_free)`;",
+      "numeric accepted private8B ceiling unknown. Native affected-phase clocks are",
+      "costs/peak/enclosing regression. Existing smaller-phase,slower native fusion,",
+      "compiler,cache/residency and privacy negatives remain.",
+      "| Rank | Hypothesis | Prerequisite,added cost and rejection condition |",
+      "|2 owner|Exact full-K int16 down.|Packing,two products,i64/requant/workspace/transfers,range/calibration and native clocks;no readiness gain rejects.|",
+      "|4 tested prior|Mixed public descriptors retain grouped driver.|Native build/reader/total/census/extensions/verifier/parallel costs;no enclosing gain rejects.|",
+      "|5 owner|Fresh fixed-context resident complete-pass workload slope.|Context/passes/concurrency,startup,all recurring clocks/lag/drain/peaks and independent verification;>20ms/new proved position rejects50/s for that schedule.|",
+      "|6 NEW next local|Collapse trailing-j repetition in lifted Ht host group.|Actual row-lift provenance,original-cube/extension/zero-factor and sabotaged-lift checks;keep all other groups/future-score constraints. Underbinding/refusal mismatch or tiny priced share rejects.|",
+      "|7 NEW tested/demoted as main lever|Per-proof Eq suffix hierarchy.|Small sublinear construction savings,extra peak and different locality;native costs unknown, any mismatch/no enclosing gain rejects.|",
+      "Next LOCAL:Ht host group constant-axis test with native row-lift provenance,",
+      "bracket share. Next OWNER:dominant SZC/witness clocks and native mixed-reader"
+    ]
+  },
+  {
+    "section": "Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "retained_evidence_lines": [
+      "Complete ceiling Nproved/(Ttotal-Cht_round+Cnew); native Cht clock absent,",
+      "no accepted8B numeric ceiling. Historical shared synthetic one-block125M/T512/",
+      "work;7.794s broad envelope is not credited to this candidate. Existing slower",
+      "native fusion and smaller-phase/compiler/residency/privacy negatives remain.",
+      "| Rank | Hypothesis | Prerequisites, new costs and falsification |",
+      "| 1 owner | GPU SC_SZC and recurring witness | Dominant measured scope. Exact CUDA/lifetimes, masked/frozen/refusal gates; isolate duplicated witness and native recurring clocks. Independent complete enclosing A/B; regression rejects. |",
+      "| 2 owner | Exact full-K split-int16 down | Packing/two products/i64/requant/workspace/transfers; range/calibration/device checks and isolated share. No readiness gain rejects. |",
+      "| 4 tested prior | Mixed public grouped adapter | Native reader/total/census/extension/verifier/parallel costs. Full original-cube and masked/frozen privacy gates, no enclosing gain rejects. |",
+      "| 5 owner | Fresh fixed-context complete resident-pass workload slope | Context/passes/concurrency/startup, recurring clocks/lag/drain/peaks, fresh masks and independent verification. >20ms/new proved position rejects50/s for that schedule. |",
+      "| 6 NEW next local | Compact private A_MX/A_SUM leading lifts in actual mixed grouped driver | Extends earlier static typed-reader tests to current round/bind/finals. Immutable native Cm/coords/site/ext-round provenance; arbitrary private masks/extensions and off-domain checks. Added O(Ht) state, dispatch/reader/constructor costs; underbinding or enclosing regression rejects. |",
+      "| 7 NEW tested modest | Ht host multiplicity | 2.87% selected mul-count removal, extra524512B payload. Native Cht share/provenance/parallel/masked gates unmeasured; invalid lift or no enclosing gain rejects. |",
+      "fresh masks/full coverage/privacy. Next local compact private leading reader;",
+      "next owner dominant SZC/witness instrumentation and native masked mixed gates."
+    ]
+  },
+  {
+    "section": "Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "retained_evidence_lines": [
+      "End-to-end ceiling `Nproved/(Ttotal-Cmxsum_build_fold+Creader_integration)`;",
+      "no accepted private8B numeric ceiling. Historical shared synthetic one-block",
+      "regression. Preserve previous native slower fusion, smaller-phase/compiler/",
+      "cache/residency and privacy negatives. No security ruling changed.",
+      "|Rank|Hypothesis|Prerequisites, added costs and falsification|",
+      "|1 owner|GPU SZC + recurring witness|Dominant measured scope; high CUDA/lifetime work, duplicated witness census, masked/frozen/refusal and independently verified complete A/B. Regression rejects.|",
+      "|2 owner|Exact full-K int16 down|Packing/two products/i64/requant/workspace/transfers, ranges/calibration/device share; no enclosing gain rejects.|",
+      "|4 NEW refined/tested|Mixed public + compact private leading planes|Moderate source/reader/census/extension/verifier/parallel port; conditional127.75MiB payload saving but unpriced shifts. False provenance or no peak/enclosing gain rejects.|",
+      "|5 owner|Fresh fixed-context complete resident-pass slope|Startup/shape/passes/concurrency/recurring clocks/lag/drain/peak, fresh masks and independent verification; recurring>20ms/new proved position rejects50/s for that schedule.|",
+      "|6 NEW next local|Eq0/1/2 unused row-dependency elision in current mixed grouped adapter|Extend cycle29/30 symbolic Eq tests. Native bracket does not read those slots; immutable dependency provenance, generic total/census, original point finals/public-zero extensions. Unsupported closures, hidden per-row products or any parity/refusal/masked/peak/enclosing mismatch reject.|",
+      "quadratic attention,fresh masks/full privacy/coverage required. NextLOCAL",
+      "current grouped unused Eq dependency test;nextOWNER dominant SZC/recurring"
+    ]
+  },
+  {
+    "section": "Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "retained_evidence_lines": [
+      "accepted private8B ceiling unknown, Eq native clocks absent. Historical",
+      "costs;6NEW next exact native power-of-two twiddle shift filter;7modest Ht/suffix;",
+      "8lookup/GKR/composition/PCS. Detailed prerequisites/costs/ceilings/falsification",
+      "Prior slower fusion/compiler/reconstruction/small-phase/cache/privacy negatives",
+      "Next LOCAL:actual generator7 twiddle classification, canonical shift/carry and",
+      "fallback and cost counts. Next OWNER:dominantSZC/witness plus Eqaffected/"
+    ]
+  },
+  {
+    "section": "Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "retained_evidence_lines": [
+      "Legacy q>n negative reconfirms an already repaired owner path, not a new bug.",
+      "private8B numericceiling without actual affected clocks. Reject changed native",
+      "README records baseline/eliminated/added/ceiling/prerequisite/exactness/privacy/",
+      "falsification for each. Prior negatives remain. Next LOCAL:SC_SZC lookup/table",
+      "reciprocal vs occurrence census and zero/refusal controls; nextOWNER:compile",
+      "Progress files saved; not notification evidence. Rotationlookup/softmax next,"
+    ]
+  },
+  {
+    "section": "Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census",
+    "retained_evidence_lines": [
+      "Early STATE saved03:27:23UTC; previous findings and negatives preserved.",
+      "numeric ceiling: Nproved/(Ttotal-Cpair_old+Cplan+Creads+Cfallback+Cscatter).",
+      "Ranked queue (full costs/prerequisites/exactness/privacy/falsification in README):",
+      "3NEW nextlocal source-derived whole bracket row coefficients/Horner or finite",
+      "actual peak failure or enclosing regression falsifies. Large architecture",
+      "fullcoverage required. NextLOCAL:row polynomial coefficient pricing and exact",
+      "original-cube checks;nextOWNER:dominantSC_SZC/witnessclocks. Rotationsumcheck/",
+      "arithmetic next,thencomposition,memory/batching,GPUcommitments/lookup."
+    ]
+  },
+  {
+    "section": "Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "retained_evidence_lines": [
+      "points,948 generic denominators (empty/multiple terms,aliases,zero/negative/",
+      "runtime/instructions/DRAM/end-to-end ceilings. Both census arms retain native",
+      "Useful negatives: initial all-coefficient version passes algebra but increases",
+      "ceiling `N/(T-C_repeated_bracket+C_coefficients+C_horner+C_scratch+C_dispatch)`.",
+      "|4 NEW local next|Suffix-weighted coefficient accumulation before unchanged samples; charge five coefficient weights versus four/five sample weights, part reduction/Horner/scratch/setup. Reject higher total cost or any exact sample/recovery/zero-factor/final mismatch.|",
+      "|6 workload|Fresh resident complete-pass startup/slope; measure context/pass/concurrency, lag/drain/serialization/verification and fresh masks. Recurring cost>20ms/new proved position falsifies50/s for that schedule.|",
+      "|7 demoted|Bounded pair fallback remains a memory/robustness candidate with only0.716% prior phase-removal ceiling.|",
+      "Rotation next: composition, memory/batching, GPU commitments, lookup/arithmetic.",
+      "Next LOCAL: coefficient accumulation against this hybrid with independent cube",
+      "and every coefficient weight/part reduction/setup/Horner/scratch cost. Next"
+    ]
+  },
+  {
+    "section": "Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "retained_evidence_lines": [
+      "Earlier findings/negative results remain append-only and snapshotted.",
+      "Useful negative: unconditional singleton reduction has equal algebra but adds",
+      "later CLI saved state does not imply liveness. Actual complete ceiling:",
+      "|Rank|Hypothesis, costs, prerequisites and falsification|",
+      "|1 owner|GPU dominantSC_SZC+recurring witness; high CUDA/memory cost. Measure both witness paths and actual complete/peak/receipt/fresh-verifier scope; reject mismatch or enclosing regression.|",
+      "|2 tested chain|Selective row factory+weighted coefficient reduction; moderate fixed-array/typed driver and compiled-plan prerequisite. Charge convolution,extra weights,scratch/reduction/Horner. Reject native sample/final/refusal/privacy/bytes/RNG/PCS mismatch or slower enclosing workload.|",
+      "|3 NEW local next|Public-axis specialization: use actual mask/support dependency metadata to simplify row construction on structurally constant leading axes. Charge public dispatch/carriers; retain fixed declared outputs/all samples and original folds/finals. Reject private-value branch, extension-oracle mismatch or larger setup/count/peak.|",
+      "|5 workload|Fresh resident complete-pass slope: context/pass/concurrency,startup fraction,latency/lag/drain,serialization/independent verification. Complete recurring cost>20ms/new proved position rejects50/s for schedule; no mask/opening reuse.|",
+      "formal verification/security claims not reproduced. Rotation next memory/",
+      "NextLOCAL: actual public-axis dependency row-factory specialization with",
+      "extension/counter controls. NextOWNER: native fixedarrays,masked/refused/frozen/"
+    ]
+  },
+  {
+    "section": "Cycle0049 \u2014 recovered public-axis result, reported2026-10-14",
+    "retained_evidence_lines": [
+      "Five negative controls reject forced-constant causal mask,swappedHt/S axes,"
+    ]
+  },
+  {
+    "section": "Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "retained_evidence_lines": [
+      "Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+      "Ten current native/measurement pins match cycle49; earlier negative findings",
+      "**Useful negative:** illustrative hp16/kv4/qh12/T512/3limb count drops",
+      "complete ceiling `N/(T_complete-C_products+C_add_sub_dispatch_scratch)` is",
+      "|Rank|Expected end-to-end impact, cost/compatibility and falsification|",
+      "|5 workload|Fresh resident complete-pass slope,context/pass/concurrency,startup fraction,latency/lag/drain/serialization/independent verification and fresh masks. Recurring complete cost>20ms/new proved position rejects50/s for that schedule. Long context also charges quadratic attention.|",
+      "traffic and PR2260Sep20 cryptographic mask-sampler bounds refine next gates.",
+      "Rotation next:memory/batching/GPUcommitments,lookup/softmax,quantization,",
+      "composition. Preserve earlier slower native fusion and denominator-count negatives.",
+      "NextLOCAL: static public multiplication plan3x2with independent convolution/",
+      "full-clause/cube controls and weighted costs. NextOWNER: native fixedarrays,"
+    ]
+  },
+  {
+    "section": "Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "retained_evidence_lines": [
+      "**Useful negatives:** illustrative hp16/kv4/qh12/T512/3limb removes30,670,839",
+      "ceiling `N/(T_complete - saved_product_time + added_arithmetic_schedule_time)`",
+      "The historical entireSC_SZC-removal ceiling28.317% is only an upper bound on",
+      "these counts or an8B speed estimate. Preserve prior slower native fold-fusion.",
+      "|Rank|Expected end-to-end impact, prerequisites/costs and falsifier|",
+      "|1 owner|GPU dominantSC_SZC+both recurring witness paths; highest measured phase opportunity,high CUDA/memory integration cost. Preserve exact relation,masks,refusals,receipts and fresh independent verification; reject mismatch,peak overflow or enclosing regression.|",
+      "|5 workload|Fresh resident complete-pass startup/slope; count independently verified newly proved positions,context/pass/concurrency,latency/lag/drain/serialization. Recurring completecost>20ms/new position rejects50/s for that schedule; no mask/private-opening reuse. Long context charges quadratic attention.|",
+      "code executed. Rotation next:lookup/softmax,memory reuse,quantization,GPU",
+      "NextLOCAL: whole-row public expression identity/square reuse differential and",
+      "setup/liveness census. NextOWNER: reviewed fixedarrays/full proof gates,then"
+    ]
+  },
+  {
+    "section": "Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "retained_evidence_lines": [
+      "**Useful negative:** no Fp2mul or mul_base saved. At illustrative",
+      "factory translation, subject to native measurement. Prior slower native",
+      "fusion and extra-operation negatives remain. Falsify on oracle/schema/native",
+      "**New scope finding / next local question:** can the research factory represent",
+      "Port independent optional Ht/S gate metadata and omitted-group controls next.",
+      "ceiling or a scale factor for this count saving. Synthetic12block/T512/",
+      "Actual accepted8B ceiling `N/(T_complete-saved_add_sub_time+",
+      "Ranked queue (expected end-to-end relevance, prerequisites/costs and falsifiers):",
+      "|Rank|Hypothesis and next gate|",
+      "|1 owner|GPUdominantSC_SZC plus both recurring witness paths; largest measured phase opportunity,highCUDA/memory integration. Exact masking/refusal/final/receipt/independent verification and measured peak/enclosing gain; reject mismatch/overflow/regression.|",
+      "|4 workload owner|Resident complete-pass startup/slope at fixed context and fresh masks; include both witnesses,serialization,proof lag/drain and independent verification. Recurring completecost>20ms/new proved position rejects50/s for that schedule. Long prefill chargesquadratic attention; repeatedpasses are distinct fromdecode.|",
+      "|6 demoted tested|Whole-row CSE/directsquare:no multiplication saving,only~0.53\u20130.59%API and one more modeled liveword. General interpreter is unjustified; optional direct helper only if native compiler/enclosing evidence supports it.|",
+      "nextquantization/arithmetic,GPUcommitments,composition; preserve scope filters.",
+      "message delivery or supervisor/job liveness. NextLOCAL: optional-support port",
+      "and differential/census. NextOWNER: current native profile gates,then guarded"
+    ]
+  },
+  {
+    "section": "Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "retained_evidence_lines": [
+      "End-to-end ceiling is unknown:",
+      "|Rank|Hypothesis, prerequisites and falsifier|",
+      "|4 workload owner|Complete resident-pass startup/slope at fixed context with fresh masks. Include both witnesses,serialization,verification,latency/lag/drain. Recurring cost above20ms/new proved position rejects50/s for that schedule. Long prefill charges quadratic attention;resident passes and decode are distinct.|",
+      "|6 demoted|General CSE graph saves no multiplication and only0.53\u20130.59% of old illustrative padded API operations;adds a live word and dispatch,compiler may already CSE. Model-changing sparsity/PoT or new PCS architecture needs exact relation,hiding and composition work.|",
+      "historical enclosing saving at28.317%;this is not an8B ceiling or a factor",
+      "fusion regression and all arithmetic/count/memory negatives.",
+      "correctness claim reproduced;no foreign code copied/executed. Next rotation:",
+      "Next LOCAL:four-word unpadded oracle and complete cost census. Next OWNER:"
+    ]
+  },
+  {
+    "section": "Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "retained_evidence_lines": [
+      "indexed for negative/next evidence. Latest three experiment results read.",
+      "other work;the blanket policy is demoted. A public round-zero-only selection",
+      "|Rank|Hypothesis, baseline / eliminated work / added costs / falsifier|",
+      "|1 owner|Move dominant SC_SZC and both recurring witness paths to GPU. Baseline native synthetic measurements below; remove CPU recurrence, add CUDA transfers/device storage/dispatch. Require native exact/masked/final/RNG/PCS/refusal and fresh-verifier gates; reject mismatch,overflow,peak or enclosing-time regression. Full8B ceiling unknown.|",
+      "|2 local, refined and tested|Use four coefficients only for unpadded group0 at round0; scalar evaluation after h1 recovery. Eliminates four repeated scalar brackets on that round; adds four-word construction/weighting,Horner,denominator setup and public dispatch/scratch. Counted scoped gain7.0153% versus prepared scalar at full-head T512,not time. Next: fixed straight-line factory to remove dynamic width dispatch. Reject native parity/refusal/RNG change or added costs erasing arithmetic savings.|",
+      "|3 workload owner|Measure resident complete passes at fixed context with fresh masks and full coverage. Baseline startup/slope unmeasured. Eliminate only actually reusable model/public setup; add residency/cache validation,all per-proof masks,lag/drain and verifier costs. Recurring wall above20ms/new proved position rejects50/s for that schedule. Long prefill and decode require separate measurements and state binding.|",
+      "|4 owner|Exact full-K split-int16 FFN-down witness. Remove slow scalar products; add packing,two products,i64 recombination,exact requant/refusal,transfer and scratch. Require integer/native receipt parity and lower enclosing time; affected fraction/8B ceiling unknown.|",
+      "|Demoted|Blanket unpadded cubic construction after recovery: on three-limb full-head axes it adds22 Fp2mul per row versus prepared scalar (33 on moving mask axes),while saving10/9 mul_base and adding other work. Keep negative. Prior native fold fusion was1.66% slower mean prove/10.38% slower softmax; prior CSE,twiddle,memory and arithmetic negatives remain. Dory/Fold-DCS/binary-field architectures need new relation/hiding/composition work.|",
+      "imply that fraction of phase time. Complete8B ceiling remains",
+      "No foreign code was copied/executed,installed or benchmarked. Next rotation:",
+      "Next LOCAL:fixed public straight-line unpadded round0 factory with independent",
+      "sample/counter/lifetime checks. Next OWNER:native/profile/privacy/refusal/RNG/",
+      "Reports do not imply delivery or liveness. Prior findings and negatives retained."
+    ]
+  }
+]

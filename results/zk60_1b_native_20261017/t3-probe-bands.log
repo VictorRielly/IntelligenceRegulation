@@ -1,0 +1,178 @@
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/private-block-kernel-shaped)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:742:13
+    |
+742 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `tinyllama_t32_dev` is never used
+   --> src/private_block/run.rs:125:19
+    |
+ 91 | impl RunShape {
+    | ------------- associated function in this implementation
+...
+125 |     pub(crate) fn tinyllama_t32_dev(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^^^^^^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 16 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 39s
+     Running unittests src/lib.rs (ops/zkp-mvp/trained-1b/hashline/target/release/deps/hashline-a876d33e95d2a941)
+
+running 1 test
+test private_block::trained_calib_tests::native_probe_the_trained_dense_bands ... PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 4 gate 8: OK y_a 15 y_m 24 q8 9 k8 9 s8 3 o8 6 ao 7 g8 31 u16 4552 h16 698 z16 139 x2 6067
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 4 gate 12: OK y_a 15 y_m 24 q8 9 k8 9 s8 3 o8 6 ao 7 g8 43 u16 5272 h16 1735 z16 361 x2 6178
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 4 gate 16: OK y_a 15 y_m 24 q8 9 k8 9 s8 3 o8 6 ao 7 g8 55 u16 7263 h16 2492 z16 576 x2 6300
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 4 gate 24: OK y_a 15 y_m 24 q8 9 k8 9 s8 3 o8 6 ao 7 g8 89 u16 11188 h16 9048 z16 1432 x2 6775
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 6 gate 8: OK y_a 15 y_m 24 q8 13 k8 13 s8 5 o8 9 ao 11 g8 31 u16 4559 h16 699 z16 138 x2 6067
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 6 gate 12: OK y_a 15 y_m 24 q8 13 k8 13 s8 5 o8 9 ao 11 g8 43 u16 5267 h16 1737 z16 363 x2 6178
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 6 gate 16: OK y_a 15 y_m 24 q8 13 k8 13 s8 5 o8 9 ao 11 g8 55 u16 7260 h16 2496 z16 576 x2 6301
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 6 gate 24: OK y_a 15 y_m 24 q8 13 k8 13 s8 5 o8 9 ao 11 g8 89 u16 11166 h16 9052 z16 1423 x2 6771
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 8 gate 8: OK y_a 15 y_m 24 q8 16 k8 19 s8 8 o8 11 ao 19 g8 31 u16 4556 h16 699 z16 140 x2 6068
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 8 gate 12: OK y_a 15 y_m 24 q8 16 k8 19 s8 8 o8 11 ao 19 g8 43 u16 5272 h16 1735 z16 364 x2 6178
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 8 gate 16: OK y_a 15 y_m 24 q8 16 k8 19 s8 8 o8 11 ao 19 g8 55 u16 7265 h16 2473 z16 575 x2 6302
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 8 gate 24: OK y_a 15 y_m 24 q8 16 k8 19 s8 8 o8 11 ao 19 g8 89 u16 11167 h16 9048 z16 1428 x2 6773
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 12 gate 8: OK y_a 15 y_m 24 q8 25 k8 24 s8 17 o8 14 ao 41 g8 31 u16 4540 h16 696 z16 140 x2 6060
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 12 gate 12: OK y_a 15 y_m 24 q8 25 k8 24 s8 17 o8 14 ao 41 g8 43 u16 5249 h16 1735 z16 369 x2 6182
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 12 gate 16: OK y_a 15 y_m 24 q8 25 k8 24 s8 17 o8 14 ao 41 g8 55 u16 7279 h16 2528 z16 571 x2 6297
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 12 gate 24: OK y_a 15 y_m 24 q8 25 k8 24 s8 17 o8 14 ao 41 g8 89 u16 11184 h16 9055 z16 1432 x2 6763
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 16 gate 8: OK y_a 15 y_m 24 q8 33 k8 32 s8 40 o8 26 ao 74 g8 31 u16 4524 h16 694 z16 138 x2 6080
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 16 gate 12: OK y_a 15 y_m 24 q8 33 k8 32 s8 40 o8 26 ao 74 g8 43 u16 5227 h16 1740 z16 366 x2 6168
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 16 gate 16: OK y_a 15 y_m 24 q8 33 k8 32 s8 40 o8 26 ao 74 g8 55 u16 7261 h16 2471 z16 573 x2 6295
+PROBE hashline-zk-mr1/private-block-rung-tc-t32-dev/1 attn 16 gate 24: OK y_a 15 y_m 24 q8 33 k8 32 s8 40 o8 26 ao 74 g8 90 u16 11164 h16 9057 z16 1442 x2 6778
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 4 gate 8: OK y_a 13 y_m 21 q8 22 k8 18 s8 13 o8 16 ao 18 g8 65 u16 8255 h16 5166 z16 2411 x2 7440
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 4 gate 12: OK y_a 13 y_m 21 q8 22 k8 18 s8 13 o8 16 ao 18 g8 100 u16 12740 h16 8207 z16 4721 x2 9365
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 4 gate 16: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 4 gate 24: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 6 gate 8: OK y_a 13 y_m 21 q8 29 k8 26 s8 27 o8 19 ao 33 g8 65 u16 8257 h16 5265 z16 2402 x2 7432
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 6 gate 12: OK y_a 13 y_m 21 q8 29 k8 26 s8 27 o8 19 ao 33 g8 100 u16 12816 h16 8210 z16 4725 x2 9400
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 6 gate 16: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 6 gate 24: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 8 gate 8: OK y_a 13 y_m 21 q8 43 k8 36 s8 42 o8 28 ao 55 g8 65 u16 8288 h16 5162 z16 2396 x2 7423
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 8 gate 12: OK y_a 13 y_m 21 q8 43 k8 36 s8 42 o8 28 ao 55 g8 100 u16 12815 h16 8262 z16 4731 x2 9374
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 8 gate 16: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 8 gate 24: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 12 gate 8: OK y_a 13 y_m 21 q8 62 k8 49 s8 102 o8 44 ao 113 g8 65 u16 8239 h16 5213 z16 2407 x2 7421
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 12 gate 12: OK y_a 13 y_m 21 q8 62 k8 49 s8 102 o8 44 ao 113 g8 99 u16 12788 h16 8374 z16 4732 x2 9436
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 12 gate 16: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 12 gate 24: REFUSED fixed oracle range refusal: FFN gate
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 16 gate 8: REFUSED fixed oracle range refusal: score
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 16 gate 12: REFUSED fixed oracle range refusal: score
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 16 gate 16: REFUSED fixed oracle range refusal: score
+PROBE hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1 attn 16 gate 24: REFUSED fixed oracle range refusal: score
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 536 filtered out; finished in 117.10s
+

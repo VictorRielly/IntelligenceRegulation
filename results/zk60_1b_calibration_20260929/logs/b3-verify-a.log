@@ -1,0 +1,16 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/a_export_T32",
+ "layers": 22,
+ "sequences": {
+  "seq_ho00": {
+   "layers_bit_exact": 22,
+   "tokens": 32
+  },
+  "seq_ho01": {
+   "layers_bit_exact": 22,
+   "tokens": 32
+  }
+ },
+ "errors": [],
+ "ok": true
+}

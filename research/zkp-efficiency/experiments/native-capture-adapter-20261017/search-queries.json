@@ -1,0 +1,33 @@
+{
+  "mechanism": "tools.web__run native LIVE search",
+  "access_utc": "2026-10-17T07:33:18.754627+00:00",
+  "queries": [
+    [
+      "site.eprint.iacr.org 2026 lookup arguments private tables GPU softmax quantization",
+      "site.github.com zero knowledge transformer proof quantization softmax 2026 sumcheck release",
+      "site.eprint.iacr.org \"2026\" \"zero-knowledge\" \"composition\" sumcheck",
+      "site.eprint.iacr.org lookup arguments \"2019\" \"2020\" log derivative"
+    ],
+    [
+      "\"Revisiting Witness-Succinct UC-lifting Compilers\" \"2026\"",
+      "\"zkTransformer\" \"StructuredExp\" October 2026"
+    ],
+    [
+      "site.eprint.iacr.org \"TenseUp\" \"2026\" Pappas",
+      "site.github.com \"zkTransformer\" \"commit\" \"StructuredExp\"",
+      "site.eprint.iacr.org \"Batching-Efficient RAM\" implementation github"
+    ]
+  ],
+  "blocked_discoveries": [
+    {
+      "url": "https://eprint.iacr.org/2026/2453",
+      "pdf": "https://eprint.iacr.org/2026/2453.pdf",
+      "result": "Both primary pages inaccessible; mirror/search discovery only. October12 update is mirror metadata,not independently verified primary publication. No technical claim adopted."
+    },
+    {
+      "url": "https://eprint.iacr.org/2026/2435",
+      "result": "Two primary open attempts inaccessible. TenseUp mirror/discovery only; October10 update not primary-verified. No technical claim adopted."
+    }
+  ],
+  "rotation": "lookup/softmax, exact nonlinear/quantization, proof composition completed; next memory traffic and GPU sumcheck input/dependency metadata; no architecture migration authorized"
+}

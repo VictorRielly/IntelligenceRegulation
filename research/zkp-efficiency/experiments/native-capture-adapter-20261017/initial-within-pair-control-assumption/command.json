@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/native-capture-adapter-20261017/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "start_utc": "2026-10-17T07:30:29.999413+00:00",
+  "timeout_seconds": 60,
+  "source_sha256": {
+    "adapter.py": "f507de29b61eb2670d7532c825076c4a7701495b04c39e7778132215376dfcba",
+    "experiment.py": "3b27258e560b30a2d5b6f94e744238cf3385a9d1d42f904f70ee72606050f04f",
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "generate.py": "9fd7a8467f6b1ebc57300280b07a61c855a30973a278831f486b22c41041a52e",
+    "native_fixture.py": "e290445f5c0d6b3006f2ea8fc076f9cc605f8134f8ac4fb5e09c017bc2be96ca",
+    "reference.py": "61420908dd6841c2b2dc3a0c9920e0d4840c490a401572ed7d4674e762cb288b",
+    "run.py": "70ac9c9eb2c723c15659f67b924f8d943dd32f5cb51d73a4672b2f03bbdb451e",
+    "scheduler.py": "103cad5c2bcdcf8b7b1d4792f342dcaf69b1084434a44ae6ee6083e8a7b4ac5f",
+    "source_port.py": "2e31f19a567b9341ccdd313595f0ebbc34d7f4790b548bb91f06eed41e024d5e"
+  }
+}

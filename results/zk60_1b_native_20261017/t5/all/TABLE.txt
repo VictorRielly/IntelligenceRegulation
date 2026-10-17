@@ -1,0 +1,23 @@
+L1 parity=bit-exact prove=3.780 s seg=11627288 hwm=883 verify=ok 0.286 
+L2 parity=bit-exact prove=3.377 s seg=11627288 hwm=884 verify=ok 0.350 
+L3 parity=bit-exact prove=3.535 s seg=11627288 hwm=883 verify=ok 0.340 
+L4 parity=bit-exact prove=3.452 s seg=11627288 hwm=890 verify=ok 0.399 
+L5 parity=bit-exact prove=4.196 s seg=11627288 hwm=889 verify=ok 0.329 
+L6 parity=bit-exact prove=4.237 s seg=11627288 hwm=882 verify=ok 0.319 
+L7 parity=bit-exact prove=3.957 s seg=11627288 hwm=895 verify=ok 0.330 
+L8 parity=bit-exact prove=4.120 s seg=11627288 hwm=882 verify=ok 0.339 
+L9 parity=bit-exact prove=3.789 s seg=11627288 hwm=881 verify=ok 0.384 
+L10 parity=bit-exact prove=3.741 s seg=11627288 hwm=887 verify=ok 0.312 
+L11 parity=bit-exact prove=4.170 s seg=11627288 hwm=883 verify=ok 0.308 
+L12 parity=bit-exact prove=3.867 s seg=11627288 hwm=885 verify=ok 0.298 
+L13 parity=bit-exact prove=3.800 s seg=11627288 hwm=880 verify=ok 0.344 
+L14 parity=bit-exact prove=3.227 s seg=11627288 hwm=883 verify=ok 0.330 
+L15 parity=bit-exact prove=3.991 s seg=11627288 hwm=884 verify=ok 0.299 
+L16 parity=bit-exact prove=3.507 s seg=11627288 hwm=874 verify=ok 0.328 
+L17 parity=bit-exact prove=3.433 s seg=11627288 hwm=883 verify=ok 0.274 
+L18 parity=bit-exact prove=3.612 s seg=11627288 hwm=873 verify=ok 0.336 
+L19 parity=bit-exact prove=3.571 s seg=11627288 hwm=884 verify=ok 0.396 
+L20 parity=bit-exact prove=3.911 s seg=11627288 hwm=872 verify=ok 0.322 
+L21 parity=bit-exact prove=3.735 s seg=11627288 hwm=879 verify=ok 0.314 
+
+[exited with code 0]

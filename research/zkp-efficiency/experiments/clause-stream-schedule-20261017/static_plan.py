@@ -1,0 +1,147 @@
+"""Public straight-line multiplication plans. Synthetic single-thread harness.
+
+No coefficient value is examined by the planner. The SSA interpreter is an
+accounting/validation implementation; native unrolling and register cost are owed.
+"""
+from collections import Counter
+from dataclasses import dataclass
+import hashlib,json
+import coefficients
+from coefficients import Coeff
+from field_support import F
+from axis_factory import AxisPlan
+from prepared import Plan,generalize
+
+
+@dataclass(frozen=True)
+class MulPlan:
+    widths: tuple
+    family: str
+    instructions: tuple
+    outputs: tuple
+    counts: tuple
+    peak_temporaries: int
+
+    def execute(self,a,b,counts,mutation=None):
+        # No dimension/width dispatch in this replay; public preflight owns it.
+        values=list(a)+list(b)
+        for kind,i,j in self.instructions:
+            x,y=values[i],values[j]
+            if mutation=='wrong_sign' and kind=='sub':kind='add'
+            counts[kind]+=1
+            values.append(x*y if kind=='mul' else x+y if kind=='add' else x-y)
+        out=[values[i] for i in self.outputs]
+        if mutation=='dropped_tail' and self.family=='blocked32':out[-1]=F()
+        return Coeff(out)
+
+    def record(self):
+        return dict(widths=self.widths,family=self.family,instructions=self.instructions,
+                    outputs=self.outputs,counts=dict(self.counts),peak_temporaries=self.peak_temporaries,
+                    logical_ssa_bytes=4*(len(self.instructions)*3+len(self.outputs)),
+                    interpreter_retained_field_words=sum(self.widths)+len(self.instructions))
+
+
+def compile_mul(la,lb,blocked=True):
+    assert 1<=la<=5 and 1<=lb<=5
+    ops=[];counts=Counter();ninputs=la+lb
+    def op(kind,i,j):
+        out=ninputs+len(ops);ops.append((kind,i,j));counts[kind]+=1;return out
+    aa=list(range(la));bb=list(range(la,la+lb));family='schoolbook'
+    if (la,lb)==(2,2) or blocked and (la,lb) in ((3,2),(2,3)):
+        if la==2 and lb==3:aa,bb=bb,aa
+        p0=op('mul',aa[0],bb[0]);p2=op('mul',aa[1],bb[1])
+        sa=op('add',aa[0],aa[1]);sb=op('add',bb[0],bb[1])
+        cross=op('sub',op('sub',op('mul',sa,sb),p0),p2)
+        outputs=[p0,cross,p2];family='affine22'
+        if len(aa)==3:
+            outputs[2]=op('add',p2,op('mul',aa[2],bb[0]))
+            outputs.append(op('mul',aa[2],bb[1]));family='blocked32'
+    else:
+        outputs=[None]*(la+lb-1)
+        for i,a in enumerate(aa):
+            for j,b in enumerate(bb):
+                p=op('mul',a,b)
+                outputs[i+j]=p if outputs[i+j] is None else op('add',outputs[i+j],p)
+    # Liveness of the immutable SSA schedule with immediate dead-value release.
+    # This is a model, not the interpreter's retained list or native registers.
+    uses=Counter(x for _,i,j in ops for x in (i,j));uses.update(outputs)
+    live=set();peak=0
+    for k,(_,i,j) in enumerate(ops,ninputs):
+        live.add(k);peak=max(peak,len(live))
+        for x in (i,j):
+            uses[x]-=1
+            if not uses[x]:live.discard(x)
+    return MulPlan((la,lb),family,tuple(ops),tuple(outputs),tuple(sorted(counts.items())),peak)
+
+
+ORIGINAL_MULTIPLY=Coeff.multiply
+ACTIVE=None
+
+def planned_multiply(self,other,counts):
+    other=Coeff.lift(other)
+    if ACTIVE is None:return ORIGINAL_MULTIPLY(self,other,counts)
+    if ACTIVE['mode']=='trace':
+        ACTIVE['widths'].append((len(self.c),len(other.c)))
+        return ORIGINAL_MULTIPLY(self,other,counts)
+    p=next(ACTIVE['iterator'])
+    ACTIVE['work']['plan_cursor_steps']+=1
+    ACTIVE['work']['interpreter_opcode_steps']+=len(p.instructions)
+    ACTIVE['work'][p.family]+=1
+    return p.execute(self.c,other.c,counts,ACTIVE.get('mutation'))
+
+Coeff.multiply=planned_multiply
+
+
+class StaticRowPlan(AxisPlan):
+    def __init__(self,*args,mutation=None,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.static_cache={};self.k_work=Counter();self.setup=Counter();self.mutation=mutation
+
+    def key(self):
+        return tuple((k,self.round_index in axes) for k,axes in sorted(self.dependencies.items()))
+
+    def prepare(self,key):
+        global ACTIVE
+        assert ACTIVE is None and coefficients.ALGORITHM=='schoolbook'
+        # Public canonical zeros; no actual witness is passed to preparation.
+        dummy=AxisPlan(self.cfg,self.const,Plan(generalize(self.cfg),self.const['alpha'],self.const['gu8']),self.dependencies)
+        dummy.round_index=self.round_index
+        trace={'mode':'trace','widths':[]};ACTIVE=trace
+        try:dummy.begin([F() for _ in self.cfg['names']],[F() for _ in self.cfg['names']])
+        finally:ACTIVE=None
+        plans=tuple(compile_mul(*w) for w in trace['widths'])
+        self.static_cache[key]=plans
+        self.setup['pattern_compilations']+=1
+        self.setup['width_classifications']+=len(plans)
+        self.setup.update({'trace_'+k:v for k,v in dummy.counts.items()})
+        self.setup['trace_denominator_dispatch']+=sum(dummy.plan.plan.dispatch.values())
+        self.setup['trace_axis_tests']+=dummy.axis_work['public_axis_tests']
+        return plans
+
+    def begin(self,values,differences):
+        global ACTIVE
+        key=self.key();self.k_work['public_pattern_lookups']+=1
+        plans=self.static_cache.get(key)
+        if plans is None:plans=self.prepare(key)
+        if self.mutation=='wrong_order':plans=tuple(reversed(plans))
+        state={'mode':'replay','iterator':iter(plans),'work':self.k_work,'mutation':self.mutation}
+        assert ACTIVE is None and coefficients.ALGORITHM=='schoolbook'
+        ACTIVE=state
+        try:
+            super().begin(values,differences)
+            assert next(state['iterator'],None) is None
+        finally:ACTIVE=None
+
+    def plan_record(self):
+        rows=[];unique={}
+        for key,plans in self.static_cache.items():
+            rec=[p.record() for p in plans]
+            rows.append(dict(public_pattern=key,width_sequence=[p.widths for p in plans],
+                             families=dict(Counter(p.family for p in plans))))
+            for p in plans:unique[p.widths]=p.record()
+        raw=json.dumps(rows,sort_keys=True,separators=(',',':')).encode()
+        return dict(patterns=rows,unique_kernels=list(unique.values()),schema_sha256=hashlib.sha256(raw).hexdigest(),
+                    setup=dict(self.setup),logical_plan_pointer_bytes=sum(len(p)*8 for p in self.static_cache.values()),
+                    logical_kernel_ir_bytes=sum(p['logical_ssa_bytes'] for p in unique.values()),
+                    model_peak_temporaries=max((p['peak_temporaries'] for p in unique.values()),default=0),
+                    interpreter_retained_field_words=max((p['interpreter_retained_field_words'] for p in unique.values()),default=0))

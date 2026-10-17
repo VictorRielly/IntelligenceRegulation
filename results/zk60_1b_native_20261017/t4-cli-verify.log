@@ -1,0 +1,14 @@
+{"event":"verified","segment_bytes":7591416,"segment_sha256":"c577a9d6f85e392ea5cbcd5ba2e7d1d2d856ec174f8b059cab0de5785e015bb4","load_seconds":0.095,"verify_seconds":0.525,"peak_rss_mib":34,"statement_identity":"a2df849b3e4d77ea7d486db0cc549f6583b864c89910140c77c3807e13c0ebe5","scope":"SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance"}
+{"event":"control-refused","control":"verifier statement with norm_tn - 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with norm_cn_a + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with norm_cn_m + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with norm_ceps + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_ao + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with another export profile digest","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement naming another layer","error":"trained statement: layer 1 does not exist in a 1-layer checkpoint"}
+{"event":"control-refused","control":"verifier statement with one gamma_a word moved","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"segment with byte 1518283 flipped","error":"A: pcs zk: Merkle path for column 1414 fails"}
+{"event":"control-refused","control":"segment with byte 3795708 flipped","error":"A: pcs zk: Merkle path for column 3470 fails"}
+{"event":"control-refused","control":"segment with byte 7591376 flipped","error":"run output endpoint: pcs zk: Merkle path for column 494 fails"}
+{"event":"control-refused","control":"segment truncated by one byte","error":"private run wire: segment 0 is 7591415 B, the counted length is 7591416"}
+{"event":"controls","refused":12,"honest_still_verifies":true}

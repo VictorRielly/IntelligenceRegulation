@@ -1,0 +1,41 @@
+{
+ "model": "NousResearch/Meta-Llama-3-8B",
+ "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+ "shards": {
+  "model-00001-of-00004.safetensors": {
+   "pinned_size": 4976698672,
+   "pinned_sha256": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+   "state": "present-before-resume",
+   "size": 4976698672
+  },
+  "model-00002-of-00004.safetensors": {
+   "pinned_size": 4999802720,
+   "pinned_sha256": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+   "state": "present-before-resume",
+   "size": 4999802720
+  },
+  "model-00003-of-00004.safetensors": {
+   "pinned_size": 4915916176,
+   "pinned_sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "resumed_from_bytes": 239075328,
+   "curl_rc": 0,
+   "download_seconds": 448.0,
+   "size": 4915916176,
+   "sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+   "state": "verified"
+  },
+  "model-00004-of-00004.safetensors": {
+   "pinned_size": 1168138808,
+   "pinned_sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb",
+   "resumed_from_bytes": 0,
+   "curl_rc": 0,
+   "download_seconds": 114.2,
+   "size": 1168138808,
+   "sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb",
+   "state": "verified"
+  }
+ },
+ "started_utc": "2026-10-17T01:35:05Z",
+ "finished_utc": "2026-10-17T01:44:32Z",
+ "all_verified": true
+}

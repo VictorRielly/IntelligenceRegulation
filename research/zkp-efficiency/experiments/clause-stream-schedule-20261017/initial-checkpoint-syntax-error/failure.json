@@ -1,0 +1,6 @@
+{
+  "exit_code": 1,
+  "error": "SyntaxError: expected 'else' after 'if' expression",
+  "line": 56,
+  "reason": "Missing space in else18 token in checkpoint-only script; no experiment/source ledger change."
+}

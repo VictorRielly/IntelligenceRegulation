@@ -1,0 +1,5 @@
+{
+  "exit_code": 1,
+  "error": "AssertionError: audit.py",
+  "reason": "Independent audit was expanded after the arithmetic wrapper pinned all local Python files; its integrity gate correctly refused the changed audit source. Prior arithmetic pass retained; rerun final source freeze before accepting final audit."
+}

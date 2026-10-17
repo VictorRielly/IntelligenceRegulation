@@ -1,0 +1,94 @@
+[zk60-guard 20:24:56] admission waiting: budget: 9.5+3 GiB > 11.9 GiB with live [b3-L-a_rot1(light,2.5G), b3-verify-a(light,2G), b3-L-d(light,2.5G), b3-L-dg_rot1(light,2.5G)]
+[zk60-guard 20:25:06] START t5-prove-a_export_T32-L1 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=10s run=5f5e627f57ee
+[zk60-guard 20:25:25] END t5-prove-a_export_T32-L1 exit=0 child_wall=19s peak_rss=0.86G min_avail=9.50G
+[zk60-guard 20:25:25] START t5-verify-a_export_T32-L1 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=8fc4a473848a
+[zk60-guard 20:25:26] END t5-verify-a_export_T32-L1 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.65G
+[zk60-guard 20:25:26] START t5-prove-a_export_T32-L2 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=4efbdb16c8a4
+[zk60-guard 20:25:44] END t5-prove-a_export_T32-L2 exit=0 child_wall=18s peak_rss=0.87G min_avail=9.49G
+[zk60-guard 20:25:45] START t5-verify-a_export_T32-L2 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=478847a0d970
+[zk60-guard 20:25:46] END t5-verify-a_export_T32-L2 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.62G
+[zk60-guard 20:25:46] START t5-prove-a_export_T32-L3 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=e508cec4c991
+[zk60-guard 20:26:04] END t5-prove-a_export_T32-L3 exit=0 child_wall=18s peak_rss=0.86G min_avail=9.55G
+[zk60-guard 20:26:04] START t5-verify-a_export_T32-L3 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=709b96d015d9
+[zk60-guard 20:26:06] END t5-verify-a_export_T32-L3 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.77G
+[zk60-guard 20:26:06] START t5-prove-a_export_T32-L4 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=a0ff17a34a41
+[zk60-guard 20:26:24] END t5-prove-a_export_T32-L4 exit=0 child_wall=18s peak_rss=0.87G min_avail=9.91G
+[zk60-guard 20:26:24] START t5-verify-a_export_T32-L4 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=9a0b7d007461
+[zk60-guard 20:26:26] END t5-verify-a_export_T32-L4 exit=0 child_wall=2s peak_rss=0.18G min_avail=10.25G
+[zk60-guard 20:26:26] admission waiting: budget: 9.5+3 GiB > 11.9 GiB with live [b3-L-a_rot1(light,2.5G), b3-verify-a(light,2G), b3-L-pg_rot1(light,2.5G), b3-L-d(light,2.5G)]
+[zk60-guard 20:26:41] START t5-prove-a_export_T32-L5 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=15s run=bd3eccd65cfc
+[zk60-guard 20:27:00] END t5-prove-a_export_T32-L5 exit=0 child_wall=19s peak_rss=0.87G min_avail=10.02G
+[zk60-guard 20:27:00] START t5-verify-a_export_T32-L5 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=2ff043bfb2ed
+[zk60-guard 20:27:01] END t5-verify-a_export_T32-L5 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.54G
+[zk60-guard 20:27:02] START t5-prove-a_export_T32-L6 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=129e45cd0467
+[zk60-guard 20:27:20] END t5-prove-a_export_T32-L6 exit=0 child_wall=19s peak_rss=0.86G min_avail=10.07G
+[zk60-guard 20:27:20] START t5-verify-a_export_T32-L6 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=8c6a5fa49b0d
+[zk60-guard 20:27:22] END t5-verify-a_export_T32-L6 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.70G
+[zk60-guard 20:27:22] START t5-prove-a_export_T32-L7 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=60642cf52b9b
+[zk60-guard 20:27:41] END t5-prove-a_export_T32-L7 exit=0 child_wall=19s peak_rss=0.88G min_avail=9.89G
+[zk60-guard 20:27:41] START t5-verify-a_export_T32-L7 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=7251295d758f
+[zk60-guard 20:27:42] END t5-verify-a_export_T32-L7 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.89G
+[zk60-guard 20:27:43] START t5-prove-a_export_T32-L8 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=94506ef10bdd
+[zk60-guard 20:28:02] END t5-prove-a_export_T32-L8 exit=0 child_wall=19s peak_rss=0.86G min_avail=10.08G
+[zk60-guard 20:28:02] START t5-verify-a_export_T32-L8 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=6d7c5eced247
+[zk60-guard 20:28:03] END t5-verify-a_export_T32-L8 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.70G
+[zk60-guard 20:28:03] START t5-prove-a_export_T32-L9 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=050ad117cbab
+[zk60-guard 20:28:22] END t5-prove-a_export_T32-L9 exit=0 child_wall=19s peak_rss=0.86G min_avail=9.86G
+[zk60-guard 20:28:22] START t5-verify-a_export_T32-L9 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=0c258cb15b3d
+[zk60-guard 20:28:23] END t5-verify-a_export_T32-L9 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.53G
+[zk60-guard 20:28:23] START t5-prove-a_export_T32-L10 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=ec33b903f6b5
+[zk60-guard 20:28:42] END t5-prove-a_export_T32-L10 exit=0 child_wall=19s peak_rss=0.87G min_avail=9.83G
+[zk60-guard 20:28:42] START t5-verify-a_export_T32-L10 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=95c44893e350
+[zk60-guard 20:28:43] END t5-verify-a_export_T32-L10 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.59G
+[zk60-guard 20:28:43] START t5-prove-a_export_T32-L11 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=3dcc45e0888d
+[zk60-guard 20:29:03] END t5-prove-a_export_T32-L11 exit=0 child_wall=19s peak_rss=0.86G min_avail=9.87G
+[zk60-guard 20:29:03] START t5-verify-a_export_T32-L11 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=6600bdc4aa42
+[zk60-guard 20:29:04] END t5-verify-a_export_T32-L11 exit=0 child_wall=1s peak_rss=0.14G min_avail=11.03G
+[zk60-guard 20:29:04] START t5-prove-a_export_T32-L12 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=c50dd8920bfb
+[zk60-guard 20:29:23] END t5-prove-a_export_T32-L12 exit=0 child_wall=19s peak_rss=0.87G min_avail=10.06G
+[zk60-guard 20:29:23] START t5-verify-a_export_T32-L12 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=5d2d92e39429
+[zk60-guard 20:29:24] END t5-verify-a_export_T32-L12 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.75G
+[zk60-guard 20:29:24] START t5-prove-a_export_T32-L13 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=b3b040aadafc
+[zk60-guard 20:29:43] END t5-prove-a_export_T32-L13 exit=0 child_wall=19s peak_rss=0.86G min_avail=9.87G
+[zk60-guard 20:29:43] START t5-verify-a_export_T32-L13 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=a3e58a5299a3
+[zk60-guard 20:29:44] END t5-verify-a_export_T32-L13 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.44G
+[zk60-guard 20:29:44] START t5-prove-a_export_T32-L14 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=6f70b6622052
+[zk60-guard 20:30:02] END t5-prove-a_export_T32-L14 exit=0 child_wall=18s peak_rss=0.86G min_avail=9.47G
+[zk60-guard 20:30:02] START t5-verify-a_export_T32-L14 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=d54921bb1690
+[zk60-guard 20:30:03] END t5-verify-a_export_T32-L14 exit=0 child_wall=1s peak_rss=0.14G min_avail=11.67G
+[zk60-guard 20:30:03] START t5-prove-a_export_T32-L15 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=63efd8ae7a85
+[zk60-guard 20:30:22] END t5-prove-a_export_T32-L15 exit=0 child_wall=18s peak_rss=0.86G min_avail=10.40G
+[zk60-guard 20:30:22] START t5-verify-a_export_T32-L15 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=06e8d3020f08
+[zk60-guard 20:30:23] END t5-verify-a_export_T32-L15 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.86G
+[zk60-guard 20:30:23] START t5-prove-a_export_T32-L16 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=6e4c6f0765ef
+[zk60-guard 20:30:41] END t5-prove-a_export_T32-L16 exit=0 child_wall=18s peak_rss=0.86G min_avail=9.90G
+[zk60-guard 20:30:41] START t5-verify-a_export_T32-L16 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=1693c0f35b00
+[zk60-guard 20:30:43] END t5-verify-a_export_T32-L16 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.85G
+[zk60-guard 20:30:43] START t5-prove-a_export_T32-L17 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=06e1ccdee1fe
+[zk60-guard 20:31:02] END t5-prove-a_export_T32-L17 exit=0 child_wall=20s peak_rss=0.86G min_avail=9.89G
+[zk60-guard 20:31:03] START t5-verify-a_export_T32-L17 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=ad019cfa6a3c
+[zk60-guard 20:31:04] END t5-verify-a_export_T32-L17 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.82G
+[zk60-guard 20:31:04] START t5-prove-a_export_T32-L18 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=ceb40b4adc56
+[zk60-guard 20:31:22] END t5-prove-a_export_T32-L18 exit=0 child_wall=18s peak_rss=0.86G min_avail=9.58G
+[zk60-guard 20:31:22] START t5-verify-a_export_T32-L18 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=c413c1ed7d58
+[zk60-guard 20:31:23] END t5-verify-a_export_T32-L18 exit=0 child_wall=1s peak_rss=0.15G min_avail=10.53G
+[zk60-guard 20:31:23] START t5-prove-a_export_T32-L19 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=221f181e91aa
+[zk60-guard 20:31:41] END t5-prove-a_export_T32-L19 exit=0 child_wall=18s peak_rss=0.87G min_avail=9.58G
+[zk60-guard 20:31:42] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-a_rot1(light,2.5G), b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:32:42] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-a_rot1(light,2.5G), b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:33:42] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-L-b_rot1(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:34:42] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-L-b_rot1(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:35:42] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-L-b_rot1(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:36:42] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-L-b_rot1(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:37:43] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-L-b_rot1(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:38:43] admission waiting: budget: 10.5+2 GiB > 11.9 GiB with live [b3-L-pg_rot1(light,2.5G), b3-L-pg(light,2.5G), b3-L-b_rot1(light,2.5G), b3-T128-a(light,3G)]
+[zk60-guard 20:38:53] START t5-verify-a_export_T32-L19 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=431s run=9bbf5883845c
+[zk60-guard 20:38:54] END t5-verify-a_export_T32-L19 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.17G
+[zk60-guard 20:38:54] START t5-prove-a_export_T32-L20 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=9371fc24c487
+[zk60-guard 20:39:13] END t5-prove-a_export_T32-L20 exit=0 child_wall=19s peak_rss=0.85G min_avail=9.18G
+[zk60-guard 20:39:13] START t5-verify-a_export_T32-L20 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=fbd545c68f27
+[zk60-guard 20:39:14] END t5-verify-a_export_T32-L20 exit=0 child_wall=1s peak_rss=0.14G min_avail=9.98G
+[zk60-guard 20:39:15] START t5-prove-a_export_T32-L21 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=82fd268921ed
+[zk60-guard 20:39:32] END t5-prove-a_export_T32-L21 exit=0 child_wall=18s peak_rss=0.86G min_avail=9.18G
+[zk60-guard 20:39:33] START t5-verify-a_export_T32-L21 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=0619a1d1b1cb
+[zk60-guard 20:39:34] END t5-verify-a_export_T32-L21 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.36G

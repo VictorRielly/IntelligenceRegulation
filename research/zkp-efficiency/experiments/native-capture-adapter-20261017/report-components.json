@@ -1,0 +1,26 @@
+{
+  "checkpoint_utc": "2026-10-17T07:34:34.159195+00:00",
+  "validation": "The final run passes 120 capture layouts (native push order plus relocated frames), 1,440 independent scalar group checks, 480 full-polynomial comparisons, 2,304 fixed-helper sample checks and 96 direct branchless generated Python helpers. Both constant/moving masks, 2/3 sigma limbs, 2/3 probability limbs, full/7/8 lookups, arbitrary Goldilocks2/base/zero/Boolean values and all four optional-support combinations are exercised. lp3, lookup subsets and relocated frames are synthetic robustness cases, not admitted profiles. Final wall 4.935856s, RSS 27,108KiB; one low-priority CPU thread, seed2026101757, exit0; 59s/512MiB caps, 96MiB estimated. Independent tuple arithmetic/source/index audit passes 13,047 checks in 0.385s, RSS19,008KiB, seed2026101757001. This is Python arithmetic and metadata evidence; no actual Rust constructor capture, native compile, masked transcript, RNG, proof, receipt or verifier ran.",
+  "baseline_cost": "Baseline: pinned native literal/grouped SC_SZC and the prior fixed round0 research factory. Eliminated work this cycle: **zero field operations and no established native work**. The adapter rewrites graph input references once into captured native table indices, so its row helper needs no compact-array gather. Such a gather was not present in the existing native baseline; avoiding a hypothetical integration cost is not a measured gain. Added costs: public capture/layout validation, index remapping, generated code/dispatch and source maintenance; proof-local constants/offsets still refresh per proof. The full15-lookup/three-limb moving-mask helper retains419 field API calls and20 live logical results (320B); prior scheduling values and scoped T512 7.0153% API reduction are unchanged. Logical temporaries exclude inputs/constants/offsets, Eq/accumulators and field-API internals. Registers, spills, occupancy, code size and runtime are unmeasured.",
+  "ceiling": "End-to-end ceiling: unknown, N/(T_complete - saved_native_time + added_native_time); neither time delta is measured. A compiler may already achieve the same schedule. Historical one-block T512/one-pass synthetic125M RTX4070Laptop diagnostic: SC_SZC7.794s, prove16.864s, reported witness5.77s, encode0.028s, decode0.013s, in-process verification0.806s and enclosing test27.523873s; proof40,783,352B. The A/B JSON reports16.86s rounded proof and0.82s verification from bytes; raw0.806s verification plus0.013s decode is0.819s, consistent with that enclosing verification clock. Startup and both recurring witness paths remain unresolved. Even deleting all7.794s SC_SZC would remove at most28.317% of that enclosing diagnostic (~1.395x), not establish an8B bound. The historical12-block/T512/one-pass synthetic diagnostic remains408.609226s enclosing,318.22s prove,12.15s in-process verify,484,107,456B (~1.253 diagnostic positions/s). No target token credit is taken.",
+  "next_action": "Next LOCAL: derive and independently check the constant/moving-mask round0 selector from native causal_mask_at(sh), MSB-first data axes and appended terminal-extension axes, rather than a caller-supplied Boolean. Compare every paired difference and arbitrary extension evaluations on toy/head-padded/full-head shapes; mutate the head-axis role. This is a correctness prerequisite, not another scheduling search. Next OWNER: export real constructor captures into native differential fixtures, compile literal/unscheduled/scheduled arms under the shared guard/heavy lock, then measure registers/spills and enclosing clocks including both witnesses. Require original samples, claims, ordered finals, zero-factor fallback, optional support/refusal parity, RNG/transcript/proof bytes and fresh independent verification plus tamper refusals; then a resident complete-workload startup/slope sweep. No build or heavy job was launched or queued here.",
+  "proof_accounting": {
+    "completed_independently_verified_8b_proofs": 0,
+    "completed_passes": 0,
+    "proved_tokens": 0,
+    "context_length": null,
+    "device": "Intel Core Ultra 9 185H CPU only",
+    "steady_state_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "verification_seconds": null,
+    "proof_latency_seconds": null,
+    "prefill_ran": false,
+    "resident_pass_ran": false,
+    "decode_ran": false
+  }
+}

@@ -1,0 +1,282 @@
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/private-block-kernel-shaped)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+error[E0277]: the trait bound `f64: Eq` is not satisfied
+   --> src/private_block/trained_statement.rs:188:5
+    |
+185 | #[derive(Clone, Debug, PartialEq, Eq)]
+    |                                   -- in this derive macro expansion
+...
+188 |     pub residual_unit: f64,
+    |     ^^^^^^^^^^^^^^^^^^^^^^ the trait `Eq` is not implemented for `f64`
+    |
+    = help: the following other types implement trait `Eq`:
+              i128
+              i16
+              i32
+              i64
+              i8
+              isize
+              u128
+              u16
+            and 4 others
+note: required by a bound in `std::cmp::AssertParamIsEq`
+   --> /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/cmp.rs:380:31
+    |
+380 | pub struct AssertParamIsEq<T: Eq + PointeeSized> {
+    |                               ^^ required by this bound in `AssertParamIsEq`
+
+error[E0277]: `private_block::layout::Layout` doesn't implement `Debug`
+    --> src/private_block/trained_calib_tests.rs:172:40
+     |
+ 172 |     assert!(Layout::for_shape(&sneaky).unwrap_err().contains("without the trained door"));
+     |                                        ^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Debug` is not implemented for `private_block::layout::Layout`
+    --> src/private_block/layout.rs:993:1
+     |
+ 993 | pub(crate) struct Layout {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^
+     = note: add `#[derive(Debug)]` to `private_block::layout::Layout` or manually `impl Debug for private_block::layout::Layout`
+note: required by a bound in `Result::<T, E>::unwrap_err`
+    --> /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/result.rs:1326:12
+     |
+1324 |     pub fn unwrap_err(self) -> E
+     |            ---------- required by a bound in this associated function
+1325 |     where
+1326 |         T: fmt::Debug,
+     |            ^^^^^^^^^^ required by this bound in `Result::<T, E>::unwrap_err`
+
+error[E0277]: `RunStatement` doesn't implement `Debug`
+    --> src/private_block/trained_calib_tests.rs:506:108
+     |
+ 506 | ... ctx, texp, &[tb], &[(0, 0)]).unwrap_err().contains("model statement"));
+     |                                  ^^^^^^^^^^ the trait `Debug` is not implemented for `RunStatement`
+     |
+     = note: add `#[derive(Debug)]` to `RunStatement` or manually `impl Debug for RunStatement`
+note: required by a bound in `Result::<T, E>::unwrap_err`
+    --> /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/result.rs:1326:12
+     |
+1324 |     pub fn unwrap_err(self) -> E
+     |            ---------- required by a bound in this associated function
+1325 |     where
+1326 |         T: fmt::Debug,
+     |            ^^^^^^^^^^ required by this bound in `Result::<T, E>::unwrap_err`
+help: consider annotating `RunStatement` with `#[derive(Debug)]`
+    -->  src/private_block/run.rs:161:1
+     |
+ 161 + #[derive(Debug)]
+ 162 | pub(crate) struct RunStatement {
+     |
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:742:13
+    |
+742 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+For more information about this error, try `rustc --explain E0277`.
+warning: `hashline` (lib test) generated 10 warnings
+error: could not compile `hashline` (lib test) due to 3 previous errors; 10 warnings emitted
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:742:13
+    |
+742 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `tinyllama_t32_dev` is never used
+   --> src/private_block/run.rs:125:19
+    |
+ 91 | impl RunShape {
+    | ------------- associated function in this implementation
+...
+125 |     pub(crate) fn tinyllama_t32_dev(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^^^^^^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:460:5
+    |
+453 | struct Rec {
+    |        --- field in this struct
+...
+460 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:562:15
+    |
+562 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 16 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 22.52s
+  Executable unittests src/lib.rs (ops/zkp-mvp/trained-1b/hashline/target/debug/deps/hashline-266942bc2661261a)

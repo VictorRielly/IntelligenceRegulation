@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "checks": 52,
+  "run_id": "20261017T052624Z-c8881557",
+  "cycle": "0055",
+  "checkpoint_utc": "2026-10-17T05:37:31.760541+00:00",
+  "sources_total": 282,
+  "sources_appended": 6,
+  "historical_prefixes_preserved": true,
+  "native_proof_or_performance_gate": false,
+  "scoped_api_fraction": 0.07015327828768729
+}

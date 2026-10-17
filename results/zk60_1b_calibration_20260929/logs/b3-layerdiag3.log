@@ -1,0 +1,18 @@
+== variant b layer 3 s_x 0.0089: shifts {'qkv': 7, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 7, 'u': 0, 'h': 14, 'z': 6} e_s 1 silu (-5, -13) cn 3191/650
+   site rel err: norm_a 0.050 q 0.085 k 0.069 v 0.067 qr 0.091 kr 0.075 score 0.063 prob 0.041 o 0.409 ao 0.450 norm_m 0.305 gate 0.272 act 0.277 up 0.486 h 0.503 z 0.610 x2 0.015 update 0.591 refused_sequences 0.000
+   norm_a {'shape': 'range', 'r_step': 5, 'noise': 0.5914652236915087, 'g_max': 127, 'y_fill_calib': 0.1431133674970287} norm_m {'shape': 'gamma', 'r_step': 4, 'noise': 0.314526393175394, 'g_max': 127, 'y_fill_calib': 0.2445484127439263}
+   score {'e_s': 1, 'e_s_range_need': 1, 'e_s_qk_need': -0.036791509072725326, 'raw_max': 101.81968688964844, 's_fill_calib': 0.40086490901436395, 'qk_slack_bits_mean': 1.7144157603269772} 
+   ffn {'silu_member': [-5, -13], 'gate_absmax': 2.324314594268799, 'gate_fill_calib': 0.5856540709968627, 'wg_fill': 1.4579981244051377, 'act_max': 1.541196346282959, 'act_saturates_above': None} 
+   v_o {'infeasible_channels': 0, 'ao_floor': 0.004390837512764856, 'ao_floor_min_shift': 6.860683613695087e-05, 'v_coarsening_bits_mean': 0.0} 
+   u_h_d {'infeasible_channels': 0, 'z_floor': 0.00011568439120599452, 'z_floor_min_shift': 3.6151372251873287e-06, 'u_coarsening_bits_mean': 5.560564210952012}
+   clip {'wg': 5} absmax {'wq': 89, 'wk': 69, 'wv': 127, 'wo': 63, 'wg': 127, 'wu': 13, 'wd': 34}
+   scales {'s_x_in': 0.0089, 's_x_out': 0.0089, 'score_scale': 2.0, 'gate_scale': 0.03125, 'act_scale': 0.0001220703125, 's_q': [0.09356854908138218, 0.18271770837030527], 's_k': [0.17102885253282138, 0.33397974326629776], 's_v': [0.008062049394517433, 0.012797908880713808], 's_u': [0.002520073880211584, 0.0074566065793316375], 's_h': [0.005040147760423168, 0.014913213158663275]}
+== variant d layer 3 s_x 0.0089: shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 8, 'g': 8, 'u': 0, 'h': 14, 'z': 8} e_s 1 silu (-5, -13) cn 4513/919
+   site rel err: norm_a 0.036 q 0.067 k 0.055 v 0.051 qr 0.074 kr 0.061 score 0.053 prob 0.037 o 0.395 ao 0.421 norm_m 0.231 gate 0.213 act 0.217 up 0.326 h 0.338 z 0.405 x2 0.010 update 0.412 refused_sequences 0.000
+   norm_a {'shape': 'range', 'r_step': 3, 'noise': 0.39830684739344163, 'g_max': 127, 'y_fill_calib': 0.20240383187530253} norm_m {'shape': 'gamma', 'r_step': 2, 'noise': 0.1404863354486837, 'g_max': 127, 'y_fill_calib': 0.34575383278718197}
+   score {'e_s': 1, 'e_s_range_need': 1, 'e_s_qk_need': 0.4971162533104039, 'raw_max': 101.81968688964844, 's_fill_calib': 0.40086490901436395, 'qk_slack_bits_mean': 1.6847756681085495} 
+   ffn {'silu_member': [-5, -13], 'gate_absmax': 2.324314594268799, 'gate_fill_calib': 0.5856540709968627, 'wg_fill': 2.0624565415959513, 'act_max': 1.541196346282959, 'act_saturates_above': None} 
+   v_o {'infeasible_channels': 0, 'ao_floor': 0.008781675025529711, 'ao_floor_min_shift': 6.860683613695087e-05, 'v_coarsening_bits_mean': 0.0} 
+   u_h_d {'infeasible_channels': 0, 'z_floor': 0.00032728989895058295, 'z_floor_min_shift': 2.5569523355514293e-06, 'u_coarsening_bits_mean': 4.738721862854806}
+   clip {'wg': 41} absmax {'wq': 107, 'wk': 107, 'wv': 127, 'wo': 125, 'wg': 127, 'wu': 21, 'wd': 58}
+   scales {'s_x_in': 0.0089, 's_x_out': 0.0089, 'score_scale': 2.0, 'gate_scale': 0.03125, 'act_scale': 0.0001220703125, 's_q': [0.09356854908138218, 0.18271770837030527], 's_k': [0.17102885253282138, 0.33397974326629776], 's_v': [0.008062049394517433, 0.0180979956739897], 's_u': [0.0010968264428985201, 0.003207661520269788], 's_h': [0.0021936528857970402, 0.006415323040539576]}

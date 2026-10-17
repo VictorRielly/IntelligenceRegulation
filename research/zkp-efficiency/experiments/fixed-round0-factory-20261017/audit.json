@@ -1,0 +1,178 @@
+{
+  "status": "passed",
+  "checks": 25986,
+  "generated_bodies": [
+    {
+      "tag": "ls2-lk7-mask0",
+      "kind": "ssa",
+      "checks": 751,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk7-mask0",
+      "kind": "recycled",
+      "checks": 980,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk7-mask1",
+      "kind": "ssa",
+      "checks": 829,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls2-lk7-mask1",
+      "kind": "recycled",
+      "checks": 1081,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls2-lk8-mask0",
+      "kind": "ssa",
+      "checks": 793,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk8-mask0",
+      "kind": "recycled",
+      "checks": 1036,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk8-mask1",
+      "kind": "ssa",
+      "checks": 871,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls2-lk8-mask1",
+      "kind": "recycled",
+      "checks": 1137,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls2-lk13-mask0",
+      "kind": "ssa",
+      "checks": 1060,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk13-mask0",
+      "kind": "recycled",
+      "checks": 1392,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls2-lk13-mask1",
+      "kind": "ssa",
+      "checks": 1138,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls2-lk13-mask1",
+      "kind": "recycled",
+      "checks": 1493,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls3-lk7-mask0",
+      "kind": "ssa",
+      "checks": 775,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk7-mask0",
+      "kind": "recycled",
+      "checks": 1012,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk7-mask1",
+      "kind": "ssa",
+      "checks": 853,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls3-lk7-mask1",
+      "kind": "recycled",
+      "checks": 1113,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls3-lk8-mask0",
+      "kind": "ssa",
+      "checks": 817,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk8-mask0",
+      "kind": "recycled",
+      "checks": 1068,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk8-mask1",
+      "kind": "ssa",
+      "checks": 895,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls3-lk8-mask1",
+      "kind": "recycled",
+      "checks": 1169,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls3-lk15-mask0",
+      "kind": "ssa",
+      "checks": 1183,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk15-mask0",
+      "kind": "recycled",
+      "checks": 1556,
+      "peak_live_logical_temporaries": 20
+    },
+    {
+      "tag": "ls3-lk15-mask1",
+      "kind": "ssa",
+      "checks": 1261,
+      "peak_live_logical_temporaries": 23
+    },
+    {
+      "tag": "ls3-lk15-mask1",
+      "kind": "recycled",
+      "checks": 1657,
+      "peak_live_logical_temporaries": 23
+    }
+  ],
+  "owner_memory": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+      "unchanged": true
+    }
+  ],
+  "negative_control": "corrupt generated RHS rejected",
+  "completed_at_utc": "2026-10-17T05:37:31.702971+00:00"
+}

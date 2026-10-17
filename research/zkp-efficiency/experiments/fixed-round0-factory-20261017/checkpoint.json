@@ -1,0 +1,12 @@
+{
+  "run_id": "20261017T052624Z-c8881557",
+  "checkpoint_utc": "2026-10-17T05:37:31.395855+00:00",
+  "status": "complete",
+  "accepted_complete_private_8b_proofs": 0,
+  "proved_tokens": 0,
+  "source_records": 282,
+  "owner_memory_changed": false,
+  "experiment_status": "passed",
+  "ast_integrity_audit_checks": 25986,
+  "checkpoint_audit_checks": 52
+}

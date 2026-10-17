@@ -468,7 +468,9 @@ def i_block(x: np.ndarray, P: LayerInt, rope: tuple, rec: Rec, seq0: int = 0, cl
                   extra_bad=(sigma < 0) | (sigma >= (1 << wrho_s)))
     vg = v.reshape(N, T, g.KV, g.dh).transpose(0, 2, 1, 3)[:, :, None]
     oacc = exact_bmm(p, vg)                                        # (N,KV,G,T,dh)
-    o = rec.check("O", requant(oacc, P.sh_o), *I8N, seq0, clamp)
+    # B4-3 experiment hook: getattr(P, "o_class16") puts o in the int16 class
+    # (NOT a native relation; absent = the native int8 subset)
+    o = rec.check("O", requant(oacc, P.sh_o), *(I16 if getattr(P, "o_class16", False) else I8N), seq0, clamp)
     o8 = o.transpose(0, 3, 1, 2, 4).reshape(N, T, d)
     ao = rec.check("AO", requant(M["o"](o8), P.sh_ao), *I16, seq0, clamp)
     x1 = rec.check("residual 1", x + ao, *I16, seq0, clamp)
