@@ -1,0 +1,1 @@
+{"event":"refused","error":"HL_GPU_REQUIRED=1 but the GPU path is not live: gpu: off (built without --features gpu-cuda)"}

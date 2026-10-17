@@ -1055,7 +1055,7 @@ fn eval_many_dev(cmz: &pcs::CommittedZk, slices: &[(usize, usize)], point: &[Fp2
         let offs: Vec<usize> = slices.iter().map(|&(o, len)| { assert_eq!(len, 1usize << point.len()); o }).collect();
         match crate::gpu::dev_eval_many(dc, &offs, point) {
             Ok(v) => return v,
-            Err(e) => eprintln!("[UPERF3-ZA] gpu eval_many declined ({e}); CPU path"),
+            Err(e) => crate::gpu::declined("[UPERF3-ZA] gpu eval_many", &e.to_string()),
         }
     }
     eval_many(&cmz.data, slices, point)
@@ -2990,7 +2990,7 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
         && match crate::gpu::dev_reserve_hard(&[(3 + 10 * nb_f) * tfb * 2, (3 + 4 * nb_d) * tdb * 2]) {
             Ok(()) => true,
             Err(e) => {
-                eprintln!("[UPERF3-AI] gpu zero-check tables unaffordable ({e}); the whole layer takes the CPU path");
+                crate::gpu::declined("[UPERF3-AI] gpu zero-check tables (unaffordable)", &e.to_string());
                 false
             }
         };
@@ -3418,7 +3418,7 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
             }
             Err(e) => {
                 let _ = tr_try.take_masker();
-                eprintln!("[UPERF3-AI] gpu zero-check F (zk v3) declined ({e}); CPU path");
+                crate::gpu::declined("[UPERF3-AI] gpu zero-check F (zk v3)", &e.to_string());
                 None
             }
         }
@@ -3501,7 +3501,7 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
             }
             Err(e) => {
                 let _ = tr_try.take_masker();
-                eprintln!("[UPERF3-AI] gpu zero-check D (zk v3) declined ({e}); CPU path");
+                crate::gpu::declined("[UPERF3-AI] gpu zero-check D (zk v3)", &e.to_string());
                 None
             }
         }
@@ -3585,7 +3585,7 @@ fn prepare_layer_zk_v3_inner(w: &V3Witness, t_rows: usize, params: &LayerParams,
             }
             Err(e) => {
                 let _ = tr_try.take_masker();
-                eprintln!("[UPERF3-AH] gpu table zero-check declined ({e}); CPU path");
+                crate::gpu::declined("[UPERF3-AH] gpu table zero-check", &e.to_string());
                 None
             }
         }

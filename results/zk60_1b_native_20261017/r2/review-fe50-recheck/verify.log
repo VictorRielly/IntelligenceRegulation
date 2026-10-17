@@ -1,0 +1,1 @@
+{"event":"rejected","error":"/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r1-scratch/review_out/export-fe50/review-fe50/profile.json: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}

@@ -28,7 +28,6 @@
 //! only the toy.
 
 use super::layout::*;
-use super::protocol::{prove_inner_at, verify_inner_at};
 use super::shape::{NormCalibration, Shape, TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIBRATION_PROFILES, TRAINED_CALIB_RUNG_PROFILE};
 use super::witness::{self, Witness};
 use super::*;
@@ -39,7 +38,14 @@ use super::*;
 /// 2672 / 4315, a large `Ceps`). `Ceps = 129,746,337` is of the order the
 /// calibration measured (about 1.3e8) and deliberately not a power of two.
 pub(super) fn t3_calibration() -> NormCalibration {
-    NormCalibration { tn: 10, cn_a: 2672, cn_m: 4315, ceps: 129_746_337, sh_ao: 7 }
+    NormCalibration { tn: 10, cn_a: 2672, cn_m: 4315, ceps: 129_746_337, sh_ao: 7, ..NormCalibration::FROZEN }
+}
+
+/// **ROUND 2: the pg_rot1 export's ONE profile calibration** (`export/
+/// pg_rot1_export_T32/profile.json`): `Cn_a 3999`, `Cn_m 3122`, `Ceps 91255`
+/// and the shifts QKV 8 / score 6 / O 9 / AO 3 / gate 8 / product 14 / down 5.
+pub(super) fn pg_calibration() -> NormCalibration {
+    NormCalibration { tn: 10, cn_a: 3999, cn_m: 3122, ceps: 91_255, sh_ao: 3, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 5 }
 }
 
 /// the trained-calibration development rung's calibration: `tn = 10` (window
@@ -47,7 +53,8 @@ pub(super) fn t3_calibration() -> NormCalibration {
 /// TinyLlama's C-6 window of 32), two different multipliers, a large `Ceps`
 /// and `sh_ao = 6` (the AO remainder's `scaled` coefficient becomes 4)
 pub(super) fn rung_tc_calibration() -> NormCalibration {
-    NormCalibration { tn: 10, cn_a: 1336, cn_m: 2158, ceps: 33_554_467, sh_ao: 6 }
+    // ROUND 2: every windowed shift off its frozen value (frozen 7/6/9/7/14/6)
+    NormCalibration { tn: 10, cn_a: 1336, cn_m: 2158, ceps: 33_554_467, sh_ao: 6, sh_qkv: 8, sh_s: 5, sh_o: 10, sh_g: 8, sh_h: 13, sh_z: 5 }
 }
 
 /// the TinyLlama softmax table bits of T3 (two `sigma_s` limbs at T32)
@@ -108,6 +115,13 @@ fn variations(c: NormCalibration) -> Vec<(&'static str, NormCalibration)> {
         ("cn_m + 1", NormCalibration { cn_m: c.cn_m + 1, ..c }),
         ("ceps + 1", NormCalibration { ceps: c.ceps + 1, ..c }),
         ("sh_ao + 1", NormCalibration { sh_ao: c.sh_ao + 1, ..c }),
+        // ROUND 2: each windowed shift moved by one, inside its window
+        ("sh_qkv - 1", NormCalibration { sh_qkv: c.sh_qkv - 1, ..c }),
+        ("sh_s + 1", NormCalibration { sh_s: c.sh_s + 1, ..c }),
+        ("sh_o + 1", NormCalibration { sh_o: c.sh_o + 1, ..c }),
+        ("sh_g - 1", NormCalibration { sh_g: c.sh_g - 1, ..c }),
+        ("sh_h + 1", NormCalibration { sh_h: c.sh_h + 1, ..c }),
+        ("sh_z + 1", NormCalibration { sh_z: c.sh_z + 1, ..c }),
     ]
 }
 
@@ -145,12 +159,28 @@ fn the_validator_computes_tn_from_the_width_and_refuses_outside_the_class() {
         ("ceps 2^40 + 1", NormCalibration { ceps: (1 << 40) + 1, ..base }),
         ("sh_ao 9", NormCalibration { sh_ao: 9, ..base }),
         ("tn 1: a three-limb window", NormCalibration { tn: 1, ..base }),
+        // ROUND 2: the structure-preserving shift windows
+        ("sh_qkv 0", NormCalibration { sh_qkv: 0, ..base }),
+        ("sh_qkv 9", NormCalibration { sh_qkv: 9, ..base }),
+        ("sh_s 9", NormCalibration { sh_s: 9, ..base }),
+        ("sh_g 0", NormCalibration { sh_g: 0, ..base }),
+        ("sh_z 9", NormCalibration { sh_z: 9, ..base }),
+        ("sh_o 8 (one limb)", NormCalibration { sh_o: 8, ..base }),
+        ("sh_o 17", NormCalibration { sh_o: 17, ..base }),
+        ("sh_h 8 (one limb)", NormCalibration { sh_h: 8, ..base }),
+        ("sh_h 17", NormCalibration { sh_h: 17, ..base }),
     ] {
         assert!(ok(2048, c).is_err(), "{name} was accepted");
     }
     assert!(ok(4097, NormCalibration { tn: 9, ..base }).is_err(), "width 4097 is outside the class");
     // the edges of the class are accepted
-    for c in [NormCalibration { cn_a: 1, cn_m: 1 << 20, ceps: 1 << 40, sh_ao: 0, ..base }, NormCalibration { sh_ao: 8, ..base }] {
+    for c in [
+        NormCalibration { cn_a: 1, cn_m: 1 << 20, ceps: 1 << 40, sh_ao: 0, ..base },
+        NormCalibration { sh_ao: 8, ..base },
+        NormCalibration { sh_qkv: 1, sh_s: 1, sh_g: 1, sh_z: 1, sh_o: 9, sh_h: 9, ..base },
+        NormCalibration { sh_qkv: 8, sh_s: 8, sh_g: 8, sh_z: 8, sh_o: 16, sh_h: 16, ..base },
+        pg_calibration(),
+    ] {
         ok(2048, c).expect("an edge of the class");
     }
 }
@@ -195,8 +225,15 @@ fn the_frozen_profiles_print_the_frozen_calibration_line() {
     let line = Layout::for_shape(&t).unwrap().describe()[4].clone();
     assert_eq!(
         line,
-        "calibration: trained norm tn=10 cn_a=2672 cn_m=4315 ceps=129746337 ao=7 wrho=32 dmax=1482954 int16-endpoint=32768; shifts qkv=7 rope=7 score=6 o=9 ao=7 residual=0; fE=9 fP=9 fRo=7 wrhoS=14 mask=-127; classes int8=[-127,127] int16; tables U8 + exp"
+        "calibration: trained norm tn=10 cn_a=2672 cn_m=4315 ceps=129746337 ao=7 qkv=7 score=6 o=9 gate=7 product=14 down=6 wrho=32 dmax=1482954 int16-endpoint=32768; shifts qkv=7 rope=7 score=6 o=9 ao=7 residual=0; fE=9 fP=9 fRo=7 wrhoS=14 mask=-127; classes int8=[-127,127] int16; tables U8 + exp"
     );
+    // ROUND 2: the pg calibration's shifts reach both the calibration and the
+    // feed-forward lines
+    let p = Shape::tinyllama_t32_trained(&pg_calibration(), T3_F_E).unwrap();
+    let lines = Layout::for_shape(&p).unwrap().describe();
+    assert!(lines[4].contains("ao=3 qkv=8 score=6 o=9 gate=8 product=14 down=5") && lines[4].contains("shifts qkv=8 rope=7 score=6 o=9 ao=3"), "{}", lines[4]);
+    assert!(lines[5].contains("shifts gate=8 up=0 product=14 down=5"), "{}", lines[5]);
+    assert!(super::protocol::parameter_line(&p).contains("/sh-g8-u0-h14-z5/"));
 }
 
 /// **THE BINDING at the schedule level.** Each single-constant variation of
@@ -272,6 +309,12 @@ fn the_trained_tinyllama_counted_layout_ladder() {
         }
         assert!(any || t > 32, "T32 must have a layout");
     }
+    // ROUND 2 (R2-5): T512 at row width 2^14 counts over the 64 MiB ceiling
+    // of the development profiles and fits the trained profiles' own
+    let big = Shape::tinyllama_trained_ladder(512, 14, &c, T3_F_E).unwrap();
+    let n = big.receipt_bytes().total;
+    assert!(n > super::wire::MAX_WIRE_BYTES_ANY && n <= super::wire::wire_ceiling(&big), "T512 lc14: {n} B");
+    assert_eq!(super::wire::wire_ceiling(&Shape::m125()), super::wire::MAX_WIRE_BYTES_ANY, "a development profile's ceiling moved");
 }
 
 // ------------------------------------------------- T3: the generic witness
@@ -351,63 +394,149 @@ fn ctx_t3() -> Digest {
     *blake3::hash(b"native lane T3: trained calibration, dense synthetic").as_bytes()
 }
 
-/// prove one block at `sh` from a witness; returns the expected policy and
-/// the receipt bytes
-fn prove_bytes(sh: &Shape, blk: &BlockPublic, w: Witness) -> (ExpectedIo, Vec<u8>, f64) {
-    let ids = Ids::new(sh).unwrap();
-    let spec = IoSpec::new_shaped(sh, ctx_t3(), 0, 0).expect("the endpoint spec");
-    let (expected, owners) = prepare_endpoints(spec, &plane16(&w, ids.at(A_X)), &plane16(&w, ids.at(A_X2))).expect("the endpoint owners");
-    let t0 = std::time::Instant::now();
-    let (receipt, _) = prove_inner_at(sh, blk, w, &expected, owners).expect("the honest block proves");
-    let s = t0.elapsed().as_secs_f64();
-    let bytes = receipt.to_bytes_at(sh, blk, &expected).expect("the receipt encodes");
-    assert_eq!(bytes.len(), sh.receipt_bytes().total, "the receipt is not the counted length");
-    verify_inner_at(sh, blk, &expected, &receipt).expect("the receipt verifies in typed form");
-    (expected, bytes, s)
+// ---- ROUND 2, R2-4: a trained-calibration block proves only inside a run
+// BOUND to its trained-model statement. These helpers prove and verify ONE
+// block that way, with a statement that says honestly that its words are a
+// public synthetic recipe (the test-only constructor waives the production
+// rule that refuses a synthetic recipe at the TinyLlama trained profile).
+
+/// the run shape of a one-block run at a trained-calibration shape
+pub(super) fn run_shape_for(sh: &Shape, l: usize) -> super::run::RunShape {
+    if sh.profile == TINYLLAMA_T32_TRAINED_PROFILE {
+        super::run::RunShape::tinyllama_t32_trained(sh.clone(), l).unwrap()
+    } else {
+        super::run::RunShape::rung_tc(sh.clone(), l).unwrap()
+    }
 }
 
-/// The tamper controls a trained receipt must pass: a verifier configured
-/// with any other `tn`, `Cn_a`, `Cn_m`, `Ceps` or `sh_ao` refuses; a
-/// truncated or mutated receipt refuses; another public statement refuses.
+/// the synthetic-recipe trained-model statement of these blocks at `sh`
+pub(super) fn synthetic_statement(sh: &Shape, blocks: &[BlockPublic]) -> super::trained_statement::TrainedModelStatement {
+    use super::trained_statement::*;
+    let src = ModelSource {
+        kind: SourceKind::PublicSyntheticRecipe,
+        repo: "hashline/private-block/trained-dense".into(),
+        revision: "native-round-2".into(),
+        weights_sha256: [0; 32],
+        config_sha256: [0; 32],
+        checkpoint_parameters: 0,
+        checkpoint_layers: blocks.len() as u32,
+    };
+    let cal = IntegerCalibration::as_the_code_proves(sh, &Provenance::recipe("native/synthetic", 1.0 / 512.0, [5; 32], [6; 32]));
+    let recs = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
+    let rp = run_shape_for(sh, 1).profile;
+    TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, rp, src, cal, recs).expect("the synthetic trained-model statement")
+}
+
+/// One proved one-block bound run: its endpoint policy and its segment.
+pub(super) struct BoundOne {
+    pub expected: ExpectedIo,
+    pub seg: Vec<u8>,
+}
+
+/// the run statement a verifier at `sh` builds for one block (its own
+/// statement, its own expected policy rebuilt from the bytes)
+pub(super) fn bound_statement(sh: &Shape, blk: &BlockPublic, expected_bytes: &[u8]) -> Result<super::run::RunStatement, String> {
+    let e = ExpectedIo::from_bytes_at(sh, expected_bytes)?;
+    let blocks = vec![blk.clone()];
+    super::run::RunStatement::new_bound(run_shape_for(sh, 1), ctx_t3(), e, &blocks, &[(0, 0)], &synthetic_statement(sh, &blocks))
+}
+
+struct OneWitness(Option<Witness>);
+
+impl super::run::RunWitnessSource for OneWitness {
+    fn witness(&mut self, _k: usize) -> Result<Witness, String> {
+        self.0.take().ok_or_else(|| "the one witness was already consumed".to_string())
+    }
+    fn boundary_plane(&mut self, _k: usize) -> Result<Vec<i16>, String> {
+        Err("a one-block run has no internal boundary".into())
+    }
+}
+
+/// prove ONE block at `sh` as a bound one-block run (the endpoint owner
+/// commits the witness's own input and output planes); no verification
+pub(super) fn prove_one_bound(sh: &Shape, blk: &BlockPublic, w: Witness) -> Result<BoundOne, String> {
+    let ids = Ids::new(sh)?;
+    let plane = |p: usize| -> Vec<i16> { w.planes[p].iter().map(|v| i16::try_from(*v).unwrap_or(0)).collect() };
+    let spec = IoSpec::new_shaped(sh, ctx_t3(), 0, 0)?;
+    let (expected, owners) = prepare_endpoints(spec, &plane(ids.at(A_X)), &plane(ids.at(A_X2)))?;
+    let blocks = vec![blk.clone()];
+    let st = bound_statement(sh, blk, &expected.to_bytes())?;
+    let mut segs: Vec<Vec<u8>> = Vec::new();
+    super::run::prove_run(&st, &blocks, &mut OneWitness(Some(w)), owners, &mut |_, b| {
+        segs.push(b);
+        Ok(())
+    })?;
+    Ok(BoundOne { expected, seg: segs.pop().ok_or("no segment")? })
+}
+
+/// verify a one-block bound run's segment at `sh` (a verifier's own shape)
+pub(super) fn verify_one_bound(sh: &Shape, blk: &BlockPublic, expected_bytes: &[u8], seg: &[u8]) -> Result<(), String> {
+    let st = bound_statement(sh, blk, expected_bytes)?;
+    super::run::verify_run(&st, &[blk.clone()], &[seg.to_vec()])
+}
+
+/// prove one block at `sh` as a bound run and verify it; returns the policy,
+/// the segment and the prove seconds
+fn prove_bytes(sh: &Shape, blk: &BlockPublic, w: Witness) -> (ExpectedIo, Vec<u8>, f64) {
+    let t0 = std::time::Instant::now();
+    let b = prove_one_bound(sh, blk, w).expect("the honest block proves as a bound one-block run");
+    let s = t0.elapsed().as_secs_f64();
+    verify_one_bound(sh, blk, &b.expected.to_bytes(), &b.seg).expect("the bound one-block run verifies");
+    (b.expected, b.seg, s)
+}
+
+/// The tamper controls a trained block must pass: a verifier configured
+/// with any other `tn`, `Cn_a`, `Cn_m`, `Ceps`, `sh_ao` or windowed shift
+/// refuses; a truncated or mutated segment refuses; and (R2-4) the
+/// single-block path refuses the shape outright.
 pub(super) fn coefficient_and_receipt_controls(sh: &Shape, mk: &dyn Fn(&NormCalibration) -> Result<Shape, String>, blk: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) {
-    verify_bytes_at(sh, blk, expected, bytes).expect("the honest receipt verifies from bytes");
+    let eb = expected.to_bytes();
+    verify_one_bound(sh, blk, &eb, bytes).expect("the honest segment verifies");
     for (name, v) in variations(sh.norm_calibration()) {
         let other = mk(&v).unwrap_or_else(|e| panic!("variation {name}: {e}"));
-        let e = verify_bytes_at(&other, blk, expected, bytes).expect_err(&format!("{}: a verifier with {name} ACCEPTED the receipt", sh.name));
+        let e = verify_one_bound(&other, blk, &eb, bytes).expect_err(&format!("{}: a verifier with {name} ACCEPTED the segment", sh.name));
         eprintln!("NATIVE control at {}: verifier with {name} refuses: {}", sh.profile, e.chars().take(100).collect::<String>());
     }
-    assert!(verify_bytes_at(sh, blk, expected, &bytes[..bytes.len() - 1]).is_err(), "a truncated receipt was accepted");
+    assert!(verify_one_bound(sh, blk, &eb, &bytes[..bytes.len() - 1]).is_err(), "a truncated segment was accepted");
     for at in [bytes.len() / 3, bytes.len() / 2, bytes.len() - 9] {
         let mut bad = bytes.to_vec();
         bad[at] ^= 0x10;
-        assert!(verify_bytes_at(sh, blk, expected, &bad).is_err(), "a receipt mutated at byte {at} was accepted");
+        assert!(verify_one_bound(sh, blk, &eb, &bad).is_err(), "a segment mutated at byte {at} was accepted");
     }
+    // R2-4: no single-block receipt at a trained profile, either direction
+    let e = verify_bytes_at(sh, blk, expected, bytes).expect_err("the single-block verifier accepted a trained-profile frame");
+    assert!(e.contains("R2-4"), "{e}");
 }
 
 /// An inconsistent witness: honest under OTHER constants, proved under the
 /// declared ones. Includes `tn - 1` with both `Cn` halved — the same real
 /// multiplier `Cn / 2^tn`, so the quotients mostly agree and only the
-/// remainders and denominators differ.
+/// remainders and denominators differ — and (round 2) a witness honest under
+/// another down shift.
 pub(super) fn inconsistent_witness_controls(sh: &Shape, mk: &dyn Fn(&NormCalibration) -> Result<Shape, String>, blk: &BlockPublic, input: &[i16]) {
     let c = sh.norm_calibration();
     let others = [
         ("tn - 1 with both Cn halved", NormCalibration { tn: c.tn - 1, cn_a: c.cn_a / 2, cn_m: c.cn_m / 2, ..c }),
         ("cn_m + 7", NormCalibration { cn_m: c.cn_m + 7, ..c }),
         ("ceps x 4", NormCalibration { ceps: c.ceps * 4, ..c }),
+        ("sh_z - 1", NormCalibration { sh_z: c.sh_z - 1, ..c }),
     ];
+    let mut rejected = 0usize;
     for (name, v) in others {
         let other = mk(&v).unwrap();
-        let w = witness::build_shaped(&other, blk.attention(), blk.feed_forward(), input).unwrap_or_else(|e| panic!("{name}: the other-constant witness: {e}"));
-        let ids = Ids::new(sh).unwrap();
-        let spec = IoSpec::new_shaped(sh, ctx_t3(), 0, 0).unwrap();
-        let (expected, owners) = prepare_endpoints(spec, &plane16(&w, ids.at(A_X)), &plane16(&w, ids.at(A_X2))).unwrap();
-        let verdict = match prove_inner_at(sh, blk, w, &expected, owners) {
-            Err(e) => Err(e),
-            Ok((r, _)) => verify_inner_at(sh, blk, &expected, &r).map(|_| ()),
+        let w = match witness::build_shaped(&other, blk.attention(), blk.feed_forward(), input) {
+            Ok(w) => w,
+            Err(e) => {
+                eprintln!("NATIVE inconsistent witness at {} ({name}): the other-constant witness itself refuses ({e}); skipped", sh.profile);
+                continue;
+            }
         };
+        let verdict = prove_one_bound(sh, blk, w).and_then(|b| verify_one_bound(sh, blk, &b.expected.to_bytes(), &b.seg));
         let e = verdict.expect_err(&format!("{}: a witness honest under {name} VERIFIED under the declared constants", sh.name));
         eprintln!("NATIVE inconsistent witness at {} ({name}): rejected: {}", sh.profile, e.chars().take(100).collect::<String>());
+        rejected += 1;
     }
+    assert!(rejected >= 3, "{}: only {rejected} inconsistent-witness controls ran", sh.name);
 }
 
 /// **T3 at the trained-calibration rung, in the ordinary filter.** The
@@ -530,10 +659,11 @@ fn native_t3_generic_trained_tinyllama_block_proves_and_verifies() {
     let (expected, bytes, prove_s) = prove_bytes(&sh, &blk, w);
     let hwm_p = super::run::peak_rss_mib();
     let t1 = std::time::Instant::now();
-    verify_bytes_at(&sh, &blk, &expected, &bytes).expect("verifies from bytes");
+    verify_one_bound(&sh, &blk, &expected.to_bytes(), &bytes).expect("verifies from bytes");
     let verify_s = t1.elapsed().as_secs_f64();
     if let Some(dir) = evidence_dir() {
         std::fs::create_dir_all(&dir).unwrap();
+        // ROUND 2 (R2-4): a bound one-block run's SEGMENT, not a single-block frame
         std::fs::write(dir.join("t3-receipt.bin"), &bytes).unwrap();
         std::fs::write(dir.join("t3-expected.bin"), expected.to_bytes()).unwrap();
         std::fs::write(dir.join("t3-block-digest.hex"), blk.digest().iter().map(|b| format!("{b:02x}")).collect::<String>()).unwrap();
@@ -566,7 +696,7 @@ fn native_t3_verify_the_saved_receipt_in_a_fresh_process() {
     let expected = ExpectedIo::from_bytes_at(&sh, &std::fs::read(dir.join("t3-expected.bin")).unwrap()).expect("the expected policy");
     let bytes = std::fs::read(dir.join("t3-receipt.bin")).unwrap();
     let t1 = std::time::Instant::now();
-    verify_bytes_at(&sh, &blk, &expected, &bytes).expect("the saved receipt verifies in a fresh process");
+    verify_one_bound(&sh, &blk, &expected.to_bytes(), &bytes).expect("the saved segment verifies in a fresh process");
     eprintln!("NATIVE T3 fresh-process verify: {:.2} s, {} B, peak RSS {:.0} MiB", t1.elapsed().as_secs_f64(), bytes.len(), super::run::peak_rss_mib());
     let mk = |c: &NormCalibration| Shape::tinyllama_t32_trained(c, T3_F_E);
     coefficient_and_receipt_controls(&sh, &mk, &blk, &expected, &bytes);
@@ -769,7 +899,10 @@ fn range_audit(sh: &Shape) -> (Vec<(usize, String, &'static str)>, Vec<(usize, S
 /// twin's too.
 #[test]
 fn every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_trained_shapes() {
-    for (sh, twin) in [(rung_tc(), Shape::rung_c6()), (tinyllama(), Shape::tinyllama_t32_dev())] {
+    // ROUND 2: rung-TC carries every windowed shift off its frozen value, and
+    // the pg_rot1 calibration is audited at the TinyLlama geometry too
+    let pg = Shape::tinyllama_t32_trained(&pg_calibration(), T3_F_E).unwrap();
+    for (sh, twin) in [(rung_tc(), Shape::rung_c6()), (tinyllama(), Shape::tinyllama_t32_dev()), (pg, Shape::tinyllama_t32_dev())] {
         let (ok, un) = range_audit(&sh);
         let (tok, tun) = range_audit(&twin);
         for (s, p, r) in &ok {
@@ -780,7 +913,20 @@ fn every_committed_value_under_a_non_unit_coefficient_is_range_proved_at_the_tra
         }
         assert!(un.iter().all(|(s, _)| *s != SC_TZC && *s != SC_DZC), "{}: a norm/AO-slot value under a non-unit coefficient is not independently range-proved: {un:?}", sh.name);
         let pairs = |v: &Vec<(usize, String, &'static str)>| -> Vec<(usize, String)> { v.iter().map(|(s, p, _)| (*s, p.clone())).collect() };
-        assert_eq!(pairs(&ok), pairs(&tok), "{}: the classified exposure differs from the frozen twin {}", sh.name, twin.name);
+        // ROUND 2: the exposure may only SHRINK against the frozen twin: a
+        // shift at the top of its window (8, or 16) turns its top-limb pin's
+        // coefficient into 1, so that remainder leaves the non-unit list
+        // while still being a U8 lookup; no plane may JOIN the list
+        let (mine, frozen) = (pairs(&ok), pairs(&tok));
+        let new: Vec<&(usize, String)> = mine.iter().filter(|p| !frozen.contains(p)).collect();
+        assert!(new.is_empty(), "{}: planes newly exposed under a non-unit coefficient against the frozen twin {}: {new:?}", sh.name, twin.name);
+        let gone: Vec<&(usize, String)> = frozen.iter().filter(|p| !mine.contains(p)).collect();
+        for g in &gone {
+            let cal = sh.norm_calibration();
+            let at_top = [cal.sh_qkv, cal.sh_s, cal.sh_g, cal.sh_z, cal.sh_ao].contains(&8) || [cal.sh_o, cal.sh_h].contains(&16);
+            assert!(at_top, "{}: {g:?} left the exposure list but no shift sits at the top of its window", sh.name);
+            eprintln!("D16-5 AUDIT {} slot {:02} {}: under coefficient 1 here (its shift is at the top of its window; still a U8 lookup)", sh.profile, g.0, g.1);
+        }
         assert_eq!(un, tun, "{}: the unclassified exposure differs from the frozen twin {}", sh.name, twin.name);
         assert!(ok.iter().any(|(s, p, _)| *s == SC_DZC && p == "A_X") && ok.iter().any(|(s, p, _)| *s == SC_DZC && p == "A_D"), "{}: the audit did not see the norm clause", sh.name);
     }

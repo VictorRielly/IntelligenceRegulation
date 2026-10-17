@@ -27,6 +27,24 @@ pub const MAX_WIRE_BYTES: usize = 4 * 1024 * 1024;
 /// letting a shape ask for an unbounded frame.
 pub(crate) const MAX_WIRE_BYTES_ANY: usize = 64 * 1024 * 1024;
 
+/// **ROUND 2 (R2-5): the ceiling of a TRAINED-CALIBRATION profile.** The
+/// TinyLlama T512 block counts 72.1 MB at row width 2^14 (57.1 MB at 2^15),
+/// over the 64 MiB ceiling every development profile keeps. A trained profile
+/// is still bounded by its own counted length (which decode requires
+/// exactly); this only lifts the absolute transport ceiling, for those
+/// profiles alone. It is absorbed into no transcript and moves no byte of any
+/// registered profile.
+pub(crate) const MAX_WIRE_BYTES_TRAINED: usize = 256 * 1024 * 1024;
+
+/// the absolute ceiling of one frame or segment at this shape
+pub(crate) fn wire_ceiling(sh: &super::shape::Shape) -> usize {
+    if sh.trained_calibration {
+        MAX_WIRE_BYTES_TRAINED
+    } else {
+        MAX_WIRE_BYTES_ANY
+    }
+}
+
 /// **THE WIRE BOUND, PER PROFILE (the S11a ruling).** `MAX_WIRE_BYTES` is the
 /// TOY's and stays exactly what it is. Every other profile is bounded by its
 /// OWN shape's counted receipt length — the number `decode` already requires
@@ -40,7 +58,7 @@ pub(crate) fn wire_bound(lay: &Layout) -> usize {
     if sh.is_frozen_toy() {
         MAX_WIRE_BYTES
     } else {
-        std::cmp::min(sh.receipt_bytes().total, MAX_WIRE_BYTES_ANY)
+        std::cmp::min(sh.receipt_bytes().total, wire_ceiling(sh))
     }
 }
 
@@ -376,7 +394,7 @@ fn validate_segment(s: &Segment, lay: &Layout, g: SegGeom) -> Result<(), String>
 pub(crate) fn encode_segment(s: &Segment, lay: &Layout, g: SegGeom, binding: &Digest, start_tag: &[u8; 32], end_tag: &[u8; 32]) -> Result<Vec<u8>, String> {
     validate_segment(s, lay, g)?;
     let len = segment_len(lay, g);
-    if len > MAX_WIRE_BYTES_ANY {
+    if len > wire_ceiling(lay.shape()) {
         return Err("private run wire: segment exceeds bound".into());
     }
     let mut out = Vec::with_capacity(len);
@@ -419,7 +437,7 @@ pub(crate) fn encode_segment(s: &Segment, lay: &Layout, g: SegGeom, binding: &Di
 pub(crate) fn decode_segment(bytes: &[u8], lay: &Layout, g: SegGeom, binding: &Digest, start_tag: &[u8; 32]) -> Result<(Segment, [u8; 32]), String> {
     let sh = lay.shape();
     let len = segment_len(lay, g);
-    if bytes.len() != len || len > MAX_WIRE_BYTES_ANY {
+    if bytes.len() != len || len > wire_ceiling(sh) {
         return Err(format!("private run wire: segment {} is {} B, the counted length is {len}", g.k, bytes.len()));
     }
     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));

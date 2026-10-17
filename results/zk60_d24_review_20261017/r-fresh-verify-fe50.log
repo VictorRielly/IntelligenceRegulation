@@ -1,0 +1,14 @@
+{"event":"verified","segment_bytes":12016648,"segment_sha256":"9c9375394d906904f94af7a2255ea4812b20e3b7c931f37860f72d153338671c","load_seconds":0.617,"verify_seconds":0.209,"peak_rss_mib":211,"statement_identity":"e17777d78ef36d1bf327976ae26274710a36c2ace637779e0fbd478e734be36b","scope":"ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"control-refused","control":"verifier statement with norm_tn - 1","error":"private run wire: segment 0 is 12016648 B, the counted length is 12155944"}
+{"event":"control-refused","control":"verifier statement with norm_cn_a + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with norm_cn_m + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with norm_ceps + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_ao + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with another export profile digest","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement naming another layer","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with one gamma_a word moved","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"segment with byte 2403329 flipped","error":"A: pcs zk: group 30: <v, c> != combined claim"}
+{"event":"control-refused","control":"segment with byte 6008324 flipped","error":"A: pcs zk: Merkle path for column 8607 fails"}
+{"event":"control-refused","control":"segment with byte 12016608 flipped","error":"run output endpoint: pcs zk: Merkle path for column 8807 fails"}
+{"event":"control-refused","control":"segment truncated by one byte","error":"private run wire: segment 0 is 12016647 B, the counted length is 12016648"}
+{"event":"controls","refused":12,"honest_still_verifies":true}

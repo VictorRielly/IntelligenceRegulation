@@ -18,7 +18,7 @@ use super::witness;
 use super::*;
 use std::path::{Path, PathBuf};
 
-fn base_dir(tag: &str) -> PathBuf {
+pub(super) fn base_dir(tag: &str) -> PathBuf {
     let root = match std::env::var_os("ZK60_NATIVE_TINY_EXPORT_DIR") {
         Some(d) => PathBuf::from(d),
         None => std::env::temp_dir().join(format!("zk60-native-tiny-{}-{}", std::process::id(), std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos())),
@@ -46,15 +46,16 @@ fn constants_json(cal: &NormCalibration, f_e: u32, overrides: &[(&str, &str)]) -
         ("norm_cn_a".into(), cal.cn_a.to_string()),
         ("norm_cn_m".into(), cal.cn_m.to_string()),
         ("norm_ceps".into(), cal.ceps.to_string()),
-        ("sh_qkv".into(), "7".into()),
+        // ROUND 2: the calibration's own windowed shifts
+        ("sh_qkv".into(), cal.sh_qkv.to_string()),
         ("sh_rope".into(), "7".into()),
-        ("sh_s".into(), "6".into()),
-        ("sh_o".into(), "9".into()),
+        ("sh_s".into(), cal.sh_s.to_string()),
+        ("sh_o".into(), cal.sh_o.to_string()),
         ("sh_ao".into(), cal.sh_ao.to_string()),
-        ("sh_g".into(), "7".into()),
+        ("sh_g".into(), cal.sh_g.to_string()),
         ("sh_u".into(), "0".into()),
-        ("sh_h".into(), "14".into()),
-        ("sh_z".into(), "6".into()),
+        ("sh_h".into(), cal.sh_h.to_string()),
+        ("sh_z".into(), cal.sh_z.to_string()),
         ("f_e".into(), f_e.to_string()),
         ("f_p".into(), "9".into()),
         ("f_ro".into(), "7".into()),
@@ -71,30 +72,32 @@ fn constants_json(cal: &NormCalibration, f_e: u32, overrides: &[(&str, &str)]) -
 
 /// What the writer was asked to perturb (each refusal test sets one).
 #[derive(Default, Clone)]
-struct Fault {
-    profile_constant: Vec<(&'static str, &'static str)>,
-    layer_constant: Vec<(&'static str, &'static str)>,
-    bad_sha_of: Option<&'static str>,
-    shape_of_wk: Option<&'static str>,
-    file_name_of_wo: Option<&'static str>,
-    model_repo: Option<&'static str>,
-    geometry: Option<&'static str>,
-    exp_shift: bool,
-    rope_offset: bool,
-    x_out_flip: bool,
+pub(super) struct Fault {
+    pub(super) profile_constant: Vec<(&'static str, &'static str)>,
+    pub(super) layer_constant: Vec<(&'static str, &'static str)>,
+    pub(super) bad_sha_of: Option<&'static str>,
+    pub(super) shape_of_wk: Option<&'static str>,
+    pub(super) file_name_of_wo: Option<&'static str>,
+    pub(super) model_repo: Option<&'static str>,
+    pub(super) geometry: Option<&'static str>,
+    pub(super) exp_shift: bool,
+    pub(super) rope_offset: bool,
+    pub(super) x_out_flip: bool,
     /// write `null` for these profile constants and list them as per-layer
-    profile_nulls: Vec<&'static str>,
+    pub(super) profile_nulls: Vec<&'static str>,
     /// list these in `per_layer_constants_differ` (default: the nulls)
-    differ_list: Option<Vec<&'static str>>,
+    pub(super) differ_list: Option<Vec<&'static str>>,
     /// a wrong `manifest_sha256` for layer 0 in profile.json
-    bad_layer_manifest_digest: bool,
+    pub(super) bad_layer_manifest_digest: bool,
     /// write the raw sequence files without the sequence manifest
-    no_seq_manifest: bool,
+    pub(super) no_seq_manifest: bool,
+    /// the `variant` profile.json names (default: the directory's name)
+    pub(super) variant_name: Option<&'static str>,
 }
 
 /// Write a tiny export (one layer, one sequence) under `dir/variant/`.
 /// Returns the variant directory and the generated words' block digest.
-fn write_export(dir: &Path, variant: &str, fault: &Fault) -> (PathBuf, Digest) {
+pub(super) fn write_export(dir: &Path, variant: &str, fault: &Fault) -> (PathBuf, Digest) {
     let cal = super::trained_calib_tests::rung_tc_calibration();
     let sh = Shape::rung_tc(&cal).unwrap();
     let (w, input) = super::trained_calib_tests::trained_dense_words(&sh, super::trained_calib_tests::TRAINED_BANDS);
@@ -171,7 +174,8 @@ fn write_export(dir: &Path, variant: &str, fault: &Fault) -> (PathBuf, Digest) {
     let differ: Vec<String> = fault.differ_list.clone().unwrap_or_else(|| fault.profile_nulls.clone()).iter().map(|k| format!("\"{k}\"")).collect();
     let msha = if fault.bad_layer_manifest_digest { hex(&sha256(b"another manifest")) } else { hex(&sha256(manifest.as_bytes())) };
     let profile = format!(
-        "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"geometry\": \"{}\", \"model\": {{\"repo\": \"{}\", \"revision\": \"native-tiny-export\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"native-lane\", \"sha256\": {{\"trained_block_tests.rs\": \"{}\", \"trained_block.rs\": \"{}\"}}}}, \"T\": 32, \"profile_constants\": {}, \"per_layer_constants_differ\": [{}], \"layers\": [{{\"layer\": 0, \"dir\": \"layer_00\", \"manifest_sha256\": \"{msha}\"}}], \"sequences\": [\"seq_s0\"], \"metadata_out_of_proof\": {{\"residual_scale_s_x\": 0.0053663705198366135}}}}\n",
+        "{{\"schema\": \"zk60-trained-profile-export/1\", \"kind\": \"profile\", \"variant\": \"{}\", \"geometry\": \"{}\", \"model\": {{\"repo\": \"{}\", \"revision\": \"native-tiny-export\", \"sha256\": \"{}\"}}, \"calibration_tool\": {{\"path\": \"native-lane\", \"sha256\": {{\"trained_block_tests.rs\": \"{}\", \"trained_block.rs\": \"{}\"}}}}, \"T\": 32, \"profile_constants\": {}, \"per_layer_constants_differ\": [{}], \"layers\": [{{\"layer\": 0, \"dir\": \"layer_00\", \"manifest_sha256\": \"{msha}\"}}], \"sequences\": [\"seq_s0\"], \"metadata_out_of_proof\": {{\"residual_scale_s_x\": 0.0053663705198366135}}}}\n",
+        fault.variant_name.unwrap_or(variant),
         fault.geometry.unwrap_or("rung-tc-t32-dev"),
         fault.model_repo.unwrap_or("synthetic/native-tiny-export"),
         hex(&sha256(b"synthetic words")),
@@ -219,7 +223,8 @@ fn the_reader_round_trips_a_tiny_export_and_binds_its_digests() {
 fn every_malformed_export_is_refused_by_name() {
     let dir = base_dir("refusals");
     let cases: Vec<(&str, Fault, &str)> = vec![
-        ("a fixed shift other than the code's", Fault { profile_constant: vec![("sh_qkv", "8")], ..Default::default() }, "hold it at 7"),
+        ("a fixed shift other than the code's", Fault { profile_constant: vec![("sh_rope", "8")], ..Default::default() }, "hold it at 7"),
+        ("a windowed shift outside its window", Fault { profile_constant: vec![("sh_qkv", "9")], layer_constant: vec![("sh_qkv", "9")], ..Default::default() }, "structure-preserving window"),
         ("a window that needs a fifth limb", Fault { profile_constant: vec![("norm_tn", "12")], layer_constant: vec![("norm_tn", "12")], ..Default::default() }, "exceeds four byte limbs"),
         ("a Cn outside the class", Fault { profile_constant: vec![("norm_cn_m", "2000000")], layer_constant: vec![("norm_cn_m", "2000000")], ..Default::default() }, "outside the declared class"),
         ("layer constants that differ from uniform profile constants", Fault { layer_constant: vec![("norm_cn_a", "1337")], ..Default::default() }, "one calibration per run"),
@@ -233,6 +238,14 @@ fn every_malformed_export_is_refused_by_name() {
         ("an exp table that is not the named member", Fault { exp_shift: true, ..Default::default() }, "exp table is not exp_member"),
         ("RoPE tables off the generator", Fault { rope_offset: true, ..Default::default() }, "--rope-from-export"),
         ("an unknown silu member", Fault { profile_constant: vec![("silu_member", "[-7, -7]")], layer_constant: vec![("silu_member", "[-7, -7]")], ..Default::default() }, "frozen SiLU registry"),
+        // review finding F-1 and its general rule: every constant an export
+        // chooses has a declared class, refused at the door by name
+        ("f_e 50 (the reviewer's forgery value)", Fault { profile_constant: vec![("f_e", "50")], layer_constant: vec![("f_e", "50")], ..Default::default() }, "review finding F-1"),
+        ("f_e 8, below the class", Fault { profile_constant: vec![("f_e", "8")], layer_constant: vec![("f_e", "8")], ..Default::default() }, "outside its declared class"),
+        ("f_e 17, declared per layer", Fault { profile_nulls: vec!["f_e"], layer_constant: vec![("f_e", "17")], ..Default::default() }, "review finding F-1"),
+        ("an exp e_s outside its class", Fault { profile_constant: vec![("exp_e_s", "9")], layer_constant: vec![("exp_e_s", "9")], ..Default::default() }, "exp_e_s 9 is outside its declared class"),
+        ("another RoPE base", Fault { profile_constant: vec![("rope_theta", "500000.0")], layer_constant: vec![("rope_theta", "500000.0")], ..Default::default() }, "RoPE base"),
+        ("a variant name that is not a plain name (F-4)", Fault { variant_name: Some("../elsewhere"), ..Default::default() }, "variant"),
     ];
     for (k, (name, fault, want)) in cases.into_iter().enumerate() {
         let (vdir, _) = write_export(&dir, &format!("bad-{k}"), &fault);
@@ -337,8 +350,8 @@ fn native_t5_a_real_exports_layers_load_and_its_trained_weights_prove() {
             t0.elapsed().as_secs_f64(),
             c.cal.describe(),
             c.f_e,
-            c.silu,
-            c.exp_e_s,
+            layer.record.silu_member,
+            layer.record.exp_e_s,
             sh.norm_wrho,
             sh.d_max,
             layer.rope_note,
@@ -368,15 +381,15 @@ fn native_t5_a_real_exports_layers_load_and_its_trained_weights_prove() {
                     m(A_X2)
                 );
                 if !proved {
-                    let plane = |p: usize| -> Vec<i16> { w.planes[ids.at(p)].iter().map(|v| *v as i16).collect() };
-                    let spec = IoSpec::new_shaped(&sh, *blake3::hash(b"native T5-pre: trained weights, synthetic input").as_bytes(), 0, 0).unwrap();
-                    let (expected, owners) = prepare_endpoints(spec, &plane(A_X), &plane(A_X2)).unwrap();
+                    // ROUND 2 (R2-4): a one-block run bound to a synthetic
+                    // statement (the input is synthetic; the weights are the
+                    // export's)
                     let t0 = std::time::Instant::now();
-                    let (receipt, _) = super::protocol::prove_inner_at(&sh, &layer.blk, w, &expected, owners).expect("the trained-weight block proves");
+                    let b = super::trained_calib_tests::prove_one_bound(&sh, &layer.blk, w).expect("the trained-weight block proves");
                     let prove_s = t0.elapsed().as_secs_f64();
-                    let bytes = receipt.to_bytes_at(&sh, &layer.blk, &expected).unwrap();
+                    let bytes = b.seg.clone();
                     let t1 = std::time::Instant::now();
-                    verify_bytes_at(&sh, &layer.blk, &expected, &bytes).expect("verifies from bytes");
+                    super::trained_calib_tests::verify_one_bound(&sh, &layer.blk, &b.expected.to_bytes(), &bytes).expect("verifies from bytes");
                     eprintln!(
                         "NATIVE T5-pre PROVED layer {} with TRAINED weights on a SYNTHETIC input (|x| <= {xmag}): prove {prove_s:.2} s, verify {:.2} s, receipt {} B, VmHWM {:.0} MiB",
                         layer.index,

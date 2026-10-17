@@ -1,0 +1,22 @@
+{
+  "access_date": "2026-10-17",
+  "tool": "native LIVE web.run",
+  "queries": [
+    "site.arxiv.org 2026 GPU zero knowledge neural network witness quantization matrix multiplication proving October",
+    "site.github.com ICICLE sumcheck witness GPU memory streaming 2026",
+    "site.eprint.iacr.org zero knowledge matrix multiplication batching preprocessing 2024 2025 Lasso Shout",
+    "site.github.com \"MORPH\" \"Zero Knowledge\" Tong",
+    "site.github.com \"zkMatrix\" batched Cong code",
+    "site.arxiv.org October 2026 \"sumcheck\" \"GPU\""
+  ],
+  "primary_response_files": [
+    "live-primary.json",
+    "web_secondary59.json",
+    "web_details59.json",
+    "web_final59.json",
+    "web_extra59.json",
+    "live-release-attempt.json"
+  ],
+  "excluded": "Unrelated blockchain Morph, third-party summaries, Reddit and similarly named DualMatrix crate are not treated as evidence for MORPH/zkMatrix.",
+  "foreign_code_executed": false
+}

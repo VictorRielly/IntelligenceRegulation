@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/causal-axis-selector-20261017/experiment.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "seed": 2026101758,
+  "timeout_seconds": 59,
+  "memory_cap_mib": 512,
+  "estimated_memory_mib": 96,
+  "threads": 1,
+  "gpu": false
+}

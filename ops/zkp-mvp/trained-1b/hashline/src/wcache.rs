@@ -308,7 +308,7 @@ fn reencode_store(params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Store {
     if crate::gpu::enabled() {
         match crate::gpu::dev_encode_only(params, data, ntt) {
             Ok(dc) => return Store::Device(dc),
-            Err(e) => eprintln!("[UPERF3-AC] gpu encode (cached W) declined ({e}); CPU path"),
+            Err(e) => crate::gpu::declined("[UPERF3-AC] gpu encode (cached W)", &e.to_string()),
         }
     }
     let mut encoded = vec![Fp::ZERO; rows * nn];

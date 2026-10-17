@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "seed": 2026101758001,
+  "checks": 1431,
+  "wall_seconds": 0.03388699800052564,
+  "max_rss_kib": 16100,
+  "threads": 1,
+  "gpu": null,
+  "scope": "Independent base-prime Boolean/offdomain original-cube audit, no native proof",
+  "limits": {
+    "wall_seconds": 59,
+    "memory_mib": 512,
+    "estimated_memory_mib": 32
+  }
+}

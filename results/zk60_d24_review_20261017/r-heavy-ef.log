@@ -1,0 +1,18 @@
+
+running 2 tests
+test private_block::review_d24_tests::review_e_softmax_field_wrap_forgery_through_the_trained_cli ... REVIEW forge at (h 0, t 31, j 0): Sum 36028797018963968, p 16 -> 527, sr 0 -> 36028792723996673, sg 36028797018963967 -> 4294967294; c2 over the integers = -18446744069414584321 = -1 * P
+REVIEW-E forged witness at Forge { h: 0, t: 31, j: 0, delta: 511, k: 1, naive: false }: builds; block output differs from the honest one in 2010 of 65536 words
+{"event":"loaded","variant":"review-fe50","layer":0,"block_digest":"b9b194752a0f1ecb12f7a5c0af95810543889ccef6f3b744782fc81212bcaa0b","rope":"native generator at theta 10000 (the export carries no RoPE tables)","seconds":0.342,"scope":"ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+REVIEW forge at (h 0, t 31, j 0): Sum 36028797018963968, p 16 -> 527, sr 0 -> 36028792723996673, sg 36028797018963967 -> 4294967294; c2 over the integers = -18446744069414584321 = -1 * P
+{"event":"parity","result":"bit-exact","words":65536,"seconds":11.572}
+{"event":"proved","segment_bytes":12016648,"segment_sha256":"9c9375394d906904f94af7a2255ea4812b20e3b7c931f37860f72d153338671c","prove_seconds":3.047,"in_process_verify_seconds":0.254,"peak_rss_mib_after_prove":1096,"total_seconds":15.379,"statement_identity":"e17777d78ef36d1bf327976ae26274710a36c2ace637779e0fbd478e734be36b","out":"/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r1-scratch/review_out/artifact-fe50"}
+REVIEW-E CLI prove (forged witness at Forge { h: 0, t: 31, j: 0, delta: 511, k: 1, naive: false }) exit 0
+{"event":"verified","segment_bytes":12016648,"segment_sha256":"9c9375394d906904f94af7a2255ea4812b20e3b7c931f37860f72d153338671c","load_seconds":0.400,"verify_seconds":0.250,"peak_rss_mib":1096,"statement_identity":"e17777d78ef36d1bf327976ae26274710a36c2ace637779e0fbd478e734be36b","scope":"ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+REVIEW-E RESULT: the trained CLI verifier (hook OFF) on the forged artifact: exit 0 (ACCEPTED: SOUNDNESS FAILURE); the claimed output differs from the honest block output in 2010 of 65536 words; statement identity e17777d78ef36d1bf327976ae26274710a36c2ace637779e0fbd478e734be36b
+ok
+test private_block::review_d24_tests::review_f_naive_quotient_forgery_is_rejected_at_the_same_profile ... REVIEW naive forge at (h 0, t 31, j 0): p 16 -> 17
+REVIEW-F naive forgery (p + 1, no wrap) at f_e 50: rejected: verifier: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 548 filtered out; finished in 51.00s
+

@@ -1,0 +1,12 @@
+
+running 2 tests
+test private_block::review_r2_tests::r2_3_the_f_e_class_edge_at_the_trained_tinyllama_profile ... REVIEW-R2-3 shape f_e 16 wrho_s 21 sigma limbs 3
+REVIEW-R2-3 honest bound run at f_e 16 verifies (11705160 B)
+REVIEW-R2-3 wrapping forgeries applicable at f_e 16: 0
+REVIEW-R2-3 naive forgery at f_e 16: rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+ok
+test private_block::review_r2_tests::r2_4_write_an_edge_export_for_the_production_cli ... REVIEW-R2-4 wrote /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r2-scratch/review_out/export-edge/review-edge-dir
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 554 filtered out; finished in 81.61s
+

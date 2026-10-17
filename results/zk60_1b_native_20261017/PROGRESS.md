@@ -250,3 +250,284 @@ directory. No git. Every build/test/proof through
   sources (`t6-final-release-lib.*`, waited 341 s for admission behind the
   calibration lane): **518 passed, 0 failed, 24 ignored** (fixture copies in
   place), 647 s, peak 1.9 GiB. Lane closed; nothing of mine is running.
+
+## Round 2 (coordinator, 2026-10-17 ~08:10 UTC): pg_rot1 export, shifts, stack
+
+- 08:10-08:45 UTC: read `export/pg_rot1_export_T32/` (README, profile.json
+  b25ba5f5..., rotation.json): one calibration Cn_a 3999 / Cn_m 3122 / Ceps
+  91255, shifts QKV 8 / S 6 / O 9 / AO 3 / G 8 / H 14 / Z 5, per-layer exp
+  e_s and SiLU member, Hadamard-rotated residual basis. Code written (not
+  yet compiled, see below):
+  * R2-1: `NormCalibration` gains sh_qkv, sh_s, sh_o, sh_g, sh_h, sh_z with
+    structure-preserving windows (one-limb sites 1..=8, AO 0..=8, two-limb O
+    and product 9..=16), confirmed against `layout.rs::lookups_at` (scaled
+    top-limb coefficients 2^(8-sh) / 2^(16-sh)) and every host relation in
+    `argument.rs` (QZC/KVZC/SZC/FZC/DZC) and `slot_ir.rs`; witness, kernel
+    crate, parity mapper, schedule lines, parameter line, statement (now
+    schema v3: table keys per layer), loader. RoPE/F_P/F_E/up/residual stay
+    fixed. `nowrap_check.py` extended to the shift windows.
+  * R2-4: `protocol::single_block_profile_allowed` refuses every single-block
+    entry point (prove, verify, encode, decode) at a trained-calibration
+    profile; tests now prove trained blocks as one-block BOUND runs (a
+    test-only constructor allows a synthetic-recipe statement at the trained
+    profile; production still refuses it).
+  * R2-2/R2-3: loader split into run-level constants and per-block table
+    keys; rotation sign digest checked; `stack-prove` / `stack-verify` CLI
+    subcommands (sealing pass with parity at every layer, bound run,
+    directory sink, fresh-process verify, run-level controls, a
+    `--lie-at-boundary` prover control).
+- 08:19-08:45 UTC: BLOCKED ON ADMISSION. The calibration lane keeps four
+  `light` jobs live (11.5 of 11.89 GiB declared budget; its queue scripts
+  hold further jobs with 6 h waits), so my build (need 4 GiB) and even a
+  0.5 GiB light Python check waited ~25 min; the D24 reviewer's build job
+  (`r-fast`) is starved the same way and holds the heavy lock while queued.
+  I stopped my two queued jobs (TaskStop; they had no child) and requeued
+  the compile at my MEASURED need (2.5 GiB, cap 4; debug build peak 1.75 GiB).
+- 08:45-09:00 UTC: the round-2 code compiled (`r2-compile.log`); fast tests
+  `r2-fast.log` 74 passed / 2 failed: (a) s25's call-site census (the new
+  `stack_context` is a second `blake3::hash(` in trained_block.rs: table row
+  updated to 2, both contexts described); (b) the D16-5 audit's exposure
+  equality at rung-TC vs rung-C6: sh_qkv = sh_g = 8 makes the top-limb pin's
+  coefficient `2^(8-8) = 1`, so A_RQL/A_RKL/A_RVL/A_RGL leave the NON-UNIT
+  list while still being U8 lookups. The audit now asserts the exposure only
+  SHRINKS against the frozen twin and every plane that leaves sits under a
+  shift at the top of its window (printed per plane). `r2-fast2.log`: 5/5
+  incl. the audit, the rung alias test (D16 item 6 rejected at slot 2 and at
+  the value-0 LogUp claim), every coefficient/shift control (11 verifier
+  variants refuse) and the inconsistent-witness controls (incl. sh_z - 1).
+- 09:00 UTC: `nowrap_check.py` (round 2): shift windows at their tops all
+  below 2^36 (host down 2^36.0 the worst); pg_rot1 TinyLlama constants D_max
+  1,482,910, window 32 (C-6), worst clause 2^48.011.
+
+### D24 review findings (coordinator relay ~09:05 UTC) — fixes
+
+The independent review (`results/zk60_d24_review_20261017/`) accepted the
+D24 norm rule and did NOT accept the trained profile + loader until F-1 is
+fixed. Each finding, its fix and its evidence:
+
+- **F-1 BLOCKING, f_e unvalidated — FIXED.** Declared class
+  `TRAINED_F_E_RANGE = 9..=16` plus the three-limb sigma_s rule
+  `wrho_s = clog2(T) + f_e <= 24` (shape.rs). Checked (1) in the loader's
+  `constants_of` (prover and verifier both load through it; the per-layer
+  path too), (2) in `TrainedExport::shape_for` before and after the shape is
+  built, (3) at the door `Shape::with_trained_calibration` via the new
+  `Shape::check_trained_class`, (4) again in `Layout::for_shape` for every
+  trained shape. Re-derivation: SC_SZC `c2 = mask e 2^9 - p Sum - sr`,
+  `c3 = sg + sr + 1 - Sum`: over the class at EVERY T with a <= 24-bit
+  window `|c2| < 2^34.003` (T32: 2^31.022), no all-equal-row wrapping
+  forgery for any k != 0 (nowrap_check.py section 7; and the REVIEWER'S OWN
+  functions re-run on the new class by `reviewer_nowrap_round2.py`, which
+  imports reviewer_nowrap.py read-only: 100 (f_e, T) points, worst 2^34.003,
+  margin 30 bits, no forgery; its T32 forgery threshold reproduced at 50).
+  Permanent tests (`review_d24_tests.rs`, ported from the reviewer's scratch
+  module, forge hook now thread-local and placed after the honest range
+  check as in the review): A — the TinyLlama door admits exactly 9..=16 of
+  0..=64 (no panic); E — the reviewer's f_e = 50 export (pinned model
+  strings) is refused AT THE DOOR by `trained_prove_command` (no artifact
+  written), `trained_verify_command` and `trained_stack_verify_command`
+  (also f_e 8 and 17), every f_e in 9..=16 loads, the wrapping forgery
+  (p 16 -> 527, sr' = sr - 511 Sum + P) builds a witness at a rung shape
+  EDITED after the door to f_e 50 and both the bound-run prover and verifier
+  refuse it at Layout::for_shape, and the wrap remainder is impossible at
+  every admitted f_e; F (control) — the naive p + 1 forgery is rejected at
+  "slot 17 [06 softmax zero-check]" at the rung (fast) and at the TinyLlama
+  profile with f_e 9 (heavy, ignored, release). Loader refusal cases added:
+  f_e 50 / 8 / 17-per-layer. The one-block and stack CLI verifiers gain an
+  "f_e moved by one" control.
+- **General rule — every export-chosen constant has a declared class.**
+  norm tn/Cn/Ceps/sh_ao and the six windowed shifts (derive_at_width, at the
+  door and in Layout::for_shape); f_e (above); exp e_s in -8..=8
+  (`TRAINED_EXP_E_S_RANGE`; any finite e_s keeps the table in [0, 2^f_e], the
+  class keeps the generator off its NaN overflow) in the loader's
+  `table_keys_of` and in the statement's `check_self`; the SiLU member must
+  be in the frozen int16-out registry (loader early + statement); RoPE base
+  pinned to the geometry's 10000 (`TRAINED_ROPE_THETA`; loader and
+  `check_honoured_by_code` at trained shapes; table values are in [-128, 128]
+  for any base, so no premise depends on it); the fixed constants (sh_rope,
+  sh_u, f_p, f_ro, sh_r2) were already checked equal; T = 32; tables checked
+  against the generator members by value (kept). Loader refusal tests: e_s 9,
+  rope_theta 500000.
+- **F-2 — FIXED.** `RunStatement::new` refuses when `rs.sh.trained_calibration`
+  (or the trained run profiles by name), not on a "tinyllama" substring;
+  review B made permanent (also a trained shape under a frozen run profile
+  string). Single-block proofs at trained shapes already refuse (R2-4:
+  `single_block_profile_allowed` in prove_inner_at / verify_inner_at and the
+  receipt codec); `protocol::transcript` now also asserts it.
+- **F-3 — FIXED.** `new_bound` requires `rs.sh.trained_calibration` (review
+  C permanent: refused at rung-G); `check_self` keys on the trained TinyLlama
+  profile's identity and requires the PINNED checkpoint source there (another
+  checkpoint or a synthetic recipe is refused; the test-only synthetic
+  waiver remains cfg(test)). Lane C's binding test moved from rung-G to the
+  trained rung and now also asserts both refusals.
+- **F-4 — FIXED.** `variant` comes from profile.json's `variant` field
+  (required, plain name), not the directory name; review D permanent (same
+  bytes under two directory names -> one identity; another variant -> another).
+- **F-5 — FIXED.** `Layout::for_shape` re-runs `check_trained_class`
+  (derive_at_width, derived window/D_max equality, f_e class, derived
+  wrho_s) for trained shapes; review H permanent with 12 edits, all refused.
+- **F-6 — FIXED.** `tinyllama_trained_ladder`, `tinyllama_t32_dev`,
+  `tinyllama_t32_probe`, `TINYLLAMA_T32_DEV_PROFILE`,
+  `RunShape::tinyllama_t32_dev` and `RUN_PROFILE_TINYLLAMA_T32_DEV` are
+  cfg(test).
+- **N-4 (note)**: the reachable tn range is 2..15; the declared class stays
+  1..=16 (wider than reachable, which only over-bounds the derivation).
+- The reviewer's corner test G is permanent too (bound runs): the norm class
+  corner proves (segment 7,452,120 B) and its neighbours refuse.
+- 09:14-09:18 UTC: guarded debug runs `r2-f1-fast.log` (58/60: lane C's
+  rung-G binding test and review E's hook position) then `r2-f1-fast2.log`:
+  16 passed, 0 failed (review A-H, lane C, loader refusals).
+- 09:19 UTC: launched detached `r2_suite_and_build.sh`: full guarded release
+  suite on the fixed tree, then the release CLI build copied to
+  `r2/zk60_trained_block.release.bin` (+ .sha256).
+- 09:19-09:30 UTC: the first full release suite on the fixed tree
+  (`r2-full-release.log`) was KILLED by its own 6 GiB kernel cap (peak 5.87
+  GiB at the 22-thread default) after 441 passes, and showed one failure:
+  `s35_tests::the_two_rewritten_closures_equal_the_parent_closure_at_every_
+  registered_shape`, which PASSES alone (`r2-s35.log`). Cause: it asserts an
+  exact count of a PROCESS-WIDE comparison counter over its own walk, and
+  every other test's slot definitions running in parallel add to it. Fixed
+  test-side: the same count is also kept per thread and the assertion reads
+  the thread's (the walk's definitions run on its own thread).
+- 09:29-09:30 UTC: round-2 release CLI built, `r2/zk60_trained_block.release.bin`
+  sha256 17d6ab10652dbbf8b22736532212453e8d68d73d056b7f2090b646d14cc791fe;
+  the 157 source digests at that build are `r2/manifest_cli_sources.json`
+  (later edits are test-only: s35_tests.rs, trained_stack_tests.rs).
+- 09:28 UTC: stack controls made copy-free (each segment mutation in place
+  and undone; no second 256 MB receipt copy resident). New test module
+  `trained_stack_tests.rs` (R2-3 in the ordinary filter): a 3-layer chained
+  rung export with PER-LAYER tables (e_s 0/1, SiLU (-3,-11)/(-4,-12)) proves
+  through `stack-prove` as ONE bound run (parity bit-exact at every layer,
+  receipt 22,434,344 B), `stack-verify --controls` accepts and its 11
+  run-level controls refuse (swapped blocks x2, cn_a / sh_z / sh_qkv / f_e
+  moved, another export digest, one block fewer, segment byte flip, segments
+  swapped, truncation); a wrong pin, a 2-layer verifier, a foreign file and
+  an existing out dir are refused; `--lie-at-boundary 1` fails to verify at
+  "slot 22 [IO-out endpoint equality]" (`r2-stacktest.log`, 3/3 incl. s35).
+- 09:33 UTC: the round-2 CLI on the REVIEWER'S forged artifact
+  (`trained-1b-review-r1-scratch/review_out/{export,artifact}-fe50`, read
+  only) with --controls: exit 1, refused at the door ("f_e 50 is outside its
+  declared class 9..=16 ... review finding F-1"); `r2/review-fe50-recheck/`.
+- 09:33-09:44 UTC: full guarded release suite again at 8 test threads
+  (`r2-full-release2.log`): lib 527 passed / 0 failed / 25 ignored, every
+  integration target ok; guard child wall 677 s, peak RSS 4.21 GiB.
+- 09:34 UTC: `nowrap_check.py` (section 7, softmax) and
+  `reviewer_nowrap_round2.py` both PASS; NOWRAP_DERIVATION.md section 8.
+
+### R2-2 and R2-3 on pg_rot1_export_T32 (CPU, round-2 CLI 17d6ab10...)
+
+- 09:44-09:47 UTC, **R2-2** (`r2_pg.sh` -> `r2_run.sh`, evidence
+  `r2/pg_rot1_export_T32-L{0,21}-{ho00,ho01}/`): parity BIT-EXACT (65,536
+  words) for layer 0 and layer 21 on both held-out sequences; each proves as
+  a bound one-block run (prove 2.3-2.5 s, segment 11,627,288 B, VmHWM about
+  880 MiB) and verifies in a FRESH process (0.24-0.26 s). Layer 0 / ho00 and
+  layer 21 / ho01 ran every control: 3 inconsistent-witness controls refused
+  at prove time and 19 verifier controls refused (every calibration constant
+  and windowed shift moved, f_e moved, another export digest, another layer,
+  one gamma word, segment mutations and truncation), the honest segment
+  still verifying. Statement identities: layer 0 f9c03305..., layer 21
+  5481437... (the run context is per layer, the identity per export+layer).
+- 09:47-09:57 UTC, **R2-3 THE STACK** (`r2_stack.sh ho00`, evidence
+  `r2/stack-pg_rot1-ho00-cpu/`): ALL 22 pg_rot1 TinyLlama blocks as ONE bound
+  run at T32, [MEASURED, shared box, n=1, CPU]:
+  * sealing pass: parity BIT-EXACT at every one of the 22 layers against the
+    export's x_out (block k's output IS block k+1's input by construction),
+    230.6 s;
+  * proving pass (`prove_run`, 22 segments into the run directory): 282.6 s,
+    of which witness rebuild 223.0 s (about 10 s per block: the single-thread
+    witness builder dominates; the proofs themselves are about 60 s);
+    in-process verify from the directory 4.9 s; total 528.9 s; VmHWM 2,200
+    MiB; guard child wall 529.0 s, peak RSS 2.15 GiB (cgroup 2.6 GiB);
+  * receipt 250,855,088 B in 22 segments (11,320,120-11,698,968 B each; lengths and
+    SHA-256 in `run/statement/segments.json`);
+  * statement identity 68ad19c83a3ae1a345f1a5a8b5dcdc02679fc71e89a4d1eb19d55eb446b9f487
+    (binds the export profile digest b25ba5f5..., the tool digest, every
+    layer's block digest, manifest digest, SiLU member and exp e_s, the one
+    calibration, f_e and the RoPE base).
+  * FRESH-PROCESS verify of the directory with `--controls`: verified in
+    4.9 s (load 10.3 s), guard wall 34.4 s, peak RSS 1.57 GiB; all 11
+    run-level controls REFUSED (blocks 10/11 swapped in the statement; the
+    verifier's block list swapped; cn_a + 1; sh_z, sh_qkv and f_e moved;
+    another export digest; one block fewer; a byte of segment 11 flipped;
+    segments 10/11 swapped; the last segment truncated) and the honest run
+    still verifies.
+  * the prover-side boundary lie (`--layers 0..3 --lie-at-boundary 1`,
+    `r2/stack-pg_rot1-ho00-lie/`): parity bit-exact, then the run FAILS to
+    verify at "slot 22 [IO-out endpoint equality]" as it must (guard wall
+    67.8 s).
+  Scope, unchanged: the 22 transformer blocks only (embedding, final norm,
+  LM head, token selection NOT covered, D13); NO privacy acceptance at this
+  shape (D22 covers only the toy); float fidelity is the calibration lane's
+  measurement (held-out top-1 0.698 for pg_rot1).
+- The run directories hold the segment bytes (240 MB + 33 MB); the
+  committable record is `statement/segments.json` (lengths + SHA-256),
+  `statement.json`, `expected.bin` and the logs.
+
+### R2-5 GPU readiness
+
+- Fail-closed (code from earlier this round, now exercised): `gpu::required()`
+  (`HL_GPU_REQUIRED=1`), a decline counter, `gpu::declined(site, err)` which
+  logs, counts and PANICS when the GPU is required (every decline site in
+  `gpu/mod.rs` seams, `zk.rs`, `pcs.rs`, `wcache.rs`, `layer.rs` routes
+  through it; `cuda.rs`'s internal device-to-device fallbacks unchanged),
+  and `gpu::require_live()` at the top of `stack-prove`. Evidence: the CPU
+  binary with `HL_GPU=1 HL_GPU_REQUIRED=1` refuses before loading anything
+  ("HL_GPU_REQUIRED=1 but the GPU path is not live: gpu: off (built without
+  --features gpu-cuda)", `r2/gpu-required-on-cpu-binary/`).
+- Wire cap per profile: `wire::wire_ceiling(sh)` is 256 MiB at the trained
+  profiles (64 MiB elsewhere, unchanged); T512 lc14's counted segment is
+  above 64 MiB and below the new ceiling (ladder test).
+- 09:58-10:02 UTC: GPU-feature CLI built (guarded, 70 s;
+  `r2/zk60_trained_block.gpu.release.bin` sha256
+  0d2027a10f01109786178102c0dd1640390b0eaa0434c5ad01cc8e438b57d7f9; the
+  feature-gated decline routing compiles).
+- 10:02-10:12 UTC: ONE GPU-assisted run of the same 22-block stack
+  (`r2_stack_gpu.sh ho00`, guard class gpu, `HL_GPU=1 HL_GPU_REQUIRED=1`,
+  evidence `r2/stack-pg_rot1-ho00-gpu/`): run header "gpu: ON — NVIDIA
+  GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB)", 0 declines, every
+  keyed ZK commitment on the device; same statement identity 68ad19c8...,
+  same receipt length 250,855,088 B; verified in a FRESH process by the CPU
+  binary (4.98 s). Guard: wall 545.2 s, peak RSS 1.99 GiB, peak VRAM 1,281
+  MiB, drained at once.
+
+| 22-block pg_rot1 stack, T32 [MEASURED, shared box, n=1] | CPU | GPU-assisted |
+|---|---|---|
+| sealing pass (witnesses + parity, all layers) | 230.6 s | 229.9 s |
+| proving pass `prove_run` | 282.6 s | 296.0 s |
+| of which witness rebuild | 223.0 s | 228.0 s |
+| proofs proper (difference) | 59.6 s | 68.1 s |
+| in-process verify | 4.9 s | 4.9 s |
+| total (load + both passes + verify) | 528.9 s | 545.1 s |
+| fresh-process verify | 4.9 s (+ 10.3 s load) | 5.0 s (+ 9.8 s load, CPU binary) |
+| receipt | 250,855,088 B | 250,855,088 B |
+| peak RSS (guard) / VRAM | 2.15 GiB / - | 1.99 GiB / 1,281 MiB |
+
+  Reading: the GPU does not help this stack today. The single-thread
+  witness builder is about 10 s per block and runs TWICE (sealing pass and
+  proving pass), 86% of the wall; the proofs proper are about 2.7 s per block
+  on the CPU and the device path (commitments only) did not beat it at this
+  size (68 vs 60 s, n=1, shared box with the calibration lane's jobs live).
+  The obvious next levers are a parallel witness builder and not rebuilding
+  each witness in the proving pass (keep the sealing pass's witnesses when
+  memory allows, or seal from the export's x_out instead of a full witness).
+- 10:13-10:16 UTC: the heavy TinyLlama tests in release (`r2-heavy-tinyllama.log`,
+  3/3, guard wall 162 s, peak 1.05 GiB): review F at the TinyLlama profile
+  (pg calibration, f_e 9) — the naive p + 1 forgery is rejected at "slot 17
+  [06 softmax zero-check]"; D16 item 6 at the pg TinyLlama calibration —
+  all four half-p norm aliases rejected (slot 2, and the value-0 LogUp claim
+  on H); T3 generic witness at the TinyLlama trained profile proves (2.54 s)
+  and every coefficient/shift control and inconsistent-witness control
+  refuses.
+- 10:17 UTC: `r2/round2-vs-review-r1.patch` — every source change since the
+  frozen review copy `ops/zkp-mvp/trained-1b-review-r1/` (round-2 shifts,
+  R2-4, the loader/stack, the GPU fail-closed routing and the F-1..F-6
+  fixes), for the focused re-review.
+
+**Round 2 status at hand-back (10:17 UTC):** R2-1 done (shifts per profile,
+windows, audit, nowrap); R2-2 done (pg_rot1 L0 and L21, both sequences,
+parity bit-exact, proofs, fresh verifies, controls); R2-3 done (22-block
+bound stack proved, fresh-process verified, 11 run-level controls refuse,
+boundary-lie control fails to verify); R2-4 done (no single-block receipt at
+a trained profile; transcript asserts it); R2-5 done (fail-closed, per-profile
+wire cap, one GPU-assisted 22-block run: no speed-up at this size). D24
+review F-1..F-6 fixed with permanent tests; full release suite green
+(lib 527 / 0 / 25 ignored). No job of mine is running.

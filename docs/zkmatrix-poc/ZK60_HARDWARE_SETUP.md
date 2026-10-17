@@ -1,18 +1,23 @@
 # Linux RTX 5090 and M3 Ultra setup
 
+**Status 2026-10-17 (Victor, in session):** the Mac M3 Ultra has **256 GB**
+unified memory (correcting the 512 GB written below on 2026-09-27) and is not
+yet reachable from the WSL laptop (Remote Login/SSH to be enabled); the RTX 5090
+machine still has **no Linux installed**. Neither machine has been inspected.
+
 Victor confirms both machines are available; the RTX 5090 will run Linux.
 **Latest clarification:** the 5090 machine has no Linux installation yet.
 Create installation media first; there is no existing Linux/SSH host to inspect.
 Use the 5090 for the current CUDA proof backend and throughput experiments.
-Use the M3 Ultra's 512 GB unified memory for large CPU reference/witness
+Use the M3 Ultra's 256 GB unified memory for large CPU reference/witness
 work and memory-heavy correctness experiments. A Metal proof backend does
 not exist in this repository; it would be a separate implementation project.
 The Mac's memory does not extend the separate 5090's VRAM.
 
 NVIDIA specifies 32 GB GDDR7 for the RTX 5090. Its inference performance does
 not predict proof throughput. [NVIDIA specifications](https://www.nvidia.com/en-us/geforce/graphics-cards/50-series/rtx-5090/).
-Apple documented the 512 GB M3 Ultra configuration at launch; Victor already
-has access to that configuration. [Apple launch specifications](https://www.apple.com/newsroom/2025/03/apple-unveils-new-mac-studio-the-most-powerful-mac-ever/).
+Apple documented M3 Ultra configurations up to 512 GB at launch; Victor's
+machine has 256 GB (stated 2026-10-17). [Apple launch specifications](https://www.apple.com/newsroom/2025/03/apple-unveils-new-mac-studio-the-most-powerful-mac-ever/).
 
 ## Fresh Linux installation on the 5090 PC
 

@@ -1,0 +1,43 @@
+{
+ "ts_end": "2026-10-17T09:21:41Z",
+ "run_id": "c8cf055fe84d",
+ "label": "b4-verify-pg_rot1_b4_T128",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/b3_verify_export.py",
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128"
+ ],
+ "need_gib": 1.5,
+ "cap_gib": 2.5,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 34.49564504623413,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 198493,
+ "boot_id": "08875671-f12b-4ca1-b89c-fac3acf1c90c",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 2958875,
+ "lock_ids": {
+  "heavy": "2096:1134147",
+  "build": "2096:1134148"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 34.5,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": "zk60-c8cf055fe84d.scope",
+ "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-c8cf055fe84d.scope",
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 0.68,
+ "peak_cgroup_gib": 1.24,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 12.34,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

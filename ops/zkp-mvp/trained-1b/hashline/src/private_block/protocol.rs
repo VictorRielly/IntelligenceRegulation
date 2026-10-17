@@ -112,6 +112,10 @@ pub(crate) fn tagged_transcript(sh: &Shape, domain: &[u8]) -> Transcript {
 /// pins it — so no toy byte moves.
 pub(crate) fn transcript(public: &BlockPublic, expected: &ExpectedIo, lay: &Layout) -> Transcript {
     let sh = lay.shape();
+    // R2-4 / review finding F-2, defence in depth: the single-block
+    // transcript absorbs the synthetic calibration literal below, so it is
+    // never built at a trained-calibration shape (both callers refuse first)
+    assert!(single_block_profile_allowed(sh).is_ok(), "private block: the single-block transcript at a trained-calibration shape");
     let mut tr = tagged_transcript(sh, sh.profile.as_bytes());
     tr.absorb(b"expected-IO", &expected.to_bytes());
     tr.absorb(b"public-statement", &public.digest());
@@ -667,7 +671,26 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
 /// at `Shape::toy()`, exactly as `AttentionPublic::new` is `new_shaped` at the
 /// toy — the toy's code path, its transcript and every one of its bytes are
 /// unchanged, and a new shape is a NEW profile beside it (D17).
+/// **ROUND 2, R2-4: no single-block receipt at a trained-calibration profile.**
+/// A single block's transcript (`transcript` above) absorbs the SYNTHETIC
+/// calibration literal `calibration_identity()`; a trained-calibration
+/// profile must instead absorb its trained-model statement, which only a run
+/// does (`run::RunStatement::new_bound`, whose header absorbs the statement
+/// identity in the same `"calibration"` slot). So every single-block entry
+/// point — prove, verify, encode, decode — refuses such a shape by name, and
+/// a trained block is proved as a one-block (or longer) BOUND run.
+pub(crate) fn single_block_profile_allowed(sh: &Shape) -> Result<(), String> {
+    if sh.trained_calibration {
+        return Err(format!(
+            "private block: {} has a trained calibration; it proves only inside a run bound to its trained-model statement (a single-block receipt would carry the synthetic calibration literal, R2-4)",
+            sh.profile
+        ));
+    }
+    Ok(())
+}
+
 pub(crate) fn prove_inner_at(sh: &Shape, blk: &BlockPublic, wit: Witness, expected: &ExpectedIo, endpoints: Endpoints) -> Result<(Receipt, ProveStats), String> {
+    single_block_profile_allowed(sh)?;
     use std::time::Instant;
     let mut tick = Instant::now();
     let mut ph = timing::Phases::start();
@@ -1164,6 +1187,7 @@ pub(crate) fn verify_inner(blk: &BlockPublic, expected: &ExpectedIo, receipt: &R
 /// this at `Shape::toy()`. The verifier reads the shape from its CALLER, never
 /// from the receipt: nothing in the frame chooses a geometry.
 pub(crate) fn verify_inner_at(sh: &Shape, blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt) -> Result<Vec<String>, String> {
+    single_block_profile_allowed(sh)?;
     #[cfg(test)]
     super::capture::begin();
     let mut ph = timing::Phases::start();

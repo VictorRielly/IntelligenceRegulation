@@ -71,6 +71,7 @@ pub(crate) const RUN_PROFILE_M125: &str = "hashline-zk-mr1/private-run-m125/1";
 /// LANE C SCRATCH (not in the main tree): the run profile of the TinyLlama
 /// geometry's development shape, by the same rule: one profile per shape (D17).
 /// NATIVE LANE: unregistered, like its block profile (outside the registry).
+#[cfg(test)]
 pub(crate) const RUN_PROFILE_TINYLLAMA_T32_DEV: &str = "unregistered-dev-twin/private-run-tinyllama-1.1b-t32-w32-dev/1";
 /// NATIVE LANE: the run profile of the TRAINED-calibration TinyLlama shape. A
 /// run at it is constructible only bound to a trained-model statement
@@ -127,7 +128,10 @@ impl RunShape {
     pub(crate) fn m125(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::m125(), l, RUN_PROFILE_M125)
     }
-    /// LANE C SCRATCH: a run at the TinyLlama geometry's development shape.
+    /// LANE C SCRATCH: a run at the TinyLlama geometry's development shape
+    /// (review finding F-6: test builds only).
+    #[cfg(test)]
+    #[allow(dead_code)]
     pub(crate) fn tinyllama_t32_dev(l: usize) -> Result<RunShape, String> {
         RunShape::new(Shape::tinyllama_t32_dev(), l, RUN_PROFILE_TINYLLAMA_T32_DEV)
     }
@@ -183,10 +187,13 @@ impl RunStatement {
     /// the one field a boundary has, and a disagreement is refused by name
     /// here rather than being carried into a proof (ruling M-4).
     pub(crate) fn new(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)]) -> Result<RunStatement, String> {
-        // LANE C SCRATCH: a trained-model run profile binds its model
-        // statement and may not fall back to the synthetic literal.
-        if rs.profile.contains("tinyllama") && !rs.profile.ends_with("-dev/1") {
-            return Err("private run: a trained-model run profile needs its model statement (RunStatement::new_bound)".into());
+        // A trained-calibration shape binds its model statement and may not
+        // fall back to the synthetic literal. Review finding F-2: keyed on
+        // the SHAPE's own flag (it was a substring test on the run profile,
+        // which let an unbound run at the trained-calibration rung absorb
+        // `calibration_identity()`), and on the trained run profile by name.
+        if rs.sh.trained_calibration || rs.profile == RUN_PROFILE_TINYLLAMA_T32_TRAINED || rs.profile == RUN_PROFILE_RUNG_TC {
+            return Err(format!("private run: {} is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)", rs.profile));
         }
         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
         Self::new_with_calibration(rs, context, expected, digests, blocks.len(), block_scales, super::calibration_identity(), super::ENDPOINT_SCALES)
@@ -201,6 +208,11 @@ impl RunStatement {
     /// this is the only constructor; at the toy, the rungs and 125M it is
     /// never called, so none of their bytes moves.
     pub(crate) fn new_bound(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
+        // review finding F-3: a model statement binds a TRAINED-calibration
+        // run only; a frozen profile keeps its synthetic calibration literal
+        if !rs.sh.trained_calibration {
+            return Err(format!("private run: {} is not a trained-calibration shape; a trained-model statement binds trained-calibration runs only", rs.sh.profile));
+        }
         let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
         if digests.len() != rs.l {
             return Err(format!("private run: the statement is for {} blocks, {} public statements and {} scale pairs were given", rs.l, blocks.len(), block_scales.len()));

@@ -1,62 +1,65 @@
 # ZKP efficiency explorer — durable state
 
-Cycle0057 COMPLETE: `20261017T072624Z-c38c878c`; checkpoint2026-10-17T07:34:34.159195+00:00.
-Agenda/target and durable/project memory read/snapshotted;288 starting sources parsed,
-4 LIVE records appended,292 total. Latest3 results read. Prior findings/negatives retained.
+Cycle0059 COMPLETE: `20261017T092624Z-0a2ee588`; checkpoint 2026-10-17T09:36:09.547899+00:00.
+Agenda/current throughput target and durable/project memory read/snapshotted;
+297 sources parsed,6 LIVE records appended,303 total; latest3 results read.
+Historical findings and negatives preserved. No native speedup established.
 
-Immutable native-shaped Capture -> public index remap -> direct generated SC_SZC
-round0 helper passes synthetic Python differential tests. No per-row compact gather;
-no new native work or field arithmetic saving. Full-head3limb15lookup moving-mask
-body stays419 API calls/20 logical live results/320B, prior scoped T512 API reduction
-7.0153% unchanged. Native registers/spills/occupancy/code size/time unknown.
+New trained CPU evidence:22 separately verified TinyLlama one-block T32 runs,
+not a linked stack, sum405.980s reported main path. Sequence-load/native-witness/
+parity294.314s (72.49%),load16.046s,prove_run82.500s,in-process verify7.400s,
+unclassified5.720s±0.055s rounding radius. Fresh verifier load/read18.822s and
+verify/decode7.265s separately. No researcher proof or verification rerun.
+One-block witness is outside prove timer; new stack seals then rebuilds.
+RunStats comment incorrectly excludes witness: actual timer includes source,
+encoding and sink. Stack witness cache avoids extra boundary rebuilds.
+Input-dependent sealing is not automatically reusable public startup.
 
-Final:120 layouts,1440 scalar group checks,480 full-polynomial comparisons,
-2304 helper sample checks,96 branchless helpers; audit13047 checks. Wall
-4.935856s,RSS27108KiB,CoreUltra9 185H/CPU0/one nice19 thread;
-seeds2026101757 and2026101757001;59s/512MiB caps,96MiB estimate,exit0.
-14 controls include mismatch/refusal/fallback and within-pair denominator-swap
-invariance. Initial failed negative-control harnesses retained; corrected checks pass.
-Actual native constructor captures, Rust compile, transcript/RNG/PCS/proof/verifier
-not executed. Adapter metadata refusals are not new native relation refusals.
-Pad-enabled profiles with absent supports, multi-term lookups and later rounds
-retain scalar fallback. Public code may cache; proof-local offsets refresh each proof.
+Experiment: experiments/trained-phase-accounting-20261017.
+16,219 accounting/reference checks,200 synthetic traces,15 controls;0.107200s,
+17,052KiB RSS,one nice19 CPU0 thread,seed2026101759,59s/512MiB limits.
+Independent audit499 checks; archived CLI/run match t5 manifest;140 pins match.
+Uncompiled research clock patch: phase-probe-candidate.patch,8 replacements /
+6 hunks. No native compile/RNG/transcript/bytes/privacy/fresh-verifier gate.
+Handoff: handoffs/20261017-trained-phase-accounting.md.
 
 Ranked hypotheses:
-1 OWNER GPU SC_SZC plus BOTH recurring witness paths; exact native gates/all clocks.
-2 REFINED LOCAL derive round0 mask-active selector from native causal mask axes,
-MSB-first layout and terminal-extension metadata; wrong Boolean currently detected
-but flag is caller supplied. Then owner actual-capture three-arm compile/profile.
-Reject any value/refusal/RNG difference or no enclosing gain. No more toy scheduling.
-3 OWNER resident complete-workload startup/slope with fresh masks/lag/drain;
-recurring>20ms/new proved position falsifies50/s for the tested schedule.
-4 OWNER exact full-K split-int16 down witness; integer/refusal/receipt parity.
-5 ARCHITECTURE updatable-KV/structured lookups/composition need migration and hiding.
-Prior broad later-round cubic,CSE,fusion,twiddle/table-cache negatives remain demoted.
-Complete8B ceiling unknown; historical erasing all SC_SZC only28.317% of one
-synthetic125M diagnostic,not8B. Round0 recurs each proof,not startup amortization.
+1 REFINED/OWNER both recurring exact trained witness paths; newT32 diagnostic
+ share72.49%; isolate exact matmul/requant/materialization before speed estimate.
+2 OWNER GPU SC_SZC,all native masked/oracle/bytes/refusal/privacy gates.
+3 TESTED ACCOUNTING/OWNER resident complete linked passes and true startup/slope/
+ lag/drain; recurring>20ms/proved position rejects50/s for that schedule.
+4 OWNER public dependency selector/factory actual capture/three-arm profile.
+5 ARCHITECTURE MORPH/zkMatrix/TaSSLE/TensorZKP; field/PCS/joint-hiding migration.
+All prior cubic/CSE/fusion/twiddle/table-cache negatives remain preserved.
+Eliminating measured proof phase yields at most1.255x on summed one-block
+ diagnostics; deleting measured load only1.041x. Complete8B ceiling unknown.
 
-Experiment:experiments/native-capture-adapter-20261017.
-Handoff:handoffs/20261017-native-capture-adapter.md.
-Next LOCAL:derive/test native public mask dependency including extension axes;
-mutate head-axis metadata, compare every pair and arbitrary extension evaluation.
-Next OWNER:real captures,guarded literal/unscheduled/scheduled native compile,
-original samples/claims/finals/refusals/masked/RNG/proof bytes/fresh verification;
-register/spill/enclosing clocks with both witnesses; then resident complete workloads.
+Next LOCAL: allocation-free read-only census of witness::build_shaped and its
+ callees, separating full-K matmul,requant/range/refusal checks,plane/helper
+ materialization and repeated passes. Identify an exact Rust/CUDA seam and
+ independent scalar edge-case differential fixture; no native build/proof/GPU.
+Next OWNER: review clock patch,split both witnesses/encoding/durable sink and
+ fresh verifier read/decode/crypto on linked trained stack; preserve native
+ samples/finals/RNG/refusals/transcript/proof bytes and fresh independent verify.
+ Then resident fixed-context complete workloads with fresh masks and startup,
+ slope,lag/drain/peak. Original block timing thread count not established here.
 
-LIVE rotation lookup/nonlinear/composition. New revision zkLLMPoT v2Oct11 corrects
-older ledger no-revision statements; actual current zkTransformer README corrects
-old indexed backend discovery. New older updatable lookup RAM2024/840 and
-conditional IOP composition2026/307 are architecture filters only. Primary PDFs,
-GitHub source/history/license/releases and newer TenseUp/UC metadata blocked;
-exact errors/dates/unknowns preserved, no uninspected commit or license claimed.
-Next rotation public dependency metadata and memory traffic/GPU sumcheck; follow
-native bottlenecks before proof architecture migration. D24 still proposed.
+LIVE search rotation memory/batching/quantization. New MORPH Apr20,2026 and
+ older zkMatrix Feb4/Feb7,2024;TensorZKP/TaSSLE refresh. ICICLE full commit
+ 6c77775961b0e4dc2be359feec1ac11536c18043 and MIT repo license text inspected;
+ extension challenge limitation persists,release year not verified. MORPH
+ history/license,zkMatrixPDF and OctoberPlonky3 exact release/crate blocked.
+ No foreign performance reproduced. Next rotation exact witness arithmetic,
+ then NTT/commitments based on native bottlenecks.
 
-Accepted independently verified complete private 8B proofs/passes/tokens: **0/0/0**. Device: Intel Core Ultra 9 185H CPU only, one thread, nice19, CPU0. Proof context length, steady-state and total-workload rates, startup duration/fraction, witness/proof/serialization/independent-verification clocks and proof latency/lag/drain are **all unmeasured**. No long-context prefill, resident-model pass or decode proof ran. Fixtures use one two-cell affine row, not token contexts. T512 figures below are historical diagnostics or allocation-free accounting. Dense-attention score work grows roughly fourfold when context doubles. Larger workloads remain permitted with fresh masks and complete coverage; the private8B >=50 proved-token/s target remains unachieved.
+Accepted independently verified complete private 8B proofs / passes / positions: **0 / 0 / 0**. Target steady-state and total-workload rates, startup seconds/fraction, witness/proof/serialization/independent-verification clocks, proof latency/lag/drain and proof context: **unmeasured**. This cycle used one Intel Core Ultra 9 185H CPU thread (CPU0, nice19), no GPU. The retained native records are CPU-only T32, 22 separate one-block runs, zero linked complete-model passes; original thread count is not established here. No long-context prefill, resident complete-model workload or decode proof ran. Dense attention work grows approximately quadratically with context. Larger workloads remain allowed, fresh masks and privacy obligations remain unchanged, and the >=50 proved-token/s target remains unachieved.
 
-Production, runtime, Git, calibration, safety gates, instructions and reviewer files were not modified. No GPU job, build, dependency installation, downloaded script execution, external write/message, merge or heavy queue action occurred. Saved reports are not evidence of notification delivery or supervisor liveness. D24 remains proposed; no new privacy/profile ruling is accepted.
-Next cycle not before2026-10-17T08:26:24Z.
+Research only. Production/runtime/Git/calibration/gates/instructions/reviewer
+ files untouched. No build,GPU,install,downloaded-script execution,external
+ write/message,merge or heavy job queued. Main agent/Claude reviews/integrates.
+Saved reports do not prove delivery or supervisor liveness. D24 remains proposed;
+ current owner fixes are not a new privacy acceptance.
+Next cycle not before2026-10-17T10:26:24Z.
 
-Final checkpoint audit:86 checks pass; all12 native/measurement pins and6 owner
-memory files unchanged; historical findings/source prefixes preserved. No native
-proof or speed gate is implied. See checkpoint-audit.json.
+Final checkpoint 2026-10-17T09:36:35.383884+00:00:28 accounting/artifact checks pass,49 artifact pins;303 source records and historical prefixes preserved;no concurrent owner-memory changes observed. Native compile/proof/privacy gates remain unrun.

@@ -1,0 +1,17 @@
+{
+  "reconstructed_from": "candidate run.rs + retained native-lane-vs-candidate.patch",
+  "base_path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/candidate/hashline/src/private_block/run.rs",
+  "base_sha256": "f39aec7925ba27d51361cd3935e874b1301d7595be81f3199d9d2941c0f818e0",
+  "reconstructed_sha256": "537e814b785643860aacac1928ba23eddfe11031491da9b36c447360ead06f9f",
+  "matches_t5_manifest": true,
+  "ordered_clock_markers": [
+    "let t0 = Instant::now();",
+    "src.boundary_plane(k)?",
+    "let wit = src.witness(k)?;",
+    "protocol::prove_core",
+    "wire::encode_segment",
+    "sink(k, bytes)?;",
+    "stats.prove_s.push(t0.elapsed()"
+  ],
+  "compiled": false
+}

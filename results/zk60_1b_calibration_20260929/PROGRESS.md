@@ -221,3 +221,95 @@ rotated variant needs the norm no-wrap re-check; SiLU (-2,-11) at layer 2
 saturates act at 16 (BOS gate 17.2); calibration/held-out text is licenses +
 stdlib docstrings (no chat data); parity with the native Rust prover is the
 native lane's x_in/x_out check (not done here).
+
+## Lane B4 (coordinator round 2), from 2026-10-17 08:10 UTC
+
+Native lane result relayed by the coordinator: all 22 blocks of
+`export/a_export_T32` proved one block at a time with bit-exact parity against
+these x_in/x_out. It is making shifts per-profile to prove pg_rot1, then the
+22-block stack.
+
+- 08:10 UTC: FineWeb-Edu local copy = HF `HuggingFaceFW/fineweb-edu`
+  `sample/10BT/000_00000.parquet` (HF metadata: revision 87f09149ef47...,
+  sha256 b1ba7b2c...e871; 726,000 documents, row groups of 1,000) plus a
+  derived `sample_text.txt`. NO licence file in the directory; the public
+  dataset card states ODC-By 1.0 + Common Crawl terms of use (recorded, not
+  verified offline). `corpus4.py`: calibration docs from row group 0,
+  held-out docs from row group 1 (disjoint documents), [BOS] + first T-1
+  tokens, doc id / url recorded.
+- 08:12 UTC: B3 tool versions whose sha256 the three B3 exports record are
+  frozen in `tool_snapshots/b3_exports_20261017/` (all matched) before any
+  B4 edit. Driver: `--corpus b4` (54 FineWeb calib docs + 36 held-out docs
+  added; per-domain head metrics/refusals), `--calib-T` (calibrate at one T,
+  evaluate/export at another: one weight set for the context ladder),
+  chunked + atomic stats cache, `--token-io` (int16 embedding table).
+  Library: `o16` experiment flag (B4-3, NOT native). `export/FORMAT_CHANGES.md`
+  and `export/TOKEN_IO_SPEC.md` written before any new export.
+- 08:17 UTC: launched (logs `logs/b4-<label>.log`): pg_rot1_T128 (+ export +
+  token-io), pg_rot1_T32, dg_rot1_T32; dg_rot1_T128 was stopped by SIGTERM to
+  its guard (exit 75, logs kept as *.stopped.*) to avoid two processes writing
+  the same stats cache; it is relaunched after the cache exists.
+- 08:37 UTC: B4-1 at T=32 (calibration 54 licence/docstring + 54 FineWeb-Edu
+  seqs; held-out 36 + 36, disjoint documents):
+  * pg+rot (profile shifts now qkv 8 s 6 ao 3 g 8 h 14 z 4; Cn 3619/3122;
+    s_x 4.87e-4): FineWeb top-1 0.725, ppl 26.05 -> 29.70, KL 0.352, 0/36
+    refused; licence/docstring 0.714, ppl 29.30 -> 34.26, KL 0.466, 1/36.
+  * dg+rot: FineWeb 0.803, ppl 26.05 -> 27.92, KL 0.194, 0/36; licence 0.766,
+    ppl 29.30 -> 31.77, KL 0.266, 2/36.
+  (B3's pg+rot on the licence domain, calibrated on licence text only, was
+  0.698: the broader calibration did not cost the old domain anything.)
+- 08:55 UTC: ACKNOWLEDGED orchestrator scheduling rule: at most ONE guarded
+  B4 job at a time, declared need <= 3.5 GiB (four concurrent light jobs had
+  held 11.5 of 11.89 GiB and starved the native stack build and the D24
+  reviewer's build). The two queued jobs (dg_rot1_T128, pg_rot1_T64_cal128)
+  were cancelled while waiting (SIGTERM to their guards, exit 70, records
+  `logs/b4-*.cancelled.*`); the four running ones finish untouched.
+  Remaining work runs through `logs/b4_serial.sh` (next step only after the
+  previous `.done`). Also acknowledged: `export/pg_rot1_export_T32` (profile
+  sha256 b25ba5f5...) and `export/a_export_T32` are NOT modified; every B4
+  recalibration goes to a NEW export directory (`export/pg_rot1_b4_*`).
+- 09:05 UTC: results (all T, both domains, refusals never clamped silently):
+  * pg_rot1_b4_T128 (export written, profile sha256 ff479471...): FineWeb
+    0.745 top-1, ppl 12.67 -> 15.80, KL 0.298, 0/36; licence 0.724, ppl 7.96 ->
+    12.01, KL 0.488, 0/36. Peak RSS 4.39 GiB (> declared 3.5): the held-out
+    float pass is now chunked for later runs.
+  * pg_rot1_b4_T32_cal128 (the T=128 calibration evaluated/exported at T=32;
+    export sha256 826f7641...): FineWeb 0.690 (ppl 33.7), licence 0.681 (ppl
+    37.0), 0/72 refused — ~0.035 below the T=32-calibrated pg+rot.
+  * B4-3 o16 (o int16, SH_O = 1, SH_AO window 1..16; Python only): pg+rot
+    FineWeb 0.725 -> 0.746, licence 0.714 -> 0.726; dg+rot 0.803 -> 0.801 /
+    0.766 -> 0.774; site error of o only 0.326 -> 0.302 (pg). CORRECTION of
+    the B3 attribution: o's ~30% error is NOT mainly o's int8 rounding at v's
+    scale; next suspects are the probability grid (F_P = 9, floor) and the exp
+    table (f_e = 9) amplified by cancellation (o rms << v rms). Knobs f_e/f_p
+    added (`pg+fe13`, `pg+fp13`, ...); runs queued in `logs/b4_serial3.sh`
+    after `b4_serial2.sh` (one guarded job at a time).
+- 09:30 UTC: B4-2 DONE. One pg+rot calibration at T=128 (108 calibration
+  sequences, both domains) exported at three context lengths, each verified by
+  `b3_verify_export.py` (22 layers bit-exact on two held-out sequences, one per
+  domain: ho00 licence, ho36 FineWeb) and by `b4_token_io.py` (table[tokens] ==
+  x_in_L00 == float recomputation):
+  * `export/pg_rot1_b4_T128` profile sha256 b418a1dd... — FineWeb 0.745 /
+    licence 0.724, 0/72 refused;
+  * `export/pg_rot1_b4_T64_cal128` 0ad58b25... — FineWeb 0.725 (ppl 17.14 ->
+    21.82, KL 0.343) / licence 0.708 (13.47 -> 19.31, KL 0.484), 0/72 refused;
+  * `export/pg_rot1_b4_T32_cal128` 826f7641... — FineWeb 0.690 / licence
+    0.681, 0/72 refused.
+  Weights are byte-identical across the three: `b4_dedup.py` hard-linked 246
+  files per derived export (1.10 GB saved each; T64/T32 dirs now 24/12 MB of
+  their own). Profile constants of this calibration: Cn_a / Cn_m from the
+  T=128 statistics, Ceps from s_x 5.2456e-4, shifts qkv 8 s 6 ao 3 g 8 h 14 z 4.
+  Tool provenance of two exports corrected (see export/FORMAT_CHANGES.md).
+- 09:52 UTC: B4-1 DONE. dg+rot T=128 (both domains): FineWeb 0.809, ppl
+  12.67 -> 14.53, KL 0.161, 0/36; licence 0.793, ppl 7.96 -> 9.87, KL 0.280,
+  0/36 (peak RSS 3.77 GiB with the chunked held-out pass). B4-1 table:
+  | run | domain | top-1 | ppl float -> int | KL | refused |
+  | pg+rot T32 | FineWeb | 0.725 | 26.05 -> 29.70 | 0.352 | 0/36 |
+  | pg+rot T32 | licence | 0.714 | 29.30 -> 34.26 | 0.466 | 1/36 |
+  | dg+rot T32 | FineWeb | 0.803 | 26.05 -> 27.92 | 0.194 | 0/36 |
+  | dg+rot T32 | licence | 0.766 | 29.30 -> 31.77 | 0.266 | 2/36 |
+  | pg+rot T128 | FineWeb | 0.745 | 12.67 -> 15.80 | 0.298 | 0/36 |
+  | pg+rot T128 | licence | 0.724 | 7.96 -> 12.01 | 0.488 | 0/36 |
+  | dg+rot T128 | FineWeb | 0.809 | 12.67 -> 14.53 | 0.161 | 0/36 |
+  | dg+rot T128 | licence | 0.793 | 7.96 -> 9.87 | 0.280 | 0/36 |
+  B4-3 f_e/F_P runs proceeding serially (`logs/b4_serial3.sh`).

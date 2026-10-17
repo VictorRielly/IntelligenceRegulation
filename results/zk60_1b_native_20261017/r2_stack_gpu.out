@@ -1,0 +1,6 @@
+[zk60-guard 03:02:34] waiting for /tmp/zk-heavy.lock (0s)
+[zk60-guard 03:02:55] START r2-stack-gpu-ho00 class=gpu need=5G cap=6.5G enforce=cgroup+watchdog waited=21s run=66e31b558fca
+[zk60-guard 03:12:00] END r2-stack-gpu-ho00 exit=0 child_wall=545s peak_rss=1.99G min_avail=10.06G peak_vram=1281MiB
+[zk60-guard 03:12:00] START r2-stack-gpu-verify-ho00 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=4d52e4780cd7
+[zk60-guard 03:12:15] END r2-stack-gpu-verify-ho00 exit=0 child_wall=15s peak_rss=1.43G min_avail=11.02G
+cpu verify of the gpu run exit 0

@@ -72,7 +72,7 @@ pub fn commit_planes(params: &PcsParams, pt: &crate::gpu::PlaneTiling, ntt: &Ntt
             Some(Committed { params: *params, rows: len / n, store: Store::Device(dc), tree })
         }
         Err(e) => {
-            eprintln!("[FSP-HOST] plane commit declined ({e}); Vec<Fp> path");
+            crate::gpu::declined("[FSP-HOST] plane commit", &e.to_string());
             None
         }
     }

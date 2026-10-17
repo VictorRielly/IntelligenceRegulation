@@ -1,0 +1,80 @@
+--- a/hashline/src/private_block/run.rs
++++ b/hashline/src/private_block/run.rs
+@@ -578,8 +578,16 @@
+ 
+ #[derive(Clone, Debug, Default)]
+ pub(crate) struct RunStats {
+-    /// wall seconds of each stage (witness build excluded)
++    /// Inclusive stage wall seconds: source witness, boundary/core/open, encode and sink.
+     pub prove_s: Vec<f64>,
++    /// Synchronous source-call time; SUBSET of prove_s, never add twice.
++    pub source_witness_s: Vec<f64>,
++    /// Segment encoding time; SUBSET of prove_s.
++    pub encode_s: Vec<f64>,
++    /// Sink write/flush/hash time; SUBSET of prove_s.
++    pub sink_s: Vec<f64>,
++    /// Validation, endpoint checks, RNG/NTT and header before the first stage.
++    pub setup_s: f64,
+     /// the process high-water mark after each stage
+     pub hwm_mib: Vec<f64>,
+     pub segment_bytes: Vec<usize>,
+@@ -603,6 +611,7 @@
+ /// twelve-block 125M run, 484 MB of receipt, must use).
+ pub(crate) fn prove_run(st: &RunStatement, blocks: &[BlockPublic], src: &mut dyn RunWitnessSource, externals: Endpoints, sink: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>) -> Result<RunStats, String> {
+     use std::time::Instant;
++    let setup_tick = Instant::now();
+     let (sh, l) = (&st.rs.sh, st.rs.l);
+     if blocks.len() != l {
+         return Err(format!("private run: {} public statements for {l} blocks", blocks.len()));
+@@ -633,8 +642,10 @@
+     let mut pending: Vec<ZClaim> = Vec::new();
+     let mut prev: Option<(BoundarySpec, PreparedBoundary)> = None;
+ 
++    stats.setup_s = setup_tick.elapsed().as_secs_f64();
+     for k in 0..l {
+         let t0 = Instant::now();
++        let mut source_witness_s = 0.0;
+         let mut ph = timing::Phases::start();
+         let mut phases: Vec<(&'static str, f64)> = Vec::new();
+         let mut tick = Instant::now();
+@@ -646,7 +657,9 @@
+         // of either adjacent equality slot
+         let cur = if k + 1 < l {
+             let spec = st.boundary_spec(k)?;
++            let source_tick = Instant::now();
+             let plane = src.boundary_plane(k)?;
++            source_witness_s += source_tick.elapsed().as_secs_f64();
+             if plane.len() != spec.len() {
+                 return Err(format!("private run: boundary {k}'s plane is {} words, the padded plane is {}", plane.len(), spec.len()));
+             }
+@@ -658,7 +671,9 @@
+         };
+         // steps 3-8: the measured block, unchanged
+         let lay = st.stage_layout(k)?;
++        let source_tick = Instant::now();
+         let wit = src.witness(k)?;
++        source_witness_s += source_tick.elapsed().as_secs_f64();
+         let core = {
+             let in_data: &[Fp] = match &prev {
+                 Some((_, p)) => p.data(),
+@@ -710,13 +725,20 @@
+             in_open,
+             out_open,
+         };
++        let encode_tick = Instant::now();
+         let bytes = wire::encode_segment(&seg, &lay, st.seg_geom(k)?, &binding, &start_tag, &end_tag)?;
++        let encode_s = encode_tick.elapsed().as_secs_f64();
+         drop(seg);
+         stats.segment_bytes.push(bytes.len());
+         // RULING M-3: the segment leaves here and is not held
++        let sink_tick = Instant::now();
+         sink(k, bytes)?;
++        let sink_s = sink_tick.elapsed().as_secs_f64();
+         prev = cur;
+         stats.prove_s.push(t0.elapsed().as_secs_f64());
++        stats.source_witness_s.push(source_witness_s);
++        stats.encode_s.push(encode_s);
++        stats.sink_s.push(sink_s);
+         stats.hwm_mib.push(peak_rss_mib());
+     }
+     Ok(stats)

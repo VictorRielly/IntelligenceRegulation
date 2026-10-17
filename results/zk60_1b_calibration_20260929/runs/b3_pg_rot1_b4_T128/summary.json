@@ -1,0 +1,1632 @@
+{
+ "args": {
+  "T": 128,
+  "calib_T": null,
+  "calib_per": 6,
+  "chunk": 6,
+  "corpus": "b4",
+  "export": true,
+  "export_seqs": 2,
+  "floors": "auto",
+  "fw_calib": 54,
+  "fw_heldout": 36,
+  "heldout_per": 4,
+  "layers": null,
+  "margin": 0.5,
+  "probe": false,
+  "rotate": 1,
+  "site_seqs": 3,
+  "tag": "",
+  "token_io": true,
+  "variant": "pg"
+ },
+ "by_domain": {
+  "fineweb-edu": {
+   "head_accepted": {
+    "kl_float_to_int_mean": 0.29756746387736727,
+    "positions": 4572,
+    "ppl_float": 12.665100646737157,
+    "ppl_int": 15.803500769497001,
+    "sequences": 36,
+    "top1_agreement": 0.744750656167979
+   },
+   "head_all_diagnostic": {
+    "kl_float_to_int_mean": 0.29756746387736727,
+    "positions": 4572,
+    "ppl_float": 12.665100646737157,
+    "ppl_int": 15.803500769497001,
+    "sequences": 36,
+    "top1_agreement": 0.744750656167979
+   },
+   "refused": 0,
+   "sequences": 36
+  },
+  "licence-docstring": {
+   "head_accepted": {
+    "kl_float_to_int_mean": 0.48770483853934593,
+    "positions": 4572,
+    "ppl_float": 7.960350263484001,
+    "ppl_int": 12.014930906299906,
+    "sequences": 36,
+    "top1_agreement": 0.7241907261592301
+   },
+   "head_all_diagnostic": {
+    "kl_float_to_int_mean": 0.48770483853934593,
+    "positions": 4572,
+    "ppl_float": 7.960350263484001,
+    "ppl_int": 12.014930906299906,
+    "sequences": 36,
+    "top1_agreement": 0.7241907261592301
+   },
+   "refused": 0,
+   "sequences": 36
+  }
+ },
+ "calib_refused": 0,
+ "calib_sequences": [
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "eebd0c387061a2bb",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1430,
+   "sha256": "420cd1e72b6916d2",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2860,
+   "sha256": "f48baeda2cb91975",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 4290,
+   "sha256": "cc8ef441045f5f58",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 5720,
+   "sha256": "0a384bbb84a75890",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 7150,
+   "sha256": "18c315350f5a2a78",
+   "source": "/usr/share/common-licenses/GPL-3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "e96e3b2fda59baee",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 921,
+   "sha256": "b371852462abeef3",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1842,
+   "sha256": "2a4da314464b318b",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2763,
+   "sha256": "6f1facd99f9017a1",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3684,
+   "sha256": "42b61104e10bd0a8",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 4605,
+   "sha256": "99d0f974231c7025",
+   "source": "/usr/share/common-licenses/GFDL-1.3"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "bd8396cc20ff748c",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 676,
+   "sha256": "c59cbc277cfe35bf",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1352,
+   "sha256": "32b4bf0e53c8c92f",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2028,
+   "sha256": "6a6d7fc280385de4",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2704,
+   "sha256": "97675b3d0bf72b8a",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3380,
+   "sha256": "33cc6aa76c68936c",
+   "source": "/usr/share/common-licenses/MPL-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "8dd80a97936c8f06",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 289,
+   "sha256": "59176122a08e3e2e",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 578,
+   "sha256": "0e9b1c5982391a40",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 867,
+   "sha256": "0cc10fde94258808",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1156,
+   "sha256": "9529d6963868f8a2",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1445,
+   "sha256": "2734b976c87289c9",
+   "source": "python3.10 stdlib docstrings: argparse"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "e1a1048c1888c032",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 259,
+   "sha256": "dc72248d71022a0e",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 518,
+   "sha256": "da0ea25803f4765b",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 777,
+   "sha256": "40dd0f36dc9723b3",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1036,
+   "sha256": "983817a5b70ecfbb",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1295,
+   "sha256": "36b6faf32c7d87e7",
+   "source": "python3.10 stdlib docstrings: collections/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "4afab5bc9d925492",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 253,
+   "sha256": "ec52e11a2bea2ba2",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 506,
+   "sha256": "ac3a8698e3b7fc3f",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 759,
+   "sha256": "a6394ec6af80992d",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1012,
+   "sha256": "7364c59012ed5a9f",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1265,
+   "sha256": "9a93c93a9b6c50ef",
+   "source": "python3.10 stdlib docstrings: textwrap"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "c46837bb7a1d7963",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 658,
+   "sha256": "f391b7ca9cc112cf",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1316,
+   "sha256": "12eae29b854786c4",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1974,
+   "sha256": "082046825fa1db0a",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2632,
+   "sha256": "feb2c19100fdd6b2",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3290,
+   "sha256": "b458ada7798695a5",
+   "source": "python3.10 stdlib docstrings: logging/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "87cd9e3a25f90824",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 391,
+   "sha256": "9eaa90de4ae036dc",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 782,
+   "sha256": "8d16908cd46299b4",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1173,
+   "sha256": "43012d09ae7deb79",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1564,
+   "sha256": "d34d0fe57e611321",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1955,
+   "sha256": "9f2db643390e2d39",
+   "source": "python3.10 stdlib docstrings: subprocess"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "e5b0b4572091a0a0",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1022,
+   "sha256": "67802821eccf6685",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 2044,
+   "sha256": "64fc71fbb23d776a",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3066,
+   "sha256": "89afd5317eeb2a26",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 4088,
+   "sha256": "ac7c74b66be15b0c",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 5110,
+   "sha256": "829bfc344e5dd0af",
+   "source": "python3.10 stdlib docstrings: typing"
+  },
+  {
+   "doc_id": "<urn:uuid:0d8a309d-25c5-405d-a08a-c11239f0d717>",
+   "domain": "fineweb-edu",
+   "row": 0,
+   "row_group": 0,
+   "sha256": "794ff80ad0ff6b2a",
+   "source": "fineweb-edu",
+   "url": "http://austenauthors.net/the-independent-jane"
+  },
+  {
+   "doc_id": "<urn:uuid:316c7af5-14e1-4d0b-9576-753e17ef2cc5>",
+   "domain": "fineweb-edu",
+   "row": 1,
+   "row_group": 0,
+   "sha256": "a3a53a216d98c2f8",
+   "source": "fineweb-edu",
+   "url": "http://query.nytimes.com/gst/fullpage.html?res=9404E7DA1339F934A25751C0A96E9C8B63&scp=2&sq=taking%20play%20seriously&st=cse"
+  },
+  {
+   "doc_id": "<urn:uuid:a3e140cd-7f25-48c9-a2f0-a7d0b1954e0d>",
+   "domain": "fineweb-edu",
+   "row": 2,
+   "row_group": 0,
+   "sha256": "3b5f3cae988bab44",
+   "source": "fineweb-edu",
+   "url": "http://www.childline.org.uk/Explore/SexRelationships/Pages/HIVAIDS.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:c337bcd8-6aa1-4f2d-8c48-b916442ebbee>",
+   "domain": "fineweb-edu",
+   "row": 3,
+   "row_group": 0,
+   "sha256": "56617cd2d1f11ec5",
+   "source": "fineweb-edu",
+   "url": "http://www.ctt.org/resource_centre/getting_started/learning/understanding_licenses"
+  },
+  {
+   "doc_id": "<urn:uuid:c0b175bb-65fb-420e-a881-a80b91d00ecd>",
+   "domain": "fineweb-edu",
+   "row": 4,
+   "row_group": 0,
+   "sha256": "cf722e480ddf596d",
+   "source": "fineweb-edu",
+   "url": "http://www.environment.ucla.edu/water/news/article.asp?parentid=6178"
+  },
+  {
+   "doc_id": "<urn:uuid:373cc951-d17e-4d57-b0f5-122effe3a054>",
+   "domain": "fineweb-edu",
+   "row": 5,
+   "row_group": 0,
+   "sha256": "175f55d7730f89bf",
+   "source": "fineweb-edu",
+   "url": "http://bayweekly.com/old-site/year99/issue7_40/kids7_40.html"
+  },
+  {
+   "doc_id": "<urn:uuid:78cbe1bd-1849-4138-b59a-5521e93122a3>",
+   "domain": "fineweb-edu",
+   "row": 6,
+   "row_group": 0,
+   "sha256": "975a2fa25b0ac7bd",
+   "source": "fineweb-edu",
+   "url": "http://phys.org/news4969.html"
+  },
+  {
+   "doc_id": "<urn:uuid:a63f6870-f496-4355-adfd-f3296c1577e5>",
+   "domain": "fineweb-edu",
+   "row": 7,
+   "row_group": 0,
+   "sha256": "7c25f9c3484ca12f",
+   "source": "fineweb-edu",
+   "url": "http://www.bbc.co.uk/news/world-latin-america-12292661"
+  },
+  {
+   "doc_id": "<urn:uuid:0428aaca-1b84-4407-9b6f-93b230a692b3>",
+   "domain": "fineweb-edu",
+   "row": 8,
+   "row_group": 0,
+   "sha256": "4f5662469cd08f15",
+   "source": "fineweb-edu",
+   "url": "http://www.mc.vanderbilt.edu/lens/article/?id=110&pg=999"
+  },
+  {
+   "doc_id": "<urn:uuid:6665d40b-fee1-4353-8a03-3268af4a76bb>",
+   "domain": "fineweb-edu",
+   "row": 9,
+   "row_group": 0,
+   "sha256": "cccf0e7e91131759",
+   "source": "fineweb-edu",
+   "url": "http://apod.nasa.gov/apod/ap120623.html"
+  },
+  {
+   "doc_id": "<urn:uuid:d55ba202-34fa-4fe6-b6ae-698c282eb244>",
+   "domain": "fineweb-edu",
+   "row": 10,
+   "row_group": 0,
+   "sha256": "184d044d7d197921",
+   "source": "fineweb-edu",
+   "url": "http://www.readwritethink.org/about/community-stories/using-think-alouds-inside-36.html"
+  },
+  {
+   "doc_id": "<urn:uuid:be22c535-4fcb-4d7e-9507-2ace71b51909>",
+   "domain": "fineweb-edu",
+   "row": 11,
+   "row_group": 0,
+   "sha256": "5c71dafb31fea2ee",
+   "source": "fineweb-edu",
+   "url": "http://www.royalty.nu/Europe/England/Stuart/JamesII.html"
+  },
+  {
+   "doc_id": "<urn:uuid:3cd46b83-2936-49a0-9b1f-a7fc2baa9e50>",
+   "domain": "fineweb-edu",
+   "row": 12,
+   "row_group": 0,
+   "sha256": "5ba9f945c886ced3",
+   "source": "fineweb-edu",
+   "url": "http://www.rwjf.org/en/about-rwjf/program-areas/childhood-obesity/strategy/policy-priority-pricing-strategies.html?t=topics%3A499&t=topics%3A260&t=topics%3A1813"
+  },
+  {
+   "doc_id": "<urn:uuid:672e69ee-fd10-42dc-8e01-f4fde95914a0>",
+   "domain": "fineweb-edu",
+   "row": 13,
+   "row_group": 0,
+   "sha256": "676d417c7c8588bc",
+   "source": "fineweb-edu",
+   "url": "http://chnm.gmu.edu/wwh/modules/lesson5/lesson5.php?menu=1&c=strategies&s=0"
+  },
+  {
+   "doc_id": "<urn:uuid:c63d3de8-6d63-4687-b45d-41b137a97594>",
+   "domain": "fineweb-edu",
+   "row": 14,
+   "row_group": 0,
+   "sha256": "ebe6b9f47a6df32e",
+   "source": "fineweb-edu",
+   "url": "http://www.jhsph.edu/news/news-releases/2012/lee-autism-prevalence.html"
+  },
+  {
+   "doc_id": "<urn:uuid:c183066d-32a9-42eb-91b6-191fdb0980c2>",
+   "domain": "fineweb-edu",
+   "row": 15,
+   "row_group": 0,
+   "sha256": "c04f3122080d995c",
+   "source": "fineweb-edu",
+   "url": "http://judithlarnerlowry.blogspot.com/2009/02/simplifying-california-native.html"
+  },
+  {
+   "doc_id": "<urn:uuid:c2dcc337-4538-4bf9-8838-d2005b03e76d>",
+   "domain": "fineweb-edu",
+   "row": 16,
+   "row_group": 0,
+   "sha256": "32a679f3af635aa6",
+   "source": "fineweb-edu",
+   "url": "http://www.mommytracked.com/node/4457/print"
+  },
+  {
+   "doc_id": "<urn:uuid:cc2f6ff5-32a8-4803-8794-bd3c0c07dc53>",
+   "domain": "fineweb-edu",
+   "row": 17,
+   "row_group": 0,
+   "sha256": "d2ec9768c1b76643",
+   "source": "fineweb-edu",
+   "url": "http://www.newegg.com/Product/CategoryIntelligenceArticle.aspx?articleId=94"
+  },
+  {
+   "doc_id": "<urn:uuid:c9bd6a3e-3426-45f4-8eec-ef2af2ae747f>",
+   "domain": "fineweb-edu",
+   "row": 18,
+   "row_group": 0,
+   "sha256": "a7898fb344aacb74",
+   "source": "fineweb-edu",
+   "url": "http://virtual.cvut.cz/kifb/hindi/concepts/exactly_located.html"
+  },
+  {
+   "doc_id": "<urn:uuid:566c0f69-f932-4d46-abcd-00f058076cf6>",
+   "domain": "fineweb-edu",
+   "row": 19,
+   "row_group": 0,
+   "sha256": "30b8b42f439f1ba0",
+   "source": "fineweb-edu",
+   "url": "http://www.artofiaido.com/etiquette"
+  },
+  {
+   "doc_id": "<urn:uuid:8026eb8e-2045-4425-bfb5-1eb355f7472a>",
+   "domain": "fineweb-edu",
+   "row": 20,
+   "row_group": 0,
+   "sha256": "e893d5f247b57558",
+   "source": "fineweb-edu",
+   "url": "http://www.crosswordpuzzlehelp.net/old/dictionary.php?q=Spanish%20nectarine"
+  },
+  {
+   "doc_id": "<urn:uuid:4fafe4c1-2dd0-49fd-8b1b-41d1829f7cdf>",
+   "domain": "fineweb-edu",
+   "row": 21,
+   "row_group": 0,
+   "sha256": "f6c86d656184f9d1",
+   "source": "fineweb-edu",
+   "url": "http://www.funderstanding.com/category/child-development/brain-child-development/"
+  },
+  {
+   "doc_id": "<urn:uuid:5bf543a8-f7b4-40fe-ba47-2b49b4e5396f>",
+   "domain": "fineweb-edu",
+   "row": 22,
+   "row_group": 0,
+   "sha256": "7bc6331757768ddf",
+   "source": "fineweb-edu",
+   "url": "http://www.indiasurgerytour.com/india-eye-surgery/india-surgery-ptosis-correction.html"
+  },
+  {
+   "doc_id": "<urn:uuid:f8131c7f-1b2a-41bd-9eaa-951dad06e313>",
+   "domain": "fineweb-edu",
+   "row": 23,
+   "row_group": 0,
+   "sha256": "292762be8d4b9395",
+   "source": "fineweb-edu",
+   "url": "http://physical-therapy.advanceweb.com/Article/One-Legged-Single-Limb-Stance-Test.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:9dafa879-7f20-47af-9000-4507980185f0>",
+   "domain": "fineweb-edu",
+   "row": 24,
+   "row_group": 0,
+   "sha256": "849430f953aed21e",
+   "source": "fineweb-edu",
+   "url": "http://portsmouthhospital.com/your-health/?/19601/Next"
+  },
+  {
+   "doc_id": "<urn:uuid:c9d71a03-1a5c-4380-b591-b22abec06ba2>",
+   "domain": "fineweb-edu",
+   "row": 25,
+   "row_group": 0,
+   "sha256": "eb038474d1a3fd74",
+   "source": "fineweb-edu",
+   "url": "http://www.edcc.edu/engr/default.php?showflash=1"
+  },
+  {
+   "doc_id": "<urn:uuid:6cd796d0-6c60-4c49-88fe-b887ea27aa1d>",
+   "domain": "fineweb-edu",
+   "row": 26,
+   "row_group": 0,
+   "sha256": "dfc4b80566dc8ab6",
+   "source": "fineweb-edu",
+   "url": "http://www.flintsciencefair.org/students.php"
+  },
+  {
+   "doc_id": "<urn:uuid:2069c051-8762-4c3d-a0d3-651a55fe3924>",
+   "domain": "fineweb-edu",
+   "row": 27,
+   "row_group": 0,
+   "sha256": "3d3b945d56d3bcad",
+   "source": "fineweb-edu",
+   "url": "http://www.interfire.org/res_file/fseab_in.asp"
+  },
+  {
+   "doc_id": "<urn:uuid:0abbeab1-fafa-4389-9f7e-7573eb693c9e>",
+   "domain": "fineweb-edu",
+   "row": 28,
+   "row_group": 0,
+   "sha256": "f65b1dda727caf90",
+   "source": "fineweb-edu",
+   "url": "http://www.sparknotes.com/philosophy/problems/section5.rhtml"
+  },
+  {
+   "doc_id": "<urn:uuid:a2bf4085-1745-4ba3-afd8-5a46d9ad2a75>",
+   "domain": "fineweb-edu",
+   "row": 29,
+   "row_group": 0,
+   "sha256": "e4638aa270dcbadf",
+   "source": "fineweb-edu",
+   "url": "http://ops.fhwa.dot.gov/freewaymgmt/managed_lanes.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:cec56b3f-1f86-4cf0-8456-717120369364>",
+   "domain": "fineweb-edu",
+   "row": 30,
+   "row_group": 0,
+   "sha256": "90cb36b2b8b70ff1",
+   "source": "fineweb-edu",
+   "url": "http://www.fitfortravel.scot.nhs.uk/news/newsdetail/3908.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:2db016d0-d509-4003-8288-668024b1c2bf>",
+   "domain": "fineweb-edu",
+   "row": 31,
+   "row_group": 0,
+   "sha256": "eca0503690bbcf6b",
+   "source": "fineweb-edu",
+   "url": "http://ijl.cgpublisher.com/product/pub.30/prod.2349"
+  },
+  {
+   "doc_id": "<urn:uuid:cb5db99f-40e4-45b6-9b59-e96df82a88dc>",
+   "domain": "fineweb-edu",
+   "row": 32,
+   "row_group": 0,
+   "sha256": "86ae4150df590e1c",
+   "source": "fineweb-edu",
+   "url": "http://phys.org/news/2012-10-reveal-solvent-mixtures-affect-solar.html"
+  },
+  {
+   "doc_id": "<urn:uuid:76a4c6bc-e63f-4d77-8492-c24be187795c>",
+   "domain": "fineweb-edu",
+   "row": 33,
+   "row_group": 0,
+   "sha256": "f18d1853784b6930",
+   "source": "fineweb-edu",
+   "url": "http://sugarlandheelpain.com/?page_id=78"
+  },
+  {
+   "doc_id": "<urn:uuid:dde9296d-febe-4cf0-8ed1-a0f99cdc6029>",
+   "domain": "fineweb-edu",
+   "row": 34,
+   "row_group": 0,
+   "sha256": "1b92047284694299",
+   "source": "fineweb-edu",
+   "url": "http://www.newscientist.com/article/mg21328484.300-glimpse-elusive-matter-in-shattering-star.html"
+  },
+  {
+   "doc_id": "<urn:uuid:b48891ec-4670-49b3-85a7-ec1a2ad95bf5>",
+   "domain": "fineweb-edu",
+   "row": 35,
+   "row_group": 0,
+   "sha256": "874f8b41347b6956",
+   "source": "fineweb-edu",
+   "url": "http://www.theatlantic.com/magazine/print/2012/02/assassination/308804/"
+  },
+  {
+   "doc_id": "<urn:uuid:775f924c-1e42-4c9d-96ef-70a47ee35ac0>",
+   "domain": "fineweb-edu",
+   "row": 36,
+   "row_group": 0,
+   "sha256": "bcb81e983716168a",
+   "source": "fineweb-edu",
+   "url": "http://www.wupr.org/2010/12/31/when-one-nation-becomes-two/"
+  },
+  {
+   "doc_id": "<urn:uuid:e7cb4707-ca52-448e-b78d-9bafd1458d65>",
+   "domain": "fineweb-edu",
+   "row": 37,
+   "row_group": 0,
+   "sha256": "b8ab452a9ac76af0",
+   "source": "fineweb-edu",
+   "url": "http://differentway4kids.blogspot.com/2010_11_01_archive.html"
+  },
+  {
+   "doc_id": "<urn:uuid:10459212-d96b-47fa-9ead-4447c5ba731f>",
+   "domain": "fineweb-edu",
+   "row": 38,
+   "row_group": 0,
+   "sha256": "1062e2c446852f81",
+   "source": "fineweb-edu",
+   "url": "http://earthlingnature.wordpress.com/2012/10/05/friday-fellow-grandidiers-baobab/"
+  },
+  {
+   "doc_id": "<urn:uuid:c4c19472-691a-44c6-a55b-21fbb183475b>",
+   "domain": "fineweb-edu",
+   "row": 39,
+   "row_group": 0,
+   "sha256": "364c9ea748de891b",
+   "source": "fineweb-edu",
+   "url": "http://hitzeiyehonatan.blogspot.com/2008_02_01_archive.html"
+  },
+  {
+   "doc_id": "<urn:uuid:5050ac83-4770-4e9c-9b44-38ba46d2466e>",
+   "domain": "fineweb-edu",
+   "row": 40,
+   "row_group": 0,
+   "sha256": "cecc8e1e6f40a347",
+   "source": "fineweb-edu",
+   "url": "http://peakwater.org/2012/02/artificial-glaciers-water-crops-in-indian-highlands/"
+  },
+  {
+   "doc_id": "<urn:uuid:5a1087ae-92e7-46db-8ae2-20172a204f5d>",
+   "domain": "fineweb-edu",
+   "row": 41,
+   "row_group": 0,
+   "sha256": "6b670270e7e41810",
+   "source": "fineweb-edu",
+   "url": "http://www.api.org/news-and-media/hurricane-information/hurricane-preparation.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:5d62c583-9e93-4909-ab3d-b04e84ed203f>",
+   "domain": "fineweb-edu",
+   "row": 42,
+   "row_group": 0,
+   "sha256": "aa6d365aa5a2f42f",
+   "source": "fineweb-edu",
+   "url": "http://www.bookrags.com/lessonplan/the-glory-field/characters.html"
+  },
+  {
+   "doc_id": "<urn:uuid:3bcc3f8d-efc9-4c16-87f0-df69d12c3b5a>",
+   "domain": "fineweb-edu",
+   "row": 43,
+   "row_group": 0,
+   "sha256": "e484f35dcec6f5a5",
+   "source": "fineweb-edu",
+   "url": "http://www.mrprintables.com/printable-flash-cards.html"
+  },
+  {
+   "doc_id": "<urn:uuid:5822656d-7af7-48bb-9307-359a74f2061e>",
+   "domain": "fineweb-edu",
+   "row": 44,
+   "row_group": 0,
+   "sha256": "a88bf3b764aac937",
+   "source": "fineweb-edu",
+   "url": "http://www.ohiodnr.com/Home/species_a_to_z/redphalarope/tabid/17697/Default.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:b6182938-d2ed-4d47-a28c-9ae9952dbc8d>",
+   "domain": "fineweb-edu",
+   "row": 45,
+   "row_group": 0,
+   "sha256": "18f0b7b192515c57",
+   "source": "fineweb-edu",
+   "url": "http://www.wisegeek.com/what-is-a-predicate.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:a244d012-82a0-4c3c-8ce5-37d705085e34>",
+   "domain": "fineweb-edu",
+   "row": 46,
+   "row_group": 0,
+   "sha256": "754d0b764fef13ce",
+   "source": "fineweb-edu",
+   "url": "http://ballotpedia.org/wiki/index.php/History_of_Initiative_&_Referendum_in_Arizona"
+  },
+  {
+   "doc_id": "<urn:uuid:7ab562e2-c61b-4988-9c51-24c5b3cb1d20>",
+   "domain": "fineweb-edu",
+   "row": 47,
+   "row_group": 0,
+   "sha256": "b88d3ec83dfe38a9",
+   "source": "fineweb-edu",
+   "url": "http://en.wikibooks.org/wiki/General_Chemistry/Periodicity_and_Electron_Configurations"
+  },
+  {
+   "doc_id": "<urn:uuid:0f78d82f-b865-4b55-ace2-dd4fb2425460>",
+   "domain": "fineweb-edu",
+   "row": 48,
+   "row_group": 0,
+   "sha256": "f08a465713c0a59a",
+   "source": "fineweb-edu",
+   "url": "http://everything2.com/user/lesterjane/writeups/cori+spezzati"
+  },
+  {
+   "doc_id": "<urn:uuid:6d0fc7ed-1e2e-42ce-97d8-cae14228fa3a>",
+   "domain": "fineweb-edu",
+   "row": 49,
+   "row_group": 0,
+   "sha256": "49f877277600f69d",
+   "source": "fineweb-edu",
+   "url": "http://googlesystem.blogspot.com/2007/04/google-supercomputer.html?showComment=1176067380000"
+  },
+  {
+   "doc_id": "<urn:uuid:995ec683-d967-4f36-82d9-547c9ea3d646>",
+   "domain": "fineweb-edu",
+   "row": 51,
+   "row_group": 0,
+   "sha256": "70f80ed143bbcd8b",
+   "source": "fineweb-edu",
+   "url": "http://ran.org/protect-an-acre"
+  },
+  {
+   "doc_id": "<urn:uuid:c76adb43-fdc6-442d-882e-b7781f7e7d83>",
+   "domain": "fineweb-edu",
+   "row": 52,
+   "row_group": 0,
+   "sha256": "4c7521fcd4221a91",
+   "source": "fineweb-edu",
+   "url": "http://www.earthday.org/square-meter"
+  },
+  {
+   "doc_id": "<urn:uuid:43ce7457-915e-4a8a-b78f-fca95b28656c>",
+   "domain": "fineweb-edu",
+   "row": 53,
+   "row_group": 0,
+   "sha256": "138cd3c8ffff31e2",
+   "source": "fineweb-edu",
+   "url": "http://www.studyphysics.ca/newnotes/20/unit01_kinematicsdynamics/chp04_acceleration/lesson12.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:6af83eea-e9c9-4bc3-83b0-3d1f7e904cd8>",
+   "domain": "fineweb-edu",
+   "row": 54,
+   "row_group": 0,
+   "sha256": "04071d1b2fc636fe",
+   "source": "fineweb-edu",
+   "url": "http://advantagegenealogy.com/blog/2011/03/30/how-do-you-say-genealogy-in-japanese/"
+  }
+ ],
+ "calibration": {
+  "T_cal": 128,
+  "corpus": "b4",
+  "sequences": 108
+ },
+ "checkpoint_identity": {
+  "config_sha256": "486bedda3a6988332e60d9638a09ca4b260d34ebcf1b19e22cf3b140b63d8fe9",
+  "schema": "zk60-llama-layer-inventory/1",
+  "shard_sha256": {
+   "model.safetensors": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+  },
+  "tensor_count": 201
+ },
+ "diagnostic_clamping": "values outside a class were clamped to continue; the native kernel refuses such a sequence",
+ "embedding_cos": {
+  "mean": 0.9998296593202186,
+  "min": 0.9977970132338817,
+  "p01": 0.9994789612070237
+ },
+ "export": {
+  "profile_sha256": "ff4794718546b38d452d23672432ca19d3ae4792790c77a73b275786beef4a90",
+  "root": "results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128",
+  "sequences": [
+   "seq_ho00",
+   "seq_ho36"
+  ]
+ },
+ "floors_policy": "none",
+ "head_accepted": {
+  "kl_float_to_int_mean": 0.3926361512083566,
+  "positions": 9144,
+  "ppl_float": 10.040848433788131,
+  "ppl_int": 13.779621541361866,
+  "sequences": 72,
+  "top1_agreement": 0.7344706911636045
+ },
+ "head_all_diagnostic": {
+  "kl_float_to_int_mean": 0.3926361512083566,
+  "positions": 9144,
+  "ppl_float": 10.040848433788131,
+  "ppl_int": 13.779621541361866,
+  "sequences": 72,
+  "top1_agreement": 0.7344706911636045
+ },
+ "heldout_first_refusal": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "heldout_refused": 0,
+ "heldout_sequences": [
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "5186bea057dfe3d7",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 647,
+   "sha256": "972b261aff4d1604",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1294,
+   "sha256": "4444adc44f98866a",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1941,
+   "sha256": "ef74b74bda0c630e",
+   "source": "/usr/share/common-licenses/Apache-2.0"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "351392987994958f",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1592,
+   "sha256": "e0b856463854937a",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 3184,
+   "sha256": "7e297de11d6e8424",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 4776,
+   "sha256": "6f898b69bdf5ebc3",
+   "source": "/usr/share/common-licenses/LGPL-2.1"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "b15680c307617eb6",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 340,
+   "sha256": "2e3a29acff8455c5",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 680,
+   "sha256": "0c52acd71331156e",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1020,
+   "sha256": "ab178accf550ff18",
+   "source": "/usr/share/common-licenses/Artistic"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "ddcd899157a031da",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 650,
+   "sha256": "a71986ed1590acbb",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1300,
+   "sha256": "20956c577369911d",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1950,
+   "sha256": "f7e6b86fab9c919d",
+   "source": "python3.10 stdlib docstrings: json/__init__"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "5c58bccbc2ce6f8a",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 127,
+   "sha256": "9ae7c660bd11dbda",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 254,
+   "sha256": "b3cbbbb209d733d4",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 381,
+   "sha256": "daee958fa04073e9",
+   "source": "python3.10 stdlib docstrings: pathlib"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "5357564448ba202d",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 217,
+   "sha256": "cfa7a427ff8f4ffd",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 434,
+   "sha256": "fb23f415ec7b9771",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 651,
+   "sha256": "65ed87b3f8c41447",
+   "source": "python3.10 stdlib docstrings: functools"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "d4b0825091dac8f7",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 205,
+   "sha256": "992a46a50e7ea7bf",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 410,
+   "sha256": "f782c5f2c76ec083",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 615,
+   "sha256": "82795c6adaebec90",
+   "source": "python3.10 stdlib docstrings: dataclasses"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "c6d5cc06ca227a01",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 560,
+   "sha256": "287289f29dec10ba",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1120,
+   "sha256": "aed822db1f138d17",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1680,
+   "sha256": "0be276596986266a",
+   "source": "python3.10 stdlib docstrings: unittest/case"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 0,
+   "sha256": "04fdc2cf8861fe2a",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 540,
+   "sha256": "1d9717ae8c2d7a42",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1080,
+   "sha256": "744073786580695e",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "domain": "licence-docstring",
+   "offset": 1620,
+   "sha256": "317e58ca8072ca5c",
+   "source": "python3.10 stdlib docstrings: shutil"
+  },
+  {
+   "doc_id": "<urn:uuid:9fef0930-8fc0-4e9d-8954-f3740b7e4e53>",
+   "domain": "fineweb-edu",
+   "row": 0,
+   "row_group": 1,
+   "sha256": "25949de7afb88443",
+   "source": "fineweb-edu",
+   "url": "http://truestarhealth.com/Notes/2828008.html"
+  },
+  {
+   "doc_id": "<urn:uuid:173273e4-382f-474a-b8ea-b1937062a3bb>",
+   "domain": "fineweb-edu",
+   "row": 1,
+   "row_group": 1,
+   "sha256": "b05a73e6446078de",
+   "source": "fineweb-edu",
+   "url": "http://www.abc.net.au/science/articles/2011/12/08/3385661.htm?site=science&topic=latest&listaction=unsubscribe"
+  },
+  {
+   "doc_id": "<urn:uuid:a3486fd2-46ef-4111-a3d9-9b592c351b8e>",
+   "domain": "fineweb-edu",
+   "row": 2,
+   "row_group": 1,
+   "sha256": "265af40900896cbc",
+   "source": "fineweb-edu",
+   "url": "http://www.devshed.com/c/a/BrainDump/SQL-Functioning-in-the-Real-World/1/"
+  },
+  {
+   "doc_id": "<urn:uuid:77afc505-9f76-48c5-bf38-4b198f81ca90>",
+   "domain": "fineweb-edu",
+   "row": 3,
+   "row_group": 1,
+   "sha256": "ccc5dae839c28cb5",
+   "source": "fineweb-edu",
+   "url": "http://www.lpi.usra.edu/publications/slidesets/geology/sgeo/slide_16.html"
+  },
+  {
+   "doc_id": "<urn:uuid:ea266eaf-7e12-4233-b523-15c37d3e800b>",
+   "domain": "fineweb-edu",
+   "row": 4,
+   "row_group": 1,
+   "sha256": "54ff436f1e5b12c5",
+   "source": "fineweb-edu",
+   "url": "http://www.oxfamamerica.org/articles/feeding-a-nation"
+  },
+  {
+   "doc_id": "<urn:uuid:3fb482ac-1425-4f4f-86d5-2eff0e862e7f>",
+   "domain": "fineweb-edu",
+   "row": 5,
+   "row_group": 1,
+   "sha256": "98c14b57ae631fed",
+   "source": "fineweb-edu",
+   "url": "http://www.sciencedaily.com/releases/2002/05/020516080752.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:7b7e47d8-9a0d-4eae-b06e-41682ffea156>",
+   "domain": "fineweb-edu",
+   "row": 6,
+   "row_group": 1,
+   "sha256": "1d146812a9832a8c",
+   "source": "fineweb-edu",
+   "url": "http://www.slj.com/tag/african-american/"
+  },
+  {
+   "doc_id": "<urn:uuid:a9f0e20e-8f58-4951-b1e7-478068b1acad>",
+   "domain": "fineweb-edu",
+   "row": 7,
+   "row_group": 1,
+   "sha256": "221f2ac5d4dde3fb",
+   "source": "fineweb-edu",
+   "url": "http://www.kungahuset.se/royalcourt/wedding/hagapalace.4.1a6f639212652d9b15a800015219.html"
+  },
+  {
+   "doc_id": "<urn:uuid:a3ea86cc-8e01-4e3e-8653-92ffa414420b>",
+   "domain": "fineweb-edu",
+   "row": 8,
+   "row_group": 1,
+   "sha256": "1471834156d0d6d6",
+   "source": "fineweb-edu",
+   "url": "http://my.firedoglake.com/inoljt/tag/juche/"
+  },
+  {
+   "doc_id": "<urn:uuid:f000983f-9125-4195-8dab-4b4bea4ea403>",
+   "domain": "fineweb-edu",
+   "row": 9,
+   "row_group": 1,
+   "sha256": "82eee0096b372b4b",
+   "source": "fineweb-edu",
+   "url": "http://wikipedia.qwika.com/de2en/Mendelsche_Gesetze"
+  },
+  {
+   "doc_id": "<urn:uuid:eb9e356a-04a6-49a0-ad31-df2cd1664d0d>",
+   "domain": "fineweb-edu",
+   "row": 10,
+   "row_group": 1,
+   "sha256": "c9a8ca718e6d6f13",
+   "source": "fineweb-edu",
+   "url": "http://www.nobelprize.org/nobel_prizes/chemistry/laureates/1945/virtanen.html"
+  },
+  {
+   "doc_id": "<urn:uuid:f8b99a72-9e56-4a9e-8292-4c07aac57f23>",
+   "domain": "fineweb-edu",
+   "row": 11,
+   "row_group": 1,
+   "sha256": "be029411b6509d43",
+   "source": "fineweb-edu",
+   "url": "http://www.reocities.com/Athens/Agora/5685/three.html"
+  },
+  {
+   "doc_id": "<urn:uuid:dec3d600-f093-4b24-86d7-cee44d9a59ee>",
+   "domain": "fineweb-edu",
+   "row": 13,
+   "row_group": 1,
+   "sha256": "913c321841bf5579",
+   "source": "fineweb-edu",
+   "url": "http://www.consumerfreedom.com/2008/06/3655-childhood-veganism-a-problem-not-a-solution/"
+  },
+  {
+   "doc_id": "<urn:uuid:a7fd1f4c-a983-4328-832f-bbed3a80ced4>",
+   "domain": "fineweb-edu",
+   "row": 14,
+   "row_group": 1,
+   "sha256": "c18532ecf322c261",
+   "source": "fineweb-edu",
+   "url": "http://www.cs.mcgill.ca/~fkaeli/probrem/about.html"
+  },
+  {
+   "doc_id": "<urn:uuid:dae711ed-6fe6-41d2-bc4b-be4fe0791df3>",
+   "domain": "fineweb-edu",
+   "row": 15,
+   "row_group": 1,
+   "sha256": "cc521f81b952e609",
+   "source": "fineweb-edu",
+   "url": "http://www.freep.com/article/20130103/OPINION05/130103039/-1/7daysarchives/Guest-commentary-Disarm-filibuster-"
+  },
+  {
+   "doc_id": "<urn:uuid:a769da76-59bc-4b23-8d08-269bdf81bd21>",
+   "domain": "fineweb-edu",
+   "row": 16,
+   "row_group": 1,
+   "sha256": "3945d8e9a85f4d15",
+   "source": "fineweb-edu",
+   "url": "http://www.nutribase.com/fwchartm.html"
+  },
+  {
+   "doc_id": "<urn:uuid:7769300f-d8f0-4fc0-84ea-7a2b9b9d3035>",
+   "domain": "fineweb-edu",
+   "row": 17,
+   "row_group": 1,
+   "sha256": "6c8d8a421f601fb1",
+   "source": "fineweb-edu",
+   "url": "http://www.theschoolrun.com/theschoolrun-homepage?qt-worksheet_and_activity_finder=0"
+  },
+  {
+   "doc_id": "<urn:uuid:72358377-646b-4cd3-a2c1-c47616f8a346>",
+   "domain": "fineweb-edu",
+   "row": 18,
+   "row_group": 1,
+   "sha256": "6347ba4b91e80208",
+   "source": "fineweb-edu",
+   "url": "http://deltafarmpress.com/management/30th-milan-no-till-field-day-july-22"
+  },
+  {
+   "doc_id": "<urn:uuid:99f54c3f-ffdc-4ca2-858b-3013dd0354da>",
+   "domain": "fineweb-edu",
+   "row": 19,
+   "row_group": 1,
+   "sha256": "bfdc93761aef87b3",
+   "source": "fineweb-edu",
+   "url": "http://www.marconews.com/news/2010/may/27/money-smarts-absorbing-energy-smarts/"
+  },
+  {
+   "doc_id": "<urn:uuid:f58368fe-4f93-409c-b795-4cfb6345ae48>",
+   "domain": "fineweb-edu",
+   "row": 20,
+   "row_group": 1,
+   "sha256": "7389664bcc891edc",
+   "source": "fineweb-edu",
+   "url": "http://www.nps.gov/history/nr/twhp/wwwlps/lessons/113corinth/113visual5.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:c339e705-48c2-47be-ae5a-bf00d6e80176>",
+   "domain": "fineweb-edu",
+   "row": 21,
+   "row_group": 1,
+   "sha256": "d94b60edf52183dc",
+   "source": "fineweb-edu",
+   "url": "http://www.zamg.ac.at/docu/Manual/SatManu/CMs/ULL/backgr.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:cf86d721-9945-4fe3-a3be-ada18f364fa7>",
+   "domain": "fineweb-edu",
+   "row": 22,
+   "row_group": 1,
+   "sha256": "d738abd92a474acb",
+   "source": "fineweb-edu",
+   "url": "http://askaboutireland.ie/learning-zone/primary-students/looking-at-places/clare/aspects-of-clare/find-out-more/"
+  },
+  {
+   "doc_id": "<urn:uuid:45e0ca9a-c163-49af-9632-4b10f61aef50>",
+   "domain": "fineweb-edu",
+   "row": 23,
+   "row_group": 1,
+   "sha256": "d03420485871066a",
+   "source": "fineweb-edu",
+   "url": "http://diy.lomography.com/projects/industrial-art"
+  },
+  {
+   "doc_id": "<urn:uuid:93feaf50-9706-42f8-8ab8-075443762752>",
+   "domain": "fineweb-edu",
+   "row": 24,
+   "row_group": 1,
+   "sha256": "ff0d14970ba116f3",
+   "source": "fineweb-edu",
+   "url": "http://eponline.com/articles/2012/12/18/examining-the-sustainability-journey-of-walmart.aspx"
+  },
+  {
+   "doc_id": "<urn:uuid:eb581ff7-868a-4b9c-8f84-733a2e3eff76>",
+   "domain": "fineweb-edu",
+   "row": 25,
+   "row_group": 1,
+   "sha256": "945b71ce1e3d7b40",
+   "source": "fineweb-edu",
+   "url": "http://patients.aan.com/resources/neurologynow/index.cfm?event=home.showArticle&id=ovid.com%3A%2Fbib%2Fovftdb%2F01222928-200602010-00012"
+  },
+  {
+   "doc_id": "<urn:uuid:10e68a06-806e-4d02-a069-a49776a0ea9f>",
+   "domain": "fineweb-edu",
+   "row": 26,
+   "row_group": 1,
+   "sha256": "a9f698c460eead7e",
+   "source": "fineweb-edu",
+   "url": "http://www.dealchicken.com/appleton-wi/trivia"
+  },
+  {
+   "doc_id": "<urn:uuid:4ff3da47-078a-4ee4-b882-f23110960487>",
+   "domain": "fineweb-edu",
+   "row": 27,
+   "row_group": 1,
+   "sha256": "262d98586962148b",
+   "source": "fineweb-edu",
+   "url": "http://www.monticello.org/getting-word/stories/racial-prejudice"
+  },
+  {
+   "doc_id": "<urn:uuid:c71c1a01-b722-41d4-aac2-009fd7362c0e>",
+   "domain": "fineweb-edu",
+   "row": 28,
+   "row_group": 1,
+   "sha256": "c0759803a3991ee6",
+   "source": "fineweb-edu",
+   "url": "http://www.nap.edu/openbook.php?record_id=12184&page=212"
+  },
+  {
+   "doc_id": "<urn:uuid:6d2fc9ae-f36c-4779-8f8c-44613e252d5a>",
+   "domain": "fineweb-edu",
+   "row": 29,
+   "row_group": 1,
+   "sha256": "fa6ddc48607474fb",
+   "source": "fineweb-edu",
+   "url": "http://www.thetakeaway.org/2011/may/11/man-vs-nature-along-mississippi-delta/"
+  },
+  {
+   "doc_id": "<urn:uuid:3114b571-b362-4893-8499-bad693d23367>",
+   "domain": "fineweb-edu",
+   "row": 30,
+   "row_group": 1,
+   "sha256": "8d28560641bb3838",
+   "source": "fineweb-edu",
+   "url": "http://wikitravel.org/en/South_Florida"
+  },
+  {
+   "doc_id": "<urn:uuid:9cceece3-5a0f-46b8-bb16-f18d460378b6>",
+   "domain": "fineweb-edu",
+   "row": 31,
+   "row_group": 1,
+   "sha256": "e2a749eeb24cf8c0",
+   "source": "fineweb-edu",
+   "url": "http://www.aaamath.com/B/g68_tix1.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:8b6521bd-9813-403c-95f6-88d37bce7acb>",
+   "domain": "fineweb-edu",
+   "row": 32,
+   "row_group": 1,
+   "sha256": "a309d459dbbdd0f8",
+   "source": "fineweb-edu",
+   "url": "http://www.forbes.com/sites/nathanlewis/2011/10/13/flat-tax-vs-fair-tax-vs-herman-cains-9-9-9-plan/"
+  },
+  {
+   "doc_id": "<urn:uuid:d75f1701-4d0b-4ddc-a468-f8ddfc6a165e>",
+   "domain": "fineweb-edu",
+   "row": 33,
+   "row_group": 1,
+   "sha256": "321a3ff4bee9a26d",
+   "source": "fineweb-edu",
+   "url": "http://archpedi.jamanetwork.com/article.aspx?articleid=189208"
+  },
+  {
+   "doc_id": "<urn:uuid:f45b504b-6d0e-4920-abee-5ddce87aed4d>",
+   "domain": "fineweb-edu",
+   "row": 34,
+   "row_group": 1,
+   "sha256": "894ce8edd5a1ced0",
+   "source": "fineweb-edu",
+   "url": "http://ecmweb.com/bonding-amp-grounding/guidelines-grounding-and-bonding-telecom-systems"
+  },
+  {
+   "doc_id": "<urn:uuid:e5e05c02-34bb-4ef1-9472-197eea5d1ad7>",
+   "domain": "fineweb-edu",
+   "row": 35,
+   "row_group": 1,
+   "sha256": "22393c84ef69f962",
+   "source": "fineweb-edu",
+   "url": "http://www.sciencedaily.com/releases/2008/10/081009185032.htm"
+  },
+  {
+   "doc_id": "<urn:uuid:350bd8d6-51b0-4f6f-8e50-7a96280c8b1f>",
+   "domain": "fineweb-edu",
+   "row": 36,
+   "row_group": 1,
+   "sha256": "d69cc120307cf377",
+   "source": "fineweb-edu",
+   "url": "http://www.rep-am.com/articles/2012/11/15/commentary/679829.prt"
+  }
+ ],
+ "model": {
+  "file": "model.safetensors",
+  "repo": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+  "sha256": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+ },
+ "profile": {
+  "cn_a": 3583,
+  "cn_m": 2873,
+  "e_s": null,
+  "floors_policy": "none",
+  "s_in": [
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893
+  ],
+  "s_out": [
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893,
+   0.0005245576041783893
+  ],
+  "shifts": {
+   "ao": 3,
+   "g": 8,
+   "h": 14,
+   "o": 9,
+   "qkv": 8,
+   "rope": 7,
+   "s": 6,
+   "u": 0,
+   "z": 4
+  },
+  "silu": null
+ },
+ "seconds": 2573.2721276283264,
+ "variant": "pg_rot1_b4_T128",
+ "variant_options": {
+  "cn_max": 65536,
+  "margin": 0.5,
+  "margin_ch": 3.0,
+  "margin_pow2": 0.25,
+  "name": "pg",
+  "norm_cn": "profile",
+  "o16": false,
+  "residual": "global",
+  "rotate": 1,
+  "shapes": [
+   "range",
+   "smooth",
+   "gamma"
+  ],
+  "shifts": "profile",
+  "tables": "layer",
+  "tn": 10
+ }
+}

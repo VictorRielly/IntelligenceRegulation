@@ -1,0 +1,33 @@
+[zk60-guard 02:33:29] START r2-full-release2 class=cpu need=5G cap=8G enforce=cgroup+watchdog waited=0s run=0d2c988ed438
+[zk60-guard 02:44:46] END r2-full-release2 exit=0 child_wall=677s peak_rss=4.21G min_avail=6.84G
+suite exit 0
+[zk60-guard 02:44:46] START r2-prove-pg_rot1_export_T32-L0-ho00 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=58e11164c615
+[zk60-guard 02:45:40] END r2-prove-pg_rot1_export_T32-L0-ho00 exit=0 child_wall=54s peak_rss=1.05G min_avail=9.81G
+[zk60-guard 02:45:40] START r2-verify-pg_rot1_export_T32-L0-ho00 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=821b80bc3e93
+[zk60-guard 02:45:44] END r2-verify-pg_rot1_export_T32-L0-ho00 exit=0 child_wall=4s peak_rss=0.29G min_avail=10.52G
+verify exit 0
+[zk60-guard 02:45:44] START r2-prove-pg_rot1_export_T32-L21-ho01 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=f725a533a8b3
+[zk60-guard 02:46:35] END r2-prove-pg_rot1_export_T32-L21-ho01 exit=0 child_wall=51s peak_rss=1.06G min_avail=9.89G
+[zk60-guard 02:46:35] START r2-verify-pg_rot1_export_T32-L21-ho01 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=f134b565b99e
+[zk60-guard 02:46:39] END r2-verify-pg_rot1_export_T32-L21-ho01 exit=0 child_wall=4s peak_rss=0.31G min_avail=10.54G
+verify exit 0
+[zk60-guard 02:46:39] START r2-prove-pg_rot1_export_T32-L0-ho01 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=d878d8e7a3fd
+[zk60-guard 02:46:52] END r2-prove-pg_rot1_export_T32-L0-ho01 exit=0 child_wall=12s peak_rss=0.87G min_avail=9.92G
+[zk60-guard 02:46:52] START r2-verify-pg_rot1_export_T32-L0-ho01 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=fec43d23fea1
+[zk60-guard 02:46:53] END r2-verify-pg_rot1_export_T32-L0-ho01 exit=0 child_wall=1s peak_rss=0.12G min_avail=10.59G
+verify exit 0
+[zk60-guard 02:46:53] START r2-prove-pg_rot1_export_T32-L21-ho00 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=108aa93876e7
+[zk60-guard 02:47:06] END r2-prove-pg_rot1_export_T32-L21-ho00 exit=0 child_wall=13s peak_rss=0.85G min_avail=9.99G
+[zk60-guard 02:47:06] START r2-verify-pg_rot1_export_T32-L21-ho00 class=cpu need=2G cap=4G enforce=cgroup+watchdog waited=0s run=170e94c7ba78
+[zk60-guard 02:47:07] END r2-verify-pg_rot1_export_T32-L21-ho00 exit=0 child_wall=1s peak_rss=0.14G min_avail=10.76G
+verify exit 0
+pg done
+[zk60-guard 02:47:07] START r2-stack-prove-ho00 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=2cbf0ef5ea49
+[zk60-guard 02:55:56] END r2-stack-prove-ho00 exit=0 child_wall=529s peak_rss=2.15G min_avail=8.00G
+[zk60-guard 02:55:56] START r2-stack-verify-ho00 class=cpu need=4G cap=7G enforce=cgroup+watchdog waited=0s run=b5b2db210a94
+[zk60-guard 02:56:30] END r2-stack-verify-ho00 exit=0 child_wall=34s peak_rss=1.57G min_avail=11.08G
+stack-verify exit 0
+[zk60-guard 02:56:30] START r2-stack-lie-ho00 class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=80b911868d77
+[zk60-guard 02:57:38] END r2-stack-lie-ho00 exit=0 child_wall=68s peak_rss=1.02G min_avail=11.64G
+lie control exit 0
+stack done

@@ -1,0 +1,120 @@
+{
+  "status": "pass",
+  "run_id": "20261017T092624Z-0a2ee588",
+  "cycle": "0059",
+  "seed": 2026101759,
+  "counts": {
+    "retained_independent_block_diagnostics": 22,
+    "fresh_verifier_log_pairs": 22,
+    "accounting_reference_checks": 16219,
+    "synthetic_traces": 200,
+    "synthetic_spans": 16000,
+    "negative_controls": 15
+  },
+  "controls": [
+    "missing fresh verification",
+    "duplicate loaded clock",
+    "wrong proof bytes",
+    "wrong statement identity",
+    "wrong proof hash",
+    "nonzero completion",
+    "guard kill",
+    "unlinked receipts relabelled as stack",
+    "proof clock exceeds enclosing",
+    "nan clock",
+    "negative clock",
+    "out-of-parent span",
+    "overlapping siblings",
+    "missing parent",
+    "duplicate span id"
+  ],
+  "diagnostic_seconds": {
+    "load": "16.046",
+    "witness_parity": "294.314",
+    "prove_inclusive": "82.500",
+    "verify_in_process": "7.400",
+    "total": "405.980",
+    "fresh_load": "18.822",
+    "fresh_verify": "7.265",
+    "unclassified": "5.720"
+  },
+  "diagnostic_fraction": {
+    "load": "0.03952411448839844327306763880",
+    "witness_parity": "0.7249470417261934085422927238",
+    "prove_inclusive": "0.2032119808857579191093157298",
+    "verify_in_process": "0.01822749889157101335041135031",
+    "unclassified": "0.01408936400807921572491255727"
+  },
+  "diagnostic_ideal_delete_all_prove_ceiling": "1.255038951403487078026462223",
+  "diagnostic_ideal_delete_load_ceiling": "1.041150553683443864859181297",
+  "diagnostic_prove_only_understates_total_by": "4.920969696969696969696969697",
+  "diagnostic_receipt_bytes": 255800336,
+  "residual_aggregate_rounding_radius_s": "0.055",
+  "residual_split": "unknown: endpoints, statements, file writes and other gaps",
+  "startup_seconds": null,
+  "startup_fraction": null,
+  "target_total_workload_rate": null,
+  "target_steady_rate": null,
+  "accepted_complete_8b_proofs": 0,
+  "accepted_complete_8b_passes": 0,
+  "accepted_complete_8b_positions": 0,
+  "target_context": null,
+  "witness_seconds_8b": null,
+  "proof_seconds_8b": null,
+  "serialization_seconds_8b": null,
+  "verification_seconds_8b": null,
+  "synthetic_slopes": [
+    {
+      "recurring_s": "0.5",
+      "rates": [
+        "4.266666666666666666666666667",
+        "8",
+        "23.27272727272727272727272727",
+        "52.51282051282051282051282051",
+        "63.78199513381995133819951338",
+        "63.99914551922104921847433220"
+      ]
+    },
+    {
+      "recurring_s": "0.64",
+      "rates": [
+        "4.188481675392670157068062827",
+        "7.729468599033816425120772947",
+        "21.12211221122112211221122112",
+        "42.70225187656380316930775646",
+        "49.86684116814536378992862687",
+        "49.99947846479825140869638193"
+      ]
+    },
+    {
+      "recurring_s": "0.8",
+      "rates": [
+        "4.102564102564102564102564103",
+        "7.441860465116279069767441860",
+        "19.10447761194029850746268657",
+        "35.18900343642611683848797251",
+        "39.91473293136000974480784457",
+        "39.99966621677456209428946969"
+      ]
+    },
+    {
+      "recurring_s": "2",
+      "rates": [
+        "3.555555555555555555555555556",
+        "5.818181818181818181818181818",
+        "11.13043478260869565217391304",
+        "15.17037037037037037037037037",
+        "15.98633979753628491279424320",
+        "15.99994659441654161653932773"
+      ]
+    }
+  ],
+  "experiment_wall_seconds": 0.10720037700230023,
+  "peak_rss_kib": 17052,
+  "cpu_affinity": [
+    0
+  ],
+  "experiment_threads": 1,
+  "limits": "59s wall/CPU;512MiB AS;64MiB estimated;nice19;no GPU/dependencies/native proof",
+  "scope": "Read-only audit of existing public timing/size metadata. No fresh verification or native performance reproduction; no linked stack claim. Current stack source differs from t5 sources."
+}

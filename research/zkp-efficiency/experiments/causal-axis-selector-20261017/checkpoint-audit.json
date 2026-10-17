@@ -1,0 +1,453 @@
+{
+  "status": "pass",
+  "checks": [
+    {
+      "label": "historical findings prefix retained",
+      "pass": true
+    },
+    {
+      "label": "historical sources bytes retained",
+      "pass": true
+    },
+    {
+      "label": "source count297",
+      "pass": true
+    },
+    {
+      "label": "five new IDs unique",
+      "pass": true
+    },
+    {
+      "label": "new IDs disjoint from old",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/sumcheck/grouped.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/zkp-core/src/field.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/argument.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/protocol.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/report.json",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/results/zk60_sol_gpu_20260927/attempt-5-dense-ab/b2-gpu.log",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/baseline-stack-gpu-attempt2/report.json",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/results/zk60_mvp_20260929/cli-stack-gpu/report.json",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/pad.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/shape.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/layout.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged native/measurement /home/victor/IntelligenceRegulation/ops/zkp-mvp/sonnet-hardening/hashline/src/private_block/s35_tests.rs",
+      "pass": true
+    },
+    {
+      "label": "unchanged instructions/owner memory /home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+      "pass": true
+    },
+    {
+      "label": "unchanged instructions/owner memory /home/victor/IntelligenceRegulation/CLAUDE.md",
+      "pass": true
+    },
+    {
+      "label": "unchanged instructions/owner memory /home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "pass": true
+    },
+    {
+      "label": "unchanged instructions/owner memory /home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "pass": true
+    },
+    {
+      "label": "unchanged instructions/owner memory /home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "pass": true
+    },
+    {
+      "label": "unchanged instructions/owner memory /home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "pass": true
+    },
+    {
+      "label": "unchanged instructions/owner memory /home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+      "pass": true
+    },
+    {
+      "label": "experiment and audit pass",
+      "pass": true
+    },
+    {
+      "label": "experiment bounds",
+      "pass": true
+    },
+    {
+      "label": "18 controls",
+      "pass": true
+    },
+    {
+      "label": "no counted target tokens",
+      "pass": true
+    },
+    {
+      "label": "cycle report STATE.md",
+      "pass": true
+    },
+    {
+      "label": "cycle report PROGRESS.md",
+      "pass": true
+    },
+    {
+      "label": "cycle report FINDINGS.md",
+      "pass": true
+    },
+    {
+      "label": "cycle report progress/20261017T082624Z-8668a63c.md",
+      "pass": true
+    },
+    {
+      "label": "cycle report handoffs/20261017-causal-axis-selector.md",
+      "pass": true
+    },
+    {
+      "label": "durable reports agree",
+      "pass": true
+    },
+    {
+      "label": "run log pinned",
+      "pass": true
+    },
+    {
+      "label": "artifact FINDINGS-review-index.json",
+      "pass": true
+    },
+    {
+      "label": "artifact MVP_STATUS-review-index.json",
+      "pass": true
+    },
+    {
+      "label": "artifact README.md",
+      "pass": true
+    },
+    {
+      "label": "artifact ZK60_CODEX_FABLE_COORDINATION-review-index.json",
+      "pass": true
+    },
+    {
+      "label": "artifact ZK60_DECISIONS-review-index.json",
+      "pass": true
+    },
+    {
+      "label": "artifact audit-command.json",
+      "pass": true
+    },
+    {
+      "label": "artifact audit.json",
+      "pass": true
+    },
+    {
+      "label": "artifact audit.py",
+      "pass": true
+    },
+    {
+      "label": "artifact checkpoint.py",
+      "pass": true
+    },
+    {
+      "label": "artifact command.json",
+      "pass": true
+    },
+    {
+      "label": "artifact execution.json",
+      "pass": true
+    },
+    {
+      "label": "artifact experiment.py",
+      "pass": true
+    },
+    {
+      "label": "artifact findings-review-extract.txt",
+      "pass": true
+    },
+    {
+      "label": "artifact initial-checkpoint-audit-failure.json",
+      "pass": true
+    },
+    {
+      "label": "artifact native/argument.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/b2-gpu.log",
+      "pass": true
+    },
+    {
+      "label": "artifact native/field.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/grouped.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/layout.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__argument.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__layout.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__pad.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__protocol.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__s35_tests.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__hashline__src__private_block__shape.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__field.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/ops__zkp-mvp__sonnet-hardening__zkp-core__src__sumcheck__grouped.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/pad.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/protocol.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/report.json",
+      "pass": true
+    },
+    {
+      "label": "artifact native/results__zk60_mvp_20260929__baseline-stack-gpu-attempt2__report.json",
+      "pass": true
+    },
+    {
+      "label": "artifact native/results__zk60_mvp_20260929__cli-stack-gpu__report.json",
+      "pass": true
+    },
+    {
+      "label": "artifact native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__b2-gpu.log",
+      "pass": true
+    },
+    {
+      "label": "artifact native/results__zk60_sol_gpu_20260927__attempt-5-dense-ab__report.json",
+      "pass": true
+    },
+    {
+      "label": "artifact native/s35_tests.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native/shape.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact native-pins.json",
+      "pass": true
+    },
+    {
+      "label": "artifact native-selector-candidate.rs",
+      "pass": true
+    },
+    {
+      "label": "artifact prior-clause-stream-schedule-20261017.json",
+      "pass": true
+    },
+    {
+      "label": "artifact prior-fixed-round0-factory-20261017.json",
+      "pass": true
+    },
+    {
+      "label": "artifact prior-native-capture-adapter-20261017.json",
+      "pass": true
+    },
+    {
+      "label": "artifact result.json",
+      "pass": true
+    },
+    {
+      "label": "artifact run.log",
+      "pass": true
+    },
+    {
+      "label": "artifact search58a.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58b.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58c.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58d.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58e.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58f.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58g.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58h.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58i.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58j.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58k.json",
+      "pass": true
+    },
+    {
+      "label": "artifact search58l.json",
+      "pass": true
+    },
+    {
+      "label": "artifact selector.py",
+      "pass": true
+    },
+    {
+      "label": "artifact sources-cycle58.json",
+      "pass": true
+    },
+    {
+      "label": "artifact sources-reviewed.json",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/AGENDA.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/CLAUDE.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/FINDINGS.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/MVP_STATUS.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/PROGRESS.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/START_HERE.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/STATE.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/ZK60_CODEX_FABLE_COORDINATION.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/ZK60_DECISIONS.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/ZK60_THROUGHPUT_TARGET.md",
+      "pass": true
+    },
+    {
+      "label": "artifact startup/sources.jsonl",
+      "pass": true
+    },
+    {
+      "label": "artifact startup-pins.json",
+      "pass": true
+    },
+    {
+      "label": "artifact support/adapter.py",
+      "pass": true
+    },
+    {
+      "label": "artifact support/field_support.py",
+      "pass": true
+    },
+    {
+      "label": "artifact support/generate.py",
+      "pass": true
+    },
+    {
+      "label": "artifact support/native_fixture.py",
+      "pass": true
+    },
+    {
+      "label": "artifact support/reference.py",
+      "pass": true
+    },
+    {
+      "label": "artifact support/scheduler.py",
+      "pass": true
+    }
+  ],
+  "check_count": 111,
+  "artifacts": 76,
+  "finished_at_utc": "2026-10-17T08:37:04.422045+00:00",
+  "scope": "Research prefix/source/artifact integrity, no native proof or speed acceptance"
+}

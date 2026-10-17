@@ -1,0 +1,12 @@
+{
+  "status": "fail",
+  "assertion": "source record IDs unique",
+  "reason": "Overbroad whole-ledger assumption; original source records include missing or duplicate IDs. Historical bytes retained; require new cycle IDs unique and disjoint from existing nonnull IDs.",
+  "duplicates": [
+    [
+      null,
+      5
+    ]
+  ],
+  "recorded_at_utc": "2026-10-17T08:36:29.824408+00:00"
+}

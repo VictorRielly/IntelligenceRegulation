@@ -1,0 +1,21 @@
+{"event":"verified","segment_bytes":11627288,"segment_sha256":"00df6e0fb5621504664421c8cca4a74100fb2c623ba4b729adeb096244115b05","load_seconds":0.582,"verify_seconds":0.241,"peak_rss_mib":212,"statement_identity":"f9c03305d31e79873652c90ee4d70e9fd0d485566129da7551e080039f0f1c10","scope":"ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"control-refused","control":"verifier statement with norm_tn - 1","error":"private run wire: segment 0 is 11627288 B, the counted length is 11766584"}
+{"event":"control-refused","control":"verifier statement with norm_cn_a + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with norm_cn_m + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with norm_ceps + 1","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_ao moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_qkv moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_s moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_o moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_g moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_h moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with sh_z moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with f_e moved by one","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with another export profile digest","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement naming another layer","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement with one gamma_a word moved","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"segment with byte 2325457 flipped","error":"A: pcs zk: group 29: <v, c> != combined claim"}
+{"event":"control-refused","control":"segment with byte 5813644 flipped","error":"A: pcs zk: Merkle path for column 5021 fails"}
+{"event":"control-refused","control":"segment with byte 11627248 flipped","error":"run output endpoint: pcs zk: Merkle path for column 8834 fails"}
+{"event":"control-refused","control":"segment truncated by one byte","error":"private run wire: segment 0 is 11627287 B, the counted length is 11627288"}
+{"event":"controls","refused":19,"honest_still_verifies":true}

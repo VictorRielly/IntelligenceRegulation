@@ -1,0 +1,46 @@
+{
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md": {
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md": {
+    "sha256": "080abe521440f3a2460d22f81e359c3e58f0d5615f3c3496cc40d638c70828c2",
+    "bytes": 5168
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md": {
+    "sha256": "bb48cc5a2b6be896e79a9d87835635a45affc48a0df39602bccc56f990ec4cc9",
+    "bytes": 432597
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl": {
+    "sha256": "4b6b24ea74bc631f961f63577ecc10e717460ddf5f614e3ba08db80b9e8abc50",
+    "bytes": 369002
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md": {
+    "sha256": "88f67e98115ea94a78d7d16db1e7eacdfc69187053dc06f7871565d5d1255a65",
+    "bytes": 2582
+  },
+  "/home/victor/IntelligenceRegulation/CLAUDE.md": {
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md": {
+    "sha256": "e524a446d5207f70cf4928a554770d2dccdb911707ad6d2895c1fbc25bab087a",
+    "bytes": 60941
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+    "sha256": "dad45332f6e4fdc46db690b60d55f6a2b4f72a805d94614fe06b01706ebdc85c",
+    "bytes": 62547
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md": {
+    "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+    "bytes": 2264
+  }
+}

@@ -115,7 +115,7 @@ mod trained_statement;
 // MVP driver: it builds the public statement and the trained-model statement
 // from a calibration export and adds no protocol code.
 mod trained_block;
-pub use trained_block::{trained_prove_command, trained_verify_command};
+pub use trained_block::{trained_prove_command, trained_stack_prove_command, trained_stack_verify_command, trained_verify_command};
 mod wire;
 mod witness;
 // The production CLI bridge for a real multi-block run (prove / verify), over
@@ -142,6 +142,13 @@ mod trained_calib_tests;
 // CLI bridge end to end with every control.
 #[cfg(test)]
 mod trained_block_tests;
+// the D24 review's findings (2026-10-17) as permanent tests, with the
+// reviewer's softmax forge hook (`witness.rs`, test builds only)
+#[cfg(test)]
+mod review_d24_tests;
+// R2-3: the stack CLI on a small chained multi-layer export (test only)
+#[cfg(test)]
+mod trained_stack_tests;
 // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
 // witness at the shaped geometries, where the diagonal fixture leaves every
 // hidden unit above `d` with no input and no output weight.
@@ -990,6 +997,7 @@ impl Receipt {
     /// **S12a.** The same codec at any [`shape::Shape`]; `to_bytes` is this at
     /// the toy, whose path is left exactly where it was.
     pub(crate) fn to_bytes_at(&self, sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
+        protocol::single_block_profile_allowed(sh)?;
         let lay = layout::Layout::for_shape(sh)?;
         // STAGE 11: the encode is outside `prove_inner_at`'s recorder, so it
         // gets its own line. `timing::timed` calls the closure and nothing
@@ -998,6 +1006,7 @@ impl Receipt {
         timing::timed("prove", "encode to bytes (wire::encode)", n, "B", || wire::encode(self, &protocol::transcript(public, expected, &lay).state(), &lay))
     }
     pub(crate) fn from_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, String> {
+        protocol::single_block_profile_allowed(sh)?;
         let lay = layout::Layout::for_shape(sh)?;
         let n = bytes.len() as u64;
         timing::timed("verify", "decode from bytes (wire::decode)", n, "B", || wire::decode(bytes, &protocol::transcript(public, expected, &lay).state(), &lay))

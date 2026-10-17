@@ -1544,7 +1544,7 @@ const CALL_SITES: [(&str, &str, usize, &str); 14] = [
     // NATIVE LANE: the trained-block CLI's request context, an unkeyed hash of
     // public words (variant, label, layer); its file digests are SHA-256 via
     // `Sha256::digest`, not an entry point of this table
-    ("src/private_block/trained_block.rs", "blake3::hash(", 1, "driver-side, outside the protocol: the trained-block CLI's request context, an unkeyed hash of public length-prefixed words (variant, label, layer index)"),
+    ("src/private_block/trained_block.rs", "blake3::hash(", 2, "driver-side, outside the protocol: the trained-block CLI's and the trained-stack CLI's request contexts, unkeyed hashes of public length-prefixed words (variant, label, layer indices)"),
     // NATIVE LANE: the driver overlay's CLI bridge (pre-existing in the
     // candidate; this table had not been told about it): D4 recomputed to
     // check a policy's model root, the CLI's context derivation, and an

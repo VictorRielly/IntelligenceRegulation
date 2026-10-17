@@ -1074,6 +1074,12 @@ impl Layout {
         if !sh.trained_calibration && sh.norm_calibration() != super::shape::NormCalibration::FROZEN {
             return Err(format!("private block: {} carries a non-frozen calibration without the trained door", sh.profile));
         }
+        // review findings F-1 / F-5: a trained shape's WHOLE declared class
+        // (norm constants, windowed shifts, f_e and both derived windows) is
+        // re-checked here from its own fields, not trusted from the door
+        if sh.trained_calibration {
+            sh.check_trained_class()?;
+        }
         let ids = Ids::new(sh)?;
         let hids = HIds::new(sh)?;
         let n = 1usize << sh.log_cols;

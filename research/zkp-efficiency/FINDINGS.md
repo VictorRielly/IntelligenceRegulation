@@ -3961,3 +3961,128 @@ Four LIVE records appended (288->292). Search rotation covered lookup/softmax, e
 Accepted independently verified complete private 8B proofs/passes/tokens: **0/0/0**. Device: Intel Core Ultra 9 185H CPU only, one thread, nice19, CPU0. Proof context length, steady-state and total-workload rates, startup duration/fraction, witness/proof/serialization/independent-verification clocks and proof latency/lag/drain are **all unmeasured**. No long-context prefill, resident-model pass or decode proof ran. Fixtures use one two-cell affine row, not token contexts. T512 figures below are historical diagnostics or allocation-free accounting. Dense-attention score work grows roughly fourfold when context doubles. Larger workloads remain permitted with fresh masks and complete coverage; the private8B >=50 proved-token/s target remains unachieved.
 
 Production, runtime, Git, calibration, safety gates, instructions and reviewer files were not modified. No GPU job, build, dependency installation, downloaded script execution, external write/message, merge or heavy queue action occurred. Saved reports are not evidence of notification delivery or supervisor liveness. D24 remains proposed; no new privacy/profile ruling is accepted.
+
+
+## Cycle 0058 — 2026-10-17 — native public-axis selector prerequisite
+
+Run `20261017T082624Z-8668a63c`; checkpoint2026-10-17T08:35:41.909809+00:00. Agenda/target/durable and project memory snapshotted;292 starting sources parsed,latest3 results read;5 LIVE source records appended,297 total. Prior findings/source prefixes preserved.
+
+**No native improvement measured.** The public mask selector is derived from padded `(head,t,j)` MSB axes and separate zero-endpoint terminal extensions. Head axes are constant for every arbitrary folded prefix; token axes/terminal extensions are potentially active. Unsupported metadata/pad-on/later-round cases retain scalar fallback. Native constructor pad policy must come from ALL_DOMS/pad_zero_host/zero_rule_a_planes, not geometry alone. `native-selector-candidate.rs` is uncompiled. Actual native captures/Rust/transcript/RNG/proof/verifier were not executed. Public predicate metadata reuse is unrelated to fresh private blinding, which remains unchanged.
+
+Final experiment:9 layouts,35,952 endpoint comparisons,13,872 zero head differences,192 folds,48 active-axis witnesses,27 independent tuple-field full-extension evaluations,336 helper samples/four generated bodies,18 controls. Wall2.614439s (subprocess2.696996s),RSS20724KiB,CoreUltra9 185H CPU0/one nice19 thread,seed2026101758,59s/512MiB caps,96MiB estimate,exit0. Independent scalar-only original-cube audit1431 checks,0.033887s/RSS16100KiB,seed2026101758001,32MiB estimate. All12 native/measurement pins unchanged. Wrong axis/terminal/support/head-zero-fill/pad-policy metadata and false constant helper selection are detected or fall back; varying head point is an expected invariance. Native extension0/1 refusals are not changed by algebra checks.
+
+Incremental eliminated work: **zero field operations, zero established native time**. Added public validation/dispatch/source maintenance. Earlier factory arithmetic/logical retention and7.0153% scoped API accounting are unchanged. The comparator and conditional vector elimination were already studied in cycle0037; this rerun is a regression oracle for new dispatch, not a new algorithm or memory saving. Hpad32/T512128MiB,T1024512MiB,T40968GiB mask counts are allocation-free and conditional; verifier savings cannot be claimed as prover throughput. Complete8B ceiling remains unknown. Historical deleting all SC_SZC only28.317% (~1.395x) of one27.523873s synthetic125M diagnostic; target unchanged.
+
+|Rank|Hypothesis and baseline|Removed work / added cost / complete-proof limit|Prerequisites, exactness/privacy and falsification|
+|---|---|---|---|
+|1 OWNER|GPU SC_SZC plus both recurring witness paths; native historical GPU-assisted synthetic125M block still spends7.794s in SC_SZC.|Replace host field loops/transfers; adds device storage/synchronization/reductions. Complete8B bound unknown. Erasing all SC_SZC only28.317% of the cited27.523873s one-block test.|High CUDA/native integration cost; all clauses/ordered finals/refusals/hosted claims, fresh randomness/transcript/PCS unchanged. Reject any mismatch or no enclosing gain.|
+|2 REFINED/TESTED|Derive constant-mask selector from trusted native S axes and appended extension policy; prior adapter takes mask_active Boolean.|No new field work eliminated, no incremental descriptor saving. Adds public validation/dispatch; native complete-time delta unknown.|Moderate constructor/helper integration. Pad-on/later-round fallback; never receipt/witness-driven dispatch. Any selected-constant nonzero paired difference, extension mismatch or native byte/refusal change falsifies. Native compile/capture still owner work.|
+|3 OWNER|Resident complete-stack workload sweep with explicit startup, recurring work and drain.|Amortize only genuine reusable public/model setup; adds residency/memory pressure and measured scheduling. No mask reuse. Unknown actual8B ceiling.|Complete linked stack/independent verifier plus all clocks, fixed context and distinct proved positions. Recurring>20ms/new proved position falsifies50/s for that schedule; larger single-context attention has quadratic cost.|
+|4 LOCAL NEXT/OWNER|Audit new trained-block clock records to locate both witness builds and serialization boundaries before exact full-K split-int16 witness work.|Avoid duplicate or inefficient CPU witness arithmetic only if measured; packing/reconstruction/i64/requant/scratch may offset it. Current isolated share unknown.|Low-cost read-only accounting first; owner native/device gate later. Preserve exact trained integer values and refusal domain. Incomplete clocks block numeric ceiling; integer mismatch or no enclosing gain demotes.|
+|5 ARCHITECTURE|Older Quarks preprocessing/PCS and structured public representations.|Potential setup/verification changes, substantial PCS/PIOP/migration cost; no native throughput factor.|Full composition, field/soundness/PCS and joint hiding review. Setup savings cannot erase recurring SC_SZC/witness. Not a drop-in path; no target or privacy change authorized.|
+
+
+Next owner: actual capture/metadata export and guarded native three-arm differential/profile with all original samples, finals, host assertions/refusals, fresh masks, RNG/transcript/bytes and independent verification; then both-witness/enclosing clocks and resident complete-workload slopes. Next local: account the new trained-block retained phase records and missing two-witness/serialization/verification clocks. No more toy scheduling without native evidence. [Experiment](experiments/causal-axis-selector-20261017/README.md),[handoff](handoffs/20261017-causal-axis-selector.md).
+
+LIVE search: EPFL MSB/streaming docs/June24 commit metadata, current ICICLE4 release/version diff, extended2026/587, new older Quarks2020/1275 and October Plonky3rc.2 refresh attempts. Extended paperMar25 says approved, not revised; preserve qualifier on older ledger records. Quarks PDF403, exact Plonky3/docs.rs pages and several license/commit opens blocked; full dates/licenses/pins scoped in sources-cycle58.json, raw responses retained. Existing Jolt less-than/Thaler/Jagged and cycle0037 comparator are refreshes; no author performance reproduced. Next rotation memory-traffic/batching/quantization, following native clocks.
+
+Accepted independently verified complete private8B proofs/passes/tokens: **0/0/0**. Device: Intel Core Ultra9 185H CPU only, one thread, nice19, CPU0. Proof context length, steady-state and total-workload rates, startup duration/fraction, witness/proof/serialization/independent-verification clocks, proof latency/lag/drain: **all unmeasured**. No long-context prefill, repeated resident-model pass or decode proof ran. Differential cubes use padded token axes up to32 and up to32 head slots, never an8B workload; T512/T1024/T4096 entries are allocation-free counts. Dense-attention score work grows roughly fourfold when context doubles. Larger workloads remain permitted; all CFS/PCS blinding remains fresh. The >=50 proved-token/s private8B target is unchanged and unachieved.
+
+Research only. Production, runtime, Git, calibration, gates, instructions and reviewer files were not modified. No build, GPU, installation, downloaded script execution, external write/message, heavy queue action or merge. Main agent/Claude reviews and integrates handoffs. Saved reports are not evidence of message delivery or supervisor liveness. D24 remains proposed in the inspected register; no new privacy/profile ruling is accepted.
+
+
+## Cycle 0059 — 2026-10-17 — trained witness and inclusive-clock audit
+
+Run `20261017T092624Z-0a2ee588`, checkpoint 2026-10-17T09:36:09.547899+00:00. Agenda/target, durable/project memory and
+latest3 results read/snapshotted; all297 starting source records parsed,96
+historical findings headings indexed;6 LIVE records appended (303 total).
+All previous findings/negatives and source bytes retained.
+
+**No native improvement measured. New measured-scope finding:**22 retained
+trained TinyLlama T32 one-block runs sum405.980s main-path total, including
+294.314s sequence load/native witness/parity (72.49%),16.046s public load,
+82.500s prove_run (20.32%),7.400s in-process verify/decode and5.720s unclassified
+remainder. Fresh verifier load/read/statement18.822s and verify/decode7.265s are
+separate. Receipt sizes sum255,800,336B. These are summed separate-process
+CPU diagnostics, not a linked-model wall time or rate; no target tokens count.
+Original native thread count is not established here. The local audit did not
+rerun proofs or verification. Layer0 optional controls occur after its reported
+total, so its67.669s guard child wall is not the same main-path clock. Guard
+waits/controls/process teardown must not be called startup.
+
+The historical CLI builds one witness before its prove timer and consumes it
+once. New round2 StackSource performs a sealing pass, restart, and proving
+rebuild; its boundary-plane/witness pair shares a cache. Sealing depends on each
+new input and retains witness refusals; it cannot simply be amortized as public
+model setup across distinct resident passes. Current files changed after t5;
+we reconstructed historical trained_block.rs/run.rs from the retained patch and
+matched both original manifest hashes before interpreting their clocks.
+
+A native accounting defect: RunStats.prove_s's comment excludes witness work,
+but both archived/current timer positions include source calls,encoding and sink.
+Historical one-block disk writes lie outside prove_run; current stack DirSink
+includes write,flush,rename,hash inside it. Verification combines decode/crypto,
+and directory verification also includes reads. The5.720s remainder (±0.055s
+aggregate rounding radius) cannot be assigned to serialization alone. A
+research-only uncompiled patch adds setup/source/encode/sink counters with
+explicit subset semantics; it does not optimize proving.
+
+Experiment16,219 accounting/reference checks:22 retained fresh-verifier pairs,
+200 synthetic traces/16,000 spans,15 controls. Decimal totals agree with an
+independent integer-ms oracle; nested-span subtraction agrees with an independent
+endpoint sweep. Synthetic resident fixtures cannot evade the recurring slope;
+no timings were fitted to those fixtures. Wall0.107200s,RSS17,052KiB,seed2026101759,
+one nice19 CPU0 CoreUltra9 thread,59s/512MiB limits,64MiB estimate. Independent
+retained-ms/source/unified-diff audit499 checks,0.004319s,RSS15,100KiB,32MiB estimate.
+All140 original evidence pins match. Controls reject missing/duplicate events,
+wrong statement/hash/bytes,failed completion,scope relabels,invalid clocks and
+invalid nested spans. No native compile/RNG/bytes/privacy/verifier gate ran.
+
+**Baseline/eliminated work/added cost/ceiling:** accounting eliminates zero
+native work; adds instrumentation overhead and diagnostic metadata. For the
+retained sums only, eliminating all prove_run has a1.25504x ideal ceiling;
+eliminating measured load alone1.04115x. Prove-only understates the reported
+main-path denominator4.92097x. These are diagnostic Amdahl bounds, not8B
+projections. Complete8B ceiling and genuine reusable startup remain unknown.
+
+|Rank|Hypothesis and expected end-to-end impact|Prerequisites, added costs, exactness/privacy and falsifier|
+|---|---|---|
+|1 REFINED / OWNER|Accelerate both exact trained witness passes; new T32 evidence puts witness/parity at72.49% of its enclosing diagnostics. Local next: isolate matmul/requant/materialization.|Identify exact integer/full-K CPU/CUDA seams; charge packing,reconstruction,planes,transfers and duplicate passes. No new native speed factor. Any integer/refusal mismatch or no enclosing improvement rejects; keep all witness pre-header refusals.|
+|2 OWNER|GPU native SC_SZC remains leading historical GPU-assisted proof-phase opportunity.|Original masked clauses/finals/hosted claims/transcript/RNG/PCS/fresh-verifier gates,transfers,scratch and occupancy. Old125M diagnostic deleting allSC_SZC only28.317%; not an8B ceiling.|
+|3 TESTED ACCOUNTING / OWNER|Resident complete linked passes may amortize genuine public initialization; current trained load fraction only3.95%,not measured startup.|Split load,sealing,rebuild,encode,flush,decode,verification; fresh masks,accepted openings,peak and lag/drain. Recurring>20ms/new completed position falsifies50/s for that schedule; no target rate before complete linked independently verified workloads.|
+|4 OWNER|Public-axis/factory candidate, earlier arithmetic/lifetime benefits unchanged.|Actual captures/native three-arm compile/profile required. No additional arithmetic saving in this cycle. Any original byte/refusal/RNG difference or enclosing regression rejects.|
+|5 CONDITIONAL|MORPH layout-stationary arithmetic,older zkMatrix batching,TaSSLE preprocessing and TensorZKP architecture.|High field/PCS/hardware migration and joint-hiding costs; include conversions,working memory,forward witness and nonlinear relations. No native performance factor. Table/setup savings do not remove recurrent witnesses.|
+
+Prior fusion,CSE,cubic,twiddle/table-cache negative findings remain demoted and
+preserved. No more toy scheduling without native measurement demand.
+
+LIVE rotation memory-traffic/batching/quantization: new MORPH Apr20,2026 primary
+paper/repository (2x representation memory/conversion cost;TPU large fields),
+new older zkMatrix Feb4/Feb7,2024 abstract (group batching is not forward witness
+work),TensorZKP Aug2026 proceedings refresh (H100/BabyBear8 vs native field),
+TaSSLE receivedJul2,2024/revisedMar8,2025 refresh. ICICLE docs explicitly lack
+extension challenges; full release commit6c77775961b0e4dc2be359feec1ac11536c18043
+resolved and version diff inspected; MIT repository license text inspected,
+backend package license not inspected. DocsAug6,2025 date is verified; release
+July11 has no year,so no full date asserted. MORPH history/license,zkMatrix PDF,
+October Plonky3 exact release/crate fetches failed with recorded errors. No
+foreign code copied/executed,installed or timed; author claims not reproduced.
+Next rotation exact-witness quantization/arithmetic,then NTT/commitments as
+native clocks warrant. Full records/queries/raw responses retained.
+
+Next owner: reviewed diagnostic clocks and one linked trained stack,exact
+witness/GPU optimization,then fixed-context resident complete-workload slope.
+Next local: allocation-free witness source census into matmul/requant/range and
+plane/helper materialization,with a concrete exact CUDA seam and refusal gates.
+[Experiment](experiments/trained-phase-accounting-20261017/README.md),
+[handoff](handoffs/20261017-trained-phase-accounting.md).
+
+Accepted independently verified complete private 8B proofs / passes / positions: **0 / 0 / 0**. Target steady-state and total-workload rates, startup seconds/fraction, witness/proof/serialization/independent-verification clocks, proof latency/lag/drain and proof context: **unmeasured**. This cycle used one Intel Core Ultra 9 185H CPU thread (CPU0, nice19), no GPU. The retained native records are CPU-only T32, 22 separate one-block runs, zero linked complete-model passes; original thread count is not established here. No long-context prefill, resident complete-model workload or decode proof ran. Dense attention work grows approximately quadratically with context. Larger workloads remain allowed, fresh masks and privacy obligations remain unchanged, and the >=50 proved-token/s target remains unachieved.
+
+Research only. Production/runtime/Git/calibration/gates/instructions/reviewer
+files unmodified. No build,GPU,install,downloaded script,external write/message,
+merge or heavy queue action. D24 remains proposed in the inspected register;
+owner round2 fixes/review do not authorize a privacy claim. Reports are not
+notification/liveness evidence.
+
+Final checkpoint 2026-10-17T09:36:35.383884+00:00:28 accounting/artifact checks pass,49 artifact pins;303 source records and historical prefixes preserved;no concurrent owner-memory changes observed. Native compile/proof/privacy gates remain unrun.

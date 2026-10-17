@@ -345,24 +345,37 @@ fn bound_statement(sh: &Shape, profile: &str, blocks: &[BlockPublic], quantizer:
     TrainedModelStatement::new(sh, profile, synthetic_source("tame", blocks.len() as u32), c, recs).expect("the statement")
 }
 
-/// **THE BINDING, end to end at the rung-G development shape (small and
-/// fast).** A run bound to a statement absorbs that statement's identity,
-/// which is NOT the literal, proves and verifies; the same segments are
-/// REJECTED under a statement that differs in one provenance byte, and a
-/// statement that does not describe the run does not construct.
+/// **THE BINDING, end to end at the trained-calibration development rung
+/// (small and fast).** A run bound to a statement absorbs that statement's
+/// identity, proves and verifies; the same segments are REJECTED under a
+/// statement that differs in one provenance byte, and a statement that does
+/// not describe the run does not construct.
+///
+/// NATIVE LANE, round 2 (review findings F-2 / F-3, 2026-10-17): this test
+/// ran at the FROZEN rung-G profile; a model statement now binds
+/// trained-calibration runs only (`new_bound` refuses a frozen shape) and a
+/// trained-calibration run has no unbound form (`new` refuses it), so it runs
+/// at the trained rung, and both refusals are asserted here.
 #[test]
 fn a_run_bound_to_its_statement_verifies_and_is_rejected_under_any_other() {
-    let sh = Shape::rung_g();
+    let g = Shape::rung_g();
+    let (gp, gf, _) = dense_case(&g);
+    let gb = vec![BlockPublic::new(gp, gf)];
+    let gctx = *blake3::hash(b"lane C: frozen").as_bytes();
+    let ge = ExpectedIo::from_roots(IoSpec::new_shaped(&g, gctx, 0, 0).unwrap(), [1; 32], [2; 32]);
+    let gm = bound_statement(&g, run::RUN_PROFILE_RUNG_G, &gb, 1);
+    assert!(RunStatement::new_bound(RunShape::rung_g(1).unwrap(), gctx, ge, &gb, &[(0, 0)], &gm).is_err(), "a model statement bound a FROZEN-profile run");
+    let sh = Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).unwrap();
     let l = 2;
     let mut chain = Chain::honest(&sh, l);
     let blocks: Vec<BlockPublic> = (0..l).map(|_| BlockPublic::new(chain.public.clone(), chain.ff.clone())).collect();
     let ctx = *blake3::hash(b"lane C: a bound run").as_bytes();
     let spec = IoSpec::new_shaped(&sh, ctx, 0, 0).unwrap();
     let (expected, owners) = prepare_endpoints(spec, &chain.planes[0], &chain.planes[l]).unwrap();
-    let model = bound_statement(&sh, run::RUN_PROFILE_RUNG_G, &blocks, 1);
-    let st = RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &model).expect("the bound run statement");
-    let plain = RunStatement::new(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l]).unwrap();
-    assert_ne!(st.binding().unwrap(), plain.binding().unwrap(), "the bound run absorbs the literal calibration");
+    let rs = || RunShape::rung_tc(sh.clone(), l).unwrap();
+    let model = bound_statement(&sh, run::RUN_PROFILE_RUNG_TC, &blocks, 1);
+    let st = RunStatement::new_bound(rs(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &model).expect("the bound run statement");
+    assert!(RunStatement::new(rs(), ctx, expected.clone(), &blocks, &vec![(0, 0); l]).is_err(), "an unbound run at a trained-calibration shape constructed");
     let mut segs: Vec<Vec<u8>> = vec![];
     run::prove_run(&st, &blocks, &mut chain, owners, &mut |_, b| {
         segs.push(b);
@@ -371,17 +384,16 @@ fn a_run_bound_to_its_statement_verifies_and_is_rejected_under_any_other() {
     .expect("the bound run proves");
     run::verify_run(&st, &blocks, &segs).expect("the bound run verifies under its own statement");
     // one provenance byte moved: same blocks, same scales, other identity
-    let other = bound_statement(&sh, run::RUN_PROFILE_RUNG_G, &blocks, 2);
-    let st2 = RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &other).unwrap();
+    let other = bound_statement(&sh, run::RUN_PROFILE_RUNG_TC, &blocks, 2);
+    let st2 = RunStatement::new_bound(rs(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &other).unwrap();
     assert!(run::verify_run(&st2, &blocks, &segs).is_err(), "the segments verified under a different model statement");
-    assert!(run::verify_run(&plain, &blocks, &segs).is_err(), "the segments verified under the literal calibration");
     // statements that do not describe this run do not construct
-    let short = bound_statement(&sh, run::RUN_PROFILE_RUNG_G, &blocks[..1], 1);
-    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &short).is_err(), "a one-layer statement bound a two-block run");
+    let short = bound_statement(&sh, run::RUN_PROFILE_RUNG_TC, &blocks[..1], 1);
+    assert!(RunStatement::new_bound(rs(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &short).is_err(), "a one-layer statement bound a two-block run");
     let wrong_profile = bound_statement(&sh, run::RUN_PROFILE_RUNG_K4, &blocks, 1);
-    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &wrong_profile).is_err(), "a statement for another run profile was accepted");
+    assert!(RunStatement::new_bound(rs(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &wrong_profile).is_err(), "a statement for another run profile was accepted");
     let mut foreign = model.clone();
     foreign.layers[1].block_digest[0] ^= 1;
-    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &foreign).is_err(), "a statement naming another block was accepted");
-    assert!(RunStatement::new_bound(RunShape::rung_g(l).unwrap(), ctx, expected, &blocks, &[(0, 0), (1, 1)], &model).is_err(), "a scale the calibration does not approve was accepted");
+    assert!(RunStatement::new_bound(rs(), ctx, expected.clone(), &blocks, &vec![(0, 0); l], &foreign).is_err(), "a statement naming another block was accepted");
+    assert!(RunStatement::new_bound(rs(), ctx, expected, &blocks, &[(0, 0), (1, 1)], &model).is_err(), "a scale the calibration does not approve was accepted");
 }

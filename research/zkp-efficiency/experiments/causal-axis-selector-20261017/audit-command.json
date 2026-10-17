@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "experiments/causal-axis-selector-20261017/audit.py"
+  ],
+  "seed": 2026101758001,
+  "limits": {
+    "wall_seconds": 59,
+    "memory_mib": 512,
+    "estimated_memory_mib": 32
+  },
+  "exit_code": 0
+}

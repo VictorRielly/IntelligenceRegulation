@@ -1,0 +1,385 @@
+{
+  "lines_read": 3963,
+  "sections": [
+    {
+      "line": 1,
+      "heading": "# ZKP efficiency findings"
+    },
+    {
+      "line": 3,
+      "heading": "## Cycle 0001 \u2014 2026-09-22"
+    },
+    {
+      "line": 25,
+      "heading": "### Executed experiment"
+    },
+    {
+      "line": 41,
+      "heading": "### Negative findings / limits that change the next action"
+    },
+    {
+      "line": 66,
+      "heading": "## Cycle 0002 \u2014 2026-09-24 \u2014 SC_SZC groups and GPU-memory triage"
+    },
+    {
+      "line": 73,
+      "heading": "### Current bottleneck and ranking"
+    },
+    {
+      "line": 103,
+      "heading": "### Experiment and interpretation"
+    },
+    {
+      "line": 138,
+      "heading": "### Source/access corrections and next action"
+    },
+    {
+      "line": 158,
+      "heading": "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap"
+    },
+    {
+      "line": 167,
+      "heading": "### Current evidence and ranked choices"
+    },
+    {
+      "line": 195,
+      "heading": "### Reproduced result and negative findings"
+    },
+    {
+      "line": 228,
+      "heading": "### Durable follow-up and access"
+    },
+    {
+      "line": 251,
+      "heading": "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache"
+    },
+    {
+      "line": 262,
+      "heading": "### Current bottleneck and ranked candidates"
+    },
+    {
+      "line": 290,
+      "heading": "### Experiment and negative findings"
+    },
+    {
+      "line": 333,
+      "heading": "### Access and next experiment"
+    },
+    {
+      "line": 356,
+      "heading": "## Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling"
+    },
+    {
+      "line": 368,
+      "heading": "### Current bottleneck and ranked hypotheses"
+    },
+    {
+      "line": 390,
+      "heading": "### Reproduced experiment"
+    },
+    {
+      "line": 428,
+      "heading": "### Primary-source assessment and next action"
+    },
+    {
+      "line": 456,
+      "heading": "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling"
+    },
+    {
+      "line": 472,
+      "heading": "### Updated bottleneck evidence and ranking"
+    },
+    {
+      "line": 507,
+      "heading": "### Experiment and decisive negatives"
+    },
+    {
+      "line": 540,
+      "heading": "### Primary sources and next action"
+    },
+    {
+      "line": 574,
+      "heading": "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring"
+    },
+    {
+      "line": 585,
+      "heading": "### Bottleneck, ranking and falsification"
+    },
+    {
+      "line": 609,
+      "heading": "### Reproduced experiment and negative controls"
+    },
+    {
+      "line": 652,
+      "heading": "### Sources and concrete next action"
+    },
+    {
+      "line": 684,
+      "heading": "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding"
+    },
+    {
+      "line": 695,
+      "heading": "### Cost and ranking"
+    },
+    {
+      "line": 717,
+      "heading": "### Experiment and falsification"
+    },
+    {
+      "line": 767,
+      "heading": "### Primary sources and next experiment"
+    },
+    {
+      "line": 806,
+      "heading": "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion"
+    },
+    {
+      "line": 818,
+      "heading": "### Measured bottleneck and ranked hypotheses"
+    },
+    {
+      "line": 840,
+      "heading": "### Reproduced experiment and meaningful negative"
+    },
+    {
+      "line": 880,
+      "heading": "### Source findings and next action"
+    },
+    {
+      "line": 916,
+      "heading": "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality"
+    },
+    {
+      "line": 929,
+      "heading": "### Bottleneck and ranked hypotheses"
+    },
+    {
+      "line": 952,
+      "heading": "### Experiment and decisive qualification"
+    },
+    {
+      "line": 998,
+      "heading": "### Sources and next action"
+    },
+    {
+      "line": 1028,
+      "heading": "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling"
+    },
+    {
+      "line": 1050,
+      "heading": "### Tested hypothesis and falsification"
+    },
+    {
+      "line": 1090,
+      "heading": "### Ranked hypotheses after this cycle"
+    },
+    {
+      "line": 1114,
+      "heading": "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck"
+    },
+    {
+      "line": 1125,
+      "heading": "### What the experiment established"
+    },
+    {
+      "line": 1164,
+      "heading": "### New owner measurement and rank change"
+    },
+    {
+      "line": 1229,
+      "heading": "## Cycle 0013 \u2014 2026-09-27 \u2014 attention SC_SZC device-round boundary"
+    },
+    {
+      "line": 1233,
+      "heading": "### Tested hypothesis and bounded result"
+    },
+    {
+      "line": 1241,
+      "heading": "### Primary search and ranking"
+    },
+    {
+      "line": 1252,
+      "heading": "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches"
+    },
+    {
+      "line": 1261,
+      "heading": "### Tested question and evidence"
+    },
+    {
+      "line": 1320,
+      "heading": "### New owner evidence and missing clocks"
+    },
+    {
+      "line": 1347,
+      "heading": "### Ranked hypotheses and next experiment"
+    },
+    {
+      "line": 1369,
+      "heading": "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay"
+    },
+    {
+      "line": 1456,
+      "heading": "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation"
+    },
+    {
+      "line": 1550,
+      "heading": "## Cycle0018 \u2014 public last-read witness release (2026-10-04)"
+    },
+    {
+      "line": 1570,
+      "heading": "## Cycle0019 \u2014 chunk-local opening gather ownership (2026-10-04)"
+    },
+    {
+      "line": 1599,
+      "heading": "## Cycle 0020 \u2014 public A-row write coverage (2026-10-04)"
+    },
+    {
+      "line": 1626,
+      "heading": "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)"
+    },
+    {
+      "line": 1659,
+      "heading": "## Cycle 0022 \u2014 exact int16 FFN-down and corrected run clock attribution (2026-10-04)"
+    },
+    {
+      "line": 1690,
+      "heading": "## Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)"
+    },
+    {
+      "line": 1718,
+      "heading": "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)"
+    },
+    {
+      "line": 1748,
+      "heading": "## Cycle 0025 \u2014 TN weight preprocessing and separated-scan residency (2026-10-04)"
+    },
+    {
+      "line": 1775,
+      "heading": "## Cycle 0026 \u2014 canonical TN readers and bounded digest transpose (2026-10-04)"
+    },
+    {
+      "line": 1805,
+      "heading": "## Cycle 0027 \u2014 complete public digest cache and scan attribution (2026-10-04)"
+    },
+    {
+      "line": 1825,
+      "heading": "## Cycle 0028 \u2014 public hash prefix reuse has a large remaining suffix (2026-10-04)"
+    },
+    {
+      "line": 1844,
+      "heading": "## Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)"
+    },
+    {
+      "line": 1873,
+      "heading": "## Cycle0030 \u2014 tagged equality storage and cubic contraction filter (2026-10-04)"
+    },
+    {
+      "line": 1903,
+      "heading": "## Cycle 0031 \u2014 adaptive two-layer equality accumulation (2026-10-04)"
+    },
+    {
+      "line": 1926,
+      "heading": "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)"
+    },
+    {
+      "line": 1960,
+      "heading": "## Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)"
+    },
+    {
+      "line": 1997,
+      "heading": "## Cycle0034 \u2014 row-local denominators pass algebra but worsen API count (2026-10-04)"
+    },
+    {
+      "line": 2022,
+      "heading": "## Cycle0035 \u2014 recovered exact wide-accumulation result (reported 2026-10-12)"
+    },
+    {
+      "line": 2053,
+      "heading": "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)"
+    },
+    {
+      "line": 2163,
+      "heading": "## Cycle 0037 \u2014 public causal-mask descriptor (2026-10-12)"
+    },
+    {
+      "line": 2194,
+      "heading": "## Cycle 0038 \u2014 compact public support descriptors (2026-10-12)"
+    },
+    {
+      "line": 2227,
+      "heading": "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)"
+    },
+    {
+      "line": 2338,
+      "heading": "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)"
+    },
+    {
+      "line": 2443,
+      "heading": "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)"
+    },
+    {
+      "line": 2542,
+      "heading": "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity"
+    },
+    {
+      "line": 2638,
+      "heading": "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax"
+    },
+    {
+      "line": 2758,
+      "heading": "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC"
+    },
+    {
+      "line": 2850,
+      "heading": "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles"
+    },
+    {
+      "line": 2913,
+      "heading": "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census"
+    },
+    {
+      "line": 3020,
+      "heading": "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients"
+    },
+    {
+      "line": 3133,
+      "heading": "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples"
+    },
+    {
+      "line": 3231,
+      "heading": "## Cycle0049 \u2014 recovered public-axis result, reported2026-10-14"
+    },
+    {
+      "line": 3259,
+      "heading": "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative"
+    },
+    {
+      "line": 3357,
+      "heading": "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff"
+    },
+    {
+      "line": 3479,
+      "heading": "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving"
+    },
+    {
+      "line": 3604,
+      "heading": "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains"
+    },
+    {
+      "line": 3727,
+      "heading": "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction"
+    },
+    {
+      "line": 3855,
+      "heading": "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes"
+    },
+    {
+      "line": 3895,
+      "heading": "## Cycle 0056 \u2014 2026-10-17 \u2014 exact public DAG order reduces logical retention"
+    },
+    {
+      "line": 3936,
+      "heading": "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather"
+    }
+  ]
+}

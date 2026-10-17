@@ -1,5 +1,40 @@
 # Where the MVP stands, in plain words
 
+**2026-10-17 10:15 UTC — first complete linked proof of a trained model's
+transformer stack.** All 22 TinyLlama-1.1B blocks as ONE private run (hidden
+32-token input, output, activations and every block boundary; public weights),
+calibration `pg_rot1` (held-out top-1 agreement with the float model 0.70–0.73,
+no refused inputs). CPU, shared laptop, n=1: 528.9 s total, of which ~450 s is
+building the witness twice on one thread and ~60 s the block proofs; receipt
+251 MB; fresh-process verify 4.9 s; peak 2.15 GiB; 11 run-level tamper controls
+refused. Before it, the independent review accepted the D24 norm rule but
+found a real hole in the trained loader (an unchecked export constant let a
+forged output verify); fixed the same morning (every export-chosen constant now
+has a checked class; the forgery is refused) and under focused re-review.
+**Not yet:** privacy acceptance at this shape, T above 32, GPU stack timing
+(running), embedding/head (D13's next milestone), 8B.
+
+**2026-10-17 05:20 UTC — first proofs of a real trained model's blocks.**
+Every one of TinyLlama-1.1B's 22 transformer blocks was proved privately
+(hidden 32-token input, output and activations; public weights) and each proof
+verified in a fresh process from its bytes; the native prover's numbers equal
+the independent Python integer reference bit for bit at every layer. Per block
+on the laptop CPU: prove 3.2–4.2 s, verify 0.27–0.40 s, 11.6 MB, under 0.9 GiB
+[MEASURED, shared box, n=1]. Layer 0 refused all 15 tamper/mismatch controls.
+Full native suite 518 passed / 0 failed; frozen toy receipts unchanged.
+**What it is not:** 22 separate one-block proofs, not a linked stack (nothing
+yet ties block k's output to block k+1's input); proved on the low-fidelity
+calibration `a` (held-out top-1 0.136 vs float); conditional on the independent
+review of proposed ruling D24 (running); no privacy acceptance at this shape.
+The calibration lane found a usable per-profile calibration (`pg_rot1`: top-1
+0.698, perplexity 36.5 vs 29.3 float, no refusals) that needs four requant
+shifts to become profile constants; the native lane is doing that now, then
+the linked 22-block stack on CPU and GPU. Victor flagged arXiv 2610.08258
+(zkLLMPoT, v2 11 Oct 2026): it hides weights with public audit inputs (the
+reverse of our P1) and reports 41–59 s at 1.1–1.5B for "covered operators";
+an assessment is running. Mac M3 Ultra (256 GB) not yet reachable; 5090 not
+yet installed. [Checkpoint](ZK60_1B_CHECKPOINT.md).
+
 **2026-10-17 02:20 UTC — work resumed after a 17-day gap; no new proof yet.**
 Nothing native ran between 2026-09-30 01:38 UTC and today: the recovery session
 of 09-29 ended abruptly (cause unknown; one minute earlier the resource guard's
@@ -111,7 +146,8 @@ export tensor files are missing; their manifest survives. A trained full-
 block importer/calibration and a literal 8B checkpoint remain outstanding.
 [Model and memory audit](../../results/zk60_sol_model_20260927/layout-readiness.md).
 
-Victor has both the RTX 5090 machine and the 512 GB M3 Ultra available.
+Victor has both the RTX 5090 machine and the M3 Ultra available (256 GB
+unified memory, corrected by Victor on 2026-10-17; earlier text said 512 GB).
 The 5090 machine needs a fresh Linux installation; neither new machine has
 been validated remotely. The [setup guide](ZK60_HARDWARE_SETUP.md) starts
 with a USB Ubuntu installer made on the Mac, followed by driver and read-only

@@ -44,6 +44,7 @@ pub(crate) const FROZEN_SEAM_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block
 /// 32). NATIVE LANE: superseded by [`TINYLLAMA_T32_TRAINED_PROFILE`] and kept
 /// only as an UNREGISTERED structural twin (same plane list) for tests, so
 /// its string is deliberately outside the `hashline-zk-mr1/` registry.
+#[cfg(test)]
 pub(crate) const TINYLLAMA_T32_DEV_PROFILE: &str = "unregistered-dev-twin/private-block-tinyllama-1.1b-t32-w32-dev/1";
 /// **NATIVE LANE (2026-10-17): the TinyLlama-1.1B block geometry under a
 /// TRAINED (per-profile) norm calibration** — `norm_tn`, two norm multipliers
@@ -92,6 +93,34 @@ pub(crate) const TRAINED_SH_AO_MAX: u32 = 8;
 /// shift (0: no remainder plane) and the residual shifts (0) stay fixed.
 pub(crate) const ONE_LIMB_SHIFT: std::ops::RangeInclusive<u32> = 1..=8;
 pub(crate) const TWO_LIMB_SHIFT: std::ops::RangeInclusive<u32> = 9..=16;
+/// **ROUND 2, review finding F-1 (D24 review, 2026-10-17): the declared class
+/// of the softmax table's fractional bits at a trained profile.** `f_e` was
+/// an unvalidated export constant: the softmax quotient clause
+/// `mask e 2^F_P - p Sum - rho_s` (SC_SZC `c2`) reaches `p` at `f_e = 49`
+/// (T = 32), and the reviewer forged a quotient at `f_e = 50` that the CLI
+/// verified. The class is `9..=16` (9 is the approved calibration value; the
+/// calibration lane is testing finer exp precision up to 16) TOGETHER with
+/// the three-limb `sigma_s` window rule `wrho_s = clog2(T) + f_e <= 24`. Over
+/// that class `|c2| < 2^(f_e + 9) + 2^10 T 2^f_e + 2^wrho_s <= 2^35`, far
+/// below `p` (`results/zk60_1b_native_20261017/nowrap_check.py`, section
+/// "softmax"). `F_P` stays fixed at 9 (coupled to the `p` limbs).
+pub(crate) const TRAINED_F_E_RANGE: std::ops::RangeInclusive<u32> = 9..=16;
+/// the softmax remainder window at a trained profile: at most THREE byte
+/// limbs (`wrho_s = clog2(T) + f_e <= 24`)
+pub(crate) const TRAINED_WRHO_S_MAX: u32 = 24;
+/// **The declared class of an exp table's score exponent `e_s`** (a
+/// per-block table key). Every finite `e_s` gives a table inside
+/// `[0, 2^f_e]` with `E[0] = 2^f_e` (asserted by `exp_member`), so the
+/// softmax premise does not depend on it; the class keeps the generator away
+/// from overflow (`2^e_s` infinite makes `E[0]` NaN) and names what an export
+/// may choose. The calibration exports use 1 and 2.
+pub(crate) const TRAINED_EXP_E_S_RANGE: std::ops::RangeInclusive<i32> = -8..=8;
+/// **The RoPE base of both registered trained geometries** (TinyLlama-1.1B's
+/// `rope_theta`; the development rung uses the same). A model fact, not a
+/// calibration choice: an export naming another base is refused. (The RoPE
+/// table VALUES are `round(2^F_RO cos/sin)` in `[-128, 128]` for any base, so
+/// no field premise depends on it.)
+pub(crate) const TRAINED_ROPE_THETA: f64 = 10_000.0;
 
 /// **A trained calibration, as declared**: the norm constants (`tn`, the two
 /// multipliers, `Ceps`) and the requantization shifts the relations read
@@ -1076,6 +1105,8 @@ impl Shape {
     /// limbs, and `witness::build_shaped` refuses any shape whose norm limb
     /// count is not the pinned four (`norm_limbs_are_the_pinned_count`). So
     /// this shape has a layout and cannot have a witness.
+    /// (review finding F-6: test builds only)
+    #[cfg(test)]
     pub(crate) fn tinyllama_t32_probe(log_cols: usize) -> Result<Shape, String> {
         let rows = (32 * 2048 >> log_cols) + super::endpoint_g::MASK_ROWS;
         Shape::new(
@@ -1108,6 +1139,8 @@ impl Shape {
     /// builder instead of proved. The clean fix is a per-profile `NORM_TN =
     /// 10`, which makes the derived window exactly 32 at widths 2048 AND 4096
     /// (`2,097,088 * 2^11 < 2^32`); that is a calibration change, see PLAN.md.
+    /// (review finding F-6: test builds only)
+    #[cfg(test)]
     pub(crate) fn tinyllama_t32_dev() -> Shape {
         Shape::new(
             "TinyLlama-1.1B block geometry, scratch development calibration (T32 / d2048 / f5632, 32 heads of 64 over 4 KV heads)",
@@ -1179,9 +1212,52 @@ impl Shape {
         self.norm_wrho = wrho;
         self.d_max = d_max;
         self.trained_calibration = true;
+        self.check_trained_class()?;
         super::layout::Ids::new(&self)?;
         super::layout::HIds::new(&self)?;
         Ok(self)
+    }
+
+    /// **THE WHOLE DECLARED CLASS, RE-CHECKED FROM THE SHAPE'S OWN FIELDS**
+    /// (review findings F-1 and F-5). Called by the trained door
+    /// ([`Shape::with_trained_calibration`]) and again by
+    /// `Layout::for_shape` for every trained shape, so a shape whose public
+    /// fields were edited after the door, or built some other way, cannot
+    /// reach a transcript:
+    ///
+    /// * the profile is one of [`TRAINED_CALIBRATION_PROFILES`];
+    /// * the norm constants and the six windowed shifts pass
+    ///   [`NormCalibration::derive_at_width`] at this width, and the shape's
+    ///   `norm_wrho` and `d_max` ARE the derived values;
+    /// * `f_e` is in [`TRAINED_F_E_RANGE`], and `wrho_s` is the derived
+    ///   `clog2(T) + f_e` and at most [`TRAINED_WRHO_S_MAX`] (three limbs).
+    pub(crate) fn check_trained_class(&self) -> Result<(), String> {
+        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) {
+            return Err(format!("private block shape: {} is not a trained-calibration profile", self.profile));
+        }
+        let (d_max, wrho) = self.norm_calibration().derive_at_width(self.width)?;
+        if (d_max, wrho) != (self.d_max, self.norm_wrho) {
+            return Err(format!("private block shape: {}'s norm window {} / D_max {} are not the derived {wrho} / {d_max}", self.profile, self.norm_wrho, self.d_max));
+        }
+        Self::check_f_e_class(self.tokens, self.f_e)?;
+        let want = clog2(self.tokens) as u32 + self.f_e;
+        if self.wrho_s != want {
+            return Err(format!("private block shape: {}'s softmax window {} is not the derived clog2(T) + f_e = {want}", self.profile, self.wrho_s));
+        }
+        Ok(())
+    }
+
+    /// `f_e` inside its declared class at `tokens` (review finding F-1): in
+    /// [`TRAINED_F_E_RANGE`] and `clog2(T) + f_e <= 24`. The loader calls this
+    /// before it builds a shape, the door and `Layout::for_shape` after.
+    pub(crate) fn check_f_e_class(tokens: usize, f_e: u32) -> Result<(), String> {
+        if !TRAINED_F_E_RANGE.contains(&f_e) {
+            return Err(format!("trained calibration: f_e {f_e} is outside its declared class {TRAINED_F_E_RANGE:?} (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"));
+        }
+        if tokens == 0 || clog2(tokens) as u32 + f_e > TRAINED_WRHO_S_MAX {
+            return Err(format!("trained calibration: f_e {f_e} at T = {tokens} gives a softmax window above {TRAINED_WRHO_S_MAX} bits (three sigma_s limbs)"));
+        }
+        Ok(())
     }
 
     /// this shape's calibration, as the five constants
@@ -1234,6 +1310,8 @@ impl Shape {
     /// (T32..T512). Only the shapes [`Shape::new`] admits construct; the
     /// endpoint rows are the padded cube's at the row width plus the mask
     /// rows. COUNTED LAYOUTS ONLY: no profile is registered for T != 32.
+    /// (review finding F-6: test builds only)
+    #[cfg(test)]
     pub(crate) fn tinyllama_trained_ladder(tokens: usize, log_cols: usize, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
         let rows = ((tokens.next_power_of_two() * 2048) >> log_cols) + super::endpoint_g::MASK_ROWS;
         Shape::new(

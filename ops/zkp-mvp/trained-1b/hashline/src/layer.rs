@@ -226,7 +226,7 @@ fn eval_many_dev(cm: &AnyCm, data: &[Fp], slices: &[(usize, usize)], point: &[Fp
         let offs: Vec<usize> = slices.iter().map(|&(o, len)| { assert_eq!(len, 1usize << point.len()); o }).collect();
         match crate::gpu::dev_eval_many(dc, &offs, point) {
             Ok(v) => return v,
-            Err(e) => eprintln!("[UPERF3-XX] gpu eval_many declined ({e}); CPU path"),
+            Err(e) => crate::gpu::declined("[UPERF3-XX] gpu eval_many", &e.to_string()),
         }
     }
     let _ = cm;
@@ -612,7 +612,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
                 dev_helper_sums = Some(sums);
                 Some(AnyCm::Ligero(pcs::Committed { params: h_pcs, rows, store: pcs::Store::Device(dc), tree: crate::merkle::MerkleTree::build(leaves) }))
             }
-            Err(e) => { eprintln!("[UPERF3-XX] gpu helpers declined ({e}); CPU path"); None }
+            Err(e) => { crate::gpu::declined("[UPERF3-XX] gpu helpers", &e.to_string()); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
@@ -760,7 +760,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
         let mut tr_try = Transcript::clone_state(tr);
         match crate::gpu::dev_zerocheck(0, &specs, &prm, &mut tr_try) {
             Ok(out) => { *tr = tr_try; Some(out) }
-            Err(e) => { eprintln!("[UPERF3-XX] gpu zero-check 20 declined ({e}); CPU path"); None }
+            Err(e) => { crate::gpu::declined("[UPERF3-XX] gpu zero-check 20", &e.to_string()); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
@@ -817,7 +817,7 @@ pub fn prove_layer(w: &LayerWitness, t_rows: usize, params: &LayerParams, ntt: &
         let mut tr_try = Transcript::clone_state(tr);
         match crate::gpu::dev_zerocheck(1, &specs, &prm, &mut tr_try) {
             Ok(out) => { *tr = tr_try; Some(out) }
-            Err(e) => { eprintln!("[UPERF3-XX] gpu zero-check 17 declined ({e}); CPU path"); None }
+            Err(e) => { crate::gpu::declined("[UPERF3-XX] gpu zero-check 17", &e.to_string()); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
@@ -1359,7 +1359,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         match crate::gpu::PlaneTiling::new(&w.wg_t, &w.wu_t, &w.wd_t, d, f, db, fb, nb_d, nb_f) {
             Ok(pt) => Some(pt),
             Err(e) => {
-                eprintln!("[FSP-HOST] plane tiling declined ({e}); Vec<Fp> path");
+                crate::gpu::declined("[FSP-HOST] plane tiling", &e.to_string());
                 None
             }
         }
@@ -1515,7 +1515,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
                 dev_helper_sums = Some(sums);
                 Some(AnyCm::Ligero(pcs::Committed { params: h_pcs, rows, store: pcs::Store::Device(dc), tree: crate::merkle::MerkleTree::build(leaves) }))
             }
-            Err(e) => { eprintln!("[UPERF3-ZB] gpu helpers declined ({e}); CPU path"); None }
+            Err(e) => { crate::gpu::declined("[UPERF3-ZB] gpu helpers", &e.to_string()); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
@@ -1777,7 +1777,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         let mut tr_try = Transcript::clone_state(tr);
         match crate::gpu::dev_zerocheck_blocks(0, nb_f, &specs, &prm, &mut tr_try) {
             Ok(out) => { *tr = tr_try; Some(out) }
-            Err(e) => { eprintln!("[UPERF3-ZB] gpu zero-check F declined ({e}); CPU path"); None }
+            Err(e) => { crate::gpu::declined("[UPERF3-ZB] gpu zero-check F", &e.to_string()); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]
@@ -1845,7 +1845,7 @@ pub fn prove_layer_v3(w: &V3Witness, t_rows: usize, params: &LayerParams, ntt: &
         let mut tr_try = Transcript::clone_state(tr);
         match crate::gpu::dev_zerocheck_blocks(1, nb_d, &specs, &prm, &mut tr_try) {
             Ok(out) => { *tr = tr_try; Some(out) }
-            Err(e) => { eprintln!("[UPERF3-ZB] gpu zero-check D declined ({e}); CPU path"); None }
+            Err(e) => { crate::gpu::declined("[UPERF3-ZB] gpu zero-check D", &e.to_string()); None }
         }
     } else { None };
     #[cfg(not(feature = "gpu-cuda"))]

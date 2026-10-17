@@ -1,0 +1,20 @@
+[08:14:36Z] B3 variant pg_rot1_smoke_b4_T32_cal64_L3smoke: {'variant': 'pg', 'tag': 'smoke', 'T': 32, 'calib_per': 6, 'heldout_per': 4, 'margin': 0.5, 'rotate': 1, 'floors': 'auto', 'layers': 3, 'chunk': 6, 'site_seqs': 6, 'probe': False, 'export': False, 'export_seqs': 1, 'corpus': 'b4', 'fw_calib': 54, 'fw_heldout': 36, 'calib_T': 64, 'token_io': False}; Variant(name='pg', norm_cn='profile', tables='layer', residual='global', shifts='profile', rotate=1, margin=0.5, margin_ch=3.0, margin_pow2=0.25, tn=10, cn_max=65536, shapes=('range', 'smooth', 'gamma'), o16=False)
+[08:14:36Z] exact-mm selfcheck {'int8xint8 d2048': True, 'int16xint8 f5632': True}; native table pins True
+[08:14:39Z] tokenizer ok=True; calib (108, 64) held-out (72, 32) domains {'fineweb-edu': 36, 'licence-docstring': 36} (disjoint documents)
+[08:15:08Z] pass 1 done (32s)
+[08:15:15Z] prepass-1 L00 cn 1253/1199 shape gamma/gamma noise 0.036/0.015 e_s 1 silu [-5, -13] shifts {'qkv': 8, 'rope': 7, 's': 6, 'o': 9, 'ao': 7, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (6s)
+[08:15:21Z] prepass-1 L01 cn 2194/1483 shape gamma/gamma noise 0.067/0.023 e_s 1 silu [-5, -13] shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 14, 'z': 8} (13s)
+[08:15:27Z] prepass-1 L02 cn 3104/932 shape range/range noise 0.060/0.000 e_s 1 silu [-2, -11] shifts {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 16, 'z': 5} (19s)
+[08:15:27Z] profile shift set (min over layers for ao/z, median otherwise): {'qkv': 8, 'rope': 7, 's': 7, 'o': 9, 'ao': 6, 'g': 8, 'u': 0, 'h': 14, 'z': 5}
+[08:15:33Z] prepass-2 L00 e_s 2 range in/out 4.19e-06/5.8e-06 floors ao 0.000133 z 2.37e-06 (24s)
+[08:15:37Z] prepass-2 L01 e_s 1 range in/out 6.13e-06/6.74e-06 floors ao 0.000293 z 2.29e-06 (29s)
+[08:15:42Z] prepass-2 L02 e_s 1 range in/out 7.59e-06/0.000315 floors ao 0.000286 z 0.000206 (34s)
+[08:15:42Z] profile decisions: cn 3104/1483 e_s None silu None s_in ['0.000315', '0.000315', '0.000315']
+[08:15:43Z] embedding at s_x 0.0003147: cos mean 0.99992 min 0.9992, zero fraction 0.015
+[08:16:08Z] L00 cn 3104/1483 ceps 206823 e_s 2 silu (-5, -13) sh qkv8 s7 ao6 g8 h14 z5 r20 | iso cos 0.99550 dcos 0.9907 | chain cos 0.99550 dcos 0.9907 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (25s)
+[08:16:08Z]     site rel err: norm_a 0.091 q 0.115 k 0.068 v 0.059 qr 0.130 kr 0.075 score 0.182 prob 0.111 o 0.144 ao 0.084 norm_m 0.148 gate 0.204 act 0.201 up 0.261 h 0.219 z 0.201 x2 0.102 update 0.143
+[08:16:33Z] L01 cn 3104/1483 ceps 206823 e_s 1 silu (-5, -13) sh qkv8 s7 ao6 g8 h14 z5 r20 | iso cos 0.99403 dcos 0.9743 | chain cos 0.99000 dcos 0.9666 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (25s)
+[08:16:33Z]     site rel err: norm_a 0.049 q 0.061 k 0.032 v 0.065 qr 0.070 kr 0.037 score 0.064 prob 0.065 o 0.166 ao 0.146 norm_m 0.128 gate 0.174 act 0.172 up 0.244 h 0.223 z 0.227 x2 0.109 update 0.207
+[08:16:58Z] L02 cn 3104/1483 ceps 206823 e_s 1 silu (-2, -11) sh qkv8 s7 ao6 g8 h14 z5 r20 | iso cos 0.97003 dcos 0.9003 | chain cos 0.95927 dcos 0.8848 | viol iso 0 chain 0 cal 0 | refused h/c 0/0 | clip {} (25s)
+[08:16:58Z]     site rel err: norm_a 0.045 q 0.060 k 0.037 v 0.063 qr 0.068 kr 0.041 score 0.085 prob 0.069 o 0.171 ao 0.141 norm_m 0.173 gate 0.517 act 0.455 up 0.285 h 0.065 z 0.063 x2 0.062 update 0.062
+[08:16:59Z] smoke done (143s), no head metrics for a partial stack

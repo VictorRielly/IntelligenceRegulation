@@ -1,0 +1,250 @@
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r1-scratch/private-block-kernel-shaped)
+   Compiling zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r1-scratch/zkp-core)
+   Compiling private-block-kernel v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r1-scratch/private-block-kernel)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r1-scratch/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:748:13
+    |
+748 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `blk`
+   --> src/private_block/review_d24_tests.rs:380:9
+    |
+380 |     let blk = BlockPublic::new(public.clone(), ff.clone());
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_blk`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: associated function `tinyllama_t32_dev` is never used
+   --> src/private_block/run.rs:131:19
+    |
+ 97 | impl RunShape {
+    | ------------- associated function in this implementation
+...
+131 |     pub(crate) fn tinyllama_t32_dev(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^^^^^^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 11 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 47s
+     Running unittests src/lib.rs (ops/zkp-mvp/trained-1b-review-r1-scratch/hashline/target/release/deps/hashline-4e450b8555fd13f9)
+
+running 8 tests
+test private_block::review_d24_tests::review_a_f_e_admission_at_the_trained_tinyllama_profile ... REVIEW-A f_e  0: refused: private block: this shape's A plane list is shorter than the pinned one
+REVIEW-A f_e  1: refused: private block: this shape's A plane list is shorter than the pinned one
+REVIEW-A f_e  2: refused: private block: this shape's A plane list is shorter than the pinned one
+REVIEW-A f_e  3: refused: private block: this shape's A plane list is shorter than the pinned one
+REVIEW-A f_e  4: ADMITTED (wrho_s 9, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e  5: ADMITTED (wrho_s 10, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e  6: ADMITTED (wrho_s 11, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e  7: ADMITTED (wrho_s 12, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e  8: ADMITTED (wrho_s 13, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e  9: ADMITTED (wrho_s 14, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e 10: ADMITTED (wrho_s 15, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e 11: ADMITTED (wrho_s 16, sigma_s limbs 2, A rows 1729, receipt 11627208 B)
+REVIEW-A f_e 12: ADMITTED (wrho_s 17, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 13: ADMITTED (wrho_s 18, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 14: ADMITTED (wrho_s 19, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 15: ADMITTED (wrho_s 20, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 16: ADMITTED (wrho_s 21, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 17: ADMITTED (wrho_s 22, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 18: ADMITTED (wrho_s 23, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 19: ADMITTED (wrho_s 24, sigma_s limbs 3, A rows 1749, receipt 11705080 B)
+REVIEW-A f_e 20: ADMITTED (wrho_s 25, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 21: ADMITTED (wrho_s 26, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 22: ADMITTED (wrho_s 27, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 23: ADMITTED (wrho_s 28, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 24: ADMITTED (wrho_s 29, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 25: ADMITTED (wrho_s 30, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 26: ADMITTED (wrho_s 31, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 27: ADMITTED (wrho_s 32, sigma_s limbs 4, A rows 1769, receipt 11782952 B)
+REVIEW-A f_e 28: ADMITTED (wrho_s 33, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 29: ADMITTED (wrho_s 34, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 30: ADMITTED (wrho_s 35, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 31: ADMITTED (wrho_s 36, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 32: ADMITTED (wrho_s 37, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 33: ADMITTED (wrho_s 38, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 34: ADMITTED (wrho_s 39, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 35: ADMITTED (wrho_s 40, sigma_s limbs 5, A rows 1789, receipt 11860824 B)
+REVIEW-A f_e 36: ADMITTED (wrho_s 41, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 37: ADMITTED (wrho_s 42, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 38: ADMITTED (wrho_s 43, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 39: ADMITTED (wrho_s 44, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 40: ADMITTED (wrho_s 45, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 41: ADMITTED (wrho_s 46, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 42: ADMITTED (wrho_s 47, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 43: ADMITTED (wrho_s 48, sigma_s limbs 6, A rows 1809, receipt 11938696 B)
+REVIEW-A f_e 44: ADMITTED (wrho_s 49, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 45: ADMITTED (wrho_s 50, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 46: ADMITTED (wrho_s 51, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 47: ADMITTED (wrho_s 52, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 48: ADMITTED (wrho_s 53, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 49: ADMITTED (wrho_s 54, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 50: ADMITTED (wrho_s 55, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 51: ADMITTED (wrho_s 56, sigma_s limbs 7, A rows 1829, receipt 12016568 B)
+REVIEW-A f_e 52: ADMITTED (wrho_s 57, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 53: ADMITTED (wrho_s 58, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 54: ADMITTED (wrho_s 59, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 55: ADMITTED (wrho_s 60, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 56: ADMITTED (wrho_s 61, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 57: ADMITTED (wrho_s 62, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 58: ADMITTED (wrho_s 63, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 59: ADMITTED (wrho_s 64, sigma_s limbs 8, A rows 1849, receipt 12094440 B)
+REVIEW-A f_e 60: ADMITTED (wrho_s 65, sigma_s limbs 9, A rows 1869, receipt 12172312 B)
+REVIEW-A f_e 61: ADMITTED (wrho_s 66, sigma_s limbs 9, A rows 1869, receipt 12172312 B)
+REVIEW-A f_e 62: ADMITTED (wrho_s 67, sigma_s limbs 9, A rows 1869, receipt 12172312 B)
+
+thread 'private_block::review_d24_tests::review_a_f_e_admission_at_the_trained_tinyllama_profile' (187298) panicked at src/tables_attn.rs:134:5:
+assertion `left == right` failed: exp member: E[0] != 2^fE
+  left: 9223372036854775807
+ right: -9223372036854775808
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+REVIEW-A f_e 63: PANIC
+
+thread 'private_block::review_d24_tests::review_a_f_e_admission_at_the_trained_tinyllama_profile' (187298) panicked at src/tables_attn.rs:134:5:
+assertion `left == right` failed: exp member: E[0] != 2^fE
+  left: 9223372036854775807
+ right: 1
+REVIEW-A f_e 64: PANIC
+REVIEW-A admitted f_e at the trained TinyLlama profile: [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62]
+REVIEW-A the shape-driven reference kernel at f_e 50: Some(Shape("shape: a calibration window is out of range"))
+REVIEW-A trained-model statement at f_e 50 (HF checkpoint source): CONSTRUCTS, identity f7474ed8505e15be9f216a1df19de0c342740c616efdd6719c19aff4833daa8b
+ok
+test private_block::review_d24_tests::review_b_an_unbound_run_at_the_trained_rung_takes_the_synthetic_literal ... REVIEW-B unbound run at hashline-zk-mr1/private-run-rung-tc-t32-dev/1 CONSTRUCTS; its calibration absorb == calibration_identity() (the synthetic literal): true
+ok
+test private_block::review_d24_tests::review_c_new_bound_accepts_a_frozen_profile ... REVIEW-C new_bound at the FROZEN rung-G profile with a statement naming the TinyLlama checkpoint: CONSTRUCTS
+ok
+test private_block::review_d24_tests::review_d_the_statement_identity_depends_on_the_export_directory_name ... REVIEW-D identical profile.json and manifest bytes: true; identities equal: false
+ok
+test private_block::review_d24_tests::review_e_softmax_field_wrap_forgery_through_the_trained_cli ... ignored, review heavy: TinyLlama witness x3 + one proof
+test private_block::review_d24_tests::review_f_naive_quotient_forgery_is_rejected_at_the_same_profile ... ignored, review heavy: TinyLlama witness + one proof
+test private_block::review_d24_tests::review_g_the_class_corner_proves_and_its_controls_refuse ... REVIEW-G corner shape: wrho 32 D_max 1229564 limbs 4 top-full true
+REVIEW-G corner witness: max|y_a| 6, max D 1051006
+REVIEW-G corner: honest receipt 7452040 B verifies
+REVIEW-G corner: verifier with cn_a - 1 refuses: private block wire: expected statement mismatch
+REVIEW-G corner: witness honest under cn_a - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != clai
+REVIEW-G corner: verifier with cn_m - 1 refuses: private block wire: expected statement mismatch
+REVIEW-G corner: witness honest under cn_m - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != clai
+REVIEW-G corner: verifier with ceps - 1 refuses: private block wire: expected statement mismatch
+REVIEW-G corner: witness honest under ceps - 1 rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(
+REVIEW-G corner: verifier with tn - 1 refuses: private block wire: frame length
+REVIEW-G corner: witness honest under tn - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != clai
+REVIEW-G corner: verifier with sh_ao - 1 refuses: private block wire: expected statement mismatch
+REVIEW-G corner: witness honest under sh_ao - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != clai
+ok
+test private_block::review_d24_tests::review_h_layout_does_not_re_validate_a_trained_shape ... REVIEW-H Layout::for_shape on a trained shape edited to cn_a 2^40, ceps 2^50 (outside the class): ACCEPTED
+REVIEW-H derive_at_width on the edited constants: Some("trained norm calibration: cn_a 1099511627776 is outside the declared class 1..=2^20")
+ok
+
+test result: ok. 6 passed; 0 failed; 2 ignored; 0 measured; 542 filtered out; finished in 9.25s
+

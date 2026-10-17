@@ -1,0 +1,718 @@
+{
+ "source": "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/reviewer_nowrap.py",
+ "f_e_class": "9..=16",
+ "wrho_s_max": 24,
+ "softmax": [
+  {
+   "f_e": 9,
+   "T": 1,
+   "wrho_s": 9,
+   "bound_log2": 19.585,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 2,
+   "wrho_s": 10,
+   "bound_log2": 20.322,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 4,
+   "wrho_s": 11,
+   "bound_log2": 21.17,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 8,
+   "wrho_s": 12,
+   "bound_log2": 22.087,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 16,
+   "wrho_s": 13,
+   "bound_log2": 23.044,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 32,
+   "wrho_s": 14,
+   "bound_log2": 24.022,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 64,
+   "wrho_s": 15,
+   "bound_log2": 25.011,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 128,
+   "wrho_s": 16,
+   "bound_log2": 26.006,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 256,
+   "wrho_s": 17,
+   "bound_log2": 27.003,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 512,
+   "wrho_s": 18,
+   "bound_log2": 28.001,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 1024,
+   "wrho_s": 19,
+   "bound_log2": 29.001,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 2048,
+   "wrho_s": 20,
+   "bound_log2": 30.0,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 4096,
+   "wrho_s": 21,
+   "bound_log2": 31.0,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 8192,
+   "wrho_s": 22,
+   "bound_log2": 32.0,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 16384,
+   "wrho_s": 23,
+   "bound_log2": 33.0,
+   "forgery": null
+  },
+  {
+   "f_e": 9,
+   "T": 32768,
+   "wrho_s": 24,
+   "bound_log2": 34.0,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 1,
+   "wrho_s": 10,
+   "bound_log2": 20.585,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 2,
+   "wrho_s": 11,
+   "bound_log2": 21.322,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 4,
+   "wrho_s": 12,
+   "bound_log2": 22.17,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 8,
+   "wrho_s": 13,
+   "bound_log2": 23.087,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 16,
+   "wrho_s": 14,
+   "bound_log2": 24.044,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 32,
+   "wrho_s": 15,
+   "bound_log2": 25.022,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 64,
+   "wrho_s": 16,
+   "bound_log2": 26.011,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 128,
+   "wrho_s": 17,
+   "bound_log2": 27.006,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 256,
+   "wrho_s": 18,
+   "bound_log2": 28.003,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 512,
+   "wrho_s": 19,
+   "bound_log2": 29.001,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 1024,
+   "wrho_s": 20,
+   "bound_log2": 30.001,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 2048,
+   "wrho_s": 21,
+   "bound_log2": 31.0,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 4096,
+   "wrho_s": 22,
+   "bound_log2": 32.0,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 8192,
+   "wrho_s": 23,
+   "bound_log2": 33.0,
+   "forgery": null
+  },
+  {
+   "f_e": 10,
+   "T": 16384,
+   "wrho_s": 24,
+   "bound_log2": 34.0,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 1,
+   "wrho_s": 11,
+   "bound_log2": 21.585,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 2,
+   "wrho_s": 12,
+   "bound_log2": 22.322,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 4,
+   "wrho_s": 13,
+   "bound_log2": 23.17,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 8,
+   "wrho_s": 14,
+   "bound_log2": 24.087,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 16,
+   "wrho_s": 15,
+   "bound_log2": 25.044,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 32,
+   "wrho_s": 16,
+   "bound_log2": 26.022,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 64,
+   "wrho_s": 17,
+   "bound_log2": 27.011,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 128,
+   "wrho_s": 18,
+   "bound_log2": 28.006,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 256,
+   "wrho_s": 19,
+   "bound_log2": 29.003,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 512,
+   "wrho_s": 20,
+   "bound_log2": 30.001,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 1024,
+   "wrho_s": 21,
+   "bound_log2": 31.001,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 2048,
+   "wrho_s": 22,
+   "bound_log2": 32.0,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 4096,
+   "wrho_s": 23,
+   "bound_log2": 33.0,
+   "forgery": null
+  },
+  {
+   "f_e": 11,
+   "T": 8192,
+   "wrho_s": 24,
+   "bound_log2": 34.0,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 1,
+   "wrho_s": 12,
+   "bound_log2": 22.585,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 2,
+   "wrho_s": 13,
+   "bound_log2": 23.322,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 4,
+   "wrho_s": 14,
+   "bound_log2": 24.17,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 8,
+   "wrho_s": 15,
+   "bound_log2": 25.087,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 16,
+   "wrho_s": 16,
+   "bound_log2": 26.044,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 32,
+   "wrho_s": 17,
+   "bound_log2": 27.022,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 64,
+   "wrho_s": 18,
+   "bound_log2": 28.011,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 128,
+   "wrho_s": 19,
+   "bound_log2": 29.006,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 256,
+   "wrho_s": 20,
+   "bound_log2": 30.003,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 512,
+   "wrho_s": 21,
+   "bound_log2": 31.001,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 1024,
+   "wrho_s": 22,
+   "bound_log2": 32.001,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 2048,
+   "wrho_s": 23,
+   "bound_log2": 33.0,
+   "forgery": null
+  },
+  {
+   "f_e": 12,
+   "T": 4096,
+   "wrho_s": 24,
+   "bound_log2": 34.0,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 1,
+   "wrho_s": 13,
+   "bound_log2": 23.585,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 2,
+   "wrho_s": 14,
+   "bound_log2": 24.322,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 4,
+   "wrho_s": 15,
+   "bound_log2": 25.17,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 8,
+   "wrho_s": 16,
+   "bound_log2": 26.087,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 16,
+   "wrho_s": 17,
+   "bound_log2": 27.044,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 32,
+   "wrho_s": 18,
+   "bound_log2": 28.022,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 64,
+   "wrho_s": 19,
+   "bound_log2": 29.011,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 128,
+   "wrho_s": 20,
+   "bound_log2": 30.006,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 256,
+   "wrho_s": 21,
+   "bound_log2": 31.003,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 512,
+   "wrho_s": 22,
+   "bound_log2": 32.001,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 1024,
+   "wrho_s": 23,
+   "bound_log2": 33.001,
+   "forgery": null
+  },
+  {
+   "f_e": 13,
+   "T": 2048,
+   "wrho_s": 24,
+   "bound_log2": 34.0,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 1,
+   "wrho_s": 14,
+   "bound_log2": 24.585,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 2,
+   "wrho_s": 15,
+   "bound_log2": 25.322,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 4,
+   "wrho_s": 16,
+   "bound_log2": 26.17,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 8,
+   "wrho_s": 17,
+   "bound_log2": 27.087,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 16,
+   "wrho_s": 18,
+   "bound_log2": 28.044,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 32,
+   "wrho_s": 19,
+   "bound_log2": 29.022,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 64,
+   "wrho_s": 20,
+   "bound_log2": 30.011,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 128,
+   "wrho_s": 21,
+   "bound_log2": 31.006,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 256,
+   "wrho_s": 22,
+   "bound_log2": 32.003,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 512,
+   "wrho_s": 23,
+   "bound_log2": 33.001,
+   "forgery": null
+  },
+  {
+   "f_e": 14,
+   "T": 1024,
+   "wrho_s": 24,
+   "bound_log2": 34.001,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 1,
+   "wrho_s": 15,
+   "bound_log2": 25.585,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 2,
+   "wrho_s": 16,
+   "bound_log2": 26.322,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 4,
+   "wrho_s": 17,
+   "bound_log2": 27.17,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 8,
+   "wrho_s": 18,
+   "bound_log2": 28.087,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 16,
+   "wrho_s": 19,
+   "bound_log2": 29.044,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 32,
+   "wrho_s": 20,
+   "bound_log2": 30.022,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 64,
+   "wrho_s": 21,
+   "bound_log2": 31.011,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 128,
+   "wrho_s": 22,
+   "bound_log2": 32.006,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 256,
+   "wrho_s": 23,
+   "bound_log2": 33.003,
+   "forgery": null
+  },
+  {
+   "f_e": 15,
+   "T": 512,
+   "wrho_s": 24,
+   "bound_log2": 34.001,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 1,
+   "wrho_s": 16,
+   "bound_log2": 26.585,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 2,
+   "wrho_s": 17,
+   "bound_log2": 27.322,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 4,
+   "wrho_s": 18,
+   "bound_log2": 28.17,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 8,
+   "wrho_s": 19,
+   "bound_log2": 29.087,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 16,
+   "wrho_s": 20,
+   "bound_log2": 30.044,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 32,
+   "wrho_s": 21,
+   "bound_log2": 31.022,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 64,
+   "wrho_s": 22,
+   "bound_log2": 32.011,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 128,
+   "wrho_s": 23,
+   "bound_log2": 33.006,
+   "forgery": null
+  },
+  {
+   "f_e": 16,
+   "T": 256,
+   "wrho_s": 24,
+   "bound_log2": 34.003,
+   "forgery": null
+  }
+ ],
+ "softmax_worst_log2": 34.003,
+ "softmax_margin_bits": 29.997,
+ "T32_first_f_e_forgery": 50,
+ "norm_class_corner_log2": {
+  "R4 D^2+a1-ceps-S": 47.994,
+  "R2 D-limbs": 24.0,
+  "R3 2D-a1-a2": 25.0,
+  "C0 2Cn g x + 2^tn D - 2^(tn+1) D y - rho": 48.039,
+  "C1 sigma+rho+1-2^(tn+1)D": 41.0,
+  "host SC_WO": 26.16
+ }
+}

@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pickle
 import sys
 import time
@@ -39,6 +40,7 @@ import numpy as np  # noqa: E402
 import tlcalib as tc  # noqa: E402
 import b3calib as b3  # noqa: E402
 from corpus import sequences  # noqa: E402
+import corpus4  # noqa: E402
 from spm_bpe import SpmBpe, tokenizer_selfcheck  # noqa: E402
 
 try:
@@ -98,7 +100,7 @@ def head_metrics(xf, xi, ids, norm_w, lm_head, mask=None, chunk=4):
 
 # ------------------------------------------------------------------ pass 1
 
-def float_stats(ck, xc, rope_f, L, R, cache_path: Path):
+def float_stats(ck, xc, rope_f, L, R, cache_path: Path, chunk: int = 27):
     if cache_path.exists():
         with cache_path.open("rb") as f:
             obj = pickle.load(f)
@@ -114,14 +116,23 @@ def float_stats(ck, xc, rope_f, L, R, cache_path: Path):
             ref = tc.f_block(x[:2], W, *rope_f)
             got = b3.f_block_stats(x[:2], W, *rope_f, None)
             assert np.array_equal(ref, got), "f_block_stats differs from tlcalib.f_block"
-        x = b3.f_block_stats(x, W, *rope_f, st, keep=keep)
+        outs, excl, gmax = [], 0, 0.0
+        for s0 in range(0, x.shape[0], chunk):
+            outs.append(b3.f_block_stats(x[s0:s0 + chunk], W, *rope_f, st, keep=keep[s0:s0 + chunk]))
+            excl += st["excluded_here"]
+            gmax = max(gmax, st["gate_absmax_all_sequences"])
+        x = np.concatenate(outs)
+        st["excluded_here"], st["excluded_total"], st["gate_absmax_all_sequences"] = excl, int((~keep).sum()), gmax
         if st["excluded_here"]:
             log(f"pass 1 L{l:02d}: {st['excluded_here']} calibration sequence(s) with |gate| > 63.5 (no frozen SiLU member "
                 f"can carry it; max {st['gate_absmax_all_sequences']:.1f}) excluded from this layer's statistics on")
         stats.append(b3.finalize_stats(st))
     if L == 22:
-        with cache_path.open("wb") as f:
+        # atomic: concurrent runs may compute the same cache
+        tmp = cache_path.with_suffix(f".tmp{os.getpid()}")
+        with tmp.open("wb") as f:
             pickle.dump(stats, f)
+        os.replace(tmp, cache_path)
     return stats
 
 
@@ -177,6 +188,7 @@ def prepass(ck, stats, var, R, L, floors: str):
     if var.shifts == "profile":
         sites = ("qkv", "s", "ao", "g", "h", "z")
         glob.shifts = dict(b3.NATIVE_SHIFTS)
+        glob.shifts["o"] = 1 if var.o16 else var.f_p
         for k in sites:
             vals = [t["stage1"]["shifts"][k] for t in table]
             # SH_AO / SH_Z: the largest value every layer can take without an
@@ -276,6 +288,46 @@ def export_layer(root: Path, l: int, P, rep, T: int, var) -> dict:
     return man
 
 
+def write_token_io(root: Path, ck, R, s_in0: float, s_out_last: float, args, ho_ids, chain_h, seq_idx):
+    """B4-4: the layer-0 integer input as a PUBLIC lookup table (one int16 row
+    per vocabulary token): x_in_L00[t] = table[token_t]. Exactly the path the
+    calibration used: float32 embedding row -> (rotated: float64 FWHT, cast to
+    float32) -> round_half_up(float64(x) / s_x). Checked against the exported
+    sequences' x_in_L00 before writing."""
+    E = tc.tensor_f32(ck.refs["model.embed_tokens.weight"])
+    rows = []
+    for s0 in range(0, E.shape[0], 4000):
+        x = E[s0:s0 + 4000]
+        if R is not None:
+            x = R.fwd(x).astype(np.float32)
+        q = np.floor(x.astype(np.float64) / s_in0 + 0.5)
+        if np.abs(q).max() > 32767:
+            raise ValueError("an embedding row leaves int16 at this s_x (that token would refuse)")
+        rows.append(q.astype(np.int16))
+    table = np.concatenate(rows)
+    for i in seq_idx:
+        if not np.array_equal(table[ho_ids[i]], chain_h[0][i]):
+            raise AssertionError(f"embedding table does not reproduce x_in_L00 of held-out {i}")
+    spec = write_bin(root, "embedding_int16", table, "<i2")
+    ident = ck.identity["tensor_sha256"]
+    tio = {"schema": SCHEMA, "kind": "token_io", "embedding_table": spec,
+           "s_x_in_layer0": s_in0, "s_x_out_layer21": s_out_last,
+           "rotation": None if R is None else {"seed": args.rotate, "file": "rotation_sign.bin (see rotation.json)"},
+           "source_tensors_sha256": {k: ident[k] for k in ("model.embed_tokens.weight", "model.norm.weight", "lm_head.weight")},
+           "rms_norm_eps": tc.GEO.eps,
+           "spec": "see export/TOKEN_IO_SPEC.md", "checked_against_sequences": [f"seq_ho{i:02d}" for i in seq_idx]}
+    (root / "token_io.json").write_text(json.dumps(tio, indent=1, sort_keys=True))
+    if R is not None:
+        raw = R.sign.astype("<f8").tobytes()
+        (root / "rotation_sign.bin").write_bytes(raw)
+        (root / "rotation.json").write_text(json.dumps({"kind": "randomized Sylvester Hadamard", "n": 2048, "seed": args.rotate,
+                                                        "file": {"name": "rotation_sign.bin", "dtype": "float64 little-endian",
+                                                                 "shape": [2048], "sha256": hashlib.sha256(raw).hexdigest()},
+                                                        "definition": "R = H diag(sign) / sqrt(2048); x' = x R^T; see export/TOKEN_IO_SPEC.md"},
+                                                       indent=1))
+    log(f"token io written: embedding_int16.bin sha256 {spec['sha256']}")
+
+
 # ------------------------------------------------------------------ main
 
 def main():
@@ -296,10 +348,21 @@ def main():
     ap.add_argument("--probe", action="store_true", help="pass 1 + pre-pass only")
     ap.add_argument("--export", action="store_true")
     ap.add_argument("--export-seqs", type=int, default=1)
+    ap.add_argument("--corpus", default="b3", choices=["b3", "b4"],
+                    help="b4: add FineWeb-Edu documents to calibration and as a second held-out domain")
+    ap.add_argument("--fw-calib", type=int, default=54)
+    ap.add_argument("--fw-heldout", type=int, default=36)
+    ap.add_argument("--calib-T", type=int, default=None, help="calibration sequence length (default T)")
+    ap.add_argument("--token-io", action="store_true", help="with --export: write the layer-0 integer embedding table")
     args = ap.parse_args()
+    T_cal = args.calib_T or args.T
+    # provenance: hash the tools as LOADED (at start), not at export time
+    tool_sha_at_start = {p: sha_file(HERE / p) for p in
+                         ("tlcalib.py", "b3calib.py", "b3_ladder.py", "corpus.py", "corpus4.py", "spm_bpe.py")}
 
     var = b3.variant_by_name(args.variant, rotate=args.rotate, margin=args.margin)
-    name = args.variant + (f"_rot{args.rotate}" if args.rotate is not None else "") + (f"_{args.tag}" if args.tag else "") + f"_T{args.T}"
+    name = (args.variant.replace("+", "_") + (f"_rot{args.rotate}" if args.rotate is not None else "") + (f"_{args.tag}" if args.tag else "")
+            + ("_b4" if args.corpus == "b4" else "") + f"_T{args.T}" + (f"_cal{T_cal}" if T_cal != args.T else ""))
     if args.layers:
         name += f"_L{args.layers}smoke"
     out = HERE / "runs" / f"b3_{name}"
@@ -310,11 +373,19 @@ def main():
     ck = tc.open_checkpoint()
     tok = SpmBpe(tc.MODEL_DIR / "tokenizer.model")
     tcheck = tokenizer_selfcheck(tok)
-    cal, cal_meta = sequences(tok, "calib", args.T, args.calib_per)
+    cal, cal_meta = sequences(tok, "calib", T_cal, args.calib_per)
     ho, ho_meta = sequences(tok, "heldout", args.T, args.heldout_per)
+    for m in cal_meta + ho_meta:
+        m.setdefault("domain", "licence-docstring")
+    if args.corpus == "b4":
+        c2, m2 = corpus4.fineweb_sequences(tok, "calib", T_cal, args.fw_calib)
+        h2, n2 = corpus4.fineweb_sequences(tok, "heldout", args.T, args.fw_heldout)
+        cal, cal_meta, ho, ho_meta = cal + c2, cal_meta + m2, ho + h2, ho_meta + n2
+    domains = np.array([m["domain"] for m in ho_meta])
     cal_ids, ho_ids = np.array(cal, dtype=np.int64), np.array(ho, dtype=np.int64)
     assert not (set(map(tuple, cal)) & set(map(tuple, ho))), "calibration and held-out sequences overlap"
-    log(f"tokenizer ok={all(c['ok'] for c in tcheck['cases'].values())}; calib {cal_ids.shape} held-out {ho_ids.shape} (disjoint sources)")
+    log(f"tokenizer ok={all(c['ok'] for c in tcheck['cases'].values())}; calib {cal_ids.shape} held-out {ho_ids.shape} "
+        f"domains {dict(zip(*np.unique(domains, return_counts=True)))} (disjoint documents)")
     R = b3.Rotation(tc.GEO.d, args.rotate) if args.rotate is not None else None
     emb = tc.tensor_f32(ck.refs["model.embed_tokens.weight"])
     xc_f, xh_f = emb[cal_ids], emb[ho_ids]
@@ -325,9 +396,12 @@ def main():
     floors = args.floors if args.floors != "auto" else ("none" if var.residual == "global" else "strict")
     rope_f = tc.rope_f32(T)
     rope_i = b3.rope_generate(T, tc.GEO.dh, tc.GEO.theta, b3.F_RO)
+    rope_f_cal = tc.rope_f32(T_cal)
+    rope_i_cal = b3.rope_generate(T_cal, tc.GEO.dh, tc.GEO.theta, b3.F_RO)
 
-    stats = float_stats(ck, xc_f, rope_f, L, R,
-                        HERE / "runs" / f"b3_stats4_T{T}_c{args.calib_per}_r{args.rotate}.pkl")
+    stats = float_stats(ck, xc_f, rope_f_cal, L, R,
+                        HERE / "runs" / (f"b3_stats4_T{T_cal}_c{args.calib_per}_r{args.rotate}"
+                                         + (f"_b4fw{args.fw_calib}" if args.corpus == "b4" else "") + ".pkl"))
     log(f"pass 1 done ({time.time() - t0:.0f}s)")
     glob, caches, ptable = prepass(ck, stats, var, R, L, floors)
     prof = {"cn_a": glob.cn_a, "cn_m": glob.cn_m, "e_s": glob.e_s, "silu": glob.silu, "shifts": glob.shifts,
@@ -356,10 +430,11 @@ def main():
         tl = time.time()
         W = load_layer(ck, l, R)
         P, rep = b3.solve_layer(W, stats[l], var, glob.s_in[l], glob.s_out[l], glob, caches[l])
-        xf_next = tc.f_block(xf_h, W, *rope_f)
+        # chunked (memory): the float block is per sequence
+        xf_next = np.concatenate([tc.f_block(xf_h[s0:s0 + 12], W, *rope_f) for s0 in range(0, xf_h.shape[0], 12)])
         W_keep = W
         rc, rh, ri = tc.Rec(len(cal_ids)), tc.Rec(len(ho_ids)), tc.Rec(len(ho_ids))
-        xi_c = run_int(xi_c, P, rope_i, rc, args.chunk)
+        xi_c = run_int(xi_c, P, rope_i_cal, rc, args.chunk)
         xi_next = run_int(xi_h, P, rope_i, rh, args.chunk)
         xq = tc.quantize_input(xf_h, glob.s_in[l], ri)
         xiso = run_int(xq, P, rope_i, ri, args.chunk)
@@ -416,11 +491,23 @@ def main():
         return
     summary["head_all_diagnostic"] = head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head)
     summary["head_accepted"] = head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head, mask=acc)
+    summary["by_domain"] = {}
+    for dom in sorted(set(domains.tolist())):
+        dm = domains == dom
+        summary["by_domain"][dom] = {"sequences": int(dm.sum()), "refused": int((ref_h & dm).sum()),
+                                     "head_all_diagnostic": head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head, mask=dm),
+                                     "head_accepted": head_metrics(xf_fin, xi_fin, ho_ids, norm_w, lm_head, mask=dm & acc)}
+        log(f"domain {dom}: {summary['by_domain'][dom]}")
+    summary["calibration"] = {"T_cal": T_cal, "corpus": args.corpus, "sequences": len(cal_ids)}
     log(f"head (all {len(ho_ids)} held-out, refusals clamped = diagnostic): {summary['head_all_diagnostic']}")
     log(f"head (accepted {int(acc.sum())} held-out): {summary['head_accepted']}")
 
     if args.export:
-        ok = [i for i in range(len(ho_ids)) if not ref_h[i]][:args.export_seqs]
+        doms = list(dict.fromkeys(domains.tolist()))
+        firsts = [next((i for i in range(len(ho_ids)) if not ref_h[i] and domains[i] == dm), None) for dm in doms]
+        ok = [i for i in firsts if i is not None]
+        ok += [i for i in range(len(ho_ids)) if not ref_h[i] and i not in ok]
+        ok = sorted(ok[:args.export_seqs])
         seqs = []
         for i in ok:
             sd = exp_root / f"seq_ho{i:02d}"
@@ -431,13 +518,12 @@ def main():
                 files[f"x_out_L{l:02d}"] = write_bin(sd, f"x_out_L{l:02d}", chain_h[l + 1][i], "<i2")
             sman = {"schema": SCHEMA, "kind": "sequence", "id": f"ho{i:02d}", "heldout_index": i, "source": ho_meta[i],
                     "token_ids": ho_ids[i].tolist(), "T": T, "accepted_at_every_layer": True,
-                    "selection": "the first held-out sequence(s) accepted at every layer (no fidelity-based choice)",
+                    "selection": "the first held-out sequence accepted at every layer in each held-out domain (no fidelity-based choice)",
                     "basis": ("rotated residual x' = x R^T (randomized Hadamard, seed %d)" % args.rotate) if R is not None else "model residual basis",
                     "residual_scales_in_out": [[glob.s_in[l], glob.s_out[l]] for l in range(L)], "arrays": files}
             (sd / "manifest.json").write_text(json.dumps(sman, indent=1, sort_keys=True))
             seqs.append(sd.name)
-        tool = {"path": str(HERE.relative_to(tc.REPO)), "sha256": {p: sha_file(HERE / p) for p in
-                ("tlcalib.py", "b3calib.py", "b3_ladder.py", "corpus.py", "spm_bpe.py")}}
+        tool = {"path": str(HERE.relative_to(tc.REPO)), "sha256": tool_sha_at_start}
         pc = layers[0]["constants"]
         uniform = {k: pc[k] if all(e["constants"][k] == pc[k] for e in layers) else None for k in pc}
         profile = {"schema": SCHEMA, "kind": "profile", "variant": name, "variant_options": var.__dict__, "model": MODEL,
@@ -451,11 +537,18 @@ def main():
                        "rotation": None if R is None else {"kind": "randomized Sylvester Hadamard R = H diag(sign)/sqrt(2048)",
                                                            "seed": args.rotate, "sign_sha256": hashlib.sha256(R.sign.astype("<f8").tobytes()).hexdigest(),
                                                            "embedding": "x' = x R^T before layer 0", "head": "x = x' R before the final norm"},
-                       "per_layer": [{"layer": e["layer"], "scales": e["solve"]["metadata_scales"]} for e in layers]},
+                       "per_layer": [{"layer": e["layer"], "scales": e["solve"]["metadata_scales"]} for e in layers],
+                       "calibration": {"T_cal": T_cal, "corpus": args.corpus, "calibration_sequences": len(cal_ids),
+                                       "domains": sorted(set(m["domain"] for m in cal_meta)),
+                                       "fineweb_edu": ({"dataset": corpus4.DATASET, "revision": corpus4.HF_REVISION,
+                                                        "parquet_sha256": corpus4.PARQUET_SHA256, "licence": corpus4.LICENCE_NOTE}
+                                                       if args.corpus == "b4" else None)}},
                    "fidelity_T": {"heldout_accepted": summary["head_accepted"], "heldout_refused": int(ref_h.sum()),
                                   "heldout_sequences": len(ho_ids), "calibration_sequences": len(cal_ids)},
                    "scope": "calibration data, not a proof, not a privacy claim"}
         (exp_root / "profile.json").write_text(json.dumps(profile, indent=1, sort_keys=True))
+        if args.token_io:
+            write_token_io(exp_root, ck, R, glob.s_in[0], glob.s_out[-1], args, ho_ids, chain_h, ok)
         summary["export"] = {"root": str(exp_root.relative_to(tc.REPO)), "profile_sha256": sha_file(exp_root / "profile.json"),
                              "sequences": seqs}
         log(f"export written: {exp_root} profile sha256 {summary['export']['profile_sha256']}")

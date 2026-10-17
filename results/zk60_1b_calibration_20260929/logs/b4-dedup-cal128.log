@@ -1,0 +1,42 @@
+{
+ "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T64_cal128": {
+  "linked_now": 246,
+  "already_linked": 0,
+  "bytes_saved_now": 1100120247,
+  "differing_files": 157,
+  "differing_examples": [
+   "layer_00/manifest.json",
+   "layer_00/rope_cos.bin",
+   "layer_00/rope_sin.bin",
+   "layer_01/manifest.json",
+   "layer_01/rope_cos.bin",
+   "layer_01/rope_sin.bin",
+   "layer_02/manifest.json",
+   "layer_02/rope_cos.bin",
+   "layer_02/rope_sin.bin",
+   "layer_03/manifest.json",
+   "layer_03/rope_cos.bin",
+   "layer_03/rope_sin.bin"
+  ]
+ },
+ "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128": {
+  "linked_now": 246,
+  "already_linked": 0,
+  "bytes_saved_now": 1100120247,
+  "differing_files": 157,
+  "differing_examples": [
+   "layer_00/manifest.json",
+   "layer_00/rope_cos.bin",
+   "layer_00/rope_sin.bin",
+   "layer_01/manifest.json",
+   "layer_01/rope_cos.bin",
+   "layer_01/rope_sin.bin",
+   "layer_02/manifest.json",
+   "layer_02/rope_cos.bin",
+   "layer_02/rope_sin.bin",
+   "layer_03/manifest.json",
+   "layer_03/rope_cos.bin",
+   "layer_03/rope_sin.bin"
+  ]
+ }
+}

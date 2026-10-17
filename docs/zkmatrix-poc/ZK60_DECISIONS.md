@@ -50,7 +50,7 @@ proposal is accepted by this performance direction. No speed result is claimed.
 | D21 | Rejected receipts are never transmitted, and retained capture bundles count as publishing: nothing computed from a hidden input may be added to them; a refusal reason is never shown to anyone not entitled to the input | **ACCEPTED** | 2026-09-20 13:45 | Victor (console); same one-pager |
 | D22 | **Privacy accepted for ONE artifact: the toy private-block profile `hashline-zk-mr1/private-block-t32-poc/1`** (one block, 32 tokens, width 16, public synthetic weights, the prover sealing its own endpoints per D18): in the random-oracle model (D19), under the named generator assumption, an accepted receipt's view is within about 2^-77.7 per proof of one that does not depend on the hidden input, output or activations; refusal is challenge-only up to 2^-112; timing, memory and power out of scope (D20); operating rules of D21. **It is an argument each of whose steps survived one independent attack, not a proof re-derived by the security owner; it lapses for any code that changes one of its seven conditions. It covers NOTHING else: not the development rung, not the 125M block, not any multi-block run, not real weights, not sealing in advance (D8 and D11 untouched), not soundness**. *Scope said more exactly on 2026-09-21 03:23: it covers the profile on the **CPU path** — at this untagged profile a GPU-feature build with the accelerator enabled hashes columns with two hand-written CUDA kernels and moves blinding material to device memory, and that configuration is not covered until it has been read; and "the generator" means the proof's three generators jointly, separate operating-system entropy reads being assumed independent. On 2026-09-20 22:06 it was re-read against the integrator's merged code (`4751b93`) and its source pins extended to all 29 files on its path. On 2026-09-21 10:44 the refusal clause was sharpened, number unchanged (statement §9 item 10; ruling V-3 of `ZK60_BLOCK125M_S28_DISPOSITION.md`): for every admitted witness, WHETHER an attempt is refused for a zero lookup denominator is a function of the public challenges and the three public tables alone, because the prover inverts each whole table on every attempt; only which of two lines returns first depends on the hidden input, with the identical message and no absorb or draw between them — so "up to 2^-112" is an over-estimate kept as it is; the unqualified form of that sentence (for ANY witness) is false and is not claimed. On 2026-09-22 10:20 the gates were replayed on a capture of a receipt produced by the merged tree's own binary at `4751b93` (delivered by the integrator): 132 of 132 source pins equal, no figure of record moved, all ten controls fire — the statement now rests on the merged tree's proofs as well as the old tree's; scope unchanged* | **accepted by the security owner, within the model Victor accepted the same day** | 2026-09-20 13:46 | Security owner (Fable); statement `ZK60_PRIVACY_STATEMENT_TOY_PROFILE.md` |
 | D23 | **An accepted receipt's endpoint roots are never registered, republished or referred to by a later artifact — proposed, for Victor.** The privacy case's hypothesis O-2 / ask R-9 (`ZK60_PRIVACY_CASE_FIRST_MVP.md` §1.2 item 1, §5.2, l.1633, l.1801): the moment a later artifact refers to an accepted receipt's two endpoint roots (e.g. chains its output root into another proof, or records it in a registry), the D8/D11 question applies and D22 no longer covers that receipt. It was never put to Victor nor listed in D22's statement; found 2026-09-23 by `ZK60_BLINDING_LAW_GR4_TOY_READING.md`. The security owner carries it as a stated hypothesis of the toy statement (§6) from 2026-09-23 16:52; the argument and its figures are unchanged. Constrains operations, so it is Victor's | **PROPOSED — pending Victor; recommendation: accept** | 2026-09-23 16:52 | Security owner (Opus 5.5 session continuing the Fable lane); one-pager `ZK60_RULINGS_FOR_VICTOR_PRIVACY.md` |
-| D24 | **Norm precision per profile instead of a fifth remainder limb — proposed 2026-10-17.** New trained profiles lower `NORM_TN` (10 at width 2048, 9 at width 4096) and scale the norm multiplier with it, so the exact remainder window stays at most 32 bits (four byte limbs, D16 rule 4); `D_max` for new profiles counts int16 -32768 and the profile's epsilon; old profiles stay byte-frozen | **proposed; implementation in lane trained-1b; independent review pending** | 2026-10-17 | Claude (security-owner lane) |
+| D24 | **Norm precision per profile instead of a fifth remainder limb — proposed 2026-10-17.** New trained profiles lower `NORM_TN` (10 at width 2048, 9 at width 4096) and scale the norm multiplier with it, so the exact remainder window stays at most 32 bits (four byte limbs, D16 rule 4); `D_max` for new profiles counts int16 -32768 and the profile's epsilon; old profiles stay byte-frozen | **ACCEPTED 2026-10-17 (security-owner lane, after two independent review rounds): norm rule, per-profile shifts, trained profile and loader; conditions R2-a/R2-b being fixed; not a privacy acceptance** | 2026-10-17 | Claude (security-owner lane) |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
 Operational rules (detached heavy runs, the shared-box lock, command hygiene)
@@ -728,3 +728,58 @@ declared ranges of `Cn` and `Ceps` (calibration needs `Ceps` up to about
 1.3e8); and an independent adversarial review of the implementation. Not a
 privacy acceptance at any new shape. Revisit the five-limb route only if a
 profile would need `tn` below about 8.
+
+**Independent review, 2026-10-17** (`results/zk60_d24_review_20261017/`,
+frozen copy `ops/zkp-mvp/trained-1b-review-r1/`). **The norm rule holds** over
+the whole declared class (tn up to 10 at width 2048 / 9 at 4096, Cn up to
+2^20, Ceps up to 2^40): the reviewer's own no-wrap checker reproduces the worst
+clause at 2^48.04, about 16 bits under p; `D` stays pinned by its three-limb
+window at Ceps 2^40; the quotient is unique; the alias is outside the limb pin;
+every constant is bound into the schedule line and the trained statement;
+frozen profiles are unchanged (82 of the author's pins and controls re-run).
+
+**Blocking finding F-1 (not in the norm algebra):** the trained loader takes
+the softmax precision `f_e` from the export without a declared class. At
+`f_e >= 50` (T32) the softmax quotient clause can wrap the field, and the
+reviewer produced a forged block output (2,010 of 65,536 words false) that the
+saved release verifier accepted in a fresh process. The proofs made so far use
+`f_e = 9`, inside the derived premise, and are unaffected. **Rule added with
+this finding:** every constant an export can choose (f_e, requant shifts,
+table keys, norm constants) has a declared class validated at the trained door
+on both sides and in `Layout::for_shape`, and every field no-wrap premise that
+touches it is re-derived over the whole class. Minor findings F-2 (trained
+receipts can still absorb the synthetic calibration literal; label only), F-3
+(`new_bound` accepts a frozen profile; the model-source claim is not proved
+against the weights — the statement names the export, it does not prove the
+export came from that checkpoint), F-4 (identity depends on the export's
+directory name), F-5 (layout does not re-validate trained shapes), F-6 (one
+trained profile string covers a family of calibrations, separated by the
+schedule digest — acceptable, now recorded; test-only constructors to be
+gated). Status: fixes in the native lane, then a focused re-review.
+
+**Re-review round 2, 2026-10-17 — accepted with conditions.** On the frozen
+round-2 copy (`ops/zkp-mvp/trained-1b-review-r2/`), no blocking or serious
+finding. F-1 is closed (class enforced at the loader on both sides, at the
+shape door and again in `Layout::for_shape`; the reviewer's own re-derivation
+gives the softmax quotient clause at most 2^34.0 over the whole class; no
+wrapping forgery exists at the class edge; the production CLI refuses the
+round-1 export). F-2 to F-6 are closed. **Declared classes for trained
+profiles (binding):** norm `tn` 1..=16 with the derived four-limb window
+25..=32 bits, `Cn_a`/`Cn_m` 1..=2^20, `Ceps` 1..=2^40, width at most 4096;
+requant shifts `sh_qkv`, `sh_s`, `sh_g`, `sh_z` 1..=8 (one-byte remainders),
+`sh_o`, `sh_h` 9..=16 (two-byte remainders), `sh_ao` 0..=8, with the plane and
+lookup lists unchanged; `sh_rope`, `sh_u`, `F_P`, `F_RO`, `sh_r2` fixed; softmax
+`f_e` 9..=16 with `clog2(T) + f_e <= 24`; exp key `e_s` -8..=8; SiLU table a
+frozen registry member; RoPE base pinned to 10000. All are bound into the
+schedule, parameter line and trained statement (schema v3). **Not proved by
+the receipt:** that the export came from the named checkpoint (the statement
+names the export's digests), and the rotated residual basis (the proved hidden
+values are in the rotated basis, bound only through the export's digest).
+**Conditions:** R2-a — refuse a shape that carries a trained profile string
+without the trained flag, and refuse `wrho_s > 24` for every shape (a shape
+built outside the door under a trained profile string could otherwise skip
+the class check; unreachable from production, closed before any non-CLI
+caller); R2-b — test builds must exercise the strict checkpoint-source rule.
+Evidence: `results/zk60_d24_review_20261017/` (ROUND 2). Not a privacy
+acceptance; the stack's boundary composition and the GPU path were exercised
+by controls, not re-reviewed.

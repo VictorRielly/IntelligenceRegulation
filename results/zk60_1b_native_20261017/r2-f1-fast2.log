@@ -1,0 +1,206 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+   --> src/private_block/run.rs:760:13
+    |
+760 |         let mut tr = st.transcript()?;
+    |             ----^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:865:4
+    |
+865 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:477:5
+    |
+470 | struct Rec {
+    |        --- field in this struct
+...
+477 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:579:15
+    |
+579 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 15 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.19s
+     Running unittests src/lib.rs (ops/zkp-mvp/trained-1b/hashline/target/debug/deps/hashline-266942bc2661261a)
+
+running 19 tests
+test private_block::lane_c_tinyllama_tests::every_statement_field_moves_the_identity_and_an_unused_constant_is_refused ... ok
+test private_block::lane_c_tinyllama_tests::lane_c_one_dense_block_proves_and_verifies_at_the_tinyllama_dev_shape ... ignored, lane C heavy: one width-2048 block proof
+test private_block::lane_c_tinyllama_tests::lane_c_the_dense_recipe_is_admissible_at_the_tinyllama_dev_shape ... ignored, lane C heavy: builds a width-2048 witness
+TinyLlama dev shape: A 1729 rows (1487 data), H 1798 rows (1698 data), A planes 81, H planes 49, receipt 11627208 B (slots 23104 / mask 243712 / A 6242304 / H 4503552 / endpoints 614400), largest slot message 97 of 256
+test private_block::lane_c_tinyllama_tests::the_development_shape_has_four_norm_limbs_and_its_own_counts ... ok
+test private_block::lane_c_tinyllama_tests::the_frozen_toy_the_calibration_literal_and_125m_do_not_move ... ok
+the one-layer TinyLlama dev statement: 3616 encoded bytes
+test private_block::lane_c_tinyllama_tests::the_tinyllama_source_record_is_the_pinned_one_and_is_checked ... ok
+test private_block::lane_c_tinyllama_tests::the_true_geometry_has_a_layout_but_no_witness ... ok
+TinyLlama true geometry log_cols 12: A 1801 rows, H 1934 rows, M 50, receipt 12053320 B, u8 lookups 6496256, norm window 33 bits = 5 limbs
+TinyLlama true geometry log_cols 13: A 1031 rows, H 1026 rows, M 50, receipt 11959304 B, u8 lookups 6504448, norm window 33 bits = 5 limbs
+test private_block::lane_c_tinyllama_tests::the_true_geometry_reproduces_the_retained_sol_layout_counts ... ok
+REVIEW-A (fixed) admitted f_e at the trained TinyLlama profile: [9, 10, 11, 12, 13, 14, 15, 16]
+test private_block::review_d24_tests::review_a_the_trained_door_admits_f_e_9_to_16_and_nothing_else ... ok
+REVIEW-B (fixed): private run: hashline-zk-mr1/private-run-rung-c6-t32-dev/1 is a trained-calibration run; it needs its trained-model statement (RunStatement::new_bound)
+test private_block::review_d24_tests::review_b_an_unbound_run_at_a_trained_shape_is_refused ... ok
+REVIEW-C (fixed) frozen profile: private run: hashline-zk-mr1/private-block-rung-g-t24-dev/1 is not a trained-calibration shape; a trained-model statement binds trained-calibration runs only
+test private_block::review_d24_tests::review_c_new_bound_refuses_a_frozen_profile_and_the_trained_profile_takes_the_pin_only ... ok
+test private_block::lane_c_tinyllama_tests::a_run_bound_to_its_statement_verifies_and_is_rejected_under_any_other ... ok
+{"event":"refused","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe50/profile.json: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+{"event":"rejected","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe50/profile.json: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+{"event":"rejected","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe50/profile.json: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+REVIEW-E (fixed) the f_e 50 export is refused at the door: /tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe50/profile.json: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's
+{"event":"refused","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe8/profile.json: f_e 8 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+{"event":"rejected","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe8/profile.json: f_e 8 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+{"event":"rejected","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe8/profile.json: f_e 8 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+REVIEW-E (fixed) the f_e 8 export is refused at the door: /tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe8/profile.json: f_e 8 is outside its declared class 9..=16 (the softmax quotient relation's n
+{"event":"refused","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe17/profile.json: f_e 17 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+{"event":"rejected","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe17/profile.json: f_e 17 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+{"event":"rejected","error":"/tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe17/profile.json: f_e 17 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)"}
+REVIEW-E (fixed) the f_e 17 export is refused at the door: /tmp/zk60-native-tiny-197126-1792228704245707016/review-e/review-fe17/profile.json: f_e 17 is outside its declared class 9..=16 (the softmax quotient relation's
+test private_block::review_d24_tests::review_d_the_statement_identity_does_not_depend_on_the_directory_name ... ok
+REVIEW-E (fixed) the wrapping forgery at an edited f_e-50 shape: prover refused: trained calibration: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is der; verifier refused: trained calibration: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is der
+test private_block::review_d24_tests::review_e_the_f_e_50_forgery_is_refused_at_the_door_on_both_sides ... ok
+test private_block::review_d24_tests::review_f_the_naive_quotient_forgery_is_rejected_at_slot_17_at_the_trained_tinyllama_profile ... ignored, heavy: one TinyLlama-geometry witness and one bound one-block proof (release)
+REVIEW-F naive forgery (p + 1) at hashline-zk-mr1/private-block-rung-tc-t32-dev/1 f_e 12: rejected: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+test private_block::review_d24_tests::review_f_the_naive_quotient_forgery_is_rejected_at_slot_17_at_the_rung ... ok
+REVIEW-H (fixed) edited to cn_a 2^40: refused: trained norm calibration: cn_a 1099511627776 is outside the declared class 1..=2^20
+REVIEW-H (fixed) edited to ceps 2^50: refused: trained norm calibration: ceps 1125899906842624 is outside the declared class 1..=2^40
+REVIEW-H (fixed) edited to tn 11 (window 32 at width 384, but not the shape's derived window): refused: private block shape: hashline-zk-mr1/private-block-rung-tc-t32-dev/1's norm window 31 / D_max 642145 are not the derived
+REVIEW-H (fixed) edited to norm_wrho 33: refused: private block shape: hashline-zk-mr1/private-block-rung-tc-t32-dev/1's norm window 33 / D_max 642145 are not the derived
+REVIEW-H (fixed) edited to d_max + 1: refused: private block shape: hashline-zk-mr1/private-block-rung-tc-t32-dev/1's norm window 31 / D_max 642146 are not the derived
+REVIEW-H (fixed) edited to sh_qkv 9: refused: trained calibration: sh_qkv 9 is outside its structure-preserving window 1..=8 (the remainder's byte-limb count is fixed
+REVIEW-H (fixed) edited to sh_h 17: refused: trained calibration: sh_h 17 is outside its structure-preserving window 9..=16 (the remainder's byte-limb count is fixed
+REVIEW-H (fixed) edited to sh_ao 9: refused: trained norm calibration: sh_ao 9 is outside its one-limb remainder class 0..=8
+REVIEW-H (fixed) edited to f_e 50 with its window: refused: trained calibration: f_e 50 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is der
+REVIEW-H (fixed) edited to f_e 8 with its window: refused: trained calibration: f_e 8 is outside its declared class 9..=16 (the softmax quotient relation's no-wrap premise is deri
+REVIEW-H (fixed) edited to f_e 13 without its window: refused: private block shape: hashline-zk-mr1/private-block-rung-tc-t32-dev/1's softmax window 17 is not the derived clog2(T) + f
+REVIEW-H (fixed) edited to wrho_s 24 at f_e 12: refused: private block shape: hashline-zk-mr1/private-block-rung-tc-t32-dev/1's softmax window 24 is not the derived clog2(T) + f
+test private_block::review_d24_tests::review_h_layout_re_checks_the_whole_class_of_a_trained_shape ... ok
+REVIEW-G corner: honest segment 7452120 B verifies
+NATIVE loader refusal (a fixed shift other than the code's): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-0/profile.json: constant `sh_rope` = 8, but the proof relations hold it at 7 (
+NATIVE loader refusal (a windowed shift outside its window): trained calibration: sh_qkv 9 is outside its structure-preserving window 1..=8 (the remainder's byte-limb count is fixed by the plane list)
+NATIVE loader refusal (a window that needs a fifth limb): trained norm calibration: the remainder window tn + 1 + bits(D_max) = 12 + 1 + 20 = 33 bits exceeds four byte limbs (D16 item 4); at width 3
+NATIVE loader refusal (a Cn outside the class): trained norm calibration: cn_m 2000000 is outside the declared class 1..=2^20
+NATIVE loader refusal (layer constants that differ from uniform profile constants): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-4/layer_00/manifest.json: this layer's constants differ from the profile's (on
+NATIVE loader refusal (a null profile constant the per-layer list does not name): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-5/profile.json: profile_constants has null ["norm_cn_a"] but per_layer_constan
+REVIEW-G corner: witness honest under cn_a - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+NATIVE loader refusal (a layer manifest that is not the one profile.json records): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-6/layer_00/manifest.json: SHA-256 89ffc1fa37b1248c03ee1d926836d073d4a2a303e663
+NATIVE loader refusal (a wrong array digest): array `wd_t`: SHA-256 mismatch: the manifest says fd611b728e7fda802b450bbdbe84ef6e625e2a0b4df4dae2eff07e5442fdcc53, the file is d0420e254876
+NATIVE loader refusal (a wrong array shape): array `wk`: I8 [384, 128], expected I8 [128, 384]
+NATIVE loader refusal (a traversing file name): array `wo`: manifest file name `../wo.bin` is not a plain file name
+NATIVE loader refusal (a TinyLlama geometry with a synthetic source): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-10/profile.json: the model pin (synthetic/native-tiny-export, native-tiny-expo
+REVIEW-G corner: witness honest under cn_m - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+NATIVE loader refusal (a rung geometry naming a non-synthetic source): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-11/profile.json: a rung-TC export must name a synthetic source (`synthetic/...
+NATIVE loader refusal (an exp table that is not the named member): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-12/layer_00/manifest.json: the exported exp table is not exp_member(e_s = 0, h
+NATIVE loader refusal (RoPE tables off the generator): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-13/layer_00/manifest.json: the exported RoPE tables differ from the native gen
+NATIVE loader refusal (an unknown silu member): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-14/layer_00/manifest.json: silu_member (-7, -7) is not in the frozen SiLU regi
+NATIVE loader refusal (f_e 50 (the reviewer's forgery value)): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-15/profile.json: f_e 50 is outside its declared class 9..=16 (the softmax quot
+REVIEW-G corner: witness honest under ceps - 1 rejected: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+NATIVE loader refusal (f_e 8, below the class): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-16/profile.json: f_e 8 is outside its declared class 9..=16 (the softmax quoti
+NATIVE loader refusal (f_e 17, declared per layer): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-17/layer_00/manifest.json: f_e 17 is outside its declared class 9..=16 (the so
+NATIVE loader refusal (an exp e_s outside its class): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-18/layer_00/manifest.json: exp_e_s 9 is outside its declared class -8..=8
+NATIVE loader refusal (another RoPE base): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-19/profile.json: rope_theta 500000 is not the trained geometry's RoPE base 100
+NATIVE loader refusal (a variant name that is not a plain name (F-4)): /tmp/zk60-native-tiny-197126-1792228709599144550/refusals/bad-20/profile.json: variant: manifest file name `../elsewhere` is not a plain fil
+REVIEW-G corner: witness honest under tn - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+test private_block::trained_block_tests::every_malformed_export_is_refused_by_name ... ok
+REVIEW-G corner: witness honest under sh_ao - 1 rejected: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+test private_block::review_d24_tests::review_g_the_class_corner_proves_and_its_neighbours_refuse ... ok
+
+test result: ok. 16 passed; 0 failed; 3 ignored; 0 measured; 532 filtered out; finished in 36.91s
+

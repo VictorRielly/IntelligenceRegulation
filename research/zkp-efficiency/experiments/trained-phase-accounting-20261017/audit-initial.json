@@ -1,0 +1,10 @@
+{
+  "status": "pass",
+  "checks": 496,
+  "diff_hunks": 6,
+  "observed_concurrent_owner_source_changes": [],
+  "wall_seconds": 0.004098430999874836,
+  "peak_rss_kib": 15244,
+  "limits": "one nice19 CPU0 thread;59s;512MiB AS;32MiB estimated",
+  "scope": "No native compile, transcript/bytes gate or fresh receipt verification."
+}

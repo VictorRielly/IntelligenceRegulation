@@ -1,0 +1,7 @@
+{"event":"loaded","variant":"pg_rot1_export_T32","layer":21,"block_digest":"ad50c88db0dbe0ed317968c4372ed5c8ddabf41c4bc27f78368932afde5d30fb","rope":"native generator at theta 10000, equal to the export's tables","seconds":0.504,"scope":"ONE trained TinyLlama-1.1B-Chat block (of 22) at T=32, CPU; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"parity","result":"bit-exact","words":65536,"seconds":9.719}
+{"event":"proved","segment_bytes":11627288,"segment_sha256":"1ba8c5bd96173733e73d272f14e691b87bdeb2b830e0f871c7ec536aa1a041b7","prove_seconds":2.529,"in_process_verify_seconds":0.264,"peak_rss_mib_after_prove":882,"total_seconds":13.214,"statement_identity":"5481437da83d4f63b729e8da4cd96c72639f0943a91b6675aed85c3a236031a9","out":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r2/pg_rot1_export_T32-L21-ho01/artifact"}
+{"event":"control-refused","control":"one norm_a output word moved by one","error":"slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"control-refused","control":"one query activation moved by one","error":"slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"control-refused","control":"a witness honest under norm_cn_m + 7","error":"slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"inconsistent-witness-controls","refused":3}

@@ -222,6 +222,16 @@ pub struct Shape {
     pub norm_cn_m: i64,
     pub norm_ceps: i64,
     pub sh_ao: i32,
+    /// ROUND 2: the windowed requantization shifts (Q/K/V, score, PV output,
+    /// gate, product, down), at the frozen [`calib`] values unless
+    /// [`Shape::with_shifts`] sets them. The RoPE, up and residual shifts stay
+    /// the frozen constants.
+    pub sh_qkv: i32,
+    pub sh_s: i32,
+    pub sh_o: i32,
+    pub sh_g: i32,
+    pub sh_h: i32,
+    pub sh_z: i32,
 }
 
 impl Shape {
@@ -238,7 +248,43 @@ impl Shape {
         wrho_s: u32,
         norm_wrho: u32,
     ) -> Shape {
-        Shape { tokens, width, hidden, q_heads, kv_heads, head_dim, f_e, f_p, wrho_s, norm_wrho, norm_tn: NORM_TN, norm_cn_a: NORM_CN, norm_cn_m: NORM_CN, norm_ceps: NORM_CEPS, sh_ao: SH_AO }
+        Shape {
+            tokens,
+            width,
+            hidden,
+            q_heads,
+            kv_heads,
+            head_dim,
+            f_e,
+            f_p,
+            wrho_s,
+            norm_wrho,
+            norm_tn: NORM_TN,
+            norm_cn_a: NORM_CN,
+            norm_cn_m: NORM_CN,
+            norm_ceps: NORM_CEPS,
+            sh_ao: SH_AO,
+            sh_qkv: SH_Q,
+            sh_s: SH_S,
+            sh_o: SH_O,
+            sh_g: SH_G,
+            sh_h: SH_H,
+            sh_z: SH_Z,
+        }
+    }
+
+    /// **ROUND 2: trained requantization shifts.** [`Shape::check`] refuses a
+    /// shift outside its structure-preserving window (one-limb sites 1..=8,
+    /// the two-limb O and product sites 9..=16).
+    #[allow(clippy::too_many_arguments)]
+    pub const fn with_shifts(mut self, qkv: i32, s: i32, o: i32, g: i32, h: i32, z: i32) -> Shape {
+        self.sh_qkv = qkv;
+        self.sh_s = s;
+        self.sh_o = o;
+        self.sh_g = g;
+        self.sh_h = h;
+        self.sh_z = z;
+        self
     }
 
     /// **NATIVE LANE: a trained norm calibration** — `tn`, the two norms'
@@ -288,6 +334,9 @@ impl Shape {
             || !(0..=8).contains(&self.sh_ao)
         {
             return Err(KernelError::Shape("shape: a norm calibration constant is out of its class"));
+        }
+        if [self.sh_qkv, self.sh_s, self.sh_g, self.sh_z].iter().any(|v| !(1..=8).contains(v)) || [self.sh_o, self.sh_h].iter().any(|v| !(9..=16).contains(v)) {
+            return Err(KernelError::Shape("shape: a requantization shift is outside its structure-preserving window"));
         }
         Ok(())
     }
@@ -763,9 +812,9 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
     matmul_out_in(tokens, na, w.wq, d_w, d_w, q)?;
     matmul_out_in(tokens, na, w.wk, d_w, kvw, k)?;
     matmul_out_in(tokens, na, w.wv, d_w, kvw, v)?;
-    requant_all(q, SH_Q, I8N, "Q")?;
-    requant_all(k, SH_K, I8N, "K")?;
-    requant_all(v, SH_V, I8N, "V")?;
+    requant_all(q, sh.sh_qkv, I8N, "Q")?;
+    requant_all(k, sh.sh_qkv, I8N, "K")?;
+    requant_all(v, sh.sh_qkv, I8N, "V")?;
 
     rotate(sh, q, sh.q_heads, tab, qr)?;
     rotate(sh, k, sh.kv_heads, tab, kr)?;
@@ -786,7 +835,7 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
             }
         }
     }
-    requant_all(s, SH_S, I8N, "score")?;
+    requant_all(s, sh.sh_s, I8N, "score")?;
     put(&mut trace, sh, Part::NaDd, na_dd);
     put(&mut trace, sh, Part::NaY, na);
     put(&mut trace, sh, Part::Q8, q);
@@ -820,7 +869,7 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
             }
         }
     }
-    requant_all(o, SH_O, I8N, "O")?;
+    requant_all(o, sh.sh_o, I8N, "O")?;
     for h in 0..sh.q_heads {
         for t in 0..tokens {
             for i in 0..dh {
@@ -845,7 +894,7 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
     put(&mut trace, sh, Part::NmY, nm);
 
     matmul_in_out(tokens, nm, w.wg_t, d_w, f_w, g)?;
-    requant_all(g, SH_G, I8, "FFN gate")?;
+    requant_all(g, sh.sh_g, I8, "FFN gate")?;
     matmul_in_out(tokens, nm, w.wu_t, d_w, f_w, u)?;
     requant_all(u, SH_U, I16, "FFN up")?;
     for idx in 0..sh.ff_len() {
@@ -855,9 +904,9 @@ pub fn run_shaped(sh: &Shape, input: &[i16], w: &WeightsRef, tab: &TablesRef, sc
     for idx in 0..sh.ff_len() {
         hh[idx] = mul(a[idx], u[idx], "FFN product")?;
     }
-    requant_all(hh, SH_H, I16, "FFN product")?;
+    requant_all(hh, sh.sh_h, I16, "FFN product")?;
     matmul_in_out(tokens, hh, w.wd_t, f_w, d_w, z)?;
-    requant_all(z, SH_Z, I16, "FFN down")?;
+    requant_all(z, sh.sh_z, I16, "FFN down")?;
 
     for idx in 0..sh.x_len() {
         x2[idx] = add(shl(x1[idx], SH_X2, "residual 2")?, shl(z[idx], SH_Z2, "residual 2")?, "residual 2")?;

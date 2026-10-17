@@ -19,6 +19,42 @@
 #[cfg(feature = "gpu-cuda")]
 mod cuda;
 
+/// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
+/// point declines and the prover would silently take the CPU body reports
+/// here. The decline is counted and logged; and when the caller CLAIMED the
+/// GPU (`HL_GPU_REQUIRED=1`) it is a hard failure: the process panics (an
+/// abort in release builds), so no result is ever reported as GPU-made when
+/// any part of it fell back to the CPU. The proof bytes would be identical
+/// either way (the differential discipline above); what fails closed is the
+/// CLAIM about how they were made.
+pub fn required() -> bool {
+    std::env::var("HL_GPU_REQUIRED").map(|v| v == "1").unwrap_or(false)
+}
+
+static DECLINES: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+
+/// the number of device declines in this process so far
+pub fn declines() -> usize {
+    DECLINES.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// report one decline at `site` (never returns when the GPU is required)
+pub fn declined(site: &str, err: &str) {
+    DECLINES.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    eprintln!("[ZK60-GPU] {site} declined ({err}); CPU path");
+    if required() {
+        panic!("[ZK60-GPU] HL_GPU_REQUIRED=1 and {site} declined ({err}): refusing to fall back to the CPU (fail closed)");
+    }
+}
+
+/// with `HL_GPU_REQUIRED=1`, refuse unless the device path is live
+pub fn require_live() -> Result<(), String> {
+    if required() && !enabled() {
+        return Err(format!("HL_GPU_REQUIRED=1 but the GPU path is not live: {}", label()));
+    }
+    Ok(())
+}
+
 #[cfg(feature = "gpu-cuda")]
 pub use cuda::{
     dev_columns, dev_commit, dev_commit_check, dev_commit_from, dev_eval_many, dev_fold_rows, dev_hash_check, dev_helpers, dev_stats,
@@ -647,7 +683,7 @@ mod seam {
             match dev_commit(params, data, ntt) {
                 Ok(x) => Some(x),
                 Err(e) => {
-                    eprintln!("[UPERF3-XX] gpu commit declined ({e}); CPU path");
+                    super::declined("[UPERF3-XX] gpu commit", &e);
                     None
                 }
             }
@@ -661,7 +697,7 @@ mod seam {
                     }
                     Some(x)
                 },
-                Err(e) => { eprintln!("[ZK60] keyed gpu zk commit declined ({e}); CPU path"); None }
+                Err(e) => { super::declined("[ZK60] keyed gpu zk commit", &e); None }
             }
         }
         // [UPERF3-ZA] the device path (rung 4): the same coset encoding on the device, leaves back, salted by the core.
@@ -672,7 +708,7 @@ mod seam {
             match dev_commit_zk(params, data, pads, pows, ntt) {
                 Ok(x) => Some(x),
                 Err(e) => {
-                    eprintln!("[UPERF3-ZA] gpu zk commit declined ({e}); CPU path");
+                    super::declined("[UPERF3-ZA] gpu zk commit", &e);
                     None
                 }
             }

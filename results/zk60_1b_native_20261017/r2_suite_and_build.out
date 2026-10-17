@@ -1,0 +1,6 @@
+[zk60-guard 02:19:46] START r2-full-release class=cpu need=3G cap=6G enforce=cgroup+watchdog waited=0s run=85c8ad50c832
+[zk60-guard 02:29:39] END r2-full-release exit=101 child_wall=593s peak_rss=5.87G min_avail=5.67G
+suite exit 101
+[zk60-guard 02:29:39] START r2-cli-build class=build need=3G cap=5G enforce=cgroup+watchdog waited=0s run=6db0e1621cda
+[zk60-guard 02:30:39] END r2-cli-build exit=0 child_wall=60s peak_rss=1.00G min_avail=10.50G
+build exit 0

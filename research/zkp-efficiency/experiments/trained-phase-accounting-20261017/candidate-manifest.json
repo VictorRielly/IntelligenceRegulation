@@ -1,0 +1,9 @@
+{
+  "base_sha256": "296aeaafd3bd8a026c93f04f66d5a0dd4c200c81fa31f94e71a86d8d8eebdbe5",
+  "candidate_sha256": "ae6d8527a610756f83f2804237c4e0d51578d31ab128b4907eabd1a09630f6fa",
+  "exact_replacements": 8,
+  "compiled": false,
+  "native_proof_run": false,
+  "native_bytes_gate": false,
+  "owner_action": "Apply only to matching base or rebase reviewed hunks; opt-in aggregate clocks, native byte/refusal/RNG/fresh-verifier gates and measured overhead required."
+}

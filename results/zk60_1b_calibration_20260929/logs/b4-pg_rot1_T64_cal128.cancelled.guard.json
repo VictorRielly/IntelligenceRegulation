@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-10-17T08:49:21Z",
+ "run_id": "c34cac22fa08",
+ "label": "b4-pg_rot1_T64_cal128",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/b3_ladder.py",
+  "--variant",
+  "pg",
+  "--rotate",
+  "1",
+  "--corpus",
+  "b4"
+ ],
+ "need_gib": 3.0,
+ "cap_gib": 4.5,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "terminated by signal 15 while waiting to start",
+ "guard_error": null,
+ "guard_pid": 174326,
+ "boot_id": "08875671-f12b-4ca1-b89c-fac3acf1c90c",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 2620393,
+ "lock_ids": {
+  "heavy": "2096:1134147",
+  "build": "2096:1134148"
+ }
+}

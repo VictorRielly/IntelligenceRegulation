@@ -1,0 +1,17 @@
+{
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T128",
+ "errors": [],
+ "ok": true,
+ "sequences": {
+  "seq_ho00": {
+   "top1_agreement_with_float": 0.765625,
+   "positions": 128,
+   "source": "licence-docstring"
+  },
+  "seq_ho36": {
+   "top1_agreement_with_float": 0.765625,
+   "positions": 128,
+   "source": "fineweb-edu"
+  }
+ }
+}

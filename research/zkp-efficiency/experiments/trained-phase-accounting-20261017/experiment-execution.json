@@ -1,0 +1,7 @@
+{
+  "exit_code": 0,
+  "recorded_at_utc": "2026-10-17T09:32:57.417278+00:00",
+  "program_reported_wall_seconds": 0.10720037700230023,
+  "peak_rss_kib": 17052,
+  "scope": "Executed locally this cycle; tool completion exit0. No native proof/reverification."
+}

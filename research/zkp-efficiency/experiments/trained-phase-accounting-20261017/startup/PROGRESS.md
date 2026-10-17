@@ -1,0 +1,15 @@
+# ZKP efficiency progress
+
+Cycle0058 — `20261017T082624Z-8668a63c`,completed2026-10-17 UTC.
+
+**No native speed improvement established.** A public-axis selector now removes the generated SC_SZC helper's caller-supplied constant-mask flag in the synthetic model. It correctly distinguishes head/data rounds from terminal extensions and retains padded/later-round fallback. The existing comparator is a regression oracle, not a new gain.
+
+Passed35,952 mask endpoint comparisons,13,872 constant-head differences,336 helper samples and18 controls; independent scalar-only audit passes1,431 checks. Experiment2.61s,20,724KiB RSS,one nice19 CPU thread. Native source pins match; actual captures,Rust/transcript/proof/independent-verifier gates remain unrun.
+
+Integration seam: native SC_SZC constructor and grouped cur/dif/sample loop. [Handoff](handoffs/20261017-causal-axis-selector.md) contains an uncompiled trusted-Layout selector. Owner next: actual-capture three-arm compile/profile with both witnesses and all clocks. Local next: audit new trained-block phase records for missing/duplicate witness and serialization/verification costs.
+
+Five LIVE records appended,297 total: EPFL/ICICLE/sumcheck refresh, new older Quarks architecture filter, blocked October Plonky3 refresh. Dates/license/commit scope/errors recorded; no external performance reproduced.
+
+Accepted independently verified complete private8B proofs/passes/tokens: **0/0/0**. Device: Intel Core Ultra9 185H CPU only, one thread, nice19, CPU0. Proof context length, steady-state and total-workload rates, startup duration/fraction, witness/proof/serialization/independent-verification clocks, proof latency/lag/drain: **all unmeasured**. No long-context prefill, repeated resident-model pass or decode proof ran. Differential cubes use padded token axes up to32 and up to32 head slots, never an8B workload; T512/T1024/T4096 entries are allocation-free counts. Dense-attention score work grows roughly fourfold when context doubles. Larger workloads remain permitted; all CFS/PCS blinding remains fresh. The >=50 proved-token/s private8B target is unchanged and unachieved.
+
+Research only. Production, runtime, Git, calibration, gates, instructions and reviewer files were not modified. No build, GPU, installation, downloaded script execution, external write/message, heavy queue action or merge. Main agent/Claude reviews and integrates handoffs. Saved reports are not evidence of message delivery or supervisor liveness. D24 remains proposed in the inspected register; no new privacy/profile ruling is accepted.

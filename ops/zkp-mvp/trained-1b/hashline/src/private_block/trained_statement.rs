@@ -47,10 +47,10 @@ use sha2::{Digest as _, Sha256};
 /// the statement's schema tag, the first field of its encoding
 /// NATIVE LANE: version 2 — two norm multipliers, export provenance and the
 /// per-layer export manifest digest
-pub(crate) const SCHEMA: &str = "zk60-trained-model-statement/2";
+pub(crate) const SCHEMA: &str = "zk60-trained-model-statement/3";
 /// the identity's hash domain (the repository's convention: a versioned
 /// literal prefix under the plain hash, then length-prefixed fields)
-const DOMAIN: &[u8] = b"hashline/private-run/trained-model-statement/v2";
+const DOMAIN: &[u8] = b"hashline/private-run/trained-model-statement/v3";
 /// the D13 coverage sentence every v1 statement carries verbatim
 pub(crate) const COVERAGE_D13: &str =
     "proves the hidden transformer blocks listed below and nothing else: embedding, final norm, output head and token selection are NOT covered (D13)";
@@ -171,12 +171,10 @@ pub(crate) struct IntegerCalibration {
     /// calibration tool it names
     pub export_profile_sha256: [u8; 32],
     pub calibration_tool_sha256: [u8; 32],
-    /// provenance of the public tables (they are bound by value through the
-    /// block digest; these say which generator member they are): the SiLU
-    /// registry member `(e_in, e_out)`, the exp table's score exponent `e_s`
-    /// and the RoPE base as IEEE-754 binary64 bits
-    pub silu_member: (i32, i32),
-    pub exp_e_s: i32,
+    /// the RoPE base as IEEE-754 binary64 bits (one per statement: the RoPE
+    /// tables are the generator's at this base for every layer). ROUND 2: the
+    /// SiLU member and the exp `e_s` moved to [`LayerRecord`], because an
+    /// export may choose them per layer (they are per-block public tables)
     pub rope_theta_f64_bits: u64,
 }
 
@@ -190,8 +188,6 @@ pub(crate) struct Provenance {
     pub calibration_set_sha256: [u8; 32],
     pub export_profile_sha256: [u8; 32],
     pub calibration_tool_sha256: [u8; 32],
-    pub silu_member: (i32, i32),
-    pub exp_e_s: i32,
     pub rope_theta: f64,
 }
 
@@ -207,8 +203,6 @@ impl Provenance {
             calibration_set_sha256,
             export_profile_sha256: [0; 32],
             calibration_tool_sha256: [0; 32],
-            silu_member: (-3, -11),
-            exp_e_s: 0,
             rope_theta: 10000.0,
         }
     }
@@ -228,15 +222,15 @@ impl IntegerCalibration {
             norm_cn_m: sh.norm_cn_m,
             norm_ceps: sh.norm_ceps,
             norm_wrho: sh.norm_wrho,
-            sh_qkv: SH_QKV,
+            sh_qkv: sh.sh_qkv,
             sh_rope: SH_ROPE,
-            sh_s: SH_S,
-            sh_o: SH_O,
+            sh_s: sh.sh_s,
+            sh_o: sh.sh_o,
             sh_ao: sh.sh_ao,
-            sh_g: SH_G,
+            sh_g: sh.sh_g,
             sh_u: 0,
-            sh_h: SH_H_PROD,
-            sh_z: SH_Z,
+            sh_h: sh.sh_h,
+            sh_z: sh.sh_z,
             residual_shifts: [0; 6],
             f_e: sh.f_e,
             f_p: F_P,
@@ -249,8 +243,6 @@ impl IntegerCalibration {
             calibration_set_sha256: prov.calibration_set_sha256,
             export_profile_sha256: prov.export_profile_sha256,
             calibration_tool_sha256: prov.calibration_tool_sha256,
-            silu_member: prov.silu_member,
-            exp_e_s: prov.exp_e_s,
             rope_theta_f64_bits: prov.rope_theta.to_bits(),
         }
     }
@@ -264,8 +256,6 @@ impl IntegerCalibration {
             calibration_set_sha256: self.calibration_set_sha256,
             export_profile_sha256: self.export_profile_sha256,
             calibration_tool_sha256: self.calibration_tool_sha256,
-            silu_member: self.silu_member,
-            exp_e_s: self.exp_e_s,
             rope_theta: f64::from_bits(self.rope_theta_f64_bits),
         }
     }
@@ -288,6 +278,11 @@ impl IntegerCalibration {
         if !f64::from_bits(self.rope_theta_f64_bits).is_finite() || f64::from_bits(self.rope_theta_f64_bits) <= 0.0 {
             return Err("trained statement: the RoPE base is not a positive finite number".into());
         }
+        // the review's general rule: at a trained shape the RoPE base is the
+        // geometry's (a model fact, not a calibration choice)
+        if sh.trained_calibration && self.rope_theta_f64_bits != super::shape::TRAINED_ROPE_THETA.to_bits() {
+            return Err(format!("trained statement: the RoPE base {} is not the trained geometry's {}", f64::from_bits(self.rope_theta_f64_bits), super::shape::TRAINED_ROPE_THETA));
+        }
         Ok(())
     }
 }
@@ -309,6 +304,12 @@ pub(crate) struct LayerRecord {
     /// NATIVE LANE: the SHA-256 of the calibration export's
     /// `layer_NN/manifest.json` this layer was loaded from (zero for a recipe)
     pub manifest_sha256: [u8; 32],
+    /// ROUND 2: which generator members this block's tables are (the tables
+    /// themselves are bound by value through the block digest and
+    /// `table_sha256`): the SiLU registry member `(e_in, e_out)` and the exp
+    /// table's score exponent `e_s`
+    pub silu_member: (i32, i32),
+    pub exp_e_s: i32,
 }
 
 fn sha(bytes: &[u8]) -> [u8; 32] {
@@ -343,7 +344,10 @@ impl LayerRecord {
         let table_sha256 = [sha(&i64_bytes(&[&a.rope_cos, &a.rope_sin])), sha(&i64_bytes(&[&a.exp])), sha(&act)];
         let mut source_tensors = source_tensors;
         source_tensors.sort();
-        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32] }
+        // a recipe block's tables are the frozen SiLU member (-3, -11) and
+        // `exp_member(0, ..)` (`dense_tests::statement_of_words`); the export
+        // loader overwrites both with the manifest's members
+        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0 }
     }
 }
 
@@ -399,7 +403,35 @@ impl TrainedModelStatement {
         Ok(st)
     }
 
+    /// **TEST ONLY (round 2, R2-4).** Single-block proofs at a trained
+    /// profile are refused, so synthetic-weight tests at the TinyLlama trained
+    /// geometry prove as one-block runs bound to a statement that says
+    /// honestly that its words are a PUBLIC SYNTHETIC RECIPE. Production
+    /// refuses a synthetic recipe at a trained (non-development) profile; this
+    /// constructor waives exactly that one rule, in test builds only.
+    #[cfg(test)]
+    pub(crate) fn new_synthetic_at_trained_profile_for_tests(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
+        if source.kind != SourceKind::PublicSyntheticRecipe {
+            return Err("trained statement: the test-only constructor takes a synthetic recipe only".into());
+        }
+        let st = TrainedModelStatement {
+            block_profile: sh.profile.into(),
+            run_profile: run_profile.into(),
+            geometry: geometry_of(sh),
+            source,
+            calibration,
+            layers,
+            coverage: COVERAGE_D13.into(),
+        };
+        st.check_self_with(sh, true)?;
+        Ok(st)
+    }
+
     fn check_self(&self, sh: &Shape) -> Result<(), String> {
+        self.check_self_with(sh, false)
+    }
+
+    fn check_self_with(&self, sh: &Shape, synthetic_at_trained_ok: bool) -> Result<(), String> {
         self.source.check()?;
         self.calibration.check_honoured_by_code(sh)?;
         if self.layers.is_empty() {
@@ -414,8 +446,26 @@ impl TrainedModelStatement {
         if last >= self.source.checkpoint_layers {
             return Err(format!("trained statement: layer {last} does not exist in a {}-layer checkpoint", self.source.checkpoint_layers));
         }
-        if self.source.kind == SourceKind::PublicSyntheticRecipe && self.block_profile.contains("tinyllama") && !self.block_profile.ends_with("-dev/1") {
+        // review finding F-3: keyed on the profile's IDENTITY (it was a
+        // substring test): the trained TinyLlama profile is the pinned
+        // checkpoint's, and nothing else's
+        if self.block_profile == super::shape::TINYLLAMA_T32_TRAINED_PROFILE && !synthetic_at_trained_ok && self.source != ModelSource::tinyllama_chat_v1_0() {
+            return Err("trained statement: the trained TinyLlama profile is the pinned TinyLlama-1.1B-Chat checkpoint's; this statement names another source".into());
+        }
+        if self.block_profile == super::shape::TINYLLAMA_T32_TRAINED_PROFILE && self.source.kind == SourceKind::PublicSyntheticRecipe && !synthetic_at_trained_ok {
             return Err("trained statement: a synthetic recipe may not carry a trained (non-development) profile".into());
+        }
+        // ROUND 2 / the review's general rule: the per-block table keys are
+        // inside their declared classes (the tables themselves are bound by
+        // value through each block digest, and the loader checks them against
+        // these generator members)
+        for r in &self.layers {
+            if !super::shape::TRAINED_EXP_E_S_RANGE.contains(&r.exp_e_s) {
+                return Err(format!("trained statement: layer {}'s exp e_s {} is outside its declared class {:?}", r.index, r.exp_e_s, super::shape::TRAINED_EXP_E_S_RANGE));
+            }
+            if crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, r.silu_member.0, r.silu_member.1).is_none() {
+                return Err(format!("trained statement: layer {}'s SiLU member {:?} is not in the frozen registry", r.index, r.silu_member));
+            }
         }
         if self.coverage != COVERAGE_D13 {
             return Err("trained statement: the coverage sentence is not the D13 one".into());
@@ -477,15 +527,15 @@ impl TrainedModelStatement {
         e.field("calibration-set-sha256", &c.calibration_set_sha256);
         e.field("export-profile-sha256", &c.export_profile_sha256);
         e.field("calibration-tool-sha256", &c.calibration_tool_sha256);
-        e.i64("silu-member-e-in", i64::from(c.silu_member.0));
-        e.i64("silu-member-e-out", i64::from(c.silu_member.1));
-        e.i64("exp-e-s", i64::from(c.exp_e_s));
         e.u64("rope-theta-f64-bits", c.rope_theta_f64_bits);
         e.u64("layer-records", self.layers.len() as u64);
         for r in &self.layers {
             e.u64("layer-index", u64::from(r.index));
             e.field("block-digest", &r.block_digest);
             e.field("export-manifest-sha256", &r.manifest_sha256);
+            e.i64("silu-member-e-in", i64::from(r.silu_member.0));
+            e.i64("silu-member-e-out", i64::from(r.silu_member.1));
+            e.i64("exp-e-s", i64::from(r.exp_e_s));
             for (k, d) in r.word_sha256.iter().enumerate() {
                 e.field(&format!("word-{k}-sha256"), d);
             }
@@ -513,7 +563,10 @@ impl TrainedModelStatement {
     /// Is this the statement of THIS run? Every check is against the run's
     /// own quantities (never against a receipt).
     pub(crate) fn check_against(&self, sh: &Shape, run_profile: &str, block_digests: &[Digest], block_scales: &[(i32, i32)]) -> Result<(), String> {
-        self.check_self(sh)?;
+        // the test-only waiver of `new_synthetic_at_trained_profile_for_tests`
+        // reaches the run constructor in test builds only; production checks
+        // exactly what `new` checked
+        self.check_self_with(sh, cfg!(test))?;
         if self.block_profile != sh.profile || self.run_profile != run_profile {
             return Err(format!("trained statement: it is for profiles ({}, {}), this run is ({}, {run_profile})", self.block_profile, self.run_profile, sh.profile));
         }

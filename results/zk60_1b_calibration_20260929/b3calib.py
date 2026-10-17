@@ -374,6 +374,8 @@ class Variant:
     cn_max: int = 65536           # contract-review no-wrap bound (HANDOFF: CN <= 65536)
     shapes: tuple = ("range", "smooth", "gamma")
     o16: bool = False             # B4-3 experiment (NOT native): o as int16 with SH_O = 1, SH_AO window 1..16
+    f_e: int = 9                  # B4-3 experiment knobs: exp-table fractional bits (native shape field, 9)
+    f_p: int = 9                  # and softmax probability bits (native F_P = SH_O = 9, coupled to the p limbs)
 
     @property
     def m(self) -> float:
@@ -406,8 +408,13 @@ def variant_by_name(name: str, rotate: int | None = None, margin: float | None =
     v = LADDER[base]
     kw = dict(v.__dict__)
     kw["name"] = name
-    if "o16" in name.split("+")[1:]:
-        kw["o16"] = True
+    for tok in name.split("+")[1:]:
+        if tok == "o16":
+            kw["o16"] = True
+        elif tok.startswith("fe"):
+            kw["f_e"] = int(tok[2:])
+        elif tok.startswith("fp"):
+            kw["f_p"] = int(tok[2:])
     if rotate is not None:
         kw["rotate"] = rotate
     if margin is not None:
@@ -704,7 +711,7 @@ class AttnObjective:
         # V -> O -> Wo -> ao at s_x
         Lv = np.maximum(self.vb, sh * np.abs(Wv).max(1) / 127.0)
         sy = float(ey2d.sum())
-        osh = self.sh_o - F_P
+        osh = self.sh_o - self.var.f_p
         s_v, sh_ao, _ = v_chain(Lv, self.wo_colmax, self.wo_col2, self.o_ms_g, sy, self.s_x, self.sh_qkv, self.sh_ao, self.free,
                                 osh, self.ao_win)
         nv = _wnoise(Wv, (s_v / sh).astype(np.float32), eyr, ey2) + s_v ** 2 / 12.0
@@ -765,10 +772,11 @@ def _shift_mode(var, glob):
     """(free, fixed shift dict). 'profile' shifts are free until the profile
     set is decided, then fixed. o16 (B4-3 experiment): SH_O = 1."""
     if glob.shifts is not None:
-        return False, dict(glob.shifts)
+        sh = dict(glob.shifts)
+        sh["o"] = 1 if var.o16 else var.f_p
+        return False, sh
     sh = dict(NATIVE_SHIFTS)
-    if var.o16:
-        sh["o"] = 1
+    sh["o"] = 1 if var.o16 else var.f_p     # native: SH_O = F_P
     return var.shifts in ("free", "profile"), sh
 
 
@@ -865,7 +873,7 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
                     "s_fill_calib": qk["raw"] / (127.0 * 2.0 ** e_s), "qk_slack_bits_mean": 2 * float(np.mean(np.log2(qk["slack"])))}
     wq = qw_rows(Wq_e, q_rows(s_q) / 2.0 ** sh["qkv"], rep, "wq")
     wk = qw_rows(Wk_e, k_rows(s_k) / 2.0 ** sh["qkv"], rep, "wk")
-    exp_t, exp_d = exp_member(e_s, g.dh, F_E)
+    exp_t, exp_d = exp_member(e_s, g.dh, var.f_e)
 
     # ---------------- V / O / Wo per kv channel: s_v,c s_wo,(h,c) 2^SH_AO = s_x
     Lv = np.maximum(rb(st["v_max"], m, var.margin_ch) / 127.0, (2.0 ** sh["qkv"]) * np.abs(Wv_e).max(1) / 127.0)
@@ -874,14 +882,14 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
     wo_col2 = (Wo ** 2).sum(0).reshape(g.KV, g.G, g.dh).sum(1).reshape(-1)
     o_ms_g = st["o_ms"].reshape(g.KV, g.G, g.dh).sum(1).reshape(-1)
     sy_a = float(np.sum(st["xa_ms"] * (g_a.astype(np.float64) / K_a) ** 2))
-    s_v, sh["ao"], Uv = v_chain(Lv, wo_colmax, wo_col2, o_ms_g, sy_a, s_x, sh["qkv"], sh["ao"], free, sh["o"] - F_P,
+    s_v, sh["ao"], Uv = v_chain(Lv, wo_colmax, wo_col2, o_ms_g, sy_a, s_x, sh["qkv"], sh["ao"], free, sh["o"] - var.f_p,
                                 (1, 16) if var.o16 else None)
     rep["v_o"] = {"infeasible_channels": int((Lv > Uv).sum()),
                   "ao_floor": float(np.max((2.0 ** sh["ao"]) * Lv * wo_colmax / 127.0)),
                   "ao_floor_min_shift": float(np.max((2.0 ** WINDOW["ao"][0]) * Lv * wo_colmax / 127.0)),
                   "v_coarsening_bits_mean": float(np.mean(np.log2(s_v / Lv)))}
     wv = qw_rows(Wv_e, s_v / 2.0 ** sh["qkv"], rep, "wv")
-    s_o = s_v * 2.0 ** (sh["o"] - F_P)
+    s_o = s_v * 2.0 ** (sh["o"] - var.f_p)
     wo = qw_cols(Wo, s_x / ((2.0 ** sh["ao"]) * np.repeat(s_o.reshape(g.KV, 1, g.dh), g.G, 1).reshape(-1)), rep, "wo")
 
     # ---------------- SiLU member, norm m (+ SH_G when free)
@@ -926,7 +934,7 @@ def solve_layer(W, st, var, s_x: float, s_x_out: float, glob: Globals, cache: di
         exp=exp_t, act=act_t, cn_a=int(cn_a), cn_m=int(cn_m), tn=var.tn, ceps=ceps,
         norm_wrho=tc.norm_window(d, var.tn),
         sh_qkv=sh["qkv"], sh_rope=sh["rope"], sh_s=sh["s"], sh_o=sh["o"], sh_ao=sh["ao"],
-        sh_g=sh["g"], sh_u=sh["u"], sh_h=sh["h"], sh_z=sh["z"], f_e=F_E, f_p=F_P, f_ro=F_RO, sh_r2=k_r2)
+        sh_g=sh["g"], sh_u=sh["u"], sh_h=sh["h"], sh_z=sh["z"], f_e=var.f_e, f_p=var.f_p, f_ro=F_RO, sh_r2=k_r2)
     P_int.e_s, P_int.silu, P_int.exp_digest, P_int.act_digest = e_s, (e_in, e_out), exp_d, act_d
     if var.o16:
         P_int.o_class16 = True          # B4-3 experiment: o in the int16 class (NOT a native relation)
@@ -983,7 +991,7 @@ def site_errors(x_int: np.ndarray, P, rope_i, W, rope_f) -> dict:
         "qr": rel(tr["qr"].reshape(N, T, -1) * D["q"], qr_f.reshape(N, T, -1)),
         "kr": rel(tr["kr"].reshape(N, T, -1) * D["k"], kr_f.reshape(N, T, -1)),
         "score": rel(tr["s8"] * D["s"], F["raw"], tri),
-        "prob": rel(tr["p"] / 2.0 ** F_P, pf, tri),
+        "prob": rel(tr["p"] / 2.0 ** P.f_p, pf, tri),
         "o": rel(tr["o8"] * D["o"], F["o"]),
         "ao": rel(tr["ao"] * D["s_x"], F["ao"]),
         "norm_m": rel(tr["nm"] * D["ym"] * D["gamma_m"], F["xm"] * D["gamma_m"]),

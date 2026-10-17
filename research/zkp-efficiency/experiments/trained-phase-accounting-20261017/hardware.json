@@ -1,0 +1,20 @@
+{
+  "uname": {
+    "system": "Linux",
+    "node": "MSI",
+    "release": "6.18.54.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Tue Oct  6 19:13:07 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "experiment_threads": 1,
+  "experiment_cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "gpu_used": false,
+  "original_native_run_threads": "not established from retained per-layer metadata",
+  "original_native_device": "CPU-only per retained scope; local laptop; no GPU proof claimed",
+  "target_device": "RTX5090 or named high-end GPU; unmeasured"
+}

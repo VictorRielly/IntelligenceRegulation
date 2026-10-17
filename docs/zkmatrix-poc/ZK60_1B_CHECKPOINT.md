@@ -44,22 +44,73 @@ both be reported. Never describe a single block as a complete-model pass.
   are refused. Scope: source identity only. `tokenizer.json`,
   `special_tokens_map.json` and `eval_results.json` were not fetched. No
   calibration or proof exists yet.
-- [ ] Count actual proof layouts for T32/64/128/256/512, including host and
+- [~] Count actual proof layouts for T32/64/128/256/512, including host and
   device allocations separately, weight residency, witness overlap and scratch.
-- [ ] Import actual checkpoint weights layer by layer; reject malformed,
+  2026-10-17 partial: rows and receipt bytes counted at the true TinyLlama
+  geometry under D24 (T32 11.6 MB, T64 15.4, T128 23.0, T256 35.5, T512 57.1 MB
+  at row width 2^15; at 2^14 T512 is 72.1 MB, over the 64 MiB wire cap);
+  `results/zk60_1b_native_20261017/t2-audit-and-ladder.log`. Host/device
+  allocations not yet counted separately; GPU floors in
+  `ZK60_TRAINED_STACK_READINESS_20261017.md` §2 are pre-D24 counts.
+- [x] Import actual checkpoint weights layer by layer; reject malformed,
   missing or unsupported tensors and preserve model/config identity.
-- [ ] Define and validate the complete integer calibration against the
+  2026-10-17: calibrated per-layer exports (every array sha256-pinned, tables
+  regenerated and checked against the native generators) read by the strict
+  loader `private_block/trained_block.rs` in `ops/zkp-mvp/trained-1b/`; 14 named
+  malformed-export refusals tested.
+- [~] Define and validate the complete integer calibration against the
   trained model, including attention, norms, residuals, FFN and layer seams.
-- [ ] Bind a separately versioned model/profile/calibration statement into
+  2026-10-17: the Python integer reference is bit-exact with the native
+  witness at all 22 layers (export `a`), but export `a` (toy shifts, one set
+  of constants) is unusable (held-out top-1 0.136). Best per-profile variant
+  `pg_rot1` (one constant set with movable shifts, Hadamard-rotated residual
+  basis, per-layer tables): top-1 0.698, perplexity 36.5 vs 29.3 float, 0/36
+  refused (T32, licence/docstring text). Native support for its shifts is in
+  progress. `results/zk60_1b_calibration_20260929/PROGRESS.md`.
+- [x] Bind a separately versioned model/profile/calibration statement into
   the proof; preserve the frozen toy and existing development profiles.
-- [ ] Prove one trained block, independently verify its saved receipt and
+  2026-10-17: trained-model statement schema v2 (model, export, tool and
+  per-layer manifest digests; tn/Cn_a/Cn_m/Ceps/sh_ao in the schedule digest);
+  frozen pins and archived toy receipts unchanged (518 passed / 0 failed).
+  Open: the single-block (non-run) path at a trained profile still absorbs the
+  synthetic calibration literal; to be refused.
+- [x] Prove one trained block, independently verify its saved receipt and
   pass inconsistent-witness, statement and receipt-mutation controls.
-- [ ] Prove and independently verify all blocks as one bound stack, with
+  2026-10-17: layer 0 of export `a`, T32, CPU: parity bit-exact, prove 3.49 s,
+  fresh-process verify 0.33 s, 11,627,288 B; 3 inconsistent-witness, 8
+  statement and 4 receipt-mutation controls refused. Layers 1–21 also proved
+  and verified one at a time (prove 3.2–4.2 s each). [MEASURED, shared box,
+  n=1.] Low-fidelity calibration; no privacy acceptance at this shape;
+  `results/zk60_1b_native_20261017/t5/`. **Review 2026-10-17:** the D24 norm
+  rule is accepted, but the trained loader admitted an unvalidated export
+  constant (`f_e`) with which a forged output verified (finding F-1,
+  `results/zk60_d24_review_20261017/`); these receipts use the safe value
+  `f_e = 9`, but the trained profile is not accepted until F-1 is fixed and
+  re-reviewed.
+- [x] Prove and independently verify all blocks as one bound stack, with
   bounded live memory and all block-to-block transitions checked.
+  2026-10-17 09:47–09:57 UTC: all 22 TinyLlama blocks of export `pg_rot1`
+  (held-out top-1 0.698) at T32 as ONE bound run on the CPU: parity bit-exact
+  at every layer; sealing 230.6 s + proving 282.6 s (witness rebuild 223.0 s,
+  block proofs ~60 s) = 528.9 s; receipt 250,855,088 B in 22 segments;
+  fresh-process verify 4.9 s; peak RSS 2.15 GiB; 11 run-level controls refused
+  and a prover-side boundary lie fails at the IO-out endpoint equality
+  [MEASURED, shared box, n=1]. Statement identity 68ad19c8…, binding the export
+  profile digest, every block digest, the calibration, `f_e` and the RoPE base.
+  `results/zk60_1b_native_20261017/r2/stack-pg_rot1-ho00-cpu/`. Conditional on
+  the round-2 re-review (running). Blocks only (D13); T32 only.
 - [ ] Complete the relevant privacy/soundness review. Verification alone
   does not complete this item; D22 currently covers only the CPU toy.
-- [ ] Run matched CPU/GPU full-stack measurements and the context/pass ladder,
+- [~] Run matched CPU/GPU full-stack measurements and the context/pass ladder,
   counting each proved position once, with no silent GPU fallback.
+  2026-10-17, T32 only, same 22-block `pg_rot1` stack [MEASURED, shared box,
+  n=1]: CPU prove_run 282.6 s (proofs alone 59.6 s), total 528.9 s; GPU
+  (RTX 4070 Laptop, header "gpu: ON", 0 declines, GPU mode now fails closed)
+  prove_run 296.0 s (proofs alone 68.1 s), total 545.1 s, peak VRAM 1,281 MiB,
+  same statement identity, verified by the CPU binary in a fresh process. No
+  GPU gain at T32: 86% of wall is the single-threaded witness builder, run twice.
+  0.06 proved positions/s total wall. Next: parallel single-pass witness, then
+  T64/T128 (and T256/T512 after a memory gate). `r2/stack-pg_rot1-ho00-{cpu,gpu}/`.
 
 Completed checks need a retained command, source/artifact pins, exit status
 and their exact scope. Small synthetic parser or polynomial tests complete
@@ -99,6 +150,14 @@ native ran between then and 2026-10-17. Current lanes:
   restrictions (profile-uniform constants, per-layer norm constants, per-layer
   residual rescale, per-layer shifts) and calibrated block exports with
   bit-exact reference inputs/outputs; `results/zk60_1b_calibration_20260929/`.
+- **Independent review (Claude agent):** D24 + trained profile/loader; round 1
+  found F-1 (fixed), round 2 re-review of the frozen copy
+  `ops/zkp-mvp/trained-1b-review-r2/`; `results/zk60_d24_review_20261017/`.
+- **Privacy gate at the trained shape (Claude agent, from 10:20 UTC):** capture
+  writer for the trained profile in `ops/zkp-mvp/trained-1b-gate/`, gate tools
+  ported in `ops/zkp-mvp/gate-tinyllama/`, evidence
+  `results/zk60_gate_tinyllama_20261017/`; produces evidence only, no
+  acceptance.
 - **Main (Claude):** coordination, the Llama-3-8B shard download
   (`results/zk60_mvp_20260929/llama3-8b/resume-20261017.*`), status documents.
 - Earlier, stopped (results retained, not resumed): model/memory ladder

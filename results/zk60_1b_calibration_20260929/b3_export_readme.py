@@ -105,11 +105,13 @@ def main():
         "",
         "## Fidelity (calibration evidence, NOT a proof)",
         "",
-        f"Calibration: {len(summ['calib_sequences'])} sequences x T={prof['T']} (GPL-3, GFDL-1.3, MPL-2.0 and six",
-        "Python 3.10 stdlib modules' docstrings); held-out: "
+        f"Calibration: {len(summ['calib_sequences'])} sequences x T={(meta.get('calibration') or {}).get('T_cal', prof['T'])} "
+        "(licence/docstring domain: GPL-3, GFDL-1.3, MPL-2.0 and six Python 3.10 stdlib modules' docstrings"
+        + ("; FineWeb-Edu domain: row group 0 of the local shard" if summ.get("by_domain") and len(summ["by_domain"]) > 1 else "")
+        + "); held-out: "
         f"{len(summ['heldout_sequences'])} sequences x T={prof['T']} from DISJOINT sources (Apache-2.0, LGPL-2.1,",
-        "Artistic and six other stdlib modules). Float reference: float32 HF-Llama semantics; final norm + LM head",
-        "in float outside the proved stack (D13).",
+        "Artistic and six other stdlib modules" + ("; FineWeb-Edu row group 1" if summ.get("by_domain") and len(summ["by_domain"]) > 1 else "")
+        + "). Float reference: float32 HF-Llama semantics; final norm + LM head in float outside the proved stack (D13).",
         "",
         f"* held-out sequences refused by the native relations (never clamped silently): {summ['heldout_refused']} of "
         f"{len(summ['heldout_sequences'])}; calibration refused: {summ['calib_refused']} of {len(summ['calib_sequences'])}.",
@@ -118,6 +120,25 @@ def main():
         f"  mean KL(float || integer) {ha.get('kl_float_to_int_mean')} nats.",
         f"* all held-out (refusals clamped to continue: DIAGNOSTIC ONLY): top-1 {hd.get('top1_agreement')}, ppl integer "
         f"{hd.get('ppl_int')}.",
+        "",
+    ]
+    cal = (meta.get("calibration") or {})
+    if summ.get("by_domain"):
+        lines += ["", f"Calibration: T_cal = {cal.get('T_cal', prof['T'])}, {cal.get('calibration_sequences')} sequences, domains "
+                  f"{cal.get('domains')}" + (f"; FineWeb-Edu {cal['fineweb_edu']['dataset']} rev {cal['fineweb_edu']['revision']} "
+                                             f"({cal['fineweb_edu']['licence']})" if cal.get("fineweb_edu") else "") + ".", "",
+                  "| held-out domain | sequences | refused | top-1 (all) | ppl float / int (all) | KL (all) | top-1 (accepted) |",
+                  "|---|---|---|---|---|---|---|"]
+        for dom, r in summ["by_domain"].items():
+            a, c = r["head_all_diagnostic"] or {}, r["head_accepted"] or {}
+            lines.append(f"| {dom} | {r['sequences']} | {r['refused']} | {a.get('top1_agreement', float('nan')):.3f} | "
+                         f"{a.get('ppl_float', float('nan')):.2f} / {a.get('ppl_int', float('nan')):.2f} | "
+                         f"{a.get('kl_float_to_int_mean', float('nan')):.3f} | {c.get('top1_agreement', float('nan')):.3f} |")
+    if (root / "token_io.json").exists():
+        tio = json.loads((root / "token_io.json").read_text())
+        lines += ["", f"Token I/O: `embedding_int16.bin` (int16 [32000, 2048], sha256 `{tio['embedding_table']['sha256']}`) gives "
+                  "x_in_L00 = table[token] exactly; the output side and the rotation are specified in `../TOKEN_IO_SPEC.md`."]
+    lines += [
         "",
         f"Residual scale(s): {meta['residual_scales_in'][0]:.6g} at layer 0 input"
         + ("" if prof["variant_options"]["residual"] == "global" else f" ... {meta['residual_scales_out'][-1]:.6g} at the output") + ".",

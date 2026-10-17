@@ -1,0 +1,305 @@
+{
+  "status": "pass",
+  "cycle": "0058",
+  "run_id": "20261017T082624Z-8668a63c",
+  "seed": 2026101758,
+  "counts": {
+    "source_measurement_pins": 12,
+    "source_semantic_markers": 5,
+    "layouts": 9,
+    "independent_full_extension_evaluations": 27,
+    "native_terminal_extension_models": 27,
+    "descriptor_pair_endpoints": 35952,
+    "active_axis_witnesses": 48,
+    "data_round_folds": 192,
+    "constant_pair_differences": 13872,
+    "generated_helpers": 4,
+    "captured_helper_sample_checks": 336
+  },
+  "controls": {
+    "axes": "scalar fallback",
+    "lsb": "scalar fallback",
+    "wrong_main": "scalar fallback",
+    "wrong_extension_count": "scalar fallback",
+    "nonzero_public_endpoint": "scalar fallback",
+    "support_fused_into_causal": "scalar fallback",
+    "nonpower_heads": "scalar fallback",
+    "nonpower_tokens": "scalar fallback",
+    "zero_true_heads": "scalar fallback",
+    "too_many_tokens": "scalar fallback",
+    "padded_profile": "scalar fallback even when mask head differences are0",
+    "later_round": "scalar fallback; no new later-round helper",
+    "true_head_zero_fill": "detected against native literal at padded head6,t0,j0",
+    "true_token_zero_fill": "detected against native literal at padded t7,j6",
+    "omit_terminal_zero_extension": "differential mismatch",
+    "swap_t_j_points": "differential mismatch",
+    "change_head_point": "expected invariance, no arithmetic saving",
+    "false_head_axis_constant_flag": "helper differential mismatch"
+  },
+  "layouts": [
+    {
+      "name": "degenerate",
+      "h_pad": 1,
+      "t_pad": 1,
+      "true_heads": 1,
+      "true_tokens": 1,
+      "main_rounds": 0,
+      "extension_rounds": 1,
+      "dependency": [
+        true
+      ],
+      "round0_dispatch": null
+    },
+    {
+      "name": "one-head",
+      "h_pad": 1,
+      "t_pad": 4,
+      "true_heads": 1,
+      "true_tokens": 4,
+      "main_rounds": 4,
+      "extension_rounds": 1,
+      "dependency": [
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": true
+    },
+    {
+      "name": "two-head-small",
+      "h_pad": 2,
+      "t_pad": 4,
+      "true_heads": 2,
+      "true_tokens": 4,
+      "main_rounds": 5,
+      "extension_rounds": 1,
+      "dependency": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": false
+    },
+    {
+      "name": "four-head",
+      "h_pad": 4,
+      "t_pad": 8,
+      "true_heads": 4,
+      "true_tokens": 8,
+      "main_rounds": 8,
+      "extension_rounds": 1,
+      "dependency": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": false
+    },
+    {
+      "name": "head-and-token-padded",
+      "h_pad": 8,
+      "t_pad": 8,
+      "true_heads": 6,
+      "true_tokens": 6,
+      "main_rounds": 9,
+      "extension_rounds": 1,
+      "dependency": [
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": null
+    },
+    {
+      "name": "toy-dimensions",
+      "h_pad": 2,
+      "t_pad": 32,
+      "true_heads": 2,
+      "true_tokens": 32,
+      "main_rounds": 11,
+      "extension_rounds": 1,
+      "dependency": [
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": false
+    },
+    {
+      "name": "full-head-short-token-axis",
+      "h_pad": 32,
+      "t_pad": 8,
+      "true_heads": 32,
+      "true_tokens": 8,
+      "main_rounds": 11,
+      "extension_rounds": 1,
+      "dependency": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": false
+    },
+    {
+      "name": "head-padded-only",
+      "h_pad": 16,
+      "t_pad": 8,
+      "true_heads": 12,
+      "true_tokens": 8,
+      "main_rounds": 10,
+      "extension_rounds": 1,
+      "dependency": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": null
+    },
+    {
+      "name": "one-head-token-padded",
+      "h_pad": 1,
+      "t_pad": 8,
+      "true_heads": 1,
+      "true_tokens": 6,
+      "main_rounds": 6,
+      "extension_rounds": 1,
+      "dependency": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "round0_dispatch": null
+    }
+  ],
+  "allocation_free_accounting": [
+    {
+      "h_pad": 2,
+      "t_pad": 32,
+      "mask_field_elements": 2048,
+      "materialized_mask_bytes": 32768,
+      "comparator_bits": 5,
+      "avoided_vector_bytes_if_verifier_descriptor_integrated": 32768,
+      "native_runtime_measured": false
+    },
+    {
+      "h_pad": 16,
+      "t_pad": 512,
+      "mask_field_elements": 4194304,
+      "materialized_mask_bytes": 67108864,
+      "comparator_bits": 9,
+      "avoided_vector_bytes_if_verifier_descriptor_integrated": 67108864,
+      "native_runtime_measured": false
+    },
+    {
+      "h_pad": 32,
+      "t_pad": 512,
+      "mask_field_elements": 8388608,
+      "materialized_mask_bytes": 134217728,
+      "comparator_bits": 9,
+      "avoided_vector_bytes_if_verifier_descriptor_integrated": 134217728,
+      "native_runtime_measured": false
+    },
+    {
+      "h_pad": 32,
+      "t_pad": 1024,
+      "mask_field_elements": 33554432,
+      "materialized_mask_bytes": 536870912,
+      "comparator_bits": 10,
+      "avoided_vector_bytes_if_verifier_descriptor_integrated": 536870912,
+      "native_runtime_measured": false
+    },
+    {
+      "h_pad": 32,
+      "t_pad": 4096,
+      "mask_field_elements": 536870912,
+      "materialized_mask_bytes": 8589934592,
+      "comparator_bits": 12,
+      "avoided_vector_bytes_if_verifier_descriptor_integrated": 8589934592,
+      "native_runtime_measured": false
+    }
+  ],
+  "output_sha256": "e03b4ec2d274447810521e0388015885cc62fcf2f45068d2a559a82fb9a41f78",
+  "wall_seconds": 2.614439451997896,
+  "max_rss_kib": 20724,
+  "hardware": {
+    "cpu": "Intel Core Ultra9 185H",
+    "affinity": [
+      0
+    ],
+    "threads": 1,
+    "nice": 19,
+    "gpu": null
+  },
+  "limits": {
+    "wall_seconds": 59,
+    "memory_bytes": 536870912,
+    "estimated_bytes": 100663296
+  },
+  "scope": "Synthetic metadata and exact field differential; native source pinned, no native capture/Rust compile/transcript/RNG/proof/verifier run.",
+  "proof_accounting": {
+    "completed_independently_verified_private_8b_proofs": 0,
+    "passes": 0,
+    "tokens": 0,
+    "context_length": null,
+    "steady_state_tokens_per_second": null,
+    "total_workload_tokens_per_second": null,
+    "startup_seconds": null,
+    "startup_fraction": null,
+    "witness_seconds": null,
+    "proof_seconds": null,
+    "serialization_seconds": null,
+    "verification_seconds": null,
+    "proof_latency_seconds": null,
+    "prefill_ran": false,
+    "resident_pass_ran": false,
+    "decode_ran": false
+  }
+}

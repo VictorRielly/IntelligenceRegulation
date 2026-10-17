@@ -558,6 +558,12 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
                 if !(0..1i64 << wrho_s).contains(&sigma) || !(0..=1i64 << F_P).contains(&q) {
                     return Err(range("softmax quotient/remainder"));
                 }
+                // review finding F-1 (D24 review), TEST BUILDS ONLY: the
+                // reviewer's hook that replaces ONE softmax quotient by a
+                // chosen forgery AFTER the honest prover's own range check (a
+                // cheating prover skips it); identity when unset
+                #[cfg(test)]
+                let (q, rho, sigma) = super::review_d24_tests::forge_softmax(h, t, j, total, q, rho, sigma);
                 pl[ap(A_P)][idx] = q;
                 let (lp, lr, ls) = (limbs(q, g.lp), limbs(rho, g.ls), limbs(sigma, g.ls));
                 for k in 0..g.lp {

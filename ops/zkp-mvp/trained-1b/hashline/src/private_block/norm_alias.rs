@@ -573,12 +573,11 @@ pub(super) fn prove_tampered_at(sh: &super::shape::Shape, blk: &BlockPublic, inp
     let ids = Ids::new(sh).expect("the plane map");
     let mut w = witness::build_shaped(sh, blk.attention(), blk.feed_forward(), input).expect("the honest witness at this shape");
     edit(&mut w);
-    let plane = |w: &Witness, p: usize| -> Vec<i16> { w.planes[p].iter().map(|v| i16::try_from(*v).unwrap_or(0)).collect() };
-    let ctx = *blake3::hash(b"native lane: trained-calibration alias context").as_bytes();
-    let spec = IoSpec::new_shaped(sh, ctx, 0, 0).expect("the endpoint spec");
-    let (expected, owners) = prepare_endpoints(spec, &plane(&w, ids.at(A_X)), &plane(&w, ids.at(A_X2))).expect("the endpoint owners");
-    let (receipt, _) = super::protocol::prove_inner_at(sh, blk, w, &expected, owners)?;
-    super::protocol::verify_inner_at(sh, blk, &expected, &receipt).map(|_| ())
+    let _ = ids;
+    // ROUND 2 (R2-4): a trained-calibration block proves only inside a run
+    // bound to its statement, so the alias is proved and verified that way
+    let b = super::trained_calib_tests::prove_one_bound(sh, blk, w)?;
+    super::trained_calib_tests::verify_one_bound(sh, blk, &b.expected.to_bytes(), &b.seg)
 }
 
 /// The four alias cases plus the honest control at a shape; panics on any
@@ -613,7 +612,11 @@ fn the_trained_norm_window_does_not_re_open_the_alias() {
     let half = half_p_minus_one();
     let isqrt_window = 1i128 << (8 * LIMBS_ISQRT as u32);
     let cal = super::trained_calib_tests::t3_calibration();
-    for s in [Shape::tinyllama_t32_trained(&cal, 9).expect("the trained TinyLlama shape"), Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("the trained rung")] {
+    for s in [
+        Shape::tinyllama_t32_trained(&cal, 9).expect("the trained TinyLlama shape"),
+        Shape::tinyllama_t32_trained(&super::trained_calib_tests::pg_calibration(), 9).expect("the pg TinyLlama shape"),
+        Shape::rung_tc(&super::trained_calib_tests::rung_tc_calibration()).expect("the trained rung"),
+    ] {
         assert!(s.trained_calibration);
         assert_eq!(s.limbs_norm(), 4, "{}: four remainder limbs", s.name);
         let dmax = super::witness::isqrt((s.norm_ceps as u64) + (s.width as u64) * 32768 * 32768) as i128;
@@ -642,12 +645,13 @@ fn the_half_p_alias_is_refused_end_to_end_at_the_trained_calibration_rung() {
 }
 
 /// **D16 ITEM 6, END TO END, at the trained TinyLlama profile** (T32, width
-/// 2048, `tn = 10`, window 32 bits = C-6, the T3 calibration). Five width-2048
-/// proofs: heavy, run in release through the guard.
+/// 2048, `tn = 10`, window 32 bits = C-6). ROUND 2: at the pg_rot1 export's
+/// calibration (Cn 3999 / 3122, Ceps 91255, shifts QKV 8 / AO 3 / G 8 / Z 5).
+/// Five width-2048 proofs as bound one-block runs: heavy, run in release.
 #[test]
 #[ignore = "native lane heavy: five width-2048 TinyLlama proofs"]
 fn native_the_half_p_alias_is_refused_end_to_end_at_the_trained_tinyllama_profile() {
-    let sh = super::shape::Shape::tinyllama_t32_trained(&super::trained_calib_tests::t3_calibration(), 9).expect("the trained TinyLlama shape");
+    let sh = super::shape::Shape::tinyllama_t32_trained(&super::trained_calib_tests::pg_calibration(), 9).expect("the trained TinyLlama shape");
     let (blk, input) = super::trained_calib_tests::trained_dense_block(&sh);
     the_alias_cases_reject_at(&sh, &blk, &input);
 }

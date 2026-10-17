@@ -1231,9 +1231,9 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
             let host_dmm = b.sum(
                 "host SC_DMM: 2^SH_Z z16 + rdl - 2^(SH_Z-1)".into(),
                 vec![
-                    st(Coef::base(1i64 << SH_Z, "2^SH_Z"), vec![ft(at(A_Z16))]),
+                    st(Coef::base(1i64 << sh.sh_z, "2^SH_Z"), vec![ft(at(A_Z16))]),
                     st(Coef::one(), vec![ft(at(A_RDL))]),
-                    st(Coef::base(-(1i64 << (SH_Z - 1)), "2^(SH_Z-1)"), vec![]),
+                    st(Coef::base(-super::witness::half(sh.sh_z), "2^(SH_Z-1)"), vec![]),
                 ],
             );
             let terms = vec![
@@ -1273,9 +1273,10 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
                 "f0: a16 u16 - 2^SH_H_PROD h16 - l2(rh) + 2^(SH_H_PROD-1)".into(),
                 vec![
                     st(Coef::one(), vec![ft(at(A_A16)), ft(at(A_U16))]),
-                    st(Coef::base(-(1i64 << SH_H_PROD), "2^SH_H_PROD"), vec![ft(at(A_H16))]),
+                    // ROUND 2: the shape's product shift (labels unchanged)
+                    st(Coef::base(-(1i64 << sh.sh_h), "2^SH_H_PROD"), vec![ft(at(A_H16))]),
                     st(Coef::neg_one(), vec![fnd(l2rh)]),
-                    st(Coef::base(1i64 << (SH_H_PROD - 1), "2^(SH_H_PROD-1)"), vec![]),
+                    st(Coef::base(super::witness::half(sh.sh_h), "2^(SH_H_PROD-1)"), vec![]),
                 ],
             );
             let int16 = |b: &mut IrB, lab: &str, plane: TableId, l2: NodeId| {
@@ -1297,7 +1298,7 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
             let zc = b.sum("zc".into(), zc_terms);
             let host_g = b.sum(
                 "host SC_GMM: 2^SH_G g8 + rgl - 2^(SH_G-1)".into(),
-                vec![st(Coef::base(1i64 << SH_G, "2^SH_G"), vec![ft(at(A_G8))]), st(Coef::one(), vec![ft(at(A_RGL))]), st(Coef::base(-(1i64 << (SH_G - 1)), "2^(SH_G-1)"), vec![])],
+                vec![st(Coef::base(1i64 << sh.sh_g, "2^SH_G"), vec![ft(at(A_G8))]), st(Coef::one(), vec![ft(at(A_RGL))]), st(Coef::base(-super::witness::half(sh.sh_g), "2^(SH_G-1)"), vec![])],
             );
             let terms = vec![
                 SlotTerm { coef: Coef::one(), wrapper: vec![i_tau], inner: vec![fnd(zc)], note: "the hidden-cube zero-check".to_string() },
@@ -1353,20 +1354,22 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
             zc_terms.extend(logup_subterms(&mut b, dom, h0, alpha, g_u8, &|k| Coef::mu(1 + k, mu[1 + k]), &shaped, if q { "Q" } else { "Kv" }));
             zc_terms.extend(pz.subterms(&mut b));
             let zc = b.sum("zc".into(), zc_terms);
-            let half = 1i64 << (SH_QKV - 1);
+            // ROUND 2: the shape's Q/K/V and PV-output shifts (labels unchanged)
+            let half = super::witness::half(sh.sh_qkv);
+            let (kq, ko, ko_half) = (1i64 << sh.sh_qkv, 1i64 << sh.sh_o, super::witness::half(sh.sh_o));
             let (host1, host2) = if q {
                 (
                     b.sum(
                         "host SC_QMM: 2^SH_QKV q8 + rql - 2^(SH_QKV-1)".into(),
-                        vec![st(Coef::base(1i64 << SH_QKV, "2^SH_QKV"), vec![ft(at(A_Q8))]), st(Coef::one(), vec![ft(at(A_RQL))]), st(Coef::base(-half, "2^(SH_QKV-1)"), vec![])],
+                        vec![st(Coef::base(kq, "2^SH_QKV"), vec![ft(at(A_Q8))]), st(Coef::one(), vec![ft(at(A_RQL))]), st(Coef::base(-half, "2^(SH_QKV-1)"), vec![])],
                     ),
                     b.sum(
                         "host SC_PV: 2^SH_O o8 + ro0 + 256 ro1 - 2^(SH_O-1)".into(),
                         vec![
-                            st(Coef::base(1i64 << SH_O, "2^SH_O"), vec![ft(at(A_O8))]),
+                            st(Coef::base(ko, "2^SH_O"), vec![ft(at(A_O8))]),
                             st(Coef::one(), vec![ft(at(A_RO0))]),
                             st(Coef { value: pow256(1), prov: CoefProv::Base("a power of 256 of a byte-limb decomposition") }, vec![ft(at(A_RO1))]),
-                            st(Coef::base(-(1i64 << (SH_O - 1)), "2^(SH_O-1)"), vec![]),
+                            st(Coef::base(-ko_half, "2^(SH_O-1)"), vec![]),
                         ],
                     ),
                 )
@@ -1374,11 +1377,11 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
                 (
                     b.sum(
                         "host SC_KMM: 2^SH_QKV k8 + rkl - 2^(SH_QKV-1)".into(),
-                        vec![st(Coef::base(1i64 << SH_QKV, "2^SH_QKV"), vec![ft(at(A_K8))]), st(Coef::one(), vec![ft(at(A_RKL))]), st(Coef::base(-half, "2^(SH_QKV-1)"), vec![])],
+                        vec![st(Coef::base(kq, "2^SH_QKV"), vec![ft(at(A_K8))]), st(Coef::one(), vec![ft(at(A_RKL))]), st(Coef::base(-half, "2^(SH_QKV-1)"), vec![])],
                     ),
                     b.sum(
                         "host SC_VMM: 2^SH_QKV v8 + rvl - 2^(SH_QKV-1)".into(),
-                        vec![st(Coef::base(1i64 << SH_QKV, "2^SH_QKV"), vec![ft(at(A_V8))]), st(Coef::one(), vec![ft(at(A_RVL))]), st(Coef::base(-half, "2^(SH_QKV-1)"), vec![])],
+                        vec![st(Coef::base(kq, "2^SH_QKV"), vec![ft(at(A_V8))]), st(Coef::one(), vec![ft(at(A_RVL))]), st(Coef::base(-half, "2^(SH_QKV-1)"), vec![])],
                     ),
                 )
             };
@@ -1461,7 +1464,7 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
             let host_rs = b.affine("host SC_RS: sum + lam_z".into(), Coef::chal(lam, "lam_z"), vec![(Coef::one(), isum)]);
             let host_s = b.sum(
                 "host SC_SCORE: 2^SH_S s8 + rsl - 2^(SH_S-1)".into(),
-                vec![st(Coef::base(1i64 << SH_S, "2^SH_S"), vec![ft(at(A_S8))]), st(Coef::one(), vec![ft(at(A_RSL))]), st(Coef::base(-(1i64 << (SH_S - 1)), "2^(SH_S-1)"), vec![])],
+                vec![st(Coef::base(1i64 << sh.sh_s, "2^SH_S"), vec![ft(at(A_S8))]), st(Coef::one(), vec![ft(at(A_RSL))]), st(Coef::base(-super::witness::half(sh.sh_s), "2^(SH_S-1)"), vec![])],
             );
             let terms = vec![
                 SlotTerm { coef: Coef::one(), wrapper: vec![i_tau], inner: vec![fnd(zc)], note: "the softmax zero-check".to_string() },

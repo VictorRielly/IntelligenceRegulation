@@ -350,6 +350,7 @@ pub(super) fn kernel_shape(s: &Shape) -> kshaped::Shape {
         s.norm_ceps,
         s.sh_ao as i32,
     )
+    .with_shifts(s.sh_qkv as i32, s.sh_s as i32, s.sh_o as i32, s.sh_g as i32, s.sh_h as i32, s.sh_z as i32)
 }
 
 /// One generated public case at an arbitrary shape: the same words in the
@@ -1237,10 +1238,14 @@ fn the_shaped_crate_copies_the_frozen_calibration_exactly() {
         (sh.norm_tn, sh.norm_cn_a, sh.norm_cn_m, sh.norm_ceps, sh.sh_ao),
         (kern::calib::NORM_TN, kern::calib::NORM_CN, kern::calib::NORM_CN, kern::calib::NORM_CEPS, kern::calib::SH_AO)
     );
+    // ROUND 2: and the windowed shifts default to the frozen crate's
+    assert_eq!((sh.sh_qkv, sh.sh_s, sh.sh_o, sh.sh_g, sh.sh_h, sh.sh_z), (kern::calib::SH_Q, kern::calib::SH_S, kern::calib::SH_O, kern::calib::SH_G, kern::calib::SH_H, kern::calib::SH_Z));
+    assert_eq!((kern::calib::SH_Q, kern::calib::SH_K, kern::calib::SH_V), (kern::calib::SH_Q, kern::calib::SH_Q, kern::calib::SH_Q), "the frozen Q, K and V shifts are one value");
     // ... and so does the prover's frozen calibration
     let f = super::shape::NormCalibration::FROZEN;
     assert_eq!((f.tn, f.cn_a, f.cn_m, f.ceps, f.sh_ao as i32), (kern::calib::NORM_TN, kern::calib::NORM_CN, kern::calib::NORM_CN, kern::calib::NORM_CEPS, kern::calib::SH_AO));
     assert_eq!((f.tn, f.cn_a, f.ceps, f.sh_ao), (NORM_TN, NORM_CN, NORM_CEPS, SH_AO), "the prover's frozen calibration is not layout.rs's");
+    assert_eq!((f.sh_qkv, f.sh_s, f.sh_o, f.sh_g, f.sh_h, f.sh_z), (SH_QKV, SH_S, SH_O, SH_G, SH_H_PROD, SH_Z), "the prover's frozen shifts are not layout.rs's");
 }
 
 /// The COPIED scalar primitives and the two matmuls, function for function

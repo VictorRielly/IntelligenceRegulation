@@ -1,0 +1,29 @@
+{
+  "lines_read": 858,
+  "sections": [
+    {
+      "line": 1,
+      "heading": "# Where the MVP stands, in plain words"
+    },
+    {
+      "line": 499,
+      "heading": "## 1. Do we have a workable proof?"
+    },
+    {
+      "line": 612,
+      "heading": "## 2. How slow are we against the target?"
+    },
+    {
+      "line": 665,
+      "heading": "## 3. What blocks a private, model-scale MVP at speed, and what is being done"
+    },
+    {
+      "line": 781,
+      "heading": "## 4. Where the evidence is"
+    },
+    {
+      "line": 789,
+      "heading": "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF"
+    }
+  ]
+}

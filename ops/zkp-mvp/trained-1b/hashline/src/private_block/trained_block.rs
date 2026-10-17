@@ -383,33 +383,38 @@ fn load_array(dir: &Path, name: &str, spec: &J) -> Result<Array, String> {
 // ------------------------------------------------------------------ the export
 
 /// the profile constants the relations hold FIXED, and the code's values
-fn fixed_constants() -> [(&'static str, i64); 11] {
+/// the constants the relations hold FIXED (a different value is a different
+/// layout or kernel), and the code's values. ROUND 2: the windowed
+/// requantization shifts left this list for the calibration.
+fn fixed_constants() -> [(&'static str, i64); 5] {
     use super::layout::*;
-    [
-        ("sh_qkv", i64::from(SH_QKV)),
-        ("sh_rope", i64::from(SH_ROPE)),
-        ("sh_s", i64::from(SH_S)),
-        ("sh_o", i64::from(SH_O)),
-        ("sh_g", i64::from(SH_G)),
-        ("sh_u", 0),
-        ("sh_h", i64::from(SH_H_PROD)),
-        ("sh_z", i64::from(SH_Z)),
-        ("f_p", i64::from(F_P)),
-        ("f_ro", i64::from(F_RO)),
-        ("sh_r2", 0),
-    ]
+    [("sh_rope", i64::from(SH_ROPE)), ("sh_u", 0), ("f_p", i64::from(F_P)), ("f_ro", i64::from(F_RO)), ("sh_r2", 0)]
 }
 
-/// The constants of one record (`profile.json`'s or a layer manifest's),
-/// checked: fixed ones equal the code's; returns the trained ones.
+/// The RUN-LEVEL constants of one record (`profile.json`'s or a layer
+/// manifest's): the fixed ones checked equal to the code's, the trained
+/// calibration (norm constants and the windowed shifts), `f_e` and the RoPE
+/// base. One run has ONE set (its blocks share one shape).
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct Constants {
     pub cal: NormCalibration,
     pub f_e: u32,
-    pub silu: (i32, i32),
-    pub exp_e_s: i32,
     pub rope_theta: f64,
 }
+
+/// The PER-BLOCK table keys of a layer: which SiLU registry member and which
+/// exp `e_s` its two public tables are. They may differ between the blocks
+/// of one run (each block's tables are its own public words).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct TableKeys {
+    pub silu: (i32, i32),
+    pub exp_e_s: i32,
+}
+
+/// the run-level keys of a constants object (the table keys excluded)
+pub(crate) const RUN_LEVEL_KEYS: [&str; 18] = [
+    "norm_tn", "norm_cn_a", "norm_cn_m", "norm_ceps", "sh_ao", "sh_qkv", "sh_s", "sh_o", "sh_g", "sh_h", "sh_z", "f_e", "rope_theta", "sh_rope", "sh_u", "f_p", "f_ro", "sh_r2",
+];
 
 fn constants_of(c: &J, what: &str) -> Result<Constants, String> {
     let ctx = |e: String| format!("{what}: {e}");
@@ -420,19 +425,55 @@ fn constants_of(c: &J, what: &str) -> Result<Constants, String> {
             return Err(format!("{what}: constant `{k}` = {got}, but the proof relations hold it at {want} (a different value is a different layout or kernel, not a calibration)"));
         }
     }
+    let u32_of = |k: &str| -> Result<u32, String> { u32::try_from(int(k)?).map_err(|_| format!("{what}: `{k}` is out of range")) };
+    // review finding F-1 and its general rule: every constant an export
+    // chooses is inside a DECLARED class, checked here (prover and verifier
+    // both load through this function), again at the shape door and again in
+    // `Layout::for_shape`
+    let f_e = u32_of("f_e")?;
+    if !super::shape::TRAINED_F_E_RANGE.contains(&f_e) {
+        return Err(format!("{what}: f_e {f_e} is outside its declared class {:?} (the softmax quotient relation's no-wrap premise is derived for that class only; review finding F-1)", super::shape::TRAINED_F_E_RANGE));
+    }
+    let rope_theta = c.get("rope_theta").and_then(J::f64).map_err(ctx)?;
+    if rope_theta != super::shape::TRAINED_ROPE_THETA {
+        return Err(format!("{what}: rope_theta {rope_theta} is not the trained geometry's RoPE base {} (a model fact, not a calibration choice)", super::shape::TRAINED_ROPE_THETA));
+    }
+    Ok(Constants {
+        cal: NormCalibration {
+            tn: u32_of("norm_tn")?,
+            cn_a: int("norm_cn_a")?,
+            cn_m: int("norm_cn_m")?,
+            ceps: int("norm_ceps")?,
+            sh_ao: u32_of("sh_ao")?,
+            sh_qkv: u32_of("sh_qkv")?,
+            sh_s: u32_of("sh_s")?,
+            sh_o: u32_of("sh_o")?,
+            sh_g: u32_of("sh_g")?,
+            sh_h: u32_of("sh_h")?,
+            sh_z: u32_of("sh_z")?,
+        },
+        f_e,
+        rope_theta,
+    })
+}
+
+fn table_keys_of(c: &J, what: &str) -> Result<TableKeys, String> {
+    let ctx = |e: String| format!("{what}: {e}");
     let silu = c.get("silu_member").and_then(J::arr).map_err(ctx)?;
     if silu.len() != 2 {
         return Err(ctx("silu_member is not [e_in, e_out]".into()));
     }
-    let u32_of = |k: &str| -> Result<u32, String> { u32::try_from(int(k)?).map_err(|_| format!("{what}: `{k}` is out of range")) };
     let i32_of = |v: &J| -> Result<i32, String> { v.i64().and_then(|x| i32::try_from(x).map_err(|_| "out of range".into())).map_err(ctx) };
-    Ok(Constants {
-        cal: NormCalibration { tn: u32_of("norm_tn")?, cn_a: int("norm_cn_a")?, cn_m: int("norm_cn_m")?, ceps: int("norm_ceps")?, sh_ao: u32_of("sh_ao")? },
-        f_e: u32_of("f_e")?,
-        silu: (i32_of(&silu[0])?, i32_of(&silu[1])?),
-        exp_e_s: i32::try_from(int("exp_e_s")?).map_err(|_| ctx("exp_e_s is out of range".into()))?,
-        rope_theta: c.get("rope_theta").and_then(J::f64).map_err(ctx)?,
-    })
+    let tk = TableKeys { silu: (i32_of(&silu[0])?, i32_of(&silu[1])?), exp_e_s: i32_of(c.get("exp_e_s").map_err(ctx)?)? };
+    // the declared classes of the per-block table keys (the tables are then
+    // checked against these generator members by value)
+    if !super::shape::TRAINED_EXP_E_S_RANGE.contains(&tk.exp_e_s) {
+        return Err(ctx(format!("exp_e_s {} is outside its declared class {:?}", tk.exp_e_s, super::shape::TRAINED_EXP_E_S_RANGE)));
+    }
+    if crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, tk.silu.0, tk.silu.1).is_none() {
+        return Err(ctx(format!("silu_member {:?} is not in the frozen SiLU registry", tk.silu)));
+    }
+    Ok(tk)
 }
 
 /// The geometries an export may name. The TRAINED TinyLlama profile is the
@@ -496,8 +537,9 @@ pub(crate) struct TrainedExport {
     pub profile_sha256: [u8; 32],
     pub tool_sha256: [u8; 32],
     pub tokens: usize,
-    /// the profile's constants when every one of them is uniform across the
-    /// layers; `None` when the writer marks some per-layer (`null` in
+    /// the profile's RUN-LEVEL constants when every one of them is uniform
+    /// across the layers (the per-block table keys may still be per layer);
+    /// `None` when the writer marks a run-level one per-layer (`null` in
     /// `profile_constants`, named in `per_layer_constants_differ`) — then a
     /// run takes ITS layers' manifest constants, which must agree with each
     /// other (one calibration per run)
@@ -590,7 +632,7 @@ impl TrainedExport {
         if sorted_nulls != per_layer_differ {
             return Err(ctx(format!("profile_constants has null {sorted_nulls:?} but per_layer_constants_differ names {per_layer_differ:?}")));
         }
-        let constants = if nulls.is_empty() { Some(constants_of(pc, &path.display().to_string())?) } else { None };
+        let constants = if nulls.iter().all(|k| !RUN_LEVEL_KEYS.contains(&k.as_str())) { Some(constants_of(pc, &path.display().to_string())?) } else { None };
         let mut layers = Vec::new();
         let mut layer_manifest_sha256 = Vec::new();
         for l in p.get("layers").and_then(J::arr).map_err(ctx)? {
@@ -617,11 +659,28 @@ impl TrainedExport {
             Some(J::Null) | None => 1.0,
             Some(v) => v.f64().map_err(ctx)?,
         };
+        // ROUND 2: a Hadamard-rotated export names its rotation's sign vector
+        // by SHA-256; the file beside profile.json must be that file (public
+        // weight preparation only, bound through the profile digest)
+        if let Some(rot) = p.opt("metadata_out_of_proof").and_then(|m| m.opt("rotation")) {
+            if *rot != J::Null {
+                let want = unhex32(rot.get("sign_sha256").and_then(J::str).map_err(ctx)?).map_err(ctx)?;
+                let sp = dir.join("rotation_sign.bin");
+                let got = sha256(&read_bounded(&sp, 1 << 20)?);
+                if got != want {
+                    return Err(ctx(format!("rotation_sign.bin SHA-256 {} is not the profile's {}", hex(&got), hex(&want))));
+                }
+            }
+        }
         let calibration_set_sha256 = match p.opt("calibration_set_sha256") {
             Some(v) => unhex32(v.str().map_err(ctx)?).map_err(ctx)?,
             None => [0; 32],
         };
-        let variant = dir.file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
+        // review finding F-4: the variant is the PROFILE's own name for
+        // itself, not the local directory's (renaming or copying an export
+        // must not change any identity it proves under)
+        let variant = p.get("variant").and_then(J::str).map_err(ctx)?.to_string();
+        plain_name(&variant).map_err(|e| ctx(format!("variant: {e}")))?;
         let mut source = source;
         if geometry == Geometry::RungTcDev {
             source.checkpoint_layers = layers.iter().max().map(|m| m + 1).unwrap_or(0);
@@ -691,7 +750,11 @@ impl TrainedExport {
         if self.tokens != 32 {
             return Err(format!("trained export: T = {}; only T = 32 is registered", self.tokens));
         }
-        self.geometry.shape_at(&c.cal, c.f_e)
+        // review finding F-1, mirrored before any shape is built
+        Shape::check_f_e_class(self.tokens, c.f_e)?;
+        let sh = self.geometry.shape_at(&c.cal, c.f_e)?;
+        sh.check_trained_class()?;
+        Ok(sh)
     }
 
     fn layer_dir(&self, index: u32) -> PathBuf {
@@ -712,6 +775,8 @@ impl TrainedExport {
         if lc != *c {
             return Err(ctx("this layer's constants are not the run's (one calibration per run)".into()));
         }
+        // the per-block table keys: this layer's own
+        let tk = table_keys_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string())?;
         if sh.norm_calibration() != c.cal || sh.f_e != c.f_e {
             return Err(ctx("the shape was not built from the run's constants".into()));
         }
@@ -741,13 +806,13 @@ impl TrainedExport {
         let act = get("act")?;
         act.expect("act", Dtype::I16, &[256])?;
         // the tables against the generators the run's constants name
-        let (gexp, _) = crate::tables_attn::exp_member(c.exp_e_s, sh.head_dim, c.f_e);
+        let (gexp, _) = crate::tables_attn::exp_member(tk.exp_e_s, sh.head_dim, c.f_e);
         if exp.i64s() != gexp.to_vec() {
-            return Err(ctx(format!("the exported exp table is not exp_member(e_s = {}, head_dim = {}, f_e = {})", c.exp_e_s, sh.head_dim, c.f_e)));
+            return Err(ctx(format!("the exported exp table is not exp_member(e_s = {}, head_dim = {}, f_e = {})", tk.exp_e_s, sh.head_dim, c.f_e)));
         }
-        let (gact, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, c.silu.0, c.silu.1).ok_or_else(|| ctx(format!("silu_member {:?} is not in the frozen SiLU registry", c.silu)))?;
+        let (gact, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, tk.silu.0, tk.silu.1).ok_or_else(|| ctx(format!("silu_member {:?} is not in the frozen SiLU registry", tk.silu)))?;
         if act.i16s() != gact.to_vec() {
-            return Err(ctx(format!("the exported act table is not the frozen SiLU member {:?}", c.silu)));
+            return Err(ctx(format!("the exported act table is not the frozen SiLU member {:?}", tk.silu)));
         }
         let (gcos, gsin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, c.rope_theta, F_RO);
         let exported = match (arrays.opt("rope_cos").or_else(|| arrays.opt("cos")), arrays.opt("rope_sin").or_else(|| arrays.opt("sin"))) {
@@ -799,6 +864,8 @@ impl TrainedExport {
         let mut record = LayerRecord::of_block(index, &blk, source_tensors);
         let manifest_sha256 = sha256(&mbytes);
         record.manifest_sha256 = manifest_sha256;
+        record.silu_member = tk.silu;
+        record.exp_e_s = tk.exp_e_s;
         let _ = (wq.sha256, exp.sha256);
         Ok(TrainedLayer { index, manifest_sha256, blk, record, rope_note })
     }
@@ -836,6 +903,12 @@ impl TrainedExport {
     /// THE STATEMENT a run over these layers binds: the pinned source, the
     /// shape's calibration, the export provenance, one record per layer.
     pub(crate) fn statement(&self, sh: &Shape, c: &Constants, layers: &[&TrainedLayer]) -> Result<TrainedModelStatement, String> {
+        self.statement_of_records(sh, c, layers.iter().map(|l| l.record.clone()).collect())
+    }
+
+    /// the same statement from the layer RECORDS alone (the stack keeps its
+    /// blocks once and its records beside them)
+    pub(crate) fn statement_of_records(&self, sh: &Shape, c: &Constants, records: Vec<LayerRecord>) -> Result<TrainedModelStatement, String> {
         let prov = Provenance {
             label: format!("export:{}", self.variant),
             residual_unit: self.residual_unit,
@@ -843,12 +916,10 @@ impl TrainedExport {
             calibration_set_sha256: self.calibration_set_sha256,
             export_profile_sha256: self.profile_sha256,
             calibration_tool_sha256: self.tool_sha256,
-            silu_member: c.silu,
-            exp_e_s: c.exp_e_s,
             rope_theta: c.rope_theta,
         };
         let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
-        TrainedModelStatement::new(sh, self.geometry.run_profile(), self.source.clone(), cal, layers.iter().map(|l| l.record.clone()).collect())
+        TrainedModelStatement::new(sh, self.geometry.run_profile(), self.source.clone(), cal, records)
     }
 }
 
@@ -1209,7 +1280,7 @@ fn verify_inner(f: &[(String, String)]) -> Result<(), String> {
     if expected.to_bytes()[8..40] != ctx {
         return Err("the artifact's endpoint policy carries another context".into());
     }
-    let seg = read_bounded(&art.join("segment-000.bin"), super::wire::MAX_WIRE_BYTES_ANY as u64)?;
+    let seg = read_bounded(&art.join("segment-000.bin"), super::wire::wire_ceiling(&sh) as u64)?;
     let blocks = vec![layer.blk.clone()];
     let rst = RunStatement::new_bound(ex.geometry.run_shape(&sh, 1)?, ctx, expected.clone(), &blocks, &[(0, 0)], &st)?;
     let load_s = t0.elapsed().as_secs_f64();
@@ -1228,6 +1299,16 @@ fn verify_inner(f: &[(String, String)]) -> Result<(), String> {
         controls(&ex, &c, &sh, &layer, &st, ctx, &expected, &seg)?;
     }
     Ok(())
+}
+
+/// a shift moved by one, staying inside its window `lo..=hi`
+fn nudge(v: u32, lo: u32, hi: u32) -> u32 {
+    if v < hi {
+        v + 1
+    } else {
+        debug_assert!(v > lo);
+        v - 1
+    }
 }
 
 /// Every control must REFUSE; an acceptance is an error.
@@ -1253,18 +1334,44 @@ fn controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layer: &TrainedLayer
         ("verifier statement with norm_cn_a + 1", NormCalibration { cn_a: c.cn_a + 1, ..c }),
         ("verifier statement with norm_cn_m + 1", NormCalibration { cn_m: c.cn_m + 1, ..c }),
         ("verifier statement with norm_ceps + 1", NormCalibration { ceps: c.ceps + 1, ..c }),
-        ("verifier statement with sh_ao + 1", NormCalibration { sh_ao: c.sh_ao + 1, ..c }),
+        ("verifier statement with sh_ao moved by one", NormCalibration { sh_ao: if c.sh_ao < 8 { c.sh_ao + 1 } else { c.sh_ao - 1 }, ..c }),
+        // ROUND 2: each windowed shift moved by one, inside its window
+        ("verifier statement with sh_qkv moved by one", NormCalibration { sh_qkv: nudge(c.sh_qkv, 1, 8), ..c }),
+        ("verifier statement with sh_s moved by one", NormCalibration { sh_s: nudge(c.sh_s, 1, 8), ..c }),
+        ("verifier statement with sh_o moved by one", NormCalibration { sh_o: nudge(c.sh_o, 9, 16), ..c }),
+        ("verifier statement with sh_g moved by one", NormCalibration { sh_g: nudge(c.sh_g, 1, 8), ..c }),
+        ("verifier statement with sh_h moved by one", NormCalibration { sh_h: nudge(c.sh_h, 9, 16), ..c }),
+        ("verifier statement with sh_z moved by one", NormCalibration { sh_z: nudge(c.sh_z, 1, 8), ..c }),
     ] {
         let r = (|| -> Result<(), String> {
             let s2 = ex.geometry.shape_at(&v, rc.f_e)?;
             let mut l2 = TrainedLayer { index: layer.index, manifest_sha256: layer.manifest_sha256, blk: layer.blk.clone(), record: layer.record.clone(), rope_note: String::new() };
-            l2.record = { let mut r = LayerRecord::of_block(layer.index, &l2.blk, layer.record.source_tensors.clone()); r.manifest_sha256 = layer.manifest_sha256; r };
+            l2.record = {
+                let mut r = LayerRecord::of_block(layer.index, &l2.blk, layer.record.source_tensors.clone());
+                r.manifest_sha256 = layer.manifest_sha256;
+                r.silu_member = layer.record.silu_member;
+                r.exp_e_s = layer.record.exp_e_s;
+                r
+            };
             let st2 = ex.statement(&s2, &Constants { cal: v, ..rc.clone() }, &[&l2])?;
             let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
             let r2 = RunStatement::new_bound(ex.geometry.run_shape(&s2, 1)?, ctx, e2, &blocks, &[(0, 0)], &st2)?;
             run::verify_run(&r2, &blocks, &[seg.to_vec()])
         })();
         refuse(name, r)?;
+    }
+    // (1b) review finding F-1: the softmax exp precision moved by one, inside
+    //      its declared class
+    {
+        let fe2 = nudge(rc.f_e, *super::shape::TRAINED_F_E_RANGE.start(), *super::shape::TRAINED_F_E_RANGE.end());
+        let r = (|| -> Result<(), String> {
+            let s2 = ex.geometry.shape_at(&c, fe2)?;
+            let st2 = ex.statement(&s2, &Constants { f_e: fe2, ..rc.clone() }, &[layer])?;
+            let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
+            let r2 = RunStatement::new_bound(ex.geometry.run_shape(&s2, 1)?, ctx, e2, &blocks, &[(0, 0)], &st2)?;
+            run::verify_run(&r2, &blocks, &[seg.to_vec()])
+        })();
+        refuse("verifier statement with f_e moved by one", r)?;
     }
     // (2) statement mismatch: another export provenance (one byte of the
     //     profile digest), and another layer index
@@ -1287,6 +1394,8 @@ fn controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layer: &TrainedLayer
         let blk2 = BlockPublic::new(pub2, layer.blk.feed_forward().clone());
         let mut rec2 = LayerRecord::of_block(layer.index, &blk2, layer.record.source_tensors.clone());
         rec2.manifest_sha256 = layer.manifest_sha256;
+        rec2.silu_member = layer.record.silu_member;
+        rec2.exp_e_s = layer.record.exp_e_s;
         let l2 = TrainedLayer { index: layer.index, manifest_sha256: layer.manifest_sha256, blk: blk2.clone(), record: rec2, rope_note: String::new() };
         let st2 = ex.statement(sh, rc, &[&l2])?;
         let r = RunStatement::new_bound(ex.geometry.run_shape(sh, 1)?, ctx, expected.clone(), &[blk2.clone()], &[(0, 0)], &st2).and_then(|r2| run::verify_run(&r2, &[blk2], &[seg.to_vec()]));
@@ -1303,5 +1412,509 @@ fn controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layer: &TrainedLayer
     // and the honest segment still verifies beside them
     run::verify_run(&rst, &blocks, &[seg.to_vec()])?;
     println!("{{\"event\":\"controls\",\"refused\":{n},\"honest_still_verifies\":true}}");
+    Ok(())
+}
+
+// ================================================================== THE STACK
+//
+// ROUND 2, R2-3: ALL the export's blocks as ONE bound run — one transcript,
+// block k's hidden output is block k+1's hidden input through an internal
+// boundary commitment (`boundary.rs`), each boundary claimed by block k's
+// output-equality slot and block k+1's input-equality slot. The run statement
+// binds the trained-model statement (every layer's block digest, manifest
+// digest and table members; the export profile and tool digests; the one
+// calibration) as its `"calibration"` word.
+
+/// **THE STACK'S STREAMING SOURCE.** Retains ONE current input and at most
+/// ONE witness (between `boundary_plane(k)` and `witness(k)`), exactly as the
+/// MVP driver's source does. `lie_at` (a control only) adds one to one word of
+/// the boundary plane handed out after block `lie_at`, so the boundary
+/// commitment no longer holds block `lie_at`'s output.
+struct StackSource<'a> {
+    sh: &'a Shape,
+    blocks: &'a [BlockPublic],
+    ids: Ids,
+    x0: Vec<i16>,
+    x: Vec<i16>,
+    next: usize,
+    cached: Option<(usize, Witness)>,
+    lie_at: Option<usize>,
+    busy_s: f64,
+}
+
+impl<'a> StackSource<'a> {
+    fn new(sh: &'a Shape, blocks: &'a [BlockPublic], x0: Vec<i16>, lie_at: Option<usize>) -> Result<StackSource<'a>, String> {
+        if x0.len() != sh.tokens * sh.width {
+            return Err("trained stack: the first input is not tokens x width".into());
+        }
+        Ok(StackSource { sh, blocks, ids: Ids::new(sh)?, x: x0.clone(), x0, next: 0, cached: None, lie_at, busy_s: 0.0 })
+    }
+    fn restart(&mut self) {
+        self.x = self.x0.clone();
+        self.next = 0;
+        self.cached = None;
+        self.busy_s = 0.0;
+    }
+    fn advance(&mut self, k: usize) -> Result<(Witness, Vec<i16>), String> {
+        if k != self.next || k >= self.blocks.len() {
+            return Err(format!("trained stack: block {k} was asked for out of order (next is {})", self.next));
+        }
+        let t = Instant::now();
+        let w = witness::build_shaped(self.sh, self.blocks[k].attention(), self.blocks[k].feed_forward(), &self.x)?;
+        let out = padded_plane(&w, self.ids.at(A_X2))?;
+        self.x = true_words(self.sh, &out);
+        self.next = k + 1;
+        self.busy_s += t.elapsed().as_secs_f64();
+        Ok((w, out))
+    }
+}
+
+/// the true `[T, d]` words of a padded `Dom::D` plane
+fn true_words(sh: &Shape, plane: &[i16]) -> Vec<i16> {
+    (0..sh.tokens).flat_map(|t| plane[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect()
+}
+
+impl RunWitnessSource for StackSource<'_> {
+    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+        if self.cached.is_some() {
+            return Err("trained stack: a witness is still cached".into());
+        }
+        let (w, mut out) = self.advance(k)?;
+        self.cached = Some((k, w));
+        if self.lie_at == Some(k) {
+            let i = self.sh.d_pad + 3;
+            out[i] = out[i].wrapping_add(1);
+        }
+        Ok(out)
+    }
+    fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        match self.cached.take() {
+            Some((j, w)) if j == k => Ok(w),
+            Some(_) => Err("trained stack: the cached witness is for another block".into()),
+            None => self.advance(k).map(|(w, _)| w),
+        }
+    }
+}
+
+fn parse_layers(spec: Option<&str>, all: &[u32]) -> Result<Vec<u32>, String> {
+    match spec {
+        None => Ok(all.to_vec()),
+        Some(s) => {
+            let (a, b) = s.split_once("..").ok_or("--layers is A..B (B exclusive)")?;
+            let (a, b): (u32, u32) = (a.parse().map_err(|_| "--layers: A is not an integer")?, b.parse().map_err(|_| "--layers: B is not an integer")?);
+            if a >= b {
+                return Err("--layers: an empty range".into());
+            }
+            let v: Vec<u32> = (a..b).collect();
+            if let Some(m) = v.iter().find(|l| !all.contains(l)) {
+                return Err(format!("--layers: layer {m} is not in the export"));
+            }
+            Ok(v)
+        }
+    }
+}
+
+fn stack_context(variant: &str, layers: &[u32], label: &str) -> Digest {
+    let mut b = Vec::new();
+    for s in ["hashline/zk60-trained-stack-context/1", variant, label] {
+        b.extend_from_slice(&(s.len() as u64).to_le_bytes());
+        b.extend_from_slice(s.as_bytes());
+    }
+    for l in layers {
+        b.extend_from_slice(&u64::from(*l).to_le_bytes());
+    }
+    *blake3::hash(&b).as_bytes()
+}
+
+/// one loaded layer's public record, the block itself moved out (22 padded
+/// TinyLlama blocks are about 1.25 GB; the stack holds them ONCE)
+struct LayerMeta {
+    index: u32,
+    manifest_sha256: [u8; 32],
+    record: LayerRecord,
+}
+
+/// Load the export's public side for a run over `layers`: the run constants,
+/// the shape, every block (once), the layer records and the trained-model
+/// statement.
+fn load_stack(ex: &TrainedExport, layers: &[u32], rope_from_export: bool) -> Result<(Constants, Shape, Vec<BlockPublic>, Vec<LayerMeta>, TrainedModelStatement), String> {
+    let c = ex.run_constants(layers)?;
+    let sh = ex.shape_for(&c)?;
+    let mut blocks = Vec::with_capacity(layers.len());
+    let mut metas = Vec::with_capacity(layers.len());
+    for &l in layers {
+        let t = ex.load_layer(&sh, &c, l, rope_from_export)?;
+        metas.push(LayerMeta { index: t.index, manifest_sha256: t.manifest_sha256, record: t.record });
+        blocks.push(t.blk);
+    }
+    let st = ex.statement_of_records(&sh, &c, metas.iter().map(|m| m.record.clone()).collect())?;
+    Ok((c, sh, blocks, metas, st))
+}
+
+fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo, label: &str) -> String {
+    let c = sh.norm_calibration();
+    let recs: Vec<String> = layers
+        .iter()
+        .map(|l| format!("{{\"layer\": {}, \"block_digest\": {}, \"manifest_sha256\": {}, \"silu_member\": [{}, {}], \"exp_e_s\": {}}}", l.index, js(&hex(&l.record.block_digest)), js(&hex(&l.manifest_sha256)), l.record.silu_member.0, l.record.silu_member.1, l.record.exp_e_s))
+        .collect();
+    format!(
+        "{{\n \"schema\": \"zk60-trained-stack-run/1\",\n \"scope\": {},\n \"block_profile\": {},\n \"run_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"layers\": [\n  {}\n ],\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"sh_qkv\": {}, \"sh_s\": {}, \"sh_o\": {}, \"sh_g\": {}, \"sh_h\": {}, \"sh_z\": {}, \"d_max\": {}}}\n}}\n",
+        js(STACK_SCOPE),
+        js(sh.profile),
+        js(ex.geometry.run_profile()),
+        layers.len(),
+        js(&ex.variant),
+        js(&hex(&ex.profile_sha256)),
+        js(&hex(&ex.tool_sha256)),
+        js(&hex(&st.identity())),
+        js(label),
+        js(&hex(ctx)),
+        js(&hex(&expected.to_bytes())),
+        recs.join(",\n  "),
+        sh.tokens,
+        sh.width,
+        sh.hidden,
+        sh.q_heads,
+        sh.kv_heads,
+        sh.head_dim,
+        sh.log_cols,
+        sh.inv_rate,
+        sh.opened_cols,
+        sh.f_e,
+        sh.wrho_s,
+        sh.norm_wrho,
+        c.tn,
+        c.cn_a,
+        c.cn_m,
+        c.ceps,
+        c.sh_ao,
+        c.sh_qkv,
+        c.sh_s,
+        c.sh_o,
+        c.sh_g,
+        c.sh_h,
+        c.sh_z,
+        sh.d_max
+    )
+}
+
+const STACK_SCOPE: &str = "ALL the listed trained TinyLlama-1.1B-Chat blocks as ONE bound run at T=32 (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+
+/// `stack-prove --export DIR --seq ID --out DIR [--layers A..B] [--label L]
+/// [--rope-from-export] [--lie-at-boundary K]`
+///
+/// The SEALING pass builds every block's witness once (one resident at a
+/// time), checks each layer's output against the export's `x_out` bit for bit
+/// and the chain (block k's output IS block k+1's input by construction), and
+/// yields the two external endpoint planes; the endpoints are committed; the
+/// run statement is bound to the trained-model statement; the PROVING pass
+/// rebuilds the witnesses one at a time and `run::prove_run` writes one
+/// segment per block into `--out` (a NEW directory); the run is verified in
+/// process from the directory; the public statement goes into
+/// `<out>/statement/`. `--lie-at-boundary K` is a CONTROL: the boundary
+/// plane after block K is off by one word, and the run must then FAIL to
+/// verify (exit 0 means the control behaved).
+pub fn trained_stack_prove_command(args: &[String]) -> i32 {
+    let f = match flags(args, &["--export", "--seq", "--out", "--layers", "--label", "--lie-at-boundary"], &["--rope-from-export"]) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("zk60_trained_block stack-prove: {e}");
+            return 2;
+        }
+    };
+    match stack_prove_inner(&f) {
+        Ok(()) => 0,
+        Err(e) => {
+            println!("{{\"event\":\"refused\",\"error\":{}}}", js(&e));
+            1
+        }
+    }
+}
+
+fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
+    let t_total = Instant::now();
+    let export = PathBuf::from(need(f, "--export")?);
+    let seq = need(f, "--seq")?;
+    let out = PathBuf::from(need(f, "--out")?);
+    let label = flag(f, "--label").unwrap_or("zk60-trained-stack");
+    let lie_at: Option<usize> = match flag(f, "--lie-at-boundary") {
+        Some(v) => Some(v.parse().map_err(|_| "--lie-at-boundary is not an integer")?),
+        None => None,
+    };
+    if out.exists() {
+        return Err(format!("{} exists; the run directory must be new", out.display()));
+    }
+    // ROUND 2 (R2-5): a claimed GPU run refuses to start unless the device
+    // path is live, and any later decline aborts it (`gpu::declined`)
+    crate::gpu::require_live()?;
+    println!("{{\"event\":\"run_header\",\"gpu\":{},\"hl_gpu_required\":{}}}", js(&crate::gpu::label()), crate::gpu::required());
+    let t = Instant::now();
+    let ex = TrainedExport::load(&export)?;
+    let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+    let l = layers.len();
+    if let Some(k) = lie_at {
+        if k + 1 >= l {
+            return Err("--lie-at-boundary: there is no boundary after the last block".into());
+        }
+    }
+    let (_c, sh, blocks, loaded, st) = load_stack(&ex, &layers, flag(f, "--rope-from-export").is_some())?;
+    let load_s = t.elapsed().as_secs_f64();
+    println!(
+        "{{\"event\":\"loaded\",\"variant\":{},\"layers\":\"{}..{}\",\"blocks\":{l},\"statement_identity\":{},\"seconds\":{load_s:.3},\"hl_gpu\":{},\"scope\":{}}}",
+        js(&ex.variant),
+        layers[0],
+        layers[l - 1] + 1,
+        js(&hex(&st.identity())),
+        js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
+        js(STACK_SCOPE)
+    );
+    // ---- the sealing pass, with PARITY against the export at every layer
+    let t = Instant::now();
+    let (x_in0, _) = ex.load_seq(&sh, seq, layers[0])?;
+    let mut src = StackSource::new(&sh, &blocks, x_in0, None)?;
+    let mut first: Option<Vec<i16>> = None;
+    let mut last: Option<Vec<i16>> = None;
+    for (k, &layer) in layers.iter().enumerate() {
+        let (w, out_plane) = src.advance(k).map_err(|e| format!("block {k} (layer {layer}): {e}"))?;
+        if k == 0 {
+            first = Some(padded_plane(&w, src.ids.at(A_X))?);
+        }
+        drop(w);
+        let (_, x_out) = ex.load_seq(&sh, seq, layer)?;
+        let mine = true_words(&sh, &out_plane);
+        let n = mine.iter().zip(x_out.iter()).filter(|(a, b)| a != b).count();
+        if n != 0 {
+            let p = mine.iter().zip(x_out.iter()).position(|(a, b)| a != b).unwrap_or(0);
+            return Err(format!("parity: layer {layer}'s native output differs from the export's x_out in {n} words (first at token {}, channel {}); no value is printed", p / sh.width, p % sh.width));
+        }
+        if k + 1 == l {
+            last = Some(out_plane);
+        }
+    }
+    let (first, last) = (first.ok_or("no first plane")?, last.ok_or("no last plane")?);
+    src.lie_at = lie_at;
+    src.restart();
+    let seal_s = t.elapsed().as_secs_f64();
+    println!("{{\"event\":\"parity\",\"result\":\"bit-exact at every layer\",\"layers\":{l},\"words_per_layer\":{},\"sealing_pass_seconds\":{seal_s:.3}}}", sh.tokens * sh.width);
+    // ---- endpoints and the bound run statement
+    let ctx = stack_context(&ex.variant, &layers, label);
+    let spec = IoSpec::new_shaped(&sh, ctx, 0, 0)?;
+    let (expected, owners) = prepare_endpoints(spec, &first, &last)?;
+    drop((first, last));
+    let rst = RunStatement::new_bound(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], &st)?;
+    // ---- the proving pass
+    std::fs::create_dir(&out).map_err(|e| format!("{}: {e}", out.display()))?;
+    let mut disk = super::run_sink::DirSink::create(&out, l)?;
+    let t = Instant::now();
+    let stats = {
+        let mut sink = |k: usize, bytes: Vec<u8>| -> Result<(), String> {
+            let n = bytes.len();
+            super::run_sink::SegmentSink::accept(&mut disk, k, bytes)?;
+            println!("{{\"event\":\"segment\",\"index\":{k},\"layer\":{},\"bytes\":{n},\"elapsed_seconds\":{:.3},\"vmhwm_mib\":{:.0}}}", layers[k], t.elapsed().as_secs_f64(), peak_rss_mib());
+            Ok(())
+        };
+        run::prove_run(&rst, &blocks, &mut src, owners, &mut sink)
+    };
+    let prove_s = t.elapsed().as_secs_f64();
+    let witness_s = src.busy_s;
+    drop(src);
+    if let Err(e) = stats {
+        return Err(format!("prove_run: {e}"));
+    }
+    let hwm = peak_rss_mib();
+    // ---- in-process verification from the directory
+    let t = Instant::now();
+    let verdict = run::verify_run_from_dir(&rst, &blocks, &out);
+    let verify_s = t.elapsed().as_secs_f64();
+    if let Some(k) = lie_at {
+        return match verdict {
+            Ok(()) => Err(format!("CONTROL FAILED: a run whose boundary after block {k} was off by one word VERIFIED")),
+            Err(e) => {
+                println!("{{\"event\":\"control-refused\",\"control\":\"the boundary plane after block {k} off by one word\",\"error\":{}}}", js(&e.chars().take(200).collect::<String>()));
+                Ok(())
+            }
+        };
+    }
+    verdict.map_err(|e| format!("in-process verification of the run directory: {e}"))?;
+    let sdir = out.join(super::run_sink::STATEMENT_DIR);
+    std::fs::create_dir(&sdir).map_err(|e| format!("{}: {e}", sdir.display()))?;
+    write_new(&sdir.join("expected.bin"), &expected.to_bytes())?;
+    write_new(&sdir.join("statement.json"), render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label).as_bytes())?;
+    let segs: Vec<String> = (0..l).map(|k| format!("{{\"file\":{},\"bytes\":{},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), disk.lengths()[k], js(&disk.digests()[k]))).collect();
+    write_new(&sdir.join("segments.json"), format!("[\n {}\n]\n", segs.join(",\n ")).as_bytes())?;
+    println!(
+        "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_rebuild_seconds\":{witness_s:.3},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{seal_s:.3},\"load_seconds\":{load_s:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"out\":{}}}",
+        js(&crate::gpu::label()),
+        crate::gpu::declines(),
+        disk.total_bytes(),
+        t_total.elapsed().as_secs_f64(),
+        js(&hex(&st.identity())),
+        js(&out.display().to_string())
+    );
+    Ok(())
+}
+
+/// `stack-verify --export DIR --artifact DIR --expect-statement HEX
+/// [--layers A..B] [--label L] [--rope-from-export] [--controls]`
+///
+/// A FRESH process: rebuilds the shape, every block and the trained-model
+/// statement from the export's PUBLIC files (never a `seq_*` directory),
+/// refuses unless the statement identity equals the pin, reads the endpoint
+/// policy from `<artifact>/statement/expected.bin`, and verifies the run
+/// directory one segment at a time. `--controls` then runs the run-level
+/// controls, each of which must REFUSE: a statement with two blocks swapped,
+/// a statement with one calibration constant moved, a statement with another
+/// export digest, one block fewer, a mutated segment, two segments swapped,
+/// a truncated segment.
+pub fn trained_stack_verify_command(args: &[String]) -> i32 {
+    let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label"], &["--rope-from-export", "--controls"]) {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("zk60_trained_block stack-verify: {e}");
+            return 2;
+        }
+    };
+    match stack_verify_inner(&f) {
+        Ok(()) => 0,
+        Err(e) => {
+            println!("{{\"event\":\"rejected\",\"error\":{}}}", js(&e));
+            1
+        }
+    }
+}
+
+fn stack_verify_inner(f: &[(String, String)]) -> Result<(), String> {
+    let export = PathBuf::from(need(f, "--export")?);
+    let art = PathBuf::from(need(f, "--artifact")?);
+    let pin = unhex32(need(f, "--expect-statement")?)?;
+    let label = flag(f, "--label").unwrap_or("zk60-trained-stack");
+    let t = Instant::now();
+    let ex = TrainedExport::load(&export)?;
+    let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+    let l = layers.len();
+    let (c, sh, blocks, loaded, st) = load_stack(&ex, &layers, flag(f, "--rope-from-export").is_some())?;
+    if st.identity() != pin {
+        return Err(format!("the rebuilt trained statement {} is not the pinned {}", hex(&st.identity()), hex(&pin)));
+    }
+    let ctx = stack_context(&ex.variant, &layers, label);
+    let expected = ExpectedIo::from_bytes_at(&sh, &read_bounded(&art.join(super::run_sink::STATEMENT_DIR).join("expected.bin"), 4096)?)?;
+    if expected.to_bytes()[8..40] != ctx {
+        return Err("the artifact's endpoint policy carries another context".into());
+    }
+    let rst = RunStatement::new_bound(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], &st)?;
+    let load_s = t.elapsed().as_secs_f64();
+    let t = Instant::now();
+    run::verify_run_from_dir(&rst, &blocks, &art)?;
+    let verify_s = t.elapsed().as_secs_f64();
+    let total: u64 = super::run_sink::segment_paths(&art, l)?.iter().map(|p| std::fs::metadata(p).map(|m| m.len()).unwrap_or(0)).sum();
+    println!(
+        "{{\"event\":\"verified\",\"blocks\":{l},\"receipt_bytes\":{total},\"load_seconds\":{load_s:.3},\"verify_seconds\":{verify_s:.3},\"vmhwm_mib\":{:.0},\"statement_identity\":{},\"scope\":{}}}",
+        peak_rss_mib(),
+        js(&hex(&st.identity())),
+        js(STACK_SCOPE)
+    );
+    if flag(f, "--controls").is_some() {
+        stack_controls(&ex, &c, &sh, &layers, blocks, &loaded, &st, ctx, &expected, &art)?;
+    }
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn stack_controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layers: &[u32], mut blocks: Vec<BlockPublic>, loaded: &[LayerMeta], st: &TrainedModelStatement, ctx: Digest, expected: &ExpectedIo, art: &Path) -> Result<(), String> {
+    let l = layers.len();
+    if l < 2 {
+        return Err("trained stack: the run-level controls need at least two blocks".into());
+    }
+    let mut segs: Vec<Vec<u8>> = super::run_sink::segment_paths(art, l)?.iter().map(|p| std::fs::read(p).map_err(|e| e.to_string())).collect::<Result<_, _>>()?;
+    let mut n = 0usize;
+    let mut refuse = |name: &str, r: Result<(), String>| -> Result<(), String> {
+        match r {
+            Ok(()) => Err(format!("CONTROL FAILED: `{name}` was ACCEPTED")),
+            Err(e) => {
+                n += 1;
+                println!("{{\"event\":\"control-refused\",\"control\":{},\"error\":{}}}", js(name), js(&e.chars().take(160).collect::<String>()));
+                Ok(())
+            }
+        }
+    };
+    let run_with = |bl: &[BlockPublic], stm: &TrainedModelStatement, s: &Shape, e: &ExpectedIo, sg: &[Vec<u8>]| -> Result<(), String> {
+        let r = RunStatement::new_bound(ex.geometry.run_shape(s, bl.len())?, ctx, e.clone(), bl, &vec![(0, 0); bl.len()], stm)?;
+        run::verify_run(&r, bl, sg)
+    };
+    let (a, b) = (l / 2 - 1, l / 2);
+    // (1) a statement (and block list) with two adjacent blocks swapped; the
+    //     block list is swapped IN PLACE (no second copy of 1.25 GB) and
+    //     swapped back afterwards
+    {
+        let mut recs: Vec<LayerRecord> = loaded.iter().map(|x| x.record.clone()).collect();
+        recs.swap(a, b);
+        // the records keep their checkpoint indices in order
+        for (k, r) in recs.iter_mut().enumerate() {
+            r.index = layers[k];
+        }
+        let mut st2 = st.clone();
+        st2.layers = recs;
+        blocks.swap(a, b);
+        let r1 = run_with(&blocks, &st2, sh, expected, &segs);
+        let r2 = run_with(&blocks, st, sh, expected, &segs);
+        blocks.swap(a, b);
+        refuse(&format!("a statement with blocks {a} and {b} swapped"), r1)?;
+        refuse(&format!("the honest statement with the verifier's block list {a} <-> {b} swapped"), r2)?;
+    }
+    // (2) one calibration constant moved (the verifier's shape and statement)
+    for (name, v) in [("norm_cn_a + 1", NormCalibration { cn_a: rc.cal.cn_a + 1, ..rc.cal }), ("sh_z moved by one", NormCalibration { sh_z: nudge(rc.cal.sh_z, 1, 8), ..rc.cal }), ("sh_qkv moved by one", NormCalibration { sh_qkv: nudge(rc.cal.sh_qkv, 1, 8), ..rc.cal })] {
+        let r = (|| -> Result<(), String> {
+            let s2 = ex.geometry.shape_at(&v, rc.f_e)?;
+            let st2 = ex.statement_of_records(&s2, &Constants { cal: v, ..rc.clone() }, loaded.iter().map(|m| m.record.clone()).collect())?;
+            let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
+            run_with(&blocks, &st2, &s2, &e2, &segs)
+        })();
+        refuse(&format!("a verifier statement with {name}"), r)?;
+    }
+    // (2b) review finding F-1: f_e moved by one inside its declared class
+    {
+        let fe2 = nudge(rc.f_e, *super::shape::TRAINED_F_E_RANGE.start(), *super::shape::TRAINED_F_E_RANGE.end());
+        let r = (|| -> Result<(), String> {
+            let s2 = ex.geometry.shape_at(&rc.cal, fe2)?;
+            let st2 = ex.statement_of_records(&s2, &Constants { f_e: fe2, ..rc.clone() }, loaded.iter().map(|m| m.record.clone()).collect())?;
+            let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
+            run_with(&blocks, &st2, &s2, &e2, &segs)
+        })();
+        refuse("a verifier statement with f_e moved by one", r)?;
+    }
+    // (3) another export digest
+    {
+        let mut st2 = st.clone();
+        st2.calibration.export_profile_sha256[0] ^= 1;
+        refuse("a verifier statement with another export profile digest", run_with(&blocks, &st2, sh, expected, &segs))?;
+    }
+    // (4) one block fewer (the last one dropped)
+    {
+        let mut st2 = st.clone();
+        st2.layers.pop();
+        refuse("a verifier statement and block list one block shorter", run_with(&blocks[..l - 1], &st2, sh, expected, &segs[..l - 1]))?;
+    }
+    // (5) segment mutations: a byte flipped in a middle segment, two segments
+    //     swapped, a truncated segment
+    let rst = RunStatement::new_bound(ex.geometry.run_shape(sh, l)?, ctx, expected.clone(), &blocks, &vec![(0, 0); l], st)?;
+    // (each mutation is made IN PLACE and undone, so no second copy of a
+    // quarter-gigabyte receipt is ever resident)
+    {
+        let m = segs[b].len() / 2;
+        segs[b][m] ^= 0x01;
+        let r = run::verify_run(&rst, &blocks, &segs);
+        segs[b][m] ^= 0x01;
+        refuse(&format!("segment {b} with one byte flipped"), r)?;
+        segs.swap(a, b);
+        let r = run::verify_run(&rst, &blocks, &segs);
+        segs.swap(a, b);
+        refuse(&format!("segments {a} and {b} swapped"), r)?;
+        let last = segs[l - 1].pop().ok_or("an empty last segment")?;
+        let r = run::verify_run(&rst, &blocks, &segs);
+        segs[l - 1].push(last);
+        refuse("the last segment truncated by one byte", r)?;
+    }
+    run::verify_run(&rst, &blocks, &segs)?;
+    println!("{{\"event\":\"stack-controls\",\"refused\":{n},\"honest_still_verifies\":true}}");
     Ok(())
 }

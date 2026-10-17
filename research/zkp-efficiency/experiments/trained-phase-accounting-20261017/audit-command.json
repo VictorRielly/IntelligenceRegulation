@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/trained-phase-accounting-20261017/audit.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "seed": null,
+  "wall_and_cpu_limit_seconds": 59,
+  "address_space_mib": 512,
+  "estimated_memory_mib": 32,
+  "threads": 1,
+  "nice": 19,
+  "affinity": "lowest allowed CPU (0 observed)",
+  "gpu": false,
+  "source_sha256": "7976e887495e5ad9c895ced89d1f41345b108118bd25dd8c36cdfb0bb5ab5aaf"
+}

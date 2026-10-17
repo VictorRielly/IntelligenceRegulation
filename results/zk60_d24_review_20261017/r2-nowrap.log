@@ -1,0 +1,18 @@
+{
+ "host_worst_log2": 36.0,
+ "softmax_worst_log2": 33.998,
+ "forgery_search_T32_f_e16_all_equal_rows": [],
+ "pg_rot1_norm_admitted_d_max_wrho": [
+  1482910,
+  32
+ ],
+ "pg_rot1_norm_clause_log2": {
+  "R4 D^2+a1-ceps-S": 48.0,
+  "R2 D-limbs": 24.0,
+  "R3 2D-a1-a2": 25.0,
+  "C0 2Cn g x + 2^tn D - 2^(tn+1) D y - rho": 42.005,
+  "C1 sigma+rho+1-2^(tn+1)D": 35.0,
+  "host SC_WO": 25.0
+ }
+}
+remainder windows exact: True
